@@ -11,7 +11,7 @@ export default function Navbar() {
       <div className="container flex items-center justify-between h-16">
         <div className="flex items-center gap-3">
           {!isHome && (
-            <Link href="/">
+            <Link href="/#categorias">
               <button className="p-2 rounded-lg hover:bg-secondary transition-colors mr-1">
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>

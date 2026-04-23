@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import { categories } from "@/lib/data";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -24,6 +25,14 @@ const fadeUp = {
 };
 
 export default function Home() {
+  useEffect(() => {
+    if (window.location.hash === "#categorias") {
+      setTimeout(() => {
+        document.getElementById("categorias")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -48,8 +57,7 @@ export default function Home() {
               AVALIE SEU BAR
             </h2>
             <p className="text-lg sm:text-xl text-foreground/80 max-w-xl leading-relaxed">
-              O sistema de avaliação mais completo para bares e restaurantes acessíveis de São Paulo.
-              De R$50 a R$350 por refeição.
+              O sistema de avaliação mais completo para bares e restaurantes de São Paulo.
             </p>
           </motion.div>
         </div>
@@ -91,7 +99,7 @@ export default function Home() {
       </section>
 
       {/* Categories Grid */}
-      <section className="py-16 border-t border-border/30">
+      <section id="categorias" className="py-16 border-t border-border/30">
         <div className="container">
           <div className="flex items-end justify-between mb-10">
             <div>
