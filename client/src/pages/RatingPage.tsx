@@ -1,6 +1,5 @@
 // Design: Neon Urbano — Rating page with Direct/Analytic modes
-// Fix 3: Analytic mode now iterates item-by-item for Sabor e Execução and Apresentação (excluding beer/chopp)
-// Fix 4: No intermediate scores visible; only final score shown
+// Scores 1-10 via number buttons, low score reasons for <=6, per-subcriterion scoring
 import Navbar from "@/components/Navbar";
 import { categories, PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
@@ -8,7 +7,6 @@ import { useParams, Redirect } from "wouter";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
@@ -23,24 +21,164 @@ interface DirectRating {
   itemId: string;
   serves: number;
   recommend: boolean;
-  taste: number;
+  taste: number; // 0 = not rated, 1-10 = rated
+  lowReasons: string[];
+  lowComment: string;
 }
 
-// Per-item analytic rating for Sabor (c1) and Apresentação (c2)
 interface AnalyticItemRating {
   itemId: string;
-  saborScore: number; // 0-10
-  apresentacaoScore: number; // 0-10
+  subScores: Record<string, number>; // subcriterionId -> 1-10 (0 = not rated)
+  lowReasons: Record<string, string[]>; // subcriterionId -> reasons
+  lowComments: Record<string, string>; // subcriterionId -> custom comment
 }
 
 interface AnalyticGlobalRating {
   criterionId: string;
-  score: number;
+  subScores: Record<string, number>; // subcriterionId -> 1-10
+  lowReasons: Record<string, string[]>;
+  lowComments: Record<string, string>;
 }
 
-// Items that should be rated item-by-item in analytic mode (food + drinks, NOT beer/chopp)
+// Low score reason options by context
+const LOW_SCORE_REASONS: Record<string, string[]> = {
+  // Sabor subcriteria
+  c1_1: ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Porção com aparência ruim", "Outra"],
+  c1_2: ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Outra"],
+  c1_3: ["Falta de sal", "Excesso de sal", "Sem tempero", "Tempero artificial", "Desequilíbrio de sabores", "Outra"],
+  c1_4: ["Comida fria", "Comida morna", "Bebida quente", "Sorvete derretido", "Prato queimando", "Outra"],
+  // Apresentação subcriteria
+  c2_1: ["Prato sem cor", "Visual desleixado", "Porção espalhada", "Sem apetite visual", "Parece industrializado", "Outra"],
+  c2_2: ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Sem capricho", "Outra"],
+  c2_3: ["Prato inadequado", "Copo errado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Outra"],
+  c2_4: ["Sem garnish", "Gelo ruim", "Copo inadequado", "Drink sem apresentação", "Temperatura errada", "Outra"],
+  // Atendimento
+  c3_1: ["Recepção fria", "Ignorado na entrada", "Sem cumprimento", "Demora para ser recebido", "Atitude grosseira", "Outra"],
+  c3_2: ["Não soube explicar o prato", "Informação errada", "Sem sugestões", "Desconhece ingredientes", "Não sabe harmonizar", "Outra"],
+  c3_3: ["Demora excessiva", "Pedido esquecido", "Pratos em tempos diferentes", "Bebida demorou", "Conta demorou", "Outra"],
+  c3_4: ["Não repôs água", "Não retirou pratos", "Sem atenção", "Precisei chamar várias vezes", "Mesa suja", "Outra"],
+  // Ambiente
+  c4_1: ["Música muito alta", "Sem música", "Música inadequada", "Acústica ruim (eco)", "Barulho da cozinha", "Outra"],
+  c4_2: ["Banheiro sujo", "Sem papel", "Cheiro ruim", "Fila grande", "Sem sabonete", "Outra"],
+  c4_3: ["Cadeira desconfortável", "Calor excessivo", "Frio excessivo", "Mesa instável", "Iluminação ruim", "Outra"],
+  c4_4: ["Sem cobertura para chuva", "Assédio de ambulantes", "Barulho de trânsito", "Calçada irregular", "Sem ventilação", "Outra"],
+  // Custo-Benefício
+  c5_1: ["Porção muito pequena", "Não serve nem uma pessoa", "Desproporcional ao preço", "Quantidade inconsistente", "Menos do que no cardápio", "Outra"],
+  c5_2: ["Preço abusivo", "Ingredientes baratos por preço alto", "Não vale o que cobra", "Concorrente melhor e mais barato", "Qualidade não justifica", "Outra"],
+  c5_3: ["Couvert não informado", "Taxa de serviço abusiva", "Preço diferente do cardápio", "Cobrança surpresa", "Água cobrada sem avisar", "Outra"],
+  // Consistência
+  c6_1: ["Prato diferente da última vez", "Sabor inconsistente", "Porção menor que antes", "Qualidade caiu", "Receita mudou", "Outra"],
+  c6_2: ["Qualidade caiu com lotação", "Demora muito mais cheio", "Atendimento pior lotado", "Comida pior no horário de pico", "Desorganização", "Outra"],
+  // Originalidade
+  c7_1: ["Cardápio genérico", "Nada diferente", "Cópia de outros bares", "Sem identidade", "Falta criatividade", "Outra"],
+  c7_2: ["Sem prato exclusivo", "Nada memorável", "Sem drink autoral", "Cardápio padrão", "Falta personalidade", "Outra"],
+  // Carta de Bebidas
+  c8_1: ["Só cerveja industrial", "Pouca variedade", "Sem opções artesanais", "Carta limitada", "Sem novidades", "Outra"],
+  c8_2: ["Drink mal feito", "Desequilibrado", "Sem gelo adequado", "Ingredientes ruins", "Sem técnica", "Outra"],
+  c8_3: ["Sem opção sem álcool", "Só refrigerante", "Sem mocktail", "Sem suco natural", "Opções limitadas", "Outra"],
+  // Variedade
+  c9_1: ["Só uma proteína", "Sem opção de peixe", "Pouca diversidade", "Menu repetitivo", "Falta opções", "Outra"],
+  c9_2: ["Sem opção vegana", "Sem opção sem glúten", "Não atende restrições", "Sem informação de alérgenos", "Cardápio excludente", "Outra"],
+  c9_3: ["Só frituras", "Sem opção leve", "Menu desequilibrado", "Falta saladas", "Sem opção saudável", "Outra"],
+  // Harmonização
+  c10_1: ["Carta não combina com comida", "Sem sinergia", "Bebidas desconectadas", "Falta coerência", "Não pensaram junto", "Outra"],
+  c10_2: ["Sem sugestão de harmonização", "Garçom não sabe sugerir", "Sem indicação no cardápio", "Falta orientação", "Nenhuma recomendação", "Outra"],
+  // Direct mode taste
+  taste: ["Falta de sal", "Excesso de sal", "Sem tempero", "Comida fria", "Textura ruim", "Outra"],
+};
+
 function isRatableItem(item: MenuItem): boolean {
   return ["entrada", "prato", "sobremesa", "drink"].includes(item.category);
+}
+
+// Reusable score button row (1-10)
+function ScoreButtons({
+  value,
+  onChange,
+  label,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  label?: string;
+}) {
+  return (
+    <div>
+      {label && <label className="text-sm font-medium text-foreground mb-2 block">{label}</label>}
+      <div className="flex gap-1.5 flex-wrap">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+          <button
+            key={n}
+            onClick={() => onChange(n)}
+            className={`w-10 h-10 rounded-lg font-numbers text-sm font-bold transition-all ${
+              value === n
+                ? n <= 6
+                  ? "bg-red-500/80 text-white shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                  : "bg-primary text-primary-foreground glow-amber"
+                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+            }`}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Low score reasons component
+function LowScoreReasons({
+  reasons,
+  selectedReasons,
+  onToggleReason,
+  comment,
+  onCommentChange,
+}: {
+  reasons: string[];
+  selectedReasons: string[];
+  onToggleReason: (reason: string) => void;
+  comment: string;
+  onCommentChange: (c: string) => void;
+}) {
+  const showComment = selectedReasons.includes("Outra");
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      className="mt-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20"
+    >
+      <p className="text-xs text-red-400 mb-2 font-medium">O que poderia melhorar?</p>
+      <div className="flex flex-wrap gap-1.5">
+        {reasons.map((reason) => (
+          <button
+            key={reason}
+            onClick={() => onToggleReason(reason)}
+            className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+              selectedReasons.includes(reason)
+                ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-border/60"
+            }`}
+          >
+            {reason}
+          </button>
+        ))}
+      </div>
+      <AnimatePresence>
+        {showComment && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+            <textarea
+              value={comment}
+              onChange={(e) => onCommentChange(e.target.value.slice(0, 100))}
+              placeholder="Descreva o motivo (máx. 100 caracteres)"
+              maxLength={100}
+              className="mt-2 w-full p-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground placeholder:text-muted-foreground/50 resize-none h-16 focus:outline-none focus:border-primary/40"
+            />
+            <p className="text-[10px] text-muted-foreground/50 text-right">{comment.length}/100</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 }
 
 export default function RatingPage() {
@@ -53,14 +191,17 @@ export default function RatingPage() {
   const [directRatings, setDirectRatings] = useState<DirectRating[]>([]);
   const [currentDirectIdx, setCurrentDirectIdx] = useState(0);
 
-  // Analytic: per-item ratings for Sabor and Apresentação
   const [analyticItemRatings, setAnalyticItemRatings] = useState<AnalyticItemRating[]>([]);
   const [currentAnalyticItemIdx, setCurrentAnalyticItemIdx] = useState(0);
 
-  // Analytic: global criteria (c3-c10, excluding c1 and c2 which are per-item)
   const globalCriteria = PUB_CRITERIA.filter((c) => c.id !== "c1" && c.id !== "c2");
   const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>(
-    globalCriteria.map((c) => ({ criterionId: c.id, score: 0 }))
+    globalCriteria.map((c) => ({
+      criterionId: c.id,
+      subScores: Object.fromEntries(c.subcriteria.map((s) => [s.id, 0])),
+      lowReasons: Object.fromEntries(c.subcriteria.map((s) => [s.id, []])),
+      lowComments: Object.fromEntries(c.subcriteria.map((s) => [s.id, ""])),
+    }))
   );
 
   const [bonuses, setBonuses] = useState<string[]>([]);
@@ -69,8 +210,6 @@ export default function RatingPage() {
 
   const menuItems = establishment.menu;
   const selectedMenuItems = menuItems.filter((m) => selectedItems.includes(m.id));
-
-  // Items that go through per-item analytic rating (food + drinks, not beer/chopp)
   const ratableSelectedItems = selectedMenuItems.filter(isRatableItem);
 
   const entradas = menuItems.filter((m) => m.category === "entrada");
@@ -87,18 +226,34 @@ export default function RatingPage() {
       return;
     }
     setDirectRatings(
-      selectedItems.map((id) => ({ itemId: id, serves: 1, recommend: true, taste: 0 }))
+      selectedItems.map((id) => ({ itemId: id, serves: 1, recommend: true, taste: 0, lowReasons: [], lowComment: "" }))
     );
-    // Initialize analytic item ratings for ratable items only
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
+    const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
+    const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
     setAnalyticItemRatings(
-      ratableItems.map((m) => ({ itemId: m.id, saborScore: 0, apresentacaoScore: 0 }))
+      ratableItems.map((m) => ({
+        itemId: m.id,
+        subScores: {
+          ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, 0])),
+          ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, 0])),
+        },
+        lowReasons: {
+          ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, []])),
+          ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, []])),
+        },
+        lowComments: {
+          ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, ""])),
+          ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, ""])),
+        },
+      }))
     );
     setCurrentAnalyticItemIdx(0);
     setStep("mode");
   };
 
-  const updateDirectRating = (idx: number, field: keyof DirectRating, value: number | boolean) => {
+  // Direct mode helpers
+  const updateDirectField = (idx: number, field: keyof DirectRating, value: number | boolean | string[] | string) => {
     setDirectRatings((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], [field]: value };
@@ -106,17 +261,84 @@ export default function RatingPage() {
     });
   };
 
-  const updateAnalyticItemRating = (idx: number, field: "saborScore" | "apresentacaoScore", value: number) => {
-    setAnalyticItemRatings((prev) => {
+  const toggleDirectLowReason = (idx: number, reason: string) => {
+    setDirectRatings((prev) => {
       const next = [...prev];
-      next[idx] = { ...next[idx], [field]: value };
+      const current = next[idx].lowReasons;
+      next[idx] = {
+        ...next[idx],
+        lowReasons: current.includes(reason) ? current.filter((r) => r !== reason) : [...current, reason],
+      };
       return next;
     });
   };
 
-  const updateAnalyticGlobalRating = (criterionId: string, score: number) => {
+  // Analytic item helpers
+  const updateAnalyticItemSubScore = (idx: number, subId: string, value: number) => {
+    setAnalyticItemRatings((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], subScores: { ...next[idx].subScores, [subId]: value } };
+      return next;
+    });
+  };
+
+  const toggleAnalyticItemLowReason = (idx: number, subId: string, reason: string) => {
+    setAnalyticItemRatings((prev) => {
+      const next = [...prev];
+      const current = next[idx].lowReasons[subId] || [];
+      next[idx] = {
+        ...next[idx],
+        lowReasons: {
+          ...next[idx].lowReasons,
+          [subId]: current.includes(reason) ? current.filter((r) => r !== reason) : [...current, reason],
+        },
+      };
+      return next;
+    });
+  };
+
+  const updateAnalyticItemLowComment = (idx: number, subId: string, comment: string) => {
+    setAnalyticItemRatings((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], lowComments: { ...next[idx].lowComments, [subId]: comment } };
+      return next;
+    });
+  };
+
+  // Analytic global helpers
+  const updateGlobalSubScore = (criterionId: string, subId: string, value: number) => {
     setAnalyticGlobalRatings((prev) =>
-      prev.map((r) => (r.criterionId === criterionId ? { ...r, score } : r))
+      prev.map((r) =>
+        r.criterionId === criterionId
+          ? { ...r, subScores: { ...r.subScores, [subId]: value } }
+          : r
+      )
+    );
+  };
+
+  const toggleGlobalLowReason = (criterionId: string, subId: string, reason: string) => {
+    setAnalyticGlobalRatings((prev) =>
+      prev.map((r) => {
+        if (r.criterionId !== criterionId) return r;
+        const current = r.lowReasons[subId] || [];
+        return {
+          ...r,
+          lowReasons: {
+            ...r.lowReasons,
+            [subId]: current.includes(reason) ? current.filter((x) => x !== reason) : [...current, reason],
+          },
+        };
+      })
+    );
+  };
+
+  const updateGlobalLowComment = (criterionId: string, subId: string, comment: string) => {
+    setAnalyticGlobalRatings((prev) =>
+      prev.map((r) =>
+        r.criterionId === criterionId
+          ? { ...r, lowComments: { ...r.lowComments, [subId]: comment } }
+          : r
+      )
     );
   };
 
@@ -128,32 +350,40 @@ export default function RatingPage() {
   const finalScore = useMemo(() => {
     let base = 0;
     if (mode === "direto") {
-      // DIRECT MODE: Only Sabor (taste) is scored. No other criteria are evaluated.
-      // Taste is 0-10, we scale to 0-100 proportionally based on Sabor weight (25/100)
-      // But since direct mode only evaluates Sabor, the max base from taste alone is 25 pts.
-      // We scale: avgTaste/10 * 25 (Sabor weight) = max 25 pts from direct mode
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
-      base = (avgTaste / 10) * 25; // Only Sabor weight, max 25 pts
+      base = (avgTaste / 10) * 25;
     } else {
-      // ANALYTIC MODE: All criteria are explicitly evaluated by the user
-      // Sabor e Execução (c1, weight 25): average of per-item sabor scores
-      const c1 = PUB_CRITERIA.find((c) => c.id === "c1");
-      const avgSabor = analyticItemRatings.length > 0
-        ? analyticItemRatings.reduce((s, r) => s + r.saborScore, 0) / analyticItemRatings.length
-        : 0;
-      const c1Score = (avgSabor / 10) * (c1?.weight || 25);
+      // Sabor (c1): average of per-item subcriterion averages
+      const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
+      let avgSabor = 0;
+      if (analyticItemRatings.length > 0) {
+        const itemAvgs = analyticItemRatings.map((ir) => {
+          const subs = c1.subcriteria.map((s) => ir.subScores[s.id] || 0);
+          return subs.reduce((a, b) => a + b, 0) / subs.length;
+        });
+        avgSabor = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
+      }
+      const c1Score = (avgSabor / 10) * c1.weight;
 
-      // Apresentação (c2, weight 10): average of per-item apresentação scores
-      const c2 = PUB_CRITERIA.find((c) => c.id === "c2");
-      const avgApres = analyticItemRatings.length > 0
-        ? analyticItemRatings.reduce((s, r) => s + r.apresentacaoScore, 0) / analyticItemRatings.length
-        : 0;
-      const c2Score = (avgApres / 10) * (c2?.weight || 10);
+      // Apresentação (c2): average of per-item subcriterion averages
+      const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
+      let avgApres = 0;
+      if (analyticItemRatings.length > 0) {
+        const itemAvgs = analyticItemRatings.map((ir) => {
+          const subs = c2.subcriteria.map((s) => ir.subScores[s.id] || 0);
+          return subs.reduce((a, b) => a + b, 0) / subs.length;
+        });
+        avgApres = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
+      }
+      const c2Score = (avgApres / 10) * c2.weight;
 
-      // Global criteria (c3-c10)
+      // Global criteria (c3-c10): average of subcriteria scores per criterion
       const globalScore = analyticGlobalRatings.reduce((sum, r) => {
         const criterion = PUB_CRITERIA.find((c) => c.id === r.criterionId);
-        return sum + (r.score / 10) * (criterion?.weight || 0);
+        if (!criterion) return sum;
+        const subs = criterion.subcriteria.map((s) => r.subScores[s.id] || 0);
+        const avg = subs.length > 0 ? subs.reduce((a, b) => a + b, 0) / subs.length : 0;
+        return sum + (avg / 10) * criterion.weight;
       }, 0);
 
       base = c1Score + c2Score + globalScore;
@@ -162,11 +392,9 @@ export default function RatingPage() {
     return Math.min(115, Math.round(base + bonusPoints));
   }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bonuses]);
 
-  // Classification labels and colors
+  // Classification
   const getClassification = (score: number, isDirectMode: boolean) => {
     if (isDirectMode) {
-      // Direct mode max is ~25 + 15 bonus = 40. Scale classification accordingly.
-      // Sabor only: 0-25 base. We classify based on taste average (0-10).
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
       if (avgTaste >= 9) return { label: "Excepcional", color: "text-green-400" };
       if (avgTaste >= 8) return { label: "Excelente", color: "text-green-400" };
@@ -175,7 +403,6 @@ export default function RatingPage() {
       if (avgTaste >= 5) return { label: "Regular", color: "text-yellow-400" };
       return { label: "Abaixo da Média", color: "text-red-400" };
     }
-    // Analytic mode: full 0-115 scale
     if (score >= 90) return { label: "Excepcional", color: "text-green-400" };
     if (score >= 80) return { label: "Excelente", color: "text-green-400" };
     if (score >= 70) return { label: "Muito Bom", color: "text-primary" };
@@ -188,7 +415,6 @@ export default function RatingPage() {
   const scoreColor = classification.color;
   const scoreLabel = classification.label;
 
-  // Explanation of what matters for "Muito Bom"
   const muitoBomDescription = mode === "direto"
     ? "No modo Direto, a classificação é baseada exclusivamente na sua nota de Sabor para cada item consumido. Recomendação e quantidade de pessoas são registros qualitativos sem peso na nota."
     : "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor (peso 25), Custo-Benefício (peso 15) e Ambiente (peso 15) — os três critérios de maior peso somam 55% da nota.";
@@ -217,9 +443,7 @@ export default function RatingPage() {
                 <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{item.description}</p>
               </div>
-              <span className="font-numbers text-xs text-primary shrink-0">
-                R${item.price.toFixed(0)}
-              </span>
+              <span className="font-numbers text-xs text-primary shrink-0">R${item.price.toFixed(0)}</span>
             </button>
           ))}
         </div>
@@ -227,27 +451,15 @@ export default function RatingPage() {
     ) : null
   );
 
-  // Determine which steps are active for progress bar
   const allSteps: Step[] = mode === "analitico"
     ? ["items", "mode", "analyticItems", "analyticGlobal", "bonus", "result"]
     : ["items", "mode", "rating", "bonus", "result"];
-
-  const stepLabels: Record<Step, string> = {
-    items: "Itens",
-    mode: "Modo",
-    rating: "Avaliação",
-    analyticItems: "Sabor",
-    analyticGlobal: "Critérios",
-    bonus: "Bônus",
-    result: "Resultado",
-  };
 
   const currentStepIdx = allSteps.indexOf(step);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-
       <div className="pt-20 pb-16">
         <div className="container max-w-2xl">
           {/* Progress */}
@@ -306,7 +518,7 @@ export default function RatingPage() {
                     <Zap className="w-8 h-8 text-primary mb-3" />
                     <h4 className="font-display text-xl tracking-wider text-foreground">DIRETO</h4>
                     <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      Avaliação rápida: nota de sabor, se recomenda e para quantas pessoas serve. Ideal para quem quer avaliar rapidamente.
+                      Avaliação rápida: nota de sabor, se recomenda e para quantas pessoas serve.
                     </p>
                   </button>
                   <button
@@ -316,7 +528,7 @@ export default function RatingPage() {
                     <BarChart3 className="w-8 h-8 text-accent mb-3" />
                     <h4 className="font-display text-xl tracking-wider text-foreground">ANALÍTICO</h4>
                     <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      Avaliação detalhada: 10 critérios com pesos dinâmicos e subcritérios técnicos. Para quem quer uma análise profunda.
+                      Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
                     </p>
                   </button>
                 </div>
@@ -328,16 +540,14 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 3 (Direct): Per-item rating */}
+            {/* Step 3 (Direct): Per-item rating with 1-10 buttons */}
             {step === "rating" && mode === "direto" && (
               <motion.div key="rating-direct" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
                   <Star className="w-6 h-6 text-primary" />
                   <div>
                     <h3 className="font-display text-2xl tracking-wider text-primary">AVALIAÇÃO DIRETA</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Item {currentDirectIdx + 1} de {directRatings.length}
-                    </p>
+                    <p className="text-sm text-muted-foreground">Item {currentDirectIdx + 1} de {directRatings.length}</p>
                   </div>
                 </div>
                 {directRatings[currentDirectIdx] && (() => {
@@ -357,7 +567,7 @@ export default function RatingPage() {
                           {[1, 2, 3, 4, 5].map((n) => (
                             <button
                               key={n}
-                              onClick={() => updateDirectRating(currentDirectIdx, "serves", n)}
+                              onClick={() => updateDirectField(currentDirectIdx, "serves", n)}
                               className={`w-12 h-12 rounded-lg font-numbers text-lg font-bold transition-all ${
                                 rating.serves === n ? "bg-primary text-primary-foreground glow-amber" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                               }`}
@@ -373,7 +583,7 @@ export default function RatingPage() {
                         <label className="text-sm font-medium text-foreground mb-3 block">Recomendaria?</label>
                         <div className="flex gap-3">
                           <button
-                            onClick={() => updateDirectRating(currentDirectIdx, "recommend", true)}
+                            onClick={() => updateDirectField(currentDirectIdx, "recommend", true)}
                             className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
                               rating.recommend ? "bg-green-500/20 text-green-400 border border-green-500/40" : "bg-secondary text-muted-foreground border border-border/30"
                             }`}
@@ -381,7 +591,7 @@ export default function RatingPage() {
                             <ThumbsUp className="w-4 h-4" /> Sim
                           </button>
                           <button
-                            onClick={() => updateDirectRating(currentDirectIdx, "recommend", false)}
+                            onClick={() => updateDirectField(currentDirectIdx, "recommend", false)}
                             className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
                               !rating.recommend ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-secondary text-muted-foreground border border-border/30"
                             }`}
@@ -391,23 +601,24 @@ export default function RatingPage() {
                         </div>
                       </div>
 
-                      {/* Taste - slider only, no visible number */}
+                      {/* Taste - 1-10 buttons */}
                       <div>
-                        <label className="text-sm font-medium text-foreground flex items-center justify-between mb-3">
-                          <span>Nota de Sabor</span>
-                        </label>
-                        <Slider
-                          value={[rating.taste ?? 0]}
-                          onValueChange={([v]) => updateDirectRating(currentDirectIdx, "taste", v)}
-                          min={0}
-                          max={10}
-                          step={1}
-                          className="w-full"
+                        <ScoreButtons
+                          value={rating.taste}
+                          onChange={(v) => updateDirectField(currentDirectIdx, "taste", v)}
+                          label="Nota de Sabor"
                         />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>0 — Péssimo</span>
-                          <span>10 — Excepcional</span>
-                        </div>
+                        <AnimatePresence>
+                          {rating.taste > 0 && rating.taste <= 6 && (
+                            <LowScoreReasons
+                              reasons={LOW_SCORE_REASONS.taste}
+                              selectedReasons={rating.lowReasons}
+                              onToggleReason={(r) => toggleDirectLowReason(currentDirectIdx, r)}
+                              comment={rating.lowComment}
+                              onCommentChange={(c) => updateDirectField(currentDirectIdx, "lowComment", c)}
+                            />
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
                   );
@@ -436,7 +647,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 3 (Analytic): Per-item Sabor e Execução + Apresentação */}
+            {/* Step 3 (Analytic): Per-item Sabor subcriteria + Apresentação subcriteria */}
             {step === "analyticItems" && mode === "analitico" && (
               <motion.div key="analytic-items" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -445,7 +656,7 @@ export default function RatingPage() {
                     <h3 className="font-display text-2xl tracking-wider text-accent text-glow-pink">SABOR E APRESENTAÇÃO</h3>
                     <p className="text-sm text-muted-foreground">
                       {ratableSelectedItems.length > 0
-                        ? `Item ${currentAnalyticItemIdx + 1} de ${ratableSelectedItems.length} (alimentos e drinks)`
+                        ? `Item ${currentAnalyticItemIdx + 1} de ${ratableSelectedItems.length}`
                         : "Nenhum alimento ou drink selecionado"}
                     </p>
                   </div>
@@ -454,50 +665,73 @@ export default function RatingPage() {
                 {ratableSelectedItems.length > 0 && analyticItemRatings[currentAnalyticItemIdx] && (() => {
                   const itemRating = analyticItemRatings[currentAnalyticItemIdx];
                   const item = menuItems.find((m) => m.id === itemRating.itemId);
+                  const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
+                  const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
+
                   return (
                     <div className="p-6 rounded-xl bg-card border border-border/50">
                       <h4 className="font-display text-xl tracking-wider text-foreground mb-1">{item?.name}</h4>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
-                      {/* Sabor e Execução */}
+                      {/* Sabor e Execução subcriteria */}
                       <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h5 className="text-sm font-semibold text-foreground">Sabor e Execução</h5>
+                        <div className="flex items-center gap-2 mb-4">
+                          <h5 className="text-base font-semibold text-foreground">Sabor e Execução</h5>
                           <span className="text-xs text-muted-foreground">(Peso 25)</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3">Qualidade dos insumos, cocção, temperos e temperatura</p>
-                        <Slider
-                          value={[itemRating.saborScore]}
-                          onValueChange={([v]) => updateAnalyticItemRating(currentAnalyticItemIdx, "saborScore", v)}
-                          min={0}
-                          max={10}
-                          step={1}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>0 — Péssimo</span>
-                          <span>10 — Excepcional</span>
+                        <div className="space-y-5">
+                          {c1.subcriteria.map((sub) => (
+                            <div key={sub.id} className="pl-3 border-l-2 border-primary/20">
+                              <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
+                              <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
+                              <ScoreButtons
+                                value={itemRating.subScores[sub.id] || 0}
+                                onChange={(v) => updateAnalyticItemSubScore(currentAnalyticItemIdx, sub.id, v)}
+                              />
+                              <AnimatePresence>
+                                {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
+                                  <LowScoreReasons
+                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    selectedReasons={itemRating.lowReasons[sub.id] || []}
+                                    onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
+                                    comment={itemRating.lowComments[sub.id] || ""}
+                                    onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Apresentação */}
+                      {/* Apresentação subcriteria */}
                       <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <h5 className="text-sm font-semibold text-foreground">Apresentação</h5>
+                        <div className="flex items-center gap-2 mb-4">
+                          <h5 className="text-base font-semibold text-foreground">Apresentação</h5>
                           <span className="text-xs text-muted-foreground">(Peso 10)</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3">Apetite visual, montagem, louça e estética</p>
-                        <Slider
-                          value={[itemRating.apresentacaoScore]}
-                          onValueChange={([v]) => updateAnalyticItemRating(currentAnalyticItemIdx, "apresentacaoScore", v)}
-                          min={0}
-                          max={10}
-                          step={1}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>0 — Péssimo</span>
-                          <span>10 — Excepcional</span>
+                        <div className="space-y-5">
+                          {c2.subcriteria.map((sub) => (
+                            <div key={sub.id} className="pl-3 border-l-2 border-accent/20">
+                              <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
+                              <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
+                              <ScoreButtons
+                                value={itemRating.subScores[sub.id] || 0}
+                                onChange={(v) => updateAnalyticItemSubScore(currentAnalyticItemIdx, sub.id, v)}
+                              />
+                              <AnimatePresence>
+                                {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
+                                  <LowScoreReasons
+                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    selectedReasons={itemRating.lowReasons[sub.id] || []}
+                                    onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
+                                    comment={itemRating.lowComments[sub.id] || ""}
+                                    onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -506,7 +740,7 @@ export default function RatingPage() {
 
                 {ratableSelectedItems.length === 0 && (
                   <div className="p-6 rounded-xl bg-card border border-border/50 text-center">
-                    <p className="text-muted-foreground">Você selecionou apenas cervejas/chopps. Os critérios de Sabor e Apresentação serão calculados com nota padrão.</p>
+                    <p className="text-muted-foreground">Você selecionou apenas cervejas/chopps. Sabor e Apresentação não se aplicam.</p>
                   </div>
                 )}
 
@@ -514,11 +748,8 @@ export default function RatingPage() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (currentAnalyticItemIdx > 0) {
-                        setCurrentAnalyticItemIdx(currentAnalyticItemIdx - 1);
-                      } else {
-                        setStep("mode");
-                      }
+                      if (currentAnalyticItemIdx > 0) setCurrentAnalyticItemIdx(currentAnalyticItemIdx - 1);
+                      else setStep("mode");
                     }}
                     className="font-display tracking-wider"
                   >
@@ -543,39 +774,49 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 4 (Analytic): Global criteria (c3-c10) */}
+            {/* Step 4 (Analytic): Global criteria with per-subcriterion scoring */}
             {step === "analyticGlobal" && mode === "analitico" && (
               <motion.div key="analytic-global" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
                   <BarChart3 className="w-6 h-6 text-accent" />
                   <div>
                     <h3 className="font-display text-2xl tracking-wider text-accent text-glow-pink">CRITÉRIOS GERAIS</h3>
-                    <p className="text-sm text-muted-foreground">Avalie o estabelecimento como um todo</p>
+                    <p className="text-sm text-muted-foreground">Avalie cada subcritério individualmente</p>
                   </div>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {globalCriteria.map((criterion) => {
-                    const rating = analyticGlobalRatings.find((r) => r.criterionId === criterion.id);
+                    const gRating = analyticGlobalRatings.find((r) => r.criterionId === criterion.id);
+                    if (!gRating) return null;
                     return (
-                      <div key={criterion.id} className="p-4 rounded-xl bg-card border border-border/50">
+                      <div key={criterion.id} className="p-5 rounded-xl bg-card border border-border/50">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-sm font-semibold text-foreground">{criterion.name}</h4>
+                          <h4 className="font-display text-lg tracking-wider text-foreground">{criterion.name}</h4>
                           <span className="text-xs text-muted-foreground">Peso: {criterion.weight}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-3">{criterion.description}</p>
-                        <Slider
-                          value={[rating?.score ?? 0]}
-                          onValueChange={([v]) => updateAnalyticGlobalRating(criterion.id, v)}
-                          min={0}
-                          max={10}
-                          step={1}
-                          className="w-full"
-                        />
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <p className="text-xs text-muted-foreground mb-4">{criterion.description}</p>
+
+                        <div className="space-y-5">
                           {criterion.subcriteria.map((sub) => (
-                            <span key={sub.id} className="text-[10px] text-muted-foreground/60 bg-secondary/50 px-2 py-0.5 rounded">
-                              {sub.name}
-                            </span>
+                            <div key={sub.id} className="pl-3 border-l-2 border-primary/20">
+                              <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
+                              <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
+                              <ScoreButtons
+                                value={gRating.subScores[sub.id] || 0}
+                                onChange={(v) => updateGlobalSubScore(criterion.id, sub.id, v)}
+                              />
+                              <AnimatePresence>
+                                {(gRating.subScores[sub.id] || 0) > 0 && (gRating.subScores[sub.id] || 0) <= 6 && (
+                                  <LowScoreReasons
+                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    selectedReasons={gRating.lowReasons[sub.id] || []}
+                                    onToggleReason={(r) => toggleGlobalLowReason(criterion.id, sub.id, r)}
+                                    comment={gRating.lowComments[sub.id] || ""}
+                                    onCommentChange={(c) => updateGlobalLowComment(criterion.id, sub.id, c)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -654,7 +895,7 @@ export default function RatingPage() {
                     </div>
                   </div>
 
-                  {/* Classification explanation */}
+                  {/* Classification */}
                   <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
                     <h4 className="font-display text-lg tracking-wider text-primary mb-4">CLASSIFICAÇÃO</h4>
                     <div className="space-y-2">
@@ -680,7 +921,7 @@ export default function RatingPage() {
                     </div>
                   </div>
 
-                  {/* What matters for classification */}
+                  {/* What matters */}
                   <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
                     <h4 className="font-display text-lg tracking-wider text-primary mb-3">
                       {mode === "direto" ? "COMO FUNCIONA" : "O QUE PESA MAIS?"}
@@ -693,10 +934,7 @@ export default function RatingPage() {
                             <span className="text-sm text-foreground">{c.name}</span>
                             <div className="flex items-center gap-2">
                               <div className="w-24 h-2 rounded-full bg-secondary overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-primary"
-                                  style={{ width: `${c.weight}%` }}
-                                />
+                                <div className="h-full rounded-full bg-primary" style={{ width: `${c.weight}%` }} />
                               </div>
                               <span className="text-xs text-muted-foreground w-8 text-right">{c.weight}%</span>
                             </div>
@@ -706,7 +944,7 @@ export default function RatingPage() {
                     )}
                   </div>
 
-                  {/* Items summary (no scores, just what was consumed) */}
+                  {/* Items summary */}
                   <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
                     <h4 className="font-display text-lg tracking-wider text-primary mb-4">ITENS AVALIADOS</h4>
                     <div className="flex flex-wrap gap-2">
