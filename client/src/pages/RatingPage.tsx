@@ -60,7 +60,7 @@ export default function RatingPage() {
   // Analytic: global criteria (c3-c10, excluding c1 and c2 which are per-item)
   const globalCriteria = PUB_CRITERIA.filter((c) => c.id !== "c1" && c.id !== "c2");
   const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>(
-    globalCriteria.map((c) => ({ criterionId: c.id, score: 5 }))
+    globalCriteria.map((c) => ({ criterionId: c.id, score: 0 }))
   );
 
   const [bonuses, setBonuses] = useState<string[]>([]);
@@ -87,12 +87,12 @@ export default function RatingPage() {
       return;
     }
     setDirectRatings(
-      selectedItems.map((id) => ({ itemId: id, serves: 1, recommend: true, taste: 7 }))
+      selectedItems.map((id) => ({ itemId: id, serves: 1, recommend: true, taste: 0 }))
     );
     // Initialize analytic item ratings for ratable items only
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
     setAnalyticItemRatings(
-      ratableItems.map((m) => ({ itemId: m.id, saborScore: 5, apresentacaoScore: 5 }))
+      ratableItems.map((m) => ({ itemId: m.id, saborScore: 0, apresentacaoScore: 0 }))
     );
     setCurrentAnalyticItemIdx(0);
     setStep("mode");
@@ -124,24 +124,30 @@ export default function RatingPage() {
     setBonuses((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
+  // Calculate final score
   const finalScore = useMemo(() => {
     let base = 0;
     if (mode === "direto") {
+      // DIRECT MODE: Only Sabor (taste) is scored. No other criteria are evaluated.
+      // Taste is 0-10, we scale to 0-100 proportionally based on Sabor weight (25/100)
+      // But since direct mode only evaluates Sabor, the max base from taste alone is 25 pts.
+      // We scale: avgTaste/10 * 25 (Sabor weight) = max 25 pts from direct mode
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
-      base = avgTaste * 10; // 0-100
+      base = (avgTaste / 10) * 25; // Only Sabor weight, max 25 pts
     } else {
+      // ANALYTIC MODE: All criteria are explicitly evaluated by the user
       // Sabor e Execução (c1, weight 25): average of per-item sabor scores
       const c1 = PUB_CRITERIA.find((c) => c.id === "c1");
       const avgSabor = analyticItemRatings.length > 0
         ? analyticItemRatings.reduce((s, r) => s + r.saborScore, 0) / analyticItemRatings.length
-        : 5;
+        : 0;
       const c1Score = (avgSabor / 10) * (c1?.weight || 25);
 
       // Apresentação (c2, weight 10): average of per-item apresentação scores
       const c2 = PUB_CRITERIA.find((c) => c.id === "c2");
       const avgApres = analyticItemRatings.length > 0
         ? analyticItemRatings.reduce((s, r) => s + r.apresentacaoScore, 0) / analyticItemRatings.length
-        : 5;
+        : 0;
       const c2Score = (avgApres / 10) * (c2?.weight || 10);
 
       // Global criteria (c3-c10)
@@ -156,11 +162,36 @@ export default function RatingPage() {
     return Math.min(115, Math.round(base + bonusPoints));
   }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bonuses]);
 
-  const scoreColor = finalScore >= 80 ? "text-green-400" : finalScore >= 60 ? "text-primary" : finalScore >= 40 ? "text-yellow-400" : "text-red-400";
-  const scoreLabel = finalScore >= 90 ? "Excepcional" : finalScore >= 80 ? "Excelente" : finalScore >= 70 ? "Muito Bom" : finalScore >= 60 ? "Bom" : finalScore >= 50 ? "Regular" : "Abaixo da Média";
+  // Classification labels and colors
+  const getClassification = (score: number, isDirectMode: boolean) => {
+    if (isDirectMode) {
+      // Direct mode max is ~25 + 15 bonus = 40. Scale classification accordingly.
+      // Sabor only: 0-25 base. We classify based on taste average (0-10).
+      const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
+      if (avgTaste >= 9) return { label: "Excepcional", color: "text-green-400" };
+      if (avgTaste >= 8) return { label: "Excelente", color: "text-green-400" };
+      if (avgTaste >= 7) return { label: "Muito Bom", color: "text-primary" };
+      if (avgTaste >= 6) return { label: "Bom", color: "text-primary" };
+      if (avgTaste >= 5) return { label: "Regular", color: "text-yellow-400" };
+      return { label: "Abaixo da Média", color: "text-red-400" };
+    }
+    // Analytic mode: full 0-115 scale
+    if (score >= 90) return { label: "Excepcional", color: "text-green-400" };
+    if (score >= 80) return { label: "Excelente", color: "text-green-400" };
+    if (score >= 70) return { label: "Muito Bom", color: "text-primary" };
+    if (score >= 60) return { label: "Bom", color: "text-primary" };
+    if (score >= 50) return { label: "Regular", color: "text-yellow-400" };
+    return { label: "Abaixo da Média", color: "text-red-400" };
+  };
 
-  // For "Muito Bom" (70-79): the criteria that matter most
-  const muitoBomDescription = "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor (peso 25), Custo-Benefício (peso 15) e Ambiente (peso 15) — os três critérios de maior peso somam 55% da nota.";
+  const classification = getClassification(finalScore, mode === "direto");
+  const scoreColor = classification.color;
+  const scoreLabel = classification.label;
+
+  // Explanation of what matters for "Muito Bom"
+  const muitoBomDescription = mode === "direto"
+    ? "No modo Direto, a classificação é baseada exclusivamente na sua nota de Sabor para cada item consumido. Recomendação e quantidade de pessoas são registros qualitativos sem peso na nota."
+    : "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor (peso 25), Custo-Benefício (peso 15) e Ambiente (peso 15) — os três critérios de maior peso somam 55% da nota.";
 
   const ItemSelector = ({ items, title }: { items: MenuItem[]; title: string }) => (
     items.length > 0 ? (
@@ -366,7 +397,7 @@ export default function RatingPage() {
                           <span>Nota de Sabor</span>
                         </label>
                         <Slider
-                          value={[rating.taste]}
+                          value={[rating.taste ?? 0]}
                           onValueChange={([v]) => updateDirectRating(currentDirectIdx, "taste", v)}
                           min={0}
                           max={10}
@@ -533,7 +564,7 @@ export default function RatingPage() {
                         </div>
                         <p className="text-xs text-muted-foreground mb-3">{criterion.description}</p>
                         <Slider
-                          value={[rating?.score || 5]}
+                          value={[rating?.score ?? 0]}
                           onValueChange={([v]) => updateAnalyticGlobalRating(criterion.id, v)}
                           min={0}
                           max={10}
@@ -616,27 +647,24 @@ export default function RatingPage() {
                   </h2>
 
                   <div className="relative inline-flex items-center justify-center w-48 h-48 rounded-full border-4 border-primary/30 glow-amber mb-6">
-                    <div className="text-center">
-                      <span className={`font-numbers text-6xl font-bold ${scoreColor}`}>{finalScore}</span>
-                      <span className="block text-sm text-muted-foreground">/115</span>
+                    <div className="text-center px-4">
+                      <span className={`font-display text-2xl tracking-wider font-bold leading-tight ${scoreColor}`}>
+                        {scoreLabel.toUpperCase()}
+                      </span>
                     </div>
                   </div>
-
-                  <p className={`font-display text-3xl tracking-wider ${scoreColor} mb-4`}>
-                    {scoreLabel.toUpperCase()}
-                  </p>
 
                   {/* Classification explanation */}
                   <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
                     <h4 className="font-display text-lg tracking-wider text-primary mb-4">CLASSIFICAÇÃO</h4>
                     <div className="space-y-2">
                       {[
-                        { label: "Excepcional", range: "90+", active: finalScore >= 90 },
-                        { label: "Excelente", range: "80-89", active: finalScore >= 80 && finalScore < 90 },
-                        { label: "Muito Bom", range: "70-79", active: finalScore >= 70 && finalScore < 80 },
-                        { label: "Bom", range: "60-69", active: finalScore >= 60 && finalScore < 70 },
-                        { label: "Regular", range: "50-59", active: finalScore >= 50 && finalScore < 60 },
-                        { label: "Abaixo da Média", range: "< 50", active: finalScore < 50 },
+                        { label: "Excepcional", active: scoreLabel === "Excepcional" },
+                        { label: "Excelente", active: scoreLabel === "Excelente" },
+                        { label: "Muito Bom", active: scoreLabel === "Muito Bom" },
+                        { label: "Bom", active: scoreLabel === "Bom" },
+                        { label: "Regular", active: scoreLabel === "Regular" },
+                        { label: "Abaixo da Média", active: scoreLabel === "Abaixo da Média" },
                       ].map((tier) => (
                         <div
                           key={tier.label}
@@ -647,32 +675,35 @@ export default function RatingPage() {
                           <span className={`text-sm font-medium ${tier.active ? "text-primary" : "text-muted-foreground"}`}>
                             {tier.label}
                           </span>
-                          <span className="text-xs text-muted-foreground">{tier.range} pts</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* What matters for "Muito Bom" */}
+                  {/* What matters for classification */}
                   <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
-                    <h4 className="font-display text-lg tracking-wider text-primary mb-3">O QUE PESA MAIS?</h4>
+                    <h4 className="font-display text-lg tracking-wider text-primary mb-3">
+                      {mode === "direto" ? "COMO FUNCIONA" : "O QUE PESA MAIS?"}
+                    </h4>
                     <p className="text-sm text-muted-foreground leading-relaxed mb-4">{muitoBomDescription}</p>
-                    <div className="space-y-2">
-                      {PUB_CRITERIA.filter((c) => c.weight >= 10).map((c) => (
-                        <div key={c.id} className="flex items-center justify-between py-1.5">
-                          <span className="text-sm text-foreground">{c.name}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-24 h-2 rounded-full bg-secondary overflow-hidden">
-                              <div
-                                className="h-full rounded-full bg-primary"
-                                style={{ width: `${c.weight}%` }}
-                              />
+                    {mode === "analitico" && (
+                      <div className="space-y-2">
+                        {PUB_CRITERIA.filter((c) => c.weight >= 10).map((c) => (
+                          <div key={c.id} className="flex items-center justify-between py-1.5">
+                            <span className="text-sm text-foreground">{c.name}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 h-2 rounded-full bg-secondary overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-primary"
+                                  style={{ width: `${c.weight}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-muted-foreground w-8 text-right">{c.weight}%</span>
                             </div>
-                            <span className="text-xs text-muted-foreground w-8 text-right">{c.weight}%</span>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Items summary (no scores, just what was consumed) */}
