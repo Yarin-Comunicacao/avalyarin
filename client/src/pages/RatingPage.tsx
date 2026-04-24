@@ -1,5 +1,5 @@
 // Design: Neon Urbano — Rating page with Direct/Analytic modes
-// Scores 1-10 via number buttons, low score reasons for <=6, per-subcriterion scoring
+// Scores 1-10 via number buttons, personalized low score reasons by item type, mandatory fields
 import Navbar from "@/components/Navbar";
 import { categories, PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
@@ -20,7 +20,7 @@ type Step = "items" | "mode" | "rating" | "analyticItems" | "analyticGlobal" | "
 interface DirectRating {
   itemId: string;
   serves: number;
-  recommend: boolean;
+  recommend: boolean | null; // null = not answered
   taste: number; // 0 = not rated, 1-10 = rated
   lowReasons: string[];
   lowComment: string;
@@ -28,30 +28,128 @@ interface DirectRating {
 
 interface AnalyticItemRating {
   itemId: string;
-  subScores: Record<string, number>; // subcriterionId -> 1-10 (0 = not rated)
-  lowReasons: Record<string, string[]>; // subcriterionId -> reasons
-  lowComments: Record<string, string>; // subcriterionId -> custom comment
-}
-
-interface AnalyticGlobalRating {
-  criterionId: string;
-  subScores: Record<string, number>; // subcriterionId -> 1-10
+  subScores: Record<string, number>;
   lowReasons: Record<string, string[]>;
   lowComments: Record<string, string>;
 }
 
-// Low score reason options by context
-const LOW_SCORE_REASONS: Record<string, string[]> = {
-  // Sabor subcriteria
-  c1_1: ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Porção com aparência ruim", "Outra"],
-  c1_2: ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Outra"],
-  c1_3: ["Falta de sal", "Excesso de sal", "Sem tempero", "Tempero artificial", "Desequilíbrio de sabores", "Outra"],
-  c1_4: ["Comida fria", "Comida morna", "Bebida quente", "Sorvete derretido", "Prato queimando", "Outra"],
-  // Apresentação subcriteria
-  c2_1: ["Prato sem cor", "Visual desleixado", "Porção espalhada", "Sem apetite visual", "Parece industrializado", "Outra"],
-  c2_2: ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Sem capricho", "Outra"],
-  c2_3: ["Prato inadequado", "Copo errado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Outra"],
-  c2_4: ["Sem garnish", "Gelo ruim", "Copo inadequado", "Drink sem apresentação", "Temperatura errada", "Outra"],
+interface AnalyticGlobalRating {
+  criterionId: string;
+  subScores: Record<string, number>;
+  lowReasons: Record<string, string[]>;
+  lowComments: Record<string, string>;
+}
+
+// ============================================================
+// PERSONALIZED LOW SCORE REASONS BY ITEM TYPE
+// ============================================================
+
+// Helper: get item type category
+function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "outro" {
+  if (item.category === "bebida" || item.category === "chopp") return "cerveja";
+  if (item.category === "drink") return "drink";
+  if (item.category === "entrada") return "entrada";
+  if (item.category === "prato") return "prato";
+  if (item.category === "sobremesa") return "sobremesa";
+  return "outro";
+}
+
+// Direct mode taste reasons by item type
+const DIRECT_TASTE_REASONS: Record<string, string[]> = {
+  cerveja: [
+    "Temperatura inadequada",
+    "Choca (Aroma, Sabor ou Sem Gás)",
+    "Gosto de Milho, Maçã Verde ou Manteiga",
+    "Outros",
+  ],
+  drink: [
+    "Muito Ácido",
+    "Muito Doce",
+    "Muito Amargo",
+    "Drink Aguado",
+    "Gelo com Gosto de Freezer",
+    "Outros",
+  ],
+  entrada: [
+    "Falta de sal",
+    "Excesso de sal",
+    "Sem tempero",
+    "Comida fria",
+    "Textura ruim",
+    "Cheiro",
+    "Gosto forte",
+    "Outra",
+  ],
+  prato: [
+    "Falta de sal",
+    "Excesso de sal",
+    "Sem tempero",
+    "Comida fria",
+    "Textura ruim",
+    "Cheiro",
+    "Gosto forte",
+    "Outra",
+  ],
+  sobremesa: [
+    "Falta de sal",
+    "Excesso de sal",
+    "Sem tempero",
+    "Comida fria",
+    "Textura ruim",
+    "Cheiro",
+    "Gosto forte",
+    "Outra",
+  ],
+  outro: [
+    "Falta de sal",
+    "Excesso de sal",
+    "Sem tempero",
+    "Comida fria",
+    "Textura ruim",
+    "Cheiro",
+    "Gosto forte",
+    "Outra",
+  ],
+};
+
+// Analytic per-item subcriteria reasons (Sabor & Apresentação) by item type
+function getAnalyticItemReasons(subId: string, itemType: string): string[] {
+  if (itemType === "cerveja") {
+    // Sabor subcriteria for beer
+    if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo", "Gosto de requentado", "Outros"];
+    if (subId === "c1_2") return ["Temperatura inadequada", "Choca (Aroma, Sabor ou Sem Gás)", "Gosto de Milho, Maçã Verde ou Manteiga", "Outros"];
+    if (subId === "c1_3") return ["Muito amarga", "Sem sabor", "Gosto metálico", "Outros"];
+    if (subId === "c1_4") return ["Muito quente", "Muito gelada", "Temperatura instável", "Outros"];
+    // Apresentação for beer
+    if (subId === "c2_1") return ["Copo sujo", "Sem espuma", "Visual ruim", "Outros"];
+    if (subId === "c2_2") return ["Copo inadequado", "Sem cuidado", "Derramada", "Outros"];
+    if (subId === "c2_3") return ["Copo errado para o estilo", "Copo lascado", "Tamanho errado", "Outros"];
+    if (subId === "c2_4") return ["Sem garnish", "Apresentação genérica", "Sem identidade", "Outros"];
+  }
+  if (itemType === "drink") {
+    if (subId === "c1_1") return ["Ingredientes sem frescor", "Fruta passada", "Suco de caixinha", "Outros"];
+    if (subId === "c1_2") return ["Muito Ácido", "Muito Doce", "Muito Amargo", "Drink Aguado", "Gelo com Gosto de Freezer", "Outros"];
+    if (subId === "c1_3") return ["Desequilibrado", "Sem complexidade", "Álcool em excesso", "Outros"];
+    if (subId === "c1_4") return ["Muito quente", "Gelo derretido", "Temperatura errada", "Outros"];
+    if (subId === "c2_1") return ["Sem garnish", "Visual desleixado", "Copo sujo", "Outros"];
+    if (subId === "c2_2") return ["Derramado", "Sem capricho", "Montagem torta", "Outros"];
+    if (subId === "c2_3") return ["Copo inadequado", "Copo lascado", "Recipiente sujo", "Outros"];
+    if (subId === "c2_4") return ["Sem apresentação", "Gelo ruim", "Sem identidade visual", "Outros"];
+  }
+  // Default for entrada, prato, sobremesa (food items)
+  if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Cheiro", "Gosto forte", "Outra"];
+  if (subId === "c1_2") return ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Outra"];
+  if (subId === "c1_3") return ["Falta de sal", "Excesso de sal", "Sem tempero", "Tempero artificial", "Desequilíbrio de sabores", "Cheiro", "Gosto forte", "Outra"];
+  if (subId === "c1_4") return ["Comida fria", "Comida morna", "Prato queimando", "Sorvete derretido", "Cheiro", "Outra"];
+  if (subId === "c2_1") return ["Prato sem cor", "Visual desleixado", "Porção espalhada", "Sem apetite visual", "Cheiro", "Gosto forte", "Outra"];
+  if (subId === "c2_2") return ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Sem capricho", "Outra"];
+  if (subId === "c2_3") return ["Prato inadequado", "Copo errado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Outra"];
+  if (subId === "c2_4") return ["Sem garnish", "Gelo ruim", "Copo inadequado", "Drink sem apresentação", "Temperatura errada", "Outra"];
+  return ["Poderia melhorar", "Abaixo do esperado", "Outra"];
+}
+
+// Global criteria reasons (same for all item types — these are about the establishment)
+const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
   // Atendimento
   c3_1: ["Recepção fria", "Ignorado na entrada", "Sem cumprimento", "Demora para ser recebido", "Atitude grosseira", "Outra"],
   c3_2: ["Não soube explicar o prato", "Informação errada", "Sem sugestões", "Desconhece ingredientes", "Não sabe harmonizar", "Outra"],
@@ -83,15 +181,16 @@ const LOW_SCORE_REASONS: Record<string, string[]> = {
   // Harmonização
   c10_1: ["Carta não combina com comida", "Sem sinergia", "Bebidas desconectadas", "Falta coerência", "Não pensaram junto", "Outra"],
   c10_2: ["Sem sugestão de harmonização", "Garçom não sabe sugerir", "Sem indicação no cardápio", "Falta orientação", "Nenhuma recomendação", "Outra"],
-  // Direct mode taste
-  taste: ["Falta de sal", "Excesso de sal", "Sem tempero", "Comida fria", "Textura ruim", "Outra"],
 };
 
 function isRatableItem(item: MenuItem): boolean {
   return ["entrada", "prato", "sobremesa", "drink"].includes(item.category);
 }
 
-// Reusable score button row (1-10)
+// ============================================================
+// REUSABLE COMPONENTS
+// ============================================================
+
 function ScoreButtons({
   value,
   onChange,
@@ -125,7 +224,6 @@ function ScoreButtons({
   );
 }
 
-// Low score reasons component
 function LowScoreReasons({
   reasons,
   selectedReasons,
@@ -139,7 +237,7 @@ function LowScoreReasons({
   comment: string;
   onCommentChange: (c: string) => void;
 }) {
-  const showComment = selectedReasons.includes("Outra");
+  const showComment = selectedReasons.includes("Outra") || selectedReasons.includes("Outros");
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
@@ -180,6 +278,10 @@ function LowScoreReasons({
     </motion.div>
   );
 }
+
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
 
 export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
@@ -226,7 +328,7 @@ export default function RatingPage() {
       return;
     }
     setDirectRatings(
-      selectedItems.map((id) => ({ itemId: id, serves: 1, recommend: true, taste: 0, lowReasons: [], lowComment: "" }))
+      selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "" }))
     );
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
     const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
@@ -253,7 +355,7 @@ export default function RatingPage() {
   };
 
   // Direct mode helpers
-  const updateDirectField = (idx: number, field: keyof DirectRating, value: number | boolean | string[] | string) => {
+  const updateDirectField = (idx: number, field: keyof DirectRating, value: number | boolean | null | string[] | string) => {
     setDirectRatings((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], [field]: value };
@@ -346,14 +448,34 @@ export default function RatingPage() {
     setBonuses((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
-  // Calculate final score
+  // ============================================================
+  // VALIDATION: all fields mandatory
+  // ============================================================
+
+  const isDirectItemComplete = (rating: DirectRating): boolean => {
+    return rating.serves > 0 && rating.recommend !== null && rating.taste > 0;
+  };
+
+  const isAnalyticItemComplete = (rating: AnalyticItemRating): boolean => {
+    return Object.values(rating.subScores).every((v) => v > 0);
+  };
+
+  const areAllGlobalCriteriaComplete = (): boolean => {
+    return analyticGlobalRatings.every((r) =>
+      Object.values(r.subScores).every((v) => v > 0)
+    );
+  };
+
+  // ============================================================
+  // SCORE CALCULATION
+  // ============================================================
+
   const finalScore = useMemo(() => {
     let base = 0;
     if (mode === "direto") {
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
       base = (avgTaste / 10) * 25;
     } else {
-      // Sabor (c1): average of per-item subcriterion averages
       const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
       let avgSabor = 0;
       if (analyticItemRatings.length > 0) {
@@ -365,7 +487,6 @@ export default function RatingPage() {
       }
       const c1Score = (avgSabor / 10) * c1.weight;
 
-      // Apresentação (c2): average of per-item subcriterion averages
       const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
       let avgApres = 0;
       if (analyticItemRatings.length > 0) {
@@ -377,7 +498,6 @@ export default function RatingPage() {
       }
       const c2Score = (avgApres / 10) * c2.weight;
 
-      // Global criteria (c3-c10): average of subcriteria scores per criterion
       const globalScore = analyticGlobalRatings.reduce((sum, r) => {
         const criterion = PUB_CRITERIA.find((c) => c.id === r.criterionId);
         if (!criterion) return sum;
@@ -417,7 +537,7 @@ export default function RatingPage() {
 
   const muitoBomDescription = mode === "direto"
     ? "No modo Direto, a classificação é baseada exclusivamente na sua nota de Sabor para cada item consumido. Recomendação e quantidade de pessoas são registros qualitativos sem peso na nota."
-    : "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor (peso 25), Custo-Benefício (peso 15) e Ambiente (peso 15) — os três critérios de maior peso somam 55% da nota.";
+    : "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor, Custo-Benefício e Ambiente — os três critérios de maior impacto na nota final.";
 
   const ItemSelector = ({ items, title }: { items: MenuItem[]; title: string }) => (
     items.length > 0 ? (
@@ -553,9 +673,14 @@ export default function RatingPage() {
                 {directRatings[currentDirectIdx] && (() => {
                   const item = menuItems.find((m) => m.id === directRatings[currentDirectIdx].itemId);
                   const rating = directRatings[currentDirectIdx];
+                  const itemType = item ? getItemType(item) : "outro";
+                  const tasteReasons = DIRECT_TASTE_REASONS[itemType] || DIRECT_TASTE_REASONS.outro;
                   return (
                     <div className="p-6 rounded-xl bg-card border border-border/50">
                       <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
+                      <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
+                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+                      </p>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
                       {/* Serves */}
@@ -585,7 +710,7 @@ export default function RatingPage() {
                           <button
                             onClick={() => updateDirectField(currentDirectIdx, "recommend", true)}
                             className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
-                              rating.recommend ? "bg-green-500/20 text-green-400 border border-green-500/40" : "bg-secondary text-muted-foreground border border-border/30"
+                              rating.recommend === true ? "bg-green-500/20 text-green-400 border border-green-500/40" : "bg-secondary text-muted-foreground border border-border/30"
                             }`}
                           >
                             <ThumbsUp className="w-4 h-4" /> Sim
@@ -593,7 +718,7 @@ export default function RatingPage() {
                           <button
                             onClick={() => updateDirectField(currentDirectIdx, "recommend", false)}
                             className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
-                              !rating.recommend ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-secondary text-muted-foreground border border-border/30"
+                              rating.recommend === false ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-secondary text-muted-foreground border border-border/30"
                             }`}
                           >
                             <ThumbsDown className="w-4 h-4" /> Não
@@ -611,7 +736,7 @@ export default function RatingPage() {
                         <AnimatePresence>
                           {rating.taste > 0 && rating.taste <= 6 && (
                             <LowScoreReasons
-                              reasons={LOW_SCORE_REASONS.taste}
+                              reasons={tasteReasons}
                               selectedReasons={rating.lowReasons}
                               onToggleReason={(r) => toggleDirectLowReason(currentDirectIdx, r)}
                               comment={rating.lowComment}
@@ -633,6 +758,11 @@ export default function RatingPage() {
                   </Button>
                   <Button
                     onClick={() => {
+                      const rating = directRatings[currentDirectIdx];
+                      if (!isDirectItemComplete(rating)) {
+                        toast.error("Preencha todos os campos antes de continuar.", { description: "Serve quantas pessoas, Recomendaria e Nota de Sabor são obrigatórios." });
+                        return;
+                      }
                       if (currentDirectIdx < directRatings.length - 1) {
                         setCurrentDirectIdx(currentDirectIdx + 1);
                       } else {
@@ -647,7 +777,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 3 (Analytic): Per-item Sabor subcriteria + Apresentação subcriteria */}
+            {/* Step 3 (Analytic): Per-item Sabor + Apresentação subcriteria */}
             {step === "analyticItems" && mode === "analitico" && (
               <motion.div key="analytic-items" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -665,20 +795,21 @@ export default function RatingPage() {
                 {ratableSelectedItems.length > 0 && analyticItemRatings[currentAnalyticItemIdx] && (() => {
                   const itemRating = analyticItemRatings[currentAnalyticItemIdx];
                   const item = menuItems.find((m) => m.id === itemRating.itemId);
+                  const itemType = item ? getItemType(item) : "outro";
                   const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
                   const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
 
                   return (
                     <div className="p-6 rounded-xl bg-card border border-border/50">
                       <h4 className="font-display text-xl tracking-wider text-foreground mb-1">{item?.name}</h4>
+                      <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
+                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+                      </p>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
                       {/* Sabor e Execução subcriteria */}
                       <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-4">
-                          <h5 className="text-base font-semibold text-foreground">Sabor e Execução</h5>
-                          <span className="text-xs text-muted-foreground">(Peso 25)</span>
-                        </div>
+                        <h5 className="text-base font-semibold text-foreground mb-4">Sabor e Execução</h5>
                         <div className="space-y-5">
                           {c1.subcriteria.map((sub) => (
                             <div key={sub.id} className="pl-3 border-l-2 border-primary/20">
@@ -691,7 +822,7 @@ export default function RatingPage() {
                               <AnimatePresence>
                                 {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
                                   <LowScoreReasons
-                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    reasons={getAnalyticItemReasons(sub.id, itemType)}
                                     selectedReasons={itemRating.lowReasons[sub.id] || []}
                                     onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
                                     comment={itemRating.lowComments[sub.id] || ""}
@@ -706,10 +837,7 @@ export default function RatingPage() {
 
                       {/* Apresentação subcriteria */}
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
-                          <h5 className="text-base font-semibold text-foreground">Apresentação</h5>
-                          <span className="text-xs text-muted-foreground">(Peso 10)</span>
-                        </div>
+                        <h5 className="text-base font-semibold text-foreground mb-4">Apresentação</h5>
                         <div className="space-y-5">
                           {c2.subcriteria.map((sub) => (
                             <div key={sub.id} className="pl-3 border-l-2 border-accent/20">
@@ -722,7 +850,7 @@ export default function RatingPage() {
                               <AnimatePresence>
                                 {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
                                   <LowScoreReasons
-                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    reasons={getAnalyticItemReasons(sub.id, itemType)}
                                     selectedReasons={itemRating.lowReasons[sub.id] || []}
                                     onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
                                     comment={itemRating.lowComments[sub.id] || ""}
@@ -739,8 +867,8 @@ export default function RatingPage() {
                 })()}
 
                 {ratableSelectedItems.length === 0 && (
-                  <div className="p-6 rounded-xl bg-card border border-border/50 text-center">
-                    <p className="text-muted-foreground">Você selecionou apenas cervejas/chopps. Sabor e Apresentação não se aplicam.</p>
+                  <div className="p-8 rounded-xl bg-card border border-border/50 text-center">
+                    <p className="text-muted-foreground">Você selecionou apenas cervejas/chopps. Sabor e Apresentação são avaliados nos critérios gerais.</p>
                   </div>
                 )}
 
@@ -757,6 +885,13 @@ export default function RatingPage() {
                   </Button>
                   <Button
                     onClick={() => {
+                      // Validate current item
+                      if (ratableSelectedItems.length > 0 && analyticItemRatings[currentAnalyticItemIdx]) {
+                        if (!isAnalyticItemComplete(analyticItemRatings[currentAnalyticItemIdx])) {
+                          toast.error("Preencha todos os subcritérios antes de continuar.", { description: "Todos os campos de Sabor e Apresentação são obrigatórios." });
+                          return;
+                        }
+                      }
                       if (ratableSelectedItems.length > 0 && currentAnalyticItemIdx < ratableSelectedItems.length - 1) {
                         setCurrentAnalyticItemIdx(currentAnalyticItemIdx + 1);
                       } else {
@@ -774,7 +909,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 4 (Analytic): Global criteria with per-subcriterion scoring */}
+            {/* Step 4 (Analytic): Global criteria with per-subcriterion scoring — NO WEIGHT LABELS */}
             {step === "analyticGlobal" && mode === "analitico" && (
               <motion.div key="analytic-global" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -790,10 +925,7 @@ export default function RatingPage() {
                     if (!gRating) return null;
                     return (
                       <div key={criterion.id} className="p-5 rounded-xl bg-card border border-border/50">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-display text-lg tracking-wider text-foreground">{criterion.name}</h4>
-                          <span className="text-xs text-muted-foreground">Peso: {criterion.weight}</span>
-                        </div>
+                        <h4 className="font-display text-lg tracking-wider text-foreground mb-1">{criterion.name}</h4>
                         <p className="text-xs text-muted-foreground mb-4">{criterion.description}</p>
 
                         <div className="space-y-5">
@@ -808,7 +940,7 @@ export default function RatingPage() {
                               <AnimatePresence>
                                 {(gRating.subScores[sub.id] || 0) > 0 && (gRating.subScores[sub.id] || 0) <= 6 && (
                                   <LowScoreReasons
-                                    reasons={LOW_SCORE_REASONS[sub.id] || LOW_SCORE_REASONS.taste}
+                                    reasons={GLOBAL_LOW_SCORE_REASONS[sub.id] || ["Poderia melhorar", "Abaixo do esperado", "Outra"]}
                                     selectedReasons={gRating.lowReasons[sub.id] || []}
                                     onToggleReason={(r) => toggleGlobalLowReason(criterion.id, sub.id, r)}
                                     comment={gRating.lowComments[sub.id] || ""}
@@ -827,7 +959,16 @@ export default function RatingPage() {
                   <Button variant="outline" onClick={() => setStep("analyticItems")} className="font-display tracking-wider">
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                   </Button>
-                  <Button onClick={() => setStep("bonus")} className="font-display tracking-wider glow-amber">
+                  <Button
+                    onClick={() => {
+                      if (!areAllGlobalCriteriaComplete()) {
+                        toast.error("Preencha todos os subcritérios antes de continuar.", { description: "Todos os campos de cada critério são obrigatórios." });
+                        return;
+                      }
+                      setStep("bonus");
+                    }}
+                    className="font-display tracking-wider glow-amber"
+                  >
                     BÔNUS <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
@@ -926,22 +1067,7 @@ export default function RatingPage() {
                     <h4 className="font-display text-lg tracking-wider text-primary mb-3">
                       {mode === "direto" ? "COMO FUNCIONA" : "O QUE PESA MAIS?"}
                     </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{muitoBomDescription}</p>
-                    {mode === "analitico" && (
-                      <div className="space-y-2">
-                        {PUB_CRITERIA.filter((c) => c.weight >= 10).map((c) => (
-                          <div key={c.id} className="flex items-center justify-between py-1.5">
-                            <span className="text-sm text-foreground">{c.name}</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-24 h-2 rounded-full bg-secondary overflow-hidden">
-                                <div className="h-full rounded-full bg-primary" style={{ width: `${c.weight}%` }} />
-                              </div>
-                              <span className="text-xs text-muted-foreground w-8 text-right">{c.weight}%</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <p className="text-sm text-muted-foreground leading-relaxed">{muitoBomDescription}</p>
                   </div>
 
                   {/* Items summary */}
