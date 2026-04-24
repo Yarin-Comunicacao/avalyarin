@@ -59,10 +59,14 @@ export const PUB_CRITERIA: RatingCriterion[] = [
     weight: 10,
     description: "Estética e funcionalidade visual",
     subcriteria: [
+      // Comidas (only shown when food items consumed)
       { id: "c2_1", name: "Apetite Visual", description: "Cores vivas e prato fresco" },
       { id: "c2_2", name: "Cuidado na Montagem", description: "Sem marcas de dedos, molhos organizados" },
       { id: "c2_3", name: "Adequação da Louça", description: "Recipiente valoriza a comida" },
-      { id: "c2_4", name: "Estética da Bebida", description: "Copo adequado, gelo bom, garnish" },
+      // Bebidas (only shown when beverage items consumed)
+      { id: "c2_4", name: "Estética da Bebida", description: "Cor, garnish e visual do drink" },
+      { id: "c2_5", name: "Cuidado na Montagem (Bebida)", description: "Capricho na preparação e entrega" },
+      { id: "c2_6", name: "Adequação do Copo", description: "Tipo e estado do copo utilizado" },
     ],
   },
   {

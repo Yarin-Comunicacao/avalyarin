@@ -113,38 +113,59 @@ const DIRECT_TASTE_REASONS: Record<string, string[]> = {
 };
 
 // Analytic per-item subcriteria reasons (Sabor & Apresentação) by item type
+// Sabor reasons are per item type; Apresentação reasons are split into COMIDA vs BEBIDA
 function getAnalyticItemReasons(subId: string, itemType: string): string[] {
+  const isBeverage = itemType === "cerveja" || itemType === "drink";
+
+  // ============ SABOR E EXECUÇÃO (c1_*) ============
   if (itemType === "cerveja") {
-    // Sabor subcriteria for beer
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo", "Gosto de requentado", "Outros"];
     if (subId === "c1_2") return ["Temperatura inadequada", "Choca (Aroma, Sabor ou Sem Gás)", "Gosto de Milho, Maçã Verde ou Manteiga", "Outros"];
     if (subId === "c1_3") return ["Muito amarga", "Sem sabor", "Gosto metálico", "Outros"];
     if (subId === "c1_4") return ["Muito quente", "Muito gelada", "Temperatura instável", "Outros"];
-    // Apresentação for beer
-    if (subId === "c2_1") return ["Copo sujo", "Sem espuma", "Visual ruim", "Outros"];
-    if (subId === "c2_2") return ["Copo inadequado", "Sem cuidado", "Derramada", "Outros"];
-    if (subId === "c2_3") return ["Copo errado para o estilo", "Copo lascado", "Tamanho errado", "Outros"];
-    if (subId === "c2_4") return ["Sem garnish", "Apresentação genérica", "Sem identidade", "Outros"];
   }
   if (itemType === "drink") {
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Fruta passada", "Suco de caixinha", "Outros"];
     if (subId === "c1_2") return ["Muito Ácido", "Muito Doce", "Muito Amargo", "Drink Aguado", "Gelo com Gosto de Freezer", "Outros"];
-    if (subId === "c1_3") return ["Desequilibrado", "Sem complexidade", "Álcool em excesso", "Outros"];
+    if (subId === "c1_3") return ["Desequilibrado", "Sem complexidade", "Álcool em excesso", "Gosto ácido", "Retrogosto amargo", "Outros"];
     if (subId === "c1_4") return ["Muito quente", "Gelo derretido", "Temperatura errada", "Outros"];
-    if (subId === "c2_1") return ["Sem garnish", "Visual desleixado", "Copo sujo", "Outros"];
-    if (subId === "c2_2") return ["Derramado", "Sem capricho", "Montagem torta", "Outros"];
-    if (subId === "c2_3") return ["Copo inadequado", "Copo lascado", "Recipiente sujo", "Outros"];
-    if (subId === "c2_4") return ["Sem apresentação", "Gelo ruim", "Sem identidade visual", "Outros"];
   }
-  // Default for entrada, prato, sobremesa (food items)
-  if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Cheiro", "Gosto forte", "Outra"];
-  if (subId === "c1_2") return ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Outra"];
-  if (subId === "c1_3") return ["Falta de sal", "Excesso de sal", "Sem tempero", "Tempero artificial", "Desequilíbrio de sabores", "Cheiro", "Gosto forte", "Outra"];
-  if (subId === "c1_4") return ["Comida fria", "Comida morna", "Prato queimando", "Sorvete derretido", "Cheiro", "Outra"];
-  if (subId === "c2_1") return ["Prato sem cor", "Visual desleixado", "Porção espalhada", "Sem apetite visual", "Cheiro", "Gosto forte", "Outra"];
-  if (subId === "c2_2") return ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Sem capricho", "Outra"];
-  if (subId === "c2_3") return ["Prato inadequado", "Copo errado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Outra"];
-  if (subId === "c2_4") return ["Sem garnish", "Gelo ruim", "Copo inadequado", "Drink sem apresentação", "Temperatura errada", "Outra"];
+  // Sabor for food items (entrada, prato, sobremesa)
+  if (!isBeverage) {
+    if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Cheiro", "Gosto forte", "Outra"];
+    if (subId === "c1_2") return ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Oleosa", "Seca", "Outra"];
+    if (subId === "c1_3") return ["Falta de sal", "Excesso de sal", "Sem tempero", "Tempero artificial", "Desequilíbrio de sabores", "Gosto ácido", "Retrogosto amargo", "Outra"];
+    if (subId === "c1_4") return ["Comida fria", "Comida morna", "Prato queimando", "Temperatura instável", "Outra"];
+  }
+
+  // ============ APRESENTAÇÃO (c2_*) — BEBIDAS ============
+  if (isBeverage) {
+    // c2_1 Estética da Bebida (for beverages)
+    if (subId === "c2_1") return ["Drink sem cor", "Visual desleixado", "Transbordando", "Tipo de copo errado", "Textura", "Outros"];
+    // c2_2 Cuidado na Montagem (for beverages)
+    if (subId === "c2_2") return ["Transbordando", "Derramado na bandeja", "Garnish caído", "Sem capricho", "Gelo quebrado", "Outros"];
+    // c2_3 Adequação da Louça (for beverages — fallback, usually c2_6 is used)
+    if (subId === "c2_3") return ["Copo com marcas de dedo", "Copo sujo", "Copo lascado", "Tipo de copo errado", "Tamanho inadequado", "Outros"];
+    // c2_4 Estética da Bebida
+    if (subId === "c2_4") return ["Drink sem cor", "Visual desleixado", "Transbordando", "Tipo de copo errado", "Textura", "Outros"];
+    // c2_5 Cuidado na Montagem (Bebida)
+    if (subId === "c2_5") return ["Transbordando", "Derramado na bandeja", "Garnish caído", "Sem capricho", "Gelo quebrado", "Outros"];
+    // c2_6 Adequação do Copo
+    if (subId === "c2_6") return ["Copo com marcas de dedo", "Copo sujo", "Copo lascado", "Tipo de copo errado", "Tamanho inadequado", "Outros"];
+  }
+
+  // ============ APRESENTAÇÃO (c2_*) — COMIDAS ============
+  if (!isBeverage) {
+    // c2_1 Apetite Visual (for food): removed "Porção Espalhada", "Cheiro", "Gosto forte"; replaced "Sem apetite visual" with "Harmonia"
+    if (subId === "c2_1") return ["Prato sem cor", "Visual desleixado", "Harmonia", "Apresentação genérica", "Sem identidade", "Outra"];
+    // c2_2 Cuidado na Montagem (for food): added "Porção Espalhada"
+    if (subId === "c2_2") return ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Porção espalhada", "Sem capricho", "Outra"];
+    // c2_3 Adequação da Louça (for food): unchanged
+    if (subId === "c2_3") return ["Prato inadequado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Louça genérica", "Outra"];
+    // c2_4 Estética da Bebida (for food — this sub only shows for beverages, but fallback)
+    if (subId === "c2_4") return ["Sem garnish", "Apresentação genérica", "Sem identidade visual", "Outra"];
+  }
+
   return ["Poderia melhorar", "Abaixo do esperado", "Outra"];
 }
 
@@ -457,7 +478,15 @@ export default function RatingPage() {
   };
 
   const isAnalyticItemComplete = (rating: AnalyticItemRating): boolean => {
-    return Object.values(rating.subScores).every((v) => v > 0);
+    const item = menuItems.find((m) => m.id === rating.itemId);
+    const itemType = item ? getItemType(item) : "outro";
+    const isBev = itemType === "cerveja" || itemType === "drink";
+    // Sabor subs: c1_1..c1_4 always required
+    const saborSubs = ["c1_1", "c1_2", "c1_3", "c1_4"];
+    // Apresentação: food uses c2_1..c2_3, beverages use c2_4..c2_6
+    const apresSubs = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
+    const requiredSubs = [...saborSubs, ...apresSubs];
+    return requiredSubs.every((subId) => (rating.subScores[subId] || 0) > 0);
   };
 
   const areAllGlobalCriteriaComplete = (): boolean => {
@@ -491,7 +520,12 @@ export default function RatingPage() {
       let avgApres = 0;
       if (analyticItemRatings.length > 0) {
         const itemAvgs = analyticItemRatings.map((ir) => {
-          const subs = c2.subcriteria.map((s) => ir.subScores[s.id] || 0);
+          const item = menuItems.find((m) => m.id === ir.itemId);
+          const iType = item ? getItemType(item) : "outro";
+          const isBev = iType === "cerveja" || iType === "drink";
+          // Only average the relevant subs for this item type
+          const relevantIds = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
+          const subs = relevantIds.map((sid) => ir.subScores[sid] || 0);
           return subs.reduce((a, b) => a + b, 0) / subs.length;
         });
         avgApres = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
@@ -835,33 +869,44 @@ export default function RatingPage() {
                         </div>
                       </div>
 
-                      {/* Apresentação subcriteria */}
-                      <div>
-                        <h5 className="text-base font-semibold text-foreground mb-4">Apresentação</h5>
-                        <div className="space-y-5">
-                          {c2.subcriteria.map((sub) => (
-                            <div key={sub.id} className="pl-3 border-l-2 border-accent/20">
-                              <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
-                              <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
-                              <ScoreButtons
-                                value={itemRating.subScores[sub.id] || 0}
-                                onChange={(v) => updateAnalyticItemSubScore(currentAnalyticItemIdx, sub.id, v)}
-                              />
-                              <AnimatePresence>
-                                {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
-                                  <LowScoreReasons
-                                    reasons={getAnalyticItemReasons(sub.id, itemType)}
-                                    selectedReasons={itemRating.lowReasons[sub.id] || []}
-                                    onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
-                                    comment={itemRating.lowComments[sub.id] || ""}
-                                    onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                      {/* Apresentação subcriteria — split by COMIDA vs BEBIDA */}
+                      {(() => {
+                        const isBev = itemType === "cerveja" || itemType === "drink";
+                        // Comidas: c2_1, c2_2, c2_3 | Bebidas: c2_4, c2_5, c2_6
+                        const foodSubs = c2.subcriteria.filter(s => ["c2_1", "c2_2", "c2_3"].includes(s.id));
+                        const bevSubs = c2.subcriteria.filter(s => ["c2_4", "c2_5", "c2_6"].includes(s.id));
+                        const subsToShow = isBev ? bevSubs : foodSubs;
+                        const sectionTitle = isBev ? "Apresentação — Bebidas" : "Apresentação — Comidas";
+
+                        return (
+                          <div>
+                            <h5 className="text-base font-semibold text-foreground mb-4">{sectionTitle}</h5>
+                            <div className="space-y-5">
+                              {subsToShow.map((sub) => (
+                                <div key={sub.id} className="pl-3 border-l-2 border-accent/20">
+                                  <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
+                                  <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
+                                  <ScoreButtons
+                                    value={itemRating.subScores[sub.id] || 0}
+                                    onChange={(v) => updateAnalyticItemSubScore(currentAnalyticItemIdx, sub.id, v)}
                                   />
-                                )}
-                              </AnimatePresence>
+                                  <AnimatePresence>
+                                    {(itemRating.subScores[sub.id] || 0) > 0 && (itemRating.subScores[sub.id] || 0) <= 6 && (
+                                      <LowScoreReasons
+                                        reasons={getAnalyticItemReasons(sub.id, itemType)}
+                                        selectedReasons={itemRating.lowReasons[sub.id] || []}
+                                        onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
+                                        comment={itemRating.lowComments[sub.id] || ""}
+                                        onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                                      />
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })()}
