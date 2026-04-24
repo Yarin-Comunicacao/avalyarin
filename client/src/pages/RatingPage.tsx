@@ -1,5 +1,10 @@
 // Design: Neon Urbano — Rating page with Direct/Analytic modes
-// Scores 1-10 via number buttons, personalized low score reasons by item type, mandatory fields
+// Changes applied:
+// 1. Back arrow → parent category page
+// 2. Low-score reasons mandatory (1-3 selections) when score ≤6
+// 3. Step numbering: "O que consumiu" and "Modo de avaliação" NOT numbered; numbering starts at first evaluation step
+// 4. Beverages-only in Analytic → Direct-style first step (serves, recommend, taste), then General Criteria
+// 5. Harmonização (c10) only shown if user has both food AND beverage items; excluded from score otherwise
 import Navbar from "@/components/Navbar";
 import { categories, PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
@@ -8,20 +13,20 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, Award, ThumbsUp, ThumbsDown, Users
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
-type Step = "items" | "mode" | "rating" | "analyticItems" | "analyticGlobal" | "bonus" | "result";
+type Step = "items" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "result";
 
 interface DirectRating {
   itemId: string;
   serves: number;
-  recommend: boolean | null; // null = not answered
-  taste: number; // 0 = not rated, 1-10 = rated
+  recommend: boolean | null;
+  taste: number;
   lowReasons: string[];
   lowComment: string;
 }
@@ -40,11 +45,20 @@ interface AnalyticGlobalRating {
   lowComments: Record<string, string>;
 }
 
+// Beverage direct rating for analytic beverages-only flow
+interface BevDirectRating {
+  itemId: string;
+  serves: number;
+  recommend: boolean | null;
+  taste: number;
+  lowReasons: string[];
+  lowComment: string;
+}
+
 // ============================================================
 // PERSONALIZED LOW SCORE REASONS BY ITEM TYPE
 // ============================================================
 
-// Helper: get item type category
 function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "outro" {
   if (item.category === "bebida" || item.category === "chopp") return "cerveja";
   if (item.category === "drink") return "drink";
@@ -54,7 +68,14 @@ function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" 
   return "outro";
 }
 
-// Direct mode taste reasons by item type
+function isFoodItem(item: MenuItem): boolean {
+  return ["entrada", "prato", "sobremesa"].includes(item.category);
+}
+
+function isBeverageItem(item: MenuItem): boolean {
+  return ["bebida", "chopp", "drink"].includes(item.category);
+}
+
 const DIRECT_TASTE_REASONS: Record<string, string[]> = {
   cerveja: [
     "Temperatura inadequada",
@@ -112,12 +133,9 @@ const DIRECT_TASTE_REASONS: Record<string, string[]> = {
   ],
 };
 
-// Analytic per-item subcriteria reasons (Sabor & Apresentação) by item type
-// Sabor reasons are per item type; Apresentação reasons are split into COMIDA vs BEBIDA
 function getAnalyticItemReasons(subId: string, itemType: string): string[] {
   const isBeverage = itemType === "cerveja" || itemType === "drink";
 
-  // ============ SABOR E EXECUÇÃO (c1_*) ============
   if (itemType === "cerveja") {
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo", "Gosto de requentado", "Outros"];
     if (subId === "c1_2") return ["Temperatura inadequada", "Choca (Aroma, Sabor ou Sem Gás)", "Gosto de Milho, Maçã Verde ou Manteiga", "Outros"];
@@ -130,7 +148,6 @@ function getAnalyticItemReasons(subId: string, itemType: string): string[] {
     if (subId === "c1_3") return ["Desequilibrado", "Sem complexidade", "Álcool em excesso", "Gosto ácido", "Retrogosto amargo", "Outros"];
     if (subId === "c1_4") return ["Muito quente", "Gelo derretido", "Temperatura errada", "Outros"];
   }
-  // Sabor for food items (entrada, prato, sobremesa)
   if (!isBeverage) {
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo do esperado", "Gosto de requentado", "Ingrediente estragado", "Cheiro", "Gosto forte", "Outra"];
     if (subId === "c1_2") return ["Cozimento excessivo", "Cru demais", "Sem crocância", "Textura borrachuda", "Fritura encharcada", "Oleosa", "Seca", "Outra"];
@@ -138,73 +155,53 @@ function getAnalyticItemReasons(subId: string, itemType: string): string[] {
     if (subId === "c1_4") return ["Comida fria", "Comida morna", "Prato queimando", "Temperatura instável", "Outra"];
   }
 
-  // ============ APRESENTAÇÃO (c2_*) — BEBIDAS ============
   if (isBeverage) {
-    // c2_1 Estética da Bebida (for beverages)
     if (subId === "c2_1") return ["Drink sem cor", "Visual desleixado", "Transbordando", "Tipo de copo errado", "Textura", "Outros"];
-    // c2_2 Cuidado na Montagem (for beverages)
     if (subId === "c2_2") return ["Transbordando", "Derramado na bandeja", "Garnish caído", "Sem capricho", "Gelo quebrado", "Outros"];
-    // c2_3 Adequação da Louça (for beverages — fallback, usually c2_6 is used)
     if (subId === "c2_3") return ["Copo com marcas de dedo", "Copo sujo", "Copo lascado", "Tipo de copo errado", "Tamanho inadequado", "Outros"];
-    // c2_4 Estética da Bebida
     if (subId === "c2_4") return ["Drink sem cor", "Visual desleixado", "Transbordando", "Tipo de copo errado", "Textura", "Outros"];
-    // c2_5 Cuidado na Montagem (Bebida)
     if (subId === "c2_5") return ["Transbordando", "Derramado na bandeja", "Garnish caído", "Sem capricho", "Gelo quebrado", "Outros"];
-    // c2_6 Adequação do Copo
     if (subId === "c2_6") return ["Copo com marcas de dedo", "Copo sujo", "Copo lascado", "Tipo de copo errado", "Tamanho inadequado", "Outros"];
   }
 
-  // ============ APRESENTAÇÃO (c2_*) — COMIDAS ============
   if (!isBeverage) {
-    // c2_1 Apetite Visual (for food): removed "Porção Espalhada", "Cheiro", "Gosto forte"; replaced "Sem apetite visual" with "Harmonia"
     if (subId === "c2_1") return ["Prato sem cor", "Visual desleixado", "Harmonia", "Apresentação genérica", "Sem identidade", "Outra"];
-    // c2_2 Cuidado na Montagem (for food): added "Porção Espalhada"
     if (subId === "c2_2") return ["Marcas de dedos no prato", "Molho derramado", "Montagem torta", "Ingredientes caídos", "Porção espalhada", "Sem capricho", "Outra"];
-    // c2_3 Adequação da Louça (for food): unchanged
     if (subId === "c2_3") return ["Prato inadequado", "Recipiente sujo", "Louça lascada", "Tamanho desproporcional", "Louça genérica", "Outra"];
-    // c2_4 Estética da Bebida (for food — this sub only shows for beverages, but fallback)
     if (subId === "c2_4") return ["Sem garnish", "Apresentação genérica", "Sem identidade visual", "Outra"];
   }
 
   return ["Poderia melhorar", "Abaixo do esperado", "Outra"];
 }
 
-// Global criteria reasons (same for all item types — these are about the establishment)
 const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
-  // Atendimento
   c3_1: ["Recepção fria", "Ignorado na entrada", "Sem cumprimento", "Demora para ser recebido", "Atitude grosseira", "Outra"],
   c3_2: ["Não soube explicar o prato", "Informação errada", "Sem sugestões", "Desconhece ingredientes", "Não sabe harmonizar", "Outra"],
   c3_3: ["Demora excessiva", "Pedido esquecido", "Pratos em tempos diferentes", "Bebida demorou", "Conta demorou", "Outra"],
   c3_4: ["Não repôs água", "Não retirou pratos", "Sem atenção", "Precisei chamar várias vezes", "Mesa suja", "Outra"],
-  // Ambiente
   c4_1: ["Música muito alta", "Sem música", "Música inadequada", "Acústica ruim (eco)", "Barulho da cozinha", "Outra"],
   c4_2: ["Banheiro sujo", "Sem papel", "Cheiro ruim", "Fila grande", "Sem sabonete", "Outra"],
   c4_3: ["Cadeira desconfortável", "Calor excessivo", "Frio excessivo", "Mesa instável", "Iluminação ruim", "Outra"],
   c4_4: ["Sem cobertura para chuva", "Assédio de ambulantes", "Barulho de trânsito", "Calçada irregular", "Sem ventilação", "Outra"],
-  // Custo-Benefício
   c5_1: ["Porção muito pequena", "Não serve nem uma pessoa", "Desproporcional ao preço", "Quantidade inconsistente", "Menos do que no cardápio", "Outra"],
   c5_2: ["Preço abusivo", "Ingredientes baratos por preço alto", "Não vale o que cobra", "Concorrente melhor e mais barato", "Qualidade não justifica", "Outra"],
   c5_3: ["Couvert não informado", "Taxa de serviço abusiva", "Preço diferente do cardápio", "Cobrança surpresa", "Água cobrada sem avisar", "Outra"],
-  // Consistência
   c6_1: ["Prato diferente da última vez", "Sabor inconsistente", "Porção menor que antes", "Qualidade caiu", "Receita mudou", "Outra"],
   c6_2: ["Qualidade caiu com lotação", "Demora muito mais cheio", "Atendimento pior lotado", "Comida pior no horário de pico", "Desorganização", "Outra"],
-  // Originalidade
   c7_1: ["Cardápio genérico", "Nada diferente", "Cópia de outros bares", "Sem identidade", "Falta criatividade", "Outra"],
   c7_2: ["Sem prato exclusivo", "Nada memorável", "Sem drink autoral", "Cardápio padrão", "Falta personalidade", "Outra"],
-  // Carta de Bebidas
   c8_1: ["Só cerveja industrial", "Pouca variedade", "Sem opções artesanais", "Carta limitada", "Sem novidades", "Outra"],
   c8_2: ["Drink mal feito", "Desequilibrado", "Sem gelo adequado", "Ingredientes ruins", "Sem técnica", "Outra"],
   c8_3: ["Sem opção sem álcool", "Só refrigerante", "Sem mocktail", "Sem suco natural", "Opções limitadas", "Outra"],
-  // Variedade
   c9_1: ["Só uma proteína", "Sem opção de peixe", "Pouca diversidade", "Menu repetitivo", "Falta opções", "Outra"],
   c9_2: ["Sem opção vegana", "Sem opção sem glúten", "Não atende restrições", "Sem informação de alérgenos", "Cardápio excludente", "Outra"],
   c9_3: ["Só frituras", "Sem opção leve", "Menu desequilibrado", "Falta saladas", "Sem opção saudável", "Outra"],
-  // Harmonização
   c10_1: ["Carta não combina com comida", "Sem sinergia", "Bebidas desconectadas", "Falta coerência", "Não pensaram junto", "Outra"],
   c10_2: ["Sem sugestão de harmonização", "Garçom não sabe sugerir", "Sem indicação no cardápio", "Falta orientação", "Nenhuma recomendação", "Outra"],
 };
 
-function isRatableItem(item: MenuItem): boolean {
+function isRatableItem(item: MenuItem):
+  boolean {
   return ["entrada", "prato", "sobremesa", "drink"].includes(item.category);
 }
 
@@ -251,36 +248,60 @@ function LowScoreReasons({
   onToggleReason,
   comment,
   onCommentChange,
+  maxSelections = 3,
+  showError = false,
 }: {
   reasons: string[];
   selectedReasons: string[];
   onToggleReason: (reason: string) => void;
   comment: string;
   onCommentChange: (c: string) => void;
+  maxSelections?: number;
+  showError?: boolean;
 }) {
   const showComment = selectedReasons.includes("Outra") || selectedReasons.includes("Outros");
+  const atMax = selectedReasons.length >= maxSelections;
+  const needsSelection = showError && selectedReasons.length === 0;
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
-      className="mt-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20"
+      className={`mt-3 p-3 rounded-lg bg-red-500/5 border ${needsSelection ? 'border-red-500 ring-2 ring-red-500/30 animate-pulse' : 'border-red-500/20'}`}
     >
-      <p className="text-xs text-red-400 mb-2 font-medium">O que poderia melhorar?</p>
+      {needsSelection && (
+        <motion.p
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-xs text-red-500 font-bold mb-2 flex items-center gap-1"
+        >
+          <span className="inline-block w-2 h-2 bg-red-500 rounded-full" /> Selecione pelo menos 1 motivo abaixo para continuar
+        </motion.p>
+      )}
+      <p className="text-xs text-red-400 mb-2 font-medium">
+        O que poderia melhorar? <span className="text-red-400/60">(selecione de 1 a {maxSelections})</span>
+      </p>
       <div className="flex flex-wrap gap-1.5">
-        {reasons.map((reason) => (
-          <button
-            key={reason}
-            onClick={() => onToggleReason(reason)}
-            className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-              selectedReasons.includes(reason)
-                ? "bg-red-500/20 text-red-400 border border-red-500/40"
-                : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-border/60"
-            }`}
-          >
-            {reason}
-          </button>
-        ))}
+        {reasons.map((reason) => {
+          const isSelected = selectedReasons.includes(reason);
+          const isDisabled = !isSelected && atMax;
+          return (
+            <button
+              key={reason}
+              onClick={() => !isDisabled && onToggleReason(reason)}
+              disabled={isDisabled}
+              className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                isSelected
+                  ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                  : isDisabled
+                    ? "bg-secondary/20 text-muted-foreground/30 border border-border/10 cursor-not-allowed"
+                    : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-border/60"
+              }`}
+            >
+              {reason}
+            </button>
+          );
+        })}
       </div>
       <AnimatePresence>
         {showComment && (
@@ -308,6 +329,12 @@ export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
   const establishment = categories.flatMap((c) => c.establishments).find((e) => e.id === establishmentId);
 
+  // Find parent category for back navigation
+  const parentCategory = categories.find((c) =>
+    c.establishments.some((e) => e.id === establishmentId)
+  );
+  const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
+
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [mode, setMode] = useState<RatingMode>("direto");
@@ -317,23 +344,63 @@ export default function RatingPage() {
   const [analyticItemRatings, setAnalyticItemRatings] = useState<AnalyticItemRating[]>([]);
   const [currentAnalyticItemIdx, setCurrentAnalyticItemIdx] = useState(0);
 
-  const globalCriteria = PUB_CRITERIA.filter((c) => c.id !== "c1" && c.id !== "c2");
-  const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>(
-    globalCriteria.map((c) => ({
+  // Beverages-only direct ratings for analytic mode
+  const [bevDirectRatings, setBevDirectRatings] = useState<BevDirectRating[]>([]);
+  const [currentBevDirectIdx, setCurrentBevDirectIdx] = useState(0);
+
+  // Determine if harmonização should be included (need both food AND beverage)
+  const hasFood = useMemo(() => {
+    if (!establishment) return false;
+    return selectedItems.some((id) => {
+      const item = establishment.menu.find((m) => m.id === id);
+      return item && isFoodItem(item);
+    });
+  }, [selectedItems, establishment]);
+
+  const hasBeverage = useMemo(() => {
+    if (!establishment) return false;
+    return selectedItems.some((id) => {
+      const item = establishment.menu.find((m) => m.id === id);
+      return item && isBeverageItem(item);
+    });
+  }, [selectedItems, establishment]);
+
+  const showHarmonizacao = hasFood && hasBeverage;
+
+  // Global criteria: exclude c1, c2, and conditionally c10
+  const globalCriteria = useMemo(() => {
+    return PUB_CRITERIA.filter((c) => {
+      if (c.id === "c1" || c.id === "c2") return false;
+      if (c.id === "c10" && !showHarmonizacao) return false;
+      return true;
+    });
+  }, [showHarmonizacao]);
+
+  const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>([]);
+
+  // Re-initialize global ratings when globalCriteria changes
+  const initGlobalRatings = () => {
+    return globalCriteria.map((c) => ({
       criterionId: c.id,
       subScores: Object.fromEntries(c.subcriteria.map((s) => [s.id, 0])),
       lowReasons: Object.fromEntries(c.subcriteria.map((s) => [s.id, []])),
       lowComments: Object.fromEntries(c.subcriteria.map((s) => [s.id, ""])),
-    }))
-  );
+    }));
+  };
 
   const [bonuses, setBonuses] = useState<string[]>([]);
+
+  // Track if user attempted to advance without completing required fields
+  const [validationAttempted, setValidationAttempted] = useState(false);
 
   if (!establishment) return <Redirect to="/" />;
 
   const menuItems = establishment.menu;
   const selectedMenuItems = menuItems.filter((m) => selectedItems.includes(m.id));
   const ratableSelectedItems = selectedMenuItems.filter(isRatableItem);
+
+  // Check if user selected ONLY beverages (no food items at all)
+  const onlyBeverages = selectedMenuItems.length > 0 && selectedMenuItems.every((m) => isBeverageItem(m));
 
   const entradas = menuItems.filter((m) => m.category === "entrada");
   const pratos = menuItems.filter((m) => m.category === "prato");
@@ -348,9 +415,16 @@ export default function RatingPage() {
       toast.error("Selecione pelo menos um item que você consumiu.");
       return;
     }
+    // Direct ratings for all items
     setDirectRatings(
       selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "" }))
     );
+    // Beverage direct ratings for analytic beverages-only flow
+    const bevItems = menuItems.filter((m) => selectedItems.includes(m.id) && isBeverageItem(m));
+    setBevDirectRatings(
+      bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "" }))
+    );
+    // Analytic item ratings for ratable items (food + drinks, not beer/chopp)
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
     const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
     const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
@@ -372,7 +446,30 @@ export default function RatingPage() {
       }))
     );
     setCurrentAnalyticItemIdx(0);
+    setCurrentBevDirectIdx(0);
     setStep("mode");
+  };
+
+  const handleModeSelect = (selectedMode: RatingMode) => {
+    setMode(selectedMode);
+    // Initialize global ratings based on current selection
+    const newGlobalRatings = initGlobalRatings();
+    setAnalyticGlobalRatings(newGlobalRatings);
+
+    if (selectedMode === "direto") {
+      setCurrentDirectIdx(0);
+      setStep("rating");
+    } else {
+      // Analytic mode
+      if (onlyBeverages) {
+        // Beverages-only: go to direct-style step first
+        setCurrentBevDirectIdx(0);
+        setStep("analyticBevDirect");
+      } else {
+        setCurrentAnalyticItemIdx(0);
+        setStep("analyticItems");
+      }
+    }
   };
 
   // Direct mode helpers
@@ -388,10 +485,33 @@ export default function RatingPage() {
     setDirectRatings((prev) => {
       const next = [...prev];
       const current = next[idx].lowReasons;
-      next[idx] = {
-        ...next[idx],
-        lowReasons: current.includes(reason) ? current.filter((r) => r !== reason) : [...current, reason],
-      };
+      if (current.includes(reason)) {
+        next[idx] = { ...next[idx], lowReasons: current.filter((r) => r !== reason) };
+      } else if (current.length < 3) {
+        next[idx] = { ...next[idx], lowReasons: [...current, reason] };
+      }
+      return next;
+    });
+  };
+
+  // Beverage direct rating helpers (for analytic beverages-only)
+  const updateBevDirectField = (idx: number, field: keyof BevDirectRating, value: number | boolean | null | string[] | string) => {
+    setBevDirectRatings((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], [field]: value };
+      return next;
+    });
+  };
+
+  const toggleBevDirectLowReason = (idx: number, reason: string) => {
+    setBevDirectRatings((prev) => {
+      const next = [...prev];
+      const current = next[idx].lowReasons;
+      if (current.includes(reason)) {
+        next[idx] = { ...next[idx], lowReasons: current.filter((r) => r !== reason) };
+      } else if (current.length < 3) {
+        next[idx] = { ...next[idx], lowReasons: [...current, reason] };
+      }
       return next;
     });
   };
@@ -409,13 +529,17 @@ export default function RatingPage() {
     setAnalyticItemRatings((prev) => {
       const next = [...prev];
       const current = next[idx].lowReasons[subId] || [];
-      next[idx] = {
-        ...next[idx],
-        lowReasons: {
-          ...next[idx].lowReasons,
-          [subId]: current.includes(reason) ? current.filter((r) => r !== reason) : [...current, reason],
-        },
-      };
+      if (current.includes(reason)) {
+        next[idx] = {
+          ...next[idx],
+          lowReasons: { ...next[idx].lowReasons, [subId]: current.filter((r) => r !== reason) },
+        };
+      } else if (current.length < 3) {
+        next[idx] = {
+          ...next[idx],
+          lowReasons: { ...next[idx].lowReasons, [subId]: [...current, reason] },
+        };
+      }
       return next;
     });
   };
@@ -444,13 +568,12 @@ export default function RatingPage() {
       prev.map((r) => {
         if (r.criterionId !== criterionId) return r;
         const current = r.lowReasons[subId] || [];
-        return {
-          ...r,
-          lowReasons: {
-            ...r.lowReasons,
-            [subId]: current.includes(reason) ? current.filter((x) => x !== reason) : [...current, reason],
-          },
-        };
+        if (current.includes(reason)) {
+          return { ...r, lowReasons: { ...r.lowReasons, [subId]: current.filter((x) => x !== reason) } };
+        } else if (current.length < 3) {
+          return { ...r, lowReasons: { ...r.lowReasons, [subId]: [...current, reason] } };
+        }
+        return r;
       })
     );
   };
@@ -470,29 +593,57 @@ export default function RatingPage() {
   };
 
   // ============================================================
-  // VALIDATION: all fields mandatory
+  // VALIDATION: all fields mandatory, low-score reasons 1-3 required
   // ============================================================
 
+  const hasValidLowReasons = (score: number, reasons: string[], comment: string): boolean => {
+    if (score > 0 && score <= 6) {
+      if (reasons.length === 0) return false;
+      if (reasons.length > 3) return false;
+      // If "Outra"/"Outros" is selected, comment must not be empty
+      if ((reasons.includes("Outra") || reasons.includes("Outros")) && comment.trim().length === 0) return false;
+    }
+    return true;
+  };
+
   const isDirectItemComplete = (rating: DirectRating): boolean => {
-    return rating.serves > 0 && rating.recommend !== null && rating.taste > 0;
+    if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
+    if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
+    return true;
+  };
+
+  const isBevDirectItemComplete = (rating: BevDirectRating): boolean => {
+    if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
+    if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
+    return true;
   };
 
   const isAnalyticItemComplete = (rating: AnalyticItemRating): boolean => {
     const item = menuItems.find((m) => m.id === rating.itemId);
     const itemType = item ? getItemType(item) : "outro";
     const isBev = itemType === "cerveja" || itemType === "drink";
-    // Sabor subs: c1_1..c1_4 always required
     const saborSubs = ["c1_1", "c1_2", "c1_3", "c1_4"];
-    // Apresentação: food uses c2_1..c2_3, beverages use c2_4..c2_6
     const apresSubs = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
     const requiredSubs = [...saborSubs, ...apresSubs];
-    return requiredSubs.every((subId) => (rating.subScores[subId] || 0) > 0);
+    for (const subId of requiredSubs) {
+      const score = rating.subScores[subId] || 0;
+      if (score <= 0) return false;
+      if (!hasValidLowReasons(score, rating.lowReasons[subId] || [], rating.lowComments[subId] || "")) return false;
+    }
+    return true;
   };
 
   const areAllGlobalCriteriaComplete = (): boolean => {
-    return analyticGlobalRatings.every((r) =>
-      Object.values(r.subScores).every((v) => v > 0)
-    );
+    return analyticGlobalRatings.every((r) => {
+      const criterion = globalCriteria.find((c) => c.id === r.criterionId);
+      if (!criterion) return true;
+      return criterion.subcriteria.every((sub) => {
+        const score = r.subScores[sub.id] || 0;
+        if (score <= 0) return false;
+        if (!hasValidLowReasons(score, r.lowReasons[sub.id] || [], r.lowComments[sub.id] || "")) return false;
+        return true;
+      });
+    });
   };
 
   // ============================================================
@@ -505,33 +656,44 @@ export default function RatingPage() {
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
       base = (avgTaste / 10) * 25;
     } else {
-      const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
-      let avgSabor = 0;
-      if (analyticItemRatings.length > 0) {
-        const itemAvgs = analyticItemRatings.map((ir) => {
-          const subs = c1.subcriteria.map((s) => ir.subScores[s.id] || 0);
-          return subs.reduce((a, b) => a + b, 0) / subs.length;
-        });
-        avgSabor = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
-      }
-      const c1Score = (avgSabor / 10) * c1.weight;
+      // Analytic mode
+      if (onlyBeverages) {
+        // Beverages-only: use bevDirectRatings for Sabor score
+        const avgTaste = bevDirectRatings.reduce((s, r) => s + r.taste, 0) / (bevDirectRatings.length || 1);
+        const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
+        base = (avgTaste / 10) * c1.weight;
+        // No c2 (Apresentação) score for beverages-only in this flow
+        // c2 weight is redistributed or zeroed — we skip it
+      } else {
+        const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
+        let avgSabor = 0;
+        if (analyticItemRatings.length > 0) {
+          const itemAvgs = analyticItemRatings.map((ir) => {
+            const subs = c1.subcriteria.map((s) => ir.subScores[s.id] || 0);
+            return subs.reduce((a, b) => a + b, 0) / subs.length;
+          });
+          avgSabor = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
+        }
+        const c1Score = (avgSabor / 10) * c1.weight;
 
-      const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
-      let avgApres = 0;
-      if (analyticItemRatings.length > 0) {
-        const itemAvgs = analyticItemRatings.map((ir) => {
-          const item = menuItems.find((m) => m.id === ir.itemId);
-          const iType = item ? getItemType(item) : "outro";
-          const isBev = iType === "cerveja" || iType === "drink";
-          // Only average the relevant subs for this item type
-          const relevantIds = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
-          const subs = relevantIds.map((sid) => ir.subScores[sid] || 0);
-          return subs.reduce((a, b) => a + b, 0) / subs.length;
-        });
-        avgApres = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
+        const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
+        let avgApres = 0;
+        if (analyticItemRatings.length > 0) {
+          const itemAvgs = analyticItemRatings.map((ir) => {
+            const item = menuItems.find((m) => m.id === ir.itemId);
+            const iType = item ? getItemType(item) : "outro";
+            const isBev = iType === "cerveja" || iType === "drink";
+            const relevantIds = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
+            const subs = relevantIds.map((sid) => ir.subScores[sid] || 0);
+            return subs.reduce((a, b) => a + b, 0) / subs.length;
+          });
+          avgApres = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
+        }
+        const c2Score = (avgApres / 10) * c2.weight;
+        base = c1Score + c2Score;
       }
-      const c2Score = (avgApres / 10) * c2.weight;
 
+      // Global criteria score (already filtered to exclude c10 if no harmonização)
       const globalScore = analyticGlobalRatings.reduce((sum, r) => {
         const criterion = PUB_CRITERIA.find((c) => c.id === r.criterionId);
         if (!criterion) return sum;
@@ -540,11 +702,11 @@ export default function RatingPage() {
         return sum + (avg / 10) * criterion.weight;
       }, 0);
 
-      base = c1Score + c2Score + globalScore;
+      base += globalScore;
     }
     const bonusPoints = BONUS_CRITERIA.filter((b) => bonuses.includes(b.id)).reduce((s, b) => s + b.points, 0);
     return Math.min(115, Math.round(base + bonusPoints));
-  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bonuses]);
+  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bonuses, bevDirectRatings, onlyBeverages]);
 
   // Classification
   const getClassification = (score: number, isDirectMode: boolean) => {
@@ -605,35 +767,151 @@ export default function RatingPage() {
     ) : null
   );
 
-  const allSteps: Step[] = mode === "analitico"
-    ? ["items", "mode", "analyticItems", "analyticGlobal", "bonus", "result"]
-    : ["items", "mode", "rating", "bonus", "result"];
+  // ============================================================
+  // STEP NUMBERING: items and mode are NOT numbered
+  // Only evaluation steps get numbers
+  // ============================================================
 
-  const currentStepIdx = allSteps.indexOf(step);
+  const getNumberedSteps = (): { step: Step; label: string }[] => {
+    if (mode === "direto") {
+      return [
+        { step: "rating", label: "Avaliação" },
+        { step: "bonus", label: "Bônus" },
+        { step: "result", label: "Resultado" },
+      ];
+    }
+    // Analytic mode
+    if (onlyBeverages) {
+      return [
+        { step: "analyticBevDirect", label: "Avaliação" },
+        { step: "analyticGlobal", label: "Critérios Gerais" },
+        { step: "bonus", label: "Bônus" },
+        { step: "result", label: "Resultado" },
+      ];
+    }
+    return [
+      { step: "analyticItems", label: "Sabor e Apresentação" },
+      { step: "analyticGlobal", label: "Critérios Gerais" },
+      { step: "bonus", label: "Bônus" },
+      { step: "result", label: "Resultado" },
+    ];
+  };
+
+  const numberedSteps = getNumberedSteps();
+  const currentNumberedIdx = numberedSteps.findIndex((s) => s.step === step);
+  const isNumberedStep = currentNumberedIdx >= 0;
+
+  // Helper to render a direct-style rating card (used in both Direct mode and Analytic beverages-only)
+  const renderDirectStyleCard = (
+    rating: { itemId: string; serves: number; recommend: boolean | null; taste: number; lowReasons: string[]; lowComment: string },
+    idx: number,
+    total: number,
+    updateField: (idx: number, field: string, value: any) => void,
+    toggleLow: (idx: number, reason: string) => void,
+  ) => {
+    const item = menuItems.find((m) => m.id === rating.itemId);
+    const itemType = item ? getItemType(item) : "outro";
+    const tasteReasons = DIRECT_TASTE_REASONS[itemType] || DIRECT_TASTE_REASONS.outro;
+    return (
+      <div className="p-6 rounded-xl bg-card border border-border/50">
+        <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
+        <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
+          {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+        </p>
+        <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
+
+        {/* Serves */}
+        <div className="mb-6">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-primary" /> Serve quantas pessoas?
+          </label>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => updateField(idx, "serves", n)}
+                className={`w-12 h-12 rounded-lg font-numbers text-lg font-bold transition-all ${
+                  rating.serves === n ? "bg-primary text-primary-foreground glow-amber" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {n}{n === 5 ? "+" : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recommend */}
+        <div className="mb-6">
+          <label className="text-sm font-medium text-foreground mb-3 block">Recomendaria?</label>
+          <div className="flex gap-3">
+            <button
+              onClick={() => updateField(idx, "recommend", true)}
+              className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
+                rating.recommend === true ? "bg-green-500/20 text-green-400 border border-green-500/40" : "bg-secondary text-muted-foreground border border-border/30"
+              }`}
+            >
+              <ThumbsUp className="w-4 h-4" /> Sim
+            </button>
+            <button
+              onClick={() => updateField(idx, "recommend", false)}
+              className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
+                rating.recommend === false ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-secondary text-muted-foreground border border-border/30"
+              }`}
+            >
+              <ThumbsDown className="w-4 h-4" /> Não
+            </button>
+          </div>
+        </div>
+
+        {/* Taste */}
+        <div>
+          <ScoreButtons
+            value={rating.taste}
+            onChange={(v) => updateField(idx, "taste", v)}
+            label="Nota de Sabor"
+          />
+          <AnimatePresence>
+            {rating.taste > 0 && rating.taste <= 6 && (
+              <LowScoreReasons
+                reasons={tasteReasons}
+                selectedReasons={rating.lowReasons}
+                onToggleReason={(r) => toggleLow(idx, r)}
+                comment={rating.lowComment}
+                onCommentChange={(c) => updateField(idx, "lowComment", c)}
+                showError={validationAttempted}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar backHref={backHref} />
       <div className="pt-20 pb-16">
         <div className="container max-w-2xl">
-          {/* Progress */}
-          <div className="flex items-center gap-2 mb-8">
-            {allSteps.map((s, i) => (
-              <div key={s} className="flex items-center gap-2 flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  step === s ? "bg-primary text-primary-foreground glow-amber" :
-                  currentStepIdx > i ? "bg-primary/30 text-primary" :
-                  "bg-secondary text-muted-foreground"
-                }`}>
-                  {i + 1}
+          {/* Progress bar — only shown for numbered steps */}
+          {isNumberedStep && (
+            <div className="flex items-center gap-2 mb-8">
+              {numberedSteps.map((s, i) => (
+                <div key={s.step} className="flex items-center gap-2 flex-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                    step === s.step ? "bg-primary text-primary-foreground glow-amber" :
+                    currentNumberedIdx > i ? "bg-primary/30 text-primary" :
+                    "bg-secondary text-muted-foreground"
+                  }`}>
+                    {i + 1}
+                  </div>
+                  {i < numberedSteps.length - 1 && <div className={`flex-1 h-0.5 ${currentNumberedIdx > i ? "bg-primary/40" : "bg-border/30"}`} />}
                 </div>
-                {i < allSteps.length - 1 && <div className={`flex-1 h-0.5 ${currentStepIdx > i ? "bg-primary/40" : "bg-border/30"}`} />}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
-            {/* Step 1: Item Selection */}
+            {/* Item Selection — NO number */}
             {step === "items" && (
               <motion.div key="items" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -654,7 +932,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 2: Mode Selection */}
+            {/* Mode Selection — NO number */}
             {step === "mode" && (
               <motion.div key="mode" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -666,7 +944,7 @@ export default function RatingPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
-                    onClick={() => { setMode("direto"); setCurrentDirectIdx(0); setStep("rating"); }}
+                    onClick={() => handleModeSelect("direto")}
                     className="p-6 rounded-xl border text-left transition-all hover:border-primary/60 border-border/30 bg-card"
                   >
                     <Zap className="w-8 h-8 text-primary mb-3" />
@@ -676,7 +954,7 @@ export default function RatingPage() {
                     </p>
                   </button>
                   <button
-                    onClick={() => { setMode("analitico"); setCurrentAnalyticItemIdx(0); setStep("analyticItems"); }}
+                    onClick={() => handleModeSelect("analitico")}
                     className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
                   >
                     <BarChart3 className="w-8 h-8 text-accent mb-3" />
@@ -694,7 +972,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 3 (Direct): Per-item rating with 1-10 buttons */}
+            {/* Direct Mode: Per-item rating */}
             {step === "rating" && mode === "direto" && (
               <motion.div key="rating-direct" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -704,84 +982,13 @@ export default function RatingPage() {
                     <p className="text-sm text-muted-foreground">Item {currentDirectIdx + 1} de {directRatings.length}</p>
                   </div>
                 </div>
-                {directRatings[currentDirectIdx] && (() => {
-                  const item = menuItems.find((m) => m.id === directRatings[currentDirectIdx].itemId);
-                  const rating = directRatings[currentDirectIdx];
-                  const itemType = item ? getItemType(item) : "outro";
-                  const tasteReasons = DIRECT_TASTE_REASONS[itemType] || DIRECT_TASTE_REASONS.outro;
-                  return (
-                    <div className="p-6 rounded-xl bg-card border border-border/50">
-                      <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
-                      <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
-                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
-
-                      {/* Serves */}
-                      <div className="mb-6">
-                        <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
-                          <Users className="w-4 h-4 text-primary" /> Serve quantas pessoas?
-                        </label>
-                        <div className="flex gap-2">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <button
-                              key={n}
-                              onClick={() => updateDirectField(currentDirectIdx, "serves", n)}
-                              className={`w-12 h-12 rounded-lg font-numbers text-lg font-bold transition-all ${
-                                rating.serves === n ? "bg-primary text-primary-foreground glow-amber" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                              }`}
-                            >
-                              {n}{n === 5 ? "+" : ""}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Recommend */}
-                      <div className="mb-6">
-                        <label className="text-sm font-medium text-foreground mb-3 block">Recomendaria?</label>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => updateDirectField(currentDirectIdx, "recommend", true)}
-                            className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
-                              rating.recommend === true ? "bg-green-500/20 text-green-400 border border-green-500/40" : "bg-secondary text-muted-foreground border border-border/30"
-                            }`}
-                          >
-                            <ThumbsUp className="w-4 h-4" /> Sim
-                          </button>
-                          <button
-                            onClick={() => updateDirectField(currentDirectIdx, "recommend", false)}
-                            className={`flex items-center gap-2 px-5 py-3 rounded-lg font-medium transition-all ${
-                              rating.recommend === false ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-secondary text-muted-foreground border border-border/30"
-                            }`}
-                          >
-                            <ThumbsDown className="w-4 h-4" /> Não
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Taste - 1-10 buttons */}
-                      <div>
-                        <ScoreButtons
-                          value={rating.taste}
-                          onChange={(v) => updateDirectField(currentDirectIdx, "taste", v)}
-                          label="Nota de Sabor"
-                        />
-                        <AnimatePresence>
-                          {rating.taste > 0 && rating.taste <= 6 && (
-                            <LowScoreReasons
-                              reasons={tasteReasons}
-                              selectedReasons={rating.lowReasons}
-                              onToggleReason={(r) => toggleDirectLowReason(currentDirectIdx, r)}
-                              comment={rating.lowComment}
-                              onCommentChange={(c) => updateDirectField(currentDirectIdx, "lowComment", c)}
-                            />
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  );
-                })()}
+                {directRatings[currentDirectIdx] && renderDirectStyleCard(
+                  directRatings[currentDirectIdx],
+                  currentDirectIdx,
+                  directRatings.length,
+                  (idx, field, value) => updateDirectField(idx, field as keyof DirectRating, value),
+                  toggleDirectLowReason,
+                )}
                 <div className="flex justify-between mt-6">
                   <Button
                     variant="outline"
@@ -794,9 +1001,10 @@ export default function RatingPage() {
                     onClick={() => {
                       const rating = directRatings[currentDirectIdx];
                       if (!isDirectItemComplete(rating)) {
-                        toast.error("Preencha todos os campos antes de continuar.", { description: "Serve quantas pessoas, Recomendaria e Nota de Sabor são obrigatórios." });
+                        setValidationAttempted(true);
                         return;
                       }
+                      setValidationAttempted(false);
                       if (currentDirectIdx < directRatings.length - 1) {
                         setCurrentDirectIdx(currentDirectIdx + 1);
                       } else {
@@ -811,7 +1019,54 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 3 (Analytic): Per-item Sabor + Apresentação subcriteria */}
+            {/* Analytic Beverages-Only: Direct-style step */}
+            {step === "analyticBevDirect" && mode === "analitico" && (
+              <motion.div key="analytic-bev-direct" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <div className="flex items-center gap-3 mb-6">
+                  <Star className="w-6 h-6 text-accent" />
+                  <div>
+                    <h3 className="font-display text-2xl tracking-wider text-accent text-glow-pink">AVALIAÇÃO DE BEBIDAS</h3>
+                    <p className="text-sm text-muted-foreground">Item {currentBevDirectIdx + 1} de {bevDirectRatings.length}</p>
+                  </div>
+                </div>
+                {bevDirectRatings[currentBevDirectIdx] && renderDirectStyleCard(
+                  bevDirectRatings[currentBevDirectIdx],
+                  currentBevDirectIdx,
+                  bevDirectRatings.length,
+                  (idx, field, value) => updateBevDirectField(idx, field as keyof BevDirectRating, value),
+                  toggleBevDirectLowReason,
+                )}
+                <div className="flex justify-between mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => currentBevDirectIdx > 0 ? setCurrentBevDirectIdx(currentBevDirectIdx - 1) : setStep("mode")}
+                    className="font-display tracking-wider"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const rating = bevDirectRatings[currentBevDirectIdx];
+                      if (!isBevDirectItemComplete(rating)) {
+                        setValidationAttempted(true);
+                        return;
+                      }
+                      setValidationAttempted(false);
+                      if (currentBevDirectIdx < bevDirectRatings.length - 1) {
+                        setCurrentBevDirectIdx(currentBevDirectIdx + 1);
+                      } else {
+                        setStep("analyticGlobal");
+                      }
+                    }}
+                    className="font-display tracking-wider glow-amber"
+                  >
+                    {currentBevDirectIdx < bevDirectRatings.length - 1 ? "PRÓXIMO ITEM" : "CRITÉRIOS GERAIS"} <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Analytic: Per-item Sabor + Apresentação subcriteria */}
             {step === "analyticItems" && mode === "analitico" && (
               <motion.div key="analytic-items" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -861,6 +1116,7 @@ export default function RatingPage() {
                                     onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
                                     comment={itemRating.lowComments[sub.id] || ""}
                                     onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                                    showError={validationAttempted}
                                   />
                                 )}
                               </AnimatePresence>
@@ -872,7 +1128,6 @@ export default function RatingPage() {
                       {/* Apresentação subcriteria — split by COMIDA vs BEBIDA */}
                       {(() => {
                         const isBev = itemType === "cerveja" || itemType === "drink";
-                        // Comidas: c2_1, c2_2, c2_3 | Bebidas: c2_4, c2_5, c2_6
                         const foodSubs = c2.subcriteria.filter(s => ["c2_1", "c2_2", "c2_3"].includes(s.id));
                         const bevSubs = c2.subcriteria.filter(s => ["c2_4", "c2_5", "c2_6"].includes(s.id));
                         const subsToShow = isBev ? bevSubs : foodSubs;
@@ -898,6 +1153,7 @@ export default function RatingPage() {
                                         onToggleReason={(r) => toggleAnalyticItemLowReason(currentAnalyticItemIdx, sub.id, r)}
                                         comment={itemRating.lowComments[sub.id] || ""}
                                         onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
+                                        showError={validationAttempted}
                                       />
                                     )}
                                   </AnimatePresence>
@@ -930,13 +1186,13 @@ export default function RatingPage() {
                   </Button>
                   <Button
                     onClick={() => {
-                      // Validate current item
                       if (ratableSelectedItems.length > 0 && analyticItemRatings[currentAnalyticItemIdx]) {
                         if (!isAnalyticItemComplete(analyticItemRatings[currentAnalyticItemIdx])) {
-                          toast.error("Preencha todos os subcritérios antes de continuar.", { description: "Todos os campos de Sabor e Apresentação são obrigatórios." });
+                          setValidationAttempted(true);
                           return;
                         }
                       }
+                      setValidationAttempted(false);
                       if (ratableSelectedItems.length > 0 && currentAnalyticItemIdx < ratableSelectedItems.length - 1) {
                         setCurrentAnalyticItemIdx(currentAnalyticItemIdx + 1);
                       } else {
@@ -954,7 +1210,7 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Step 4 (Analytic): Global criteria with per-subcriterion scoring — NO WEIGHT LABELS */}
+            {/* Analytic: Global criteria */}
             {step === "analyticGlobal" && mode === "analitico" && (
               <motion.div key="analytic-global" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -990,6 +1246,7 @@ export default function RatingPage() {
                                     onToggleReason={(r) => toggleGlobalLowReason(criterion.id, sub.id, r)}
                                     comment={gRating.lowComments[sub.id] || ""}
                                     onCommentChange={(c) => updateGlobalLowComment(criterion.id, sub.id, c)}
+                                    showError={validationAttempted}
                                   />
                                 )}
                               </AnimatePresence>
@@ -1001,15 +1258,19 @@ export default function RatingPage() {
                   })}
                 </div>
                 <div className="flex justify-between mt-6">
-                  <Button variant="outline" onClick={() => setStep("analyticItems")} className="font-display tracking-wider">
+                  <Button variant="outline" onClick={() => {
+                    if (onlyBeverages) setStep("analyticBevDirect");
+                    else setStep("analyticItems");
+                  }} className="font-display tracking-wider">
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                   </Button>
                   <Button
                     onClick={() => {
                       if (!areAllGlobalCriteriaComplete()) {
-                        toast.error("Preencha todos os subcritérios antes de continuar.", { description: "Todos os campos de cada critério são obrigatórios." });
+                        setValidationAttempted(true);
                         return;
                       }
+                      setValidationAttempted(false);
                       setStep("bonus");
                     }}
                     className="font-display tracking-wider glow-amber"
@@ -1125,10 +1386,10 @@ export default function RatingPage() {
                         </span>
                       ))}
                     </div>
-                    {mode === "direto" && (
+                    {(mode === "direto" || (mode === "analitico" && onlyBeverages)) && (
                       <div className="mt-4 pt-3 border-t border-border/20">
                         <div className="flex flex-wrap gap-3">
-                          {directRatings.map((r) => {
+                          {(mode === "direto" ? directRatings : bevDirectRatings).map((r) => {
                             const item = menuItems.find((m) => m.id === r.itemId);
                             return (
                               <div key={r.itemId} className="flex items-center gap-1.5 text-xs text-muted-foreground">

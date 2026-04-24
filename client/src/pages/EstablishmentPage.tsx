@@ -1,4 +1,5 @@
 // Design: Neon Urbano — Establishment page with menu and rating CTA
+// Back arrow navigates to the parent category page
 import Navbar from "@/components/Navbar";
 import { categories } from "@/lib/data";
 import { Link, useParams, Redirect } from "wouter";
@@ -17,6 +18,12 @@ export default function EstablishmentPage() {
   if (!establishment) {
     return <Redirect to="/" />;
   }
+
+  // Find the parent category for back navigation
+  const parentCategory = categories.find((c) =>
+    c.establishments.some((e) => e.id === id)
+  );
+  const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
 
   const entradas = establishment.menu.filter((m) => m.category === "entrada");
   const pratos = establishment.menu.filter((m) => m.category === "prato");
@@ -46,7 +53,7 @@ export default function EstablishmentPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar backHref={backHref} />
 
       {/* Hero */}
       <section className="relative pt-16">

@@ -108,6 +108,11 @@
   }
 }
 
+/* Fix sonner toast positioning - ensure bottom toaster doesn't use computed top */
+[data-sonner-toaster][data-y-position='bottom'] {
+  top: auto !important;
+}
+
 @layer components {
   .container {
     width: 100%;

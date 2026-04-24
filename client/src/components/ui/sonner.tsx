@@ -1,23 +1,24 @@
-import { useTheme } from "next-themes";
-import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { Toaster as Sonner, toast } from "sonner";
+import "sonner/dist/styles.css";
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
-
+function Toaster() {
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-        } as React.CSSProperties
-      }
-      {...props}
+      theme="dark"
+      richColors
+      position="bottom-center"
+      duration={4000}
+      containerAriaLabel="Notificações"
+      toastOptions={{
+        style: {
+          background: "hsl(var(--popover))",
+          color: "hsl(var(--popover-foreground))",
+          border: "1px solid hsl(var(--border))",
+          zIndex: 99999,
+        },
+      }}
     />
   );
-};
+}
 
-export { Toaster };
+export { Toaster, toast };

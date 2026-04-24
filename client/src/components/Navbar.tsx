@@ -1,8 +1,13 @@
 // Design: Neon Urbano — Navbar with amber glow branding
+// Back arrow navigates to the provided backHref (category page) or defaults to /#categorias
 import { Link, useLocation } from "wouter";
 import { Beer, ArrowLeft } from "lucide-react";
 
-export default function Navbar() {
+interface NavbarProps {
+  backHref?: string;
+}
+
+export default function Navbar({ backHref }: NavbarProps) {
   const [location] = useLocation();
   const isHome = location === "/";
 
@@ -11,7 +16,7 @@ export default function Navbar() {
       <div className="container flex items-center justify-between h-16">
         <div className="flex items-center gap-3">
           {!isHome && (
-            <Link href="/#categorias">
+            <Link href={backHref || "/#categorias"}>
               <button className="p-2 rounded-lg hover:bg-secondary transition-colors mr-1">
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
