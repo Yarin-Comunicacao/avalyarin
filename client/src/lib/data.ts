@@ -253,6 +253,79 @@ const partisansMenu: MenuItem[] = [
   { id: "pp25", name: "Corona", description: "Long Neck 330ml", price: 22, category: "bebida" },
 ];
 
+const kofMenu: MenuItem[] = [
+  // Cafés
+  { id: "kof1", name: "Espresso", description: "Café espresso extraído com grãos especiais", price: 8, category: "bebida" },
+  { id: "kof2", name: "Cappuccino", description: "Espresso com leite vaporizado e espuma", price: 14, category: "bebida" },
+  { id: "kof3", name: "Flat White", description: "Espresso duplo com microespuma de leite", price: 14, category: "bebida" },
+  { id: "kof4", name: "Cold Brew", description: "Café extraído a frio por 12h", price: 15, category: "bebida" },
+  { id: "kof5", name: "Cold Brew Citrus", description: "Cold brew com toque cítrico refrescante", price: 15, category: "bebida" },
+  { id: "kof6", name: "Café Gelado de Rapadura", description: "Café gelado adoçado com rapadura artesanal", price: 18, category: "bebida" },
+  { id: "kof7", name: "Coffee Macunaíma", description: "Drink de café com cachaça artesanal (alcoólico)", price: 25, category: "drink" },
+  { id: "kof8", name: "Chai Latte", description: "Chá especiado com leite vaporizado", price: 16, category: "bebida" },
+  { id: "kof9", name: "Latte", description: "Espresso com leite vaporizado", price: 14, category: "bebida" },
+  { id: "kof10", name: "Mocha", description: "Espresso com chocolate e leite vaporizado", price: 16, category: "bebida" },
+  // Salgados
+  { id: "kof11", name: "Pão de Queijo", description: "Tradicional mineiro quentinho", price: 8, category: "entrada" },
+  { id: "kof12", name: "Pão de Mandioquinha", description: "Com batata-baroa, manteiga, queijo e ovos", price: 10, category: "entrada" },
+  { id: "kof13", name: "Croissant", description: "Folhado amanteigado crocante", price: 12, category: "entrada" },
+  { id: "kof14", name: "Sanduíche de Pesto", description: "Pesto fresco, queijo, tomate e alface no pão artesanal", price: 28, category: "prato" },
+  { id: "kof15", name: "Panini de Lombo Canadense", description: "Lombo canadense, queijo, alface e tomate na ciabatta", price: 32, category: "prato" },
+  { id: "kof16", name: "Croque Monsieur", description: "Presunto, queijo e molho béchamel gratinado", price: 30, category: "prato" },
+  { id: "kof17", name: "Tuna Melt", description: "Pasta de atum e queijo meia cura no pão de forma", price: 32, category: "prato" },
+  // Doces
+  { id: "kof18", name: "Cinnamon Roll", description: "Rosca de canela com glacê", price: 16, category: "sobremesa" },
+  { id: "kof19", name: "Banana Bread", description: "Bolo de banana com castanhas", price: 14, category: "sobremesa" },
+  { id: "kof20", name: "Waffle", description: "Waffle artesanal com baunilha", price: 18, category: "sobremesa" },
+  { id: "kof21", name: "Bolo de Banana com Castanha", description: "Fatia de bolo caseiro com castanha de caju", price: 12, category: "sobremesa" },
+];
+
+const foradaLeiMenu: MenuItem[] = [
+  // Cafés
+  { id: "fdl1", name: "Espresso", description: "Café espresso com grãos selecionados", price: 8, category: "bebida" },
+  { id: "fdl2", name: "Cappuccino", description: "Espresso com espuma espessa de leite", price: 12, category: "bebida" },
+  { id: "fdl3", name: "Flat White", description: "Espresso duplo com microespuma", price: 14, category: "bebida" },
+  { id: "fdl4", name: "Coado Especial", description: "Café coado com grãos de origem única", price: 12, category: "bebida" },
+  { id: "fdl5", name: "V60", description: "Café filtrado no método V60", price: 14, category: "bebida" },
+  { id: "fdl6", name: "Café Gelado", description: "Café gelado refrescante", price: 14, category: "bebida" },
+  { id: "fdl7", name: "Latte", description: "Espresso com leite vaporizado", price: 14, category: "bebida" },
+  // Cervejas Fora da Lei
+  { id: "fdl8", name: "Cerveja Fora da Lei Pilsen", description: "Cerveja artesanal da casa estilo Pilsen", price: 18, category: "bebida" },
+  { id: "fdl9", name: "Cerveja Fora da Lei IPA", description: "Cerveja artesanal da casa estilo IPA", price: 22, category: "bebida" },
+  { id: "fdl10", name: "Cerveja Fora da Lei Witbier", description: "Cerveja artesanal da casa estilo Witbier", price: 20, category: "bebida" },
+  // Salgados
+  { id: "fdl11", name: "Sanduíche da Casa", description: "Sanduíche artesanal com ingredientes frescos", price: 22, category: "prato" },
+  { id: "fdl12", name: "Pão de Queijo", description: "Pão de queijo quentinho", price: 8, category: "entrada" },
+  { id: "fdl13", name: "Quiche do Dia", description: "Quiche artesanal com recheio do dia", price: 14, category: "entrada" },
+  // Doces
+  { id: "fdl14", name: "Bolo de Maçã", description: "Com calda de caramelo e canela, massa úmida", price: 11, category: "sobremesa" },
+  { id: "fdl15", name: "Brownie", description: "Brownie de chocolate intenso", price: 10, category: "sobremesa" },
+  { id: "fdl16", name: "Torta de Limão", description: "Torta com creme de limão e merengue", price: 12, category: "sobremesa" },
+  { id: "fdl17", name: "Brigadeiro Vegano", description: "Brigadeiro sem lactose artesanal", price: 6, category: "sobremesa" },
+  { id: "fdl18", name: "Biscoito Artesanal", description: "Cookie caseiro crocante", price: 8, category: "sobremesa" },
+];
+
+const crioCafeMenu: MenuItem[] = [
+  // Cafés
+  { id: "cc1", name: "Espresso", description: "Café espresso com torrefação própria", price: 8, category: "bebida" },
+  { id: "cc2", name: "Cappuccino", description: "Espresso com leite vaporizado e espuma", price: 14, category: "bebida" },
+  { id: "cc3", name: "Coado Clássico", description: "Café coado com grãos clássicos da casa", price: 10, category: "bebida" },
+  { id: "cc4", name: "Coado Sensorial", description: "Café coado com perfil sensorial diferenciado", price: 14, category: "bebida" },
+  { id: "cc5", name: "Coado Exótico", description: "Café coado com grãos raros e exóticos", price: 18, category: "bebida" },
+  { id: "cc6", name: "Coado Edição Especial", description: "Café coado com microlote exclusivo", price: 22, category: "bebida" },
+  { id: "cc7", name: "Flat White", description: "Espresso duplo com microespuma", price: 14, category: "bebida" },
+  { id: "cc8", name: "Cold Brew", description: "Café extraído a frio", price: 14, category: "bebida" },
+  { id: "cc9", name: "Latte", description: "Espresso com leite vaporizado", price: 14, category: "bebida" },
+  // Salgados
+  { id: "cc10", name: "Enroladinho Misto", description: "Brioche recheado com queijo e presunto", price: 16, category: "entrada" },
+  { id: "cc11", name: "Enroladinho de Queijo", description: "Brioche recheado com queijo", price: 16, category: "entrada" },
+  { id: "cc12", name: "Pão de Queijo", description: "Pão de queijo artesanal quentinho", price: 8, category: "entrada" },
+  // Doces
+  { id: "cc13", name: "Cookie de Chocolate", description: "Cookie artesanal com gotas de chocolate", price: 10, category: "sobremesa" },
+  { id: "cc14", name: "Brownie", description: "Brownie de chocolate com nozes", price: 12, category: "sobremesa" },
+  { id: "cc15", name: "Queijada", description: "Queijada artesanal tradicional", price: 10, category: "sobremesa" },
+];
+
 export const categories: Category[] = [
   {
     id: "bar-lanchonete",
@@ -350,8 +423,48 @@ export const categories: Category[] = [
     name: "Cafeteria",
     description: "Café especial, brunch",
     icon: "CupSoda",
-    active: false,
-    establishments: [],
+    active: true,
+    establishments: [
+      {
+        id: "kof-king-of-the-fork",
+        name: "KOF - King of The Fork",
+        address: "R. Artur de Azevedo, 1317 - Pinheiros",
+        neighborhood: "Pinheiros",
+        rating: 4.3,
+        reviewCount: 1800,
+        image: "/manus-storage/kof-exterior_d9c04bf0.jpg",
+        hours: "Seg-Sex 07h30-19h | Sáb 09h-18h | Dom Fechado",
+        phone: "(11) 2533-9391",
+        instagram: "@kingofthefork",
+        menu: kofMenu,
+      },
+      {
+        id: "fora-da-lei-cafe",
+        name: "Fora da Lei Café",
+        address: "R. Cubatão, 131 - Paraíso",
+        neighborhood: "Paraíso",
+        rating: 4.6,
+        reviewCount: 1200,
+        image: "/manus-storage/fora-da-lei_e7a3bc13.jpg",
+        hours: "Seg 12h-18h | Ter-Sáb 09h-18h | Dom Fechado",
+        phone: "(11) 97416-6766",
+        instagram: "@foradalei_cafe",
+        menu: foradaLeiMenu,
+      },
+      {
+        id: "crio-cafe",
+        name: "Crio Café",
+        address: "R. Cubatão, 641 - Vila Mariana",
+        neighborhood: "Vila Mariana",
+        rating: 4.7,
+        reviewCount: 950,
+        image: "/manus-storage/crio-cafe_bfbc7063.jpg",
+        hours: "Seg-Sáb 09h30-18h30 | Dom Fechado",
+        phone: "",
+        instagram: "@crio.cafe",
+        menu: crioCafeMenu,
+      },
+    ],
   },
   {
     id: "padaria",

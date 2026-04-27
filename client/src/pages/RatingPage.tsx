@@ -404,6 +404,7 @@ export default function RatingPage() {
 
   const entradas = menuItems.filter((m) => m.category === "entrada");
   const pratos = menuItems.filter((m) => m.category === "prato");
+  const sobremesas = menuItems.filter((m) => m.category === "sobremesa");
   const bebidas = menuItems.filter((m) => ["bebida", "chopp", "drink"].includes(m.category));
 
   const toggleItem = (id: string) => {
@@ -921,8 +922,9 @@ export default function RatingPage() {
                     <p className="text-sm text-muted-foreground">Selecione os itens do cardápio do {establishment.name}</p>
                   </div>
                 </div>
-                <ItemSelector items={entradas} title="PORÇÕES" />
-                <ItemSelector items={pratos} title="BURGERS & SANDWICHES" />
+                <ItemSelector items={entradas} title={sobremesas.length > 0 ? "SALGADOS" : "PORÇÕES"} />
+                <ItemSelector items={pratos} title={sobremesas.length > 0 ? "PRATOS & SANDUÍCHES" : "BURGERS & SANDWICHES"} />
+                <ItemSelector items={sobremesas} title="DOCES & SOBREMESAS" />
                 <ItemSelector items={bebidas} title="BEBIDAS" />
                 <div className="flex justify-end mt-6">
                   <Button onClick={startRating} className="font-display tracking-wider glow-amber">

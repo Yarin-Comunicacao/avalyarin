@@ -27,9 +27,54 @@ export default function EstablishmentPage() {
 
   const entradas = establishment.menu.filter((m) => m.category === "entrada");
   const pratos = establishment.menu.filter((m) => m.category === "prato");
+  const sobremesas = establishment.menu.filter((m) => m.category === "sobremesa");
   const bebidas = establishment.menu.filter((m) => m.category === "bebida");
   const chopps = establishment.menu.filter((m) => m.category === "chopp");
   const drinks = establishment.menu.filter((m) => m.category === "drink");
+
+  // Determine if this is a cafeteria-style establishment (has sobremesas)
+  const isCafeteria = sobremesas.length > 0;
+
+  // Dynamic labels based on establishment type
+  const labels = {
+    entradas: {
+      tab: isCafeteria ? "SALGADOS" : "PORÇÕES",
+      title: isCafeteria ? "SALGADOS" : "FINGER FOOD & PORÇÕES",
+    },
+    pratos: {
+      tab: isCafeteria ? "PRATOS" : "BURGERS",
+      title: isCafeteria ? "PRATOS & SANDUÍCHES" : "BURGERS & SANDWICHES",
+    },
+    sobremesas: {
+      tab: "DOCES",
+      title: "DOCES & SOBREMESAS",
+    },
+    bebidas: {
+      tab: isCafeteria ? "CAFÉS" : "CERVEJAS",
+      title: isCafeteria ? "CAFÉS & BEBIDAS" : "CERVEJAS & LONG NECKS",
+    },
+    chopps: {
+      tab: "CHOPP",
+      title: "CHOPP",
+    },
+    drinks: {
+      tab: "DRINKS",
+      title: "DRINKS & COQUETÉIS",
+    },
+  };
+
+  // Determine default tab (first non-empty section)
+  const defaultTab = entradas.length > 0
+    ? "entradas"
+    : pratos.length > 0
+    ? "pratos"
+    : sobremesas.length > 0
+    ? "sobremesas"
+    : bebidas.length > 0
+    ? "bebidas"
+    : chopps.length > 0
+    ? "chopps"
+    : "drinks";
 
   const MenuSection = ({ items, title }: { items: typeof entradas; title: string }) => (
     <div className="space-y-2">
@@ -92,10 +137,12 @@ export default function EstablishmentPage() {
                 <Clock className="w-4 h-4 shrink-0 text-primary/60" />
                 <span>{establishment.hours}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Phone className="w-4 h-4 shrink-0 text-primary/60" />
-                <span>{establishment.phone}</span>
-              </div>
+              {establishment.phone && (
+                <div className="flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 shrink-0 text-primary/60" />
+                  <span>{establishment.phone}</span>
+                </div>
+              )}
               {establishment.instagram && (
                 <div className="flex items-center gap-1.5">
                   <Instagram className="w-4 h-4 shrink-0 text-primary/60" />
@@ -124,37 +171,43 @@ export default function EstablishmentPage() {
         <div className="container">
           <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-6">CARDÁPIO</h3>
 
-          <Tabs defaultValue="entradas" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="bg-secondary border border-border/50 mb-6 flex-wrap h-auto gap-1 p-1">
-              {entradas.length > 0 && <TabsTrigger value="entradas" className="font-display tracking-wider text-xs">PORÇÕES</TabsTrigger>}
-              {pratos.length > 0 && <TabsTrigger value="pratos" className="font-display tracking-wider text-xs">BURGERS</TabsTrigger>}
-              {chopps.length > 0 && <TabsTrigger value="chopps" className="font-display tracking-wider text-xs">CHOPP</TabsTrigger>}
-              {bebidas.length > 0 && <TabsTrigger value="bebidas" className="font-display tracking-wider text-xs">CERVEJAS</TabsTrigger>}
-              {drinks.length > 0 && <TabsTrigger value="drinks" className="font-display tracking-wider text-xs">DRINKS</TabsTrigger>}
+              {entradas.length > 0 && <TabsTrigger value="entradas" className="font-display tracking-wider text-xs">{labels.entradas.tab}</TabsTrigger>}
+              {pratos.length > 0 && <TabsTrigger value="pratos" className="font-display tracking-wider text-xs">{labels.pratos.tab}</TabsTrigger>}
+              {sobremesas.length > 0 && <TabsTrigger value="sobremesas" className="font-display tracking-wider text-xs">{labels.sobremesas.tab}</TabsTrigger>}
+              {chopps.length > 0 && <TabsTrigger value="chopps" className="font-display tracking-wider text-xs">{labels.chopps.tab}</TabsTrigger>}
+              {bebidas.length > 0 && <TabsTrigger value="bebidas" className="font-display tracking-wider text-xs">{labels.bebidas.tab}</TabsTrigger>}
+              {drinks.length > 0 && <TabsTrigger value="drinks" className="font-display tracking-wider text-xs">{labels.drinks.tab}</TabsTrigger>}
             </TabsList>
             {entradas.length > 0 && (
               <TabsContent value="entradas">
-                <MenuSection items={entradas} title="FINGER FOOD & PORÇÕES" />
+                <MenuSection items={entradas} title={labels.entradas.title} />
               </TabsContent>
             )}
             {pratos.length > 0 && (
               <TabsContent value="pratos">
-                <MenuSection items={pratos} title="BURGERS & SANDWICHES" />
+                <MenuSection items={pratos} title={labels.pratos.title} />
+              </TabsContent>
+            )}
+            {sobremesas.length > 0 && (
+              <TabsContent value="sobremesas">
+                <MenuSection items={sobremesas} title={labels.sobremesas.title} />
               </TabsContent>
             )}
             {chopps.length > 0 && (
               <TabsContent value="chopps">
-                <MenuSection items={chopps} title="CHOPP" />
+                <MenuSection items={chopps} title={labels.chopps.title} />
               </TabsContent>
             )}
             {bebidas.length > 0 && (
               <TabsContent value="bebidas">
-                <MenuSection items={bebidas} title="CERVEJAS & LONG NECKS" />
+                <MenuSection items={bebidas} title={labels.bebidas.title} />
               </TabsContent>
             )}
             {drinks.length > 0 && (
               <TabsContent value="drinks">
-                <MenuSection items={drinks} title="DRINKS & COQUETÉIS" />
+                <MenuSection items={drinks} title={labels.drinks.title} />
               </TabsContent>
             )}
           </Tabs>
