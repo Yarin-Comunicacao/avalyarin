@@ -40,10 +40,10 @@ export default function CategoryPage() {
             <p className="text-muted-foreground mt-3 max-w-md">{category.description}</p>
             <div className="mt-4 flex items-center gap-2">
               <span className="text-xs text-foreground/70 bg-secondary px-3 py-1 rounded-full border border-border/50">
-                {category.establishments.length} estabelecimentos
+                {category.establishments.length} {category.establishments.length === 1 ? "estabelecimento" : "estabelecimentos"}
               </span>
               <span className="text-xs text-foreground/70 bg-secondary px-3 py-1 rounded-full border border-border/50">
-                Pinheiros & Vila Madalena
+                {Array.from(new Set(category.establishments.map(e => e.neighborhood))).join(", ")}
               </span>
             </div>
           </motion.div>

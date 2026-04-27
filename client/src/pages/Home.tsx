@@ -107,7 +107,7 @@ export default function Home() {
                 CATEGORIAS
               </h3>
               <p className="text-sm text-muted-foreground mt-2">
-                11 tipos de estabelecimentos com critérios adaptados
+                13 tipos de estabelecimentos com critérios adaptados
               </p>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function Home() {
                         </h4>
                         <p className="text-xs text-muted-foreground mt-1">{cat.description}</p>
                         <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium">
-                          <span>{cat.establishments.length} estabelecimentos</span>
+                          <span>{cat.establishments.length} {cat.establishments.length === 1 ? "estabelecimento" : "estabelecimentos"}</span>
                           <ArrowRight className="w-3 h-3" />
                         </div>
                       </div>
