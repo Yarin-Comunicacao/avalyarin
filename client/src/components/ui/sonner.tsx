@@ -1,22 +1,18 @@
 import { Toaster as Sonner, toast } from "sonner";
 import "sonner/dist/styles.css";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function Toaster() {
+  const { theme } = useTheme();
+  const isDark = theme === "escuro" || theme === "azul-cinza";
+
   return (
     <Sonner
-      theme="dark"
+      theme={isDark ? "dark" : "light"}
       richColors
       position="bottom-center"
       duration={4000}
       containerAriaLabel="Notificações"
-      toastOptions={{
-        style: {
-          background: "hsl(var(--popover))",
-          color: "hsl(var(--popover-foreground))",
-          border: "1px solid hsl(var(--border))",
-          zIndex: 99999,
-        },
-      }}
     />
   );
 }

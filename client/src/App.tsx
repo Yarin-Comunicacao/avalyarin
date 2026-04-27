@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ThemeSidebar from "./components/ThemeSidebar";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
@@ -25,9 +26,10 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="escuro">
         <TooltipProvider>
           <Toaster />
+          <ThemeSidebar />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
