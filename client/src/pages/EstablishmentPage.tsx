@@ -32,34 +32,40 @@ export default function EstablishmentPage() {
   const chopps = establishment.menu.filter((m) => m.category === "chopp");
   const drinks = establishment.menu.filter((m) => m.category === "drink");
 
-  // Determine if this is a cafeteria-style establishment (has sobremesas)
-  const isCafeteria = sobremesas.length > 0;
+  // Determine establishment type based on parent category
+  const catId = parentCategory?.id || "";
+  const isRestaurante = catId === "restaurante-tradicional" || catId === "autoral";
+  const isBarMusical = catId === "bar-musical";
+  const isBalada = catId === "balada";
+  const isConfeitaria = catId === "confeitaria";
+  const isCafeteria = catId === "cafeteria" || catId === "padaria";
+  const isBarType = isBarMusical || isBalada || catId === "pub" || catId === "coquetelaria" || catId === "boteco-moderno" || catId === "boteco-tradicional" || catId === "bar-balada" || catId === "bar-lanchonete";
 
   // Dynamic labels based on establishment type
   const labels = {
     entradas: {
-      tab: isCafeteria ? "SALGADOS" : "PORÇÕES",
-      title: isCafeteria ? "SALGADOS" : "FINGER FOOD & PORÇÕES",
+      tab: isRestaurante ? "ENTRADAS" : isConfeitaria || isCafeteria ? "SALGADOS" : "PETISCOS",
+      title: isRestaurante ? "ENTRADAS" : isConfeitaria || isCafeteria ? "SALGADOS" : "PETISCOS & PORÇÕES",
     },
     pratos: {
-      tab: isCafeteria ? "PRATOS" : "BURGERS",
-      title: isCafeteria ? "PRATOS & SANDUÍCHES" : "BURGERS & SANDWICHES",
+      tab: "PRATOS",
+      title: isRestaurante ? "PRATOS PRINCIPAIS" : isConfeitaria ? "PRATOS & SANDUÍCHES" : isCafeteria ? "PRATOS & SANDUÍCHES" : "PRATOS & SANDUÍCHES",
     },
     sobremesas: {
       tab: "DOCES",
       title: "DOCES & SOBREMESAS",
     },
     bebidas: {
-      tab: isCafeteria ? "CAFÉS" : "CERVEJAS",
-      title: isCafeteria ? "CAFÉS & BEBIDAS" : "CERVEJAS & LONG NECKS",
+      tab: isRestaurante ? "BEBIDAS" : isConfeitaria || isCafeteria ? "CAFÉS" : "CERVEJAS",
+      title: isRestaurante ? "BEBIDAS" : isConfeitaria || isCafeteria ? "CAFÉS & BEBIDAS" : "CERVEJAS & LONG NECKS",
     },
     chopps: {
       tab: "CHOPP",
       title: "CHOPP",
     },
     drinks: {
-      tab: "DRINKS",
-      title: "DRINKS & COQUETÉIS",
+      tab: isRestaurante ? "VINHOS" : "DRINKS",
+      title: isRestaurante ? "VINHOS & DRINKS" : "DRINKS & COQUETÉIS",
     },
   };
 
@@ -217,7 +223,7 @@ export default function EstablishmentPage() {
       {/* Footer */}
       <footer className="py-8 border-t border-border/30">
         <div className="container text-center">
-          <p className="text-xs text-muted-foreground">Avalia Bar — Sistema de Avaliação Dinâmico</p>
+          <p className="text-xs text-muted-foreground">Avalia Yarin — Sistema de Avaliação Dinâmico</p>
         </div>
       </footer>
     </div>

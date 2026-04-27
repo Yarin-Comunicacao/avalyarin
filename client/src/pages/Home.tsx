@@ -107,7 +107,7 @@ export default function Home() {
                 CATEGORIAS
               </h3>
               <p className="text-sm text-muted-foreground mt-2">
-                13 tipos de estabelecimentos com critérios adaptados
+                {categories.length} tipos de estabelecimentos com critérios adaptados
               </p>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function Home() {
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Beer className="w-4 h-4 text-primary" />
-            <span className="font-display text-sm tracking-wider text-primary">AVALIA BAR</span>
+            <span className="font-display text-sm tracking-wider text-primary">AVALIA YARIN</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Sistema de Avaliação Dinâmico para Bares e Restaurantes — Pinheiros & Vila Madalena, SP

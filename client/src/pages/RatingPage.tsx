@@ -922,10 +922,18 @@ export default function RatingPage() {
                     <p className="text-sm text-muted-foreground">Selecione os itens do cardápio do {establishment.name}</p>
                   </div>
                 </div>
-                <ItemSelector items={entradas} title={sobremesas.length > 0 ? "SALGADOS" : "PORÇÕES"} />
-                <ItemSelector items={pratos} title={sobremesas.length > 0 ? "PRATOS & SANDUÍCHES" : "BURGERS & SANDWICHES"} />
+                <ItemSelector items={entradas} title={
+                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "ENTRADAS" :
+                  parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "SALGADOS" : "PETISCOS & PORÇÕES"
+                } />
+                <ItemSelector items={pratos} title={
+                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "PRATOS PRINCIPAIS" : "PRATOS & SANDUÍCHES"
+                } />
                 <ItemSelector items={sobremesas} title="DOCES & SOBREMESAS" />
-                <ItemSelector items={bebidas} title="BEBIDAS" />
+                <ItemSelector items={bebidas} title={
+                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "BEBIDAS" :
+                  parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "CAFÉS & BEBIDAS" : "CERVEJAS"
+                } />
                 <div className="flex justify-end mt-6">
                   <Button onClick={startRating} className="font-display tracking-wider glow-amber">
                     CONTINUAR <ChevronRight className="w-4 h-4 ml-1" />

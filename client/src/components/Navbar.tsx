@@ -28,7 +28,7 @@ export default function Navbar({ backHref }: NavbarProps) {
             </div>
             <div>
               <h1 className="font-display text-2xl leading-none tracking-wider text-primary text-glow-amber">
-                AVALIA BAR
+                AVALIA YARIN
               </h1>
             </div>
           </Link>
