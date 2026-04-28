@@ -1,7 +1,7 @@
 // Design: Neon Urbano — Navbar with amber glow branding
 // Back arrow navigates to the provided backHref (category page) or defaults to /#categorias
 import { Link, useLocation } from "wouter";
-import { Beer, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface NavbarProps {
   backHref?: string;
@@ -24,11 +24,11 @@ export default function Navbar({ backHref }: NavbarProps) {
           )}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center glow-amber transition-all group-hover:bg-primary/20">
-              <Beer className="w-5 h-5 text-primary" />
+              <span className="text-xl leading-none">🧄</span>
             </div>
             <div>
               <h1 className="font-display text-2xl leading-none tracking-wider text-primary text-glow-amber">
-                AVALIA YARIN
+                AVALIALINHO
               </h1>
             </div>
           </Link>

@@ -31,6 +31,7 @@ export default function EstablishmentPage() {
   const bebidas = establishment.menu.filter((m) => m.category === "bebida");
   const chopps = establishment.menu.filter((m) => m.category === "chopp");
   const drinks = establishment.menu.filter((m) => m.category === "drink");
+  const destilados = establishment.menu.filter((m) => m.category === "destilado");
 
   // Determine establishment type based on parent category
   const catId = parentCategory?.id || "";
@@ -80,6 +81,8 @@ export default function EstablishmentPage() {
     ? "bebidas"
     : chopps.length > 0
     ? "chopps"
+    : destilados.length > 0
+    ? "destilados"
     : "drinks";
 
   const MenuSection = ({ items, title }: { items: typeof entradas; title: string }) => (
@@ -184,6 +187,7 @@ export default function EstablishmentPage() {
               {sobremesas.length > 0 && <TabsTrigger value="sobremesas" className="font-display tracking-wider text-xs">{labels.sobremesas.tab}</TabsTrigger>}
               {chopps.length > 0 && <TabsTrigger value="chopps" className="font-display tracking-wider text-xs">{labels.chopps.tab}</TabsTrigger>}
               {bebidas.length > 0 && <TabsTrigger value="bebidas" className="font-display tracking-wider text-xs">{labels.bebidas.tab}</TabsTrigger>}
+              {destilados.length > 0 && <TabsTrigger value="destilados" className="font-display tracking-wider text-xs">DESTILADOS</TabsTrigger>}
               {drinks.length > 0 && <TabsTrigger value="drinks" className="font-display tracking-wider text-xs">{labels.drinks.tab}</TabsTrigger>}
             </TabsList>
             {entradas.length > 0 && (
@@ -211,6 +215,11 @@ export default function EstablishmentPage() {
                 <MenuSection items={bebidas} title={labels.bebidas.title} />
               </TabsContent>
             )}
+            {destilados.length > 0 && (
+              <TabsContent value="destilados">
+                <MenuSection items={destilados} title="DESTILADOS" />
+              </TabsContent>
+            )}
             {drinks.length > 0 && (
               <TabsContent value="drinks">
                 <MenuSection items={drinks} title={labels.drinks.title} />
@@ -223,7 +232,7 @@ export default function EstablishmentPage() {
       {/* Footer */}
       <footer className="py-8 border-t border-border/30">
         <div className="container text-center">
-          <p className="text-xs text-muted-foreground">Avalia Yarin — Sistema de Avaliação Dinâmico</p>
+          <p className="text-xs text-muted-foreground">Avalialinho — Sistema de Avaliação Dinâmico</p>
         </div>
       </footer>
     </div>

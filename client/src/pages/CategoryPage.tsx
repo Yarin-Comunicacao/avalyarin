@@ -105,7 +105,7 @@ export default function CategoryPage() {
       <footer className="py-8 border-t border-border/30 mt-8">
         <div className="container text-center">
           <p className="text-xs text-muted-foreground">
-            Avalia Yarin — Sistema de Avaliação Dinâmico
+            Avalialinho — Sistema de Avaliação Dinâmico
           </p>
         </div>
       </footer>

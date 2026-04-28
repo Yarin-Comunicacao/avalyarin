@@ -6,13 +6,13 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import {
-  Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
-  Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3
+  Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
+  Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3, Beer, Leaf
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
-  Wine, CupSoda, Croissant, Music,
+  Wine, CupSoda, Croissant, Music, Leaf,
 };
 
 const fadeUp = {
@@ -71,7 +71,7 @@ export default function Home() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: Beer, title: "Escolha o Bar", desc: "Selecione a categoria e o estabelecimento que você visitou." },
+              { icon: Star, title: "Escolha o Bar", desc: "Selecione a categoria e o estabelecimento que você visitou." },
               { icon: ClipboardCheck, title: "Avalie o que Consumiu", desc: "Escolha os itens do cardápio e avalie no modo Direto ou Analítico." },
               { icon: BarChart3, title: "Veja a Nota", desc: "O sistema calcula automaticamente com pesos dinâmicos por categoria." },
             ].map((step, i) => (
@@ -114,7 +114,7 @@ export default function Home() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((cat, i) => {
-              const Icon = iconMap[cat.icon] || Beer;
+              const Icon = iconMap[cat.icon] || Coffee;
               return (
                 <motion.div
                   key={cat.id}
@@ -171,8 +171,8 @@ export default function Home() {
       <footer className="py-8 border-t border-border/30">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Beer className="w-4 h-4 text-primary" />
-            <span className="font-display text-sm tracking-wider text-primary">AVALIA YARIN</span>
+            <span className="text-base">🧄</span>
+            <span className="font-display text-sm tracking-wider text-primary">AVALIALINHO</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Sistema de Avaliação Dinâmico para Bares e Restaurantes — Pinheiros & Vila Madalena, SP
