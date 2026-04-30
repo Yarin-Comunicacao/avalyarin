@@ -25,10 +25,10 @@ export default function EstablishmentPage() {
   );
   const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
 
-  const entradas = establishment.menu.filter((m) => m.category === "entrada");
-  const pratos = establishment.menu.filter((m) => m.category === "prato");
+  const entradas = establishment.menu.filter((m) => m.category === "entrada" || m.category === "petisco");
+  const pratos = establishment.menu.filter((m) => m.category === "prato" || m.category === "hamburguer" || m.category === "pizza");
   const sobremesas = establishment.menu.filter((m) => m.category === "sobremesa");
-  const bebidas = establishment.menu.filter((m) => m.category === "bebida");
+  const bebidas = establishment.menu.filter((m) => m.category === "bebida" || m.category === "cerveja");
   const chopps = establishment.menu.filter((m) => m.category === "chopp");
   const drinks = establishment.menu.filter((m) => m.category === "drink");
   const destilados = establishment.menu.filter((m) => m.category === "destilado");
