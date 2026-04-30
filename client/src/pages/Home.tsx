@@ -172,7 +172,7 @@ export default function Home() {
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-base">🧄</span>
-            <span className="font-display text-sm tracking-wider text-primary">AVALIALINHO</span>
+            <span className="font-display text-sm tracking-wider text-primary">AVALYARIN</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Sistema de Avaliação Dinâmico para Bares e Restaurantes — Pinheiros & Vila Madalena, SP

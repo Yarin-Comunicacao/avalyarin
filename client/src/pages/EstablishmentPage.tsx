@@ -232,7 +232,7 @@ export default function EstablishmentPage() {
       {/* Footer */}
       <footer className="py-8 border-t border-border/30">
         <div className="container text-center">
-          <p className="text-xs text-muted-foreground">Avalialinho — Sistema de Avaliação Dinâmico</p>
+          <p className="text-xs text-muted-foreground">AvaLyarin — Sistema de Avaliação Dinâmico</p>
         </div>
       </footer>
     </div>

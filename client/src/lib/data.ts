@@ -1,4 +1,4 @@
-// Design: Neon Urbano — Data layer for Avalialinho
+// Design: Neon Urbano — Data layer for AvaLyarin
 // All categories, establishments, menus, and rating criteria
 
 export interface MenuItem {
