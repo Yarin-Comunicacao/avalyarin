@@ -1,4 +1,5 @@
-// Design: Neon Urbano — Navbar with amber glow branding
+// Design: AvaLyarin — Navbar with Y logo from Yarin brand identity
+// The Y icon adapts to theme via CSS filter for dark/light backgrounds
 // Back arrow navigates to the provided backHref (category page) or defaults to /#categorias
 import { Link, useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
@@ -23,8 +24,12 @@ export default function Navbar({ backHref }: NavbarProps) {
             </Link>
           )}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center glow-amber transition-all group-hover:bg-primary/20">
-              <span className="text-xl leading-none">🧄</span>
+            <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center glow-amber transition-all group-hover:bg-primary/20 overflow-hidden p-1">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                alt="AvaLyarin Y logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="font-display text-2xl leading-none tracking-wider text-primary text-glow-amber">
