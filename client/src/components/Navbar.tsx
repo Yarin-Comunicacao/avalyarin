@@ -1,9 +1,10 @@
-// Design: AvaLyarin — Navbar with Y logo and hamburger menu trigger on left
+// Design: AvaLyarin — Navbar with Y logo, search bar, and hamburger menu trigger on left
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, User } from "lucide-react";
 import { MenuTrigger } from "./AppMenu";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import SearchBar from "./SearchBar";
 
 interface NavbarProps {
   backHref?: string;
@@ -17,8 +18,8 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
-      <div className="container flex items-center justify-between h-16">
-        <div className="flex items-center gap-2">
+      <div className="container flex items-center justify-between h-16 gap-3">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {/* Menu trigger - always visible on left */}
           {onMenuOpen && <MenuTrigger onClick={onMenuOpen} />}
 
@@ -37,15 +38,21 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <h1 className="font-display text-2xl leading-none tracking-wider text-primary text-glow-amber">
                 AVALYARIN
               </h1>
             </div>
           </Link>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+
+        {/* Search Bar - centered */}
+        <div className="flex-1 max-w-md hidden sm:block">
+          <SearchBar />
+        </div>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-xs text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-secondary border border-border/50 hidden sm:inline-block">
             Beta
           </span>
           {isAuthenticated ? (
@@ -63,6 +70,11 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
             </a>
           )}
         </div>
+      </div>
+
+      {/* Mobile search bar - below main nav */}
+      <div className="sm:hidden px-4 pb-3">
+        <SearchBar />
       </div>
     </nav>
   );

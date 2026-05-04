@@ -28,6 +28,8 @@ import InfluencersFavoritos from "./pages/InfluencersFavoritos";
 import ListasCollab from "./pages/ListasCollab";
 // Badges
 import BadgesPage from "./pages/BadgesPage";
+// Search
+import SearchResults from "./pages/SearchResults";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
@@ -87,6 +89,8 @@ function Router() {
       <Route path="/salvos/collab" component={ListasCollab} />
       {/* Badges */}
       <Route path="/badges" component={BadgesPage} />
+      {/* Search */}
+      <Route path="/busca" component={SearchResults} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
