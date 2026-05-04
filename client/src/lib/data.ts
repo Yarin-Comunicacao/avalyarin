@@ -2884,7 +2884,7 @@ const lanchoneteDaCidadeMenu: MenuItem[] = [
   { id: "lanchonete-da-cidade-pudim", name: "Pudim", description: "Pudim de leite condensado", price: 15.00, category: "sobremesa" },
 ];
 
-const barDoBaixoMenu2: MenuItem[] = [
+const barDoBaixoBaladaMenu: MenuItem[] = [
   { id: "bar-do-baixo-porcao-de-batata-frita", name: "Porção de Batata Frita", description: "Porção generosa de batata frita sequinha e crocante.", price: 25.00, category: "petisco" },
   { id: "bar-do-baixo-porcao-de-mandioca-frita", name: "Porção de Mandioca Frita", description: "Mandioca frita crocante por fora e macia por dentro.", price: 22.00, category: "petisco" },
   { id: "bar-do-baixo-porcao-de-calabresa-acebolada", name: "Porção de Calabresa Acebolada", description: "Linguiça calabresa fatiada e acebolada, servida com pão.", price: 30.00, category: "petisco" },
@@ -3251,7 +3251,7 @@ const orfeuBarERestauranteMenu: MenuItem[] = [
   { id: "orfeu-bar-e-restaurante-aperol-spritz", name: "Aperol Spritz", description: "(Aperol, espumante Mumm e Acqua Mix)", price: 27.00, category: "drink" },
 ];
 
-const maniaDeChurrasco2Menu: MenuItem[] = [
+const maniaDeChurrascoBarMenu: MenuItem[] = [
   { id: "mania-de-churrasco-pao-de-alho", name: "Pão de Alho", description: "Pão de alho na brasa", price: 12.90, category: "entrada" },
   { id: "mania-de-churrasco-batata-rustica", name: "Batata Rústica", description: "Batatas rústicas com alecrim e sal grosso", price: 15.90, category: "petisco" },
   { id: "mania-de-churrasco-coracao-de-frango", name: "Coração de Frango", description: "Espeto de coração de frango", price: 19.90, category: "petisco" },
@@ -3662,7 +3662,7 @@ export const categories: Category[] = [
         hours: "Qua-Sex: 18h-03h, Sáb: 19h-05h, Dom: 17h-02h",
         phone: "(11) 3031-6568",
         instagram: "@bardobaixo",
-        menu: barDoBaixoMenu2,
+        menu: barDoBaixoBaladaMenu,
       },
       {
         id: "restaurante-lanchonete-opala",
@@ -3957,7 +3957,7 @@ export const categories: Category[] = [
         hours: "Seg-Sáb 11h15-22h, Dom 11h15-22h",
         phone: "(11) 2197-6321",
         instagram: "@maniadechurrasco",
-        menu: maniaDeChurrasco2Menu,
+        menu: maniaDeChurrascoBarMenu,
       },
       {
         id: "orfeu-bar-e-restaurante",

@@ -1688,7 +1688,47 @@ export default function RatingPage() {
 
                   <Button
                     onClick={() => {
-                      toast.success("Avaliação salva com sucesso!", { description: "Obrigado por contribuir!" });
+                      // Persist review to localStorage
+                      try {
+                        const existingRaw = localStorage.getItem("avalyarin_reviews");
+                        const existing = existingRaw ? JSON.parse(existingRaw) : [];
+                        const newReview = {
+                          establishmentId: establishment.id,
+                          establishmentName: establishment.name,
+                          categoryId: parentCategory?.id || "",
+                          score: finalScore,
+                          mode: mode,
+                          date: visitDate ? visitDate.toISOString() : new Date().toISOString(),
+                          savedAt: new Date().toISOString(),
+                          items: selectedMenuItems.map(m => m.name),
+                        };
+                        existing.push(newReview);
+                        localStorage.setItem("avalyarin_reviews", JSON.stringify(existing));
+
+                        // Check if a survey phase should trigger
+                        const reviewCount = existing.length;
+                        const phase2Done = localStorage.getItem("avalyarin_survey_phase2_completed") === "true";
+                        const phase3Done = localStorage.getItem("avalyarin_survey_phase3_completed") === "true";
+
+                        if (reviewCount >= 5 && !phase2Done) {
+                          // Clear skip flag so it shows on next app load
+                          localStorage.removeItem("avalyarin_survey_phase2_skipped");
+                        }
+                        if (reviewCount >= 10 && !phase3Done) {
+                          localStorage.removeItem("avalyarin_survey_phase3_skipped");
+                        }
+                      } catch (e) {
+                        console.error("Failed to save review", e);
+                      }
+
+                      toast.success("Avaliação salva com sucesso!", {
+                        description: "Obrigado por contribuir!",
+                      });
+
+                      // Navigate to home after a short delay
+                      setTimeout(() => {
+                        window.location.href = "/";
+                      }, 1500);
                     }}
                     size="lg"
                     className="font-display text-lg tracking-wider glow-amber"
