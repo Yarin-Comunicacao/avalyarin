@@ -375,52 +375,6 @@ const kofMenu: MenuItem[] = [
   { id: "kof21", name: "Bolo de Banana com Castanha", description: "Fatia de bolo caseiro com castanha de caju", price: 12, category: "sobremesa" },
 ];
 
-const foradaLeiMenu: MenuItem[] = [
-  // Cafés
-  { id: "fdl1", name: "Espresso", description: "Café espresso com grãos selecionados", price: 8, category: "bebida" },
-  { id: "fdl2", name: "Cappuccino", description: "Espresso com espuma espessa de leite", price: 12, category: "bebida" },
-  { id: "fdl3", name: "Flat White", description: "Espresso duplo com microespuma", price: 14, category: "bebida" },
-  { id: "fdl4", name: "Coado Especial", description: "Café coado com grãos de origem única", price: 12, category: "bebida" },
-  { id: "fdl5", name: "V60", description: "Café filtrado no método V60", price: 14, category: "bebida" },
-  { id: "fdl6", name: "Café Gelado", description: "Café gelado refrescante", price: 14, category: "bebida" },
-  { id: "fdl7", name: "Latte", description: "Espresso com leite vaporizado", price: 14, category: "bebida" },
-  // Cervejas Fora da Lei
-  { id: "fdl8", name: "Cerveja Fora da Lei Pilsen", description: "Cerveja artesanal da casa estilo Pilsen", price: 18, category: "bebida" },
-  { id: "fdl9", name: "Cerveja Fora da Lei IPA", description: "Cerveja artesanal da casa estilo IPA", price: 22, category: "bebida" },
-  { id: "fdl10", name: "Cerveja Fora da Lei Witbier", description: "Cerveja artesanal da casa estilo Witbier", price: 20, category: "bebida" },
-  // Salgados
-  { id: "fdl11", name: "Sanduíche da Casa", description: "Sanduíche artesanal com ingredientes frescos", price: 22, category: "prato" },
-  { id: "fdl12", name: "Pão de Queijo", description: "Pão de queijo quentinho", price: 8, category: "entrada" },
-  { id: "fdl13", name: "Quiche do Dia", description: "Quiche artesanal com recheio do dia", price: 14, category: "entrada" },
-  // Doces
-  { id: "fdl14", name: "Bolo de Maçã", description: "Com calda de caramelo e canela, massa úmida", price: 11, category: "sobremesa" },
-  { id: "fdl15", name: "Brownie", description: "Brownie de chocolate intenso", price: 10, category: "sobremesa" },
-  { id: "fdl16", name: "Torta de Limão", description: "Torta com creme de limão e merengue", price: 12, category: "sobremesa" },
-  { id: "fdl17", name: "Brigadeiro Vegano", description: "Brigadeiro sem lactose artesanal", price: 6, category: "sobremesa" },
-  { id: "fdl18", name: "Biscoito Artesanal", description: "Cookie caseiro crocante", price: 8, category: "sobremesa" },
-];
-
-const crioCafeMenu: MenuItem[] = [
-  // Cafés
-  { id: "cc1", name: "Espresso", description: "Café espresso com torrefação própria", price: 8, category: "bebida" },
-  { id: "cc2", name: "Cappuccino", description: "Espresso com leite vaporizado e espuma", price: 14, category: "bebida" },
-  { id: "cc3", name: "Coado Clássico", description: "Café coado com grãos clássicos da casa", price: 10, category: "bebida" },
-  { id: "cc4", name: "Coado Sensorial", description: "Café coado com perfil sensorial diferenciado", price: 14, category: "bebida" },
-  { id: "cc5", name: "Coado Exótico", description: "Café coado com grãos raros e exóticos", price: 18, category: "bebida" },
-  { id: "cc6", name: "Coado Edição Especial", description: "Café coado com microlote exclusivo", price: 22, category: "bebida" },
-  { id: "cc7", name: "Flat White", description: "Espresso duplo com microespuma", price: 14, category: "bebida" },
-  { id: "cc8", name: "Cold Brew", description: "Café extraído a frio", price: 14, category: "bebida" },
-  { id: "cc9", name: "Latte", description: "Espresso com leite vaporizado", price: 14, category: "bebida" },
-  // Salgados
-  { id: "cc10", name: "Enroladinho Misto", description: "Brioche recheado com queijo e presunto", price: 16, category: "entrada" },
-  { id: "cc11", name: "Enroladinho de Queijo", description: "Brioche recheado com queijo", price: 16, category: "entrada" },
-  { id: "cc12", name: "Pão de Queijo", description: "Pão de queijo artesanal quentinho", price: 8, category: "entrada" },
-  // Doces
-  { id: "cc13", name: "Cookie de Chocolate", description: "Cookie artesanal com gotas de chocolate", price: 10, category: "sobremesa" },
-  { id: "cc14", name: "Brownie", description: "Brownie de chocolate com nozes", price: 12, category: "sobremesa" },
-  { id: "cc15", name: "Queijada", description: "Queijada artesanal tradicional", price: 10, category: "sobremesa" },
-];
-
 const dePrimeiraMenu: MenuItem[] = [
   // Entradas
   { id: "dp1", name: "Porção de Moela", description: "Moela bem temperada", price: 28, category: "entrada" },
@@ -449,20 +403,6 @@ const dePrimeiraMenu: MenuItem[] = [
   { id: "dp22", name: "Fitzgerald", description: "Gin, limão, xarope e bitter", price: 30, category: "drink" },
 ];
 
-const barMoelaMenu: MenuItem[] = [
-  { id: "bm1", name: "Bolovo de Rabada", description: "Bolovo com recheio de rabada", price: 26, category: "entrada" },
-  { id: "bm2", name: "Bolinho de Mandioca com Carne Seca", description: "Bolinho de mandioca recheado com carne seca", price: 14, category: "entrada" },
-  { id: "bm3", name: "Bolinho de Arroz com Moela", description: "Bolinho de arroz com moela", price: 10, category: "entrada" },
-  { id: "bm4", name: "Almôndega de Frango", description: "Almôndega de frango", price: 15, category: "entrada" },
-  { id: "bm5", name: "Porção Pão Francês", description: "Porção de pão francês", price: 3, category: "entrada" },
-  { id: "bm6", name: "Croquete de Abóbora", description: "Croquete de abóbora", price: 14, category: "entrada" },
-  { id: "bm7", name: "Bolinho de Calabresa com Catupiry", description: "Bolinho de calabresa com queijo catupiry", price: 13, category: "entrada" },
-  { id: "bm8", name: "Pastel de Rabada", description: "Pastel recheado com rabada", price: 14, category: "entrada" },
-  { id: "bm9", name: "Lanche do Zé", description: "Sanduíche da casa", price: 32, category: "prato" },
-  { id: "bm10", name: "Cerveja Artesanal", description: "Cerveja artesanal da casa", price: 18, category: "bebida" },
-  { id: "bm11", name: "Chopp Pilsen", description: "Chopp pilsen gelado", price: 14, category: "chopp" },
-];
-
 const saoConradoMenu: MenuItem[] = [
   { id: "sc1", name: "Chopp Brahma", description: "Chopp Brahma gelado", price: 14.5, category: "chopp" },
   { id: "sc2", name: "Chopp Stella Artois", description: "Chopp Stella Artois", price: 15.5, category: "chopp" },
@@ -480,27 +420,6 @@ const saoConradoMenu: MenuItem[] = [
   { id: "sc14", name: "Pão Carne e Queijo", description: "Pão tostado na manteiga, blend de carne e american cheese", price: 52.9, category: "prato" },
   { id: "sc15", name: "Choripán da Casa", description: "Pão francês com linguiça, queijo gratinado e tomate ralado", price: 49.9, category: "prato" },
   { id: "sc16", name: "Tropical Gin", description: "Gin com frutas tropicais", price: 45.9, category: "drink" },
-];
-
-const quitandinhaMenu: MenuItem[] = [
-  { id: "qt1", name: "Cerveja Brahma 600ml", description: "Cerveja Brahma garrafa", price: 13, category: "bebida" },
-  { id: "qt2", name: "Cerveja Heineken 600ml", description: "Cerveja Heineken garrafa", price: 18, category: "bebida" },
-  { id: "qt3", name: "Cerveja Original 600ml", description: "Cerveja Original garrafa", price: 15, category: "bebida" },
-  { id: "qt4", name: "Heineken Latão 473ml", description: "Heineken em lata grande", price: 10, category: "bebida" },
-  { id: "qt5", name: "Caipirinha Tradicional", description: "O clássico nacional", price: 16, category: "drink" },
-  { id: "qt6", name: "Caipiroska de Morango", description: "Doce na medida", price: 18, category: "drink" },
-  { id: "qt7", name: "Gin Tônica", description: "Elegante, aromático e refrescante", price: 20, category: "drink" },
-  { id: "qt8", name: "Negroni", description: "Amargo e elegante", price: 22, category: "drink" },
-  { id: "qt9", name: "Mojito do Sítio", description: "Refrescância com toque de roça", price: 18, category: "drink" },
-  { id: "qt10", name: "Batida de Coco", description: "Cremosa, tropical e irresistível", price: 16, category: "drink" },
-  { id: "qt11", name: "Picado Misto Pequeno", description: "Queijo, salaminho, azeitona, pepino e presunto", price: 45, category: "entrada" },
-  { id: "qt12", name: "Picado Especial", description: "Filé, calabresa, fritas, queijo e azeitona", price: 70, category: "entrada" },
-  { id: "qt13", name: "Pastel Pequeno", description: "Diversos sabores", price: 20, category: "entrada" },
-  { id: "qt14", name: "Pastel Grande", description: "Diversos sabores", price: 30, category: "entrada" },
-  { id: "qt15", name: "Lasanha", description: "Serve 3 pessoas, com arroz, salada e batata palha", price: 70, category: "prato" },
-  { id: "qt16", name: "Bife à Parmegiana", description: "Serve 2 pessoas", price: 56, category: "prato" },
-  { id: "qt17", name: "Bife Acebolado", description: "Serve 2 pessoas", price: 52, category: "prato" },
-  { id: "qt18", name: "Pastel Doce", description: "Pastel doce diversos sabores", price: 20, category: "sobremesa" },
 ];
 
 const santanaBarMenu: MenuItem[] = [
@@ -578,41 +497,6 @@ const martocaMenu: MenuItem[] = [
   { id: "mt12", name: "Espresso", description: "Café espresso", price: 8, category: "bebida" },
   { id: "mt13", name: "Cappuccino", description: "Café com leite e espuma de leite", price: 12, category: "bebida" },
   { id: "mt14", name: "Suco Natural", description: "Suco de frutas naturais", price: 15, category: "bebida" },
-];
-
-const ajPadariaMenu: MenuItem[] = [
-  { id: "aj1", name: "Pão de Queijo", description: "Pão de queijo tradicional", price: 8.5, category: "entrada" },
-  { id: "aj2", name: "Coxinha", description: "Coxinha de frango", price: 9, category: "entrada" },
-  { id: "aj3", name: "Presunto Parma com Queijo Prato", description: "Sanduíche com alface, tomate e maionese", price: 35.9, category: "prato" },
-  { id: "aj4", name: "Presunto Royalle com Provolone", description: "Sanduíche com provolone e tomate", price: 32.9, category: "prato" },
-  { id: "aj5", name: "Picanha com Mozarela", description: "Sanduíche de picanha com molho tártaro", price: 42.9, category: "prato" },
-  { id: "aj6", name: "Tapioca Mista", description: "Tapioca com presunto e queijo", price: 22.9, category: "prato" },
-  { id: "aj7", name: "Tapioca Light", description: "Tapioca com peito de peru e queijo branco", price: 24.9, category: "prato" },
-  { id: "aj8", name: "Cheese Salada", description: "Hambúrguer com queijo e salada", price: 28.9, category: "prato" },
-  { id: "aj9", name: "Cheese Bacon", description: "Hambúrguer com queijo e bacon", price: 32.9, category: "prato" },
-  { id: "aj10", name: "Beirute de Filé Mignon", description: "No pão sírio com queijo, ovo, bacon, alface, tomate e maionese", price: 45.9, category: "prato" },
-  { id: "aj11", name: "Café Espresso", description: "Café espresso média", price: 6.5, category: "bebida" },
-  { id: "aj12", name: "Cappuccino", description: "Cappuccino cremoso", price: 9.5, category: "bebida" },
-  { id: "aj13", name: "Suco de Laranja", description: "Suco de laranja natural 300ml", price: 9, category: "bebida" },
-  { id: "aj14", name: "Refrigerante em Lata", description: "Coca-Cola, Guaraná ou Soda", price: 7, category: "bebida" },
-  { id: "aj15", name: "Fatia de Bolo", description: "Fatia de bolo do dia", price: 12, category: "sobremesa" },
-];
-
-const futuroRefeitorioMenu: MenuItem[] = [
-  { id: "fr1", name: "Pão de Queijo", description: "Pão de queijo da casa", price: 12, category: "entrada" },
-  { id: "fr2", name: "Hummus de Cenoura e Amêndoa", description: "Com pão de campo", price: 28, category: "entrada" },
-  { id: "fr3", name: "Waffle de Fermentação Longa", description: "Com ricota caseira", price: 16, category: "prato" },
-  { id: "fr4", name: "Tartine de Ricota", description: "Tomate cereja confit, gema curada, manjericão e parmesão", price: 32, category: "prato" },
-  { id: "fr5", name: "Orecchiette com Tomate Confit", description: "Com limão siciliano, manjericão, amêndoas e ricota", price: 45, category: "prato" },
-  { id: "fr6", name: "Salada de Arroz Preto", description: "Cogumelo, ervilha torta, avocado, furikake e molho de amendoim", price: 38, category: "prato" },
-  { id: "fr7", name: "Sanduíche de Cenoura", description: "Com tempero fumado, avocado, maionese vegana e picles", price: 36, category: "prato" },
-  { id: "fr8", name: "Bolo de Cenoura", description: "Cardamomo, cream cheese e limão", price: 18, category: "sobremesa" },
-  { id: "fr9", name: "Infância Feliz", description: "Banana com doce de leite e queijo mascarpone (receita Paola Carosella)", price: 25, category: "sobremesa" },
-  { id: "fr10", name: "Espresso", description: "Café espresso", price: 6.5, category: "bebida" },
-  { id: "fr11", name: "Latte", description: "Espresso com leite vaporizado", price: 12, category: "bebida" },
-  { id: "fr12", name: "Cappuccino", description: "Café com leite e espuma", price: 14, category: "bebida" },
-  { id: "fr13", name: "Calmaria", description: "Com maracujá e gengibre", price: 15, category: "bebida" },
-  { id: "fr14", name: "Um Bloody", description: "Suco de tomates assados com ervas, mostarda e tabasco", price: 33, category: "drink" },
 ];
 
 const barDoBaixoMenu: MenuItem[] = [
@@ -719,23 +603,6 @@ const barAltoMenu: MenuItem[] = [
 ];
 
 // ── Balada: Meow Maison ──
-const meowMaisonMenu: MenuItem[] = [
-  { id: "mm1", name: "Gato Risonho", description: "Jim Beam, xarope de framboesa, suco de limão e albumina", price: 42, category: "drink" },
-  { id: "mm2", name: "Persa", description: "Cachaça Jambu, xarope de açúcar, suco de limão e espuma de gengibre", price: 45, category: "drink" },
-  { id: "mm3", name: "Manda Chuva", description: "Whisky, suco de limão, xarope de tangerina e Red Bull melancia", price: 45, category: "drink" },
-  { id: "mm4", name: "Meow", description: "Tequila, purê de maracujá e Red Bull morango e pêssego", price: 46, category: "drink" },
-  { id: "mm5", name: "Summer Cat", description: "Gin Beefeater, curaçao blue, suco de abacaxi e Red Bull maracujá", price: 48, category: "drink" },
-  { id: "mm6", name: "Vodka & Red Bull", description: "Vodka importada com Red Bull", price: 49, category: "drink" },
-  { id: "mm7", name: "Gin & Red Bull", description: "Gin importado com Red Bull", price: 49, category: "drink" },
-  { id: "mm8", name: "Gin Tônica", description: "Gin Beefeater e água tônica", price: 39, category: "drink" },
-  { id: "mm9", name: "Negroni", description: "Gin Beefeater, Campari e vermute", price: 45, category: "drink" },
-  { id: "mm10", name: "Caipirinha", description: "Cachaça, limão e açúcar", price: 38, category: "drink" },
-  { id: "mm11", name: "Moscow Mule", description: "Vodka Absolut, xarope de açúcar, suco de limão e espuma de gengibre", price: 39, category: "drink" },
-  { id: "mm12", name: "Corona", description: "Cerveja Corona 330ml", price: 20, category: "bebida" },
-  { id: "mm13", name: "Heineken", description: "Cerveja Heineken normal ou zero", price: 20, category: "bebida" },
-  { id: "mm14", name: "Xeque Mate", description: "Bebida Xeque Mate", price: 36, category: "bebida" },
-];
-
 // ── Bar Musical: Alma São Paulo ──
 const almaSPMenu: MenuItem[] = [
   { id: "asp1", name: "Dadinho de Tapioca", description: "Dadinhos de tapioca com queijo coalho e geleia de pimenta", price: 35, category: "entrada" },
@@ -753,21 +620,6 @@ const almaSPMenu: MenuItem[] = [
 ];
 
 // ── Bar Musical: Raiz Club ──
-const raizClubMenu: MenuItem[] = [
-  { id: "rc1", name: "Batata Rústica", description: "Papas fritas rústicas com azeite de salsa, alho e siciliano", price: 40, category: "entrada" },
-  { id: "rc2", name: "Croqueta de Matambre", description: "Croqueta cremosa de matambre a la leche, salsa criolla e aioli (5un)", price: 45, category: "entrada" },
-  { id: "rc3", name: "Choripan", description: "Pão de fermentação natural, linguíça finocchiona, chimichurri e escabeche de pimentão", price: 51, category: "entrada" },
-  { id: "rc4", name: "Lulas na Brasa", description: "Lulinhas na brasa, emulsão de ají amarillo, chimichurri e batata doce", price: 62, category: "prato" },
-  { id: "rc5", name: "Ancho Angus", description: "Corte bovino Angus de 350g, combinação entre Ojo de Bife Ancho e gordura", price: 127, category: "prato" },
-  { id: "rc6", name: "Milanesa Fugazzeta", description: "Milanesa de chorizo bovino, blend de queijos gratinados com cebola tostada", price: 168, category: "prato" },
-  { id: "rc7", name: "Pudim de Queijo da Canastra", description: "Pudim com queijo da Serra da Canastra e calda de vinho uruguaio (Prato Boa Lembrança)", price: 35, category: "sobremesa" },
-  { id: "rc8", name: "Crumble de Pêra", description: "Pêras assadas, crumble de castanha do pará, creme de mascarpone e toffee", price: 35, category: "sobremesa" },
-  { id: "rc9", name: "Gin Tônica", description: "Gin, tônica e limão", price: 45, category: "drink" },
-  { id: "rc10", name: "Negroni", description: "Gin, Campari e Vermouth Rosso", price: 50, category: "drink" },
-  { id: "rc11", name: "Moscow Mule", description: "Vodka, suco de limão, xarope de açúcar e espuma de gengibre", price: 46, category: "drink" },
-  { id: "rc12", name: "Heineken Long Neck", description: "Cerveja Heineken long neck", price: 20, category: "bebida" },
-];
-
 // ── Bar Musical: Fino da Bossa ──
 const finoDaBossaMenu: MenuItem[] = [
   { id: "fb1", name: "Dadinho de Tapioca", description: "Com queijo coalho e geleia de pimenta", price: 42, category: "entrada" },
@@ -1161,27 +1013,6 @@ const nossoLastroCervejariaMenu: MenuItem[] = [
   { id: "moscow-mule", name: "MOSCOW MULE", description: "Vodka, xarope simples, suco de limão", price: 35.0, category: "drink" },
 ];
 
-const cervejariaDogmaMenu: MenuItem[] = [
-  { id: "diavoletti", name: "Diavoletti", description: "Mozzarella, Linguiça Diavoletti e Mel", price: 47.0, category: "pizza" },
-  { id: "tres-queijos", name: "Três Queijos", description: "Mozzarella, Gorgonzola e Catupiry®", price: 45.0, category: "pizza" },
-  { id: "italiana", name: "Italiana", description: "Mozzarella Fior di Latte, Gorgonzola, Tomate e Pesto", price: 44.0, category: "pizza" },
-  { id: "iscas-de-frango", name: "Iscas de Frango", description: "Porção de iscas de frango", price: 36.0, category: "petisco" },
-  { id: "sourmind-manga-e-goiaba", name: "Sourmind Manga e Goiaba", description: "Cerveja Sour com manga e goiaba", price: 12.0, category: "cerveja" },
-  { id: "hop-little-lover", name: "Hop Little Lover", description: "Cerveja IPA Session", price: 10.0, category: "cerveja" },
-  { id: "pilsen", name: "Pilsen", description: "Cerveja Pilsen", price: 7.0, category: "cerveja" },
-  { id: "american-pale-ale", name: "American Pale Ale", description: "Cerveja American Pale Ale", price: 10.0, category: "cerveja" },
-  { id: "american-ipa", name: "American IPA", description: "Cerveja American IPA", price: 12.0, category: "cerveja" },
-  { id: "ddh-nelson-memories", name: "DDH Nelson Memories", description: "Cerveja IPA Rye", price: 15.0, category: "cerveja" },
-  { id: "gin-tonica", name: "Gin Tônica", description: "Gin com tônica", price: 36.0, category: "drink" },
-  { id: "negroni", name: "Negroni", description: "Drink Negroni", price: 38.0, category: "drink" },
-  { id: "caipirinha-de-cachaca", name: "Caipirinha de Cachaça", description: "Cachaça com limão", price: 28.0, category: "drink" },
-  { id: "caipirinha-de-saque", name: "Caipirinha de Saquê", description: "Saquê com limão", price: 35.0, category: "drink" },
-  { id: "caipirinha-de-vodka", name: "Caipirinha de Vodka", description: "Vodka com limão", price: 33.0, category: "drink" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata 350ml", price: 8.0, category: "bebida" },
-  { id: "cha-gelado", name: "Chá Gelado", description: "Garrafa 300ml", price: 15.0, category: "bebida" },
-  { id: "suco", name: "Suco", description: "Lata 269ml", price: 15.0, category: "bebida" },
-];
-
 const trilhaCervejariaMenu: MenuItem[] = [
   { id: "experimental-graviola", name: "EXPERIMENTAL GRAVIOLA", description: "Sour com Graviola - 5%", price: 23.0, category: "cerveja" },
   { id: "coffee-lager", name: "COFFEE LAGER", description: "Coffee Lager - 5%", price: 19.0, category: "cerveja" },
@@ -1195,15 +1026,6 @@ const trilhaCervejariaMenu: MenuItem[] = [
   { id: "sanduba-de-queijo-cebola", name: "Sanduba de Queijo & Cebola", description: "Com chutney de cebola roxa, queijo da casa e mostarda de cerveja", price: 36.0, category: "hamburguer" },
   { id: "sanduba-de-berinjela-coalhada", name: "Sanduba de Berinjela & Coalhada", description: "Feito no pão de cerveja, com Berinjela empanada, coalhada e picles de maxixe", price: 41.0, category: "hamburguer" },
   { id: "sanduba-pastrami-ny-style", name: "Sanduba Pastrami NY Style", description: "Feito no pão de cerveja, com 150g de pastrami, picles e mostarda de cerveja", price: 49.0, category: "hamburguer" },
-];
-
-const cervejariaOakMenu: MenuItem[] = [
-  { id: "hop-lager-variabilis", name: "Hop Lager Variabilis", description: "1,Litros", price: 0.1, category: "prato" },
-  { id: "stout-11-litros", name: "Stout - 1,1 litros", description: "Chopp escuro, encorpado com aroma de malte tostado.", price: 39.0, category: "cerveja" },
-  { id: "queijo-provolone-hebrom-160-g", name: "Queijo Provolone Hebrom - 160 g", description: "Maturado e defumado.", price: 35.0, category: "petisco" },
-  { id: "amendoim-com-alho-90-g", name: "Amendoim com alho - 90 g", description: "Um clássico! O amendoim desde os primórdios do boteco acompanhou a cerveja.", price: 9.0, category: "petisco" },
-  { id: "salame-100g-fatiado", name: "Salame - 100g fatiado.", description: "Salame para acompanhar", price: 19.0, category: "petisco" },
-  { id: "salsicha-a-vinagrete", name: "Salsicha a Vinagrete", description: "Aquela clássica que fica no balcão do boteco", price: 39.0, category: "petisco" },
 ];
 
 const cervejariaDinastiaMenu: MenuItem[] = [
@@ -1393,7 +1215,6 @@ const pubCheersMenu: MenuItem[] = [
   { id: "pera-ao-vinho-tinto-com-sorvete", name: "Pera ao Vinho Tinto com Sorvete", description: "Pera cozida em vinho tinto com especiarias, servida com sorvete", price: 25.0, category: "sobremesa" },
 ];
 
-
 const brutalHouseRockMenu: MenuItem[] = [
   { id: "dimmu-burger", name: "Dimmu Burger", description: "Pão, Carne, Cheddar e Bacon + Porção de Batata Frita", price: 39.0, category: "hamburguer" },
   { id: "ozzy-osburguer", name: "Ozzy Osburguer", description: "Pão, Carne, Cebola, Rúcula e Mussarela + Porção de Batata Frita", price: 39.0, category: "hamburguer" },
@@ -1409,43 +1230,6 @@ const brutalHouseRockMenu: MenuItem[] = [
   { id: "jack-n-coke", name: "Jack 'n Coke", description: "Jack Daniels + Coca-Cola", price: 40.0, category: "drink" }
 ];
 
-const barbeariaBarbeiroDaVilaMenu: MenuItem[] = [
-  { id: "cerveja-original-600ml", name: "Cerveja Original 600ml", description: "Cerveja Original 600ml", price: 15.0, category: "cerveja" },
-  { id: "cerveja-heineken-long-neck", name: "Cerveja Heineken Long Neck", description: "Cerveja Heineken Long Neck", price: 12.0, category: "cerveja" },
-  { id: "cerveja-budweiser-long-neck", name: "Cerveja Budweiser Long Neck", description: "Cerveja Budweiser Long Neck", price: 12.0, category: "cerveja" },
-  { id: "refrigerante-lata", name: "Refrigerante Lata", description: "Coca-cola, Guaraná, etc.", price: 8.0, category: "bebida" },
-  { id: "agua-mineral", name: "Água Mineral", description: "Com ou sem gás", price: 5.0, category: "bebida" },
-  { id: "cafe-expresso", name: "Café Expresso", description: "Café Expresso", price: 6.0, category: "bebida" },
-  { id: "whiskey-jack-daniels", name: "Whiskey Jack Daniels", description: "Dose de Whiskey Jack Daniels", price: 25.0, category: "destilado" },
-  { id: "whiskey-old-parr", name: "Whiskey Old Parr", description: "Dose de Whiskey Old Parr", price: 30.0, category: "destilado" }
-];
-
-const pokerRaizClubMenu: MenuItem[] = [
-  { id: "strogonoff-de-frango-c-batata-", name: "Strogonoff de Frango c/ Batata Palha", description: "Delicioso Strogonoff de Frango acompanhado de arroz e batata palha.", price: 33.0, category: "prato" },
-  { id: "lasanha", name: "Lasanha", description: "Lasanha de presunto e queijo, com molho a bolonhesa.", price: 38.0, category: "prato" },
-  { id: "misto-quente", name: "Misto Quente", description: "Baguete, Presunto e Queijo Mussarela", price: 18.0, category: "petisco" },
-  { id: "bauru", name: "Bauru", description: "Baguete, Presunto, Queijo Mussarela e rodelas de Tomate.", price: 22.0, category: "petisco" },
-  { id: "queijo-quente", name: "Queijo Quente", description: "Baguete, Queijo Mussarela derretido.", price: 16.0, category: "petisco" },
-  { id: "choripan-raiz", name: "Choripán Raiz", description: "Baguete, Linguiça Toscana, Queijo, Chimichurri", price: 30.0, category: "petisco" },
-  { id: "x-burguer-raiz-c-fritas", name: "X-Burguer Raiz C/ Fritas", description: "Pão, Hamburguer, Queijo e Fritas", price: 28.0, category: "hamburguer" },
-  { id: "x-salada-raiz-c-fritas", name: "X-Salada Raiz C/ Fritas", description: "Pão, Hamburguer, Queijo, Alface, Tomate e Fritas", price: 32.0, category: "hamburguer" }
-];
-
-const lrNailsEsmalteriaMenu: MenuItem[] = [
-  { id: "manicure-classica", name: "Manicure Clássica", description: "Esmaltação tradicional", price: 35.0, category: "prato" },
-  { id: "pedicure-classica", name: "Pedicure Clássica", description: "Esmaltação tradicional", price: 45.0, category: "prato" },
-  { id: "manicure-com-esmaltacao-em-gel", name: "Manicure com Esmaltação em Gel", description: "Esmaltação em gel de alta durabilidade", price: 80.0, category: "prato" },
-  { id: "pedicure-com-esmaltacao-em-gel", name: "Pedicure com Esmaltação em Gel", description: "Esmaltação em gel de alta durabilidade", price: 90.0, category: "prato" },
-  { id: "manicure-russa", name: "Manicure Russa", description: "Técnica de cutilagem a seco com brocas", price: 60.0, category: "prato" },
-  { id: "alongamento-de-unha-em-acrilic", name: "Alongamento de Unha em Acrílico", description: "Inclui manicure e esmaltação", price: 250.0, category: "prato" },
-  { id: "manutencao-de-alongamento", name: "Manutenção de Alongamento", description: "Manutenção do alongamento em acrílico", price: 150.0, category: "prato" },
-  { id: "spa-dos-pes", name: "SPA dos Pés", description: "Esfoliação, hidratação e massagem", price: 70.0, category: "prato" },
-  { id: "blindagem-de-unhas", name: "Blindagem de Unhas", description: "Banho de gel para fortalecimento", price: 90.0, category: "prato" },
-  { id: "pacote-mensal-manicure", name: "Pacote Mensal Manicure", description: "4 sessões de manicure clássica", price: 120.0, category: "prato" },
-  { id: "pacote-mensal-pedicure", name: "Pacote Mensal Pedicure", description: "4 sessões de pedicure clássica", price: 160.0, category: "prato" },
-  { id: "design-de-sobrancelha", name: "Design de Sobrancelha", description: "Modelagem com pinça ou cera", price: 40.0, category: "prato" }
-];
-
 const beOnClubMenu: MenuItem[] = [
   { id: "porcao-de-fritas", name: "Porção de Fritas", description: "Batata frita com cheddar e bacon", price: 45.0, category: "petisco" },
   { id: "porcao-de-calabresa", name: "Porção de Calabresa", description: "Calabresa acebolada com pão", price: 55.0, category: "petisco" },
@@ -1459,36 +1243,6 @@ const beOnClubMenu: MenuItem[] = [
   { id: "absolut", name: "Absolut", description: "Dose 50ml", price: 30.0, category: "destilado" },
   { id: "combo-gin-tonica", name: "Combo Gin Tônica", description: "1 garrafa de Gin, 6 tônicas", price: 350.0, category: "destilado" },
   { id: "combo-jack-daniels", name: "Combo Jack Daniels", description: "1 garrafa de Jack Daniels, 6 energéticos", price: 450.0, category: "destilado" }
-];
-
-const lotusClubMenu: MenuItem[] = [
-  { id: "caipirinha", name: "Caipirinha", description: "Cachaça, limão e açúcar", price: 25.0, category: "drink" },
-  { id: "gin-tonica", name: "Gin Tônica", description: "Gin, água tônica, limão e especiarias", price: 35.0, category: "drink" },
-  { id: "moscow-mule", name: "Moscow Mule", description: "Vodka, ginger beer, limão e espuma de gengibre", price: 30.0, category: "drink" },
-  { id: "porcao-de-fritas", name: "Porção de Fritas", description: "Batata frita com cheddar e bacon", price: 45.0, category: "petisco" },
-  { id: "porcao-de-calabresa", name: "Porção de Calabresa", description: "Calabresa acebolada com pão", price: 50.0, category: "petisco" },
-  { id: "mini-pasteis", name: "Mini Pastéis", description: "Carne, queijo e palmito", price: 40.0, category: "petisco" },
-  { id: "budweiser", name: "Budweiser", description: "Long neck", price: 15.0, category: "cerveja" },
-  { id: "heineken", name: "Heineken", description: "Long neck", price: 15.0, category: "cerveja" },
-  { id: "stella-artois", name: "Stella Artois", description: "Long neck", price: 15.0, category: "cerveja" },
-  { id: "coca-cola", name: "Coca-cola", description: "Lata", price: 8.0, category: "bebida" },
-  { id: "guarana-antarctica", name: "Guaraná Antarctica", description: "Lata", price: 8.0, category: "bebida" },
-  { id: "agua", name: "Água", description: "Garrafa", price: 6.0, category: "bebida" }
-];
-
-const clashClubMenu: MenuItem[] = [
-  { id: "vodka-smirnoff", name: "Vodka Smirnoff", description: "Garrafa 960ml", price: 150.0, category: "destilado" },
-  { id: "whisky-red-label", name: "Whisky Red Label", description: "Garrafa 750ml", price: 200.0, category: "destilado" },
-  { id: "gin-tonica", name: "Gin Tônica", description: "Copo 475ml", price: 35.0, category: "drink" },
-  { id: "caipirinha-de-limao", name: "Caipirinha de Limão", description: "Copo 475ml", price: 30.0, category: "drink" },
-  { id: "cerveja-heineken", name: "Cerveja Heineken", description: "Long neck 330ml", price: 15.0, category: "cerveja" },
-  { id: "cerveja-budweiser", name: "Cerveja Budweiser", description: "Long neck 330ml", price: 15.0, category: "cerveja" },
-  { id: "energetico-red-bull", name: "Energético Red Bull", description: "Lata 250ml", price: 20.0, category: "bebida" },
-  { id: "agua", name: "Água", description: "Garrafa 500ml", price: 8.0, category: "bebida" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata 350ml", price: 10.0, category: "bebida" },
-  { id: "suco-natural", name: "Suco Natural", description: "Copo 400ml", price: 12.0, category: "bebida" },
-  { id: "porcao-de-batata-frita", name: "Porção de Batata Frita", description: "400g", price: 35.0, category: "petisco" },
-  { id: "porcao-de-frango-a-passarinho", name: "Porção de Frango a Passarinho", description: "500g", price: 45.0, category: "petisco" }
 ];
 
 const cariocaClubMenu: MenuItem[] = [
@@ -1519,21 +1273,6 @@ const discoClubMenu: MenuItem[] = [
   { id: "dadinho-de-tapioca", name: "Dadinho de Tapioca", description: "Dadinhos de tapioca com geleia de pimenta", price: 40.0, category: "petisco" },
   { id: "vodka-smirnoff", name: "Vodka Smirnoff", description: "Dose de Vodka Smirnoff", price: 20.0, category: "destilado" },
   { id: "whisky-red-label", name: "Whisky Red Label", description: "Dose de Whisky Red Label", price: 25.0, category: "destilado" }
-];
-
-const lionsNightclubMenu: MenuItem[] = [
-  { id: "heineken-long-neck", name: "Heineken Long Neck", description: "", price: 18.0, category: "cerveja" },
-  { id: "stella-artois-long-neck", name: "Stella Artois Long Neck", description: "", price: 18.0, category: "cerveja" },
-  { id: "chopp-brahma", name: "Chopp Brahma", description: "", price: 15.0, category: "chopp" },
-  { id: "gin-tonica", name: "Gin Tônica", description: "", price: 35.0, category: "drink" },
-  { id: "caipirinha-cachaca", name: "Caipirinha (Cachaça)", description: "", price: 30.0, category: "drink" },
-  { id: "caipirinha-vodka", name: "Caipirinha (Vodka)", description: "", price: 35.0, category: "drink" },
-  { id: "red-bull", name: "Red Bull", description: "", price: 25.0, category: "bebida" },
-  { id: "agua", name: "Água", description: "", price: 10.0, category: "bebida" },
-  { id: "dose-de-jack-daniels", name: "Dose de Jack Daniels", description: "", price: 40.0, category: "destilado" },
-  { id: "porcao-de-batata-frita", name: "Porção de Batata Frita", description: "", price: 45.0, category: "petisco" },
-  { id: "porcao-de-mini-pasteis", name: "Porção de Mini Pastéis", description: "", price: 40.0, category: "petisco" },
-  { id: "dadinho-de-tapioca", name: "Dadinho de Tapioca", description: "", price: 50.0, category: "petisco" }
 ];
 
 const bispoHamburgueriaDeliveryMenu: MenuItem[] = [
@@ -1579,11 +1318,6 @@ const barretoBurgerCafeLapaMenu: MenuItem[] = [
   { id: "fanta-laranja-600ml", name: "Fanta Laranja 600ml", description: "Garrafa 600ml", price: 7.0, category: "bebida" }
 ];
 
-const broBurgerMenu: MenuItem[] = [
-  { id: "bros-egg", name: "BRO´S EGG", description: "Pão de Hamburger, Hamburger Bovino 120g, Queijo Prato, Presunto, Ovo, salada, Maionese da casa", price: 16.0, category: "hamburguer" },
-  { id: "bros-sp", name: "BRO´S SP", description: "Pão Brioche, Hamburger Bovino 120g, Bacon, Cheddar, Salada, barbecue, Maionese da Casa.", price: 18.0, category: "hamburguer" }
-];
-
 const bullgerMenu: MenuItem[] = [
   { id: "bullger-burger", name: "Bullger Burger", description: "Pão, carne, queijo e picles", price: 27.0, category: "hamburguer" },
   { id: "bacon-burger", name: "Bacon Burger", description: "Pão, carne, queijo, bacon e molho especial", price: 32.0, category: "hamburguer" },
@@ -1599,36 +1333,6 @@ const bullgerMenu: MenuItem[] = [
   { id: "pink-lemonade", name: "Pink Lemonade", description: "Limonada com framboesa", price: 12.0, category: "bebida" }
 ];
 
-const tradiBurgerMenu: MenuItem[] = [
-  { id: "oraculo", name: "Oráculo", description: "Pão, carne, queijo e bacon", price: 45.0, category: "hamburguer" },
-  { id: "smash-tradi", name: "Smash Tradi", description: "Pão, carne smash, queijo e picles", price: 35.0, category: "hamburguer" },
-  { id: "chicken-supreme", name: "Chicken Supreme", description: "Pão, frango frito, maionese e alface", price: 42.0, category: "hamburguer" },
-  { id: "veggie", name: "Veggie", description: "Pão, burger de cogumelos, queijo, alface e tomate", price: 40.0, category: "hamburguer" },
-  { id: "batata-palito", name: "Batata Palito", description: "Porção de batata frita", price: 25.0, category: "petisco" },
-  { id: "batata-da-vovo", name: "Batata da Vovó", description: "Batata rústica com alecrim", price: 28.0, category: "petisco" },
-  { id: "estica-puxa", name: "Estica Puxa", description: "Bolinhos de queijo", price: 30.0, category: "petisco" },
-  { id: "coxinha-de-pulled-pork", name: "Coxinha de Pulled Pork", description: "Porção com 6 unidades", price: 35.0, category: "petisco" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata", price: 8.0, category: "bebida" },
-  { id: "cerveja-long-neck", name: "Cerveja Long Neck", description: "Heineken ou Budweiser", price: 15.0, category: "cerveja" },
-  { id: "chopp", name: "Chopp", description: "300ml", price: 12.0, category: "chopp" },
-  { id: "caipirinha", name: "Caipirinha", description: "Cachaça, limão e açúcar", price: 25.0, category: "drink" }
-];
-
-const stuntBurgerMenu: MenuItem[] = [
-  { id: "stunt-burger", name: "Stunt Burger", description: "Pão, carne, queijo e bacon", price: 42.0, category: "hamburguer" },
-  { id: "double-stunt", name: "Double Stunt", description: "Pão, 2 carnes, queijo duplo e bacon", price: 55.0, category: "hamburguer" },
-  { id: "chicken-burger", name: "Chicken Burger", description: "Pão, frango empanado, alface e tomate", price: 38.0, category: "hamburguer" },
-  { id: "veggie-burger", name: "Veggie Burger", description: "Pão, burger de plantas, queijo, alface e tomate", price: 38.0, category: "hamburguer" },
-  { id: "batata-frita", name: "Batata Frita", description: "Porção individual", price: 15.0, category: "petisco" },
-  { id: "onion-rings", name: "Onion Rings", description: "Anéis de cebola empanados", price: 18.0, category: "petisco" },
-  { id: "coca-cola", name: "Coca-Cola", description: "Lata 350ml", price: 8.0, category: "bebida" },
-  { id: "guarana-antarctica", name: "Guaraná Antarctica", description: "Lata 350ml", price: 8.0, category: "bebida" },
-  { id: "heineken", name: "Heineken", description: "Long neck", price: 12.0, category: "cerveja" },
-  { id: "eisenbahn-pilsen", name: "Eisenbahn Pilsen", description: "Long neck", price: 11.0, category: "cerveja" },
-  { id: "milkshake-de-chocolate", name: "Milkshake de Chocolate", description: "Sorvete de chocolate batido", price: 25.0, category: "sobremesa" },
-  { id: "pudim-de-leite", name: "Pudim de Leite", description: "Pudim de leite condensado", price: 15.0, category: "sobremesa" }
-];
-
 const zDeliSandwichShopMenu: MenuItem[] = [
   { id: "joint", name: "JOINT", description: "Queijo americano, alface, tomate, cebola roxa, picles e molho especial", price: 48.0, category: "hamburguer" },
   { id: "bbq", name: "BBQ", description: "Queijo americano, bacon, cebola crispy, picles e molho barbecue", price: 54.0, category: "hamburguer" },
@@ -1642,36 +1346,6 @@ const zDeliSandwichShopMenu: MenuItem[] = [
   { id: "devils-pie", name: "DEVIL’S PIE", description: "Torta de chocolate meio amargo, calda de chocolate com avelã e sorvete de nata", price: 39.0, category: "sobremesa" },
   { id: "pink-lemonade", name: "PINK LEMONADE", description: "Bebida mista de limão e hibisco, adoçada, com água levemente gaseificada", price: 16.0, category: "bebida" },
   { id: "heineken", name: "HEINEKEN", description: "330ml", price: 17.0, category: "cerveja" }
-];
-
-const meatsMenu: MenuItem[] = [
-  { id: "cheeseburger", name: "Cheeseburger", description: "Pão, carne, queijo.", price: 35.0, category: "hamburguer" },
-  { id: "hooligan-burger", name: "Hooligan Burger", description: "Pão, carne, queijo, bacon, maionese de raiz forte.", price: 42.0, category: "hamburguer" },
-  { id: "blt-burger", name: "BLT Burger", description: "Pão, carne, bacon, alface, tomate.", price: 40.0, category: "hamburguer" },
-  { id: "zucchini-burger", name: "Zucchini Burger", description: "Pão, hambúrguer de abobrinha, queijo de cabra, bacon, molho de menta.", price: 38.0, category: "hamburguer" },
-  { id: "fries", name: "Fries", description: "Batatas fritas.", price: 25.0, category: "petisco" },
-  { id: "chicken-wings", name: "Chicken Wings", description: "Asas de frango picantes.", price: 35.0, category: "petisco" },
-  { id: "steak-tartare", name: "Steak Tartare", description: "Tartare de carne com pão crocante.", price: 45.0, category: "entrada" },
-  { id: "coracao-de-galinha", name: "Coração de Galinha", description: "Espeto de coração de galinha.", price: 28.0, category: "petisco" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata 350ml.", price: 8.0, category: "bebida" },
-  { id: "cerveja-long-neck", name: "Cerveja Long Neck", description: "Heineken, Stella Artois.", price: 15.0, category: "cerveja" },
-  { id: "negroni", name: "Negroni", description: "Gin, Campari, Vermute.", price: 35.0, category: "drink" },
-  { id: "whiskey-sour", name: "Whiskey Sour", description: "Whiskey, limão, açúcar.", price: 32.0, category: "drink" }
-];
-
-const burgerLabMenu: MenuItem[] = [
-  { id: "classic-burger", name: "Classic Burger", description: "Pão, carne, queijo, alface, tomate e molho especial", price: 35.0, category: "hamburguer" },
-  { id: "bacon-burger", name: "Bacon Burger", description: "Pão, carne, queijo, bacon, alface, tomate e molho especial", price: 40.0, category: "hamburguer" },
-  { id: "double-burger", name: "Double Burger", description: "Pão, duas carnes, queijo, alface, tomate e molho especial", price: 45.0, category: "hamburguer" },
-  { id: "veggie-burger", name: "Veggie Burger", description: "Pão, hambúrguer vegetariano, queijo, alface, tomate e molho especial", price: 38.0, category: "hamburguer" },
-  { id: "batata-frita", name: "Batata Frita", description: "Porção de batata frita", price: 15.0, category: "petisco" },
-  { id: "onion-rings", name: "Onion Rings", description: "Porção de anéis de cebola", price: 18.0, category: "petisco" },
-  { id: "milkshake-de-chocolate", name: "Milkshake de Chocolate", description: "Milkshake de chocolate", price: 20.0, category: "sobremesa" },
-  { id: "milkshake-de-morango", name: "Milkshake de Morango", description: "Milkshake de morango", price: 20.0, category: "sobremesa" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata", price: 8.0, category: "bebida" },
-  { id: "agua", name: "Água", description: "Garrafa", price: 6.0, category: "bebida" },
-  { id: "chopp", name: "Chopp", description: "Copo 300ml", price: 12.0, category: "chopp" },
-  { id: "cerveja", name: "Cerveja", description: "Long neck", price: 15.0, category: "cerveja" }
 ];
 
 const hSushiBarMenu: MenuItem[] = [
@@ -1762,21 +1436,6 @@ const hennaJapaneseFoodSushiGourmetNoIpirangaDeliMenu: MenuItem[] = [
   { id: "cerveja-kirin-ichiban", name: "Cerveja Kirin Ichiban", description: "Long neck 355ml", price: 12.0, category: "cerveja" },
   { id: "agua-mineral", name: "Água Mineral", description: "Garrafa 500ml", price: 5.0, category: "bebida" },
   { id: "saque-nacional", name: "Saquê Nacional", description: "Dose", price: 18.0, category: "destilado" }
-];
-
-const sushiYaMenu: MenuItem[] = [
-  { id: "combinado-simples", name: "Combinado Simples", description: "8 sashimis, 4 niguiris, 4 uramakis, 4 hossomakis", price: 89.9, category: "prato" },
-  { id: "yakisoba-de-carne", name: "Yakisoba de Carne", description: "Macarrão, carne, legumes e molho especial", price: 42.0, category: "prato" },
-  { id: "temaki-salmao-completo", name: "Temaki Salmão Completo", description: "Salmão, cream cheese e cebolinha", price: 35.0, category: "prato" },
-  { id: "guioza", name: "Guioza", description: "5 unidades de pastel recheado com carne suína e legumes", price: 25.0, category: "entrada" },
-  { id: "harumaki-de-queijo", name: "Harumaki de Queijo", description: "2 unidades de rolinho primavera com recheio de queijo", price: 18.0, category: "entrada" },
-  { id: "shimeji-na-chapa", name: "Shimeji na Chapa", description: "Cogumelos shimeji na manteiga com cebolinha", price: 38.0, category: "petisco" },
-  { id: "sunomono", name: "Sunomono", description: "Salada de pepino agridoce com gergelim", price: 15.0, category: "entrada" },
-  { id: "missoshiru", name: "Missoshiru", description: "Sopa de missô com tofu e cebolinha", price: 12.0, category: "entrada" },
-  { id: "coca-cola", name: "Coca-Cola", description: "Lata 350ml", price: 7.0, category: "bebida" },
-  { id: "cerveja-kirin-ichiban", name: "Cerveja Kirin Ichiban", description: "Long neck 355ml", price: 15.0, category: "cerveja" },
-  { id: "saque-azuma-kirin", name: "Saquê Azuma Kirin", description: "Dose 50ml", price: 20.0, category: "destilado" },
-  { id: "agua-mineral", name: "Água Mineral", description: "Garrafa 500ml", price: 5.0, category: "bebida" }
 ];
 
 const sushiDoBixigaMenu: MenuItem[] = [
@@ -2006,21 +1665,6 @@ const maroConfeitariaMenu: MenuItem[] = [
   { id: "refrigerante", name: "Refrigerante", description: "Lata de refrigerante.", price: 6.0, category: "bebida" }
 ];
 
-const espacoHerbalifeShakeAvPaulistaMenu: MenuItem[] = [
-  { id: "shake-de-morango", name: "Shake de Morango", description: "Delicioso shake de morango com whey protein", price: 25.0, category: "bebida" },
-  { id: "shake-de-chocolate", name: "Shake de Chocolate", description: "Shake cremoso de chocolate com whey protein", price: 25.0, category: "bebida" },
-  { id: "shake-de-baunilha", name: "Shake de Baunilha", description: "Shake de baunilha para uma refeição leve e nutritiva", price: 25.0, category: "bebida" },
-  { id: "shake-de-cookies-cream", name: "Shake de Cookies & Cream", description: "O sabor de cookies & cream em um shake saudável", price: 28.0, category: "bebida" },
-  { id: "shake-de-doce-de-leite", name: "Shake de Doce de Leite", description: "Shake com o tradicional sabor de doce de leite", price: 28.0, category: "bebida" },
-  { id: "acai-na-tigela", name: "Açaí na Tigela", description: "Açaí com granola, banana e mel", price: 30.0, category: "sobremesa" },
-  { id: "salada-de-frutas", name: "Salada de Frutas", description: "Mix de frutas da estação", price: 15.0, category: "sobremesa" },
-  { id: "pao-de-queijo", name: "Pão de Queijo", description: "Porção com 6 unidades", price: 12.0, category: "petisco" },
-  { id: "coxinha-de-frango-com-batata-d", name: "Coxinha de Frango com Batata Doce", description: "Salgado fit de frango com massa de batata doce", price: 15.0, category: "petisco" },
-  { id: "suco-de-laranja", name: "Suco de Laranja", description: "Suco natural de laranja feito na hora", price: 10.0, category: "bebida" },
-  { id: "cafe-expresso", name: "Café Expresso", description: "Café expresso para dar um up no seu dia", price: 6.0, category: "bebida" },
-  { id: "agua-mineral", name: "Água Mineral", description: "Garrafa de 500ml", price: 5.0, category: "bebida" }
-];
-
 const barsottiConfeitariaMenu: MenuItem[] = [
   { id: "bolo-de-baunilha-com-bicho-de-", name: "Bolo de Baunilha com Bicho de Pé", description: "Bolo de baunilha com recheio cremoso de bicho de pé", price: 15.0, category: "sobremesa" },
   { id: "bolo-de-cenoura-com-brigadeiro", name: "Bolo de Cenoura com Brigadeiro", description: "Fatia de bolo de cenoura fofinho com cobertura de brigadeiro", price: 12.0, category: "sobremesa" },
@@ -2121,82 +1765,6 @@ const deliveryChefPascalValeroGastronomiaFrancesaMenu: MenuItem[] = [
   { id: "vinho-branco-taca", name: "Vinho branco (taça)", description: "Seleção do sommelier", price: 45.0, category: "bebida" }
 ];
 
-const atelierDeBolosIpirangaSpMenu: MenuItem[] = [
-  { id: "bolo-de-cenoura-com-brigadeiro", name: "Bolo de Cenoura com Brigadeiro", description: "Bolo de cenoura fofinho com cobertura de brigadeiro cremoso", price: 15.0, category: "sobremesa" },
-  { id: "bolo-de-chocolate-com-morango", name: "Bolo de Chocolate com Morango", description: "Bolo de chocolate com recheio e cobertura de morangos frescos", price: 18.0, category: "sobremesa" },
-  { id: "bolo-de-fuba-com-goiabada", name: "Bolo de Fubá com Goiabada", description: "Bolo de fubá cremoso com pedaços de goiabada", price: 12.0, category: "sobremesa" },
-  { id: "torta-de-limao", name: "Torta de Limão", description: "Torta de limão com merengue suíço", price: 16.0, category: "sobremesa" },
-  { id: "cheesecake-de-frutas-vermelhas", name: "Cheesecake de Frutas Vermelhas", description: "Cheesecake com calda de frutas vermelhas", price: 20.0, category: "sobremesa" },
-  { id: "brownie-com-sorvete", name: "Brownie com Sorvete", description: "Brownie de chocolate com nozes e uma bola de sorvete de creme", price: 22.0, category: "sobremesa" },
-  { id: "cafe-espresso", name: "Café Espresso", description: "Café espresso", price: 6.0, category: "bebida" },
-  { id: "cappuccino", name: "Cappuccino", description: "Cappuccino com chocolate em pó", price: 10.0, category: "bebida" },
-  { id: "suco-de-laranja", name: "Suco de Laranja", description: "Suco de laranja natural", price: 8.0, category: "bebida" },
-  { id: "agua-com-gas", name: "Água com Gás", description: "Água com gás", price: 5.0, category: "bebida" }
-];
-
-const bistroVilleDuVinItaimMenu: MenuItem[] = [
-  { id: "couvert", name: "Couvert", description: "pão de fermentação natural servido com concasse de tomate e antepasto de azeitona", price: 25.0, category: "entrada" },
-  { id: "salada-ville-du-vin", name: "Salada Ville du Vin", description: "mix de folhas com redução de balsâmico e mel, ricota da casa e nozes caramelizadas", price: 32.0, category: "entrada" },
-  { id: "steak-tartare", name: "Steak Tartare", description: "filé mignon cortado na ponta da faca, cebola roxa, picles, alcaparra, acompanha chips de batata e mix de folhas com molho vinagrete americano", price: 42.0, category: "entrada" },
-  { id: "filet-au-poivre", name: "Filet au Poivre", description: "filé mignon ao molho de pimenta e mousseline de batata", price: 98.0, category: "prato" },
-  { id: "bacalhau-ao-forno", name: "Bacalhau ao Forno", description: "lombo de gadus morhua em azeite acompanhado de batatas, pimentão, tomate cereja, ovo cozido, finalizado com tapenade de azeitonas pretas", price: 138.0, category: "prato" },
-  { id: "arroz-de-pato-confitado", name: "Arroz de Pato Confitado", description: "puxado na manteiga de ervas com redução do pato, cenoura, linguiça portuguesa e pato desfiado, acrescido de tomate cereja, crocante de parma e ervilha torta", price: 98.0, category: "prato" },
-  { id: "banoffee-ville-du-vin", name: "Banoffee Ville du Vin", description: "banana assada e finalizada com açúcar brulée, farofa doce, sorvete de cream cheese e calda toffee", price: 22.0, category: "sobremesa" },
-  { id: "tartin-de-maca", name: "Tartin de Maçã", description: "com toffee e sorvete de creme", price: 22.0, category: "sobremesa" }
-];
-
-const bistroPaimMenu: MenuItem[] = [
-  { id: "dadinho-de-tapioca-com-geleia-", name: "Dadinho de Tapioca com Geleia de Pimenta", description: "Dadinhos de tapioca com queijo coalho, fritos e crocantes, acompanhados de geleia de pimenta agridoce.", price: 35.0, category: "petisco" },
-  { id: "coxinha-de-jaca", name: "Coxinha de Jaca", description: "Massa de mandioca recheada com jaca desfiada e temperada, empanada e frita.", price: 32.0, category: "petisco" },
-  { id: "pastel-de-vento-de-feira-carne", name: "Pastel de Vento de Feira (Carne e Queijo)", description: "Porção com 6 unidades de pastéis de vento, 3 de carne e 3 de queijo.", price: 38.0, category: "petisco" },
-  { id: "feijoada-completa-individual", name: "Feijoada Completa (individual)", description: "Acompanha arroz, couve, farofa, torresmo e laranja.", price: 55.0, category: "prato" },
-  { id: "picadinho-a-paim", name: "Picadinho à Paim", description: "Picadinho de filé mignon ao molho madeira, acompanhado de arroz, feijão, ovo frito e farofa de banana.", price: 65.0, category: "prato" },
-  { id: "moqueca-de-banana-da-terra", name: "Moqueca de Banana da Terra", description: "Moqueca vegana de banana da terra com leite de coco, azeite de dendê, pimentões e coentro. Acompanha arroz e farofa.", price: 58.0, category: "prato" },
-  { id: "brigadeiro-de-colher", name: "Brigadeiro de Colher", description: "Brigadeiro cremoso servido na colher.", price: 18.0, category: "sobremesa" },
-  { id: "pudim-de-leite-condensado", name: "Pudim de Leite Condensado", description: "Pudim de leite condensado com calda de caramelo.", price: 22.0, category: "sobremesa" },
-  { id: "cerveja-original-600ml", name: "Cerveja Original 600ml", description: "Cerveja Original 600ml", price: 15.0, category: "cerveja" },
-  { id: "caipirinha-de-limao", name: "Caipirinha de Limão", description: "Cachaça, limão, açúcar e gelo.", price: 25.0, category: "drink" },
-  { id: "refrigerante-lata", name: "Refrigerante (Lata)", description: "Coca-cola, Guaraná Antarctica, etc.", price: 8.0, category: "bebida" },
-  { id: "agua-mineral", name: "Água Mineral", description: "Com ou sem gás.", price: 6.0, category: "bebida" }
-];
-
-const cafeisticaLabMenu: MenuItem[] = [
-  { id: "o-basico-para-um-cafe-nada-bas", name: "O BÁSICO Para um Café Nada Básico", description: "Indicado para iniciantes no mundo encantador do café, que queiram aprender a escolher e preparar cafés de forma descomplicada.", price: 350.0, category: "prato" },
-  { id: "oficina-sensorial-para-cafes", name: "OFICINA SENSORIAL PARA CAFÉS", description: "Indicado para quem já consome e prepara cafés especiais em grãos, para aprimoramento da percepção sensorial para cafés.", price: 450.0, category: "prato" },
-  { id: "espresso-e-lattes", name: "ESPRESSO E LATTES", description: "Indicado para quem busca preparar o espresso e e leite perfeitos em máquinas profissionais ou domésticas.", price: 550.0, category: "prato" },
-  { id: "ciencia-dos-coados", name: "CIÊNCIA DOS COADOS", description: "Indicado para quem já tem conhecimento básico sobre cafés especiais e métodos, e que deseja avançar nas técnicas de preparo.", price: 500.0, category: "prato" },
-  { id: "tecnicas-de-harmonizacao", name: "TÉCNICAS DE HARMONIZAÇÃO", description: "Indicado para quem já prepara cafés especiais e quer aprender a realizar experiências incríveis de combinação de cafés com outros alimentos.", price: 480.0, category: "prato" },
-  { id: "latte-art-for-fun", name: "LATTE ART for fun", description: "Indicado para quem deseja aprender ou aprimorar as técnicas de latte art de forma descontraída e destravar seus medos de errar.", price: 400.0, category: "prato" },
-  { id: "master-barista-experience", name: "MASTER BARISTA EXPERIENCE", description: "O primeiro passo para quem quer entrar no mercado de cafés de qualidade, o curso digital para baristas voltado ao empreendedorismo que é referência no mercado.", price: 1200.0, category: "prato" },
-  { id: "maestria-barista-wave", name: "MAESTRIA BARISTA WAVE", description: "A masterização de técnicas que visa a excelência profissional e o encantamento de clientes.", price: 1500.0, category: "prato" }
-];
-
-const bistroEnjoyItMenu: MenuItem[] = [
-  { id: "burrata-com-tomatinhos-confit-", name: "Burrata com tomatinhos confit e pesto de manjericão", description: "Burrata cremosa com tomatinhos confit, pesto de manjericão e torradas.", price: 55.0, category: "entrada" },
-  { id: "steak-tartare-com-batata-frita", name: "Steak tartare com batata frita", description: "Carne bovina crua picada na ponta da faca, temperada com ingredientes clássicos e acompanhada de batata frita.", price: 65.0, category: "entrada" },
-  { id: "polvo-grelhado-com-arroz-negro", name: "Polvo grelhado com arroz negro e emulsão de páprica", description: "Polvo macio grelhado, servido sobre arroz negro e finalizado com uma emulsão de páprica defumada.", price: 95.0, category: "prato" },
-  { id: "magret-de-pato-ao-molho-de-lar", name: "Magret de pato ao molho de laranja com purê de mandioquinha", description: "Peito de pato grelhado com pele crocante, regado com molho de laranja e acompanhado de um cremoso purê de mandioquinha.", price: 88.0, category: "prato" },
-  { id: "risoto-de-cogumelos-selvagens-", name: "Risoto de cogumelos selvagens com azeite trufado", description: "Arroz arbóreo cremoso com um mix de cogumelos selvagens frescos, finalizado com azeite de trufas brancas.", price: 75.0, category: "prato" },
-  { id: "atum-selado-em-crosta-de-gerge", name: "Atum selado em crosta de gergelim com legumes salteados", description: "Lombo de atum selado em crosta de gergelim, servido com legumes frescos salteados na manteiga de ervas.", price: 82.0, category: "prato" },
-  { id: "cheesecake-de-frutas-vermelhas", name: "Cheesecake de frutas vermelhas", description: "Clássica cheesecake com uma generosa calda de frutas vermelhas frescas.", price: 35.0, category: "sobremesa" },
-  { id: "petit-gateau-de-doce-de-leite-", name: "Petit gateau de doce de leite com sorvete de queijo", description: "Bolinho quente de doce de leite com interior cremoso, acompanhado de sorvete de queijo artesanal.", price: 38.0, category: "sobremesa" },
-  { id: "agua-mineral", name: "Água mineral", description: "Com ou sem gás", price: 8.0, category: "bebida" },
-  { id: "refrigerante", name: "Refrigerante", description: "Lata", price: 9.0, category: "bebida" },
-  { id: "cerveja-long-neck", name: "Cerveja long neck", description: "Heineken, Stella Artois, Corona", price: 15.0, category: "cerveja" },
-  { id: "taca-de-vinho", name: "Taça de vinho", description: "Tinto ou branco", price: 35.0, category: "bebida" }
-];
-
-const luNevesAtelierMenu: MenuItem[] = [
-  { id: "bolo-de-rolo", name: "Bolo de Rolo", description: "Bolo de rolo com recheio de goiabada", price: 15.0, category: "sobremesa" },
-  { id: "torta-de-limao", name: "Torta de Limão", description: "Torta de limão com merengue suíço", price: 20.0, category: "sobremesa" },
-  { id: "brigadeiro-gourmet", name: "Brigadeiro Gourmet", description: "Brigadeiro gourmet de chocolate belga", price: 5.0, category: "sobremesa" },
-  { id: "macaron", name: "Macaron", description: "Macaron de diversos sabores", price: 7.0, category: "sobremesa" },
-  { id: "cheesecake-de-frutas-vermelhas", name: "Cheesecake de Frutas Vermelhas", description: "Cheesecake com calda de frutas vermelhas", price: 25.0, category: "sobremesa" },
-  { id: "tiramisu", name: "Tiramisù", description: "Sobremesa italiana com café e queijo mascarpone", price: 22.0, category: "sobremesa" },
-  { id: "pudim-de-leite", name: "Pudim de Leite", description: "Pudim de leite condensado com calda de caramelo", price: 12.0, category: "sobremesa" },
-  { id: "mousse-de-maracuja", name: "Mousse de Maracujá", description: "Mousse de maracujá com sementes", price: 18.0, category: "sobremesa" }
-];
-
 const chicagoBistroPudimGourmetMenu: MenuItem[] = [
   { id: "pudim-de-leite-condensado", name: "Pudim de Leite Condensado", description: "Pudim cremoso de leite condensado com calda de caramelo", price: 25.0, category: "sobremesa" },
   { id: "pudim-de-chocolate", name: "Pudim de Chocolate", description: "Pudim de chocolate meio amargo com calda de chocolate", price: 28.0, category: "sobremesa" },
@@ -2206,21 +1774,6 @@ const chicagoBistroPudimGourmetMenu: MenuItem[] = [
   { id: "cafe-espresso", name: "Café Espresso", description: "Café espresso", price: 8.0, category: "bebida" },
   { id: "agua-mineral", name: "Água Mineral", description: "Água com ou sem gás", price: 6.0, category: "bebida" },
   { id: "refrigerante", name: "Refrigerante", description: "Coca-cola, Guaraná, Soda", price: 8.0, category: "bebida" }
-];
-
-const denilsonLimaAtelierMenu: MenuItem[] = [
-  { id: "bolo-de-casadinho", name: "Bolo de Casadinho", description: "Massa de baunilha, recheio de brigadeiro branco e preto, cobertura de buttercream", price: 250.0, category: "sobremesa" },
-  { id: "bolo-baba-de-moca-com-nozes", name: "Bolo Baba de Moça com Nozes", description: "Massa de nozes, recheio de baba de moça, cobertura de buttercream", price: 280.0, category: "sobremesa" },
-  { id: "bolo-de-doce-de-leite-com-coco", name: "Bolo de Doce de Leite com Coco", description: "Massa de coco, recheio de doce de leite, cobertura de buttercream", price: 260.0, category: "sobremesa" },
-  { id: "torta-de-limao-siciliano", name: "Torta de Limão Siciliano", description: "Massa sablée, creme de limão siciliano, merengue suíço", price: 180.0, category: "sobremesa" },
-  { id: "torta-de-chocolate-com-caramel", name: "Torta de Chocolate com Caramelo Salgado", description: "Massa de cacau, recheio de caramelo salgado e ganache de chocolate meio amargo", price: 190.0, category: "sobremesa" },
-  { id: "entremet-de-frutas-vermelhas", name: "Entremet de Frutas Vermelhas", description: "Mousse de chocolate branco, geleia de frutas vermelhas, base de pistache", price: 45.0, category: "sobremesa" },
-  { id: "macaron-unidade", name: "Macaron (unidade)", description: "Amêndoas, açúcar, clara de ovo, recheios variados", price: 8.0, category: "sobremesa" },
-  { id: "eclair-de-baunilha", name: "Eclair de Baunilha", description: "Massa choux, creme patissier de baunilha, fondant", price: 25.0, category: "sobremesa" },
-  { id: "financier-de-amendoas", name: "Financier de Amêndoas", description: "Manteiga noisette, farinha de amêndoas, açúcar", price: 15.0, category: "sobremesa" },
-  { id: "madeleine-de-laranja", name: "Madeleine de Laranja", description: "Massa de baunilha com raspas de laranja", price: 12.0, category: "sobremesa" },
-  { id: "cafe-espresso", name: "Café Espresso", description: "Grãos selecionados, extração perfeita", price: 8.0, category: "bebida" },
-  { id: "agua-mineral", name: "Água Mineral", description: "Com ou sem gás", price: 6.0, category: "bebida" }
 ];
 
 const chefApptiteAnaJunqueiraComidaLowCarbMenu: MenuItem[] = [
@@ -2366,84 +1919,7 @@ export const categories: Category[] = [
         instagram: "@chefpascalvalero",
         menu: deliveryChefPascalValeroGastronomiaFrancesaMenu,
       },
-      {
-        id: "atelier-de-bolos-ipiranga-sp",
-        name: "Atelier de Bolos Ipiranga SP",
-        address: "Rua Antônio Cantarella, 536 - Vila Santo Estefano, São Paulo",
-        neighborhood: "Cursino",
-        rating: 5,
-        reviewCount: 55,
-        image: "",
-        hours: "Não encontrado",
-        phone: "",
-        instagram: "@atelierdebolosipirangasp",
-        menu: atelierDeBolosIpirangaSpMenu,
-      },
-      {
-        id: "bistro-ville-du-vin-itaim",
-        name: "Bistrô Ville du Vin Itaim",
-        address: "Rua Leopoldo Couto Magalhães Júnior, 490 - Itaim Bibi, São Paulo",
-        neighborhood: "Itaim Bibi",
-        rating: 5,
-        reviewCount: 21,
-        image: "https://media-cdn.tripadvisor.com/media/photo-s/1a/0a/6a/5f/cardapio.jpg",
-        hours: "Segunda a sexta das 10h às 20h. Sábado das 10h às 18h. Bistrot das 12h às 15h.",
-        phone: "",
-        instagram: "@villeduvinitaim",
-        menu: bistroVilleDuVinItaimMenu,
-      },
-      {
-        id: "bistro-paim",
-        name: "Bistrô Paim",
-        address: "Rua Paim, 235 - Bela Vista, São Paulo",
-        neighborhood: "Bela Vista",
-        rating: 5,
-        reviewCount: 10,
-        image: "https://img.restaurantguru.com/w550/h367/re75-Bistro-Paim-design.jpg",
-        hours: "Não encontrado",
-        phone: "",
-        instagram: "",
-        menu: bistroPaimMenu,
-      },
-      {
-        id: "cafeistica-lab",
-        name: "Cafeistica Lab",
-        address: "Rua Assungui, 806 - Jardim da Saúde, São Paulo",
-        neighborhood: "Cursino",
-        rating: 5,
-        reviewCount: 5,
-        image: "https://scontent.cdninstagram.com/v/t51.2885-15/448275815_1597557394364981_693833959746934899_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=18de74&_nc_ohc=Lz6x-3Xy-DAQ7kNvgE8a_b_&_nc_ht=scontent.cdninstagram.com&oh=00_AYBwZ3G5X9Y9B-rJtJ_x-g9y-Y9Z-Z-y-Y9Z-Z-y-Y9Z-Z&oe=664B2A4F",
-        hours: "Não encontrado",
-        phone: "(11) 99877-2919",
-        instagram: "@cafeistica",
-        menu: cafeisticaLabMenu,
-      },
-      {
-        id: "bistro-enjoy-it",
-        name: "Bistrô Enjoy It",
-        address: "Avenida Pacaembu, 905 - Pacaembu, São Paulo",
-        neighborhood: "Barra Funda",
-        rating: 5,
-        reviewCount: 4,
-        image: "https://media-cdn.tripadvisor.com/media/photo-s/1a/2a/97/8a/enjoy-it.jpg",
-        hours: "Não encontrado",
-        phone: "",
-        instagram: "@bistroenjoyit",
-        menu: bistroEnjoyItMenu,
-      },
-      {
-        id: "lu-neves-atelier",
-        name: "Lu Neves Atelier",
-        address: "Rua Cayowaá, 911 - Perdizes, São Paulo",
-        neighborhood: "Perdizes",
-        rating: 5,
-        reviewCount: 4,
-        image: "https://tanamesa.com/wp-content/uploads/2020/05/Lu-Neves-chef-chef-do-t%C3%A1-na-mesa.jpg",
-        hours: "Não encontrado",
-        phone: "",
-        instagram: "@chefluneves",
-        menu: luNevesAtelierMenu,
-      },
+      
       {
         id: "chicago-bistro-pudim-gourmet",
         name: "Chicago Bistrô - Pudim Gourmet",
@@ -2457,19 +1933,7 @@ export const categories: Category[] = [
         instagram: "@chicago_bistro_pudim_gourmet",
         menu: chicagoBistroPudimGourmetMenu,
       },
-      {
-        id: "denilson-lima-atelier",
-        name: "Denilson Lima Atelier",
-        address: "Rua Mourato Coelho, 531 - Pinheiros, São Paulo",
-        neighborhood: "Pinheiros",
-        rating: 5,
-        reviewCount: 2,
-        image: "https://i.sampi.com.br/gn/img/2023/10/23/21/35/38/gourmet/denilson-lima-o-confeiteiro-queridinho-das-celebridades.jpg",
-        hours: "Não encontrado",
-        phone: "(11) 91722-7568",
-        instagram: "@denilsonlimaatelier",
-        menu: denilsonLimaAtelierMenu,
-      },
+      
       {
         id: "chef-apptite-ana-junqueira-comida-low-carb",
         name: "Chef Apptite - Ana Junqueira - Comida Low Carb",
@@ -2505,19 +1969,6 @@ export const categories: Category[] = [
         instagram: "@saoconradobar",
         menu: saoConradoMenu,
       },
-      {
-        id: "quitandinha",
-        name: "Quitandinha",
-        address: "R. Mourato Coelho, 1447 - Vila Madalena",
-        neighborhood: "Vila Madalena",
-        rating: 4.3,
-        reviewCount: 3100,
-        image: "/manus-storage/quitandinha_219280e6.jpg",
-        hours: "Seg-Sáb 11h-00h | Dom 11h-22h",
-        phone: "(11) 3034-1456",
-        instagram: "@quitandinha_bar",
-        menu: quitandinhaMenu,
-      },
     ],
   },
   {
@@ -2539,19 +1990,6 @@ export const categories: Category[] = [
         phone: "(11) 3034-1556",
         instagram: "@deprimeira.bar",
         menu: dePrimeiraMenu,
-      },
-      {
-        id: "bar-moela",
-        name: "Bar Moela",
-        address: "R. Aspicuelta, 307 - Vila Madalena",
-        neighborhood: "Vila Madalena",
-        rating: 4.6,
-        reviewCount: 1900,
-        image: "/manus-storage/bar-moela_b74cc7a7.jpg",
-        hours: "Ter-Sex 17h-23h | Sáb 12h-23h | Dom 12h-20h | Seg Fechado",
-        phone: "(11) 3032-2838",
-        instagram: "@barmoela",
-        menu: barMoelaMenu,
       },
       {
         id: "oink-gastro-bar",
@@ -2794,19 +2232,6 @@ export const categories: Category[] = [
         menu: santanaBarMenu,
       },
       {
-        id: "sylvester-bar",
-        name: "Sylvester Bar",
-        address: "R. Aspicuelta, 208 - Vila Madalena",
-        neighborhood: "Vila Madalena",
-        rating: 4.4,
-        reviewCount: 1800,
-        image: "/manus-storage/sylvester-bar_f9e1f0e2.jpg",
-        hours: "Ter-Sáb 18h-02h | Dom-Seg Fechado",
-        phone: "(11) 3032-0089",
-        instagram: "@sylvesterbar",
-        menu: sylvesterBarMenu,
-      },
-      {
         id: "frigobar-speakeasy",
         name: "Frigobar Speakeasy",
         address: "Av. Professor Alfonso Bovero, 597 - Perdizes",
@@ -2854,32 +2279,6 @@ export const categories: Category[] = [
         instagram: "@kingofthefork",
         menu: kofMenu,
       },
-      {
-        id: "fora-da-lei-cafe",
-        name: "Fora da Lei Café",
-        address: "R. Cubatão, 131 - Paraíso",
-        neighborhood: "Paraíso",
-        rating: 4.6,
-        reviewCount: 1200,
-        image: "/manus-storage/fora-da-lei_e7a3bc13.jpg",
-        hours: "Seg 12h-18h | Ter-Sáb 09h-18h | Dom Fechado",
-        phone: "(11) 97416-6766",
-        instagram: "@foradalei_cafe",
-        menu: foradaLeiMenu,
-      },
-      {
-        id: "crio-cafe",
-        name: "Crio Café",
-        address: "R. Cubatão, 641 - Vila Mariana",
-        neighborhood: "Vila Mariana",
-        rating: 4.7,
-        reviewCount: 950,
-        image: "/manus-storage/crio-cafe_bfbc7063.jpg",
-        hours: "Seg-Sáb 09h30-18h30 | Dom Fechado",
-        phone: "",
-        instagram: "@crio.cafe",
-        menu: crioCafeMenu,
-      },
     ],
   },
   {
@@ -2901,32 +2300,6 @@ export const categories: Category[] = [
         phone: "(11) 3062-3456",
         instagram: "@martocapadaria",
         menu: martocaMenu,
-      },
-      {
-        id: "aj-padaria",
-        name: "A J Padaria",
-        address: "R. Cônego Eugênio Leite, 836 - Pinheiros",
-        neighborhood: "Pinheiros",
-        rating: 4.3,
-        reviewCount: 2800,
-        image: "/manus-storage/aj-padaria_ff684ac1.jpg",
-        hours: "Seg-Sáb 06h-21h | Dom 06h-14h",
-        phone: "(11) 3083-1346",
-        instagram: "@ajpadaria",
-        menu: ajPadariaMenu,
-      },
-      {
-        id: "futuro-refeitorio",
-        name: "O Futuro Refeitório",
-        address: "R. dos Pinheiros, 514 - Pinheiros",
-        neighborhood: "Pinheiros",
-        rating: 4.6,
-        reviewCount: 1200,
-        image: "/manus-storage/futuro-refeitorio_657f2f97.jpg",
-        hours: "Ter-Sex 09h-17h | Sáb-Dom 09h-16h | Seg Fechado",
-        phone: "(11) 3064-0845",
-        instagram: "@ofuturorefeitorio",
-        menu: futuroRefeitorioMenu,
       },
     ],
   },
@@ -3023,19 +2396,6 @@ export const categories: Category[] = [
         phone: "",
         instagram: "@maroconfeitaria",
         menu: maroConfeitariaMenu,
-      },
-      {
-        id: "espaco-herbalife-shake-av-paulista",
-        name: "Espaço Herbalife Shake Av. Paulista",
-        address: "Bela Vista, São Paulo",
-        neighborhood: "Bela Vista",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://scontent-iad6-1.xx.fbcdn.net/v/t39.30808-1/323412459_6023691671056575_8359212428704637625_n.jpg",
-        hours: "Aberto agora",
-        phone: "(11) 98725-0523",
-        instagram: "@shakes_herbalife_sp",
-        menu: espacoHerbalifeShakeAvPaulistaMenu,
       },
       {
         id: "barsotti-confeitaria",
@@ -3164,19 +2524,6 @@ export const categories: Category[] = [
         menu: barAltoMenu,
       },
       {
-        id: "meow-maison",
-        name: "Meow Maison",
-        address: "R. Cunha Gago, 678 - Pinheiros",
-        neighborhood: "Pinheiros",
-        rating: 4.3,
-        reviewCount: 594,
-        image: "/manus-storage/meow-maison_8fad92c3.jpg",
-        hours: "Qui-Sáb 22h-04h",
-        phone: "",
-        instagram: "@meow.maison",
-        menu: meowMaisonMenu,
-      },
-      {
         id: "brutal-house-rock",
         name: "Brutal House Rock",
         address: "Rua Cardeal Arcoverde, 2877 - Frente - Pinheiros, São Paulo",
@@ -3188,45 +2535,6 @@ export const categories: Category[] = [
         phone: "",
         instagram: "@brutalhouserock",
         menu: brutalHouseRockMenu,
-      },
-      {
-        id: "barbearia-barbeiro-da-vila",
-        name: "Barbearia Barbeiro da Vila",
-        address: "Rua Delfina, 64 - Vila Madalena, São Paulo",
-        neighborhood: "Vila Madalena",
-        rating: 5,
-        reviewCount: 124,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/jOxPtrTFBJHTNglS.jpg",
-        hours: "Ter/Sex: 10h-20h | Sáb: 10h-17h",
-        phone: "",
-        instagram: "@barbeirodavila_",
-        menu: barbeariaBarbeiroDaVilaMenu,
-      },
-      {
-        id: "poker-raiz-club",
-        name: "Poker Raiz Club",
-        address: "Rua Maceió, 77 - Consolação, São Paulo",
-        neighborhood: "Consolação",
-        rating: 5,
-        reviewCount: 111,
-        image: "https://assets.olaclick.app/companies/logos/899aa778-35ed-4c28-b9af-96ae899d7c07.jpg",
-        hours: "Não encontrado",
-        phone: "(11) 5194-7687",
-        instagram: "@pokerraizclub",
-        menu: pokerRaizClubMenu,
-      },
-      {
-        id: "lr-nails-esmalteria",
-        name: "LR Nails Esmalteria",
-        address: "Avenida da Invernada, 126 - Campo Belo, São Paulo",
-        neighborhood: "Campo Belo",
-        rating: 5,
-        reviewCount: 81,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/ObyWjuwrAuvtPDZa.webp",
-        hours: "Segunda das 13:00h às 19:00h | Terça a Sábado das 8:00h às 19:00h",
-        phone: "",
-        instagram: "@lrnaildesigners",
-        menu: lrNailsEsmalteriaMenu,
       },
       {
         id: "be-on-club",
@@ -3241,32 +2549,8 @@ export const categories: Category[] = [
         instagram: "@beonclub",
         menu: beOnClubMenu,
       },
-      {
-        id: "lotus-club",
-        name: "Lotus Club",
-        address: "Consolação, São Paulo",
-        neighborhood: "Consolação",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://media-cdn.tripadvisor.com/media/photo-s/22/23/12/99/lotus-club.jpg",
-        hours: "Seg-Sex 17h-03h | Sáb 20h-04h",
-        phone: "(11) 2608-9666",
-        instagram: "@clublotuszn",
-        menu: lotusClubMenu,
-      },
-      {
-        id: "clash-club",
-        name: "Clash Club",
-        address: "Barra Funda, São Paulo",
-        neighborhood: "Barra Funda",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/sqVzQgnZXLLrKaNU.webp",
-        hours: "Fechado permanentemente",
-        phone: "+55 11 36611500",
-        instagram: "@clashclubsp",
-        menu: clashClubMenu,
-      },
+      
+      
       {
         id: "carioca-club",
         name: "Carioca Club",
@@ -3293,19 +2577,7 @@ export const categories: Category[] = [
         instagram: "@discoclubrp",
         menu: discoClubMenu,
       },
-      {
-        id: "lions-nightclub",
-        name: "Lions Nightclub",
-        address: "Bela Vista, São Paulo",
-        neighborhood: "Bela Vista",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/CSSFgCXdLIJLLekv.webp",
-        hours: "Quinta a sábado, das 23h45 às 6h",
-        phone: "(11) 3104-7157",
-        instagram: "@lions_nightclub",
-        menu: lionsNightclubMenu,
-      }
+      
     ],
   },
   {
@@ -3327,19 +2599,6 @@ export const categories: Category[] = [
         phone: "(11) 97675-0513",
         instagram: "@almasaopaulo",
         menu: almaSPMenu,
-      },
-      {
-        id: "raiz-club",
-        name: "Raiz Club",
-        address: "R. Alves Guimarães, 153 Subsolo - Pinheiros",
-        neighborhood: "Pinheiros",
-        rating: 3.7,
-        reviewCount: 25,
-        image: "/manus-storage/raiz-club_bfe045bb.jpg",
-        hours: "Ter-Sáb 19h-01h | Dom 18h-00h",
-        phone: "(11) 3083-3003",
-        instagram: "@raizclubsp",
-        menu: raizClubMenu,
       },
       {
         id: "fino-da-bossa",
@@ -3507,19 +2766,6 @@ export const categories: Category[] = [
         menu: nossoLastroCervejariaMenu,
       },
       {
-        id: "cervejaria-dogma",
-        name: "Cervejaria Dogma - Itaim",
-        address: "R. Urussuí, 251 - Itaim Bibi",
-        neighborhood: "Itaim Bibi",
-        rating: 4.7,
-        reviewCount: 263,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/bItKEhkxCtkwaOoX.png",
-        hours: "Ter-Sex 17h-00h | Sáb 12h-00h | Dom 14h-20h",
-        phone: "(11) 3073-0100",
-        instagram: "@dogmaitaim",
-        menu: cervejariaDogmaMenu,
-      },
-      {
         id: "trilha-cervejaria",
         name: "TRILHA Cervejaria - Itaim",
         address: "R. Pedroso Alvarenga, 569 - Itaim Bibi",
@@ -3531,19 +2777,6 @@ export const categories: Category[] = [
         phone: "(11) 99999-9999",
         instagram: "@trilhaitaim",
         menu: trilhaCervejariaMenu,
-      },
-      {
-        id: "cervejaria-oak",
-        name: "Cervejaria Oak",
-        address: "R. Padre Carvalho, 769 - Pinheiros",
-        neighborhood: "Pinheiros",
-        rating: 4.6,
-        reviewCount: 197,
-        image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/KBsEyeQQgaXbmfJn.jpg",
-        hours: "A consultar",
-        phone: "(11) 94362-7334",
-        instagram: "@theoak_pinheiros",
-        menu: cervejariaOakMenu,
       },
       {
         id: "cervejaria-dinastia",
@@ -3772,19 +3005,6 @@ export const categories: Category[] = [
         menu: barretoBurgerCafeLapaMenu,
       },
       {
-        id: "bro-burger",
-        name: "Bro Burger",
-        address: "Pinheiros, São Paulo",
-        neighborhood: "Pinheiros",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://assets.menuintegrado.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsiZGF0YSI6MTA0ODIxLCJwdXIiOiJibG9iX2lkIn19--746e1aeb80eeddc2dddbb142657db1f9afbf7262/eyJfcmFpbHMiOnsiZGF0YSI6eyJmb3JtYXQiOiJqcGciLCJyZXNpemVfdG9fZmlsbCI6WzYwMCw2MDBdfSwicHVyIjoidmFyaWF0aW9uIn19--8225fd9d365453dd1c4e93895c559095d44a7b70/LOGO%201%20BROS.jpg",
-        hours: "Domingo, Segunda-feira, Terça-feira, Quinta-feira, Sexta-feira e Sábado das 18:00 às 00:30",
-        phone: "(82) 98228-7161",
-        instagram: "@bbroburger",
-        menu: broBurgerMenu,
-      },
-      {
         id: "bullger",
         name: "Bullger",
         address: "Pinheiros, São Paulo",
@@ -3796,32 +3016,6 @@ export const categories: Category[] = [
         phone: "",
         instagram: "",
         menu: bullgerMenu,
-      },
-      {
-        id: "tradi-burger",
-        name: "Tradi Burger",
-        address: "Vila Madalena, São Paulo",
-        neighborhood: "Vila Madalena",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ab03a65b-fb1c-4c37-805b-2b5e57044870/id-preview-de9cc012--bc950489-eff9-454a-905d-3ad0f2d7e31a.lovable.app-1775580128865.png",
-        hours: "Segunda a Domingo: 12h–23h",
-        phone: "",
-        instagram: "@hamburgueriatradi",
-        menu: tradiBurgerMenu,
-      },
-      {
-        id: "stunt-burger",
-        name: "Stunt Burger",
-        address: "Pinheiros, São Paulo",
-        neighborhood: "Pinheiros",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://media-cdn.tripadvisor.com/media/photo-o/1c/b8/b1/39/cardapio-marco-de-2021.jpg",
-        hours: "Domingo a 5ª, das 12am às 11:30pm | 6ª e Sábado, das 12am às 2am",
-        phone: "(11) 3032-4548",
-        instagram: "@stuntburger",
-        menu: stuntBurgerMenu,
       },
       {
         id: "z-deli-sandwich-shop",
@@ -3836,32 +3030,8 @@ export const categories: Category[] = [
         instagram: "@zdelirestaurante",
         menu: zDeliSandwichShopMenu,
       },
-      {
-        id: "meats",
-        name: "Meats",
-        address: "Pinheiros, São Paulo",
-        neighborhood: "Pinheiros",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://s3-media0.fl.yelpcdn.com/bphoto/J9fN1j__-cZIXoE9-p_fXw/o.jpg",
-        hours: "Seg-Dom 12:00h - 00:00h",
-        phone: "(11) 2679-6323",
-        instagram: "@eatmeats",
-        menu: meatsMenu,
-      },
-      {
-        id: "burger-lab",
-        name: "Burger Lab",
-        address: "Itaim Bibi, São Paulo",
-        neighborhood: "Itaim Bibi",
-        rating: 4.5,
-        reviewCount: 100,
-        image: "https://media-cdn.tripadvisor.com/media/photo-s/0a/f9/e9/8b/burger-lab-experience.jpg",
-        hours: "Dom-Sáb 12:00h-23:00h",
-        phone: "(11) 2308-3278",
-        instagram: "@blxperience",
-        menu: burgerLabMenu,
-      }
+      
+      
     ],
   },
   {
@@ -3949,19 +3119,7 @@ export const categories: Category[] = [
         instagram: "@henna_japafood",
         menu: hennaJapaneseFoodSushiGourmetNoIpirangaDeliMenu,
       },
-      {
-        id: "sushi-ya",
-        name: "Sushi Yá",
-        address: "Praça Benedito Calixto, 54 - Pinheiros, São Paulo",
-        neighborhood: "Pinheiros",
-        rating: 5,
-        reviewCount: 3,
-        image: "https://static.menustic.com/3819ms-albums-1.jpg",
-        hours: "Seg-Dom 11h-22h",
-        phone: "(11) 3081-8730",
-        instagram: "@sushiyaoficial",
-        menu: sushiYaMenu,
-      },
+      
       {
         id: "sushi-do-bixiga",
         name: "Sushi do Bixiga",
