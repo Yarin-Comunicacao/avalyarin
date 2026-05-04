@@ -8,12 +8,12 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
-  Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3, Beer, Leaf
+  Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3, Beer, Leaf, Globe, Pizza
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
-  Wine, CupSoda, Croissant, Music, Leaf,
+  Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
 };
 
 const fadeUp = {

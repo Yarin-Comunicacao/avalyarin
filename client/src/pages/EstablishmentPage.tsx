@@ -28,17 +28,18 @@ export default function EstablishmentPage() {
   );
   const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
 
-  const entradas = establishment.menu.filter((m) => m.category === "entrada" || m.category === "petisco");
-  const pratos = establishment.menu.filter((m) => m.category === "prato" || m.category === "hamburguer" || m.category === "pizza");
-  const sobremesas = establishment.menu.filter((m) => m.category === "sobremesa");
-  const bebidas = establishment.menu.filter((m) => m.category === "bebida" || m.category === "cerveja");
+  const entradas = establishment.menu.filter((m) => m.category === "entrada" || m.category === "petisco" || m.category === "salgado");
+  const pratos = establishment.menu.filter((m) => m.category === "prato" || m.category === "hamburguer" || m.category === "pizza" || m.category === "lanche" || m.category === "sanduiche" || m.category === "sushi" || m.category === "temaki" || m.category === "ramen" || m.category === "salada" || m.category === "sopa" || m.category === "focaccia");
+  const sobremesas = establishment.menu.filter((m) => m.category === "sobremesa" || m.category === "doce" || m.category === "torta");
+  const bebidas = establishment.menu.filter((m) => m.category === "bebida" || m.category === "cerveja" || m.category === "caf\u00e9");
   const chopps = establishment.menu.filter((m) => m.category === "chopp");
-  const drinks = establishment.menu.filter((m) => m.category === "drink");
+  const drinks = establishment.menu.filter((m) => m.category === "drink" || m.category === "vinho");
   const destilados = establishment.menu.filter((m) => m.category === "destilado");
+  const paes = establishment.menu.filter((m) => m.category === "p\u00e3o" || m.category === "padaria");
 
   // Determine establishment type based on parent category
   const catId = parentCategory?.id || "";
-  const isRestaurante = catId === "restaurante-tradicional" || catId === "autoral";
+  const isRestaurante = catId === "cozinha-brasileira" || catId === "cozinha-internacional" || catId === "autoral";
   const isBarMusical = catId === "bar-musical";
   const isBalada = catId === "balada";
   const isConfeitaria = catId === "confeitaria";
@@ -86,6 +87,8 @@ export default function EstablishmentPage() {
     ? "chopps"
     : destilados.length > 0
     ? "destilados"
+    : paes.length > 0
+    ? "paes"
     : "drinks";
 
   const MenuSection = ({ items, title }: { items: typeof entradas; title: string }) => (
@@ -193,6 +196,7 @@ export default function EstablishmentPage() {
               {bebidas.length > 0 && <TabsTrigger value="bebidas" className="font-display tracking-wider text-xs">{labels.bebidas.tab}</TabsTrigger>}
               {destilados.length > 0 && <TabsTrigger value="destilados" className="font-display tracking-wider text-xs">DESTILADOS</TabsTrigger>}
               {drinks.length > 0 && <TabsTrigger value="drinks" className="font-display tracking-wider text-xs">{labels.drinks.tab}</TabsTrigger>}
+              {paes.length > 0 && <TabsTrigger value="paes" className="font-display tracking-wider text-xs">PÃES</TabsTrigger>}
             </TabsList>
             {entradas.length > 0 && (
               <TabsContent value="entradas">
@@ -227,6 +231,11 @@ export default function EstablishmentPage() {
             {drinks.length > 0 && (
               <TabsContent value="drinks">
                 <MenuSection items={drinks} title={labels.drinks.title} />
+              </TabsContent>
+            )}
+            {paes.length > 0 && (
+              <TabsContent value="paes">
+                <MenuSection items={paes} title="PÃES & PADARIA" />
               </TabsContent>
             )}
           </Tabs>

@@ -950,15 +950,15 @@ export default function RatingPage() {
                   </div>
                 </div>
                 <ItemSelector items={entradas} title={
-                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "ENTRADAS" :
+                  parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "ENTRADAS" :
                   parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "SALGADOS" : "PETISCOS & PORÇÕES"
                 } />
                 <ItemSelector items={pratos} title={
-                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "PRATOS PRINCIPAIS" : "PRATOS & SANDUÍCHES"
+                  parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "PRATOS PRINCIPAIS" : "PRATOS & SANDUÍCHES"
                 } />
                 <ItemSelector items={sobremesas} title="DOCES & SOBREMESAS" />
                 <ItemSelector items={bebidas} title={
-                  parentCategory?.id === "restaurante-tradicional" || parentCategory?.id === "autoral" ? "BEBIDAS" :
+                  parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "BEBIDAS" :
                   parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "CAFÉS & BEBIDAS" : "CERVEJAS"
                 } />
                 <div className="flex justify-end mt-6">
