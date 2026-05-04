@@ -1,6 +1,7 @@
 // Design: Neon Urbano — Home page with hero banner, category grid, and CTA
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
+import { NearbyEstablishments } from "@/components/NearbyEstablishments";
 import { categories } from "@/lib/data";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -101,6 +102,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Nearby Establishments */}
+      <NearbyEstablishments />
 
       {/* Categories Grid */}
       <section id="categorias" className="py-16 border-t border-border/30">

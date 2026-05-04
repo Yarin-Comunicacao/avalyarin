@@ -7,13 +7,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   X, User, CreditCard, Link2, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
-  ChevronRight, Settings, LogOut, Menu
+  ChevronRight, Settings, LogOut, Menu, LogIn, Trophy
 } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 interface AppMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
 
 // Mock data for demonstration
 const recentVisits = [
@@ -64,6 +67,7 @@ const menuSections: MenuSection[] = [
 ];
 
 export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
+  const { user, logout } = useAuth();
   const [expandedSection, setExpandedSection] = useState<string | null>("conta");
 
   const toggleSection = (id: string) => {
@@ -100,8 +104,12 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                     <User className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-display text-sm tracking-wider text-foreground">USUÁRIO</p>
-                    <p className="text-xs text-muted-foreground">@usuario_001</p>
+                    <p className="font-display text-sm tracking-wider text-foreground">
+                      {user ? (user.name || "USUÁRIO") : "VISITANTE"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {user ? (user.email || "Conectado") : "Faça login para salvar"}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -182,12 +190,35 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
               ))}
             </div>
 
+            {/* Badges Link */}
+            <div className="px-5 py-3 border-t border-border/30">
+              <Link href="/badges" onClick={onClose}>
+                <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors">Meus Badges</span>
+                </div>
+              </Link>
+            </div>
+
             {/* Footer */}
             <div className="px-5 py-4 mt-auto border-t border-border/30">
-              <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors group">
-                <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
-                <span className="text-sm text-muted-foreground group-hover:text-destructive transition-colors">Sair</span>
-              </button>
+              {user ? (
+                <button
+                  onClick={async () => { await logout(); onClose(); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors group"
+                >
+                  <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+                  <span className="text-sm text-muted-foreground group-hover:text-destructive transition-colors">Sair</span>
+                </button>
+              ) : (
+                <a
+                  href={getLoginUrl()}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group"
+                >
+                  <LogIn className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary font-medium">Entrar / Criar Conta</span>
+                </a>
+              )}
             </div>
           </motion.div>
         </>
