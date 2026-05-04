@@ -26,6 +26,8 @@ import Galeria from "./pages/Galeria";
 import MeusLocais from "./pages/MeusLocais";
 import InfluencersFavoritos from "./pages/InfluencersFavoritos";
 import ListasCollab from "./pages/ListasCollab";
+// Badges
+import BadgesPage from "./pages/BadgesPage";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -81,6 +83,8 @@ function Router() {
       <Route path="/salvos/locais" component={MeusLocais} />
       <Route path="/salvos/influencers" component={InfluencersFavoritos} />
       <Route path="/salvos/collab" component={ListasCollab} />
+      {/* Badges */}
+      <Route path="/badges" component={BadgesPage} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

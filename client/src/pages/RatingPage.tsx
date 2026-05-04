@@ -21,11 +21,22 @@ import { ptBR } from "react-day-picker/locale";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, Award, ThumbsUp, ThumbsDown, Users,
-  CalendarIcon, DollarSign, Receipt
+  CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
-type Step = "items" | "visitDate" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "spend" | "result";
+type Step = "items" | "visitDate" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "spend" | "qualify" | "result";
+
+interface ItemComment {
+  itemId: string;
+  comment: string;
+}
+
+interface PhotoWithTags {
+  id: string;
+  dataUrl: string;
+  taggedItemIds: string[];
+}
 
 interface SpendData {
   servicePercent: "none" | "10" | "13";
@@ -415,6 +426,12 @@ export default function RatingPage() {
   };
 
   const [bonuses, setBonuses] = useState<string[]>([]);
+
+  // Qualify step state
+  const [itemComments, setItemComments] = useState<ItemComment[]>([]);
+  const [photos, setPhotos] = useState<PhotoWithTags[]>([]);
+  const [receiptPhoto, setReceiptPhoto] = useState<string | null>(null);
+  const [photoTaggingId, setPhotoTaggingId] = useState<string | null>(null); // which photo is being tagged
 
   // Track if user attempted to advance without completing required fields
   const [validationAttempted, setValidationAttempted] = useState(false);
@@ -1581,13 +1598,300 @@ export default function RatingPage() {
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                     </Button>
-                    <Button onClick={() => setStep("result")} className="font-display tracking-wider glow-amber">
-                      VER RESULTADO <ChevronRight className="w-4 h-4 ml-1" />
+                    <Button onClick={() => {
+                      // Initialize item comments if not already done
+                      if (itemComments.length === 0) {
+                        setItemComments(selectedMenuItems.map(m => ({ itemId: m.id, comment: "" })));
+                      }
+                      setStep("qualify");
+                    }} className="font-display tracking-wider glow-amber">
+                      QUALIFICAR <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </motion.div>
               );
             })()}
+
+            {/* Qualify Step - Item Comments, Photos with Tags, Receipt */}
+            {step === "qualify" && (
+              <motion.div key="qualify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <div className="flex items-center gap-3 mb-6">
+                  <Camera className="w-6 h-6 text-primary" />
+                  <div>
+                    <h3 className="font-display text-2xl tracking-wider text-primary">QUALIFICAR AVALIAÇÃO</h3>
+                    <p className="text-sm text-muted-foreground">Adicione fotos e comentários para ganhar pontos extras!</p>
+                  </div>
+                </div>
+
+                {/* Qualification criteria info */}
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mb-6">
+                  <p className="text-xs text-primary/80 leading-relaxed">
+                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Adicione comentários nos itens (mín. 20 caracteres), fotos marcando os itens, e a foto da notinha para bonificação extra.
+                  </p>
+                </div>
+
+                {/* Item Comments Section */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-lg tracking-wider text-foreground">COMENTÁRIOS POR ITEM</h4>
+                  </div>
+                  <div className="space-y-3">
+                    {itemComments.map((ic) => {
+                      const item = menuItems.find(m => m.id === ic.itemId);
+                      if (!item) return null;
+                      return (
+                        <div key={ic.itemId} className="p-4 rounded-xl bg-card border border-border/50">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold text-foreground">{item.name}</span>
+                            <span className={`text-[10px] font-numbers ${ic.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
+                              {ic.comment.length}/200 {ic.comment.length >= 20 && '✓'}
+                            </span>
+                          </div>
+                          <textarea
+                            value={ic.comment}
+                            onChange={(e) => {
+                              const val = e.target.value.slice(0, 200);
+                              setItemComments(prev => prev.map(c => c.itemId === ic.itemId ? { ...c, comment: val } : c));
+                            }}
+                            placeholder="Como foi esse item? (mín. 20 caracteres para qualificar)"
+                            className="w-full p-3 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground placeholder:text-muted-foreground/50 resize-none h-20 focus:outline-none focus:border-primary/40"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Photos Section */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Image className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-lg tracking-wider text-foreground">FOTOS DOS ITENS</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">Tire fotos e marque quais itens aparecem em cada uma.</p>
+
+                  {/* Photo grid */}
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {photos.map((photo) => (
+                      <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-border/50 group">
+                        <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            onClick={() => setPhotoTaggingId(photo.id)}
+                            className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded"
+                          >
+                            Editar tags
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
+                          className="absolute top-1 right-1 w-5 h-5 bg-red-500/80 rounded-full flex items-center justify-center"
+                        >
+                          <X className="w-3 h-3 text-white" />
+                        </button>
+                        {photo.taggedItemIds.length > 0 && (
+                          <div className="absolute bottom-1 left-1 bg-green-500/80 text-white text-[9px] px-1.5 py-0.5 rounded">
+                            {photo.taggedItemIds.length} {photo.taggedItemIds.length === 1 ? 'item' : 'itens'}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Add photo button */}
+                    <label className="aspect-square rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                      <Camera className="w-6 h-6 text-primary/60 mb-1" />
+                      <span className="text-[10px] text-primary/60">Adicionar</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const newPhoto: PhotoWithTags = {
+                              id: `photo_${Date.now()}`,
+                              dataUrl: ev.target?.result as string,
+                              taggedItemIds: [],
+                            };
+                            setPhotos(prev => [...prev, newPhoto]);
+                            setPhotoTaggingId(newPhoto.id);
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Photo tagging modal */}
+                  {photoTaggingId && (() => {
+                    const photo = photos.find(p => p.id === photoTaggingId);
+                    if (!photo) return null;
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 rounded-xl bg-card border border-primary/30 mb-3"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-semibold text-foreground">Quais itens estão nesta foto?</h5>
+                          <button onClick={() => setPhotoTaggingId(null)} className="text-muted-foreground hover:text-foreground">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex gap-2 mb-3">
+                          <img src={photo.dataUrl} alt="" className="w-16 h-16 rounded-lg object-cover border border-border/30" />
+                          <div className="flex-1">
+                            <p className="text-xs text-muted-foreground">Selecione os itens que aparecem nesta foto:</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedMenuItems.map((item) => {
+                            const isTagged = photo.taggedItemIds.includes(item.id);
+                            return (
+                              <button
+                                key={item.id}
+                                onClick={() => {
+                                  setPhotos(prev => prev.map(p => {
+                                    if (p.id !== photoTaggingId) return p;
+                                    const newTags = isTagged
+                                      ? p.taggedItemIds.filter(id => id !== item.id)
+                                      : [...p.taggedItemIds, item.id];
+                                    return { ...p, taggedItemIds: newTags };
+                                  }));
+                                }}
+                                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                                  isTagged
+                                    ? "bg-primary/20 text-primary border border-primary/40"
+                                    : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-border/60"
+                                }`}
+                              >
+                                {isTagged && <Check className="w-3 h-3 inline mr-1" />}
+                                {item.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => setPhotoTaggingId(null)}
+                          className="mt-3 font-display tracking-wider text-xs"
+                        >
+                          CONFIRMAR
+                        </Button>
+                      </motion.div>
+                    );
+                  })()}
+                </div>
+
+                {/* Receipt Photo Section */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Receipt className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-lg tracking-wider text-foreground">FOTO DA NOTINHA</h4>
+                    <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">BÔNUS</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">Opcional — valida os itens pedidos e dá bonificação extra.</p>
+
+                  {receiptPhoto ? (
+                    <div className="relative w-full max-w-[200px] aspect-[3/4] rounded-lg overflow-hidden border border-border/50">
+                      <img src={receiptPhoto} alt="Notinha" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => setReceiptPhoto(null)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-500/80 rounded-full flex items-center justify-center"
+                      >
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="w-full max-w-[200px] aspect-[3/4] rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                      <Receipt className="w-8 h-8 text-primary/60 mb-2" />
+                      <span className="text-xs text-primary/60">Fotografar notinha</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            setReceiptPhoto(ev.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Qualification summary */}
+                {(() => {
+                  const commentsOk = itemComments.filter(c => c.comment.length >= 20).length;
+                  const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
+                  const hasReceipt = !!receiptPhoto;
+                  const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
+                  return (
+                    <div className={`p-4 rounded-xl border mb-6 ${isQualified ? 'bg-green-500/5 border-green-500/30' : 'bg-secondary/30 border-border/30'}`}>
+                      <h5 className={`text-sm font-semibold mb-2 ${isQualified ? 'text-green-400' : 'text-muted-foreground'}`}>
+                        {isQualified ? '✓ Avaliação Qualificada!' : 'Status da Qualificação'}
+                      </h5>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className={commentsOk === selectedMenuItems.length ? 'text-green-400' : 'text-muted-foreground'}>
+                            {commentsOk === selectedMenuItems.length ? '✓' : '○'}
+                          </span>
+                          <span className="text-muted-foreground">Comentários: {commentsOk}/{selectedMenuItems.length} itens</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={photosOk > 0 ? 'text-green-400' : 'text-muted-foreground'}>
+                            {photosOk > 0 ? '✓' : '○'}
+                          </span>
+                          <span className="text-muted-foreground">Fotos com itens marcados: {photosOk}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={hasReceipt ? 'text-green-400' : 'text-muted-foreground/50'}>
+                            {hasReceipt ? '✓' : '○'}
+                          </span>
+                          <span className="text-muted-foreground">Foto da notinha {hasReceipt ? '' : '(opcional, bônus)'}</span>
+                        </div>
+                      </div>
+                      {isQualified && (
+                        <p className="text-[10px] text-green-400/80 mt-2">Esta avaliação valerá 2x pontos para o próximo badge{hasReceipt ? ' + bônus da notinha' : ''}!</p>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep("spend")}
+                    className="font-display tracking-wider"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setStep("result")}
+                      className="font-display tracking-wider text-muted-foreground"
+                    >
+                      PULAR
+                    </Button>
+                    <Button onClick={() => setStep("result")} className="font-display tracking-wider glow-amber">
+                      VER RESULTADO <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Result Step */}
             {step === "result" && (
@@ -1688,10 +1992,32 @@ export default function RatingPage() {
 
                   <Button
                     onClick={() => {
+                      // Determine qualification status
+                      const commentsOk = itemComments.filter(c => c.comment.length >= 20).length;
+                      const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
+                      const hasReceipt = !!receiptPhoto;
+                      const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
+
+                      // Calculate badge points
+                      let points = 1; // base: common review
+                      if (isQualified) points = 2; // qualified review
+                      // Receipt bonus: +0.5 extra
+                      if (isQualified && hasReceipt) points = 2.5;
+
+                      // Streak bonus: check last 2 reviews
+                      const existingRaw = localStorage.getItem("avalyarin_reviews");
+                      const existing = existingRaw ? JSON.parse(existingRaw) : [];
+                      if (isQualified && existing.length >= 2) {
+                        const last2 = existing.slice(-2);
+                        const allQualified = last2.every((r: { isQualified?: boolean }) => r.isQualified === true);
+                        if (allQualified) {
+                          points = 3; // streak bonus: 3rd consecutive qualified = weight 3
+                          if (hasReceipt) points = 3.5;
+                        }
+                      }
+
                       // Persist review to localStorage
                       try {
-                        const existingRaw = localStorage.getItem("avalyarin_reviews");
-                        const existing = existingRaw ? JSON.parse(existingRaw) : [];
                         const newReview = {
                           establishmentId: establishment.id,
                           establishmentName: establishment.name,
@@ -1701,9 +2027,28 @@ export default function RatingPage() {
                           date: visitDate ? visitDate.toISOString() : new Date().toISOString(),
                           savedAt: new Date().toISOString(),
                           items: selectedMenuItems.map(m => m.name),
+                          isQualified,
+                          hasReceipt,
+                          points,
+                          comments: itemComments.filter(c => c.comment.length > 0),
+                          photoCount: photos.length,
+                          taggedPhotos: photos.filter(p => p.taggedItemIds.length > 0).length,
                         };
                         existing.push(newReview);
                         localStorage.setItem("avalyarin_reviews", JSON.stringify(existing));
+
+                        // Update badge points
+                        const currentPoints = parseFloat(localStorage.getItem("avalyarin_badge_points") || "0");
+                        const newPoints = currentPoints + points;
+                        localStorage.setItem("avalyarin_badge_points", JSON.stringify(newPoints));
+
+                        // Check badge level up
+                        const currentBadge = parseInt(localStorage.getItem("avalyarin_badge_level") || "0");
+                        const newBadge = Math.floor(newPoints);
+                        if (newBadge > currentBadge) {
+                          localStorage.setItem("avalyarin_badge_level", JSON.stringify(newBadge));
+                          localStorage.setItem("avalyarin_badge_just_earned", JSON.stringify(newBadge));
+                        }
 
                         // Check if a survey phase should trigger
                         const reviewCount = existing.length;
@@ -1711,7 +2056,6 @@ export default function RatingPage() {
                         const phase3Done = localStorage.getItem("avalyarin_survey_phase3_completed") === "true";
 
                         if (reviewCount >= 5 && !phase2Done) {
-                          // Clear skip flag so it shows on next app load
                           localStorage.removeItem("avalyarin_survey_phase2_skipped");
                         }
                         if (reviewCount >= 10 && !phase3Done) {
@@ -1721,13 +2065,21 @@ export default function RatingPage() {
                         console.error("Failed to save review", e);
                       }
 
+                      const pointsMsg = isQualified
+                        ? `+${points} pontos para badge! ${points >= 3 ? '(Streak bonus!)' : ''}`
+                        : "+1 ponto para badge";
                       toast.success("Avaliação salva com sucesso!", {
-                        description: "Obrigado por contribuir!",
+                        description: pointsMsg,
                       });
 
-                      // Navigate to home after a short delay
+                      // Navigate to badges page if new badge earned, otherwise home
                       setTimeout(() => {
-                        window.location.href = "/";
+                        const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
+                        if (justEarned) {
+                          window.location.href = "/badges";
+                        } else {
+                          window.location.href = "/";
+                        }
                       }, 1500);
                     }}
                     size="lg"
