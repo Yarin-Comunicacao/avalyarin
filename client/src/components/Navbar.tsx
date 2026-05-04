@@ -1,24 +1,27 @@
-// Design: AvaLyarin — Navbar with Y logo from Yarin brand identity
-// The Y icon adapts to theme via CSS filter for dark/light backgrounds
-// Back arrow navigates to the provided backHref (category page) or defaults to /#categorias
+// Design: AvaLyarin — Navbar with Y logo and hamburger menu trigger on left
 import { Link, useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
+import { MenuTrigger } from "./AppMenu";
 
 interface NavbarProps {
   backHref?: string;
+  onMenuOpen?: () => void;
 }
 
-export default function Navbar({ backHref }: NavbarProps) {
+export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
   const [location] = useLocation();
   const isHome = location === "/";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
       <div className="container flex items-center justify-between h-16">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Menu trigger - always visible on left */}
+          {onMenuOpen && <MenuTrigger onClick={onMenuOpen} />}
+
           {!isHome && (
             <Link href={backHref || "/#categorias"}>
-              <button className="p-2 rounded-lg hover:bg-secondary transition-colors mr-1">
+              <button className="p-2 rounded-lg hover:bg-secondary transition-colors">
                 <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
             </Link>

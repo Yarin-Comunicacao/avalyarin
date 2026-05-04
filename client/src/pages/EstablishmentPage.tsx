@@ -1,6 +1,8 @@
 // Design: Neon Urbano — Establishment page with menu and rating CTA
 // Back arrow navigates to the parent category page
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import AppMenu from "@/components/AppMenu";
 import { categories } from "@/lib/data";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
@@ -9,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function EstablishmentPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const { id } = useParams<{ id: string }>();
 
   const establishment = categories
@@ -107,7 +110,8 @@ export default function EstablishmentPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar backHref={backHref} />
+      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Hero */}
       <section className="relative pt-16">

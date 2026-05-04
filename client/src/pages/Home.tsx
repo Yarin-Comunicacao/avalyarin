@@ -1,9 +1,10 @@
 // Design: Neon Urbano — Home page with hero banner, category grid, and CTA
 import Navbar from "@/components/Navbar";
+import AppMenu from "@/components/AppMenu";
 import { categories } from "@/lib/data";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -25,6 +26,8 @@ const fadeUp = {
 };
 
 export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     if (window.location.hash === "#categorias") {
       setTimeout(() => {
@@ -35,7 +38,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-end overflow-hidden">

@@ -1,0 +1,210 @@
+// Design: AvaLyarin — Expandable side menu
+// 40% width on mobile, 30% on desktop
+// Sections: Minha Conta, Minhas Avaliações, Lista de Salvos
+import { useState } from "react";
+import { Link } from "wouter";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  X, User, CreditCard, Link2, Crown,
+  Star, MapPin, Image, Bookmark, Heart, Users,
+  ChevronRight, Settings, LogOut, Menu
+} from "lucide-react";
+
+interface AppMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// Mock data for demonstration
+const recentVisits = [
+  { id: "cervejaria-nacional", name: "Cervejaria Nacional", image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=100&h=100&fit=crop" },
+  { id: "the-blue-pub", name: "The Blue Pub", image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=100&h=100&fit=crop" },
+  { id: "frigobar-speakeasy", name: "Frigobar Speakeasy", image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=100&h=100&fit=crop" },
+];
+
+interface MenuSection {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  items: { id: string; label: string; href: string; icon: React.ReactNode; badge?: string; preview?: React.ReactNode }[];
+}
+
+const menuSections: MenuSection[] = [
+  {
+    id: "conta",
+    title: "Minha Conta",
+    icon: <User className="w-5 h-5" />,
+    items: [
+      { id: "dados", label: "Meus Dados", href: "/conta/dados", icon: <User className="w-4 h-4" /> },
+      { id: "cadastro", label: "Cadastro", href: "/conta/cadastro", icon: <Settings className="w-4 h-4" />, badge: "@usuario" },
+      { id: "conectadas", label: "Contas Conectadas", href: "/conta/conectadas", icon: <Link2 className="w-4 h-4" /> },
+      { id: "planos", label: "Planos", href: "/conta/planos", icon: <Crown className="w-4 h-4" />, badge: "Free" },
+    ],
+  },
+  {
+    id: "avaliacoes",
+    title: "Minhas Avaliações",
+    icon: <Star className="w-5 h-5" />,
+    items: [
+      { id: "avaliacoes-lista", label: "Avaliações", href: "/avaliacoes", icon: <Star className="w-4 h-4" /> },
+      { id: "locais", label: "Locais Visitados", href: "/locais-visitados", icon: <MapPin className="w-4 h-4" /> },
+      { id: "galeria", label: "Galeria", href: "/galeria", icon: <Image className="w-4 h-4" /> },
+    ],
+  },
+  {
+    id: "salvos",
+    title: "Lista de Salvos",
+    icon: <Bookmark className="w-5 h-5" />,
+    items: [
+      { id: "meus-locais", label: "Meus Locais", href: "/salvos/locais", icon: <Bookmark className="w-4 h-4" /> },
+      { id: "influencers", label: "Influencers Favoritos", href: "/salvos/influencers", icon: <Heart className="w-4 h-4" /> },
+      { id: "collab", label: "Listas Collab", href: "/salvos/collab", icon: <Users className="w-4 h-4" /> },
+    ],
+  },
+];
+
+export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
+  const [expandedSection, setExpandedSection] = useState<string | null>("conta");
+
+  const toggleSection = (id: string) => {
+    setExpandedSection(prev => prev === id ? null : id);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
+
+          {/* Menu Panel */}
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed top-0 left-0 bottom-0 z-[70] w-[85%] sm:w-[40%] lg:w-[30%] bg-background border-r border-border/50 overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-border/50 px-5 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-display text-sm tracking-wider text-foreground">USUÁRIO</p>
+                    <p className="text-xs text-muted-foreground">@usuario_001</p>
+                  </div>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-lg hover:bg-secondary transition-colors"
+                >
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Visits Preview */}
+            <div className="px-5 py-4 border-b border-border/30">
+              <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-3">Últimas visitas</p>
+              <div className="flex gap-2">
+                {recentVisits.map((visit) => (
+                  <Link key={visit.id} href={`/estabelecimento/${visit.id}`} onClick={onClose}>
+                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-border/30 hover:border-primary/40 transition-colors">
+                      <img src={visit.image} alt={visit.name} className="w-full h-full object-cover" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/60 text-center mt-1 truncate w-16">{visit.name.split(" ")[0]}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Menu Sections */}
+            <div className="px-3 py-3">
+              {menuSections.map((section) => (
+                <div key={section.id} className="mb-1">
+                  {/* Section Header */}
+                  <button
+                    onClick={() => toggleSection(section.id)}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-secondary/50 transition-colors group"
+                  >
+                    <div className="text-primary">{section.icon}</div>
+                    <span className="flex-1 text-left font-display text-sm tracking-wider text-foreground">
+                      {section.title.toUpperCase()}
+                    </span>
+                    <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                      expandedSection === section.id ? "rotate-90" : ""
+                    }`} />
+                  </button>
+
+                  {/* Section Items */}
+                  <AnimatePresence>
+                    {expandedSection === section.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-4 space-y-0.5 pb-2">
+                          {section.items.map((item) => (
+                            <Link key={item.id} href={item.href} onClick={onClose}>
+                              <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer group">
+                                <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                                  {item.icon}
+                                </div>
+                                <span className="flex-1 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                  {item.label}
+                                </span>
+                                {item.badge && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-4 mt-auto border-t border-border/30">
+              <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors group">
+                <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+                <span className="text-sm text-muted-foreground group-hover:text-destructive transition-colors">Sair</span>
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// Export the trigger button separately for use in Navbar
+export function MenuTrigger({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="p-2 rounded-lg hover:bg-secondary transition-colors"
+      aria-label="Abrir menu"
+    >
+      <Menu className="w-5 h-5 text-foreground" />
+    </button>
+  );
+}

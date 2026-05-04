@@ -6,6 +6,7 @@
 // 4. Beverages-only in Analytic → Direct-style first step (serves, recommend, taste), then General Criteria
 // 5. Harmonização (c10) only shown if user has both food AND beverage items; excluded from score otherwise
 import Navbar from "@/components/Navbar";
+import AppMenu from "@/components/AppMenu";
 import { categories, PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
 import { useParams, Redirect } from "wouter";
@@ -14,13 +15,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/sonner";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ptBR } from "react-day-picker/locale";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
-  ShoppingBag, ClipboardCheck, Award, ThumbsUp, ThumbsDown, Users
+  ShoppingBag, ClipboardCheck, Award, ThumbsUp, ThumbsDown, Users,
+  CalendarIcon, DollarSign, Receipt
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
-type Step = "items" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "result";
+type Step = "items" | "visitDate" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "spend" | "result";
+
+interface SpendData {
+  servicePercent: "none" | "10" | "13";
+  couvertEnabled: boolean;
+  couvertValue: string;
+  valetEnabled: boolean;
+  valetValue: string;
+  parkingEnabled: boolean;
+  parkingValue: string;
+}
 
 interface DirectRating {
   itemId: string;
@@ -335,9 +350,20 @@ export default function RatingPage() {
   );
   const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [mode, setMode] = useState<RatingMode>("direto");
+  const [visitDate, setVisitDate] = useState<Date | undefined>(undefined);
+  const [spendData, setSpendData] = useState<SpendData>({
+    servicePercent: "none",
+    couvertEnabled: false,
+    couvertValue: "",
+    valetEnabled: false,
+    valetValue: "",
+    parkingEnabled: false,
+    parkingValue: "",
+  });
   const [directRatings, setDirectRatings] = useState<DirectRating[]>([]);
   const [currentDirectIdx, setCurrentDirectIdx] = useState(0);
 
@@ -448,7 +474,7 @@ export default function RatingPage() {
     );
     setCurrentAnalyticItemIdx(0);
     setCurrentBevDirectIdx(0);
-    setStep("mode");
+    setStep("visitDate");
   };
 
   const handleModeSelect = (selectedMode: RatingMode) => {
@@ -890,7 +916,8 @@ export default function RatingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar backHref={backHref} />
+      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
       <div className="pt-20 pb-16">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
@@ -942,7 +969,66 @@ export default function RatingPage() {
               </motion.div>
             )}
 
-            {/* Mode Selection — NO number */}
+            {/* Visit Date Selection — NO number */}
+            {step === "visitDate" && (
+              <motion.div key="visitDate" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                <div className="flex items-center gap-3 mb-6">
+                  <CalendarIcon className="w-6 h-6 text-primary" />
+                  <div>
+                    <h3 className="font-display text-2xl tracking-wider text-primary">DATA DA VISITA</h3>
+                    <p className="text-sm text-muted-foreground">Quando você visitou o {establishment.name}?</p>
+                  </div>
+                </div>
+                <div className="p-6 rounded-xl bg-card border border-border/50">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
+                        visitDate ? "border-primary/60 bg-primary/10" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                      }`}>
+                        <CalendarIcon className="w-5 h-5 text-primary shrink-0" />
+                        <span className={`text-sm font-medium ${
+                          visitDate ? "text-foreground" : "text-muted-foreground"
+                        }`}>
+                          {visitDate
+                            ? visitDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })
+                            : "Selecione a data (dd/mm/aaaa)"
+                          }
+                        </span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={visitDate}
+                        onSelect={setVisitDate}
+                        locale={ptBR}
+                        defaultMonth={new Date(2026, 0, 1)}
+                        disabled={(date) => date > new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="flex justify-between mt-6">
+                  <Button variant="outline" onClick={() => setStep("items")} className="font-display tracking-wider">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (!visitDate) {
+                        toast.error("Selecione a data da sua visita.");
+                        return;
+                      }
+                      setStep("mode");
+                    }}
+                    className="font-display tracking-wider glow-amber"
+                  >
+                    CONTINUAR <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Mode Selection — NO number — Analítica first, Direta second */}
             {step === "mode" && (
               <motion.div key="mode" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <div className="flex items-center gap-3 mb-6">
@@ -954,16 +1040,6 @@ export default function RatingPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
-                    onClick={() => handleModeSelect("direto")}
-                    className="p-6 rounded-xl border text-left transition-all hover:border-primary/60 border-border/30 bg-card"
-                  >
-                    <Zap className="w-8 h-8 text-primary mb-3" />
-                    <h4 className="font-display text-xl tracking-wider text-foreground">DIRETO</h4>
-                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      Avaliação rápida: nota de sabor, se recomenda e para quantas pessoas serve.
-                    </p>
-                  </button>
-                  <button
                     onClick={() => handleModeSelect("analitico")}
                     className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
                   >
@@ -973,9 +1049,19 @@ export default function RatingPage() {
                       Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
                     </p>
                   </button>
+                  <button
+                    onClick={() => handleModeSelect("direto")}
+                    className="p-6 rounded-xl border text-left transition-all hover:border-primary/60 border-border/30 bg-card"
+                  >
+                    <Zap className="w-8 h-8 text-primary mb-3" />
+                    <h4 className="font-display text-xl tracking-wider text-foreground">DIRETO</h4>
+                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                      Avaliação rápida: nota de sabor, se recomenda e para quantas pessoas serve.
+                    </p>
+                  </button>
                 </div>
                 <div className="flex justify-between mt-6">
-                  <Button variant="outline" onClick={() => setStep("items")} className="font-display tracking-wider">
+                  <Button variant="outline" onClick={() => setStep("visitDate")} className="font-display tracking-wider">
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                   </Button>
                 </div>
@@ -1328,12 +1414,180 @@ export default function RatingPage() {
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                   </Button>
-                  <Button onClick={() => setStep("result")} className="font-display tracking-wider glow-amber">
-                    VER RESULTADO <ChevronRight className="w-4 h-4 ml-1" />
+                  <Button onClick={() => setStep("spend")} className="font-display tracking-wider glow-amber">
+                    CONTA <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               </motion.div>
             )}
+
+            {/* Spend Summary Step */}
+            {step === "spend" && (() => {
+              // Calculate subtotal from selected items
+              const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + item.price, 0);
+              const serviceAmount = spendData.servicePercent === "10" ? itemsSubtotal * 0.10
+                : spendData.servicePercent === "13" ? itemsSubtotal * 0.13 : 0;
+              const couvertAmount = spendData.couvertEnabled ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
+              const valetAmount = spendData.valetEnabled ? parseFloat(spendData.valetValue.replace(",", ".")) || 0 : 0;
+              const parkingAmount = spendData.parkingEnabled ? parseFloat(spendData.parkingValue.replace(",", ".")) || 0 : 0;
+              const totalSpend = itemsSubtotal + serviceAmount + couvertAmount + valetAmount + parkingAmount;
+
+              return (
+                <motion.div key="spend" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <Receipt className="w-6 h-6 text-primary" />
+                    <div>
+                      <h3 className="font-display text-2xl tracking-wider text-primary">RESUMO DA CONTA</h3>
+                      <p className="text-sm text-muted-foreground">Quanto você gastou nessa visita?</p>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-xl bg-card border border-border/50 space-y-5">
+                    {/* Items subtotal */}
+                    <div className="flex items-center justify-between pb-4 border-b border-border/30">
+                      <span className="text-sm text-muted-foreground">Subtotal dos itens ({selectedMenuItems.length})</span>
+                      <span className="font-numbers text-lg text-foreground font-bold">R$ {itemsSubtotal.toFixed(2).replace(".", ",")}</span>
+                    </div>
+
+                    {/* Service charge */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-3 block">Taxa de serviço</label>
+                      <div className="flex gap-2">
+                        {(["none", "10", "13"] as const).map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => setSpendData(prev => ({ ...prev, servicePercent: opt }))}
+                            className={`flex-1 py-3 rounded-lg font-numbers text-sm font-bold transition-all ${
+                              spendData.servicePercent === opt
+                                ? "bg-primary text-primary-foreground glow-amber"
+                                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                            }`}
+                          >
+                            {opt === "none" ? "Sem" : `${opt}%`}
+                          </button>
+                        ))}
+                      </div>
+                      {spendData.servicePercent !== "none" && (
+                        <p className="text-xs text-muted-foreground/60 mt-1 text-right">
+                          + R$ {serviceAmount.toFixed(2).replace(".", ",")}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Couvert artístico */}
+                    <div>
+                      <button
+                        onClick={() => setSpendData(prev => ({ ...prev, couvertEnabled: !prev.couvertEnabled }))}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                          spendData.couvertEnabled ? "border-primary/60 bg-primary/10" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                          spendData.couvertEnabled ? "bg-primary border-primary" : "border-muted-foreground/40"
+                        }`}>
+                          {spendData.couvertEnabled && <Check className="w-3 h-3 text-primary-foreground" />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">Couvert artístico</span>
+                      </button>
+                      {spendData.couvertEnabled && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">R$</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0,00"
+                            value={spendData.couvertValue}
+                            onChange={(e) => setSpendData(prev => ({ ...prev, couvertValue: e.target.value }))}
+                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Valet */}
+                    <div>
+                      <button
+                        onClick={() => setSpendData(prev => ({ ...prev, valetEnabled: !prev.valetEnabled }))}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                          spendData.valetEnabled ? "border-primary/60 bg-primary/10" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                          spendData.valetEnabled ? "bg-primary border-primary" : "border-muted-foreground/40"
+                        }`}>
+                          {spendData.valetEnabled && <Check className="w-3 h-3 text-primary-foreground" />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">Valet</span>
+                      </button>
+                      {spendData.valetEnabled && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">R$</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0,00"
+                            value={spendData.valetValue}
+                            onChange={(e) => setSpendData(prev => ({ ...prev, valetValue: e.target.value }))}
+                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Estacionamento */}
+                    <div>
+                      <button
+                        onClick={() => setSpendData(prev => ({ ...prev, parkingEnabled: !prev.parkingEnabled }))}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                          spendData.parkingEnabled ? "border-primary/60 bg-primary/10" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                          spendData.parkingEnabled ? "bg-primary border-primary" : "border-muted-foreground/40"
+                        }`}>
+                          {spendData.parkingEnabled && <Check className="w-3 h-3 text-primary-foreground" />}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">Estacionamento</span>
+                      </button>
+                      {spendData.parkingEnabled && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">R$</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0,00"
+                            value={spendData.parkingValue}
+                            onChange={(e) => setSpendData(prev => ({ ...prev, parkingValue: e.target.value }))}
+                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Total */}
+                    <div className="flex items-center justify-between pt-4 border-t border-primary/30">
+                      <span className="font-display text-lg tracking-wider text-primary">TOTAL</span>
+                      <span className="font-numbers text-2xl text-primary font-bold text-glow-amber">
+                        R$ {totalSpend.toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setStep("bonus")}
+                      className="font-display tracking-wider"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
+                    </Button>
+                    <Button onClick={() => setStep("result")} className="font-display tracking-wider glow-amber">
+                      VER RESULTADO <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </motion.div>
+              );
+            })()}
 
             {/* Result Step */}
             {step === "result" && (
