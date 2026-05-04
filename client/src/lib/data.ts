@@ -1789,6 +1789,81 @@ const chefApptiteAnaJunqueiraComidaLowCarbMenu: MenuItem[] = [
   { id: "suco-verde-detox", name: "Suco verde detox", description: "Couve, abacaxi, gengibre e hortelã", price: 12.0, category: "bebida" }
 ];
 
+const quitandinhabarMenu: MenuItem[] = [
+  { id: "q1", name: "Bolinho de Bacalhau", description: "Bolinho artesanal de bacalhau frito", price: 38, category: "petisco" },
+  { id: "q2", name: "Porção de Calabresa", description: "Calabresa acebolada com farofa", price: 42, category: "petisco" },
+  { id: "q3", name: "Chopp Pilsen", description: "Chopp gelado de 300ml", price: 14, category: "chopp" },
+  { id: "q4", name: "Caipirinha de Limão", description: "Caipirinha tradicional com cachaça artesanal", price: 28, category: "drink" },
+  { id: "q5", name: "Filé com Fritas", description: "Filé mignon grelhado com fritas", price: 68, category: "prato" },
+  { id: "q6", name: "Pastel de Carne", description: "Pastel frito recheado com carne moída temperada", price: 32, category: "petisco" }
+];
+
+const barmoelaMenu: MenuItem[] = [
+  { id: "bm1", name: "Moela ao Molho", description: "Moela de frango ao molho especial da casa", price: 36, category: "petisco" },
+  { id: "bm2", name: "Croquete de Costela", description: "Croquete artesanal de costela desfiada", price: 34, category: "petisco" },
+  { id: "bm3", name: "Torresmo", description: "Torresmo crocante com limão", price: 28, category: "petisco" },
+  { id: "bm4", name: "Chopp Pilsen", description: "Chopp gelado 300ml", price: 14, category: "chopp" },
+  { id: "bm5", name: "Caipirinha", description: "Caipirinha de limão com cachaça artesanal", price: 26, category: "drink" },
+  { id: "bm6", name: "Costelinha Suína", description: "Costelinha suína assada com molho barbecue", price: 58, category: "prato" },
+  { id: "bm7", name: "Bolinho de Feijoada", description: "Bolinho frito recheado com feijoada", price: 32, category: "petisco" }
+];
+
+const meowmaisonMenu: MenuItem[] = [
+  { id: "mm1", name: "Gin Tônica", description: "Gin com tônica premium e especiarias", price: 38, category: "drink" },
+  { id: "mm2", name: "Vodka com Energético", description: "Dose de vodka com energético", price: 35, category: "drink" },
+  { id: "mm3", name: "Cerveja Long Neck", description: "Cerveja long neck gelada", price: 18, category: "cerveja" },
+  { id: "mm4", name: "Água", description: "Garrafa de água mineral 500ml", price: 8, category: "bebida" }
+];
+
+const lionsnightclubMenu: MenuItem[] = [
+  { id: "ln1", name: "Combo Vodka", description: "Garrafa de vodka com 4 energéticos e gelo", price: 280, category: "drink" },
+  { id: "ln2", name: "Gin Tônica", description: "Gin com tônica artesanal", price: 42, category: "drink" },
+  { id: "ln3", name: "Cerveja Long Neck", description: "Cerveja premium long neck", price: 20, category: "cerveja" },
+  { id: "ln4", name: "Água", description: "Garrafa de água mineral", price: 10, category: "bebida" }
+];
+
+const cervejariadogmajardinsMenu: MenuItem[] = [
+  { id: "cd1", name: "Dogma Lager", description: "Lager leve e refrescante, estilo pilsen artesanal", price: 22, category: "chopp" },
+  { id: "cd2", name: "Dogma IPA", description: "India Pale Ale com lúpulos americanos", price: 28, category: "chopp" },
+  { id: "cd3", name: "Dogma Stout", description: "Stout encorpada com notas de café e chocolate", price: 30, category: "chopp" },
+  { id: "cd4", name: "Tábua de Frios", description: "Seleção de queijos e embutidos artesanais", price: 62, category: "petisco" },
+  { id: "cd5", name: "Burger Dogma", description: "Hambúrguer artesanal com queijo e bacon", price: 48, category: "hamburguer" },
+  { id: "cd6", name: "Fish & Chips", description: "Peixe empanado com batatas fritas", price: 52, category: "prato" }
+];
+
+const cervejariaoakpinheirosMenu: MenuItem[] = [
+  { id: "co1", name: "Oak Pilsen", description: "Pilsen artesanal leve e refrescante", price: 20, category: "chopp" },
+  { id: "co2", name: "Oak APA", description: "American Pale Ale com lúpulos cítricos", price: 24, category: "chopp" },
+  { id: "co3", name: "Oak Weiss", description: "Cerveja de trigo com notas frutadas", price: 22, category: "chopp" },
+  { id: "co4", name: "Porção de Batata Frita", description: "Batata frita crocante com molho especial", price: 32, category: "petisco" },
+  { id: "co5", name: "Nachos com Guacamole", description: "Nachos crocantes com guacamole fresco", price: 38, category: "petisco" }
+];
+
+const stuntburgerMenu: MenuItem[] = [
+  { id: "sb1", name: "Classic Burger", description: "Hambúrguer 180g, queijo cheddar, alface, tomate e molho especial", price: 42, category: "hamburguer" },
+  { id: "sb2", name: "Bacon Burger", description: "Hambúrguer 180g com bacon crocante e queijo", price: 48, category: "hamburguer" },
+  { id: "sb3", name: "Smash Burger", description: "Dois smash patties com queijo derretido", price: 45, category: "hamburguer" },
+  { id: "sb4", name: "Onion Rings", description: "Anéis de cebola empanados e fritos", price: 28, category: "petisco" },
+  { id: "sb5", name: "Milkshake", description: "Milkshake cremoso de chocolate ou baunilha", price: 24, category: "sobremesa" },
+  { id: "sb6", name: "Chopp Pilsen", description: "Chopp gelado 300ml", price: 16, category: "chopp" }
+];
+
+const sushiyaMenu: MenuItem[] = [
+  { id: "sy1", name: "Sashimi Salmão", description: "10 fatias de sashimi de salmão fresco", price: 58, category: "prato" },
+  { id: "sy2", name: "Hot Roll", description: "8 unidades de hot roll empanado com cream cheese", price: 42, category: "prato" },
+  { id: "sy3", name: "Temaki Salmão", description: "Temaki de salmão com cream cheese", price: 38, category: "prato" },
+  { id: "sy4", name: "Combinado 30 peças", description: "Seleção de sushis, sashimis e hot rolls", price: 98, category: "prato" },
+  { id: "sy5", name: "Yakisoba", description: "Macarrão frito com legumes e frango", price: 48, category: "prato" },
+  { id: "sy6", name: "Cerveja Asahi", description: "Cerveja japonesa long neck", price: 22, category: "cerveja" }
+];
+
+const clublotusznMenu: MenuItem[] = [
+  { id: "cl1", name: "Combo Vodka", description: "Garrafa de vodka com energéticos e gelo", price: 260, category: "drink" },
+  { id: "cl2", name: "Gin Tônica", description: "Gin premium com tônica artesanal", price: 40, category: "drink" },
+  { id: "cl3", name: "Cerveja Long Neck", description: "Cerveja long neck gelada", price: 18, category: "cerveja" },
+  { id: "cl4", name: "Água", description: "Garrafa de água mineral 500ml", price: 8, category: "bebida" }
+];
+
 export const categories: Category[] = [
   {
     id: "bar-lanchonete",
@@ -1969,6 +2044,32 @@ export const categories: Category[] = [
         instagram: "@saoconradobar",
         menu: saoConradoMenu,
       },
+      {
+        id: "quitandinha-bar",
+        name: "Quitandinha Bar",
+        address: "Rua Fidalga, 242 - Vila Madalena, São Paulo - SP",
+        neighborhood: "Vila Madalena",
+        rating: 4.5,
+        reviewCount: 8200,
+        image: "https://lh5.googleusercontent.com/p/AF1QipN_qR5btDsVJ_bVJnFvUgrMZnSSGnJLqG1kVKIx=w408-h306-k-no",
+        hours: "Ter-Sáb 17h-01h, Dom 15h-22h",
+        phone: "(11) 3032-2016",
+        instagram: "@quitandinha_bar",
+        menu: quitandinhabarMenu,
+      },
+      {
+        id: "bar-moela",
+        name: "Bar Moela",
+        address: "Rua Canuto do Val, 136 - Santa Cecília, São Paulo - SP",
+        neighborhood: "Santa Cecília",
+        rating: 4.7,
+        reviewCount: 5400,
+        image: "https://lh5.googleusercontent.com/p/AF1QipMGf8kGRnChSbgwSN4sfBGA_puZpCBfBYmIbEIe=w408-h306-k-no",
+        hours: "Ter-Sáb 17h-00h, Dom 12h-18h",
+        phone: "(11) 3666-3644",
+        instagram: "@barmoela",
+        menu: barmoelaMenu,
+      }
     ],
   },
   {
@@ -2578,6 +2679,45 @@ export const categories: Category[] = [
         menu: discoClubMenu,
       },
       
+      {
+        id: "meow-maison",
+        name: "Meow Maison",
+        address: "Rua Cunha Gago, 678 - Pinheiros, São Paulo - SP",
+        neighborhood: "Pinheiros",
+        rating: 4.3,
+        reviewCount: 1800,
+        image: "https://lh5.googleusercontent.com/p/AF1QipOQGXGBqLhMnfqYJs-_4lGmKtT1CWBxNMoTGig=w408-h306-k-no",
+        hours: "Sex-Sáb 23h-06h",
+        phone: "",
+        instagram: "@meowmaison",
+        menu: meowmaisonMenu,
+      },
+      {
+        id: "lions-nightclub",
+        name: "Lions Nightclub",
+        address: "Av. Brigadeiro Luís Antônio, 277 - 1º andar - Bela Vista, São Paulo - SP",
+        neighborhood: "Bela Vista",
+        rating: 4.1,
+        reviewCount: 3200,
+        image: "https://lh5.googleusercontent.com/p/AF1QipNVqEjLJBCo0aqPVnKHPUh5Hkg7fSBnSbIbEYQA=w408-h306-k-no",
+        hours: "Sex-Sáb 23h-06h",
+        phone: "(11) 3101-5696",
+        instagram: "@lionsnightclub",
+        menu: lionsnightclubMenu,
+      },
+      {
+        id: "club-lotus-zn",
+        name: "Club Lotus ZN",
+        address: "Av. Luiz Dumont Villares, 655 - Santana, São Paulo - SP",
+        neighborhood: "Santana",
+        rating: 4.0,
+        reviewCount: 950,
+        image: "https://lh5.googleusercontent.com/p/AF1QipNqR5btDsVJ_bVJnFvUgrMZnSSGnJLqG1kVKIx=w408-h306-k-no",
+        hours: "Sex-Sáb 23h-06h",
+        phone: "",
+        instagram: "@clublotuszn",
+        menu: clublotusznMenu,
+      }
     ],
   },
   {
@@ -2817,6 +2957,32 @@ export const categories: Category[] = [
         instagram: "@cervejariaducabra",
         menu: cervejariaDucabraMenu,
       },
+      {
+        id: "cervejaria-dogma-jardins",
+        name: "Cervejaria Dogma - Tasting Room Jardins",
+        address: "Rua Dr. Melo Alves, 347 - Jardins, São Paulo - SP",
+        neighborhood: "Jardins",
+        rating: 4.6,
+        reviewCount: 2100,
+        image: "https://lh5.googleusercontent.com/p/AF1QipNdRJAFvkrGiVLP3BYaj3bDkRBive0VHjAr5Vw=w408-h306-k-no",
+        hours: "Ter-Qui 16h-23h, Sex-Sáb 12h-00h, Dom 12h-20h",
+        phone: "(11) 3064-0808",
+        instagram: "@dogmabrewery",
+        menu: cervejariadogmajardinsMenu,
+      },
+      {
+        id: "cervejaria-oak-pinheiros",
+        name: "Cervejaria Oak - Pinheiros",
+        address: "Rua Padre Carvalho, 769 - Pinheiros, São Paulo - SP",
+        neighborhood: "Pinheiros",
+        rating: 4.4,
+        reviewCount: 890,
+        image: "https://lh5.googleusercontent.com/p/AF1QipO_lVrBRbGJBZjYJlPfDfGnEJBKLk3kJnRCUQ=w408-h306-k-no",
+        hours: "Ter-Sáb 16h-23h",
+        phone: "",
+        instagram: "@cervejariaoak",
+        menu: cervejariaoakpinheirosMenu,
+      }
     ],
   },
   {
@@ -3032,6 +3198,19 @@ export const categories: Category[] = [
       },
       
       
+      {
+        id: "stunt-burger",
+        name: "Stunt Burger",
+        address: "Rua José Jannarelli, 426 - Morumbi, São Paulo - SP",
+        neighborhood: "Morumbi",
+        rating: 4.5,
+        reviewCount: 4200,
+        image: "https://lh5.googleusercontent.com/p/AF1QipMvLSJuc3TOh3v0hR5K7bCzMVAiJg3F3ZE7Jg=w408-h306-k-no",
+        hours: "Ter-Dom 18h-23h30",
+        phone: "(11) 3758-4040",
+        instagram: "@stuntburger",
+        menu: stuntburgerMenu,
+      }
     ],
   },
   {
@@ -3158,6 +3337,19 @@ export const categories: Category[] = [
         phone: "(11) 94954-0828",
         instagram: "@hoffgastrobar",
         menu: hoffSushiGastronomiaMenu,
+      },
+      {
+        id: "sushi-ya",
+        name: "Sushi Yá",
+        address: "Praça Benedito Calixto, 54 - Pinheiros, São Paulo - SP",
+        neighborhood: "Pinheiros",
+        rating: 4.4,
+        reviewCount: 3800,
+        image: "https://lh5.googleusercontent.com/p/AF1QipPJHVg-gASh_kFGk_3JnVcYDVBkj9kzjMFbRA=w408-h306-k-no",
+        hours: "Ter-Dom 12h-15h, 18h-23h",
+        phone: "(11) 3064-6644",
+        instagram: "@sushiya_sp",
+        menu: sushiyaMenu,
       }
     ],
   },
