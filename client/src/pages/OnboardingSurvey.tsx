@@ -287,12 +287,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
             </div>
             <span className="font-display text-lg tracking-wider text-primary">AVALYARIN</span>
           </div>
-          <button
-            onClick={handleSkip}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-secondary"
-          >
-            Pular pesquisa
-          </button>
+
         </div>
       </div>
 

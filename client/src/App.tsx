@@ -28,6 +28,8 @@ import InfluencersFavoritos from "./pages/InfluencersFavoritos";
 import ListasCollab from "./pages/ListasCollab";
 // Badges
 import BadgesPage from "./pages/BadgesPage";
+// PWA
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -169,6 +171,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <ThemeSidebar />
+          <PWAInstallPrompt />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
