@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import {
   getAllCategories,
@@ -12,6 +12,10 @@ import {
   getEstablishmentWithMenu,
   getNearbyEstablishments,
   searchAll,
+  saveRating,
+  getUserRatings,
+  getRatingById,
+  getEstablishmentRatings,
 } from "./db";
 
 export const appRouter = router({
@@ -75,6 +79,64 @@ export const appRouter = router({
       .input(z.object({ query: z.string().min(1) }))
       .query(async ({ input }) => {
         return await searchAll(input.query);
+      }),
+  }),
+
+  ratings: router({
+    save: protectedProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        type: z.enum(["direct", "analytic"]),
+        visitDate: z.string().optional(),
+        overallScore: z.number().min(1).max(10).optional(),
+        subtotal: z.number().optional(),
+        servicePercent: z.number().optional(),
+        couvert: z.number().optional(),
+        valet: z.number().optional(),
+        parking: z.number().optional(),
+        totalCost: z.number().optional(),
+        criteriaScores: z.any().optional(),
+        bonusScores: z.any().optional(),
+        items: z.array(z.object({
+          menuItemId: z.number().optional(),
+          itemName: z.string(),
+          score: z.number().min(1).max(10),
+          comment: z.string().optional(),
+          quantity: z.number().optional(),
+          price: z.number().optional(),
+        })),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        return await saveRating(userId, input);
+      }),
+
+    myRatings: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const limit = input?.limit ?? 50;
+        const offset = input?.offset ?? 0;
+        return await getUserRatings(userId, limit, offset);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getRatingById(input.id, ctx.user!.id);
+      }),
+
+    byEstablishment: publicProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        limit: z.number().min(1).max(50).default(20),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset);
       }),
   }),
 });

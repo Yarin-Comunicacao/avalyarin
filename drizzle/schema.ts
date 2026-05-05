@@ -76,3 +76,49 @@ export const menuItems = mysqlTable("menu_items", {
 
 export type MenuItemRow = typeof menuItems.$inferSelect;
 export type InsertMenuItem = typeof menuItems.$inferInsert;
+
+/**
+ * Ratings table - user ratings for establishments
+ */
+export const ratings = mysqlTable("ratings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  type: mysqlEnum("type", ["direct", "analytic"]).notNull(),
+  visitDate: timestamp("visitDate"),
+  overallScore: float("overallScore"),
+  // Cost breakdown
+  subtotal: float("subtotal"),
+  servicePercent: float("servicePercent"),
+  couvert: float("couvert"),
+  valet: float("valet"),
+  parking: float("parking"),
+  totalCost: float("totalCost"),
+  // Analytic criteria scores (JSON for flexibility)
+  criteriaScores: json("criteriaScores"),
+  // Bonus criteria scores
+  bonusScores: json("bonusScores"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Rating = typeof ratings.$inferSelect;
+export type InsertRating = typeof ratings.$inferInsert;
+
+/**
+ * Rating items table - individual item ratings within a rating
+ */
+export const ratingItems = mysqlTable("rating_items", {
+  id: int("id").autoincrement().primaryKey(),
+  ratingId: int("ratingId").notNull(),
+  menuItemId: int("menuItemId"),
+  itemName: varchar("itemName", { length: 255 }).notNull(),
+  score: float("score").notNull(),
+  comment: text("comment"),
+  quantity: int("quantity").default(1),
+  price: float("price"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RatingItem = typeof ratingItems.$inferSelect;
+export type InsertRatingItem = typeof ratingItems.$inferInsert;

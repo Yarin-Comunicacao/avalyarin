@@ -15,6 +15,13 @@
       "when": 1777974461988,
       "tag": "0001_tiresome_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777989131636,
+      "tag": "0002_mature_ogun",
+      "breakpoints": true
     }
   ]
 }

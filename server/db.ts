@@ -434,3 +434,149 @@ export async function searchAll(query: string) {
   
   return { establishments: establishmentResults, menuItemsByName, menuItemsByDescription };
 }
+
+// ============================================================
+// RATINGS
+// ============================================================
+
+import { ratings, ratingItems } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
+
+export async function saveRating(userId: number, data: {
+  establishmentId: number;
+  type: "direct" | "analytic";
+  visitDate?: string;
+  overallScore?: number;
+  subtotal?: number;
+  servicePercent?: number;
+  couvert?: number;
+  valet?: number;
+  parking?: number;
+  totalCost?: number;
+  criteriaScores?: any;
+  bonusScores?: any;
+  items: Array<{
+    menuItemId?: number;
+    itemName: string;
+    score: number;
+    comment?: string;
+    quantity?: number;
+    price?: number;
+  }>;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Insert rating
+  const [result] = await db.insert(ratings).values({
+    userId,
+    establishmentId: data.establishmentId,
+    type: data.type,
+    visitDate: data.visitDate ? new Date(data.visitDate) : null,
+    overallScore: data.overallScore ?? null,
+    subtotal: data.subtotal ?? null,
+    servicePercent: data.servicePercent ?? null,
+    couvert: data.couvert ?? null,
+    valet: data.valet ?? null,
+    parking: data.parking ?? null,
+    totalCost: data.totalCost ?? null,
+    criteriaScores: data.criteriaScores ?? null,
+    bonusScores: data.bonusScores ?? null,
+  }).$returningId();
+  
+  const ratingId = result.id;
+  
+  // Insert rating items
+  if (data.items.length > 0) {
+    await db.insert(ratingItems).values(
+      data.items.map(item => ({
+        ratingId,
+        menuItemId: item.menuItemId ?? null,
+        itemName: item.itemName,
+        score: item.score,
+        comment: item.comment ?? null,
+        quantity: item.quantity ?? 1,
+        price: item.price ?? null,
+      }))
+    );
+  }
+  
+  return { id: ratingId, success: true };
+}
+
+export async function getUserRatings(userId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select({
+    id: ratings.id,
+    establishmentId: ratings.establishmentId,
+    type: ratings.type,
+    overallScore: ratings.overallScore,
+    totalCost: ratings.totalCost,
+    createdAt: ratings.createdAt,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    categoryName: categories.name,
+  })
+    .from(ratings)
+    .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
+    .innerJoin(categories, eq(establishments.categoryId, categories.id))
+    .where(eq(ratings.userId, userId))
+    .orderBy(desc(ratings.createdAt))
+    .limit(limit)
+    .offset(offset);
+  
+  return result;
+}
+
+export async function getRatingById(ratingId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const [rating] = await db.select()
+    .from(ratings)
+    .where(and(eq(ratings.id, ratingId), eq(ratings.userId, userId)))
+    .limit(1);
+  
+  if (!rating) return undefined;
+  
+  const items = await db.select()
+    .from(ratingItems)
+    .where(eq(ratingItems.ratingId, ratingId));
+  
+  const est = await db.select({
+    name: establishments.name,
+    slug: establishments.slug,
+  })
+    .from(establishments)
+    .where(eq(establishments.id, rating.establishmentId))
+    .limit(1);
+  
+  return {
+    ...rating,
+    items,
+    establishment: est.length > 0 ? est[0] : null,
+  };
+}
+
+export async function getEstablishmentRatings(establishmentId: number, limit = 20, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select({
+    id: ratings.id,
+    type: ratings.type,
+    overallScore: ratings.overallScore,
+    createdAt: ratings.createdAt,
+    userName: users.name,
+  })
+    .from(ratings)
+    .innerJoin(users, eq(ratings.userId, users.id))
+    .where(eq(ratings.establishmentId, establishmentId))
+    .orderBy(desc(ratings.createdAt))
+    .limit(limit)
+    .offset(offset);
+  
+  return result;
+}

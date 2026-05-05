@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2 } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
@@ -166,7 +166,14 @@ export default function EstablishmentPage() {
               {establishment.address && (
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 shrink-0 text-primary/60" />
-                  <span>{establishment.address}</span>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(establishment.name + ' ' + establishment.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    {establishment.address}
+                  </a>
                 </div>
               )}
               {establishment.hours && (
@@ -178,7 +185,12 @@ export default function EstablishmentPage() {
               {establishment.phone && (
                 <div className="flex items-center gap-1.5">
                   <Phone className="w-4 h-4 shrink-0 text-primary/60" />
-                  <span>{establishment.phone}</span>
+                  <a
+                    href={`tel:${establishment.phone.replace(/[^\d+]/g, '')}`}
+                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    {establishment.phone}
+                  </a>
                 </div>
               )}
               {establishment.instagram && (
@@ -194,6 +206,37 @@ export default function EstablishmentPage() {
                   </a>
                 </div>
               )}
+            </div>
+
+            {/* Share buttons */}
+            <div className="flex gap-3 mt-5">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Confira ${establishment.name} no AvaLyarin! ${window.location.href}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-sm font-medium"
+              >
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
+              </a>
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: establishment.name,
+                      text: `Confira ${establishment.name} no AvaLyarin!`,
+                      url: window.location.href,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Link copiado!");
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all text-sm font-medium"
+              >
+                <Share2 className="w-4 h-4" />
+                Compartilhar
+              </button>
             </div>
           </motion.div>
         </div>

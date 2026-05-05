@@ -1,14 +1,16 @@
 // Design: Neon Urbano — Category page listing establishments
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Star, ArrowRight, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import NeighborhoodFilter from "@/components/NeighborhoodFilter";
 
 export default function CategoryPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   
   const { data: category, isLoading: catLoading } = trpc.categories.getBySlug.useQuery({ slug: id || "" });
@@ -16,6 +18,19 @@ export default function CategoryPage() {
     { categorySlug: id || "", limit: 200 },
     { enabled: !!id }
   );
+
+  const allEstablishments = establishmentsList || [];
+  
+  // Get available neighborhoods for this category
+  const availableNeighborhoods = useMemo(() => {
+    return Array.from(new Set(allEstablishments.filter(e => e.neighborhood).map(e => e.neighborhood!)));
+  }, [allEstablishments]);
+  
+  // Filter by selected neighborhood
+  const establishments = useMemo(() => {
+    if (!selectedNeighborhood) return allEstablishments;
+    return allEstablishments.filter(e => e.neighborhood === selectedNeighborhood);
+  }, [allEstablishments, selectedNeighborhood]);
 
   if (catLoading) {
     return (
@@ -28,8 +43,6 @@ export default function CategoryPage() {
   if (!category) {
     return <Redirect to="/" />;
   }
-
-  const establishments = establishmentsList || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,6 +81,22 @@ export default function CategoryPage() {
               )}
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Filters */}
+      <section className="py-4">
+        <div className="container flex items-center gap-3 flex-wrap">
+          <NeighborhoodFilter
+            selectedNeighborhood={selectedNeighborhood}
+            onSelect={setSelectedNeighborhood}
+            availableNeighborhoods={availableNeighborhoods}
+          />
+          {selectedNeighborhood && (
+            <span className="text-xs text-muted-foreground">
+              {establishments.length} {establishments.length === 1 ? "resultado" : "resultados"} em {selectedNeighborhood}
+            </span>
+          )}
         </div>
       </section>
 
