@@ -9,7 +9,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "business"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -122,3 +122,27 @@ export const ratingItems = mysqlTable("rating_items", {
 
 export type RatingItem = typeof ratingItems.$inferSelect;
 export type InsertRatingItem = typeof ratingItems.$inferInsert;
+
+/**
+ * Business claims table - requests from business owners to manage an establishment
+ */
+export const businessClaims = mysqlTable("business_claims", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  // Proof of ownership
+  businessName: varchar("businessName", { length: 255 }),
+  contactPhone: varchar("contactPhone", { length: 32 }),
+  contactEmail: varchar("contactEmail", { length: 320 }),
+  proofDescription: text("proofDescription"),
+  // Admin response
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BusinessClaim = typeof businessClaims.$inferSelect;
+export type InsertBusinessClaim = typeof businessClaims.$inferInsert;

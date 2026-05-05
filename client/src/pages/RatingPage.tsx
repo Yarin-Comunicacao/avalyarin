@@ -10,6 +10,8 @@ import AppMenu from "@/components/AppMenu";
 import { PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import { Loader2 } from "lucide-react";
 import { useParams, Redirect } from "wouter";
 import { useState, useMemo } from "react";
@@ -355,6 +357,8 @@ function LowScoreReasons({
 
 export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
+  const { user, isAuthenticated } = useAuth();
+  const saveRatingMutation = trpc.ratings.save.useMutation();
   
   const { data: estData, isLoading: estLoading } = trpc.establishments.getWithMenu.useQuery(
     { slug: establishmentId || "" },
@@ -2025,7 +2029,16 @@ export default function RatingPage() {
                   )}
 
                   <Button
-                    onClick={() => {
+                    disabled={saveRatingMutation.isPending}
+                    onClick={async () => {
+                      // Check authentication
+                      if (!isAuthenticated || !user) {
+                        toast.error("Faça login para salvar sua avaliação", {
+                          action: { label: "Entrar", onClick: () => { window.location.href = getLoginUrl(); } },
+                        });
+                        return;
+                      }
+
                       // Determine qualification status
                       const commentsOk = itemComments.filter(c => c.comment.length >= 20).length;
                       const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
@@ -2033,25 +2046,64 @@ export default function RatingPage() {
                       const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
 
                       // Calculate badge points
-                      let points = 1; // base: common review
-                      if (isQualified) points = 2; // qualified review
-                      // Receipt bonus: +0.5 extra
+                      let points = 1;
+                      if (isQualified) points = 2;
                       if (isQualified && hasReceipt) points = 2.5;
 
-                      // Streak bonus: check last 2 reviews
+                      // Streak bonus: check last 2 reviews from localStorage
                       const existingRaw = localStorage.getItem("avalyarin_reviews");
                       const existing = existingRaw ? JSON.parse(existingRaw) : [];
                       if (isQualified && existing.length >= 2) {
                         const last2 = existing.slice(-2);
                         const allQualified = last2.every((r: { isQualified?: boolean }) => r.isQualified === true);
                         if (allQualified) {
-                          points = 3; // streak bonus: 3rd consecutive qualified = weight 3
+                          points = 3;
                           if (hasReceipt) points = 3.5;
                         }
                       }
 
-                      // Persist review to localStorage
+                      // Calculate spend values
+                      const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + item.price, 0);
+                      const serviceAmount = spendData.servicePercent === "10" ? itemsSubtotal * 0.10
+                        : spendData.servicePercent === "13" ? itemsSubtotal * 0.13 : 0;
+                      const couvertAmount = spendData.couvertEnabled ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
+                      const valetAmount = spendData.valetEnabled ? parseFloat(spendData.valetValue.replace(",", ".")) || 0 : 0;
+                      const parkingAmount = spendData.parkingEnabled ? parseFloat(spendData.parkingValue.replace(",", ".")) || 0 : 0;
+                      const totalCost = itemsSubtotal + serviceAmount + couvertAmount + valetAmount + parkingAmount;
+
+                      // Save to database via tRPC
                       try {
+                        await saveRatingMutation.mutateAsync({
+                          establishmentId: estData!.id,
+                          type: mode === "direto" ? "direct" : "analytic",
+                          visitDate: visitDate ? visitDate.toISOString() : undefined,
+                          overallScore: finalScore,
+                          subtotal: itemsSubtotal > 0 ? itemsSubtotal : undefined,
+                          servicePercent: serviceAmount > 0 ? (spendData.servicePercent === "10" ? 10 : 13) : undefined,
+                          couvert: couvertAmount > 0 ? couvertAmount : undefined,
+                          valet: valetAmount > 0 ? valetAmount : undefined,
+                          parking: parkingAmount > 0 ? parkingAmount : undefined,
+                          totalCost: totalCost > 0 ? totalCost : undefined,
+                          criteriaScores: mode === "analitico" ? {
+                            globalRatings: analyticGlobalRatings,
+                            itemRatings: analyticItemRatings,
+                          } : undefined,
+                          bonusScores: bonuses.length > 0 ? bonuses : undefined,
+                          items: selectedMenuItems.map(m => {
+                            const dr = directRatings.find(r => r.itemId === m.id);
+                            const comment = itemComments.find(c => c.itemId === m.id)?.comment || "";
+                            return {
+                              menuItemId: parseInt(m.id) || undefined,
+                              itemName: m.name,
+                              score: dr?.taste || finalScore,
+                              comment: comment || undefined,
+                              quantity: dr?.serves || undefined,
+                              price: m.price > 0 ? m.price : undefined,
+                            };
+                          }),
+                        });
+
+                        // Also persist to localStorage for badge/survey tracking
                         const newReview = {
                           establishmentId: establishment.id,
                           establishmentName: establishment.name,
@@ -2088,38 +2140,40 @@ export default function RatingPage() {
                         const reviewCount = existing.length;
                         const phase2Done = localStorage.getItem("avalyarin_survey_phase2_completed") === "true";
                         const phase3Done = localStorage.getItem("avalyarin_survey_phase3_completed") === "true";
-
                         if (reviewCount >= 5 && !phase2Done) {
                           localStorage.removeItem("avalyarin_survey_phase2_skipped");
                         }
                         if (reviewCount >= 10 && !phase3Done) {
                           localStorage.removeItem("avalyarin_survey_phase3_skipped");
                         }
-                      } catch (e) {
+
+                        const pointsMsg = isQualified
+                          ? `+${points} pontos para badge! ${points >= 3 ? '(Streak bonus!)' : ''}`
+                          : "+1 ponto para badge";
+                        toast.success("Avaliação salva com sucesso!", {
+                          description: pointsMsg,
+                        });
+
+                        // Navigate to badges page if new badge earned, otherwise home
+                        setTimeout(() => {
+                          const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
+                          if (justEarned) {
+                            window.location.href = "/badges";
+                          } else {
+                            window.location.href = "/";
+                          }
+                        }, 1500);
+                      } catch (e: any) {
                         console.error("Failed to save review", e);
+                        toast.error("Erro ao salvar avaliação", {
+                          description: e?.message || "Tente novamente",
+                        });
                       }
-
-                      const pointsMsg = isQualified
-                        ? `+${points} pontos para badge! ${points >= 3 ? '(Streak bonus!)' : ''}`
-                        : "+1 ponto para badge";
-                      toast.success("Avaliação salva com sucesso!", {
-                        description: pointsMsg,
-                      });
-
-                      // Navigate to badges page if new badge earned, otherwise home
-                      setTimeout(() => {
-                        const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
-                        if (justEarned) {
-                          window.location.href = "/badges";
-                        } else {
-                          window.location.href = "/";
-                        }
-                      }, 1500);
                     }}
                     size="lg"
                     className="font-display text-lg tracking-wider glow-amber"
                   >
-                    SALVAR AVALIAÇÃO
+                    {saveRatingMutation.isPending ? "SALVANDO..." : "SALVAR AVALIAÇÃO"}
                   </Button>
                 </div>
               </motion.div>

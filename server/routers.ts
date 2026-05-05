@@ -1,6 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure } from "./_core/trpc";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
 import {
@@ -16,6 +16,21 @@ import {
   getUserRatings,
   getRatingById,
   getEstablishmentRatings,
+  // Admin
+  getAdminStats,
+  getAllUsers,
+  updateUserRole,
+  adminUpdateEstablishment,
+  adminDeleteEstablishment,
+  getAllClaims,
+  reviewClaim,
+  // Business
+  submitClaim,
+  getUserClaims,
+  getBusinessEstablishments,
+  businessUpdateEstablishment,
+  businessAddMenuItem,
+  businessDeleteMenuItem,
 } from "./db";
 
 export const appRouter = router({
@@ -88,7 +103,7 @@ export const appRouter = router({
         establishmentId: z.number(),
         type: z.enum(["direct", "analytic"]),
         visitDate: z.string().optional(),
-        overallScore: z.number().min(1).max(10).optional(),
+        overallScore: z.number().min(0).max(115).optional(),
         subtotal: z.number().optional(),
         servicePercent: z.number().optional(),
         couvert: z.number().optional(),
@@ -100,7 +115,7 @@ export const appRouter = router({
         items: z.array(z.object({
           menuItemId: z.number().optional(),
           itemName: z.string(),
-          score: z.number().min(1).max(10),
+          score: z.number().min(0).max(115),
           comment: z.string().optional(),
           quantity: z.number().optional(),
           price: z.number().optional(),
@@ -137,6 +152,125 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset);
+      }),
+  }),
+
+  // ============ ADMIN PANEL ============
+  admin: router({
+    stats: adminProcedure.query(async () => {
+      return await getAdminStats();
+    }),
+
+    users: adminProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        return await getAllUsers(input?.limit ?? 50, input?.offset ?? 0);
+      }),
+
+    updateUserRole: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["user", "admin", "owner", "business"]),
+      }))
+      .mutation(async ({ input }) => {
+        return await updateUserRole(input.userId, input.role);
+      }),
+
+    updateEstablishment: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        address: z.string().optional(),
+        neighborhood: z.string().optional(),
+        phone: z.string().optional(),
+        instagram: z.string().optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await adminUpdateEstablishment(id, data);
+      }),
+
+    deleteEstablishment: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await adminDeleteEstablishment(input.id);
+      }),
+
+    claims: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "approved", "rejected"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await getAllClaims(input?.status);
+      }),
+
+    reviewClaim: adminProcedure
+      .input(z.object({
+        claimId: z.number(),
+        status: z.enum(["approved", "rejected"]),
+        adminNotes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await reviewClaim(input.claimId, ctx.user!.id, input.status, input.adminNotes);
+      }),
+  }),
+
+  // ============ BUSINESS PANEL ============
+  business: router({
+    submitClaim: protectedProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        businessName: z.string().min(1),
+        contactPhone: z.string().min(1),
+        contactEmail: z.string().email(),
+        proofDescription: z.string().min(10),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await submitClaim(ctx.user!.id, input);
+      }),
+
+    myClaims: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserClaims(ctx.user!.id);
+    }),
+
+    myEstablishments: businessProcedure.query(async ({ ctx }) => {
+      return await getBusinessEstablishments(ctx.user!.id);
+    }),
+
+    updateEstablishment: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        name: z.string().optional(),
+        address: z.string().optional(),
+        phone: z.string().optional(),
+        instagram: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { establishmentId, ...data } = input;
+        return await businessUpdateEstablishment(ctx.user!.id, establishmentId, data);
+      }),
+
+    addMenuItem: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        name: z.string().min(1),
+        description: z.string().optional(),
+        price: z.number().optional(),
+        category: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { establishmentId, ...data } = input;
+        return await businessAddMenuItem(ctx.user!.id, establishmentId, data);
+      }),
+
+    deleteMenuItem: businessProcedure
+      .input(z.object({ menuItemId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
   }),
 });

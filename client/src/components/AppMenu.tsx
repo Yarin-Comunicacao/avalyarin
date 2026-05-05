@@ -7,7 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   X, User, CreditCard, Link2, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
-  ChevronRight, Settings, LogOut, Menu, LogIn, Trophy, Palette, Check
+  ChevronRight, Settings, LogOut, Menu, LogIn, Trophy, Palette, Check,
+  Shield, Building2
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -274,6 +275,28 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                 </div>
               </Link>
             </div>
+
+            {/* Admin & Business Links */}
+            {user && (user.role === "admin" || user.role === "owner") && (
+              <div className="px-5 py-2">
+                <Link href="/admin" onClick={onClose}>
+                  <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                    <Shield className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Admin</span>
+                  </div>
+                </Link>
+              </div>
+            )}
+            {user && (user.role === "business" || user.role === "admin" || user.role === "owner") && (
+              <div className="px-5 py-2">
+                <Link href="/painel-empresarial" onClick={onClose}>
+                  <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                    <Building2 className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Empresarial</span>
+                  </div>
+                </Link>
+              </div>
+            )}
 
             {/* Footer */}
             <div className="px-5 py-4 mt-auto border-t border-border/30">

@@ -5,7 +5,8 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle, Building2 } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
@@ -255,6 +256,18 @@ export default function EstablishmentPage() {
           </div>
         </section>
       )}
+
+      {/* Claim Establishment */}
+      <section className="pb-4">
+        <div className="container">
+          <Link href={`/painel-empresarial`}>
+            <button className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>É dono deste estabelecimento? Reivindique aqui</span>
+            </button>
+          </Link>
+        </div>
+      </section>
 
       {/* Menu */}
       {menu.length > 0 && (

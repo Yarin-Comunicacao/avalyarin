@@ -30,6 +30,9 @@ import ListasCollab from "./pages/ListasCollab";
 import BadgesPage from "./pages/BadgesPage";
 // Search
 import SearchResults from "./pages/SearchResults";
+// Admin & Business
+import AdminPanel from "./pages/AdminPanel";
+import BusinessPanel from "./pages/BusinessPanel";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
@@ -91,6 +94,9 @@ function Router() {
       <Route path="/badges" component={BadgesPage} />
       {/* Search */}
       <Route path="/busca" component={SearchResults} />
+      {/* Admin & Business */}
+      <Route path="/admin" component={AdminPanel} />
+      <Route path="/painel-empresarial" component={BusinessPanel} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

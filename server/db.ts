@@ -1,6 +1,6 @@
-import { eq, like, or, sql, and, inArray } from "drizzle-orm";
+import { eq, like, or, sql, and, inArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -439,8 +439,6 @@ export async function searchAll(query: string) {
 // RATINGS
 // ============================================================
 
-import { ratings, ratingItems } from "../drizzle/schema";
-import { desc } from "drizzle-orm";
 
 export async function saveRating(userId: number, data: {
   establishmentId: number;
@@ -579,4 +577,282 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
     .offset(offset);
   
   return result;
+}
+
+// ============ ADMIN FUNCTIONS ============
+
+export async function getAdminStats() {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [estCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(establishments);
+  const [catCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(categories);
+  const [userCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(users);
+  const [ratingCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(ratings);
+  const [menuCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(menuItems);
+  const [claimCount] = await db.select({ count: sql<number>`COUNT(*)` }).from(businessClaims);
+  const [pendingClaims] = await db.select({ count: sql<number>`COUNT(*)` })
+    .from(businessClaims)
+    .where(eq(businessClaims.status, "pending"));
+  
+  return {
+    establishments: estCount.count,
+    categories: catCount.count,
+    users: userCount.count,
+    ratings: ratingCount.count,
+    menuItems: menuCount.count,
+    totalClaims: claimCount.count,
+    pendingClaims: pendingClaims.count,
+  };
+}
+
+export async function getAllUsers(limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select({
+    id: users.id,
+    name: users.name,
+    email: users.email,
+    role: users.role,
+    createdAt: users.createdAt,
+    lastSignedIn: users.lastSignedIn,
+  })
+    .from(users)
+    .orderBy(desc(users.lastSignedIn))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function updateUserRole(userId: number, role: "user" | "admin" | "owner" | "business") {
+  const db = await getDb();
+  if (!db) return null;
+  
+  await db.update(users).set({ role }).where(eq(users.id, userId));
+  return { success: true };
+}
+
+export async function adminUpdateEstablishment(id: number, data: {
+  name?: string;
+  address?: string;
+  neighborhood?: string;
+  phone?: string;
+  instagram?: string;
+  active?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  await db.update(establishments).set(data).where(eq(establishments.id, id));
+  return { success: true };
+}
+
+export async function adminDeleteEstablishment(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Delete menu items first
+  await db.delete(menuItems).where(eq(menuItems.establishmentId, id));
+  // Delete ratings and rating items
+  const estRatings = await db.select({ id: ratings.id }).from(ratings).where(eq(ratings.establishmentId, id));
+  for (const r of estRatings) {
+    await db.delete(ratingItems).where(eq(ratingItems.ratingId, r.id));
+  }
+  await db.delete(ratings).where(eq(ratings.establishmentId, id));
+  // Delete establishment
+  await db.delete(establishments).where(eq(establishments.id, id));
+  return { success: true };
+}
+
+export async function getAllClaims(status?: "pending" | "approved" | "rejected") {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select({
+    id: businessClaims.id,
+    userId: businessClaims.userId,
+    userName: users.name,
+    userEmail: users.email,
+    establishmentId: businessClaims.establishmentId,
+    establishmentName: establishments.name,
+    status: businessClaims.status,
+    businessName: businessClaims.businessName,
+    contactPhone: businessClaims.contactPhone,
+    contactEmail: businessClaims.contactEmail,
+    proofDescription: businessClaims.proofDescription,
+    adminNotes: businessClaims.adminNotes,
+    createdAt: businessClaims.createdAt,
+  })
+    .from(businessClaims)
+    .innerJoin(users, eq(businessClaims.userId, users.id))
+    .innerJoin(establishments, eq(businessClaims.establishmentId, establishments.id))
+    .orderBy(desc(businessClaims.createdAt));
+  
+  if (status) {
+    return await query.where(eq(businessClaims.status, status));
+  }
+  return await query;
+}
+
+export async function reviewClaim(claimId: number, adminId: number, status: "approved" | "rejected", adminNotes?: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Update claim status
+  await db.update(businessClaims).set({
+    status,
+    adminNotes: adminNotes || null,
+    reviewedBy: adminId,
+    reviewedAt: new Date(),
+  }).where(eq(businessClaims.id, claimId));
+  
+  // If approved, promote user to business role
+  if (status === "approved") {
+    const [claim] = await db.select().from(businessClaims).where(eq(businessClaims.id, claimId));
+    if (claim) {
+      await db.update(users).set({ role: "business" }).where(eq(users.id, claim.userId));
+    }
+  }
+  
+  return { success: true };
+}
+
+// ============ BUSINESS FUNCTIONS ============
+
+export async function submitClaim(userId: number, data: {
+  establishmentId: number;
+  businessName: string;
+  contactPhone: string;
+  contactEmail: string;
+  proofDescription: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.insert(businessClaims).values({
+    userId,
+    establishmentId: data.establishmentId,
+    businessName: data.businessName,
+    contactPhone: data.contactPhone,
+    contactEmail: data.contactEmail,
+    proofDescription: data.proofDescription,
+  });
+  
+  return { id: result[0].insertId };
+}
+
+export async function getUserClaims(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select({
+    id: businessClaims.id,
+    establishmentId: businessClaims.establishmentId,
+    establishmentName: establishments.name,
+    status: businessClaims.status,
+    adminNotes: businessClaims.adminNotes,
+    createdAt: businessClaims.createdAt,
+  })
+    .from(businessClaims)
+    .innerJoin(establishments, eq(businessClaims.establishmentId, establishments.id))
+    .where(eq(businessClaims.userId, userId))
+    .orderBy(desc(businessClaims.createdAt));
+}
+
+export async function getBusinessEstablishments(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get approved claims for this user
+  const claims = await db.select({ establishmentId: businessClaims.establishmentId })
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (claims.length === 0) return [];
+  
+  const estIds = claims.map(c => c.establishmentId);
+  return await db.select()
+    .from(establishments)
+    .where(inArray(establishments.id, estIds));
+}
+
+export async function businessUpdateEstablishment(userId: number, establishmentId: number, data: {
+  name?: string;
+  address?: string;
+  phone?: string;
+  instagram?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Verify ownership
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (!claim) return null;
+  
+  await db.update(establishments).set(data).where(eq(establishments.id, establishmentId));
+  return { success: true };
+}
+
+export async function businessAddMenuItem(userId: number, establishmentId: number, data: {
+  name: string;
+  description?: string;
+  price?: number;
+  category?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Verify ownership
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (!claim) return null;
+  
+  const result = await db.insert(menuItems).values({
+    establishmentId,
+    name: data.name,
+    description: data.description || null,
+    price: data.price || null,
+    category: data.category || null,
+  });
+  
+  return { id: result[0].insertId };
+}
+
+export async function businessDeleteMenuItem(userId: number, menuItemId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Get the menu item to verify ownership
+  const [item] = await db.select().from(menuItems).where(eq(menuItems.id, menuItemId));
+  if (!item) return null;
+  
+  // Verify ownership
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, item.establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (!claim) return null;
+  
+  await db.delete(menuItems).where(eq(menuItems.id, menuItemId));
+  return { success: true };
 }

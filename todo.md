@@ -1,0 +1,22 @@
+# Project TODO
+
+- [x] Database schema (users, establishments, menu_items, ratings, rating_items, business_claims)
+- [x] tRPC routers (categories, establishments, ratings, admin, business)
+- [x] Homepage with hero, categories grid, how-it-works
+- [x] Category listing page
+- [x] Establishment detail page with menu tabs
+- [x] Rating page with Direct/Analytic modes
+- [x] Badge system with qualification tracking
+- [x] Survey system (multi-phase)
+- [x] Theme system (5 themes)
+- [x] Search page with tRPC
+- [x] Admin Panel page (/admin) with stats, user management, claims review
+- [x] Business Panel page (/painel-empresarial) with claim submission, establishment management, menu editing
+- [x] App Menu links for Admin and Business panels (role-based visibility)
+- [x] Claim button on EstablishmentPage ("É dono deste estabelecimento?")
+- [x] Connect RatingPage save to tRPC (saveRating mutation) with auth check
+- [x] Item comments persisted to database via rating_items.comment
+- [x] Spend data (subtotal, service, couvert, valet, parking) saved to DB
+- [x] overallScore validation updated for bonus system (0-115)
+- [x] Write vitest tests for ratings.save mutation
+- [x] Write vitest tests for admin/business procedures (schema validation)
