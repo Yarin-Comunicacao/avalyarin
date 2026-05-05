@@ -24,3 +24,4 @@
 - [x] Query establishments with Instagram links and report count (195 found)
 - [x] Fetch Instagram profile photos and update establishment images (71 updated)
 - [x] Apply 4-group category division on home page (Gastronomia, Bares & Vida Noturna, Café & Doces, Saudável & Bem-estar)
+- [x] Update "Como Funciona" step 1: title "Escolha uma das categorias", desc "Selecione o estabelecimento cadastrado que você visitou."

@@ -132,7 +132,7 @@ export default function Home() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: Star, title: "Escolha o Bar", desc: "Selecione a categoria e o estabelecimento que você visitou." },
+              { icon: Star, title: "Escolha uma das categorias", desc: "Selecione o estabelecimento cadastrado que você visitou." },
               { icon: ClipboardCheck, title: "Avalie o que Consumiu", desc: "Escolha os itens do cardápio e avalie no modo Direto ou Analítico." },
               { icon: BarChart3, title: "Veja a Nota", desc: "O sistema calcula automaticamente com pesos dinâmicos por categoria." },
             ].map((step, i) => (
