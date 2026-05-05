@@ -1,42 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, Star, Loader2 } from "lucide-react";
-import { categories, Establishment } from "@/lib/data";
-import { useGeolocation, calculateDistance, formatDistance } from "@/hooks/useGeolocation";
-
-interface EstablishmentWithDistance extends Establishment {
-  distance: number;
-  categoryName: string;
-}
+import { useGeolocation, formatDistance } from "@/hooks/useGeolocation";
+import { trpc } from "@/lib/trpc";
 
 export function NearbyEstablishments() {
   const { latitude, longitude, loading, error, permissionDenied, requestLocation } = useGeolocation();
   const [showAll, setShowAll] = useState(false);
 
-  // Get all establishments with their distances
-  const nearbyEstablishments = useMemo(() => {
-    if (!latitude || !longitude) return [];
-
-    const allEstablishments: EstablishmentWithDistance[] = [];
-
-    for (const category of categories) {
-      if (!category.active) continue;
-      for (const est of category.establishments) {
-        const distance = calculateDistance(latitude, longitude, est.lat, est.lng);
-        allEstablishments.push({
-          ...est,
-          distance,
-          categoryName: category.name,
-        });
-      }
-    }
-
-    // Sort by distance
-    allEstablishments.sort((a, b) => a.distance - b.distance);
-
-    return allEstablishments;
-  }, [latitude, longitude]);
+  const { data: nearbyEstablishments = [], isLoading: isLoadingNearby } = trpc.establishments.nearby.useQuery(
+    { lat: latitude || 0, lng: longitude || 0, limit: 20 },
+    { enabled: !!latitude && !!longitude }
+  );
 
   const displayedEstablishments = showAll
     ? nearbyEstablishments.slice(0, 20)
@@ -76,7 +52,7 @@ export function NearbyEstablishments() {
   }
 
   // Loading
-  if (loading) {
+  if (loading || isLoadingNearby) {
     return (
       <section className="py-12 border-t border-border/30">
         <div className="container">
@@ -154,16 +130,22 @@ export function NearbyEstablishments() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05, duration: 0.4 }}
             >
-              <Link href={`/estabelecimento/${est.id}`}>
+              <Link href={`/estabelecimento/${est.slug}`}>
                 <div className="group flex gap-3 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/40 transition-all cursor-pointer">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                    <img
-                      src={est.image}
-                      alt={est.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  </div>
+                  {est.image ? (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={est.image}
+                        alt={est.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-primary/50" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-display text-sm tracking-wider text-foreground group-hover:text-primary transition-colors truncate">
                       {est.name}
@@ -178,12 +160,14 @@ export function NearbyEstablishments() {
                           {formatDistance(est.distance)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                        <span className="text-xs text-muted-foreground">
-                          {est.rating.toFixed(1)}
-                        </span>
-                      </div>
+                      {est.rating && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                          <span className="text-xs text-muted-foreground">
+                            {Number(est.rating).toFixed(1)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

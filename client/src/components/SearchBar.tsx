@@ -1,10 +1,10 @@
 // Design: AvaLyarin — Intelligent search bar with autocomplete dropdown
 // Shows up to 4 suggestions + "Todos os resultados" as 5th option
 // Searches: establishments by name, items by name, items by description
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Search, X, MapPin, UtensilsCrossed, ArrowRight } from "lucide-react";
-import { categories } from "@/lib/data";
+import { trpc } from "@/lib/trpc";
 
 interface SearchResult {
   type: "establishment" | "item-name" | "item-description";
@@ -13,82 +13,60 @@ interface SearchResult {
   href: string;
 }
 
-function normalize(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function searchAll(query: string): SearchResult[] {
-  if (!query || query.length < 2) return [];
-  const q = normalize(query);
-  const results: SearchResult[] = [];
-
-  // Priority 1: Establishments by name
-  for (const cat of categories) {
-    for (const est of cat.establishments) {
-      if (normalize(est.name).includes(q)) {
-        results.push({
-          type: "establishment",
-          name: est.name,
-          subtitle: `${cat.name} • ${est.neighborhood}`,
-          href: `/estabelecimento/${est.id}`,
-        });
-      }
-    }
-  }
-
-  // Priority 2: Menu items by name
-  for (const cat of categories) {
-    for (const est of cat.establishments) {
-      for (const item of est.menu) {
-        if (normalize(item.name).includes(q)) {
-          results.push({
-            type: "item-name",
-            name: item.name,
-            subtitle: `${est.name} • R$ ${item.price.toFixed(2)}`,
-            href: `/estabelecimento/${est.id}`,
-          });
-        }
-      }
-    }
-  }
-
-  // Priority 3: Menu items by description
-  for (const cat of categories) {
-    for (const est of cat.establishments) {
-      for (const item of est.menu) {
-        if (item.description && normalize(item.description).includes(q)) {
-          // Avoid duplicates (already matched by name)
-          const alreadyMatched = results.some(
-            (r) => r.type === "item-name" && r.name === item.name && r.href === `/estabelecimento/${est.id}`
-          );
-          if (!alreadyMatched) {
-            results.push({
-              type: "item-description",
-              name: item.name,
-              subtitle: `${est.name} • R$ ${item.price.toFixed(2)}`,
-              href: `/estabelecimento/${est.id}`,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  return results;
-}
-
 export default function SearchBar() {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [, navigate] = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const results = useMemo(() => searchAll(query), [query]);
+  // Debounce the query to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const { data: searchResults } = trpc.establishments.search.useQuery(
+    { query: debouncedQuery },
+    { enabled: debouncedQuery.length >= 2 }
+  );
+
+  // Transform API results into SearchResult format
+  const results: SearchResult[] = [];
+  if (searchResults) {
+    // Priority 1: Establishments by name
+    for (const est of searchResults.establishments) {
+      results.push({
+        type: "establishment",
+        name: est.name,
+        subtitle: `${est.categoryName} • ${est.neighborhood || ""}`,
+        href: `/estabelecimento/${est.slug}`,
+      });
+    }
+    // Priority 2: Menu items by name
+    for (const item of searchResults.menuItemsByName) {
+      results.push({
+        type: "item-name",
+        name: item.name,
+        subtitle: `${item.establishmentName} • R$ ${Number(item.price).toFixed(2)}`,
+        href: `/estabelecimento/${item.establishmentSlug}`,
+      });
+    }
+    // Priority 3: Menu items by description
+    for (const item of searchResults.menuItemsByDescription) {
+      results.push({
+        type: "item-description",
+        name: item.name,
+        subtitle: `${item.establishmentName} • R$ ${Number(item.price).toFixed(2)}`,
+        href: `/estabelecimento/${item.establishmentSlug}`,
+      });
+    }
+  }
+
   const suggestions = results.slice(0, 4);
   const totalResults = results.length;
 
@@ -228,7 +206,7 @@ export default function SearchBar() {
       )}
 
       {/* No results message */}
-      {isOpen && query.length >= 2 && suggestions.length === 0 && (
+      {isOpen && query.length >= 2 && debouncedQuery.length >= 2 && suggestions.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border/50 bg-background shadow-xl shadow-black/20 overflow-hidden z-[100]">
           <div className="px-4 py-6 text-center">
             <Search className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />

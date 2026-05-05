@@ -7,8 +7,10 @@
 // 5. Harmonização (c10) only shown if user has both food AND beverage items; excluded from score otherwise
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
-import { categories, PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
+import { PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
+import { trpc } from "@/lib/trpc";
+import { Loader2 } from "lucide-react";
 import { useParams, Redirect } from "wouter";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -353,13 +355,45 @@ function LowScoreReasons({
 
 export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
-  const establishment = categories.flatMap((c) => c.establishments).find((e) => e.id === establishmentId);
-
-  // Find parent category for back navigation
-  const parentCategory = categories.find((c) =>
-    c.establishments.some((e) => e.id === establishmentId)
+  
+  const { data: estData, isLoading: estLoading } = trpc.establishments.getWithMenu.useQuery(
+    { slug: establishmentId || "" },
+    { enabled: !!establishmentId }
   );
-  const backHref = parentCategory ? `/categoria/${parentCategory.id}` : "/#categorias";
+
+  // Transform DB data to match the expected format
+  const establishment = estData ? {
+    id: estData.slug,
+    name: estData.name,
+    menu: (estData.menu || []).map((m: any) => ({
+      id: String(m.id),
+      name: m.name,
+      description: m.description || "",
+      price: Number(m.price),
+      category: m.category || "outro",
+    })),
+    rating: Number(estData.rating) || 0,
+    reviewCount: estData.reviewCount || 0,
+    image: estData.image || "",
+    address: estData.address || "",
+    neighborhood: estData.neighborhood || "",
+    hours: estData.hours || "",
+    phone: estData.phone || "",
+    instagram: estData.instagram || "",
+    lat: estData.lat || 0,
+    lng: estData.lng || 0,
+  } : null;
+
+  const backHref = estData?.category ? `/categoria/${estData.category.slug}` : "/#categorias";
+  const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
+
+  if (estLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [step, setStep] = useState<Step>("items");

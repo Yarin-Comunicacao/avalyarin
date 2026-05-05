@@ -12,6 +12,7 @@ import {
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
+import { toast } from "sonner";
 
 interface AppMenuProps {
   isOpen: boolean;

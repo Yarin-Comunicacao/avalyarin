@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, like, or, sql, and, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,348 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// ============================================================
+// CATEGORIES
+// ============================================================
+
+export async function getAllCategories() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select().from(categories);
+  return result;
+}
+
+export async function getCategoryBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getCategoryWithCount(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const cat = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+  if (cat.length === 0) return undefined;
+  
+  const [countResult] = await db.select({ count: sql<number>`COUNT(*)` })
+    .from(establishments)
+    .where(eq(establishments.categoryId, cat[0].id));
+  
+  return { ...cat[0], establishmentCount: countResult.count };
+}
+
+export async function getCategoriesWithCounts() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db.select({
+    id: categories.id,
+    slug: categories.slug,
+    name: categories.name,
+    description: categories.description,
+    icon: categories.icon,
+    active: categories.active,
+    establishmentCount: sql<number>`COUNT(${establishments.id})`,
+  })
+    .from(categories)
+    .leftJoin(establishments, eq(establishments.categoryId, categories.id))
+    .groupBy(categories.id);
+  
+  return result;
+}
+
+// ============================================================
+// ESTABLISHMENTS
+// ============================================================
+
+export async function getEstablishmentsByCategory(categorySlug: string, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const cat = await db.select().from(categories).where(eq(categories.slug, categorySlug)).limit(1);
+  if (cat.length === 0) return [];
+  
+  const result = await db.select()
+    .from(establishments)
+    .where(eq(establishments.categoryId, cat[0].id))
+    .limit(limit)
+    .offset(offset);
+  
+  return result;
+}
+
+export async function getEstablishmentBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select()
+    .from(establishments)
+    .where(eq(establishments.slug, slug))
+    .limit(1);
+  
+  if (result.length === 0) return undefined;
+  
+  // Get category info
+  const cat = await db.select().from(categories).where(eq(categories.id, result[0].categoryId)).limit(1);
+  
+  return {
+    ...result[0],
+    category: cat.length > 0 ? cat[0] : null,
+  };
+}
+
+export async function getEstablishmentWithMenu(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const est = await db.select()
+    .from(establishments)
+    .where(eq(establishments.slug, slug))
+    .limit(1);
+  
+  if (est.length === 0) return undefined;
+  
+  const cat = await db.select().from(categories).where(eq(categories.id, est[0].categoryId)).limit(1);
+  
+  const menu = await db.select()
+    .from(menuItems)
+    .where(eq(menuItems.establishmentId, est[0].id));
+  
+  return {
+    ...est[0],
+    category: cat.length > 0 ? cat[0] : null,
+    menu,
+  };
+}
+
+export async function getNearbyEstablishments(lat: number, lng: number, radiusKm = 3, limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Haversine formula in SQL for distance calculation
+  const distanceExpr = sql<number>`(
+    6371 * acos(
+      cos(radians(${lat})) * cos(radians(${establishments.lat})) *
+      cos(radians(${establishments.lng}) - radians(${lng})) +
+      sin(radians(${lat})) * sin(radians(${establishments.lat}))
+    )
+  )`;
+  
+  const result = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    address: establishments.address,
+    neighborhood: establishments.neighborhood,
+    lat: establishments.lat,
+    lng: establishments.lng,
+    rating: establishments.rating,
+    reviewCount: establishments.reviewCount,
+    image: establishments.image,
+    hours: establishments.hours,
+    phone: establishments.phone,
+    instagram: establishments.instagram,
+    categoryId: establishments.categoryId,
+    categoryName: categories.name,
+    hasMenu: establishments.hasMenu,
+    source: establishments.source,
+    distance: distanceExpr,
+  })
+    .from(establishments)
+    .innerJoin(categories, eq(establishments.categoryId, categories.id))
+    .where(
+      and(
+        sql`${establishments.lat} IS NOT NULL`,
+        sql`${establishments.lng} IS NOT NULL`,
+        sql`${distanceExpr} < ${radiusKm}`
+      )
+    )
+    .orderBy(distanceExpr)
+    .limit(limit);
+  
+  return result;
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+export async function searchEstablishments(query: string, limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const searchTerm = `%${query}%`;
+  
+  const result = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    address: establishments.address,
+    neighborhood: establishments.neighborhood,
+    rating: establishments.rating,
+    image: establishments.image,
+    categoryId: establishments.categoryId,
+    hasMenu: establishments.hasMenu,
+  })
+    .from(establishments)
+    .where(like(establishments.name, searchTerm))
+    .limit(limit);
+  
+  return result;
+}
+
+export async function searchMenuItems(query: string, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const searchTerm = `%${query}%`;
+  
+  // Search by name first, then description
+  const byName = await db.select({
+    id: menuItems.id,
+    name: menuItems.name,
+    description: menuItems.description,
+    price: menuItems.price,
+    category: menuItems.category,
+    establishmentId: menuItems.establishmentId,
+    matchType: sql<string>`'name'`,
+  })
+    .from(menuItems)
+    .where(like(menuItems.name, searchTerm))
+    .limit(limit);
+  
+  const byDescription = await db.select({
+    id: menuItems.id,
+    name: menuItems.name,
+    description: menuItems.description,
+    price: menuItems.price,
+    category: menuItems.category,
+    establishmentId: menuItems.establishmentId,
+    matchType: sql<string>`'description'`,
+  })
+    .from(menuItems)
+    .where(
+      and(
+        like(menuItems.description, searchTerm),
+        // Exclude items already found by name
+        sql`${menuItems.id} NOT IN (${byName.length > 0 ? byName.map(i => i.id).join(',') : '0'})`
+      )
+    )
+    .limit(limit);
+  
+  return { byName, byDescription };
+}
+
+export async function searchAll(query: string) {
+  const db = await getDb();
+  if (!db) return { establishments: [], menuItemsByName: [], menuItemsByDescription: [] };
+  
+  const searchTerm = `%${query}%`;
+  
+  // 1. Search establishments by name
+  const estResults = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    address: establishments.address,
+    neighborhood: establishments.neighborhood,
+    rating: establishments.rating,
+    image: establishments.image,
+    categoryId: establishments.categoryId,
+    hasMenu: establishments.hasMenu,
+  })
+    .from(establishments)
+    .where(like(establishments.name, searchTerm))
+    .limit(20);
+  
+  // Get category names for establishments
+  const catIds = Array.from(new Set(estResults.map(e => e.categoryId)));
+  let catMap: Record<number, string> = {};
+  if (catIds.length > 0) {
+    const cats = await db.select({ id: categories.id, name: categories.name, slug: categories.slug })
+      .from(categories)
+      .where(inArray(categories.id, catIds));
+    catMap = Object.fromEntries(cats.map(c => [c.id, c.name]));
+  }
+  
+  const establishmentResults = estResults.map(e => ({
+    ...e,
+    categoryName: catMap[e.categoryId] || '',
+  }));
+  
+  // 2. Search menu items by name
+  const menuByName = await db.select({
+    id: menuItems.id,
+    name: menuItems.name,
+    description: menuItems.description,
+    price: menuItems.price,
+    category: menuItems.category,
+    establishmentId: menuItems.establishmentId,
+  })
+    .from(menuItems)
+    .where(like(menuItems.name, searchTerm))
+    .limit(50);
+  
+  // 3. Search menu items by description (excluding those already found by name)
+  const nameIds = menuByName.map(i => i.id);
+  const menuByDesc = await db.select({
+    id: menuItems.id,
+    name: menuItems.name,
+    description: menuItems.description,
+    price: menuItems.price,
+    category: menuItems.category,
+    establishmentId: menuItems.establishmentId,
+  })
+    .from(menuItems)
+    .where(
+      and(
+        like(menuItems.description, searchTerm),
+        nameIds.length > 0 ? sql`${menuItems.id} NOT IN (${sql.raw(nameIds.join(','))})` : sql`1=1`
+      )
+    )
+    .limit(50);
+  
+  // Get establishment names for menu items
+  const estIds = Array.from(new Set([...menuByName, ...menuByDesc].map(i => i.establishmentId)));
+  let estMap: Record<number, { name: string; slug: string; categoryName: string }> = {};
+  if (estIds.length > 0) {
+    const ests = await db.select({
+      id: establishments.id,
+      name: establishments.name,
+      slug: establishments.slug,
+      categoryId: establishments.categoryId,
+    })
+      .from(establishments)
+      .where(inArray(establishments.id, estIds));
+    
+    // Get categories for these establishments
+    const estCatIds = Array.from(new Set(ests.map(e => e.categoryId)));
+    if (estCatIds.length > 0) {
+      const estCats = await db.select({ id: categories.id, name: categories.name })
+        .from(categories)
+        .where(inArray(categories.id, estCatIds));
+      const estCatMap = Object.fromEntries(estCats.map(c => [c.id, c.name]));
+      estMap = Object.fromEntries(ests.map(e => [e.id, { name: e.name, slug: e.slug, categoryName: estCatMap[e.categoryId] || '' }]));
+    }
+  }
+  
+  const menuItemsByName = menuByName.map(item => ({
+    ...item,
+    establishmentName: estMap[item.establishmentId]?.name || '',
+    establishmentSlug: estMap[item.establishmentId]?.slug || '',
+    categoryName: estMap[item.establishmentId]?.categoryName || '',
+  }));
+  
+  const menuItemsByDescription = menuByDesc.map(item => ({
+    ...item,
+    establishmentName: estMap[item.establishmentId]?.name || '',
+    establishmentSlug: estMap[item.establishmentId]?.slug || '',
+    categoryName: estMap[item.establishmentId]?.categoryName || '',
+  }));
+  
+  return { establishments: establishmentResults, menuItemsByName, menuItemsByDescription };
+}

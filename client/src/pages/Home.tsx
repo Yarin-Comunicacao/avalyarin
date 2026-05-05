@@ -2,11 +2,11 @@
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { NearbyEstablishments } from "@/components/NearbyEstablishments";
-import { categories } from "@/lib/data";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 import {
   Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
   Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3, Beer, Leaf, Globe, Pizza
@@ -28,6 +28,7 @@ const fadeUp = {
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: categoriesData, isLoading } = trpc.categories.list.useQuery();
 
   useEffect(() => {
     if (window.location.hash === "#categorias") {
@@ -36,6 +37,8 @@ export default function Home() {
       }, 100);
     }
   }, []);
+
+  const categories = categoriesData || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,58 +123,67 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((cat, i) => {
-              const Icon = iconMap[cat.icon] || Coffee;
-              return (
-                <motion.div
-                  key={cat.id}
-                  custom={i}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeUp}
-                >
-                  {cat.active ? (
-                    <Link href={`/categoria/${cat.id}`}>
-                      <div className="group relative p-5 rounded-xl bg-card border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-all">
-                          <Icon className="w-5 h-5 text-primary" />
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="p-5 rounded-xl bg-card/50 border border-border/30 animate-pulse h-40" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {categories.map((cat, i) => {
+                const Icon = iconMap[cat.icon || "Coffee"] || Coffee;
+                const count = cat.establishmentCount || 0;
+                return (
+                  <motion.div
+                    key={cat.slug}
+                    custom={i}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                  >
+                    {cat.active ? (
+                      <Link href={`/categoria/${cat.slug}`}>
+                        <div className="group relative p-5 rounded-xl bg-card border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-all">
+                            <Icon className="w-5 h-5 text-primary" />
+                          </div>
+                          <h4 className="font-display text-lg tracking-wider text-foreground group-hover:text-primary transition-colors">
+                            {cat.name}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-1">{cat.description}</p>
+                          <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium">
+                            <span>{count} {count === 1 ? "estabelecimento" : "estabelecimentos"}</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </div>
                         </div>
-                        <h4 className="font-display text-lg tracking-wider text-foreground group-hover:text-primary transition-colors">
+                      </Link>
+                    ) : (
+                      <div
+                        onClick={() => toast("Em breve!", { description: `A categoria ${cat.name} estará disponível em breve.` })}
+                        className="relative p-5 rounded-xl bg-card/50 border border-border/30 cursor-pointer opacity-60 hover:opacity-80 transition-all"
+                      >
+                        <div className="absolute top-3 right-3">
+                          <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-secondary border border-border/30 flex items-center justify-center mb-3">
+                          <Icon className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <h4 className="font-display text-lg tracking-wider text-muted-foreground">
                           {cat.name}
                         </h4>
-                        <p className="text-xs text-muted-foreground mt-1">{cat.description}</p>
-                        <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium">
-                          <span>{cat.establishments.length} {cat.establishments.length === 1 ? "estabelecimento" : "estabelecimentos"}</span>
-                          <ArrowRight className="w-3 h-3" />
+                        <p className="text-xs text-muted-foreground/60 mt-1">{cat.description}</p>
+                        <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground/50 font-medium">
+                          <span>Em breve</span>
                         </div>
                       </div>
-                    </Link>
-                  ) : (
-                    <div
-                      onClick={() => toast("Em breve!", { description: `A categoria ${cat.name} estará disponível em breve.` })}
-                      className="relative p-5 rounded-xl bg-card/50 border border-border/30 cursor-pointer opacity-60 hover:opacity-80 transition-all"
-                    >
-                      <div className="absolute top-3 right-3">
-                        <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                      </div>
-                      <div className="w-10 h-10 rounded-lg bg-secondary border border-border/30 flex items-center justify-center mb-3">
-                        <Icon className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                      <h4 className="font-display text-lg tracking-wider text-muted-foreground">
-                        {cat.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground/60 mt-1">{cat.description}</p>
-                      <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground/50 font-medium">
-                        <span>Em breve</span>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
