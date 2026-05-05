@@ -7,10 +7,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   X, User, CreditCard, Link2, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
-  ChevronRight, Settings, LogOut, Menu, LogIn, Trophy
+  ChevronRight, Settings, LogOut, Menu, LogIn, Trophy, Palette, Check
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 
 interface AppMenuProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ interface MenuSection {
   id: string;
   title: string;
   icon: React.ReactNode;
-  items: { id: string; label: string; href: string; icon: React.ReactNode; badge?: string; preview?: React.ReactNode }[];
+  items: { id: string; label: string; href?: string; icon: React.ReactNode; badge?: string; preview?: React.ReactNode; isTheme?: boolean }[];
 }
 
 const menuSections: MenuSection[] = [
@@ -42,6 +43,7 @@ const menuSections: MenuSection[] = [
       { id: "cadastro", label: "Cadastro", href: "/conta/cadastro", icon: <Settings className="w-4 h-4" />, badge: "@usuario" },
       { id: "conectadas", label: "Contas Conectadas", href: "/conta/conectadas", icon: <Link2 className="w-4 h-4" /> },
       { id: "planos", label: "Planos", href: "/conta/planos", icon: <Crown className="w-4 h-4" />, badge: "Free" },
+      { id: "temas", label: "Tema Visual", icon: <Palette className="w-4 h-4" />, isTheme: true },
     ],
   },
   {
@@ -68,7 +70,9 @@ const menuSections: MenuSection[] = [
 
 export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [expandedSection, setExpandedSection] = useState<string | null>("conta");
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
   const toggleSection = (id: string) => {
     setExpandedSection(prev => prev === id ? null : id);
@@ -166,21 +170,78 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                       >
                         <div className="pl-4 space-y-0.5 pb-2">
                           {section.items.map((item) => (
-                            <Link key={item.id} href={item.href} onClick={onClose}>
-                              <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer group">
-                                <div className="text-muted-foreground group-hover:text-primary transition-colors">
-                                  {item.icon}
-                                </div>
-                                <span className="flex-1 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
-                                  {item.label}
-                                </span>
-                                {item.badge && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                                    {item.badge}
+                            item.isTheme ? (
+                              <div key={item.id}>
+                                <button
+                                  onClick={() => setShowThemePicker(!showThemePicker)}
+                                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer group"
+                                >
+                                  <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                                    {item.icon}
+                                  </div>
+                                  <span className="flex-1 text-left text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                    {item.label}
                                   </span>
-                                )}
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 capitalize">
+                                    {THEME_OPTIONS.find(t => t.id === theme)?.label || "Escuro"}
+                                  </span>
+                                </button>
+                                {/* Theme Picker Inline */}
+                                <AnimatePresence>
+                                  {showThemePicker && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="pl-4 pr-2 py-2 space-y-1.5">
+                                        {THEME_OPTIONS.map((opt) => (
+                                          <button
+                                            key={opt.id}
+                                            onClick={() => { setTheme(opt.id); setShowThemePicker(false); }}
+                                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                                              theme === opt.id
+                                                ? "bg-primary/15 border border-primary/30"
+                                                : "hover:bg-secondary/30 border border-transparent"
+                                            }`}
+                                          >
+                                            <div
+                                              className="w-5 h-5 rounded-full border border-border/50 flex-shrink-0"
+                                              style={{ backgroundColor: getThemePreviewColor(opt.id) }}
+                                            />
+                                            <div className="flex-1 text-left">
+                                              <span className="text-sm text-foreground">{opt.label}</span>
+                                              <span className="text-[10px] text-muted-foreground ml-2">{opt.description}</span>
+                                            </div>
+                                            {theme === opt.id && (
+                                              <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                                            )}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                               </div>
-                            </Link>
+                            ) : (
+                              <Link key={item.id} href={item.href || "/"} onClick={onClose}>
+                                <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer group">
+                                  <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                                    {item.icon}
+                                  </div>
+                                  <span className="flex-1 text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                    {item.label}
+                                  </span>
+                                  {item.badge && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </div>
+                              </Link>
+                            )
                           ))}
                         </div>
                       </motion.div>
@@ -225,6 +286,17 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       )}
     </AnimatePresence>
   );
+}
+
+function getThemePreviewColor(id: ThemeName): string {
+  const colors: Record<ThemeName, string> = {
+    escuro: "#D4A843",
+    claro: "#2563eb",
+    "azul-gelo": "#4A6FA5",
+    "azul-cinza": "#9CB2D7",
+    rosa: "#C4748A",
+  };
+  return colors[id];
 }
 
 // Export the trigger button separately for use in Navbar

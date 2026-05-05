@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import ThemeSidebar from "./components/ThemeSidebar";
+
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
@@ -174,7 +174,6 @@ function App() {
       <ThemeProvider defaultTheme="escuro">
         <TooltipProvider>
           <Toaster />
-          <ThemeSidebar />
           <PWAInstallPrompt />
           <Router />
         </TooltipProvider>
