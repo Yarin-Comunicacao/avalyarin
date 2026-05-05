@@ -162,7 +162,14 @@ export default function EstablishmentPage() {
               {establishment.instagram && (
                 <div className="flex items-center gap-1.5">
                   <Instagram className="w-4 h-4 shrink-0 text-primary/60" />
-                  <span>{establishment.instagram}</span>
+                  <a
+                    href={`https://www.instagram.com/${establishment.instagram.replace(/^@/, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                  >
+                    {establishment.instagram}
+                  </a>
                 </div>
               )}
             </div>
