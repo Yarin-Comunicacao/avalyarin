@@ -125,10 +125,10 @@ export default function SearchResults() {
       <div className="pt-24 pb-12 container">
         {/* Header */}
         <div className="mb-8">
-          <p className="text-sm text-muted-foreground mb-1">
+          <p className="text-sm text-muted-foreground mb-2">
             {totalResults} {totalResults === 1 ? "resultado" : "resultados"} para
           </p>
-          <h2 className="font-display text-3xl tracking-wider text-primary text-glow-amber">
+          <h2 className="font-display text-2xl sm:text-3xl tracking-wider text-primary text-glow-amber break-words">
             "{query}"
           </h2>
         </div>
@@ -207,21 +207,21 @@ export default function SearchResults() {
                       <UtensilsCrossed className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                      <div className="flex items-start gap-2">
+                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                           {item.itemName}
                         </p>
                         {item.matchType === "description" && (
-                          <span className="text-[10px] text-blue-400/70 bg-blue-400/10 px-1.5 py-0.5 rounded font-medium flex-shrink-0">
+                          <span className="text-[10px] text-blue-400/70 bg-blue-400/10 px-1.5 py-0.5 rounded font-medium flex-shrink-0 mt-0.5">
                             DESC
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground">
                         {item.establishmentName} • {item.categoryName}
                       </p>
                       {item.itemDescription && item.matchType === "description" && (
-                        <p className="text-xs text-muted-foreground/70 mt-0.5 truncate italic">
+                        <p className="text-xs text-muted-foreground/70 mt-0.5 italic line-clamp-2">
                           {item.itemDescription}
                         </p>
                       )}
