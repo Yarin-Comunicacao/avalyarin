@@ -21,3 +21,6 @@
 - [x] Write vitest tests for ratings.save mutation
 - [x] Write vitest tests for admin/business procedures (schema validation)
 - [x] Remove "Entrar" button from navbar left side (keep login only in menu)
+- [x] Query establishments with Instagram links and report count (195 found)
+- [x] Fetch Instagram profile photos and update establishment images (71 updated)
+- [x] Apply 4-group category division on home page (Gastronomia, Bares & Vida Noturna, Café & Doces, Saudável & Bem-estar)
