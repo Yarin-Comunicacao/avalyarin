@@ -52,9 +52,6 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-xs text-muted-foreground font-medium px-3 py-1.5 rounded-full bg-secondary border border-border/50 hidden sm:inline-block">
-            Beta
-          </span>
           {isAuthenticated ? (
             <Link href="/conta/dados">
               <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors">

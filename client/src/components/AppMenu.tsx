@@ -125,6 +125,19 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
               </div>
             </div>
 
+            {/* Entrar - primeiro item quando não logado */}
+            {!user && (
+              <div className="px-5 py-3 border-b border-border/30">
+                <a
+                  href={getLoginUrl()}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors"
+                >
+                  <LogIn className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary font-display tracking-wider">ENTRAR / CRIAR CONTA</span>
+                </a>
+              </div>
+            )}
+
             {/* Recent Visits Preview */}
             <div className="px-5 py-4 border-b border-border/30">
               <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-3">Últimas visitas</p>
@@ -263,7 +276,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
 
             {/* Footer */}
             <div className="px-5 py-4 mt-auto border-t border-border/30">
-              {user ? (
+              {user && (
                 <button
                   onClick={async () => { await logout(); onClose(); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 transition-colors group"
@@ -271,14 +284,6 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                   <LogOut className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
                   <span className="text-sm text-muted-foreground group-hover:text-destructive transition-colors">Sair</span>
                 </button>
-              ) : (
-                <a
-                  href={getLoginUrl()}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group"
-                >
-                  <LogIn className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary font-medium">Entrar / Criar Conta</span>
-                </a>
               )}
             </div>
           </motion.div>
