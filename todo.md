@@ -25,3 +25,9 @@
 - [x] Fetch Instagram profile photos and update establishment images (71 updated)
 - [x] Apply 4-group category division on home page (Gastronomia, Bares & Vida Noturna, Café & Doces, Saudável & Bem-estar)
 - [x] Update "Como Funciona" step 1: title "Escolha uma das categorias", desc "Selecione o estabelecimento cadastrado que você visitou."
+- [x] Design and create user_rankings DB table (userId, categoryId, establishmentId, position, updatedAt)
+- [x] Create tRPC procedures for rankings (getRanking, saveRanking, getUserRatedEstablishments)
+- [x] Build ranking voting UI page with top 10 / top 3 logic per category
+- [x] Implement discovery banner when user has fewer than 3 rated places in a category
+- [x] Integrate ranking prompt into post-rating flow (after saving a rating)
+- [x] Write vitest tests for ranking procedures

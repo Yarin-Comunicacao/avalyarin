@@ -1,6 +1,6 @@
-import { eq, like, or, sql, and, inArray, desc } from "drizzle-orm";
+import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -855,4 +855,176 @@ export async function businessDeleteMenuItem(userId: number, menuItemId: number)
   
   await db.delete(menuItems).where(eq(menuItems.id, menuItemId));
   return { success: true };
+}
+
+
+// ============================================================
+// RANKINGS
+// ============================================================
+
+/**
+ * Get the establishments a user has rated in a specific category.
+ * Used to determine what options are available for ranking.
+ */
+export async function getUserRatedEstablishmentsByCategory(userId: number, categoryId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    image: establishments.image,
+    neighborhood: establishments.neighborhood,
+    avgScore: sql<number>`AVG(${ratings.overallScore})`,
+    ratingCount: sql<number>`COUNT(${ratings.id})`,
+  })
+    .from(ratings)
+    .innerJoin(establishments, eq(establishments.id, ratings.establishmentId))
+    .where(and(
+      eq(ratings.userId, userId),
+      eq(establishments.categoryId, categoryId),
+    ))
+    .groupBy(establishments.id);
+
+  return result;
+}
+
+/**
+ * Get the user's current ranking for a specific category.
+ */
+export async function getUserRanking(userId: number, categoryId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select({
+    id: userRankings.id,
+    position: userRankings.position,
+    establishmentId: userRankings.establishmentId,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    establishmentImage: establishments.image,
+    establishmentNeighborhood: establishments.neighborhood,
+  })
+    .from(userRankings)
+    .innerJoin(establishments, eq(establishments.id, userRankings.establishmentId))
+    .where(and(
+      eq(userRankings.userId, userId),
+      eq(userRankings.categoryId, categoryId),
+    ))
+    .orderBy(userRankings.position);
+
+  return result;
+}
+
+/**
+ * Save or update a user's ranking for a category.
+ * Replaces all existing ranking entries for this user+category.
+ */
+export async function saveUserRanking(userId: number, categoryId: number, rankedEstablishments: { establishmentId: number; position: number }[]) {
+  const db = await getDb();
+  if (!db) return { success: false };
+
+  // Delete existing ranking for this user+category
+  await db.delete(userRankings).where(and(
+    eq(userRankings.userId, userId),
+    eq(userRankings.categoryId, categoryId),
+  ));
+
+  // Insert new ranking entries
+  if (rankedEstablishments.length > 0) {
+    await db.insert(userRankings).values(
+      rankedEstablishments.map(item => ({
+        userId,
+        categoryId,
+        establishmentId: item.establishmentId,
+        position: item.position,
+      }))
+    );
+  }
+
+  return { success: true };
+}
+
+/**
+ * Get all rankings for a user across all categories (summary view).
+ */
+export async function getUserRankingSummary(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select({
+    categoryId: categories.id,
+    categoryName: categories.name,
+    categorySlug: categories.slug,
+    categoryIcon: categories.icon,
+    rankingCount: sql<number>`COUNT(${userRankings.id})`,
+  })
+    .from(userRankings)
+    .innerJoin(categories, eq(categories.id, userRankings.categoryId))
+    .where(eq(userRankings.userId, userId))
+    .groupBy(categories.id);
+
+  return result;
+}
+
+/**
+ * Get nearby establishments in a category that the user has NOT rated yet.
+ * Used for the discovery banner.
+ */
+export async function getDiscoveryEstablishments(userId: number, categoryId: number, lat?: number, lng?: number, limit = 6) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get IDs the user already rated in this category
+  const ratedIds = await db.select({ id: ratings.establishmentId })
+    .from(ratings)
+    .innerJoin(establishments, eq(establishments.id, ratings.establishmentId))
+    .where(and(
+      eq(ratings.userId, userId),
+      eq(establishments.categoryId, categoryId),
+    ))
+    .groupBy(ratings.establishmentId);
+
+  const ratedIdSet = ratedIds.map(r => r.id);
+
+  // Query establishments in this category that user hasn't rated
+  const conditions = [
+    eq(establishments.categoryId, categoryId),
+    ...(ratedIdSet.length > 0 ? [notInArray(establishments.id, ratedIdSet)] : []),
+  ];
+
+  if (lat && lng) {
+    const result = await db.select({
+      id: establishments.id,
+      slug: establishments.slug,
+      name: establishments.name,
+      image: establishments.image,
+      neighborhood: establishments.neighborhood,
+      lat: establishments.lat,
+      lng: establishments.lng,
+      rating: establishments.rating,
+    })
+      .from(establishments)
+      .where(and(...conditions))
+      .orderBy(sql`(POW(${establishments.lat} - ${lat}, 2) + POW(${establishments.lng} - ${lng}, 2))`)
+      .limit(limit);
+    return result;
+  }
+
+  const result = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    image: establishments.image,
+    neighborhood: establishments.neighborhood,
+    lat: establishments.lat,
+    lng: establishments.lng,
+    rating: establishments.rating,
+  })
+    .from(establishments)
+    .where(and(...conditions))
+    .limit(limit);
+
+  return result;
 }

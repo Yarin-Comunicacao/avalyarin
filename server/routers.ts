@@ -31,6 +31,12 @@ import {
   businessUpdateEstablishment,
   businessAddMenuItem,
   businessDeleteMenuItem,
+  // Rankings
+  getUserRatedEstablishmentsByCategory,
+  getUserRanking,
+  saveUserRanking,
+  getUserRankingSummary,
+  getDiscoveryEstablishments,
 } from "./db";
 
 export const appRouter = router({
@@ -216,6 +222,53 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         return await reviewClaim(input.claimId, ctx.user!.id, input.status, input.adminNotes);
+      }),
+  }),
+
+  // ============ RANKINGS ============
+  rankings: router({
+    /** Get establishments the user has rated in a category (options for ranking) */
+    ratedInCategory: protectedProcedure
+      .input(z.object({ categoryId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getUserRatedEstablishmentsByCategory(ctx.user!.id, input.categoryId);
+      }),
+
+    /** Get the user's current ranking for a category */
+    getByCategory: protectedProcedure
+      .input(z.object({ categoryId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getUserRanking(ctx.user!.id, input.categoryId);
+      }),
+
+    /** Save/update the user's ranking for a category */
+    save: protectedProcedure
+      .input(z.object({
+        categoryId: z.number(),
+        items: z.array(z.object({
+          establishmentId: z.number(),
+          position: z.number().min(1).max(10),
+        })).min(1).max(10),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await saveUserRanking(ctx.user!.id, input.categoryId, input.items);
+      }),
+
+    /** Get summary of all user rankings across categories */
+    summary: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserRankingSummary(ctx.user!.id);
+    }),
+
+    /** Get discovery suggestions (unrated establishments nearby) */
+    discover: protectedProcedure
+      .input(z.object({
+        categoryId: z.number(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+        limit: z.number().min(1).max(20).default(6),
+      }))
+      .query(async ({ ctx, input }) => {
+        return await getDiscoveryEstablishments(ctx.user!.id, input.categoryId, input.lat, input.lng, input.limit);
       }),
   }),
 

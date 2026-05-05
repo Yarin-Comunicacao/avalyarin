@@ -54,6 +54,7 @@ const menuSections: MenuSection[] = [
     icon: <Star className="w-5 h-5" />,
     items: [
       { id: "avaliacoes-lista", label: "Avaliações", href: "/avaliacoes", icon: <Star className="w-4 h-4" /> },
+      { id: "meu-ranking", label: "Meu Ranking", href: "/meu-ranking", icon: <Trophy className="w-4 h-4" /> },
       { id: "locais", label: "Locais Visitados", href: "/locais-visitados", icon: <MapPin className="w-4 h-4" /> },
       { id: "galeria", label: "Galeria", href: "/galeria", icon: <Image className="w-4 h-4" /> },
     ],

@@ -146,3 +146,21 @@ export const businessClaims = mysqlTable("business_claims", {
 
 export type BusinessClaim = typeof businessClaims.$inferSelect;
 export type InsertBusinessClaim = typeof businessClaims.$inferInsert;
+
+/**
+ * User rankings table - personal top 10 (or top 3) per category
+ * Each row represents one establishment in a user's ranking for a specific category.
+ * Position 1 = best, position 10 = 10th best.
+ */
+export const userRankings = mysqlTable("user_rankings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  position: int("position").notNull(), // 1-10
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserRanking = typeof userRankings.$inferSelect;
+export type InsertUserRanking = typeof userRankings.$inferInsert;

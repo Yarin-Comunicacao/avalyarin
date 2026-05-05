@@ -33,6 +33,8 @@ import SearchResults from "./pages/SearchResults";
 // Admin & Business
 import AdminPanel from "./pages/AdminPanel";
 import BusinessPanel from "./pages/BusinessPanel";
+// Rankings
+import MeuRanking from "./pages/MeuRanking";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
@@ -94,6 +96,8 @@ function Router() {
       <Route path="/badges" component={BadgesPage} />
       {/* Search */}
       <Route path="/busca" component={SearchResults} />
+      {/* Rankings */}
+      <Route path="/meu-ranking" component={MeuRanking} />
       {/* Admin & Business */}
       <Route path="/admin" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />

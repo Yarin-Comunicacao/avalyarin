@@ -2154,13 +2154,28 @@ export default function RatingPage() {
                           description: pointsMsg,
                         });
 
-                        // Navigate to badges page if new badge earned, otherwise home
+                        // Navigate to badges page if new badge earned, ranking prompt, or home
                         setTimeout(() => {
                           const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
                           if (justEarned) {
                             window.location.href = "/badges";
                           } else {
-                            window.location.href = "/";
+                            // Prompt user to update their ranking after each rating cycle
+                            const ratingCycleCount = existing.length + 1;
+                            // Show ranking prompt at 3rd, 5th, 10th, and every 5th rating
+                            if (ratingCycleCount === 3 || ratingCycleCount === 5 || ratingCycleCount === 10 || ratingCycleCount % 5 === 0) {
+                              toast("Atualize seu ranking!", {
+                                description: "Você pode organizar seus favoritos nesta categoria.",
+                                action: {
+                                  label: "Ver Ranking",
+                                  onClick: () => { window.location.href = "/meu-ranking"; },
+                                },
+                                duration: 5000,
+                              });
+                              setTimeout(() => { window.location.href = "/"; }, 5000);
+                            } else {
+                              window.location.href = "/";
+                            }
                           }
                         }, 1500);
                       } catch (e: any) {
