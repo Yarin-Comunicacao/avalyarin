@@ -20,3 +20,4 @@
 - [x] overallScore validation updated for bonus system (0-115)
 - [x] Write vitest tests for ratings.save mutation
 - [x] Write vitest tests for admin/business procedures (schema validation)
+- [x] Remove "Entrar" button from navbar left side (keep login only in menu)

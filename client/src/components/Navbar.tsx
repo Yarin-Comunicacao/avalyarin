@@ -3,7 +3,6 @@ import { Link, useLocation } from "wouter";
 import { ArrowLeft, User } from "lucide-react";
 import { MenuTrigger } from "./AppMenu";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import SearchBar from "./SearchBar";
 
 interface NavbarProps {
@@ -52,19 +51,12 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {isAuthenticated ? (
+          {isAuthenticated && (
             <Link href="/conta/dados">
               <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors">
                 <User className="w-4 h-4 text-primary" />
               </div>
             </Link>
-          ) : (
-            <a
-              href={getLoginUrl()}
-              className="text-xs text-primary font-medium px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors"
-            >
-              Entrar
-            </a>
           )}
         </div>
       </div>
