@@ -1028,3 +1028,88 @@ export async function getDiscoveryEstablishments(userId: number, categoryId: num
 
   return result;
 }
+
+// ============================================================
+// USERNAME MANAGEMENT
+// ============================================================
+
+export async function checkUsernameAvailable(username: string, excludeUserId?: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const rows = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.username, username))
+    .limit(1);
+  if (rows.length === 0) return true;
+  if (excludeUserId && rows[0].id === excludeUserId) return true;
+  return false;
+}
+
+export async function generateUsernameSuggestions(baseName: string, excludeUserId?: number): Promise<string[]> {
+  // Remove spaces and special chars, lowercase
+  const clean = baseName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const parts = baseName.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  
+  const candidates: string[] = [];
+  
+  if (parts.length >= 2) {
+    const first = parts[0].replace(/[^a-z0-9]/g, "");
+    const last = parts[parts.length - 1].replace(/[^a-z0-9]/g, "");
+    candidates.push(
+      `${first}${last}`,
+      `${first}_${last}`,
+      `${first}.${last}`,
+      `${last}${first}`,
+      `${last}_${first}`,
+      `${last}.${first}`
+    );
+  } else {
+    candidates.push(clean, `${clean}_`, `_${clean}`, `${clean}1`, `${clean}2`);
+  }
+
+  // Check availability for each
+  const available: string[] = [];
+  for (const candidate of candidates) {
+    if (candidate.length < 3) continue;
+    const isAvailable = await checkUsernameAvailable(candidate, excludeUserId);
+    if (isAvailable) {
+      available.push(candidate);
+    }
+  }
+  return available.slice(0, 6);
+}
+
+export async function setUsername(userId: number, username: string): Promise<{ success: boolean; error?: string }> {
+  const db = await getDb();
+  if (!db) return { success: false, error: "Database unavailable" };
+  
+  // Validate: no spaces, lowercase, alphanumeric + _ and .
+  if (/\s/.test(username)) return { success: false, error: "Nome de usuário não pode conter espaços" };
+  if (!/^[a-z0-9_.]{3,30}$/.test(username)) return { success: false, error: "Nome de usuário deve ter 3-30 caracteres (letras, números, _ ou .)" };
+  
+  // Check uniqueness
+  const isAvailable = await checkUsernameAvailable(username, userId);
+  if (!isAvailable) return { success: false, error: "Este nome de usuário já está em uso" };
+  
+  await db.update(users).set({ username }).where(eq(users.id, userId));
+  return { success: true };
+}
+
+export async function getUserProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      username: users.username,
+      role: users.role,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  return rows[0] || null;
+}

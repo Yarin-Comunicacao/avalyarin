@@ -37,6 +37,11 @@ import {
   saveUserRanking,
   getUserRankingSummary,
   getDiscoveryEstablishments,
+  // Username
+  checkUsernameAvailable,
+  generateUsernameSuggestions,
+  setUsername,
+  getUserProfile,
 } from "./db";
 
 export const appRouter = router({
@@ -325,7 +330,29 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
+   }),
+
+  // User profile & username
+  profile: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserProfile(ctx.user!.id);
+    }),
+    checkUsername: protectedProcedure
+      .input(z.object({ username: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const available = await checkUsernameAvailable(input.username, ctx.user!.id);
+        return { available };
+      }),
+    suggestUsernames: protectedProcedure
+      .input(z.object({ name: z.string() }))
+      .query(async ({ ctx, input }) => {
+        return await generateUsernameSuggestions(input.name, ctx.user!.id);
+      }),
+    setUsername: protectedProcedure
+      .input(z.object({ username: z.string().min(3).max(30) }))
+      .mutation(async ({ ctx, input }) => {
+        return await setUsername(ctx.user!.id, input.username);
+      }),
   }),
 });
-
 export type AppRouter = typeof appRouter;

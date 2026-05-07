@@ -17,6 +17,7 @@ import ConnoisseurSurvey from "./pages/ConnoisseurSurvey";
 import MeusDados from "./pages/MeusDados";
 import Cadastro from "./pages/Cadastro";
 import ContasConectadas from "./pages/ContasConectadas";
+import MeuUsuario from "./pages/MeuUsuario";
 import Planos from "./pages/Planos";
 // Reviews pages
 import Avaliacoes from "./pages/Avaliacoes";
@@ -83,6 +84,7 @@ function Router() {
       <Route path="/conta/dados" component={MeusDados} />
       <Route path="/conta/cadastro" component={Cadastro} />
       <Route path="/conta/conectadas" component={ContasConectadas} />
+      <Route path="/conta/usuario" component={MeuUsuario} />
       <Route path="/conta/planos" component={Planos} />
       {/* Reviews */}
       <Route path="/avaliacoes" component={Avaliacoes} />

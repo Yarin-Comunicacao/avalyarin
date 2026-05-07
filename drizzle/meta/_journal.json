@@ -36,6 +36,20 @@
       "when": 1778011731640,
       "tag": "0004_curvy_johnny_blaze",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1778137735692,
+      "tag": "0005_giant_bromley",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1778138033040,
+      "tag": "0006_colorful_iron_fist",
+      "breakpoints": true
     }
   ]
 }

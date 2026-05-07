@@ -1,33 +1,28 @@
-// Design: AvaLyarin — Meus Dados page
-// Fields: Nome, Sobrenome, E-mail de cadastro, Telefone de cadastro
+// Design: AvaLyarin — Meus Dados page (read-only, sensitive data)
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
-import { User, Mail, Phone, Save } from "lucide-react";
+import { User, Mail, Phone, Shield, Calendar } from "lucide-react";
 
 export default function MeusDados() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [form, setForm] = useState({
-    nome: "",
-    sobrenome: "",
-    email: "",
-    telefone: "",
-  });
+  const { user } = useAuth();
 
-  const handleSave = () => {
-    localStorage.setItem("avalyarin_user_data", JSON.stringify(form));
-    toast.success("Dados salvos com sucesso!");
-  };
+  // Load saved data from localStorage as fallback
+  const savedData = (() => {
+    try {
+      const raw = localStorage.getItem("avalyarin_user_data");
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  })();
 
-  // Load saved data on mount
-  useState(() => {
-    const saved = localStorage.getItem("avalyarin_user_data");
-    if (saved) {
-      try { setForm(JSON.parse(saved)); } catch {}
-    }
-  });
+  const displayName = user?.name || savedData.nome || "—";
+  const displayEmail = user?.email || savedData.email || "—";
+  const displayPhone = savedData.telefone || "—";
+  const displayCreatedAt = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
+    : "—";
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,62 +40,47 @@ export default function MeusDados() {
             </div>
           </div>
 
+          {/* Info notice */}
+          <div className="flex items-start gap-2 p-3 mb-6 rounded-lg bg-primary/5 border border-primary/20">
+            <Shield className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Seus dados pessoais são protegidos e não podem ser alterados diretamente por aqui.
+              Para solicitar alterações, entre em contato com o suporte.
+            </p>
+          </div>
+
           <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" /> Nome
+            {/* Nome */}
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-1">
+                <User className="w-3.5 h-3.5" /> Nome completo
               </label>
-              <input
-                type="text"
-                value={form.nome}
-                onChange={(e) => setForm(prev => ({ ...prev, nome: e.target.value }))}
-                placeholder="Seu nome"
-                className="w-full px-4 py-3 rounded-xl bg-card border border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40 transition-colors"
-              />
+              <p className="text-base text-foreground">{displayName}</p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" /> Sobrenome
+            {/* E-mail */}
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-1">
+                <Mail className="w-3.5 h-3.5" /> E-mail de cadastro
               </label>
-              <input
-                type="text"
-                value={form.sobrenome}
-                onChange={(e) => setForm(prev => ({ ...prev, sobrenome: e.target.value }))}
-                placeholder="Seu sobrenome"
-                className="w-full px-4 py-3 rounded-xl bg-card border border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40 transition-colors"
-              />
+              <p className="text-base text-foreground">{displayEmail}</p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground" /> E-mail de cadastro
+            {/* Telefone */}
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-1">
+                <Phone className="w-3.5 h-3.5" /> Telefone de cadastro
               </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="seu@email.com"
-                className="w-full px-4 py-3 rounded-xl bg-card border border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40 transition-colors"
-              />
+              <p className="text-base text-foreground">{displayPhone}</p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <Phone className="w-4 h-4 text-muted-foreground" /> Telefone de cadastro
+            {/* Data de cadastro */}
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-1">
+                <Calendar className="w-3.5 h-3.5" /> Membro desde
               </label>
-              <input
-                type="tel"
-                value={form.telefone}
-                onChange={(e) => setForm(prev => ({ ...prev, telefone: e.target.value }))}
-                placeholder="(11) 99999-9999"
-                className="w-full px-4 py-3 rounded-xl bg-card border border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40 transition-colors"
-              />
+              <p className="text-base text-foreground">{displayCreatedAt}</p>
             </div>
-
-            <Button onClick={handleSave} className="w-full font-display tracking-wider glow-amber mt-6">
-              <Save className="w-4 h-4 mr-2" /> SALVAR DADOS
-            </Button>
           </div>
         </div>
       </div>

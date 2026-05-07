@@ -31,3 +31,13 @@
 - [x] Implement discovery banner when user has fewer than 3 rated places in a category
 - [x] Integrate ranking prompt into post-rating flow (after saving a rating)
 - [x] Write vitest tests for ranking procedures
+- [x] Hide menu items below 'Últimas Visitas' for non-logged users (show only after login)
+- [x] Show 'Minha Conta' option after user registers/logs in
+- [x] Make 'Meus Dados' page show static read-only data (no edit option)
+- [x] Merge 'Cadastro' and 'Contas Conectadas' into new 'Meu Usuário' tab
+- [x] Username field: no spaces allowed, auto-suggest variations, uniqueness check
+- [x] Preferences section: show survey choices, increase surveys every 5 badges
+- [x] Últimas Visitas: fix images on web version
+- [x] Connected accounts section (Facebook, Instagram, Google) below username/preferences
+- [x] Create LGPD consent terms document (modelo em docs)
+- [x] Research LGPD-compliant data from Facebook, Instagram, Google
