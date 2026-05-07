@@ -5,12 +5,12 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
-  CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon
+  CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck
 } from "lucide-react";
 
 export default function AdminPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "claims" | "establishments">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "claims" | "establishments" | "age-verification">("dashboard");
 
   if (loading) {
     return (
@@ -68,6 +68,7 @@ export default function AdminPanel() {
             { id: "users" as const, label: "Usuários", icon: Users },
             { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
             { id: "establishments" as const, label: "Estabelecimentos", icon: Store },
+            { id: "age-verification" as const, label: "Verificação Idade", icon: FileCheck },
           ].map(tab => (
             <button
               key={tab.id}
@@ -91,6 +92,7 @@ export default function AdminPanel() {
         {activeTab === "users" && <UsersTab />}
         {activeTab === "claims" && <ClaimsTab />}
         {activeTab === "establishments" && <EstablishmentsTab />}
+        {activeTab === "age-verification" && <AgeVerificationTab />}
       </div>
     </div>
   );
@@ -557,6 +559,141 @@ function EstablishmentsTab() {
               >
                 Excluir
               </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgeVerificationTab() {
+  const { data: requests, isLoading, refetch } = trpc.ageVerification.list.useQuery({});
+  const reviewMutation = trpc.ageVerification.review.useMutation({
+    onSuccess: () => {
+      toast.success("Verificação processada com sucesso");
+      refetch();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const [notes, setNotes] = useState<Record<number, string>>({});
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+
+  if (isLoading) {
+    return <div className="text-center py-8 text-muted-foreground">Carregando verificações...</div>;
+  }
+
+  const filteredRequests = (requests || []).filter(r => filter === "all" || r.status === filter);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-xl tracking-wider text-foreground">VERIFICAÇÃO DE IDADE</h2>
+        <div className="flex gap-2">
+          {(["all", "pending", "approved", "rejected"] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                filter === f
+                  ? "bg-primary/20 text-primary border border-primary/30"
+                  : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f === "all" ? "Todos" : f === "pending" ? "Pendentes" : f === "approved" ? "Aprovados" : "Rejeitados"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredRequests.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <FileCheck className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p>Nenhuma solicitação de verificação {filter !== "all" ? `com status "${filter}"` : ""}</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredRequests.map((req) => (
+            <div key={req.id} className="p-4 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-medium text-foreground">{req.userName}</h3>
+                  <p className="text-xs text-muted-foreground">{req.userEmail}</p>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                  req.status === "pending" ? "bg-yellow-500/20 text-yellow-400" :
+                  req.status === "approved" ? "bg-green-500/20 text-green-400" :
+                  "bg-red-500/20 text-red-400"
+                }`}>
+                  {req.status === "pending" ? "Pendente" : req.status === "approved" ? "Aprovado" : "Rejeitado"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div>
+                  <span className="text-xs text-muted-foreground">Data solicitada:</span>
+                  <p className="text-foreground">{req.requestedBirthdate.split("-").reverse().join("/")}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground">Enviado em:</span>
+                  <p className="text-foreground">{new Date(req.createdAt).toLocaleDateString("pt-BR")}</p>
+                </div>
+              </div>
+
+              {/* Document preview */}
+              <div className="mb-3">
+                <span className="text-xs text-muted-foreground block mb-1">Documento enviado:</span>
+                <a
+                  href={req.documentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary text-sm hover:underline"
+                >
+                  Ver documento
+                </a>
+              </div>
+
+              {req.status === "pending" && (
+                <div className="mt-3 pt-3 border-t border-border/30">
+                  <input
+                    type="text"
+                    placeholder="Notas do admin (opcional)"
+                    value={notes[req.id] || ""}
+                    onChange={(e) => setNotes(prev => ({ ...prev, [req.id]: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground mb-2"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => reviewMutation.mutate({
+                        requestId: req.id,
+                        status: "approved",
+                        adminNotes: notes[req.id] || undefined,
+                      })}
+                      disabled={reviewMutation.isPending}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-xs font-medium hover:bg-green-500/30 transition-colors"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" /> Aprovar
+                    </button>
+                    <button
+                      onClick={() => reviewMutation.mutate({
+                        requestId: req.id,
+                        status: "rejected",
+                        adminNotes: notes[req.id] || undefined,
+                      })}
+                      disabled={reviewMutation.isPending}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/30 transition-colors"
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> Rejeitar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {req.adminNotes && req.status !== "pending" && (
+                <div className="mt-2 p-2 rounded bg-secondary/30 text-xs text-muted-foreground">
+                  <strong>Nota admin:</strong> {req.adminNotes}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -126,11 +127,16 @@ function App() {
   // Phase 3 — Connoisseur (after 10 reviews)
   const [showPhase3, setShowPhase3] = useState<boolean>(() => isSurveyPhase3Due());
 
+  const saveSurveyMutation = trpc.survey.save.useMutation();
   const handleSurveyComplete = useCallback((answers: any) => {
     localStorage.setItem("avalyarin_survey_completed", "true");
     localStorage.setItem("avalyarin_survey_answers", JSON.stringify(answers));
     setSurveyCompleted(true);
-  }, []);
+    // Also persist to DB if user is authenticated
+    try {
+      saveSurveyMutation.mutate(answers);
+    } catch { /* silent - localStorage is primary for now */ }
+  }, [saveSurveyMutation]);
 
   const handlePhase2Complete = useCallback((answers: Record<string, string | string[] | number>) => {
     localStorage.setItem("avalyarin_survey_phase2_completed", "true");

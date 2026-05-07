@@ -44,6 +44,13 @@ import {
   getUserProfile,
   // Create
   createEstablishment,
+  // Survey & Age Verification
+  saveSurveyData,
+  getUserSurveyData,
+  submitAgeVerification,
+  getAgeVerificationRequests,
+  reviewAgeVerification,
+  getUserAgeVerificationStatus,
 } from "./db";
 
 export const appRouter = router({
@@ -353,6 +360,57 @@ export const appRouter = router({
    }),
 
   // User profile & username
+  // Survey data persistence
+  survey: router({
+    save: protectedProcedure
+      .input(z.object({
+        birthdate: z.string().optional(),
+        region: z.string().optional(),
+        frequency: z.string().optional(),
+        avgSpend: z.string().optional(),
+        categories: z.array(z.string()).optional(),
+        priorities: z.array(z.string()).optional(),
+        discovery: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await saveSurveyData(ctx.user!.id, input, input.birthdate);
+      }),
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserSurveyData(ctx.user!.id);
+    }),
+  }),
+
+  // Age verification
+  ageVerification: router({
+    submit: protectedProcedure
+      .input(z.object({
+        documentUrl: z.string().min(1),
+        documentKey: z.string().min(1),
+        requestedBirthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await submitAgeVerification(ctx.user!.id, input);
+      }),
+    status: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserAgeVerificationStatus(ctx.user!.id);
+    }),
+    // Admin-only
+    list: adminProcedure
+      .input(z.object({ status: z.enum(["pending", "approved", "rejected"]).optional() }).optional())
+      .query(async ({ input }) => {
+        return await getAgeVerificationRequests(input?.status);
+      }),
+    review: adminProcedure
+      .input(z.object({
+        requestId: z.number(),
+        status: z.enum(["approved", "rejected"]),
+        adminNotes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await reviewAgeVerification(input.requestId, ctx.user!.id, input.status, input.adminNotes);
+      }),
+  }),
+
   profile: router({
     get: protectedProcedure.query(async ({ ctx }) => {
       return await getUserProfile(ctx.user!.id);

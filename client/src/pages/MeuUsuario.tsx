@@ -252,29 +252,53 @@ export default function MeuUsuario() {
           </div>
         </section>
 
-        {/* Preferences Section */}
+        {/* Preferences Section — Only categories and priorities */}
         <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
           <h2 className="font-display text-lg tracking-wider text-foreground mb-4">PREFERÊNCIAS</h2>
           
           {preferences.length > 0 ? (
             <div className="space-y-4">
-              {preferences.map((pref, idx) => (
-                <div key={idx} className="p-3 rounded-lg bg-secondary/30 border border-border/30">
-                  <p className="text-xs text-primary font-medium mb-2">{pref.phase}</p>
-                  <div className="space-y-1">
-                    {Object.entries(pref.answers).map(([key, value]) => (
-                      <div key={key} className="flex items-start gap-2">
-                        <span className="text-[11px] text-muted-foreground capitalize min-w-[80px]">
-                          {key.replace(/_/g, " ")}:
+              {/* Categories */}
+              {(() => {
+                const cats = preferences.flatMap(p => {
+                  const c = p.answers.categories;
+                  return Array.isArray(c) ? c : [];
+                });
+                if (cats.length === 0) return null;
+                return (
+                  <div className="p-3 rounded-lg bg-secondary/30 border border-border/30">
+                    <p className="text-xs text-primary font-medium mb-2">Categorias Favoritas</p>
+                    <div className="flex flex-wrap gap-2">
+                      {cats.map((cat: string) => (
+                        <span key={cat} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                          {cat.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
-                        <span className="text-xs text-foreground/80">
-                          {Array.isArray(value) ? value.join(", ") : String(value)}
-                        </span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })()}
+
+              {/* Priorities */}
+              {(() => {
+                const prios = preferences.flatMap(p => {
+                  const pr = p.answers.priorities;
+                  return Array.isArray(pr) ? pr : [];
+                });
+                if (prios.length === 0) return null;
+                return (
+                  <div className="p-3 rounded-lg bg-secondary/30 border border-border/30">
+                    <p className="text-xs text-primary font-medium mb-2">Prioridades</p>
+                    <div className="flex flex-wrap gap-2">
+                      {prios.map((prio: string) => (
+                        <span key={prio} className="text-xs px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent-foreground">
+                          {prio.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground/60">

@@ -8,6 +8,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { storagePut } from "../storage";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +37,24 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
+  // File upload endpoint for age verification documents
+  app.post("/api/upload/document", express.raw({ type: "*/*", limit: "10mb" }), async (req, res) => {
+    try {
+      const contentType = req.headers["content-type"] || "image/jpeg";
+      const fileName = (req.headers["x-file-name"] as string) || `document-${Date.now()}.jpg`;
+      const data = req.body as Buffer;
+      if (!data || data.length === 0) {
+        return res.status(400).json({ error: "No file data provided" });
+      }
+      const key = `age-verification/${Date.now()}-${fileName}`;
+      const result = await storagePut(key, data, contentType);
+      return res.json({ url: result.url, key: result.key });
+    } catch (error: any) {
+      console.error("[Upload] Error:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",

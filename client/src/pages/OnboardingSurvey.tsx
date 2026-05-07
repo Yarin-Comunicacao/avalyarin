@@ -3,12 +3,12 @@
 // Progress bar at top, smooth transitions, gamified badge reward
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass, Cake } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import BirthdateRoulette from "@/components/BirthdateRoulette";
 
-interface SurveyAnswer {
-  ageRange: string;
+export interface SurveyAnswer {
+  birthdate: string; // ISO date YYYY-MM-DD
   region: string;
   frequency: string;
   avgSpend: string;
@@ -19,18 +19,11 @@ interface SurveyAnswer {
 
 const QUESTIONS = [
   {
-    id: "age",
-    icon: <Clock className="w-6 h-6" />,
-    title: "FAIXA ETÁRIA",
-    subtitle: "Em qual faixa etária você se encontra?",
-    type: "single" as const,
-    options: [
-      { label: "18 a 24 anos", value: "18-24" },
-      { label: "25 a 34 anos", value: "25-34" },
-      { label: "35 a 44 anos", value: "35-44" },
-      { label: "45 a 54 anos", value: "45-54" },
-      { label: "55 anos ou mais", value: "55+" },
-    ],
+    id: "birthdate",
+    icon: <Cake className="w-6 h-6" />,
+    title: "DATA DE NASCIMENTO",
+    subtitle: "Selecione sua data de nascimento (mínimo 16 anos)",
+    type: "birthdate" as const,
   },
   {
     id: "region",
@@ -150,14 +143,21 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [showBadge, setShowBadge] = useState(false);
+  const [birthdateValid, setBirthdateValid] = useState(false);
 
   const question = QUESTIONS[currentStep];
   const progress = ((currentStep + 1) / QUESTIONS.length) * 100;
 
   const currentAnswer = answers[question.id];
-  const isAnswered = question.type === "single"
-    ? typeof currentAnswer === "string" && currentAnswer !== ""
-    : Array.isArray(currentAnswer) && currentAnswer.length > 0;
+  const isAnswered = (() => {
+    if (question.type === "birthdate") {
+      return typeof currentAnswer === "string" && currentAnswer !== "" && birthdateValid;
+    }
+    if (question.type === "single") {
+      return typeof currentAnswer === "string" && currentAnswer !== "";
+    }
+    return Array.isArray(currentAnswer) && currentAnswer.length > 0;
+  })();
 
   const handleSingleSelect = useCallback((value: string) => {
     setAnswers(prev => ({ ...prev, [question.id]: value }));
@@ -175,6 +175,16 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     });
   }, [question.id, question.type, question.maxSelect]);
 
+  const handleBirthdateChange = useCallback((date: string) => {
+    setAnswers(prev => ({ ...prev, birthdate: date }));
+    // Validate: check if date makes user at least 16
+    const [y, m, d] = date.split("-").map(Number);
+    const birthDate = new Date(y, m - 1, d);
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+    setBirthdateValid(birthDate <= minDate);
+  }, []);
+
   const handleNext = () => {
     if (!isAnswered) return;
     if (currentStep < QUESTIONS.length - 1) {
@@ -184,10 +194,10 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       setShowBadge(true);
       setTimeout(() => {
         const surveyAnswers: SurveyAnswer = {
-          ageRange: answers.age as string || "",
-          region: answers.region as string || "",
-          frequency: answers.frequency as string || "",
-          avgSpend: answers.spend as string || "",
+          birthdate: (answers.birthdate as string) || "",
+          region: (answers.region as string) || "",
+          frequency: (answers.frequency as string) || "",
+          avgSpend: (answers.spend as string) || "",
           categories: (answers.categories as string[]) || [],
           priorities: (answers.priorities as string[]) || [],
           discovery: (answers.discovery as string[]) || [],
@@ -203,7 +213,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
 
   const handleSkip = () => {
     const surveyAnswers: SurveyAnswer = {
-      ageRange: (answers.age as string) || "",
+      birthdate: (answers.birthdate as string) || "",
       region: (answers.region as string) || "",
       frequency: (answers.frequency as string) || "",
       avgSpend: (answers.spend as string) || "",
@@ -287,7 +297,6 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
             </div>
             <span className="font-display text-lg tracking-wider text-primary">AVALYARIN</span>
           </div>
-
         </div>
       </div>
 
@@ -322,51 +331,62 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                 </div>
               </div>
 
-              {/* Options */}
-              <div className={`grid gap-2.5 ${
-                question.options.length > 8 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
-              }`}>
-                {question.options.map((opt) => {
-                  const isSelected = question.type === "single"
-                    ? currentAnswer === opt.value
-                    : Array.isArray(currentAnswer) && currentAnswer.includes(opt.value);
+              {/* Content: birthdate roulette or options */}
+              {question.type === "birthdate" ? (
+                <BirthdateRoulette
+                  value={answers.birthdate as string | undefined}
+                  onChange={handleBirthdateChange}
+                  minAge={16}
+                />
+              ) : (
+                <>
+                  {/* Options */}
+                  <div className={`grid gap-2.5 ${
+                    (question.options?.length || 0) > 8 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                  }`}>
+                    {question.options?.map((opt) => {
+                      const isSelected = question.type === "single"
+                        ? currentAnswer === opt.value
+                        : Array.isArray(currentAnswer) && currentAnswer.includes(opt.value);
 
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => question.type === "single" ? handleSingleSelect(opt.value) : handleMultiToggle(opt.value)}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
-                        isSelected
-                          ? "border-primary/60 bg-primary/10 shadow-sm"
-                          : "border-border/30 bg-card hover:border-border/60 hover:bg-card/80"
-                      }`}
-                    >
-                      {question.type === "multi" ? (
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected ? "bg-primary border-primary" : "border-muted-foreground/40"
-                        }`}>
-                          {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
-                        </div>
-                      ) : (
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected ? "border-primary" : "border-muted-foreground/40"
-                        }`}>
-                          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
-                        </div>
-                      )}
-                      <span className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
-                        {opt.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => question.type === "single" ? handleSingleSelect(opt.value) : handleMultiToggle(opt.value)}
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? "border-primary/60 bg-primary/10 shadow-sm"
+                              : "border-border/30 bg-card hover:border-border/60 hover:bg-card/80"
+                          }`}
+                        >
+                          {question.type === "multi" ? (
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                              isSelected ? "bg-primary border-primary" : "border-muted-foreground/40"
+                            }`}>
+                              {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                            </div>
+                          ) : (
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                              isSelected ? "border-primary" : "border-muted-foreground/40"
+                            }`}>
+                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                            </div>
+                          )}
+                          <span className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
+                            {opt.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-              {/* Multi-select counter */}
-              {question.type === "multi" && question.maxSelect && question.maxSelect < 7 && (
-                <p className="text-xs text-muted-foreground/60 mt-3 text-center">
-                  {Array.isArray(currentAnswer) ? currentAnswer.length : 0} de {question.maxSelect} selecionados
-                </p>
+                  {/* Multi-select counter */}
+                  {question.type === "multi" && question.maxSelect && question.maxSelect < 7 && (
+                    <p className="text-xs text-muted-foreground/60 mt-3 text-center">
+                      {Array.isArray(currentAnswer) ? currentAnswer.length : 0} de {question.maxSelect} selecionados
+                    </p>
+                  )}
+                </>
               )}
             </motion.div>
           </AnimatePresence>

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json, date } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -10,6 +10,8 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   username: varchar("username", { length: 64 }).unique(),
+  birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
+  surveyData: json("surveyData"), // Full survey answers JSON
   role: mysqlEnum("role", ["user", "admin", "owner", "business"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -165,3 +167,24 @@ export const userRankings = mysqlTable("user_rankings", {
 
 export type UserRanking = typeof userRankings.$inferSelect;
 export type InsertUserRanking = typeof userRankings.$inferInsert;
+
+/**
+ * Age verification requests table — when a user wants to set birthdate that makes them <16,
+ * they must upload an identity document (RG/CPF) for admin review.
+ */
+export const ageVerificationRequests = mysqlTable("age_verification_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  documentUrl: text("documentUrl").notNull(), // S3 storage URL
+  documentKey: varchar("documentKey", { length: 512 }).notNull(), // S3 key
+  requestedBirthdate: varchar("requestedBirthdate", { length: 10 }).notNull(), // YYYY-MM-DD
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AgeVerificationRequest = typeof ageVerificationRequests.$inferSelect;
+export type InsertAgeVerificationRequest = typeof ageVerificationRequests.$inferInsert;

@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -1159,4 +1159,135 @@ export async function createEstablishment(data: {
   });
 
   return { id: result[0].insertId, slug };
+}
+
+// ─── Survey & Profile ────────────────────────────────────────────────────────
+
+export async function saveSurveyData(userId: number, surveyData: Record<string, any>, birthdate?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const updateFields: Record<string, any> = { surveyData };
+  if (birthdate) {
+    updateFields.birthdate = birthdate;
+  }
+  await db.update(users).set(updateFields).where(eq(users.id, userId));
+  return { success: true };
+}
+
+export async function getUserSurveyData(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      birthdate: users.birthdate,
+      surveyData: users.surveyData,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  return rows[0] || null;
+}
+
+// ─── Age Verification ────────────────────────────────────────────────────────
+
+export async function submitAgeVerification(userId: number, data: {
+  documentUrl: string;
+  documentKey: string;
+  requestedBirthdate: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(ageVerificationRequests).values({
+    userId,
+    documentUrl: data.documentUrl,
+    documentKey: data.documentKey,
+    requestedBirthdate: data.requestedBirthdate,
+    status: "pending",
+  });
+  return { id: result[0].insertId };
+}
+
+export async function getAgeVerificationRequests(status?: "pending" | "approved" | "rejected") {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions = status ? eq(ageVerificationRequests.status, status) : undefined;
+  const rows = await db
+    .select({
+      id: ageVerificationRequests.id,
+      userId: ageVerificationRequests.userId,
+      documentUrl: ageVerificationRequests.documentUrl,
+      requestedBirthdate: ageVerificationRequests.requestedBirthdate,
+      status: ageVerificationRequests.status,
+      adminNotes: ageVerificationRequests.adminNotes,
+      reviewedBy: ageVerificationRequests.reviewedBy,
+      reviewedAt: ageVerificationRequests.reviewedAt,
+      createdAt: ageVerificationRequests.createdAt,
+    })
+    .from(ageVerificationRequests)
+    .where(conditions)
+    .orderBy(desc(ageVerificationRequests.createdAt));
+  
+  // Join user names
+  const userIds = Array.from(new Set(rows.map(r => r.userId)));
+  if (userIds.length === 0) return [];
+  const userRows = await db
+    .select({ id: users.id, name: users.name, email: users.email })
+    .from(users)
+    .where(inArray(users.id, userIds));
+  const userMap = Object.fromEntries(userRows.map(u => [u.id, u]));
+  
+  return rows.map(r => ({
+    ...r,
+    userName: userMap[r.userId]?.name || "Desconhecido",
+    userEmail: userMap[r.userId]?.email || "",
+  }));
+}
+
+export async function reviewAgeVerification(requestId: number, adminId: number, status: "approved" | "rejected", adminNotes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get the request
+  const rows = await db
+    .select()
+    .from(ageVerificationRequests)
+    .where(eq(ageVerificationRequests.id, requestId))
+    .limit(1);
+  if (!rows[0]) throw new Error("Request not found");
+  const request = rows[0];
+  
+  // Update request status
+  await db.update(ageVerificationRequests).set({
+    status,
+    adminNotes: adminNotes || null,
+    reviewedBy: adminId,
+    reviewedAt: new Date(),
+  }).where(eq(ageVerificationRequests.id, requestId));
+  
+  // If approved, update user's birthdate
+  if (status === "approved") {
+    await db.update(users).set({
+      birthdate: request.requestedBirthdate,
+    }).where(eq(users.id, request.userId));
+  }
+  
+  return { success: true };
+}
+
+export async function getUserAgeVerificationStatus(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      id: ageVerificationRequests.id,
+      status: ageVerificationRequests.status,
+      requestedBirthdate: ageVerificationRequests.requestedBirthdate,
+      adminNotes: ageVerificationRequests.adminNotes,
+      createdAt: ageVerificationRequests.createdAt,
+    })
+    .from(ageVerificationRequests)
+    .where(eq(ageVerificationRequests.userId, userId))
+    .orderBy(desc(ageVerificationRequests.createdAt))
+    .limit(1);
+  return rows[0] || null;
 }

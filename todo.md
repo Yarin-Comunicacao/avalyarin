@@ -42,3 +42,8 @@
 - [x] Create LGPD consent terms document (modelo em docs)
 - [x] Research LGPD-compliant data from Facebook, Instagram, Google
 - [x] Create establishment registration form in Admin Panel
+- [x] Replace age range survey question with roulette-style birthdate picker (day/month/year)
+- [x] Enforce 16-year minimum age (born on or before today minus 16 years)
+- [x] Add document upload flow for age verification (RG/CPF photo) when user wants to change birthdate below minimum
+- [x] Refactor MeuUsuario preferences to show only categories and priorities (hide other data)
+- [x] Move birthdate, region, and average spend to MeusDados page (read-only display)

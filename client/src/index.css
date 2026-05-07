@@ -370,3 +370,12 @@
     text-shadow: 0 0 10px oklch(from var(--accent) l c h / 40%), 0 0 30px oklch(from var(--accent) l c h / 15%);
   }
 }
+
+/* Scrollbar hide utility for roulette picker */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
