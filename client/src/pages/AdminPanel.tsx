@@ -332,12 +332,26 @@ function ClaimsTab() {
 function EstablishmentsTab() {
   const { data: categories } = trpc.categories.list.useQuery();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [showForm, setShowForm] = useState(false);
   const { data: estData } = trpc.establishments.byCategory.useQuery(
     { categorySlug: selectedCategory, limit: 50 },
     { enabled: !!selectedCategory }
   );
   const deleteMutation = trpc.admin.deleteEstablishment.useMutation();
+  const createMutation = trpc.admin.createEstablishment.useMutation();
   const utils = trpc.useUtils();
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    categoryId: 0,
+    address: "",
+    neighborhood: "",
+    region: "Pinheiros",
+    phone: "",
+    instagram: "",
+    hours: "",
+  });
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Tem certeza que deseja excluir "${name}"? Esta ação é irreversível.`)) return;
@@ -350,17 +364,174 @@ function EstablishmentsTab() {
     }
   };
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.categoryId) {
+      toast.error("Nome e categoria são obrigatórios");
+      return;
+    }
+    try {
+      const result = await createMutation.mutateAsync({
+        name: formData.name,
+        categoryId: formData.categoryId,
+        address: formData.address || undefined,
+        neighborhood: formData.neighborhood || undefined,
+        region: formData.region || undefined,
+        phone: formData.phone || undefined,
+        instagram: formData.instagram || undefined,
+        hours: formData.hours || undefined,
+      });
+      toast.success(`"${formData.name}" cadastrado com sucesso! (ID: ${result.id})`);
+      setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "Pinheiros", phone: "", instagram: "", hours: "" });
+      setShowForm(false);
+      utils.establishments.byCategory.invalidate();
+      utils.admin.stats.invalidate();
+    } catch {
+      toast.error("Erro ao cadastrar estabelecimento");
+    }
+  };
+
   return (
     <div>
-      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">ESTABELECIMENTOS</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">ESTABELECIMENTOS</h2>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          {showForm ? "Cancelar" : "+ Novo Estabelecimento"}
+        </button>
+      </div>
+
+      {/* Create Form */}
+      {showForm && (
+        <form onSubmit={handleCreate} className="mb-8 p-6 rounded-xl bg-card border border-primary/30 space-y-4">
+          <h3 className="font-display text-lg tracking-wider text-primary mb-2">CADASTRAR ESTABELECIMENTO</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Nome *</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="Ex: Bar do Zé"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Categoria *</label>
+              <select
+                value={formData.categoryId}
+                onChange={(e) => setFormData(prev => ({ ...prev, categoryId: Number(e.target.value) }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                required
+              >
+                <option value={0}>Selecione...</option>
+                {categories?.map(cat => (
+                  <option key={cat.slug} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Endereço</label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="Rua, número"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Bairro</label>
+              <input
+                type="text"
+                value={formData.neighborhood}
+                onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="Ex: Pinheiros"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Região</label>
+              <input
+                type="text"
+                value={formData.region}
+                onChange={(e) => setFormData(prev => ({ ...prev, region: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="Ex: Pinheiros"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Telefone</label>
+              <input
+                type="text"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="(11) 99999-9999"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Instagram</label>
+              <input
+                type="text"
+                value={formData.instagram}
+                onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="@nomedoperfil"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Horário de Funcionamento</label>
+              <input
+                type="text"
+                value={formData.hours}
+                onChange={(e) => setFormData(prev => ({ ...prev, hours: e.target.value }))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                placeholder="Seg-Sex: 18h-02h"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={createMutation.isPending}
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {createMutation.isPending ? "Salvando..." : "Cadastrar Estabelecimento"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="px-6 py-2 border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
       
+      {/* Category filter and list */}
       <div className="mb-4">
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="w-full sm:w-auto px-4 py-2 bg-background border border-border rounded-lg text-foreground"
         >
-          <option value="">Selecione uma categoria</option>
+          <option value="">Selecione uma categoria para listar</option>
           {categories?.map(cat => (
             <option key={cat.slug} value={cat.slug}>
               {cat.name} ({cat.establishmentCount})

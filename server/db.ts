@@ -1113,3 +1113,50 @@ export async function getUserProfile(userId: number) {
     .limit(1);
   return rows[0] || null;
 }
+
+// ─── Create Establishment (Admin) ────────────────────────────────────────────
+
+export async function createEstablishment(data: {
+  name: string;
+  categoryId: number;
+  address?: string;
+  neighborhood?: string;
+  region?: string;
+  lat?: number;
+  lng?: number;
+  phone?: string;
+  instagram?: string;
+  hours?: string;
+  image?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Generate slug from name
+  const slug = data.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    + "-" + Date.now().toString(36);
+
+  const result = await db.insert(establishments).values({
+    slug,
+    name: data.name,
+    categoryId: data.categoryId,
+    address: data.address || null,
+    neighborhood: data.neighborhood || null,
+    region: data.region || null,
+    lat: data.lat || null,
+    lng: data.lng || null,
+    phone: data.phone || null,
+    instagram: data.instagram || null,
+    hours: data.hours || null,
+    image: data.image || null,
+    hasMenu: false,
+    source: "admin",
+  });
+
+  return { id: result[0].insertId, slug };
+}

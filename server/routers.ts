@@ -42,6 +42,8 @@ import {
   generateUsernameSuggestions,
   setUsername,
   getUserProfile,
+  // Create
+  createEstablishment,
 } from "./db";
 
 export const appRouter = router({
@@ -227,6 +229,24 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         return await reviewClaim(input.claimId, ctx.user!.id, input.status, input.adminNotes);
+      }),
+
+    createEstablishment: adminProcedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        categoryId: z.number().min(1),
+        address: z.string().optional(),
+        neighborhood: z.string().optional(),
+        region: z.string().optional(),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+        phone: z.string().optional(),
+        instagram: z.string().optional(),
+        hours: z.string().optional(),
+        image: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await createEstablishment(input);
       }),
   }),
 

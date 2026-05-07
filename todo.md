@@ -41,3 +41,4 @@
 - [x] Connected accounts section (Facebook, Instagram, Google) below username/preferences
 - [x] Create LGPD consent terms document (modelo em docs)
 - [x] Research LGPD-compliant data from Facebook, Instagram, Google
+- [x] Create establishment registration form in Admin Panel
