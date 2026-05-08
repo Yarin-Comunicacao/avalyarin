@@ -169,7 +169,7 @@ export type UserRanking = typeof userRankings.$inferSelect;
 export type InsertUserRanking = typeof userRankings.$inferInsert;
 
 /**
- * Age verification requests table — when a user wants to set birthdate that makes them <16,
+ * Age verification requests table — when a user wants to set birthdate that makes them <18,
  * they must upload an identity document (RG/CPF) for admin review.
  */
 export const ageVerificationRequests = mysqlTable("age_verification_requests", {

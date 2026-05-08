@@ -1,6 +1,6 @@
 // Roulette-style birthdate picker with 3 drum-roll columns (day, month, year)
 // Scroll up = smaller numbers, scroll down = larger numbers
-// Enforces minimum age of 16 years
+// Enforces minimum age (default 18 years) silently — no error messages
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 
@@ -15,7 +15,7 @@ const VISIBLE_ITEMS = 5; // number of visible items in viewport
 interface BirthdateRouletteProps {
   value?: string; // ISO date string (YYYY-MM-DD) or empty
   onChange: (date: string) => void;
-  minAge?: number; // default 16
+  minAge?: number; // default 18
 }
 
 function isLeapYear(year: number): boolean {
@@ -33,9 +33,19 @@ function getMaxBirthdate(minAge: number): Date {
   return new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
 }
 
+function calculateAge(day: number, month: number, year: number): number {
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const monthDiff = today.getMonth() + 1 - month;
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+    age--;
+  }
+  return age;
+}
+
 // Individual drum/roulette column
 interface DrumColumnProps {
-  items: { label: string; value: number }[];
+  items: { label: string; value: number; blank?: boolean }[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   label: string;
@@ -71,21 +81,46 @@ function DrumColumn({ items, selectedIndex, onSelect, label }: DrumColumnProps) 
       const index = Math.round(scrollTop / ITEM_HEIGHT);
       const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
 
+      // Don't allow selecting blank items — snap to nearest non-blank
+      let finalIndex = clampedIndex;
+      if (items[finalIndex]?.blank) {
+        // Search forward (downward in list) for the first non-blank item
+        let found = false;
+        for (let i = finalIndex + 1; i < items.length; i++) {
+          if (!items[i]?.blank) {
+            finalIndex = i;
+            found = true;
+            break;
+          }
+        }
+        // Fallback: search backward
+        if (!found) {
+          for (let i = finalIndex - 1; i >= 0; i--) {
+            if (!items[i]?.blank) {
+              finalIndex = i;
+              break;
+            }
+          }
+        }
+      }
+
       // Snap to nearest item
       containerRef.current.scrollTo({
-        top: clampedIndex * ITEM_HEIGHT,
+        top: finalIndex * ITEM_HEIGHT,
         behavior: "smooth",
       });
 
       isScrollingRef.current = false;
-      if (clampedIndex !== selectedIndex) {
-        onSelect(clampedIndex);
+      if (finalIndex !== selectedIndex) {
+        onSelect(finalIndex);
       }
     }, 80);
-  }, [items.length, selectedIndex, onSelect]);
+  }, [items, selectedIndex, onSelect]);
 
   // Handle touch/click on specific item
   const handleItemClick = (index: number) => {
+    // Don't allow clicking blank items
+    if (items[index]?.blank) return;
     if (containerRef.current) {
       containerRef.current.scrollTo({
         top: index * ITEM_HEIGHT,
@@ -140,6 +175,20 @@ function DrumColumn({ items, selectedIndex, onSelect, label }: DrumColumnProps) 
           <div style={{ height: paddingItems * ITEM_HEIGHT }} />
           {items.map((item, idx) => {
             const isSelected = idx === selectedIndex;
+            if (item.blank) {
+              return (
+                <div
+                  key={`blank-${idx}`}
+                  className="flex items-center justify-center select-none"
+                  style={{
+                    height: ITEM_HEIGHT,
+                    scrollSnapAlign: "start",
+                  }}
+                >
+                  {/* Invisible blank space */}
+                </div>
+              );
+            }
             return (
               <div
                 key={`${item.value}-${idx}`}
@@ -166,7 +215,7 @@ function DrumColumn({ items, selectedIndex, onSelect, label }: DrumColumnProps) 
   );
 }
 
-export default function BirthdateRoulette({ value, onChange, minAge = 16 }: BirthdateRouletteProps) {
+export default function BirthdateRoulette({ value, onChange, minAge = 18 }: BirthdateRouletteProps) {
   const maxDate = useMemo(() => getMaxBirthdate(minAge), [minAge]);
   const minYear = 1930;
   const maxYear = maxDate.getFullYear();
@@ -183,16 +232,20 @@ export default function BirthdateRoulette({ value, onChange, minAge = 16 }: Birt
   const [selectedDay, setSelectedDay] = useState(initialDate.day);
   const [selectedMonth, setSelectedMonth] = useState(initialDate.month);
   const [selectedYear, setSelectedYear] = useState(initialDate.year);
-  const [error, setError] = useState<string | null>(null);
 
   // Generate year items (descending — most recent first for easier scrolling)
+  // Add 2 invisible blank items BEFORE the minimum year (which is the first/most recent)
   const yearItems = useMemo(() => {
-    const items: { label: string; value: number }[] = [];
+    const items: { label: string; value: number; blank?: boolean }[] = [];
+    // 2 blank items at the top (these appear before the most recent valid year when scrolling down)
+    items.push({ label: "", value: maxYear + 2, blank: true });
+    items.push({ label: "", value: maxYear + 1, blank: true });
+    // Valid years from most recent to oldest
     for (let y = maxYear; y >= minYear; y--) {
       items.push({ label: String(y), value: y });
     }
     return items;
-  }, [maxYear]);
+  }, [maxYear, minYear]);
 
   // Month items
   const monthItems = useMemo(() => {
@@ -217,23 +270,25 @@ export default function BirthdateRoulette({ value, onChange, minAge = 16 }: Birt
     }
   }, [selectedMonth, selectedYear, selectedDay]);
 
-  // Validate and emit date
+  // Validate and emit date — silently clamp to max allowed date
   useEffect(() => {
-    const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
     const selectedDate = new Date(selectedYear, selectedMonth - 1, selectedDay);
 
-    if (selectedDate > maxDate) {
-      setError(`Você precisa ter pelo menos ${minAge} anos para se cadastrar.`);
-    } else {
-      setError(null);
+    if (selectedDate <= maxDate) {
+      const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`;
       onChange(dateStr);
     }
-  }, [selectedDay, selectedMonth, selectedYear, maxDate, minAge, onChange]);
+    // If date is beyond maxDate, simply don't emit — the roulette will snap back
+  }, [selectedDay, selectedMonth, selectedYear, maxDate, onChange]);
 
-  // Find indices
+  // Find indices (offset by 2 for the blank items in year column)
   const yearIndex = yearItems.findIndex(y => y.value === selectedYear);
   const monthIndex = selectedMonth - 1;
   const dayIndex = selectedDay - 1;
+
+  // Calculate age from selected date
+  const age = calculateAge(selectedDay, selectedMonth, selectedYear);
+  const isValidDate = new Date(selectedYear, selectedMonth - 1, selectedDay) <= maxDate;
 
   return (
     <div className="w-full">
@@ -252,26 +307,28 @@ export default function BirthdateRoulette({ value, onChange, minAge = 16 }: Birt
         />
         <DrumColumn
           items={yearItems}
-          selectedIndex={yearIndex >= 0 ? yearIndex : 0}
-          onSelect={(idx) => setSelectedYear(yearItems[idx]?.value || maxYear)}
+          selectedIndex={yearIndex >= 0 ? yearIndex : 2}
+          onSelect={(idx) => {
+            const item = yearItems[idx];
+            if (item && !item.blank) {
+              setSelectedYear(item.value);
+            }
+          }}
           label="Ano"
         />
       </div>
 
-      {/* Selected date display */}
+      {/* Selected date display with calculated age */}
       <div className="mt-4 text-center">
         <motion.p
           key={`${selectedDay}-${selectedMonth}-${selectedYear}`}
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`text-sm font-medium ${error ? "text-red-400" : "text-foreground/80"}`}
+          className="text-sm font-medium text-foreground/80"
         >
-          {error ? (
-            error
-          ) : (
-            <>
-              {String(selectedDay).padStart(2, "0")} de {MONTHS[selectedMonth - 1]} de {selectedYear}
-            </>
+          {String(selectedDay).padStart(2, "0")} de {MONTHS[selectedMonth - 1]} de {selectedYear}
+          {isValidDate && age >= minAge && (
+            <span className="text-muted-foreground ml-2">({age} anos)</span>
           )}
         </motion.p>
       </div>

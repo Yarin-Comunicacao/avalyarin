@@ -47,3 +47,10 @@
 - [x] Add document upload flow for age verification (RG/CPF photo) when user wants to change birthdate below minimum
 - [x] Refactor MeuUsuario preferences to show only categories and priorities (hide other data)
 - [x] Move birthdate, region, and average spend to MeusDados page (read-only display)
+- [x] Change minimum age from 16 to 18 years (max date: 07/05/2008)
+- [x] Add age gate screen (checkbox "Tenho mais de 18 anos") as first screen before onboarding
+- [x] Add AI-generated images (day restaurant + night bar) flanking the age gate checkbox
+- [x] BirthdateRoulette: add 2 invisible blank spaces before minimum year, remove error message
+- [x] BirthdateRoulette: show calculated age in parentheses next to selected date
+- [x] Remove "mínimo 16 anos" references from survey description
+- [x] Roulette should scroll to the selected date position on load

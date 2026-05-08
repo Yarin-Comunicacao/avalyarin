@@ -39,6 +39,7 @@ import BusinessPanel from "./pages/BusinessPanel";
 import MeuRanking from "./pages/MeuRanking";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import AgeGate from "./components/AgeGate";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -116,6 +117,11 @@ function Router() {
 // ============================================================
 
 function App() {
+  // Age Gate
+  const [ageConfirmed, setAgeConfirmed] = useState<boolean>(() => {
+    return localStorage.getItem("avalyarin_age_confirmed") === "true";
+  });
+
   // Phase 1 — Onboarding
   const [surveyCompleted, setSurveyCompleted] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_survey_completed") === "true";
@@ -153,6 +159,20 @@ function App() {
     localStorage.setItem("avalyarin_survey_phase3_answers", JSON.stringify(answers));
     setShowPhase3(false);
   }, []);
+
+  // Show age gate first
+  if (!ageConfirmed) {
+    return (
+      <ErrorBoundary>
+        <ThemeProvider defaultTheme="escuro">
+          <AgeGate onConfirm={() => {
+            localStorage.setItem("avalyarin_age_confirmed", "true");
+            setAgeConfirmed(true);
+          }} />
+        </ThemeProvider>
+      </ErrorBoundary>
+    );
+  }
 
   // Show onboarding survey if not completed yet
   if (!surveyCompleted) {

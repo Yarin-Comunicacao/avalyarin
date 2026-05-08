@@ -105,13 +105,13 @@ export default function MeusDados() {
   const displayRegion = REGION_LABELS[region] || region || "—";
   const displaySpend = SPEND_LABELS[avgSpend] || avgSpend || "—";
 
-  // Check if birthdate change requires verification (under 16)
+  // Check if birthdate change requires verification (under 18)
   const handleBirthdateChange = useCallback((date: string) => {
     setNewBirthdate(date);
     const [y, m, d] = date.split("-").map(Number);
     const birth = new Date(y, m - 1, d);
     const today = new Date();
-    const minDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+    const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     setBirthdateValid(birth <= minDate);
   }, []);
 
@@ -231,7 +231,7 @@ export default function MeusDados() {
                   <BirthdateRoulette
                     value={newBirthdate || birthdate}
                     onChange={handleBirthdateChange}
-                    minAge={16}
+                    minAge={18}
                   />
 
                   {newBirthdate && !birthdateValid && (
@@ -240,7 +240,7 @@ export default function MeusDados() {
                       <div>
                         <p className="text-xs text-yellow-400 font-medium">Verificação necessária</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          Para definir uma data que indica menos de 16 anos, é necessário enviar um documento
+                          Para definir uma data que indica menos de 18 anos, é necessário enviar um documento
                           (RG ou CPF) comprovando a data de nascimento. O documento será analisado por um administrador.
                         </p>
                       </div>

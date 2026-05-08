@@ -22,7 +22,7 @@ const QUESTIONS = [
     id: "birthdate",
     icon: <Cake className="w-6 h-6" />,
     title: "DATA DE NASCIMENTO",
-    subtitle: "Selecione sua data de nascimento (mínimo 16 anos)",
+    subtitle: "Selecione sua data de nascimento",
     type: "birthdate" as const,
   },
   {
@@ -177,11 +177,11 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
 
   const handleBirthdateChange = useCallback((date: string) => {
     setAnswers(prev => ({ ...prev, birthdate: date }));
-    // Validate: check if date makes user at least 16
+    // Validate: check if date makes user at least 18
     const [y, m, d] = date.split("-").map(Number);
     const birthDate = new Date(y, m - 1, d);
     const today = new Date();
-    const minDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+    const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
     setBirthdateValid(birthDate <= minDate);
   }, []);
 
@@ -336,7 +336,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                 <BirthdateRoulette
                   value={answers.birthdate as string | undefined}
                   onChange={handleBirthdateChange}
-                  minAge={16}
+                  minAge={18}
                 />
               ) : (
                 <>
