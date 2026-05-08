@@ -2,7 +2,8 @@
 // Scroll up = smaller numbers, scroll down = larger numbers
 // Enforces minimum age (default 18 years) silently — no error messages
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2 } from "lucide-react";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -336,19 +337,33 @@ export default function BirthdateRoulette({ value, onChange, minAge = 18 }: Birt
         />
       </div>
 
-      {/* Selected date display with calculated age */}
+      {/* Selected date display with calculated age and validation icon */}
       <div className="mt-4 text-center">
-        <motion.p
+        <motion.div
           key={`${selectedDay}-${selectedMonth}-${selectedYear}`}
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm font-medium text-foreground/80"
+          className="flex items-center justify-center gap-2"
         >
-          {String(selectedDay).padStart(2, "0")} de {MONTHS[selectedMonth - 1]} de {selectedYear}
-          {isValidDate && age >= minAge && (
-            <span className="text-muted-foreground ml-2">({age} anos)</span>
-          )}
-        </motion.p>
+          <p className="text-sm font-medium text-foreground/80">
+            {String(selectedDay).padStart(2, "0")} de {MONTHS[selectedMonth - 1]} de {selectedYear}
+            {isValidDate && age >= minAge && (
+              <span className="text-muted-foreground ml-2">({age} anos)</span>
+            )}
+          </p>
+          <AnimatePresence>
+            {isValidDate && age >= minAge && (
+              <motion.span
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );
