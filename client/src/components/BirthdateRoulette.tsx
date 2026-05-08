@@ -247,15 +247,23 @@ export default function BirthdateRoulette({ value, onChange, minAge = 18 }: Birt
     return items;
   }, [maxYear, minYear]);
 
-  // Month items
+  // Month items — 2 blank items at the top before Janeiro
   const monthItems = useMemo(() => {
-    return MONTHS.map((name, idx) => ({ label: name, value: idx + 1 }));
+    const items: { label: string; value: number; blank?: boolean }[] = [];
+    items.push({ label: "", value: 0, blank: true });
+    items.push({ label: "", value: 0, blank: true });
+    MONTHS.forEach((name, idx) => {
+      items.push({ label: name, value: idx + 1 });
+    });
+    return items;
   }, []);
 
-  // Day items (depends on selected month and year)
+  // Day items (depends on selected month and year) — 2 blank items at the top before 01
   const dayItems = useMemo(() => {
     const daysInMonth = getDaysInMonth(selectedMonth, selectedYear);
-    const items: { label: string; value: number }[] = [];
+    const items: { label: string; value: number; blank?: boolean }[] = [];
+    items.push({ label: "", value: 0, blank: true });
+    items.push({ label: "", value: 0, blank: true });
     for (let d = 1; d <= daysInMonth; d++) {
       items.push({ label: String(d).padStart(2, "0"), value: d });
     }
@@ -281,10 +289,10 @@ export default function BirthdateRoulette({ value, onChange, minAge = 18 }: Birt
     // If date is beyond maxDate, simply don't emit — the roulette will snap back
   }, [selectedDay, selectedMonth, selectedYear, maxDate, onChange]);
 
-  // Find indices (offset by 2 for the blank items in year column)
+  // Find indices (offset by 2 for the blank items in all columns)
   const yearIndex = yearItems.findIndex(y => y.value === selectedYear);
-  const monthIndex = selectedMonth - 1;
-  const dayIndex = selectedDay - 1;
+  const monthIndex = monthItems.findIndex(m => m.value === selectedMonth);
+  const dayIndex = dayItems.findIndex(d => d.value === selectedDay);
 
   // Calculate age from selected date
   const age = calculateAge(selectedDay, selectedMonth, selectedYear);
@@ -295,14 +303,24 @@ export default function BirthdateRoulette({ value, onChange, minAge = 18 }: Birt
       <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
         <DrumColumn
           items={dayItems}
-          selectedIndex={dayIndex >= 0 ? dayIndex : 0}
-          onSelect={(idx) => setSelectedDay(dayItems[idx]?.value || 1)}
+          selectedIndex={dayIndex >= 0 ? dayIndex : 2}
+          onSelect={(idx) => {
+            const item = dayItems[idx];
+            if (item && !item.blank) {
+              setSelectedDay(item.value);
+            }
+          }}
           label="Dia"
         />
         <DrumColumn
           items={monthItems}
-          selectedIndex={monthIndex >= 0 ? monthIndex : 0}
-          onSelect={(idx) => setSelectedMonth(monthItems[idx]?.value || 1)}
+          selectedIndex={monthIndex >= 0 ? monthIndex : 2}
+          onSelect={(idx) => {
+            const item = monthItems[idx];
+            if (item && !item.blank) {
+              setSelectedMonth(item.value);
+            }
+          }}
           label="Mês"
         />
         <DrumColumn

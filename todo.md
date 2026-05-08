@@ -54,3 +54,5 @@
 - [x] BirthdateRoulette: show calculated age in parentheses next to selected date
 - [x] Remove "mínimo 16 anos" references from survey description
 - [x] Roulette should scroll to the selected date position on load
+- [x] Add 2 blank spaces before day 01 and before Janeiro in BirthdateRoulette
+- [ ] Create presentation comparing user data capture flow with Manus vs without Manus
