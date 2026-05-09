@@ -89,3 +89,5 @@
 - [x] Remove "Região" from required fields in establishment creation (not used in existing data)
 - [x] Add proper placeholders with format examples in establishment creation form
 - [x] Add phone mask (11) 99999-9999 in establishment creation form
+- [x] Remove profile icon from left side of navbar
+- [x] Generate cover photos for all 17 categories on home page

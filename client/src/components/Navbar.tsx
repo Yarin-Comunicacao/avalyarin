@@ -1,8 +1,8 @@
 // Design: AvaLyarin — Navbar with Y logo, search bar, and hamburger menu trigger on left
 import { Link, useLocation } from "wouter";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { MenuTrigger } from "./AppMenu";
-import { useAuth } from "@/_core/hooks/useAuth";
+
 import SearchBar from "./SearchBar";
 
 interface NavbarProps {
@@ -13,7 +13,7 @@ interface NavbarProps {
 export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
   const [location] = useLocation();
   const isHome = location === "/";
-  const { isAuthenticated } = useAuth();
+
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
@@ -51,13 +51,6 @@ export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {isAuthenticated && (
-            <Link href="/conta/dados">
-              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors">
-                <User className="w-4 h-4 text-primary" />
-              </div>
-            </Link>
-          )}
         </div>
       </div>
 

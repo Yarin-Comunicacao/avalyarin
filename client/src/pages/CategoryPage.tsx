@@ -6,6 +6,7 @@ import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Star, ArrowRight, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { getCategoryCover } from "@/lib/categoryCoverImages";
 import NeighborhoodFilter from "@/components/NeighborhoodFilter";
 
 export default function CategoryPage() {
@@ -53,7 +54,7 @@ export default function CategoryPage() {
       <section className="relative pt-24 pb-12 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/pub-category-JGbH3yHAo8aiApZkjuXD4r.webp"
+            src={getCategoryCover(category.slug)}
             alt={category.name}
             className="w-full h-full object-cover"
           />

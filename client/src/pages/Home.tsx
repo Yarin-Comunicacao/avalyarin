@@ -12,6 +12,7 @@ import {
   Wine, CupSoda, Croissant, Music, Lock, ArrowRight, Star, ClipboardCheck, BarChart3, Beer, Leaf, Globe, Pizza,
   Utensils, PartyPopper, CakeSlice, Heart
 } from "lucide-react";
+import { getCategoryCover } from "@/lib/categoryCoverImages";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -234,17 +235,22 @@ export default function Home() {
                         >
                           {cat.active ? (
                             <Link href={`/categoria/${cat.slug}`}>
-                              <div className="group relative p-5 rounded-xl bg-card border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber">
-                                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-all">
-                                  <Icon className="w-5 h-5 text-primary" />
-                                </div>
-                                <h4 className="font-display text-lg tracking-wider text-foreground group-hover:text-primary transition-colors">
-                                  {cat.name}
-                                </h4>
-                                <p className="text-xs text-muted-foreground mt-1">{cat.description}</p>
-                                <div className="flex items-center gap-1 mt-3 text-xs text-primary font-medium">
-                                  <span>{count.toLocaleString("pt-BR")} {count === 1 ? "estabelecimento" : "estabelecimentos"}</span>
-                                  <ArrowRight className="w-3 h-3" />
+                              <div className="group relative rounded-xl overflow-hidden border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber h-48">
+                                <img
+                                  src={getCategoryCover(cat.slug)}
+                                  alt={cat.name}
+                                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                                <div className="relative h-full flex flex-col justify-end p-4">
+                                  <h4 className="font-display text-lg tracking-wider text-white group-hover:text-primary transition-colors">
+                                    {cat.name}
+                                  </h4>
+                                  <p className="text-xs text-white/70 mt-1">{cat.description}</p>
+                                  <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium">
+                                    <span>{count.toLocaleString("pt-BR")} {count === 1 ? "estabelecimento" : "estabelecimentos"}</span>
+                                    <ArrowRight className="w-3 h-3" />
+                                  </div>
                                 </div>
                               </div>
                             </Link>
