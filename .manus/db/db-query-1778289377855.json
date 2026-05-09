@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE id IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE id IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053);",
+  "rows": [
+    {
+      "id": "7729",
+      "name": "Club Lotus ZN",
+      "neighborhood": "Santana"
+    },
+    {
+      "id": "2601",
+      "name": "Tata Restaurante E Lanchonete",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "4280",
+      "name": "Restaurante Quinzão da Sé",
+      "neighborhood": "Sé"
+    },
+    {
+      "id": "7019",
+      "name": "Ikkousha Tonkotsu Ramen",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "1194",
+      "name": "La Coppa Neotrattoria",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1354",
+      "name": "Tradi Pinheiros",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6119",
+      "name": "Bolos Delivery",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "7053",
+      "name": "Pizzaria Arte da Pizza",
+      "neighborhood": "Liberdade"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n7729\tClub Lotus ZN\tSantana\n2601\tTata Restaurante E Lanchonete\tBela Vista\n4280\tRestaurante Quinzão da Sé\tSé\n7019\tIkkousha Tonkotsu Ramen\tLiberdade\n1194\tLa Coppa Neotrattoria\tPerdizes\n1354\tTradi Pinheiros\tPinheiros\n6119\tBolos Delivery\tJardim Paulista\n7053\tPizzaria Arte da Pizza\tLiberdade\n",
+  "stderr": "",
+  "execution_time_ms": 1116
+}

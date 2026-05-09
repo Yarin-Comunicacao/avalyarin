@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments \nSET categoryId = 9 \nWHERE categoryId NOT IN (9, 11) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%padaria%' OR name LIKE '%Padaria%'\n    OR name LIKE '%panificadora%' OR name LIKE '%Panificadora%'\n    OR name LIKE '%bakery%' OR name LIKE '%Bakery%'\n    OR name LIKE '%boulangerie%' OR name LIKE '%Boulangerie%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments \nSET categoryId = 9 \nWHERE categoryId NOT IN (9, 11) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%padaria%' OR name LIKE '%Padaria%'\n    OR name LIKE '%panificadora%' OR name LIKE '%Panificadora%'\n    OR name LIKE '%bakery%' OR name LIKE '%Bakery%'\n    OR name LIKE '%boulangerie%' OR name LIKE '%Boulangerie%');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 291
+}

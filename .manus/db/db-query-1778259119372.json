@@ -1,0 +1,59 @@
+{
+  "query": "SELECT e.id, e.name, e.neighborhood, e.instagram, e.image\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nAND e.id NOT IN (1923, 1720, 2094, 7712, 2086, 2048, 2481, 3080, 3018, 7715, 5164)\nORDER BY e.neighborhood, e.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.neighborhood, e.instagram, e.image\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nAND e.id NOT IN (1923, 1720, 2094, 7712, 2086, 2048, 2481, 3080, 3018, 7715, 5164)\nORDER BY e.neighborhood, e.name;",
+  "rows": [
+    {
+      "id": "7048",
+      "name": "Glicério Gastrobar - Restaurante e Bar com Música ao Vivo",
+      "neighborhood": "Liberdade",
+      "instagram": "NULL",
+      "image": "NULL"
+    },
+    {
+      "id": "7713",
+      "name": "Melts Gastrobar",
+      "neighborhood": "Liberdade",
+      "instagram": "@meltsbrasil",
+      "image": "https://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg"
+    },
+    {
+      "id": "5257",
+      "name": "Buteco Seu Rufino - Moema",
+      "neighborhood": "Moema",
+      "instagram": "NULL",
+      "image": "NULL"
+    },
+    {
+      "id": "5439",
+      "name": "Cão Véio - Unidade Vila Mariana",
+      "neighborhood": "Moema",
+      "instagram": "NULL",
+      "image": "NULL"
+    },
+    {
+      "id": "5499",
+      "name": "Marú Gastrobar",
+      "neighborhood": "Moema",
+      "instagram": "@maru.gastrobar",
+      "image": "/home/ubuntu/Downloads/maru_gastrobar_foto.webp"
+    },
+    {
+      "id": "7714",
+      "name": "Ministro Gastrobar",
+      "neighborhood": "Perdizes",
+      "instagram": "@ministrogastrobar",
+      "image": "/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg"
+    },
+    {
+      "id": "1177",
+      "name": "Oink Gastro Bar",
+      "neighborhood": "Perdizes",
+      "instagram": "@oink_gastrobar",
+      "image": "https://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tinstagram\timage\n7048\tGlicério Gastrobar - Restaurante e Bar com Música ao Vivo\tLiberdade\tNULL\tNULL\n7713\tMelts Gastrobar\tLiberdade\t@meltsbrasil\thttps://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg\n5257\tButeco Seu Rufino - Moema\tMoema\tNULL\tNULL\n5439\tCão Véio - Unidade Vila Mariana\tMoema\tNULL\tNULL\n5499\tMarú Gastrobar\tMoema\t@maru.gastrobar\t/home/ubuntu/Downloads/maru_gastrobar_foto.webp\n7714\tMinistro Gastrobar\tPerdizes\t@ministrogastrobar\t/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg\n1177\tOink Gastro Bar\tPerdizes\t@oink_gastrobar\thttps://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

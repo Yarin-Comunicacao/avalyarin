@@ -1,0 +1,95 @@
+{
+  "query": "SELECT c.name as category, \n  SUM(CASE WHEN e.source = 'original' THEN 1 ELSE 0 END) as original,\n  SUM(CASE WHEN e.source = 'spreadsheet' THEN 1 ELSE 0 END) as spreadsheet\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.name \nORDER BY spreadsheet DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name as category, \n  SUM(CASE WHEN e.source = 'original' THEN 1 ELSE 0 END) as original,\n  SUM(CASE WHEN e.source = 'spreadsheet' THEN 1 ELSE 0 END) as spreadsheet\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.name \nORDER BY spreadsheet DESC;",
+  "rows": [
+    {
+      "category": "Cozinha Brasileira",
+      "original": "15",
+      "spreadsheet": "3057"
+    },
+    {
+      "category": "Bar & Lanchonete",
+      "original": "16",
+      "spreadsheet": "1109"
+    },
+    {
+      "category": "Cafeteria",
+      "original": "16",
+      "spreadsheet": "812"
+    },
+    {
+      "category": "Padaria",
+      "original": "16",
+      "spreadsheet": "629"
+    },
+    {
+      "category": "Boteco Tradicional",
+      "original": "18",
+      "spreadsheet": "485"
+    },
+    {
+      "category": "Cozinha Internacional",
+      "original": "26",
+      "spreadsheet": "424"
+    },
+    {
+      "category": "Pizzaria",
+      "original": "15",
+      "spreadsheet": "338"
+    },
+    {
+      "category": "Hamburgueria",
+      "original": "6",
+      "spreadsheet": "186"
+    },
+    {
+      "category": "Balada",
+      "original": "11",
+      "spreadsheet": "180"
+    },
+    {
+      "category": "Saudável",
+      "original": "10",
+      "spreadsheet": "129"
+    },
+    {
+      "category": "Confeitaria",
+      "original": "11",
+      "spreadsheet": "101"
+    },
+    {
+      "category": "Autoral / Contemporâneo",
+      "original": "6",
+      "spreadsheet": "52"
+    },
+    {
+      "category": "Cervejaria",
+      "original": "10",
+      "spreadsheet": "13"
+    },
+    {
+      "category": "Pub",
+      "original": "10",
+      "spreadsheet": "12"
+    },
+    {
+      "category": "Boteco Moderno",
+      "original": "7",
+      "spreadsheet": "8"
+    },
+    {
+      "category": "Bar Musical",
+      "original": "9",
+      "spreadsheet": "5"
+    },
+    {
+      "category": "Coquetelaria",
+      "original": "3",
+      "spreadsheet": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\toriginal\tspreadsheet\nCozinha Brasileira\t15\t3057\nBar & Lanchonete\t16\t1109\nCafeteria\t16\t812\nPadaria\t16\t629\nBoteco Tradicional\t18\t485\nCozinha Internacional\t26\t424\nPizzaria\t15\t338\nHamburgueria\t6\t186\nBalada\t11\t180\nSaudável\t10\t129\nConfeitaria\t11\t101\nAutoral / Contemporâneo\t6\t52\nCervejaria\t10\t13\nPub\t10\t12\nBoteco Moderno\t7\t8\nBar Musical\t9\t5\nCoquetelaria\t3\t1\n",
+  "stderr": "",
+  "execution_time_ms": 71
+}

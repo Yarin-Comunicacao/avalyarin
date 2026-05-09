@@ -1,0 +1,34 @@
+{
+  "query": "SELECT e.id, e.name, e.address, e.neighborhood, c.name as category, e.rating\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.id IN (4674, 5083, 5579)\nORDER BY e.id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.address, e.neighborhood, c.name as category, e.rating\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.id IN (4674, 5083, 5579)\nORDER BY e.id;",
+  "rows": [
+    {
+      "id": "4674",
+      "name": "Vila Verde",
+      "address": "Avenida Fagundes Filho, 261 - Vila Monte Alegre, São Paulo",
+      "neighborhood": "Cursino",
+      "category": "Cafeteria",
+      "rating": "4.5"
+    },
+    {
+      "id": "5083",
+      "name": "Vitoria Da Conquista",
+      "address": "Rua Dois de Julho, 15 - Ipiranga, São Paulo",
+      "neighborhood": "Ipiranga",
+      "category": "Cozinha Brasileira",
+      "rating": "5"
+    },
+    {
+      "id": "5579",
+      "name": "AMADEU",
+      "address": "Avenida Rouxinol, 377 - Indianópolis, São Paulo",
+      "neighborhood": "Moema",
+      "category": "Cozinha Brasileira",
+      "rating": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tcategory\trating\n4674\tVila Verde\tAvenida Fagundes Filho, 261 - Vila Monte Alegre, São Paulo\tCursino\tCafeteria\t4.5\n5083\tVitoria Da Conquista\tRua Dois de Julho, 15 - Ipiranga, São Paulo\tIpiranga\tCozinha Brasileira\t5\n5579\tAMADEU\tAvenida Rouxinol, 377 - Indianópolis, São Paulo\tMoema\tCozinha Brasileira\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 366
+}

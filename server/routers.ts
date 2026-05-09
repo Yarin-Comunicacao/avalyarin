@@ -44,6 +44,9 @@ import {
   getUserProfile,
   // Create
   createEstablishment,
+  // Code Backup
+  generateCodeBackup,
+  getCodeBackups,
   // Survey & Age Verification
   saveSurveyData,
   getUserSurveyData,
@@ -242,18 +245,28 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(2).max(255),
         categoryId: z.number().min(1),
-        address: z.string().optional(),
-        neighborhood: z.string().optional(),
-        region: z.string().optional(),
+        address: z.string().min(5, "Endereço é obrigatório (mín. 5 caracteres)"),
+        neighborhood: z.string().min(2, "Bairro é obrigatório"),
+        region: z.string().min(2, "Região é obrigatória"),
         lat: z.number().optional(),
         lng: z.number().optional(),
-        phone: z.string().optional(),
-        instagram: z.string().optional(),
-        hours: z.string().optional(),
+        phone: z.string().min(8, "Telefone é obrigatório (mín. 8 caracteres)"),
+        instagram: z.string().min(2, "Instagram é obrigatório"),
+        hours: z.string().min(3, "Horário de funcionamento é obrigatório"),
         image: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         return await createEstablishment(input);
+      }),
+
+    generateCodeBackup: adminProcedure
+      .mutation(async () => {
+        return await generateCodeBackup();
+      }),
+
+    getCodeBackups: adminProcedure
+      .query(async () => {
+        return await getCodeBackups();
       }),
   }),
 

@@ -1,0 +1,30 @@
+{
+  "query": "SELECT e.name, c.name as current_category, e.neighborhood\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%pub%' OR e.name LIKE '%Pub%' OR e.name LIKE '%PUB%') \n  AND c.id != 6\nLIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name, c.name as current_category, e.neighborhood\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%pub%' OR e.name LIKE '%Pub%' OR e.name LIKE '%PUB%') \n  AND c.id != 6\nLIMIT 15;",
+  "rows": [
+    {
+      "name": "Sushi Yakissoba Republica",
+      "current_category": "Cozinha Internacional",
+      "neighborhood": "República"
+    },
+    {
+      "name": "CoffeeTaste - Republica",
+      "current_category": "Cafeteria",
+      "neighborhood": "República"
+    },
+    {
+      "name": "Lugar_republica",
+      "current_category": "Cafeteria",
+      "neighborhood": "República"
+    },
+    {
+      "name": "PubLoprogresso",
+      "current_category": "Bar & Lanchonete",
+      "neighborhood": "Vila Mariana"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tcurrent_category\tneighborhood\nSushi Yakissoba Republica\tCozinha Internacional\tRepública\nCoffeeTaste - Republica\tCafeteria\tRepública\nLugar_republica\tCafeteria\tRepública\nPubLoprogresso\tBar & Lanchonete\tVila Mariana\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

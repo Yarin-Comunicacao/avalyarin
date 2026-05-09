@@ -1,0 +1,78 @@
+{
+  "query": "SELECT c.name, COUNT(e.id) as total FROM establishments e JOIN categories c ON e.categoryId = c.id GROUP BY c.name ORDER BY total DESC",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name, COUNT(e.id) as total FROM establishments e JOIN categories c ON e.categoryId = c.id GROUP BY c.name ORDER BY total DESC",
+  "rows": [
+    {
+      "name": "Bar & Lanchonete",
+      "total": "1654"
+    },
+    {
+      "name": "Cozinha Brasileira",
+      "total": "1514"
+    },
+    {
+      "name": "Cozinha Internacional",
+      "total": "1013"
+    },
+    {
+      "name": "Cafeteria",
+      "total": "830"
+    },
+    {
+      "name": "Padaria",
+      "total": "629"
+    },
+    {
+      "name": "Boteco Tradicional",
+      "total": "518"
+    },
+    {
+      "name": "Pizzaria",
+      "total": "399"
+    },
+    {
+      "name": "Hamburgueria",
+      "total": "326"
+    },
+    {
+      "name": "Saudável",
+      "total": "254"
+    },
+    {
+      "name": "Balada",
+      "total": "212"
+    },
+    {
+      "name": "Confeitaria",
+      "total": "173"
+    },
+    {
+      "name": "Autoral / Contemporâneo",
+      "total": "75"
+    },
+    {
+      "name": "Cervejaria",
+      "total": "51"
+    },
+    {
+      "name": "Bar Musical",
+      "total": "32"
+    },
+    {
+      "name": "Coquetelaria",
+      "total": "26"
+    },
+    {
+      "name": "Pub",
+      "total": "22"
+    },
+    {
+      "name": "Boteco Moderno",
+      "total": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\ttotal\nBar & Lanchonete\t1654\nCozinha Brasileira\t1514\nCozinha Internacional\t1013\nCafeteria\t830\nPadaria\t629\nBoteco Tradicional\t518\nPizzaria\t399\nHamburgueria\t326\nSaudável\t254\nBalada\t212\nConfeitaria\t173\nAutoral / Contemporâneo\t75\nCervejaria\t51\nBar Musical\t32\nCoquetelaria\t26\nPub\t22\nBoteco Moderno\t18\n",
+  "stderr": "",
+  "execution_time_ms": 359
+}

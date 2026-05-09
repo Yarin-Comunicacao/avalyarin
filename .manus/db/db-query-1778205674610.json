@@ -1,0 +1,40 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "age_verification_requests"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "business_claims"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "categories"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "establishments"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "menu_items"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "rating_items"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "ratings"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "user_rankings"
+    },
+    {
+      "Tables_in_WG3U3sVg2ZrW6m8T99FRdE": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_WG3U3sVg2ZrW6m8T99FRdE\n__drizzle_migrations\nage_verification_requests\nbusiness_claims\ncategories\nestablishments\nmenu_items\nrating_items\nratings\nuser_rankings\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 701
+}

@@ -1,0 +1,18 @@
+{
+  "query": "SELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN address LIKE '%Brasil%' OR address LIKE '%, SP,%' THEN 1 ELSE 0 END) as full_address,\n  SUM(CASE WHEN phone IS NOT NULL THEN 1 ELSE 0 END) as has_phone,\n  SUM(CASE WHEN hours IS NOT NULL THEN 1 ELSE 0 END) as has_hours,\n  SUM(CASE WHEN rating IS NOT NULL THEN 1 ELSE 0 END) as has_rating,\n  SUM(CASE WHEN lat IS NOT NULL THEN 1 ELSE 0 END) as has_coords\nFROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN address LIKE '%Brasil%' OR address LIKE '%, SP,%' THEN 1 ELSE 0 END) as full_address,\n  SUM(CASE WHEN phone IS NOT NULL THEN 1 ELSE 0 END) as has_phone,\n  SUM(CASE WHEN hours IS NOT NULL THEN 1 ELSE 0 END) as has_hours,\n  SUM(CASE WHEN rating IS NOT NULL THEN 1 ELSE 0 END) as has_rating,\n  SUM(CASE WHEN lat IS NOT NULL THEN 1 ELSE 0 END) as has_coords\nFROM establishments;",
+  "rows": [
+    {
+      "total": "7738",
+      "full_address": "7722",
+      "has_phone": "6264",
+      "has_hours": "6967",
+      "has_rating": "7149",
+      "has_coords": "7738"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tfull_address\thas_phone\thas_hours\thas_rating\thas_coords\n7738\t7722\t6264\t6967\t7149\t7738\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

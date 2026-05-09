@@ -1,0 +1,163 @@
+{
+  "query": "SELECT \n  c.name as categoria,\n  COUNT(*) as total,\n  SUM(CASE WHEN e.phone IS NOT NULL AND e.phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN e.hours IS NOT NULL AND e.hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN e.rating IS NOT NULL THEN 1 ELSE 0 END) as com_rating,\n  SUM(CASE WHEN e.lat IS NOT NULL THEN 1 ELSE 0 END) as com_coordenadas,\n  SUM(CASE WHEN e.instagram IS NOT NULL AND e.instagram != '' THEN 1 ELSE 0 END) as com_instagram\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nGROUP BY c.name\nORDER BY COUNT(*) ASC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  c.name as categoria,\n  COUNT(*) as total,\n  SUM(CASE WHEN e.phone IS NOT NULL AND e.phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN e.hours IS NOT NULL AND e.hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN e.rating IS NOT NULL THEN 1 ELSE 0 END) as com_rating,\n  SUM(CASE WHEN e.lat IS NOT NULL THEN 1 ELSE 0 END) as com_coordenadas,\n  SUM(CASE WHEN e.instagram IS NOT NULL AND e.instagram != '' THEN 1 ELSE 0 END) as com_instagram\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nGROUP BY c.name\nORDER BY COUNT(*) ASC;",
+  "rows": [
+    {
+      "categoria": "Boteco Moderno",
+      "total": "18",
+      "com_telefone": "16",
+      "com_horario": "17",
+      "com_rating": "17",
+      "com_coordenadas": "18",
+      "com_instagram": "18"
+    },
+    {
+      "categoria": "Pub",
+      "total": "22",
+      "com_telefone": "18",
+      "com_horario": "19",
+      "com_rating": "19",
+      "com_coordenadas": "22",
+      "com_instagram": "10"
+    },
+    {
+      "categoria": "Coquetelaria",
+      "total": "26",
+      "com_telefone": "21",
+      "com_horario": "21",
+      "com_rating": "21",
+      "com_coordenadas": "25",
+      "com_instagram": "3"
+    },
+    {
+      "categoria": "Bar Musical",
+      "total": "32",
+      "com_telefone": "24",
+      "com_horario": "24",
+      "com_rating": "29",
+      "com_coordenadas": "31",
+      "com_instagram": "9"
+    },
+    {
+      "categoria": "Cervejaria",
+      "total": "51",
+      "com_telefone": "41",
+      "com_horario": "50",
+      "com_rating": "51",
+      "com_coordenadas": "51",
+      "com_instagram": "10"
+    },
+    {
+      "categoria": "Autoral / Contemporâneo",
+      "total": "75",
+      "com_telefone": "56",
+      "com_horario": "63",
+      "com_rating": "73",
+      "com_coordenadas": "65",
+      "com_instagram": "2"
+    },
+    {
+      "categoria": "Confeitaria",
+      "total": "173",
+      "com_telefone": "152",
+      "com_horario": "156",
+      "com_rating": "144",
+      "com_coordenadas": "172",
+      "com_instagram": "11"
+    },
+    {
+      "categoria": "Balada",
+      "total": "212",
+      "com_telefone": "147",
+      "com_horario": "161",
+      "com_rating": "181",
+      "com_coordenadas": "209",
+      "com_instagram": "11"
+    },
+    {
+      "categoria": "Saudável",
+      "total": "254",
+      "com_telefone": "183",
+      "com_horario": "228",
+      "com_rating": "230",
+      "com_coordenadas": "248",
+      "com_instagram": "7"
+    },
+    {
+      "categoria": "Hamburgueria",
+      "total": "326",
+      "com_telefone": "249",
+      "com_horario": "283",
+      "com_rating": "300",
+      "com_coordenadas": "311",
+      "com_instagram": "5"
+    },
+    {
+      "categoria": "Pizzaria",
+      "total": "399",
+      "com_telefone": "350",
+      "com_horario": "364",
+      "com_rating": "381",
+      "com_coordenadas": "389",
+      "com_instagram": "15"
+    },
+    {
+      "categoria": "Boteco Tradicional",
+      "total": "518",
+      "com_telefone": "337",
+      "com_horario": "403",
+      "com_rating": "451",
+      "com_coordenadas": "516",
+      "com_instagram": "17"
+    },
+    {
+      "categoria": "Padaria",
+      "total": "629",
+      "com_telefone": "543",
+      "com_horario": "580",
+      "com_rating": "577",
+      "com_coordenadas": "627",
+      "com_instagram": "16"
+    },
+    {
+      "categoria": "Cafeteria",
+      "total": "830",
+      "com_telefone": "632",
+      "com_horario": "733",
+      "com_rating": "751",
+      "com_coordenadas": "826",
+      "com_instagram": "16"
+    },
+    {
+      "categoria": "Cozinha Internacional",
+      "total": "1013",
+      "com_telefone": "621",
+      "com_horario": "696",
+      "com_rating": "954",
+      "com_coordenadas": "780",
+      "com_instagram": "25"
+    },
+    {
+      "categoria": "Cozinha Brasileira",
+      "total": "1514",
+      "com_telefone": "1169",
+      "com_horario": "1242",
+      "com_rating": "1370",
+      "com_coordenadas": "1426",
+      "com_instagram": "15"
+    },
+    {
+      "categoria": "Bar & Lanchonete",
+      "total": "1654",
+      "com_telefone": "1165",
+      "com_horario": "1358",
+      "com_rating": "1454",
+      "com_coordenadas": "1641",
+      "com_instagram": "16"
+    }
+  ],
+  "messages": [],
+  "stdout": "categoria\ttotal\tcom_telefone\tcom_horario\tcom_rating\tcom_coordenadas\tcom_instagram\nBoteco Moderno\t18\t16\t17\t17\t18\t18\nPub\t22\t18\t19\t19\t22\t10\nCoquetelaria\t26\t21\t21\t21\t25\t3\nBar Musical\t32\t24\t24\t29\t31\t9\nCervejaria\t51\t41\t50\t51\t51\t10\nAutoral / Contemporâneo\t75\t56\t63\t73\t65\t2\nConfeitaria\t173\t152\t156\t144\t172\t11\nBalada\t212\t147\t161\t181\t209\t11\nSaudável\t254\t183\t228\t230\t248\t7\nHamburgueria\t326\t249\t283\t300\t311\t5\nPizzaria\t399\t350\t364\t381\t389\t15\nBoteco Tradicional\t518\t337\t403\t451\t516\t17\nPadaria\t629\t543\t580\t577\t627\t16\nCafeteria\t830\t632\t733\t751\t826\t16\nCozinha Internacional\t1013\t621\t696\t954\t780\t25\nCozinha Brasileira\t1514\t1169\t1242\t1370\t1426\t15\nBar & Lanchonete\t1654\t1165\t1358\t1454\t1641\t16\n",
+  "stderr": "",
+  "execution_time_ms": 431
+}

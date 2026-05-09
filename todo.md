@@ -57,3 +57,32 @@
 - [x] Add 2 blank spaces before day 01 and before Janeiro in BirthdateRoulette
 - [x] Create presentation comparing user data capture flow with Manus vs without Manus
 - [x] Add real-time visual validation with success icon when valid date is selected in BirthdateRoulette
+- [x] Reclassify establishments using keyword rules (phase 1 - clear cases)
+- [x] Reclassify ambiguous establishments using LLM (phase 2 - AI-assisted)
+- [ ] Continue Instagram verification in batches of 50 (Vila Madalena + Pinheiros first)
+- [x] Google Maps enrichment: Boteco Moderno (18 establishments)
+- [x] Instagram enrichment: Boteco Moderno (18 establishments)
+- [x] Google Maps enrichment: Pub (22 establishments)
+- [x] Google Maps enrichment: Coquetelaria (26 establishments)
+- [x] Google Maps enrichment: Bar Musical (32 establishments)
+- [x] Google Maps enrichment: Cervejaria (51 establishments)
+- [x] Google Maps enrichment: Autoral/Contemporâneo (75 establishments)
+- [x] Google Maps enrichment: Confeitaria (173 establishments)
+- [x] Google Maps enrichment: Balada (212 establishments)
+- [x] Google Maps enrichment: Saudável (254 establishments)
+- [x] Google Maps enrichment: Hamburgueria (326 establishments)
+- [x] Google Maps enrichment: Pizzaria (399 establishments)
+- [x] Google Maps enrichment: Boteco Tradicional (518 establishments)
+- [x] Google Maps enrichment: Padaria (629 establishments)
+- [x] Google Maps enrichment: Cafeteria (830 establishments)
+- [x] Google Maps enrichment: Cozinha Internacional (1013 establishments)
+- [x] Google Maps enrichment: Cozinha Brasileira (1514 establishments)
+- [x] Google Maps enrichment: Bar & Lanchonete (1654 establishments)
+- [ ] Instagram enrichment: remaining categories (pending authenticated session)
+- [x] Remove 8 establishments not found on Google Maps (IDs: 7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)
+- [x] Optimize hours text: group consecutive days with same schedule (e.g., "Seg a Qui: 11:30–15:00")
+- [x] Re-process 332 establishments that failed due to "Data too long" with optimized hours
+- [x] Review and correct manually-entered establishments (address, hours, phone, coordinates) — 7,383 corrections applied
+- [x] Remove 16 invalid establishments (generic names, typos, Portugal addresses, street names as bar names)
+- [x] Admin Panel: Add "Código Fonte" tab with code backup/recovery documentation
+- [x] Admin Panel: Enforce required fields (address, hours, phone, neighborhood, category) in new establishment form

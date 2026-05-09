@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, address, neighborhood, categoryId, phone, hours, rating \nFROM establishments \nWHERE rating IS NULL AND (address NOT LIKE '%Brasil%' OR address IS NULL)\nORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood, categoryId, phone, hours, rating \nFROM establishments \nWHERE rating IS NULL AND (address NOT LIKE '%Brasil%' OR address IS NULL)\nORDER BY id;",
+  "rows": [
+    {
+      "id": "5579",
+      "name": "AMADEU",
+      "address": "Avenida Rouxinol, 377 - Indianópolis, São Paulo",
+      "neighborhood": "Moema",
+      "categoryId": "2",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tcategoryId\tphone\thours\trating\n5579\tAMADEU\tAvenida Rouxinol, 377 - Indianópolis, São Paulo\tMoema\t2\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1237
+}

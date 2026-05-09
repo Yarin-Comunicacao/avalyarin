@@ -1,0 +1,95 @@
+{
+  "query": "SELECT id, name, description FROM categories ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, description FROM categories ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "description": "Bares e lanchonetes com petiscos e bebidas"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "description": "Restaurantes de comida brasileira tradicional"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "description": "Gastronomia autoral e contemporânea"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "description": "Botecos tradicionais com porções e cerveja gelada"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "description": "Botecos com toque moderno e cardápio diferenciado"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "description": "Pubs com cervejas artesanais e ambiente descontraído"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "description": "Bares especializados em coquetéis e drinks"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "description": "Cafeterias com cafés especiais e acompanhamentos"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "description": "Padarias artesanais e tradicionais"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "description": "Casas noturnas e baladas"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "description": "Confeitarias e docerias artesanais"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "description": "Bares com música ao vivo"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "description": "Cervejarias artesanais e brewpubs"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "description": "Pizzarias tradicionais e artesanais"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "description": "Restaurantes de comida saudável e natural"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria",
+      "description": "Hamburguerias artesanais e gourmet"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "description": "Restaurantes de culinária internacional"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tdescription\n1\tBar & Lanchonete\tBares e lanchonetes com petiscos e bebidas\n2\tCozinha Brasileira\tRestaurantes de comida brasileira tradicional\n3\tAutoral / Contemporâneo\tGastronomia autoral e contemporânea\n4\tBoteco Tradicional\tBotecos tradicionais com porções e cerveja gelada\n5\tBoteco Moderno\tBotecos com toque moderno e cardápio diferenciado\n6\tPub\tPubs com cervejas artesanais e ambiente descontraído\n7\tCoquetelaria\tBares especializados em coquetéis e drinks\n8\tCafeteria\tCafeterias com cafés especiais e acompanhamentos\n9\tPadaria\tPadarias artesanais e tradicionais\n10\tBalada\tCasas noturnas e baladas\n11\tConfeitaria\tConfeitarias e docerias artesanais\n12\tBar Musical\tBares com música ao vivo\n13\tCervejaria\tCervejarias artesanais e brewpubs\n14\tPizzaria\tPizzarias tradicionais e artesanais\n15\tSaudável\tRestaurantes de comida saudável e natural\n16\tHamburgueria\tHamburguerias artesanais e gourmet\n17\tCozinha Internacional\tRestaurantes de culinária internacional\n",
+  "stderr": "",
+  "execution_time_ms": 823
+}

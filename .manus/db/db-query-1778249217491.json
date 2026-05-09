@@ -1,0 +1,78 @@
+{
+  "query": "SELECT c.name as category, COUNT(*) as total\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.name \nORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name as category, COUNT(*) as total\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.name \nORDER BY total DESC;",
+  "rows": [
+    {
+      "category": "Cozinha Brasileira",
+      "total": "2942"
+    },
+    {
+      "category": "Bar & Lanchonete",
+      "total": "1091"
+    },
+    {
+      "category": "Cafeteria",
+      "total": "821"
+    },
+    {
+      "category": "Padaria",
+      "total": "616"
+    },
+    {
+      "category": "Boteco Tradicional",
+      "total": "500"
+    },
+    {
+      "category": "Cozinha Internacional",
+      "total": "477"
+    },
+    {
+      "category": "Pizzaria",
+      "total": "387"
+    },
+    {
+      "category": "Hamburgueria",
+      "total": "221"
+    },
+    {
+      "category": "Balada",
+      "total": "209"
+    },
+    {
+      "category": "Saudável",
+      "total": "156"
+    },
+    {
+      "category": "Confeitaria",
+      "total": "150"
+    },
+    {
+      "category": "Autoral / Contemporâneo",
+      "total": "57"
+    },
+    {
+      "category": "Cervejaria",
+      "total": "30"
+    },
+    {
+      "category": "Bar Musical",
+      "total": "30"
+    },
+    {
+      "category": "Coquetelaria",
+      "total": "26"
+    },
+    {
+      "category": "Pub",
+      "total": "20"
+    },
+    {
+      "category": "Boteco Moderno",
+      "total": "13"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\ttotal\nCozinha Brasileira\t2942\nBar & Lanchonete\t1091\nCafeteria\t821\nPadaria\t616\nBoteco Tradicional\t500\nCozinha Internacional\t477\nPizzaria\t387\nHamburgueria\t221\nBalada\t209\nSaudável\t156\nConfeitaria\t150\nAutoral / Contemporâneo\t57\nCervejaria\t30\nBar Musical\t30\nCoquetelaria\t26\nPub\t20\nBoteco Moderno\t13\n",
+  "stderr": "",
+  "execution_time_ms": 270
+}

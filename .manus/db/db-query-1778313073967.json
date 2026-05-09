@@ -1,0 +1,9 @@
+{
+  "query": "SELECT id, name, address, neighborhood FROM establishments WHERE id <= 50 AND (address IS NULL OR address = '' OR address NOT LIKE '%São Paulo%') ORDER BY id ASC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood FROM establishments WHERE id <= 50 AND (address IS NULL OR address = '' OR address NOT LIKE '%São Paulo%') ORDER BY id ASC LIMIT 20;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 354
+}

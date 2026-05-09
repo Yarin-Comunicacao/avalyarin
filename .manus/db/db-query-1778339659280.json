@@ -1,0 +1,170 @@
+{
+  "query": "SELECT e.id, e.name, e.address, e.neighborhood, c.name as category, e.phone, e.hours, e.rating\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.id IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)\nORDER BY e.id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.address, e.neighborhood, c.name as category, e.phone, e.hours, e.rating\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.id IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)\nORDER BY e.id;",
+  "rows": [
+    {
+      "id": "506",
+      "name": "Itacaré",
+      "address": "Avenida Brigadeiro Luís Antônio, 3504 - Jardim Paulista, São Paulo",
+      "neighborhood": "Jardim Paulista",
+      "category": "Cozinha Brasileira",
+      "phone": "NULL",
+      "hours": "Seg a Sex: 08:00–20:00 | Sáb: 18:00–00:00 | Dom: 08:00–20:00",
+      "rating": "5"
+    },
+    {
+      "id": "557",
+      "name": "Itaparica",
+      "address": "Rua Pamplona, 1793 - Jardim Paulista, São Paulo",
+      "neighborhood": "Jardim Paulista",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 3887-6154",
+      "hours": "Todos os dias: 06:00–23:00",
+      "rating": "4.3"
+    },
+    {
+      "id": "1668",
+      "name": "Florença",
+      "address": "Rua Cunha Gago, 284 - Pinheiros, São Paulo",
+      "neighborhood": "Pinheiros",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 3819-3201",
+      "hours": "Seg a Sáb: 06:00–22:00 | Dom: Fechado",
+      "rating": "4.3"
+    },
+    {
+      "id": "1761",
+      "name": "Vila Brasil",
+      "address": "Rua Simão Álvares, 575 - Pinheiros, São Paulo",
+      "neighborhood": "Pinheiros",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 4324-8783",
+      "hours": "Seg a Sex: 11:30–15:00 | Sáb a Dom: Fechado",
+      "rating": "4.6"
+    },
+    {
+      "id": "1803",
+      "name": "Rua Guaicuí",
+      "address": "Rua Guaicuí, 29 - Pinheiros, São Paulo",
+      "neighborhood": "Pinheiros",
+      "category": "Bar & Lanchonete",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "4.9"
+    },
+    {
+      "id": "2053",
+      "name": "Venice",
+      "address": "Rua Aspicuelta, 421 - Alto de Pinheiros, São Paulo",
+      "neighborhood": "Vila Madalena",
+      "category": "Cozinha Brasileira",
+      "phone": "NULL",
+      "hours": "Seg a Ter: Fechado | Qua: 12:00–16:00 | Qui a Sáb: 19:00–01:00 | Dom: Fechado",
+      "rating": "4.3"
+    },
+    {
+      "id": "2584",
+      "name": "Vila Rica sulina pote ser lajonete magato",
+      "address": "Condomínio Edifício Santos Dumont - Rua Doutor Plínio Barreto, 259 - Bela Vista, São Paulo",
+      "neighborhood": "Bela Vista",
+      "category": "Bar & Lanchonete",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "4.5"
+    },
+    {
+      "id": "2927",
+      "name": "Neri",
+      "address": "Rua Dona Ana Neri, 305 - Mooca, São Paulo",
+      "neighborhood": "Cambuci",
+      "category": "Cafeteria",
+      "phone": "(11) 3271-8761",
+      "hours": "Seg a Sex: 11:30–15:00 | Sáb a Dom: Fechado",
+      "rating": "4.5"
+    },
+    {
+      "id": "3198",
+      "name": "Zona norte",
+      "address": "Rua Augusta - Consolação, São Paulo",
+      "neighborhood": "Consolação",
+      "category": "Cozinha Brasileira",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "5"
+    },
+    {
+      "id": "3679",
+      "name": "restaurante Bonjardim",
+      "address": "Tv. de Santo Antão 11, 1150-312 Lisboa, Portugal",
+      "neighborhood": "Liberdade",
+      "category": "Cozinha Brasileira",
+      "phone": "21 342 4389",
+      "hours": "Todos os dias: 12:00–23:00",
+      "rating": "4.1"
+    },
+    {
+      "id": "3951",
+      "name": "Novo Horizonte",
+      "address": "Largo do Arouche, 277 - Santa Cecilia, São Paulo",
+      "neighborhood": "República",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 3333-3532",
+      "hours": "Seg: 11:00–16:00, 18:00–20:00 | Ter a Qua: 11:00–15:00, 18:00–20:00 | Qui: 11:00–15:00, 18:00–21:30 | Sex: 11:00–15:00, 18:00–20:00 | Sáb: 11:00–15:00 | Dom: 12:30–15:00, 18:00–21:30",
+      "rating": "3"
+    },
+    {
+      "id": "4376",
+      "name": "Janoca Restaurante",
+      "address": "Unnamed Rd, 8000 Faro, Portugal",
+      "neighborhood": "Sé",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 95335-6487",
+      "hours": "Seg a Ter: 07:00–23:00 | Qua: Fechado | Qui: 07:00–23:30 | Sex: 07:00–23:00 | Sáb: 07:00–23:30 | Dom: 07:00–23:00",
+      "rating": "4"
+    },
+    {
+      "id": "4656",
+      "name": "VIENA",
+      "address": "Praça Leonor Kaupa, 100 - Loja 238 / 239 - Jardim da Saúde, São Paulo",
+      "neighborhood": "Cursino",
+      "category": "Cozinha Brasileira",
+      "phone": "(11) 3995-7039",
+      "hours": "Todos os dias: 11:00–22:00",
+      "rating": "3"
+    },
+    {
+      "id": "4674",
+      "name": "Vila Verde",
+      "address": "Avenida Fagundes Filho, 261 - Vila Monte Alegre, São Paulo",
+      "neighborhood": "Cursino",
+      "category": "Cafeteria",
+      "phone": "(11) 91320-4035",
+      "hours": "Seg a Sáb: 06:00–19:00 | Dom: Fechado",
+      "rating": "4.5"
+    },
+    {
+      "id": "5083",
+      "name": "Vitoria Da Conquista",
+      "address": "Rua Dois de Julho, 15 - Ipiranga, São Paulo",
+      "neighborhood": "Ipiranga",
+      "category": "Cozinha Brasileira",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "5"
+    },
+    {
+      "id": "5579",
+      "name": "AMADEU",
+      "address": "Avenida Rouxinol, 377 - Indianópolis, São Paulo",
+      "neighborhood": "Moema",
+      "category": "Cozinha Brasileira",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tcategory\tphone\thours\trating\n506\tItacaré\tAvenida Brigadeiro Luís Antônio, 3504 - Jardim Paulista, São Paulo\tJardim Paulista\tCozinha Brasileira\tNULL\tSeg a Sex: 08:00–20:00 | Sáb: 18:00–00:00 | Dom: 08:00–20:00\t5\n557\tItaparica\tRua Pamplona, 1793 - Jardim Paulista, São Paulo\tJardim Paulista\tCozinha Brasileira\t(11) 3887-6154\tTodos os dias: 06:00–23:00\t4.3\n1668\tFlorença\tRua Cunha Gago, 284 - Pinheiros, São Paulo\tPinheiros\tCozinha Brasileira\t(11) 3819-3201\tSeg a Sáb: 06:00–22:00 | Dom: Fechado\t4.3\n1761\tVila Brasil\tRua Simão Álvares, 575 - Pinheiros, São Paulo\tPinheiros\tCozinha Brasileira\t(11) 4324-8783\tSeg a Sex: 11:30–15:00 | Sáb a Dom: Fechado\t4.6\n1803\tRua Guaicuí\tRua Guaicuí, 29 - Pinheiros, São Paulo\tPinheiros\tBar & Lanchonete\tNULL\tNULL\t4.9\n2053\tVenice\tRua Aspicuelta, 421 - Alto de Pinheiros, São Paulo\tVila Madalena\tCozinha Brasileira\tNULL\tSeg a Ter: Fechado | Qua: 12:00–16:00 | Qui a Sáb: 19:00–01:00 | Dom: Fechado\t4.3\n2584\tVila Rica sulina pote ser lajonete magato\tCondomínio Edifício Santos Dumont - Rua Doutor Plínio Barreto, 259 - Bela Vista, São Paulo\tBela Vista\tBar & Lanchonete\tNULL\tNULL\t4.5\n2927\tNeri\tRua Dona Ana Neri, 305 - Mooca, São Paulo\tCambuci\tCafeteria\t(11) 3271-8761\tSeg a Sex: 11:30–15:00 | Sáb a Dom: Fechado\t4.5\n3198\tZona norte\tRua Augusta - Consolação, São Paulo\tConsolação\tCozinha Brasileira\tNULL\tNULL\t5\n3679\trestaurante Bonjardim\tTv. de Santo Antão 11, 1150-312 Lisboa, Portugal\tLiberdade\tCozinha Brasileira\t21 342 4389\tTodos os dias: 12:00–23:00\t4.1\n3951\tNovo Horizonte\tLargo do Arouche, 277 - Santa Cecilia, São Paulo\tRepública\tCozinha Brasileira\t(11) 3333-3532\tSeg: 11:00–16:00, 18:00–20:00 | Ter a Qua: 11:00–15:00, 18:00–20:00 | Qui: 11:00–15:00, 18:00–21:30 | Sex: 11:00–15:00, 18:00–20:00 | Sáb: 11:00–15:00 | Dom: 12:30–15:00, 18:00–21:30\t3\n4376\tJanoca Restaurante\tUnnamed Rd, 8000 Faro, Portugal\tSé\tCozinha Brasileira\t(11) 95335-6487\tSeg a Ter: 07:00–23:00 | Qua: Fechado | Qui: 07:00–23:30 | Sex: 07:00–23:00 | Sáb: 07:00–23:30 | Dom: 07:00–23:00\t4\n4656\tVIENA\tPraça Leonor Kaupa, 100 - Loja 238 / 239 - Jardim da Saúde, São Paulo\tCursino\tCozinha Brasileira\t(11) 3995-7039\tTodos os dias: 11:00–22:00\t3\n4674\tVila Verde\tAvenida Fagundes Filho, 261 - Vila Monte Alegre, São Paulo\tCursino\tCafeteria\t(11) 91320-4035\tSeg a Sáb: 06:00–19:00 | Dom: Fechado\t4.5\n5083\tVitoria Da Conquista\tRua Dois de Julho, 15 - Ipiranga, São Paulo\tIpiranga\tCozinha Brasileira\tNULL\tNULL\t5\n5579\tAMADEU\tAvenida Rouxinol, 377 - Indianópolis, São Paulo\tMoema\tCozinha Brasileira\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 375
+}

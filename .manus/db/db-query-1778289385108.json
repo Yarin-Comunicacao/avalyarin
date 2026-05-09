@@ -1,0 +1,26 @@
+{
+  "query": "SELECT 'ratings' as tbl, COUNT(*) as cnt FROM ratings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)\nUNION ALL\nSELECT 'rating_items', COUNT(*) FROM rating_items WHERE ratingId IN (SELECT id FROM ratings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053))\nUNION ALL\nSELECT 'menu_items', COUNT(*) FROM menu_items WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)\nUNION ALL\nSELECT 'user_rankings', COUNT(*) FROM user_rankings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT 'ratings' as tbl, COUNT(*) as cnt FROM ratings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)\nUNION ALL\nSELECT 'rating_items', COUNT(*) FROM rating_items WHERE ratingId IN (SELECT id FROM ratings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053))\nUNION ALL\nSELECT 'menu_items', COUNT(*) FROM menu_items WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)\nUNION ALL\nSELECT 'user_rankings', COUNT(*) FROM user_rankings WHERE establishmentId IN (7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053);",
+  "rows": [
+    {
+      "tbl": "user_rankings",
+      "cnt": "0"
+    },
+    {
+      "tbl": "ratings",
+      "cnt": "0"
+    },
+    {
+      "tbl": "rating_items",
+      "cnt": "0"
+    },
+    {
+      "tbl": "menu_items",
+      "cnt": "19"
+    }
+  ],
+  "messages": [],
+  "stdout": "tbl\tcnt\nuser_rankings\t0\nratings\t0\nrating_items\t0\nmenu_items\t19\n",
+  "stderr": "",
+  "execution_time_ms": 285
+}

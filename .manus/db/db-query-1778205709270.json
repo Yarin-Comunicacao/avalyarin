@@ -1,0 +1,112 @@
+{
+  "query": "SELECT c.id, c.name, COUNT(e.id) as count, \n  SUM(CASE WHEN e.instagram IS NOT NULL AND e.instagram != '' THEN 1 ELSE 0 END) as with_instagram\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.id, c.name \nORDER BY count DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.id, c.name, COUNT(e.id) as count, \n  SUM(CASE WHEN e.instagram IS NOT NULL AND e.instagram != '' THEN 1 ELSE 0 END) as with_instagram\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nGROUP BY c.id, c.name \nORDER BY count DESC;",
+  "rows": [
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "count": "3072",
+      "with_instagram": "15"
+    },
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "count": "1125",
+      "with_instagram": "16"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "count": "828",
+      "with_instagram": "16"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "count": "645",
+      "with_instagram": "16"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "count": "503",
+      "with_instagram": "17"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "count": "450",
+      "with_instagram": "25"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "count": "353",
+      "with_instagram": "15"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria",
+      "count": "192",
+      "with_instagram": "5"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "count": "191",
+      "with_instagram": "11"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "count": "139",
+      "with_instagram": "7"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "count": "112",
+      "with_instagram": "11"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "count": "58",
+      "with_instagram": "2"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "count": "23",
+      "with_instagram": "10"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "count": "22",
+      "with_instagram": "10"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "count": "15",
+      "with_instagram": "7"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "count": "14",
+      "with_instagram": "9"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "count": "4",
+      "with_instagram": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcount\twith_instagram\n2\tCozinha Brasileira\t3072\t15\n1\tBar & Lanchonete\t1125\t16\n8\tCafeteria\t828\t16\n9\tPadaria\t645\t16\n4\tBoteco Tradicional\t503\t17\n17\tCozinha Internacional\t450\t25\n14\tPizzaria\t353\t15\n16\tHamburgueria\t192\t5\n10\tBalada\t191\t11\n15\tSaudável\t139\t7\n11\tConfeitaria\t112\t11\n3\tAutoral / Contemporâneo\t58\t2\n13\tCervejaria\t23\t10\n6\tPub\t22\t10\n5\tBoteco Moderno\t15\t7\n12\tBar Musical\t14\t9\n7\tCoquetelaria\t4\t3\n",
+  "stderr": "",
+  "execution_time_ms": 68
+}

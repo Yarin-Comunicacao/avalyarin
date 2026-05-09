@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments \nSET categoryId = 12 \nWHERE categoryId NOT IN (12, 10) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%music%' OR name LIKE '%Music%'\n    OR name LIKE '%ao vivo%'\n    OR name LIKE '%karaok%' OR name LIKE '%Karaok%'\n    OR name LIKE '%jazz%' OR name LIKE '%Jazz%'\n    OR name LIKE '%blues%' OR name LIKE '%Blues%'\n    OR name LIKE '%samba%' OR name LIKE '%Samba%'\n    OR name LIKE '%forró%' OR name LIKE '%Forró%' OR name LIKE '%forro%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments \nSET categoryId = 12 \nWHERE categoryId NOT IN (12, 10) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%music%' OR name LIKE '%Music%'\n    OR name LIKE '%ao vivo%'\n    OR name LIKE '%karaok%' OR name LIKE '%Karaok%'\n    OR name LIKE '%jazz%' OR name LIKE '%Jazz%'\n    OR name LIKE '%blues%' OR name LIKE '%Blues%'\n    OR name LIKE '%samba%' OR name LIKE '%Samba%'\n    OR name LIKE '%forró%' OR name LIKE '%Forró%' OR name LIKE '%forro%');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 305
+}

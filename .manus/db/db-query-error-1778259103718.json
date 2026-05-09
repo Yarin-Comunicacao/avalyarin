@@ -1,0 +1,8 @@
+{
+  "query": "SELECT e.id, e.name, e.address, e.neighborhood, e.instagram, e.image_url, e.menu_url, e.website, e.phone, e.opening_hours \nFROM establishments e\nJOIN categories c ON e.category_id = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nORDER BY CASE WHEN e.neighborhood IN ('Vila Madalena', 'Pinheiros') THEN 0 ELSE 1 END, e.neighborhood, e.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.address, e.neighborhood, e.instagram, e.image_url, e.menu_url, e.website, e.phone, e.opening_hours \nFROM establishments e\nJOIN categories c ON e.category_id = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nORDER BY CASE WHEN e.neighborhood IN ('Vila Madalena', 'Pinheiros') THEN 0 ELSE 1 END, e.neighborhood, e.name;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'e.category_id' in 'on clause'"
+  ]
+}

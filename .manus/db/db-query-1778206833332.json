@@ -1,0 +1,18 @@
+{
+  "query": "SELECT COUNT(*) as total, c.name as current_category\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%music%' OR e.name LIKE '%Music%' OR e.name LIKE '%ao vivo%' OR e.name LIKE '%karaok%')\n  AND c.id != 12\nGROUP BY c.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total, c.name as current_category\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%music%' OR e.name LIKE '%Music%' OR e.name LIKE '%ao vivo%' OR e.name LIKE '%karaok%')\n  AND c.id != 12\nGROUP BY c.name;",
+  "rows": [
+    {
+      "total": "3",
+      "current_category": "Bar & Lanchonete"
+    },
+    {
+      "total": "1",
+      "current_category": "Pizzaria"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tcurrent_category\n3\tBar & Lanchonete\n1\tPizzaria\n",
+  "stderr": "",
+  "execution_time_ms": 201
+}

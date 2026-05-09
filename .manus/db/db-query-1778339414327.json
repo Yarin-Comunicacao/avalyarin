@@ -1,0 +1,230 @@
+{
+  "query": "SELECT id, name, address, neighborhood, categoryId, phone, hours, rating, reviewCount\nFROM establishments \nWHERE reviewCount IS NULL AND rating IS NULL\nORDER BY id\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood, categoryId, phone, hours, rating, reviewCount\nFROM establishments \nWHERE reviewCount IS NULL AND rating IS NULL\nORDER BY id\nLIMIT 20;",
+  "rows": [
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "address": "R. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "8",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "address": "R. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "17",
+      "phone": "(11) 99187-1252",
+      "hours": "Seg: 08:00–20:00 | Ter a Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "30",
+      "name": "Quizumba do Netão",
+      "address": "R. Conselheiro Brotero, 589 - Barra Funda, São Paulo - SP, 01154-001, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "4",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "33",
+      "name": "Yemanjá Bar-Mar",
+      "address": "R. Conselheiro Brotero, 71 - Barra Funda, São Paulo - SP, 01232-010, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "1",
+      "phone": "(11) 99545-0859",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "39",
+      "name": "Cantinho da Tapioca",
+      "address": "R. Lopes de Oliveira, 691 - Loja 2 - Santa Cecilia, São Paulo - SP, 01152-010, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(11) 95987-6885",
+      "hours": "Seg a Sex: 08:00–21:00 | Sáb: 08:00–15:00 | Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "53",
+      "name": "Cantina da tia Neide",
+      "address": "R. Barra Funda, 371 - Barra Funda, São Paulo - SP, 01152-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "17",
+      "phone": "(11) 3661-2641",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "56",
+      "name": "Fogão á Lenha",
+      "address": "R. Barra Funda - Assad Alcici, São Paulo - SP, 13973-255, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(19) 98214-2064",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "74",
+      "name": "MOZZAICCO RESTAURANTES DE EMPRESAS",
+      "address": "R. Brg. Galvão, 555 - Barra Funda, São Paulo - SP, 01151-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "97",
+      "name": "Pontto Certto",
+      "address": "R. Anhanguera, 561 - Barra Funda, São Paulo - SP, 01135-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(11) 94877-0718",
+      "hours": "Todos os dias: 11:00–22:00",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "106",
+      "name": "Casa Bertasi",
+      "address": "R. Dr. Ribeiro de Almeida, 33 - Barra Funda, São Paulo - SP, 01137-020, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(11) 99192-9613",
+      "hours": "Seg a Sex: Fechado | Sáb: 10:00–14:00 | Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "111",
+      "name": "Barra Foods",
+      "address": "R. Tagipuru, 282A - Barra Funda, São Paulo - SP, 01156-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(11) 98870-2750",
+      "hours": "Seg a Sex: 06:00–00:00 | Sáb a Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "114",
+      "name": "Korn dog barra funda",
+      "address": "R. Tagipuru, 282B - Barra Funda, São Paulo - SP, 01156-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "1",
+      "phone": "(11) 91457-3323",
+      "hours": "Seg a Sex: 08:00–22:00 | Sáb a Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "117",
+      "name": "Dai-me Sabor",
+      "address": "R. do Bosque, 136 - Barra Funda, São Paulo - SP, 01136-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "2",
+      "phone": "(11) 91244-1333",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "129",
+      "name": "A Lancheirinha",
+      "address": "R. Lavradio, 105 - Barra Funda, São Paulo - SP, 01154-020, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "1",
+      "phone": "(11) 3228-3984",
+      "hours": "Seg a Sex: 09:00–18:00 | Sáb: 09:00–12:00 | Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "132",
+      "name": "Macuco SP",
+      "address": "R. Lavradio, 438 - Barra Funda, São Paulo - SP, 01154-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "1",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "138",
+      "name": "Bar E Restaurante Tilapia",
+      "address": "R. Lopes Chaves, 215 - Barra Funda, São Paulo - SP, 01154-010, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "1",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "158",
+      "name": "SABOR DO BRASIL",
+      "address": "Av. Thomas Edison, 389 - Barra Funda, São Paulo - SP, 01140-001, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "4",
+      "phone": "(11) 95166-3714",
+      "hours": "Seg a Qui: 07:00–23:00 | Sex: 07:00–01:30 | Sáb: 07:00–01:00 | Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "177",
+      "name": "Hyper Alimentos",
+      "address": "R. Vitorino Carmilo, 894 - Barra Funda, São Paulo - SP, 01153-000, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "9",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "185",
+      "name": "Palácio dos Moldes",
+      "address": "R. Boracéa, 145 - Barra Funda, São Paulo - SP, 01135-010, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "9",
+      "phone": "(11) 97833-8266",
+      "hours": "Seg a Sex: 08:00–18:00 | Sáb a Dom: Fechado",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    },
+    {
+      "id": "187",
+      "name": "Paulista",
+      "address": "Barra Funda, São Paulo - SP, Brasil",
+      "neighborhood": "Barra Funda",
+      "categoryId": "9",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "NULL",
+      "reviewCount": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tcategoryId\tphone\thours\trating\treviewCount\n16\tFarol Kaffe\tR. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil\tAlto de Pinheiros\t8\tNULL\tNULL\tNULL\tNULL\n17\tUehara Pastéis - (São Paulo)\tR. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil\tAlto de Pinheiros\t17\t(11) 99187-1252\tSeg: 08:00–20:00 | Ter a Dom: Fechado\tNULL\tNULL\n30\tQuizumba do Netão\tR. Conselheiro Brotero, 589 - Barra Funda, São Paulo - SP, 01154-001, Brasil\tBarra Funda\t4\tNULL\tNULL\tNULL\tNULL\n33\tYemanjá Bar-Mar\tR. Conselheiro Brotero, 71 - Barra Funda, São Paulo - SP, 01232-010, Brasil\tBarra Funda\t1\t(11) 99545-0859\tNULL\tNULL\tNULL\n39\tCantinho da Tapioca\tR. Lopes de Oliveira, 691 - Loja 2 - Santa Cecilia, São Paulo - SP, 01152-010, Brasil\tBarra Funda\t2\t(11) 95987-6885\tSeg a Sex: 08:00–21:00 | Sáb: 08:00–15:00 | Dom: Fechado\tNULL\tNULL\n53\tCantina da tia Neide\tR. Barra Funda, 371 - Barra Funda, São Paulo - SP, 01152-000, Brasil\tBarra Funda\t17\t(11) 3661-2641\tNULL\tNULL\tNULL\n56\tFogão á Lenha\tR. Barra Funda - Assad Alcici, São Paulo - SP, 13973-255, Brasil\tBarra Funda\t2\t(19) 98214-2064\tNULL\tNULL\tNULL\n74\tMOZZAICCO RESTAURANTES DE EMPRESAS\tR. Brg. Galvão, 555 - Barra Funda, São Paulo - SP, 01151-000, Brasil\tBarra Funda\t2\tNULL\tNULL\tNULL\tNULL\n97\tPontto Certto\tR. Anhanguera, 561 - Barra Funda, São Paulo - SP, 01135-000, Brasil\tBarra Funda\t2\t(11) 94877-0718\tTodos os dias: 11:00–22:00\tNULL\tNULL\n106\tCasa Bertasi\tR. Dr. Ribeiro de Almeida, 33 - Barra Funda, São Paulo - SP, 01137-020, Brasil\tBarra Funda\t2\t(11) 99192-9613\tSeg a Sex: Fechado | Sáb: 10:00–14:00 | Dom: Fechado\tNULL\tNULL\n111\tBarra Foods\tR. Tagipuru, 282A - Barra Funda, São Paulo - SP, 01156-000, Brasil\tBarra Funda\t2\t(11) 98870-2750\tSeg a Sex: 06:00–00:00 | Sáb a Dom: Fechado\tNULL\tNULL\n114\tKorn dog barra funda\tR. Tagipuru, 282B - Barra Funda, São Paulo - SP, 01156-000, Brasil\tBarra Funda\t1\t(11) 91457-3323\tSeg a Sex: 08:00–22:00 | Sáb a Dom: Fechado\tNULL\tNULL\n117\tDai-me Sabor\tR. do Bosque, 136 - Barra Funda, São Paulo - SP, 01136-000, Brasil\tBarra Funda\t2\t(11) 91244-1333\tNULL\tNULL\tNULL\n129\tA Lancheirinha\tR. Lavradio, 105 - Barra Funda, São Paulo - SP, 01154-020, Brasil\tBarra Funda\t1\t(11) 3228-3984\tSeg a Sex: 09:00–18:00 | Sáb: 09:00–12:00 | Dom: Fechado\tNULL\tNULL\n132\tMacuco SP\tR. Lavradio, 438 - Barra Funda, São Paulo - SP, 01154-000, Brasil\tBarra Funda\t1\tNULL\tNULL\tNULL\tNULL\n138\tBar E Restaurante Tilapia\tR. Lopes Chaves, 215 - Barra Funda, São Paulo - SP, 01154-010, Brasil\tBarra Funda\t1\tNULL\tNULL\tNULL\tNULL\n158\tSABOR DO BRASIL\tAv. Thomas Edison, 389 - Barra Funda, São Paulo - SP, 01140-001, Brasil\tBarra Funda\t4\t(11) 95166-3714\tSeg a Qui: 07:00–23:00 | Sex: 07:00–01:30 | Sáb: 07:00–01:00 | Dom: Fechado\tNULL\tNULL\n177\tHyper Alimentos\tR. Vitorino Carmilo, 894 - Barra Funda, São Paulo - SP, 01153-000, Brasil\tBarra Funda\t9\tNULL\tNULL\tNULL\tNULL\n185\tPalácio dos Moldes\tR. Boracéa, 145 - Barra Funda, São Paulo - SP, 01135-010, Brasil\tBarra Funda\t9\t(11) 97833-8266\tSeg a Sex: 08:00–18:00 | Sáb a Dom: Fechado\tNULL\tNULL\n187\tPaulista\tBarra Funda, São Paulo - SP, Brasil\tBarra Funda\t9\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

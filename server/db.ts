@@ -2,6 +2,9 @@ import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { storagePut } from './storage';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -1159,6 +1162,105 @@ export async function createEstablishment(data: {
   });
 
   return { id: result[0].insertId, slug };
+}
+
+// ─── Code Backup ────────────────────────────────────────────────────────────
+
+const CODE_BACKUP_STORAGE_PREFIX = "code-backups/";
+
+export async function generateCodeBackup() {
+  const projectRoot = path.resolve(import.meta.dirname, '..');
+  
+  // Collect all source files
+  const sourceFiles: Array<{ path: string; content: string }> = [];
+  const extensions = ['.ts', '.tsx', '.css', '.json', '.html'];
+  const excludeDirs = ['node_modules', '.git', 'dist', '.manus-logs', '.manus', 'references'];
+
+  function walkDir(dir: string, relativeTo: string) {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (excludeDirs.includes(entry.name)) continue;
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walkDir(fullPath, relativeTo);
+        } else if (extensions.some(ext => entry.name.endsWith(ext))) {
+          try {
+            const content = fs.readFileSync(fullPath, 'utf-8');
+            const relPath = path.relative(relativeTo, fullPath);
+            sourceFiles.push({ path: relPath, content });
+          } catch { /* skip unreadable files */ }
+        }
+      }
+    } catch { /* skip unreadable dirs */ }
+  }
+
+  walkDir(projectRoot, projectRoot);
+
+  // Generate a structured backup document
+  const timestamp = new Date().toISOString();
+  const backupId = `backup-${Date.now().toString(36)}`;
+  
+  let document = `# Avalyarin - Backup do C\u00f3digo Fonte\n`;
+  document += `## Gerado em: ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}\n`;
+  document += `## Total de arquivos: ${sourceFiles.length}\n\n`;
+  document += `---\n\n`;
+
+  // Group by directory
+  const byDir: Record<string, typeof sourceFiles> = {};
+  for (const file of sourceFiles) {
+    const dir = path.dirname(file.path) || '.';
+    if (!byDir[dir]) byDir[dir] = [];
+    byDir[dir].push(file);
+  }
+
+  const sortedDirs = Object.keys(byDir).sort();
+  for (const dir of sortedDirs) {
+    document += `## \uD83D\uDCC1 ${dir}/\n\n`;
+    for (const file of byDir[dir].sort((a, b) => a.path.localeCompare(b.path))) {
+      const ext = path.extname(file.path).slice(1) || 'text';
+      document += `### \u2514\u2500 ${path.basename(file.path)}\n\n`;
+      document += `\`\`\`${ext}\n${file.content}\n\`\`\`\n\n`;
+    }
+  }
+
+  // Upload to storage
+  const buffer = Buffer.from(document, 'utf-8');
+  const sizeKB = Math.round(buffer.length / 1024);
+  const { url } = await storagePut(
+    `${CODE_BACKUP_STORAGE_PREFIX}${backupId}.md`,
+    buffer,
+    'text/markdown'
+  );
+
+  const backupEntry = {
+    id: backupId,
+    createdAt: timestamp,
+    url,
+    sizeKB,
+    fileCount: sourceFiles.length,
+  };
+
+  // Persist to database
+  const db = await getDb();
+  if (db) {
+    await db.execute(sql`INSERT INTO code_backups (backupId, createdAt, url, sizeKB, fileCount) VALUES (${backupId}, NOW(), ${url}, ${sizeKB}, ${sourceFiles.length})`);
+  }
+
+  return backupEntry;
+}
+
+export async function getCodeBackups() {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.execute(sql`SELECT backupId as id, createdAt, url, sizeKB, fileCount FROM code_backups ORDER BY createdAt DESC LIMIT 10`);
+  return (rows[0] as unknown as any[]).map(r => ({
+    id: r.id,
+    createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
+    url: r.url,
+    sizeKB: r.sizeKB,
+    fileCount: r.fileCount,
+  }));
 }
 
 // ─── Survey & Profile ────────────────────────────────────────────────────────

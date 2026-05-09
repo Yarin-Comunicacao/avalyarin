@@ -1,0 +1,18 @@
+{
+  "query": "SELECT \n  SUM(CASE WHEN name LIKE '%bar %' OR name LIKE '%Bar %' OR name LIKE 'Bar %' OR name LIKE '% bar' THEN 1 ELSE 0 END) as with_bar_in_name,\n  SUM(CASE WHEN name LIKE '%boteco%' OR name LIKE '%Boteco%' THEN 1 ELSE 0 END) as with_boteco_in_name,\n  SUM(CASE WHEN name LIKE '%gastro%' OR name LIKE '%Gastro%' THEN 1 ELSE 0 END) as with_gastro_in_name,\n  SUM(CASE WHEN name LIKE '%café%' OR name LIKE '%Café%' OR name LIKE '%cafe%' OR name LIKE '%Cafe%' THEN 1 ELSE 0 END) as with_cafe_in_name,\n  SUM(CASE WHEN name LIKE '%pizza%' OR name LIKE '%Pizza%' THEN 1 ELSE 0 END) as with_pizza_in_name,\n  COUNT(*) as total\nFROM establishments \nWHERE categoryId = 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  SUM(CASE WHEN name LIKE '%bar %' OR name LIKE '%Bar %' OR name LIKE 'Bar %' OR name LIKE '% bar' THEN 1 ELSE 0 END) as with_bar_in_name,\n  SUM(CASE WHEN name LIKE '%boteco%' OR name LIKE '%Boteco%' THEN 1 ELSE 0 END) as with_boteco_in_name,\n  SUM(CASE WHEN name LIKE '%gastro%' OR name LIKE '%Gastro%' THEN 1 ELSE 0 END) as with_gastro_in_name,\n  SUM(CASE WHEN name LIKE '%café%' OR name LIKE '%Café%' OR name LIKE '%cafe%' OR name LIKE '%Cafe%' THEN 1 ELSE 0 END) as with_cafe_in_name,\n  SUM(CASE WHEN name LIKE '%pizza%' OR name LIKE '%Pizza%' THEN 1 ELSE 0 END) as with_pizza_in_name,\n  COUNT(*) as total\nFROM establishments \nWHERE categoryId = 2;",
+  "rows": [
+    {
+      "with_bar_in_name": "224",
+      "with_boteco_in_name": "0",
+      "with_gastro_in_name": "45",
+      "with_cafe_in_name": "0",
+      "with_pizza_in_name": "22",
+      "total": "3072"
+    }
+  ],
+  "messages": [],
+  "stdout": "with_bar_in_name\twith_boteco_in_name\twith_gastro_in_name\twith_cafe_in_name\twith_pizza_in_name\ttotal\n224\t0\t45\t0\t22\t3072\n",
+  "stderr": "",
+  "execution_time_ms": 68
+}

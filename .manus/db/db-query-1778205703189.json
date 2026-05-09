@@ -1,0 +1,17 @@
+{
+  "query": "SELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN instagram IS NOT NULL AND instagram != '' THEN 1 ELSE 0 END) as has_instagram,\n  SUM(CASE WHEN image IS NOT NULL AND image != '' THEN 1 ELSE 0 END) as has_image,\n  SUM(CASE WHEN instagram IS NOT NULL AND instagram != '' AND (image IS NULL OR image = '') THEN 1 ELSE 0 END) as has_instagram_no_image,\n  SUM(CASE WHEN hasMenu = 1 THEN 1 ELSE 0 END) as has_menu\nFROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN instagram IS NOT NULL AND instagram != '' THEN 1 ELSE 0 END) as has_instagram,\n  SUM(CASE WHEN image IS NOT NULL AND image != '' THEN 1 ELSE 0 END) as has_image,\n  SUM(CASE WHEN instagram IS NOT NULL AND instagram != '' AND (image IS NULL OR image = '') THEN 1 ELSE 0 END) as has_instagram_no_image,\n  SUM(CASE WHEN hasMenu = 1 THEN 1 ELSE 0 END) as has_menu\nFROM establishments;",
+  "rows": [
+    {
+      "total": "7746",
+      "has_instagram": "195",
+      "has_image": "201",
+      "has_instagram_no_image": "0",
+      "has_menu": "200"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\thas_instagram\thas_image\thas_instagram_no_image\thas_menu\n7746\t195\t201\t0\t200\n",
+  "stderr": "",
+  "execution_time_ms": 76
+}

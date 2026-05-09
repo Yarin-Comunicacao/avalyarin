@@ -1,0 +1,46 @@
+{
+  "query": "SELECT id, name, address, neighborhood, phone, hours, rating \nFROM establishments \nWHERE id IN (1803, 2927, 3679, 4376);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood, phone, hours, rating \nFROM establishments \nWHERE id IN (1803, 2927, 3679, 4376);",
+  "rows": [
+    {
+      "id": "1803",
+      "name": "Rua Guaicuí",
+      "address": "Rua Guaicuí, 29 - Pinheiros, São Paulo",
+      "neighborhood": "Pinheiros",
+      "phone": "NULL",
+      "hours": "NULL",
+      "rating": "4.9"
+    },
+    {
+      "id": "2927",
+      "name": "Neri",
+      "address": "Rua Dona Ana Neri, 305 - Mooca, São Paulo",
+      "neighborhood": "Cambuci",
+      "phone": "(11) 3271-8761",
+      "hours": "Seg a Sex: 11:30–15:00 | Sáb a Dom: Fechado",
+      "rating": "4.5"
+    },
+    {
+      "id": "3679",
+      "name": "restaurante Bonjardim",
+      "address": "Tv. de Santo Antão 11, 1150-312 Lisboa, Portugal",
+      "neighborhood": "Liberdade",
+      "phone": "21 342 4389",
+      "hours": "Todos os dias: 12:00–23:00",
+      "rating": "4.1"
+    },
+    {
+      "id": "4376",
+      "name": "Janoca Restaurante",
+      "address": "Unnamed Rd, 8000 Faro, Portugal",
+      "neighborhood": "Sé",
+      "phone": "(11) 95335-6487",
+      "hours": "Seg a Ter: 07:00–23:00 | Qua: Fechado | Qui: 07:00–23:30 | Sex: 07:00–23:00 | Sáb: 07:00–23:30 | Dom: 07:00–23:00",
+      "rating": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tphone\thours\trating\n1803\tRua Guaicuí\tRua Guaicuí, 29 - Pinheiros, São Paulo\tPinheiros\tNULL\tNULL\t4.9\n2927\tNeri\tRua Dona Ana Neri, 305 - Mooca, São Paulo\tCambuci\t(11) 3271-8761\tSeg a Sex: 11:30–15:00 | Sáb a Dom: Fechado\t4.5\n3679\trestaurante Bonjardim\tTv. de Santo Antão 11, 1150-312 Lisboa, Portugal\tLiberdade\t21 342 4389\tTodos os dias: 12:00–23:00\t4.1\n4376\tJanoca Restaurante\tUnnamed Rd, 8000 Faro, Portugal\tSé\t(11) 95335-6487\tSeg a Ter: 07:00–23:00 | Qua: Fechado | Qui: 07:00–23:30 | Sex: 07:00–23:00 | Sáb: 07:00–23:30 | Dom: 07:00–23:00\t4\n",
+  "stderr": "",
+  "execution_time_ms": 847
+}

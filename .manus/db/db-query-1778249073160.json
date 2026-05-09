@@ -1,0 +1,78 @@
+{
+  "query": "SELECT id, name FROM categories ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name FROM categories ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno"
+    },
+    {
+      "id": "6",
+      "name": "Pub"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria"
+    },
+    {
+      "id": "9",
+      "name": "Padaria"
+    },
+    {
+      "id": "10",
+      "name": "Balada"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria"
+    },
+    {
+      "id": "15",
+      "name": "Saudável"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tBar & Lanchonete\n2\tCozinha Brasileira\n3\tAutoral / Contemporâneo\n4\tBoteco Tradicional\n5\tBoteco Moderno\n6\tPub\n7\tCoquetelaria\n8\tCafeteria\n9\tPadaria\n10\tBalada\n11\tConfeitaria\n12\tBar Musical\n13\tCervejaria\n14\tPizzaria\n15\tSaudável\n16\tHamburgueria\n17\tCozinha Internacional\n",
+  "stderr": "",
+  "execution_time_ms": 1573
+}

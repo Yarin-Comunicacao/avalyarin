@@ -5,12 +5,13 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
-  CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck
+  CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
+  Code, Download, RefreshCw, FileCode
 } from "lucide-react";
 
 export default function AdminPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "claims" | "establishments" | "age-verification">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup">("dashboard");
 
   if (loading) {
     return (
@@ -69,6 +70,7 @@ export default function AdminPanel() {
             { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
             { id: "establishments" as const, label: "Estabelecimentos", icon: Store },
             { id: "age-verification" as const, label: "Verificação Idade", icon: FileCheck },
+            { id: "code-backup" as const, label: "Código Fonte", icon: Code },
           ].map(tab => (
             <button
               key={tab.id}
@@ -93,6 +95,7 @@ export default function AdminPanel() {
         {activeTab === "claims" && <ClaimsTab />}
         {activeTab === "establishments" && <EstablishmentsTab />}
         {activeTab === "age-verification" && <AgeVerificationTab />}
+        {activeTab === "code-backup" && <CodeBackupTab />}
       </div>
     </div>
   );
@@ -372,16 +375,20 @@ function EstablishmentsTab() {
       toast.error("Nome e categoria são obrigatórios");
       return;
     }
+    if (!formData.address || !formData.neighborhood || !formData.region || !formData.phone || !formData.instagram || !formData.hours) {
+      toast.error("Todos os campos são obrigatórios. Preencha endereço, bairro, região, telefone, Instagram e horário.");
+      return;
+    }
     try {
       const result = await createMutation.mutateAsync({
         name: formData.name,
         categoryId: formData.categoryId,
-        address: formData.address || undefined,
-        neighborhood: formData.neighborhood || undefined,
-        region: formData.region || undefined,
-        phone: formData.phone || undefined,
-        instagram: formData.instagram || undefined,
-        hours: formData.hours || undefined,
+        address: formData.address,
+        neighborhood: formData.neighborhood,
+        region: formData.region,
+        phone: formData.phone,
+        instagram: formData.instagram,
+        hours: formData.hours,
       });
       toast.success(`"${formData.name}" cadastrado com sucesso! (ID: ${result.id})`);
       setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "Pinheiros", phone: "", instagram: "", hours: "" });
@@ -441,7 +448,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Endereço</label>
+              <label className="block text-xs text-muted-foreground mb-1">Endereço *</label>
               <input
                 type="text"
                 value={formData.address}
@@ -452,7 +459,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Bairro</label>
+              <label className="block text-xs text-muted-foreground mb-1">Bairro *</label>
               <input
                 type="text"
                 value={formData.neighborhood}
@@ -463,7 +470,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Região</label>
+              <label className="block text-xs text-muted-foreground mb-1">Região *</label>
               <input
                 type="text"
                 value={formData.region}
@@ -474,7 +481,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Telefone</label>
+              <label className="block text-xs text-muted-foreground mb-1">Telefone *</label>
               <input
                 type="text"
                 value={formData.phone}
@@ -485,7 +492,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Instagram</label>
+              <label className="block text-xs text-muted-foreground mb-1">Instagram *</label>
               <input
                 type="text"
                 value={formData.instagram}
@@ -496,7 +503,7 @@ function EstablishmentsTab() {
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Horário de Funcionamento</label>
+              <label className="block text-xs text-muted-foreground mb-1">Horário de Funcionamento *</label>
               <input
                 type="text"
                 value={formData.hours}
@@ -694,6 +701,107 @@ function AgeVerificationTab() {
                   <strong>Nota admin:</strong> {req.adminNotes}
                 </div>
               )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CodeBackupTab() {
+  const { data: backups, isLoading, refetch } = trpc.admin.getCodeBackups.useQuery();
+  const generateMutation = trpc.admin.generateCodeBackup.useMutation({
+    onSuccess: () => {
+      toast.success("Backup gerado com sucesso!");
+      refetch();
+    },
+    onError: (err) => toast.error(`Erro ao gerar backup: ${err.message}`),
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-2xl tracking-wider text-foreground">CÓDIGO FONTE</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Backup completo do código do aplicativo para recuperação
+          </p>
+        </div>
+        <button
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          {generateMutation.isPending ? (
+            <>
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              Gerando...
+            </>
+          ) : (
+            <>
+              <FileCode className="w-4 h-4" />
+              Gerar Novo Backup
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Info card */}
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+        <div className="flex items-start gap-3">
+          <Code className="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <h3 className="font-medium text-foreground text-sm">Como funciona</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Ao clicar em "Gerar Novo Backup", o sistema coleta todos os arquivos de código fonte do aplicativo
+              (TypeScript, CSS, configurações) e gera um documento Markdown estruturado com o conteúdo completo.
+              Este arquivo pode ser usado para recuperação total do projeto em caso de perda de dados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Backups list */}
+      {isLoading ? (
+        <div className="text-muted-foreground text-center py-8">Carregando backups...</div>
+      ) : !backups || backups.length === 0 ? (
+        <div className="text-center py-12">
+          <FileCode className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-muted-foreground">Nenhum backup gerado ainda.</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Clique em "Gerar Novo Backup" para criar o primeiro.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <h3 className="font-display text-lg tracking-wider text-foreground">BACKUPS DISPONÍVEIS</h3>
+          {backups.map((backup) => (
+            <div
+              key={backup.id}
+              className="p-4 rounded-xl bg-card border border-border/50 flex flex-col sm:flex-row sm:items-center gap-3 justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <FileCode className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">{backup.id}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(backup.createdAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+                    {" • "}{backup.fileCount} arquivos{" • "}{backup.sizeKB} KB
+                  </p>
+                </div>
+              </div>
+              <a
+                href={backup.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 border border-primary/30 text-primary rounded-lg text-sm font-medium hover:bg-primary/10 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Baixar
+              </a>
             </div>
           ))}
         </div>

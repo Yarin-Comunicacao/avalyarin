@@ -1,0 +1,208 @@
+{
+  "query": "SELECT e.id, e.name, e.address, e.neighborhood, e.instagram, e.image, e.phone, e.hours, c.name as category\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nORDER BY CASE WHEN e.neighborhood IN ('Vila Madalena', 'Pinheiros') THEN 0 ELSE 1 END, e.neighborhood, e.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.address, e.neighborhood, e.instagram, e.image, e.phone, e.hours, c.name as category\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE c.name LIKE '%Boteco Moderno%'\nORDER BY CASE WHEN e.neighborhood IN ('Vila Madalena', 'Pinheiros') THEN 0 ELSE 1 END, e.neighborhood, e.name;",
+  "rows": [
+    {
+      "id": "1923",
+      "name": "Botecagem SP",
+      "address": "Avenida Brigadeiro Faria Lima, S/N - Pinheiros, São Paulo",
+      "neighborhood": "Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "1720",
+      "name": "Othê Gastrobar",
+      "address": "R. Mourato Coelho, 789 - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "instagram": "@othe.sp",
+      "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/uviPiPUyOWvqbqka.jpg",
+      "phone": "(11) 3813-5921",
+      "hours": "Terça-feira: 12h - 15h e 17h - 21h45 | Quarta-feira: 12h - 15h e 17h - 21h45 | Quinta-feira: 12h - 15h e 17h - 21h45 | Sexta-feira: 12h - 15h e 17h - 22h30 | Sábado: 12h - 22h30 | Domingo: 12h - 16h30",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "2094",
+      "name": "Cão Véio Vila Madalena (Matriz)",
+      "address": "R. Girassol, 396 - Vila Madalena, São Paulo - SP, 05433-002, Brasil",
+      "neighborhood": "Vila Madalena",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "7712",
+      "name": "De Primeira",
+      "address": "R. Aspicuelta, 515 - Vila Madalena",
+      "neighborhood": "Vila Madalena",
+      "instagram": "@deprimeira.bar",
+      "image": "/manus-storage/de-primeira_f1246ce5.jpg",
+      "phone": "(11) 3034-1556",
+      "hours": "Ter-Sex 17h-00h | Sáb 12h-00h | Dom 12h-22h | Seg Fechado",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "2086",
+      "name": "Olívio Bar e Gastronomia",
+      "address": "Rua Delfina, 196 - Vila Madalena, São Paulo",
+      "neighborhood": "Vila Madalena",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "2048",
+      "name": "Santa Maluca Gastrobar",
+      "address": "Rua Aspicuelta, 459 - Vila Madalena, São Paulo",
+      "neighborhood": "Vila Madalena",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "2481",
+      "name": "Aura Gastrobar",
+      "address": "Rua Professor Sebastião Soares de Faria, 48 - Bela Vista, São Paulo",
+      "neighborhood": "Bela Vista",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "3080",
+      "name": "Di&Gu Gastrobar",
+      "address": "Rua Alexandrino da Silveira Bueno, 157 - Cambuci, São Paulo",
+      "neighborhood": "Cambuci",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "3018",
+      "name": "Parada na Miguel /Gastrobar",
+      "address": "Rua Miguel Teles Júnior - Cambuci, São Paulo",
+      "neighborhood": "Cambuci",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "7715",
+      "name": "Fábrica Drinks | Gastrobar",
+      "address": "R. Augusta, 1283 - Consolação",
+      "neighborhood": "Consolação",
+      "instagram": "@fabricadrinks",
+      "image": "/manus-storage/ig-fabricadrinks-7715_5a260d63.jpg",
+      "phone": "(11) 3554-4997",
+      "hours": "Quarta e quina, das 16h às 23h | Sexta, das 16h à 00h | Sábado, das 13h à 00h | Domingo, das 13h às 23h",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "5164",
+      "name": "GastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento",
+      "address": "Rua Ari Cajado, 110 - Vila Monumento, São Paulo",
+      "neighborhood": "Ipiranga",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "7048",
+      "name": "Glicério Gastrobar - Restaurante e Bar com Música ao Vivo",
+      "address": "Rua Doutor Lund, 96 - Liberdade, São Paulo",
+      "neighborhood": "Liberdade",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "7713",
+      "name": "Melts Gastrobar",
+      "address": "Av. da Liberdade, 472 - Liberdade",
+      "neighborhood": "Liberdade",
+      "instagram": "@meltsbrasil",
+      "image": "https://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg",
+      "phone": "(11) 3208-2166",
+      "hours": "Não encontrado",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "5257",
+      "name": "Buteco Seu Rufino - Moema",
+      "address": "Alameda dos Maracatins, 1379 - Indianópolis, São Paulo",
+      "neighborhood": "Moema",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "5439",
+      "name": "Cão Véio - Unidade Vila Mariana",
+      "address": "Rua Doutor Amâncio de Carvalho, 303 - Vila Mariana, São Paulo",
+      "neighborhood": "Moema",
+      "instagram": "NULL",
+      "image": "NULL",
+      "phone": "NULL",
+      "hours": "NULL",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "5499",
+      "name": "Marú Gastrobar",
+      "address": "Av. Hélio Pellegrino, 789 - Vila Nova Conceição",
+      "neighborhood": "Moema",
+      "instagram": "@maru.gastrobar",
+      "image": "/home/ubuntu/Downloads/maru_gastrobar_foto.webp",
+      "phone": "(11) 5051-2020",
+      "hours": "Quarta a Sexta: 17h-00h | Sábado: 12h-01h | Domingo: 12h-23h",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "7714",
+      "name": "Ministro Gastrobar",
+      "address": "R. Ministro Godói, 999 - Perdizes",
+      "neighborhood": "Perdizes",
+      "instagram": "@ministrogastrobar",
+      "image": "/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg",
+      "phone": "(11) 99202-1360",
+      "hours": "Seg a qui - 11h a 00h; Sex 11h a 01h; Sab 12h a 01h; Dom 12h as 18h",
+      "category": "Boteco Moderno"
+    },
+    {
+      "id": "1177",
+      "name": "Oink Gastro Bar",
+      "address": "R. Tucuna, 14 - Pompeia",
+      "neighborhood": "Perdizes",
+      "instagram": "@oink_gastrobar",
+      "image": "https://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg",
+      "phone": "(11) 98266-1611",
+      "hours": "Ter-Sex 17h-23h | Sáb-Dom 12h-23h",
+      "category": "Boteco Moderno"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tinstagram\timage\tphone\thours\tcategory\n1923\tBotecagem SP\tAvenida Brigadeiro Faria Lima, S/N - Pinheiros, São Paulo\tPinheiros\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n1720\tOthê Gastrobar\tR. Mourato Coelho, 789 - Pinheiros\tPinheiros\t@othe.sp\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/uviPiPUyOWvqbqka.jpg\t(11) 3813-5921\tTerça-feira: 12h - 15h e 17h - 21h45 | Quarta-feira: 12h - 15h e 17h - 21h45 | Quinta-feira: 12h - 15h e 17h - 21h45 | Sexta-feira: 12h - 15h e 17h - 22h30 | Sábado: 12h - 22h30 | Domingo: 12h - 16h30\tBoteco Moderno\n2094\tCão Véio Vila Madalena (Matriz)\tR. Girassol, 396 - Vila Madalena, São Paulo - SP, 05433-002, Brasil\tVila Madalena\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n7712\tDe Primeira\tR. Aspicuelta, 515 - Vila Madalena\tVila Madalena\t@deprimeira.bar\t/manus-storage/de-primeira_f1246ce5.jpg\t(11) 3034-1556\tTer-Sex 17h-00h | Sáb 12h-00h | Dom 12h-22h | Seg Fechado\tBoteco Moderno\n2086\tOlívio Bar e Gastronomia\tRua Delfina, 196 - Vila Madalena, São Paulo\tVila Madalena\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n2048\tSanta Maluca Gastrobar\tRua Aspicuelta, 459 - Vila Madalena, São Paulo\tVila Madalena\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n2481\tAura Gastrobar\tRua Professor Sebastião Soares de Faria, 48 - Bela Vista, São Paulo\tBela Vista\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n3080\tDi&Gu Gastrobar\tRua Alexandrino da Silveira Bueno, 157 - Cambuci, São Paulo\tCambuci\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n3018\tParada na Miguel /Gastrobar\tRua Miguel Teles Júnior - Cambuci, São Paulo\tCambuci\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n7715\tFábrica Drinks | Gastrobar\tR. Augusta, 1283 - Consolação\tConsolação\t@fabricadrinks\t/manus-storage/ig-fabricadrinks-7715_5a260d63.jpg\t(11) 3554-4997\tQuarta e quina, das 16h às 23h | Sexta, das 16h à 00h | Sábado, das 13h à 00h | Domingo, das 13h às 23h\tBoteco Moderno\n5164\tGastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento\tRua Ari Cajado, 110 - Vila Monumento, São Paulo\tIpiranga\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n7048\tGlicério Gastrobar - Restaurante e Bar com Música ao Vivo\tRua Doutor Lund, 96 - Liberdade, São Paulo\tLiberdade\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n7713\tMelts Gastrobar\tAv. da Liberdade, 472 - Liberdade\tLiberdade\t@meltsbrasil\thttps://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg\t(11) 3208-2166\tNão encontrado\tBoteco Moderno\n5257\tButeco Seu Rufino - Moema\tAlameda dos Maracatins, 1379 - Indianópolis, São Paulo\tMoema\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n5439\tCão Véio - Unidade Vila Mariana\tRua Doutor Amâncio de Carvalho, 303 - Vila Mariana, São Paulo\tMoema\tNULL\tNULL\tNULL\tNULL\tBoteco Moderno\n5499\tMarú Gastrobar\tAv. Hélio Pellegrino, 789 - Vila Nova Conceição\tMoema\t@maru.gastrobar\t/home/ubuntu/Downloads/maru_gastrobar_foto.webp\t(11) 5051-2020\tQuarta a Sexta: 17h-00h | Sábado: 12h-01h | Domingo: 12h-23h\tBoteco Moderno\n7714\tMinistro Gastrobar\tR. Ministro Godói, 999 - Perdizes\tPerdizes\t@ministrogastrobar\t/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg\t(11) 99202-1360\tSeg a qui - 11h a 00h; Sex 11h a 01h; Sab 12h a 01h; Dom 12h as 18h\tBoteco Moderno\n1177\tOink Gastro Bar\tR. Tucuna, 14 - Pompeia\tPerdizes\t@oink_gastrobar\thttps://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg\t(11) 98266-1611\tTer-Sex 17h-23h | Sáb-Dom 12h-23h\tBoteco Moderno\n",
+  "stderr": "",
+  "execution_time_ms": 286
+}

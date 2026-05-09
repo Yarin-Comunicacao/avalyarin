@@ -1,0 +1,70 @@
+{
+  "query": "SELECT e.name, c.name as current_category, e.neighborhood\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%cerve%' OR e.name LIKE '%brew%' OR e.name LIKE '%Cerve%' OR e.name LIKE '%Brew%')\n  AND c.id != 13\nLIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name, c.name as current_category, e.neighborhood\nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE (e.name LIKE '%cerve%' OR e.name LIKE '%brew%' OR e.name LIKE '%Cerve%' OR e.name LIKE '%Brew%')\n  AND c.id != 13\nLIMIT 15;",
+  "rows": [
+    {
+      "name": "Farra Funda/BrewYo",
+      "current_category": "Bar & Lanchonete",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Porão da Cerveja",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "MaLuÁ - Cerveja Artesanal",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "name": "Ambar Cervejas Artesanais",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "name": "Brejada Delivery São Paulo - (Delivery ou Take Away) Cervejas Artesanais",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "name": "Taguá 326 Cervejas Artesanais",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "name": "Rancho da Cerveja",
+      "current_category": "Boteco Tradicional",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "name": "Cerveja Avós - Vila Mariana",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Moema"
+    },
+    {
+      "name": "Deodoro Fogo Fumaça e Cerveja",
+      "current_category": "Cozinha Brasileira",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "name": "La Barbara Forneria: Happy Hour, Chopp, Cerveja, Pizza São Paulo SP",
+      "current_category": "Pizzaria",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "name": "Aimbeer 850 PUB - Cervejaria em Perdizes",
+      "current_category": "Pub",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "name": "São Paulo Tap House - O maior Brewpub do Brasil",
+      "current_category": "Pub",
+      "neighborhood": "Vila Madalena"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tcurrent_category\tneighborhood\nFarra Funda/BrewYo\tBar & Lanchonete\tBarra Funda\nPorão da Cerveja\tCozinha Brasileira\tBarra Funda\nMaLuÁ - Cerveja Artesanal\tCozinha Brasileira\tPerdizes\nAmbar Cervejas Artesanais\tCozinha Brasileira\tPinheiros\nBrejada Delivery São Paulo - (Delivery ou Take Away) Cervejas Artesanais\tCozinha Brasileira\tBela Vista\nTaguá 326 Cervejas Artesanais\tCozinha Brasileira\tLiberdade\nRancho da Cerveja\tBoteco Tradicional\tIpiranga\nCerveja Avós - Vila Mariana\tCozinha Brasileira\tMoema\nDeodoro Fogo Fumaça e Cerveja\tCozinha Brasileira\tVila Mariana\nLa Barbara Forneria: Happy Hour, Chopp, Cerveja, Pizza São Paulo SP\tPizzaria\tJardim Paulista\nAimbeer 850 PUB - Cervejaria em Perdizes\tPub\tPerdizes\nSão Paulo Tap House - O maior Brewpub do Brasil\tPub\tVila Madalena\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}
