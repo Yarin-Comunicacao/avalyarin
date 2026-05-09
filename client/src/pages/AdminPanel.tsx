@@ -352,7 +352,7 @@ function EstablishmentsTab() {
     categoryId: 0,
     address: "",
     neighborhood: "",
-    region: "Pinheiros",
+    region: "",
     phone: "",
     instagram: "",
     hours: "",
@@ -375,8 +375,8 @@ function EstablishmentsTab() {
       toast.error("Nome e categoria são obrigatórios");
       return;
     }
-    if (!formData.address || !formData.neighborhood || !formData.region || !formData.phone || !formData.instagram || !formData.hours) {
-      toast.error("Todos os campos são obrigatórios. Preencha endereço, bairro, região, telefone, Instagram e horário.");
+    if (!formData.address || !formData.neighborhood || !formData.phone || !formData.instagram || !formData.hours) {
+      toast.error("Preencha todos os campos obrigatórios: endereço, bairro, telefone, Instagram e horário.");
       return;
     }
     try {
@@ -391,7 +391,7 @@ function EstablishmentsTab() {
         hours: formData.hours,
       });
       toast.success(`"${formData.name}" cadastrado com sucesso! (ID: ${result.id})`);
-      setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "Pinheiros", phone: "", instagram: "", hours: "" });
+      setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "", phone: "", instagram: "", hours: "" });
       setShowForm(false);
       utils.establishments.byCategory.invalidate();
       utils.admin.stats.invalidate();
@@ -447,15 +447,17 @@ function EstablishmentsTab() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">Endereço *</label>
+            <div className="md:col-span-2">
+              <label className="block text-xs text-muted-foreground mb-1">Endereço completo *</label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Rua, número"
+                placeholder="R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil"
+                required
               />
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Formato: Rua, nº - Bairro, São Paulo - SP, CEP, Brasil</span>
             </div>
 
             <div>
@@ -465,19 +467,22 @@ function EstablishmentsTab() {
                 value={formData.neighborhood}
                 onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Ex: Pinheiros"
+                placeholder="Vila Madalena"
+                required
               />
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Ex: Pinheiros, Vila Madalena, Moema, Jardins</span>
             </div>
 
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">Região *</label>
+              <label className="block text-xs text-muted-foreground mb-1">Região <span className="text-muted-foreground/40">(opcional)</span></label>
               <input
                 type="text"
                 value={formData.region}
                 onChange={(e) => setFormData(prev => ({ ...prev, region: e.target.value }))}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Ex: Pinheiros"
+                placeholder="Zona Oeste"
               />
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Ex: Zona Oeste, Zona Sul, Centro</span>
             </div>
 
             <div>
@@ -485,32 +490,62 @@ function EstablishmentsTab() {
               <input
                 type="text"
                 value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) => {
+                  let v = e.target.value.replace(/\D/g, '');
+                  if (v.length > 11) v = v.slice(0, 11);
+                  if (v.length === 11) {
+                    // Celular: (11) 99999-9999
+                    v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+                  } else if (v.length === 10) {
+                    // Fixo: (11) 3456-7890
+                    v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+                  } else if (v.length > 6) {
+                    // Parcial com mais de 6 dígitos - tenta formatar como celular
+                    v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+                  } else if (v.length > 2) {
+                    v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+                  } else if (v.length > 0) {
+                    v = `(${v}`;
+                  }
+                  setFormData(prev => ({ ...prev, phone: v }));
+                }}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
                 placeholder="(11) 99999-9999"
+                required
               />
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Formato: (DDD) XXXXX-XXXX</span>
             </div>
 
             <div>
               <label className="block text-xs text-muted-foreground mb-1">Instagram *</label>
-              <input
-                type="text"
-                value={formData.instagram}
-                onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="@nomedoperfil"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.instagram}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val && !val.startsWith('@')) val = '@' + val;
+                    setFormData(prev => ({ ...prev, instagram: val }));
+                  }}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                  placeholder="@nomedoperfil"
+                  required
+                />
+              </div>
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Apenas o handle, sem URL. Ex: @bardoze</span>
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-xs text-muted-foreground mb-1">Horário de Funcionamento *</label>
               <input
                 type="text"
                 value={formData.hours}
                 onChange={(e) => setFormData(prev => ({ ...prev, hours: e.target.value }))}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Seg-Sex: 18h-02h"
+                placeholder="Seg a Sex: 18:00–02:00 | Sáb: 16:00–03:00 | Dom: Fechado"
+                required
               />
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Formato: Agrupe dias iguais. Use | para separar. Ex: Seg a Qui: 11:30–23:00 | Sex a Sáb: 11:30–01:00 | Dom: Fechado</span>
             </div>
           </div>
 

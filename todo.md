@@ -86,3 +86,6 @@
 - [x] Remove 16 invalid establishments (generic names, typos, Portugal addresses, street names as bar names)
 - [x] Admin Panel: Add "Código Fonte" tab with code backup/recovery documentation
 - [x] Admin Panel: Enforce required fields (address, hours, phone, neighborhood, category) in new establishment form
+- [x] Remove "Região" from required fields in establishment creation (not used in existing data)
+- [x] Add proper placeholders with format examples in establishment creation form
+- [x] Add phone mask (11) 99999-9999 in establishment creation form

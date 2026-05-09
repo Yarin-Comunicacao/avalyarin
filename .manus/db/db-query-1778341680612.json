@@ -1,0 +1,110 @@
+{
+  "query": "SELECT \n  id, name, address, neighborhood, region, phone, instagram, hours \nFROM establishments \nWHERE address IS NOT NULL AND phone IS NOT NULL AND hours IS NOT NULL\nORDER BY id DESC \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  id, name, address, neighborhood, region, phone, instagram, hours \nFROM establishments \nWHERE address IS NOT NULL AND phone IS NOT NULL AND hours IS NOT NULL\nORDER BY id DESC \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "7746",
+      "name": "Sylvester Bar",
+      "address": "Rua Maria Carolina, 745 - Jardim Paulistano, São Paulo - SP, 03178-200, Brasil",
+      "neighborhood": "Vila Madalena",
+      "region": "NULL",
+      "phone": "(11) 3034-1268",
+      "instagram": "@sylvesterbar",
+      "hours": "Seg a Qua: 17:00–23:00 | Qui a Sáb: 17:00–01:00 | Dom: Fechado"
+    },
+    {
+      "id": "7745",
+      "name": "Tan Tan",
+      "address": "R. Fradique Coutinho, 153 - Pinheiros, São Paulo - SP, 05416-010, Brasil",
+      "neighborhood": "Pinheiros",
+      "region": "NULL",
+      "phone": "(11) 3062-4567",
+      "instagram": "@tantan.noodle.bar",
+      "hours": "Seg: Fechado | Ter a Sex: 19:00–23:00 | Sáb: 12:00–16:00, 19:00–23:00 | Dom: 19:00–23:00"
+    },
+    {
+      "id": "7744",
+      "name": "Henna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa",
+      "address": "R. Brg. Jordão, 725 - Ipiranga, São Paulo - SP, 04210-000, Brasil",
+      "neighborhood": "Ipiranga",
+      "region": "NULL",
+      "phone": "(11) 96626-2588",
+      "instagram": "@henna_japafood",
+      "hours": "Seg: Fechado | Ter a Sex: 11:00–14:30, 18:00–22:00 | Sáb a Dom: 17:00–22:00"
+    },
+    {
+      "id": "7743",
+      "name": "Hō Sushi Bar",
+      "address": "R. Inhambu, 1090 - Vila Uberabinha, São Paulo - SP, 04520-013, Brasil",
+      "neighborhood": "Moema",
+      "region": "NULL",
+      "phone": "(11) 94535-4052",
+      "instagram": "@hosushibar",
+      "hours": "Seg a Sáb: 12:00–15:00, 19:00–22:30 | Dom: Fechado"
+    },
+    {
+      "id": "7742",
+      "name": "Stunt Burger",
+      "address": "Rua José Jannarelli, 426 - Vila Progredior, São Paulo - SP, 05615-000, Brasil",
+      "neighborhood": "Morumbi",
+      "region": "NULL",
+      "phone": "(11) 95520-6206",
+      "instagram": "@stuntburger",
+      "hours": "Seg a Qui: 12:00–23:30 | Sex a Sáb: 12:00–00:30 | Dom: 12:00–23:30"
+    },
+    {
+      "id": "7741",
+      "name": "Bullger",
+      "address": "R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "neighborhood": "Pinheiros",
+      "region": "NULL",
+      "phone": "",
+      "instagram": "NULL",
+      "hours": "Seg a Qui: 11:30–23:30 | Sex a Sáb: 11:30–03:00 | Dom: 11:30–23:30"
+    },
+    {
+      "id": "7740",
+      "name": "Leggera Pizza Napoletana",
+      "address": "R. Diana, 80 - Pompeia, São Paulo - SP, 05019-000, Brasil",
+      "neighborhood": "Perdizes",
+      "region": "NULL",
+      "phone": "(11) 3884-6585",
+      "instagram": "@leggerapizzanapoletana",
+      "hours": "Seg: Fechado | Ter a Qui: 18:00–23:00 | Sex a Sáb: 18:00–23:30 | Dom: 18:00–22:00"
+    },
+    {
+      "id": "7739",
+      "name": "Cervejaria Oak - Pinheiros",
+      "address": "R. Padre Carvalho, 769 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "neighborhood": "Pinheiros",
+      "region": "NULL",
+      "phone": "(11) 94362-7334",
+      "instagram": "@cervejariaoak",
+      "hours": "Seg: 11:00–18:00 | Ter: 10:00–18:00 | Qua: 10:00–22:00 | Qui: 10:00–23:00 | Sex a Sáb: 10:00–00:00 | Dom: 10:00–19:00"
+    },
+    {
+      "id": "7738",
+      "name": "Cervejaria Dogma - Tasting Room Jardins",
+      "address": "R. Dr. Melo Alves, 347 - Cerqueira César, São Paulo - SP, 01417-010, Brasil",
+      "neighborhood": "Jardins",
+      "region": "NULL",
+      "phone": "(11) 99663-2352",
+      "instagram": "@dogmabrewery",
+      "hours": "Seg: Fechado | Ter a Sex: 17:00–23:00 | Sáb: 12:00–23:00 | Dom: 12:00–20:00"
+    },
+    {
+      "id": "7737",
+      "name": "Cervejaria e Hamburgueria Ducabra",
+      "address": "Av. Itaboraí, 48 - Bosque da Saúde, São Paulo - SP, 04142-040, Brasil",
+      "neighborhood": "Cursino",
+      "region": "NULL",
+      "phone": "(11) 98271-0224",
+      "instagram": "@cervejariaducabra",
+      "hours": "Seg a Ter: Fechado | Qua a Sex: 17:30–23:00 | Sáb: 12:00–23:00 | Dom: Fechado"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\tregion\tphone\tinstagram\thours\n7746\tSylvester Bar\tRua Maria Carolina, 745 - Jardim Paulistano, São Paulo - SP, 03178-200, Brasil\tVila Madalena\tNULL\t(11) 3034-1268\t@sylvesterbar\tSeg a Qua: 17:00–23:00 | Qui a Sáb: 17:00–01:00 | Dom: Fechado\n7745\tTan Tan\tR. Fradique Coutinho, 153 - Pinheiros, São Paulo - SP, 05416-010, Brasil\tPinheiros\tNULL\t(11) 3062-4567\t@tantan.noodle.bar\tSeg: Fechado | Ter a Sex: 19:00–23:00 | Sáb: 12:00–16:00, 19:00–23:00 | Dom: 19:00–23:00\n7744\tHenna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa\tR. Brg. Jordão, 725 - Ipiranga, São Paulo - SP, 04210-000, Brasil\tIpiranga\tNULL\t(11) 96626-2588\t@henna_japafood\tSeg: Fechado | Ter a Sex: 11:00–14:30, 18:00–22:00 | Sáb a Dom: 17:00–22:00\n7743\tHō Sushi Bar\tR. Inhambu, 1090 - Vila Uberabinha, São Paulo - SP, 04520-013, Brasil\tMoema\tNULL\t(11) 94535-4052\t@hosushibar\tSeg a Sáb: 12:00–15:00, 19:00–22:30 | Dom: Fechado\n7742\tStunt Burger\tRua José Jannarelli, 426 - Vila Progredior, São Paulo - SP, 05615-000, Brasil\tMorumbi\tNULL\t(11) 95520-6206\t@stuntburger\tSeg a Qui: 12:00–23:30 | Sex a Sáb: 12:00–00:30 | Dom: 12:00–23:30\n7741\tBullger\tR. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tPinheiros\tNULL\t\tNULL\tSeg a Qui: 11:30–23:30 | Sex a Sáb: 11:30–03:00 | Dom: 11:30–23:30\n7740\tLeggera Pizza Napoletana\tR. Diana, 80 - Pompeia, São Paulo - SP, 05019-000, Brasil\tPerdizes\tNULL\t(11) 3884-6585\t@leggerapizzanapoletana\tSeg: Fechado | Ter a Qui: 18:00–23:00 | Sex a Sáb: 18:00–23:30 | Dom: 18:00–22:00\n7739\tCervejaria Oak - Pinheiros\tR. Padre Carvalho, 769 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tPinheiros\tNULL\t(11) 94362-7334\t@cervejariaoak\tSeg: 11:00–18:00 | Ter: 10:00–18:00 | Qua: 10:00–22:00 | Qui: 10:00–23:00 | Sex a Sáb: 10:00–00:00 | Dom: 10:00–19:00\n7738\tCervejaria Dogma - Tasting Room Jardins\tR. Dr. Melo Alves, 347 - Cerqueira César, São Paulo - SP, 01417-010, Brasil\tJardins\tNULL\t(11) 99663-2352\t@dogmabrewery\tSeg: Fechado | Ter a Sex: 17:00–23:00 | Sáb: 12:00–23:00 | Dom: 12:00–20:00\n7737\tCervejaria e Hamburgueria Ducabra\tAv. Itaboraí, 48 - Bosque da Saúde, São Paulo - SP, 04142-040, Brasil\tCursino\tNULL\t(11) 98271-0224\t@cervejariaducabra\tSeg a Ter: Fechado | Qua a Sex: 17:30–23:00 | Sáb: 12:00–23:00 | Dom: Fechado\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

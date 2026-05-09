@@ -247,7 +247,7 @@ export const appRouter = router({
         categoryId: z.number().min(1),
         address: z.string().min(5, "Endereço é obrigatório (mín. 5 caracteres)"),
         neighborhood: z.string().min(2, "Bairro é obrigatório"),
-        region: z.string().min(2, "Região é obrigatória"),
+        region: z.string().optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
         phone: z.string().min(8, "Telefone é obrigatório (mín. 8 caracteres)"),
