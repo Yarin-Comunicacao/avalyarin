@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(6500, 'Raw Fries', 'Batatas laminadas marginalmente, crocantes e sequinhas, temperadas com alecrim, black lemon pepper. Acompanha maionese Kewpie', 29.00, 'Raw Snacks'),\n(6500, 'Tartufo Fries', 'Batata palito com queijo padano macaronado e finalizada com salsa de trufas', 29.00, 'Raw Snacks'),\n(6500, 'Buffalo Wings', 'Mix de asas de frango crocantes, fritas e finalizadas com molho buffalo feito na casa', 47.00, 'Raw Snacks'),\n(6500, 'Maionese Kewpie 30ml', 'Porção 30ml da maionese da casa', 5.00, 'Maionese da Casa'),\n(6500, 'Maionese Kewpie 80ml', 'Porção 80ml da maionese da casa', 14.00, 'Maionese da Casa');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(6500, 'Raw Fries', 'Batatas laminadas marginalmente, crocantes e sequinhas, temperadas com alecrim, black lemon pepper. Acompanha maionese Kewpie', 29.00, 'Raw Snacks'),\n(6500, 'Tartufo Fries', 'Batata palito com queijo padano macaronado e finalizada com salsa de trufas', 29.00, 'Raw Snacks'),\n(6500, 'Buffalo Wings', 'Mix de asas de frango crocantes, fritas e finalizadas com molho buffalo feito na casa', 47.00, 'Raw Snacks'),\n(6500, 'Maionese Kewpie 30ml', 'Porção 30ml da maionese da casa', 5.00, 'Maionese da Casa'),\n(6500, 'Maionese Kewpie 80ml', 'Porção 80ml da maionese da casa', 14.00, 'Maionese da Casa');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 348
+}

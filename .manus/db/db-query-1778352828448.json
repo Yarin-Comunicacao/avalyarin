@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, slug FROM establishments WHERE name LIKE '%Luiza Lafer%' OR name LIKE '%Luisa Lafer%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug FROM establishments WHERE name LIKE '%Luiza Lafer%' OR name LIKE '%Luisa Lafer%';",
+  "rows": [
+    {
+      "id": "6483",
+      "name": "Luiza Lafer Confeitaria",
+      "slug": "luiza-lafer-confeitaria"
+    },
+    {
+      "id": "7725",
+      "name": "Luiza Lafer Confeitaria",
+      "slug": "luiza-lafer"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n6483\tLuiza Lafer Confeitaria\tluiza-lafer-confeitaria\n7725\tLuiza Lafer Confeitaria\tluiza-lafer\n",
+  "stderr": "",
+  "execution_time_ms": 365
+}

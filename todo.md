@@ -91,3 +91,13 @@
 - [x] Add phone mask (11) 99999-9999 in establishment creation form
 - [x] Remove profile icon from left side of navbar
 - [x] Generate cover photos for all 17 categories on home page
+- [x] Adicionar estabelecimento "Luiza Lafer Confeitaria" com Instagram @luizalaferconfeitaria
+- [x] Adicionar cardápio da Luiza Lafer Confeitaria (24 itens: 6 bolos, 4 tortas, 9 doces, 3 presenteáveis, 2 challah)
+- [x] Remover duplicidades de franquias (mesmo endereço) do banco — 112 duplicatas removidas
+- [x] Remover parques/Herbalife do banco (não são estabelecimentos gastronômicos) — 26 removidos
+- [x] Remover nutricionistas do banco (não são estabelecimentos gastronômicos) — incluído acima
+- [x] Adicionar estabelecimento EAPSP (Rua Vupabussu) ao banco — 48 itens de cardápio inseridos
+- [x] Adicionar cardápio da Raw Burger — 45 itens em 7 categorias (PriceListo, maio 2026)
+- [x] Comparar e atualizar cardápio da Raw Burger com dados do cardápio físico (foto) — 40 itens em 7 categorias
+- [x] Bug: cardápio não aparece na página do estabelecimento Raw Burger N Bar — categorias corrigidas para valores reconhecidos pelo frontend
+- [ ] Bug: tela de avaliação não mostra todos os itens do cardápio (faltam hambúrgueres, petiscos, destilados) e agrupa bebidas com cervejas incorretamente

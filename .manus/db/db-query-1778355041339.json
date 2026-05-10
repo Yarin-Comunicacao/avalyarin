@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, slug FROM categories WHERE id = 11;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug FROM categories WHERE id = 11;",
+  "rows": [
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "slug": "confeitaria"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n11\tConfeitaria\tconfeitaria\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

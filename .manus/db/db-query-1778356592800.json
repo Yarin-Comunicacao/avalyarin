@@ -1,0 +1,154 @@
+{
+  "query": "SELECT id, name, category, price FROM menu_items WHERE establishmentId = 6483 ORDER BY category, name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, category, price FROM menu_items WHERE establishmentId = 6483 ORDER BY category, name;",
+  "rows": [
+    {
+      "id": "30003",
+      "name": "Bolo Limão e Cocada",
+      "category": "Bolos",
+      "price": "285"
+    },
+    {
+      "id": "30006",
+      "name": "Bolo Maracujá e Cocada",
+      "category": "Bolos",
+      "price": "305"
+    },
+    {
+      "id": "30004",
+      "name": "Bolo Maracujá e Framboesa",
+      "category": "Bolos",
+      "price": "305"
+    },
+    {
+      "id": "30005",
+      "name": "Bolo Morango",
+      "category": "Bolos",
+      "price": "325"
+    },
+    {
+      "id": "30001",
+      "name": "Bolo Mousse",
+      "category": "Bolos",
+      "price": "325"
+    },
+    {
+      "id": "30002",
+      "name": "Bolo Tres Leches",
+      "category": "Bolos",
+      "price": "260"
+    },
+    {
+      "id": "30024",
+      "name": "Challah Grande",
+      "category": "Challah",
+      "price": "48"
+    },
+    {
+      "id": "30023",
+      "name": "Challah Pequena",
+      "category": "Challah",
+      "price": "13"
+    },
+    {
+      "id": "30016",
+      "name": "Banoffee de Biscoff",
+      "category": "Doces",
+      "price": "290"
+    },
+    {
+      "id": "30012",
+      "name": "Blondie Caramelo",
+      "category": "Doces",
+      "price": "142"
+    },
+    {
+      "id": "30011",
+      "name": "Brownie Chocolate e Tahine",
+      "category": "Doces",
+      "price": "275"
+    },
+    {
+      "id": "30017",
+      "name": "Cheesecake",
+      "category": "Doces",
+      "price": "298"
+    },
+    {
+      "id": "30014",
+      "name": "Choux Cream",
+      "category": "Doces",
+      "price": "18"
+    },
+    {
+      "id": "30013",
+      "name": "Cookie Gochujang",
+      "category": "Doces",
+      "price": "55"
+    },
+    {
+      "id": "30019",
+      "name": "Pavê de Abacaxi com Coco",
+      "category": "Doces",
+      "price": "330"
+    },
+    {
+      "id": "30018",
+      "name": "Pudim",
+      "category": "Doces",
+      "price": "210"
+    },
+    {
+      "id": "30015",
+      "name": "Tiramisu",
+      "category": "Doces",
+      "price": "345"
+    },
+    {
+      "id": "30021",
+      "name": "Biscoito Florentine de Amêndoas",
+      "category": "Presenteáveis",
+      "price": "89"
+    },
+    {
+      "id": "30022",
+      "name": "Bola de Neve de Nozes",
+      "category": "Presenteáveis",
+      "price": "66"
+    },
+    {
+      "id": "30020",
+      "name": "Caixa Clássicos",
+      "category": "Presenteáveis",
+      "price": "89"
+    },
+    {
+      "id": "30010",
+      "name": "Torta Chocolate e Caramelo",
+      "category": "Tortas",
+      "price": "270"
+    },
+    {
+      "id": "30007",
+      "name": "Torta Chocolate e Tahine",
+      "category": "Tortas",
+      "price": "232"
+    },
+    {
+      "id": "30008",
+      "name": "Torta Pera e Amêndoas",
+      "category": "Tortas",
+      "price": "230"
+    },
+    {
+      "id": "30009",
+      "name": "Torta Pistache e Framboesa",
+      "category": "Tortas",
+      "price": "270"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcategory\tprice\n30003\tBolo Limão e Cocada\tBolos\t285\n30006\tBolo Maracujá e Cocada\tBolos\t305\n30004\tBolo Maracujá e Framboesa\tBolos\t305\n30005\tBolo Morango\tBolos\t325\n30001\tBolo Mousse\tBolos\t325\n30002\tBolo Tres Leches\tBolos\t260\n30024\tChallah Grande\tChallah\t48\n30023\tChallah Pequena\tChallah\t13\n30016\tBanoffee de Biscoff\tDoces\t290\n30012\tBlondie Caramelo\tDoces\t142\n30011\tBrownie Chocolate e Tahine\tDoces\t275\n30017\tCheesecake\tDoces\t298\n30014\tChoux Cream\tDoces\t18\n30013\tCookie Gochujang\tDoces\t55\n30019\tPavê de Abacaxi com Coco\tDoces\t330\n30018\tPudim\tDoces\t210\n30015\tTiramisu\tDoces\t345\n30021\tBiscoito Florentine de Amêndoas\tPresenteáveis\t89\n30022\tBola de Neve de Nozes\tPresenteáveis\t66\n30020\tCaixa Clássicos\tPresenteáveis\t89\n30010\tTorta Chocolate e Caramelo\tTortas\t270\n30007\tTorta Chocolate e Tahine\tTortas\t232\n30008\tTorta Pera e Amêndoas\tTortas\t230\n30009\tTorta Pistache e Framboesa\tTortas\t270\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}

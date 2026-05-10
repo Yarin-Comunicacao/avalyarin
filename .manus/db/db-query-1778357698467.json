@@ -1,0 +1,110 @@
+{
+  "query": "SELECT id, name FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name LIKE '%Assessoria%' ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name LIKE '%Assessoria%' ORDER BY id;",
+  "rows": [
+    {
+      "id": "108",
+      "name": "Adequar Assessoria Nutricional"
+    },
+    {
+      "id": "249",
+      "name": "Shake Point Itaim - Espaço Herbalife EVS Joaquim Floriano"
+    },
+    {
+      "id": "488",
+      "name": "Evs Herbalife Itaim Bibi - Shake Gourmet Itaim"
+    },
+    {
+      "id": "504",
+      "name": "FF Assessoria Nutricional | Segurança Alimentar | Licença Vigilância Sanitária São Paulo"
+    },
+    {
+      "id": "529",
+      "name": "Shake Point Herbalife Nutrition"
+    },
+    {
+      "id": "556",
+      "name": "Herbalife Nutrition Pamplona Premium"
+    },
+    {
+      "id": "608",
+      "name": "Produtos Herbalife - Jardim Paulista"
+    },
+    {
+      "id": "1152",
+      "name": "Evs Espaço Herbalife PERDIZES"
+    },
+    {
+      "id": "2406",
+      "name": "Produtos para Emagrecer Herbalife - Bela Vista"
+    },
+    {
+      "id": "2420",
+      "name": "Herbalife"
+    },
+    {
+      "id": "2591",
+      "name": "Herbalife Bela Vista"
+    },
+    {
+      "id": "2716",
+      "name": "Herbalife Bom Retiro sp"
+    },
+    {
+      "id": "2817",
+      "name": "Evs Herbalife Bom Retiro-SP"
+    },
+    {
+      "id": "2890",
+      "name": "Espaço Herbalife - Evs point Cris"
+    },
+    {
+      "id": "3234",
+      "name": "Nutricionista de idosos (geriatria) - Glaucia Rodrigues"
+    },
+    {
+      "id": "3530",
+      "name": "Consultor Herbalife - Diego"
+    },
+    {
+      "id": "3609",
+      "name": "Espaço Herbalife Liberdade Carol Yan"
+    },
+    {
+      "id": "3689",
+      "name": "Espaço Herbalife"
+    },
+    {
+      "id": "4510",
+      "name": "Espaço Herbalife Campo Belo"
+    },
+    {
+      "id": "4778",
+      "name": "Espaço Herbalife Nutrition Bom Pastor Ipiranga"
+    },
+    {
+      "id": "5206",
+      "name": "Produtos Herbalife - Parque Ibirapuera"
+    },
+    {
+      "id": "6342",
+      "name": "Espaço de Vida Saudável Herbalife Pinheiros Metro Clinicas"
+    },
+    {
+      "id": "6543",
+      "name": "EVS Delícias Fit | Herbalife"
+    },
+    {
+      "id": "6544",
+      "name": "Espaço Herbalife Shake Av. Paulista BRIGADEIRO EVS, 807 - Conj. 706 - Jardim Paulista - Consultor Independente"
+    },
+    {
+      "id": "7501",
+      "name": "Herbalife- Espaço de vida saudável metrô paraíso"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n108\tAdequar Assessoria Nutricional\n249\tShake Point Itaim - Espaço Herbalife EVS Joaquim Floriano\n488\tEvs Herbalife Itaim Bibi - Shake Gourmet Itaim\n504\tFF Assessoria Nutricional | Segurança Alimentar | Licença Vigilância Sanitária São Paulo\n529\tShake Point Herbalife Nutrition\n556\tHerbalife Nutrition Pamplona Premium\n608\tProdutos Herbalife - Jardim Paulista\n1152\tEvs Espaço Herbalife PERDIZES\n2406\tProdutos para Emagrecer Herbalife - Bela Vista\n2420\tHerbalife\n2591\tHerbalife Bela Vista\n2716\tHerbalife Bom Retiro sp\n2817\tEvs Herbalife Bom Retiro-SP\n2890\tEspaço Herbalife - Evs point Cris\n3234\tNutricionista de idosos (geriatria) - Glaucia Rodrigues\n3530\tConsultor Herbalife - Diego\n3609\tEspaço Herbalife Liberdade Carol Yan\n3689\tEspaço Herbalife\n4510\tEspaço Herbalife Campo Belo\n4778\tEspaço Herbalife Nutrition Bom Pastor Ipiranga\n5206\tProdutos Herbalife - Parque Ibirapuera\n6342\tEspaço de Vida Saudável Herbalife Pinheiros Metro Clinicas\n6543\tEVS Delícias Fit | Herbalife\n6544\tEspaço Herbalife Shake Av. Paulista BRIGADEIRO EVS, 807 - Conj. 706 - Jardim Paulista - Consultor Independente\n7501\tHerbalife- Espaço de vida saudável metrô paraíso\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

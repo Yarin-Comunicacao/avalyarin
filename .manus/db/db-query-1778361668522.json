@@ -1,0 +1,50 @@
+{
+  "query": "SELECT COUNT(*) as total, category FROM menu_items WHERE establishmentId = 30001 GROUP BY category ORDER BY category;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total, category FROM menu_items WHERE establishmentId = 30001 GROUP BY category ORDER BY category;",
+  "rows": [
+    {
+      "total": "4",
+      "category": "Chope Belga"
+    },
+    {
+      "total": "4",
+      "category": "Chope Especial"
+    },
+    {
+      "total": "16",
+      "category": "Chope IPA"
+    },
+    {
+      "total": "1",
+      "category": "Chope Inglês"
+    },
+    {
+      "total": "9",
+      "category": "Chope Lager"
+    },
+    {
+      "total": "2",
+      "category": "Chope Smoothie"
+    },
+    {
+      "total": "4",
+      "category": "Chope Sour"
+    },
+    {
+      "total": "3",
+      "category": "Chope Stout"
+    },
+    {
+      "total": "1",
+      "category": "Chope Trigo"
+    },
+    {
+      "total": "4",
+      "category": "Mead"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tcategory\n4\tChope Belga\n4\tChope Especial\n16\tChope IPA\n1\tChope Inglês\n9\tChope Lager\n2\tChope Smoothie\n4\tChope Sour\n3\tChope Stout\n1\tChope Trigo\n4\tMead\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, price, category FROM menu_items WHERE establishmentId = 6500 LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, price, category FROM menu_items WHERE establishmentId = 6500 LIMIT 5;",
+  "rows": [
+    {
+      "id": "120001",
+      "name": "Rustic",
+      "price": "67",
+      "category": "Raw Wagyu Burgers"
+    },
+    {
+      "id": "120002",
+      "name": "Onion",
+      "price": "67",
+      "category": "Raw Wagyu Burgers"
+    },
+    {
+      "id": "120003",
+      "name": "Roadside",
+      "price": "67",
+      "category": "Raw Wagyu Burgers"
+    },
+    {
+      "id": "120004",
+      "name": "Salad",
+      "price": "67",
+      "category": "Raw Wagyu Burgers"
+    },
+    {
+      "id": "120005",
+      "name": "Bacon",
+      "price": "67",
+      "category": "Raw Wagyu Burgers"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprice\tcategory\n120001\tRustic\t67\tRaw Wagyu Burgers\n120002\tOnion\t67\tRaw Wagyu Burgers\n120003\tRoadside\t67\tRaw Wagyu Burgers\n120004\tSalad\t67\tRaw Wagyu Burgers\n120005\tBacon\t67\tRaw Wagyu Burgers\n",
+  "stderr": "",
+  "execution_time_ms": 368
+}

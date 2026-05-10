@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  (SELECT COUNT(DISTINCT establishmentId) FROM menu_items) as com_cardapio,\n  (SELECT COUNT(*) FROM establishments) as total_establishments,\n  (SELECT COUNT(*) FROM establishments WHERE id NOT IN (SELECT DISTINCT establishmentId FROM menu_items)) as sem_cardapio;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  (SELECT COUNT(DISTINCT establishmentId) FROM menu_items) as com_cardapio,\n  (SELECT COUNT(*) FROM establishments) as total_establishments,\n  (SELECT COUNT(*) FROM establishments WHERE id NOT IN (SELECT DISTINCT establishmentId FROM menu_items)) as sem_cardapio;",
+  "rows": [
+    {
+      "com_cardapio": "199",
+      "total_establishments": "7584",
+      "sem_cardapio": "7396"
+    }
+  ],
+  "messages": [],
+  "stdout": "com_cardapio\ttotal_establishments\tsem_cardapio\n199\t7584\t7396\n",
+  "stderr": "",
+  "execution_time_ms": 281
+}

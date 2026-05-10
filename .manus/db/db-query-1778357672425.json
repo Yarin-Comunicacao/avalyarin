@@ -1,0 +1,190 @@
+{
+  "query": "SELECT address, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids, GROUP_CONCAT(name ORDER BY id SEPARATOR ' | ') as names FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY address HAVING cnt > 1 ORDER BY cnt DESC LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids, GROUP_CONCAT(name ORDER BY id SEPARATOR ' | ') as names FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY address HAVING cnt > 1 ORDER BY cnt DESC LIMIT 30;",
+  "rows": [
+    {
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "cnt": "25",
+      "ids": "1276,1277,1278,1280,1284,1301,1304,1307,1311,1314,1329,1330,1333,1334,1335,1339,1343,1344,1349,1353,1355,6313,6314,6323,6328",
+      "names": "Andiamo Ristorante & Pizzeria Eldorado | BUBBLE KILL | Bacio di Latte - Shopping Eldorado | Baked Potato | Cannoleria di Piero | GoldKo - Eldorado | Hiro Express | Kappa Gourmet | Mahá Mistura Criativa | Maria da Villa | Piadina Romagnola - Restaurante | Pipo Bronze + Paul Cho | Popeyes | Frango Frito | Shopping Eldorado | Praça de alimentação Shopping Eldorado | Premiatto Shopping Eldorado | Restaurante Ibiza | Si Señor! Shopping Eldorado | Spicy Tuna - Autêntico Poke Havaiano | Temakeria e Cia - Shopping Eldorado | The Steak Factory - Shopping Eldorado | Viena | Bolo da Madre em Shopping Eldorado | Bom Beef Burgers | Gendai - Restaurante Japonês | Pizza Hut"
+    },
+    {
+      "address": "Rua Barão de Iguape, 158 - Liberdade, São Paulo - SP, 01507-000, Brasil",
+      "cnt": "11",
+      "ids": "3446,3455,3456,3458,3459,3462,3465,3474,3476,3479,6969",
+      "names": "Butamão | Jjang Bap | Jjang Toast | KYMZ | Katsuya Tokyo Milanesa | Libas Food Court | NYKO Lamen | Shu Chan Teppan Liberdade | Takoyaki8 | Thailand Street Food | Sushiro by Chef Kasuga"
+    },
+    {
+      "address": "Praça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil",
+      "cnt": "11",
+      "ids": "4632,4634,4636,4637,4639,4643,4646,4649,4654,4657,7274",
+      "names": "Baked Potato | Biscoitê A Biscoiteria | Casa Bauducco | Coco Bambu Plaza Sul | Griletto | Madero Steak House - Shopping Plaza Sul | Montana Express | Pecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP | Restaurante Spoleto | Vivenda do Camarão | Bom Beef Burgers Plaza Sul"
+    },
+    {
+      "address": "R. Augusta - Consolação, São Paulo - SP, 01304-001, Brasil",
+      "cnt": "9",
+      "ids": "3101,3126,3148,3153,3171,3181,3182,3197,6848",
+      "names": "Bar do lucas | Coçando sarna pra me coçar | Hinikrti | LRhouse | Porco Bêbado | Sabores da França | Samada | Zona do Gui | Coffe Rex beer"
+    },
+    {
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "cnt": "7",
+      "ids": "1274,1310,1326,1345,1347,1348,6311",
+      "names": "Almanara - Shopping Eldorado | Madero Steak House Eldorado | Patroni | Spoleto | Strô Gastronomia | Taco Bell - Shopping Eldorado | B.LEM Padaria Portuguesa - Shopping Eldorado"
+    },
+    {
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil",
+      "cnt": "7",
+      "ids": "212,215,220,222,233,247,5954",
+      "names": "+54 Parrilla - Itaim Bibi | Bacio di Latte - Brascan Itaim | Casa Bauducco | Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi) | Madero Steak House Brascan | Rizzo Gourmet | Brascan - Poke Shack - Burger + - Terra do Fogo"
+    },
+    {
+      "address": "R. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil",
+      "cnt": "6",
+      "ids": "3089,3107,3142,3161,3191,6850",
+      "names": "Assanhadxs: Nu Erotic Food Augusta | Bear Picanharia | Ganesha Asian Food | Mex Machine | Tempo di Pasta - Pasta e Grill | Doces Candy candy"
+    },
+    {
+      "address": "Rua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil",
+      "cnt": "6",
+      "ids": "424,425,426,427,428,429",
+      "names": "Santino Trattoria | Santino Trattoria | Santino Trattoria | Santino Trattoria | Santino trattoria | Santino trattoria"
+    },
+    {
+      "address": "Alameda dos Arapanés, 1006 - Moema, São Paulo - SP, 04524-001, Brasil",
+      "cnt": "6",
+      "ids": "5202,5279,5316,5359,5372,5592",
+      "names": "OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí"
+    },
+    {
+      "address": "R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil",
+      "cnt": "6",
+      "ids": "3260,3273,3280,3284,3287,3298",
+      "names": "Casa Bauducco | Kopenhagen | Maniadechurrasco | Oakberry Açaí Bowls - Shopping Frei Caneca | Pastelândia - Frei Caneca | Temakeria e Cia"
+    },
+    {
+      "address": "Shopping Frei Caneca - R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil",
+      "cnt": "6",
+      "ids": "3263,3264,3276,6529,6887,7072",
+      "names": "Croma café | Divino Fogão - Frei Caneca | Latife - Gastronomia Árabe (Shopping Frei Caneca) | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "address": "Av. Paulista, 1811 - Bela Vista, São Paulo - SP, 01311-200, Brasil",
+      "cnt": "5",
+      "ids": "515,564,2168,2169,4347",
+      "names": "McDonald's | McDonald's | McDonald's | McDonald's | McDonald's"
+    },
+    {
+      "address": "R. Itapeva, 435 - Bela Vista, São Paulo - SP, 01332-000, Brasil",
+      "cnt": "5",
+      "ids": "2311,2316,2317,2321,2328",
+      "names": "Blaise | Cidade Matarazzo | Emerald Garden Pool & Bar | Le Jardin | Taraz"
+    },
+    {
+      "address": "R. Maciel Parente - Ipiranga, São Paulo - SP, 04233-300, Brasil",
+      "cnt": "5",
+      "ids": "5030,5031,5035,5036,7394",
+      "names": "Adega g e r bebidas | Bar Chapa Quente | Topem Bar Chaguinha | Topem Bar Chaguinha | Burger e lanches Jl"
+    },
+    {
+      "address": "Av. Ibirapuera, 3103 - Indianópolis, São Paulo - SP, 04029-200, Brasil",
+      "cnt": "5",
+      "ids": "5190,5192,5201,5207,5217",
+      "names": "Frutaria São Paulo - Shopping Ibirapuera | Giraffas Shopping Ibirapuera | Noir Chocolates - quiosque | Quiosque FINI Shopping Ibirapuera | Shopping Bar"
+    },
+    {
+      "address": "R. Pamplona, 1704 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil",
+      "cnt": "4",
+      "ids": "561,565,566,6049",
+      "names": "Las Leñas Parrilla Uruguaya | Mr. Cheney Cookies | OAKBERRY | Nagairô Sushi - Jardim Pamplona"
+    },
+    {
+      "address": "R. Galvão Bueno, 555 - Liberdade, São Paulo - SP, 01506-000, Brasil",
+      "cnt": "4",
+      "ids": "3519,3521,3522,3523",
+      "names": "五马美食夜宵店 | 美食坊 | 美食坊 | 美食坊"
+    },
+    {
+      "address": "R. dos Pinheiros, 466 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "cnt": "4",
+      "ids": "1321,1391,1463,1521",
+      "names": "OAKBERRY | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí"
+    },
+    {
+      "address": "R. Nossa Sra. da Lapa, 35 - Lapa, São Paulo - SP, 05072-000, Brasil",
+      "cnt": "4",
+      "ids": "781,797,809,3999",
+      "names": "Rei dos salgados | Rei Dos Salgados | Salgados Lapa | Rei dos Salgados"
+    },
+    {
+      "address": "Av. Paulista, 2064 - Bela Vista, São Paulo - SP, 01310-928, Brasil",
+      "cnt": "4",
+      "ids": "2179,2184,2583,3295",
+      "names": "Rei do Mate | Restaurante Spoleto | Rei do Mate | Spoleto"
+    },
+    {
+      "address": "Alameda dos Pamaris, 291 - Moema, São Paulo - SP, 04086-020, Brasil",
+      "cnt": "4",
+      "ids": "5197,5487,5517,5625",
+      "names": "McDonald's | McDonald's | McDonald's | McDonald's"
+    },
+    {
+      "address": "Praça Leonor Kaupa, 100 - Bosque da Saúde, São Paulo - SP, 04151-100, Brasil",
+      "cnt": "4",
+      "ids": "4635,4638,4640,7275",
+      "names": "Calle 54 (Shopping Plaza Sul) | Dengo Chocolates | Plaza Sul | Jin Jin | Burger King"
+    },
+    {
+      "address": "Rua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil",
+      "cnt": "4",
+      "ids": "1222,1227,6282,6283",
+      "names": "Penny Burguer | Van Zeller | 60's Burger | Vegetá Burgers"
+    },
+    {
+      "address": "R. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil",
+      "cnt": "4",
+      "ids": "1116,1118,1119,1127",
+      "names": "( NOPONTO. ) | Cantina 22 de Agosto | Cantina da PUC | Toca do Leão"
+    },
+    {
+      "address": "R. Dr. Amâncio de Carvalho, 259 - Vila Mariana, São Paulo - SP, 04012-090, Brasil",
+      "cnt": "4",
+      "ids": "4555,5438,5440,5442",
+      "names": "Boteco da Vila | Boteco da Villa | Dim Buteco | Lanchonete princesa da vila Mariana"
+    },
+    {
+      "address": "Praça da República, 124 - República, São Paulo - SP, 01045-000, Brasil",
+      "cnt": "4",
+      "ids": "3853,3854,4086,4087",
+      "names": "Lanchonete Ipiranga | Lanchonete Ipiranga | Lanchonete da Praça da República | Mate Chic"
+    },
+    {
+      "address": "R. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil",
+      "cnt": "4",
+      "ids": "3884,3894,3908,7075",
+      "names": "CasaBauduco | Pecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP | York Grill Express | GRÃO ESPRESSO"
+    },
+    {
+      "address": "Av. Paulista, 854 - Bela Vista, São Paulo - SP, 01311-100, Brasil",
+      "cnt": "4",
+      "ids": "2158,2194,2195,6548",
+      "names": "Griletto Top Center | Super Chef Oriental | lulis gastronomia | Madero & Jeronimo Burger Top Center"
+    },
+    {
+      "address": "R. João Moura, 613 - Pinheiros, São Paulo - SP, 05412-001, Brasil",
+      "cnt": "3",
+      "ids": "1861,1864,1866",
+      "names": "Clementina Bar de Vinhos | Gavioto Restaurante | Lar Mar"
+    },
+    {
+      "address": "R. Sumidouro, 555 - Pinheiros, São Paulo - SP, 05428-070, Brasil",
+      "cnt": "3",
+      "ids": "1916,1917,1918",
+      "names": "Postinho da Vila Restaurante | Restaurante Casa Alecrim | Velmont Grill - Lanchonete e Restaurante"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\tcnt\tids\tnames\nAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\t25\t1276,1277,1278,1280,1284,1301,1304,1307,1311,1314,1329,1330,1333,1334,1335,1339,1343,1344,1349,1353,1355,6313,6314,6323,6328\tAndiamo Ristorante & Pizzeria Eldorado | BUBBLE KILL | Bacio di Latte - Shopping Eldorado | Baked Potato | Cannoleria di Piero | GoldKo - Eldorado | Hiro Express | Kappa Gourmet | Mahá Mistura Criativa | Maria da Villa | Piadina Romagnola - Restaurante | Pipo Bronze + Paul Cho | Popeyes | Frango Frito | Shopping Eldorado | Praça de alimentação Shopping Eldorado | Premiatto Shopping Eldorado | Restaurante Ibiza | Si Señor! Shopping Eldorado | Spicy Tuna - Autêntico Poke Havaiano | Temakeria e Cia - Shopping Eldorado | The Steak Factory - Shopping Eldorado | Viena | Bolo da Madre em Shopping Eldorado | Bom Beef Burgers | Gendai - Restaurante Japonês | Pizza Hut\nRua Barão de Iguape, 158 - Liberdade, São Paulo - SP, 01507-000, Brasil\t11\t3446,3455,3456,3458,3459,3462,3465,3474,3476,3479,6969\tButamão | Jjang Bap | Jjang Toast | KYMZ | Katsuya Tokyo Milanesa | Libas Food Court | NYKO Lamen | Shu Chan Teppan Liberdade | Takoyaki8 | Thailand Street Food | Sushiro by Chef Kasuga\nPraça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil\t11\t4632,4634,4636,4637,4639,4643,4646,4649,4654,4657,7274\tBaked Potato | Biscoitê A Biscoiteria | Casa Bauducco | Coco Bambu Plaza Sul | Griletto | Madero Steak House - Shopping Plaza Sul | Montana Express | Pecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP | Restaurante Spoleto | Vivenda do Camarão | Bom Beef Burgers Plaza Sul\nR. Augusta - Consolação, São Paulo - SP, 01304-001, Brasil\t9\t3101,3126,3148,3153,3171,3181,3182,3197,6848\tBar do lucas | Coçando sarna pra me coçar | Hinikrti | LRhouse | Porco Bêbado | Sabores da França | Samada | Zona do Gui | Coffe Rex beer\nShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\t7\t1274,1310,1326,1345,1347,1348,6311\tAlmanara - Shopping Eldorado | Madero Steak House Eldorado | Patroni | Spoleto | Strô Gastronomia | Taco Bell - Shopping Eldorado | B.LEM Padaria Portuguesa - Shopping Eldorado\nR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\t7\t212,215,220,222,233,247,5954\t+54 Parrilla - Itaim Bibi | Bacio di Latte - Brascan Itaim | Casa Bauducco | Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi) | Madero Steak House Brascan | Rizzo Gourmet | Brascan - Poke Shack - Burger + - Terra do Fogo\nR. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil\t6\t3089,3107,3142,3161,3191,6850\tAssanhadxs: Nu Erotic Food Augusta | Bear Picanharia | Ganesha Asian Food | Mex Machine | Tempo di Pasta - Pasta e Grill | Doces Candy candy\nRua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil\t6\t424,425,426,427,428,429\tSantino Trattoria | Santino Trattoria | Santino Trattoria | Santino Trattoria | Santino trattoria | Santino trattoria\nAlameda dos Arapanés, 1006 - Moema, São Paulo - SP, 04524-001, Brasil\t6\t5202,5279,5316,5359,5372,5592\tOAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí\nR. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil\t6\t3260,3273,3280,3284,3287,3298\tCasa Bauducco | Kopenhagen | Maniadechurrasco | Oakberry Açaí Bowls - Shopping Frei Caneca | Pastelândia - Frei Caneca | Temakeria e Cia\nShopping Frei Caneca - R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil\t6\t3263,3264,3276,6529,6887,7072\tCroma café | Divino Fogão - Frei Caneca | Latife - Gastronomia Árabe (Shopping Frei Caneca) | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas | BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Burritos, Sanduíches, Sucos e Sobremesas\nAv. Paulista, 1811 - Bela Vista, São Paulo - SP, 01311-200, Brasil\t5\t515,564,2168,2169,4347\tMcDonald's | McDonald's | McDonald's | McDonald's | McDonald's\nR. Itapeva, 435 - Bela Vista, São Paulo - SP, 01332-000, Brasil\t5\t2311,2316,2317,2321,2328\tBlaise | Cidade Matarazzo | Emerald Garden Pool & Bar | Le Jardin | Taraz\nR. Maciel Parente - Ipiranga, São Paulo - SP, 04233-300, Brasil\t5\t5030,5031,5035,5036,7394\tAdega g e r bebidas | Bar Chapa Quente | Topem Bar Chaguinha | Topem Bar Chaguinha | Burger e lanches Jl\nAv. Ibirapuera, 3103 - Indianópolis, São Paulo - SP, 04029-200, Brasil\t5\t5190,5192,5201,5207,5217\tFrutaria São Paulo - Shopping Ibirapuera | Giraffas Shopping Ibirapuera | Noir Chocolates - quiosque | Quiosque FINI Shopping Ibirapuera | Shopping Bar\nR. Pamplona, 1704 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil\t4\t561,565,566,6049\tLas Leñas Parrilla Uruguaya | Mr. Cheney Cookies | OAKBERRY | Nagairô Sushi - Jardim Pamplona\nR. Galvão Bueno, 555 - Liberdade, São Paulo - SP, 01506-000, Brasil\t4\t3519,3521,3522,3523\t五马美食夜宵店 | 美食坊 | 美食坊 | 美食坊\nR. dos Pinheiros, 466 - Pinheiros, São Paulo - SP, 05422-000, Brasil\t4\t1321,1391,1463,1521\tOAKBERRY | OAKBERRY Açaí | OAKBERRY Açaí | OAKBERRY Açaí\nR. Nossa Sra. da Lapa, 35 - Lapa, São Paulo - SP, 05072-000, Brasil\t4\t781,797,809,3999\tRei dos salgados | Rei Dos Salgados | Salgados Lapa | Rei dos Salgados\nAv. Paulista, 2064 - Bela Vista, São Paulo - SP, 01310-928, Brasil\t4\t2179,2184,2583,3295\tRei do Mate | Restaurante Spoleto | Rei do Mate | Spoleto\nAlameda dos Pamaris, 291 - Moema, São Paulo - SP, 04086-020, Brasil\t4\t5197,5487,5517,5625\tMcDonald's | McDonald's | McDonald's | McDonald's\nPraça Leonor Kaupa, 100 - Bosque da Saúde, São Paulo - SP, 04151-100, Brasil\t4\t4635,4638,4640,7275\tCalle 54 (Shopping Plaza Sul) | Dengo Chocolates | Plaza Sul | Jin Jin | Burger King\nRua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil\t4\t1222,1227,6282,6283\tPenny Burguer | Van Zeller | 60's Burger | Vegetá Burgers\nR. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil\t4\t1116,1118,1119,1127\t( NOPONTO. ) | Cantina 22 de Agosto | Cantina da PUC | Toca do Leão\nR. Dr. Amâncio de Carvalho, 259 - Vila Mariana, São Paulo - SP, 04012-090, Brasil\t4\t4555,5438,5440,5442\tBoteco da Vila | Boteco da Villa | Dim Buteco | Lanchonete princesa da vila Mariana\nPraça da República, 124 - República, São Paulo - SP, 01045-000, Brasil\t4\t3853,3854,4086,4087\tLanchonete Ipiranga | Lanchonete Ipiranga | Lanchonete da Praça da República | Mate Chic\nR. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil\t4\t3884,3894,3908,7075\tCasaBauduco | Pecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP | York Grill Express | GRÃO ESPRESSO\nAv. Paulista, 854 - Bela Vista, São Paulo - SP, 01311-100, Brasil\t4\t2158,2194,2195,6548\tGriletto Top Center | Super Chef Oriental | lulis gastronomia | Madero & Jeronimo Burger Top Center\nR. João Moura, 613 - Pinheiros, São Paulo - SP, 05412-001, Brasil\t3\t1861,1864,1866\tClementina Bar de Vinhos | Gavioto Restaurante | Lar Mar\nR. Sumidouro, 555 - Pinheiros, São Paulo - SP, 05428-070, Brasil\t3\t1916,1917,1918\tPostinho da Vila Restaurante | Restaurante Casa Alecrim | Velmont Grill - Lanchonete e Restaurante\n",
+  "stderr": "",
+  "execution_time_ms": 374
+}

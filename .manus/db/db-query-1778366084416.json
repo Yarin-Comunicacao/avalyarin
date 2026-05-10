@@ -1,0 +1,38 @@
+{
+  "query": "SELECT category, COUNT(*) as qtd FROM menu_items WHERE establishmentId = 6500 GROUP BY category ORDER BY category;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT category, COUNT(*) as qtd FROM menu_items WHERE establishmentId = 6500 GROUP BY category ORDER BY category;",
+  "rows": [
+    {
+      "category": "Bebidas",
+      "qtd": "4"
+    },
+    {
+      "category": "Burgers",
+      "qtd": "12"
+    },
+    {
+      "category": "Combos",
+      "qtd": "9"
+    },
+    {
+      "category": "Molhos",
+      "qtd": "3"
+    },
+    {
+      "category": "Snacks",
+      "qtd": "6"
+    },
+    {
+      "category": "Sobremesas",
+      "qtd": "6"
+    },
+    {
+      "category": "Veggie Burgers",
+      "qtd": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\tqtd\nBebidas\t4\nBurgers\t12\nCombos\t9\nMolhos\t3\nSnacks\t6\nSobremesas\t6\nVeggie Burgers\t5\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, slug FROM establishments WHERE name LIKE '%Raw%Burger%' OR name LIKE '%Raw Burger%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug FROM establishments WHERE name LIKE '%Raw%Burger%' OR name LIKE '%Raw Burger%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "6500",
+      "name": "Raw Burger N Bar",
+      "slug": "raw-burger-n-bar"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n6500\tRaw Burger N Bar\traw-burger-n-bar\n",
+  "stderr": "",
+  "execution_time_ms": 891
+}

@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id FROM establishments WHERE slug = 'eap-emporio-alto-dos-pinheiros';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id FROM establishments WHERE slug = 'eap-emporio-alto-dos-pinheiros';",
+  "rows": [
+    {
+      "id": "30001"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\n30001\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

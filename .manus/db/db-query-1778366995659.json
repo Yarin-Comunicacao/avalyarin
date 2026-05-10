@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(6500, 'Chita Highball', NULL, 57.00, 'Highballs'),\n(6500, 'Jim Beam Black / Rye Highball', NULL, 57.00, 'Highballs'),\n(6500, 'Hibiki Highball', NULL, 97.00, 'Highballs'),\n(6500, 'Macallan Highball', NULL, 147.00, 'Highballs'),\n(6500, 'Yamazaki Highball', NULL, 177.00, 'Highballs'),\n(6500, 'Refrigerante FYS', NULL, 7.00, 'Soft Drinks'),\n(6500, 'Baer-Mate', NULL, 19.00, 'Soft Drinks'),\n(6500, 'Água Mamba Water', 'Com gás ou sem gás', 7.00, 'Soft Drinks'),\n(6500, 'Café Espresso', NULL, 7.00, 'Soft Drinks'),\n(6500, 'Red Bull', 'Regular / Sugar Free / Zero / Sabores', 19.00, 'Soft Drinks');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(6500, 'Chita Highball', NULL, 57.00, 'Highballs'),\n(6500, 'Jim Beam Black / Rye Highball', NULL, 57.00, 'Highballs'),\n(6500, 'Hibiki Highball', NULL, 97.00, 'Highballs'),\n(6500, 'Macallan Highball', NULL, 147.00, 'Highballs'),\n(6500, 'Yamazaki Highball', NULL, 177.00, 'Highballs'),\n(6500, 'Refrigerante FYS', NULL, 7.00, 'Soft Drinks'),\n(6500, 'Baer-Mate', NULL, 19.00, 'Soft Drinks'),\n(6500, 'Água Mamba Water', 'Com gás ou sem gás', 7.00, 'Soft Drinks'),\n(6500, 'Café Espresso', NULL, 7.00, 'Soft Drinks'),\n(6500, 'Red Bull', 'Regular / Sugar Free / Zero / Sabores', 19.00, 'Soft Drinks');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 264
+}

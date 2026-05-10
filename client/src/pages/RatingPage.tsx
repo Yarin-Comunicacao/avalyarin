@@ -89,21 +89,23 @@ interface BevDirectRating {
 // PERSONALIZED LOW SCORE REASONS BY ITEM TYPE
 // ============================================================
 
-function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "outro" {
-  if (item.category === "bebida" || item.category === "chopp") return "cerveja";
-  if (item.category === "drink") return "drink";
-  if (item.category === "entrada") return "entrada";
-  if (item.category === "prato") return "prato";
-  if (item.category === "sobremesa") return "sobremesa";
+function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "destilado" | "outro" {
+  if (item.category === "cerveja" || item.category === "chopp") return "cerveja";
+  if (item.category === "bebida" || item.category === "café") return "cerveja";
+  if (item.category === "drink" || item.category === "vinho") return "drink";
+  if (item.category === "destilado") return "destilado";
+  if (item.category === "entrada" || item.category === "petisco" || item.category === "salgado") return "entrada";
+  if (item.category === "prato" || item.category === "hamburguer" || item.category === "pizza" || item.category === "lanche" || item.category === "sanduiche" || item.category === "sushi" || item.category === "temaki" || item.category === "ramen" || item.category === "salada" || item.category === "sopa" || item.category === "focaccia") return "prato";
+  if (item.category === "sobremesa" || item.category === "doce" || item.category === "torta") return "sobremesa";
   return "outro";
 }
 
 function isFoodItem(item: MenuItem): boolean {
-  return ["entrada", "prato", "sobremesa"].includes(item.category);
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"].includes(item.category);
 }
 
 function isBeverageItem(item: MenuItem): boolean {
-  return ["bebida", "chopp", "drink"].includes(item.category);
+  return ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"].includes(item.category);
 }
 
 const DIRECT_TASTE_REASONS: Record<string, string[]> = {
@@ -164,7 +166,7 @@ const DIRECT_TASTE_REASONS: Record<string, string[]> = {
 };
 
 function getAnalyticItemReasons(subId: string, itemType: string): string[] {
-  const isBeverage = itemType === "cerveja" || itemType === "drink";
+  const isBeverage = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
 
   if (itemType === "cerveja") {
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo", "Gosto de requentado", "Outros"];
@@ -232,7 +234,7 @@ const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
 
 function isRatableItem(item: MenuItem):
   boolean {
-  return ["entrada", "prato", "sobremesa", "drink"].includes(item.category);
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria"].includes(item.category);
 }
 
 // ============================================================
@@ -483,10 +485,14 @@ export default function RatingPage() {
   // Check if user selected ONLY beverages (no food items at all)
   const onlyBeverages = selectedMenuItems.length > 0 && selectedMenuItems.every((m) => isBeverageItem(m));
 
-  const entradas = menuItems.filter((m) => m.category === "entrada");
-  const pratos = menuItems.filter((m) => m.category === "prato");
-  const sobremesas = menuItems.filter((m) => m.category === "sobremesa");
-  const bebidas = menuItems.filter((m) => ["bebida", "chopp", "drink"].includes(m.category));
+  const entradas = menuItems.filter((m) => m.category === "entrada" || m.category === "petisco" || m.category === "salgado");
+  const pratos = menuItems.filter((m) => m.category === "prato" || m.category === "hamburguer" || m.category === "pizza" || m.category === "lanche" || m.category === "sanduiche" || m.category === "sushi" || m.category === "temaki" || m.category === "ramen" || m.category === "salada" || m.category === "sopa" || m.category === "focaccia");
+  const sobremesas = menuItems.filter((m) => m.category === "sobremesa" || m.category === "doce" || m.category === "torta");
+  const cervejas = menuItems.filter((m) => m.category === "cerveja" || m.category === "chopp");
+  const bebidas = menuItems.filter((m) => m.category === "bebida" || m.category === "café");
+  const destilados = menuItems.filter((m) => m.category === "destilado");
+  const drinks = menuItems.filter((m) => m.category === "drink" || m.category === "vinho");
+  const paes = menuItems.filter((m) => m.category === "pão" || m.category === "padaria");
 
   const toggleItem = (id: string) => {
     setSelectedItems((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
@@ -703,7 +709,7 @@ export default function RatingPage() {
   const isAnalyticItemComplete = (rating: AnalyticItemRating): boolean => {
     const item = menuItems.find((m) => m.id === rating.itemId);
     const itemType = item ? getItemType(item) : "outro";
-    const isBev = itemType === "cerveja" || itemType === "drink";
+    const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
     const saborSubs = ["c1_1", "c1_2", "c1_3", "c1_4"];
     const apresSubs = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
     const requiredSubs = [...saborSubs, ...apresSubs];
@@ -898,7 +904,7 @@ export default function RatingPage() {
       <div className="p-6 rounded-xl bg-card border border-border/50">
         <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
         <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
-          {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+          {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
         </p>
         <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
@@ -1012,10 +1018,15 @@ export default function RatingPage() {
                   parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "PRATOS PRINCIPAIS" : "PRATOS & SANDUÍCHES"
                 } />
                 <ItemSelector items={sobremesas} title="DOCES & SOBREMESAS" />
+                <ItemSelector items={cervejas} title="CERVEJAS & CHOPP" />
                 <ItemSelector items={bebidas} title={
-                  parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "BEBIDAS" :
-                  parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "CAFÉS & BEBIDAS" : "CERVEJAS"
+                  parentCategory?.id === "confeitaria" || parentCategory?.id === "cafeteria" || parentCategory?.id === "padaria" ? "CAFÉS & BEBIDAS" : "BEBIDAS"
                 } />
+                <ItemSelector items={destilados} title="DESTILADOS" />
+                <ItemSelector items={drinks} title={
+                  parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "VINHOS & DRINKS" : "DRINKS & COQUETÉIS"
+                } />
+                <ItemSelector items={paes} title="PÃES & PADARIA" />
                 <div className="flex justify-end mt-6">
                   <Button onClick={startRating} className="font-display tracking-wider glow-amber">
                     CONTINUAR <ChevronRight className="w-4 h-4 ml-1" />
@@ -1243,7 +1254,7 @@ export default function RatingPage() {
                     <div className="p-6 rounded-xl bg-card border border-border/50">
                       <h4 className="font-display text-xl tracking-wider text-foreground mb-1">{item?.name}</h4>
                       <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
-                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
                       </p>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
@@ -1278,7 +1289,7 @@ export default function RatingPage() {
 
                       {/* Apresentação subcriteria — split by COMIDA vs BEBIDA */}
                       {(() => {
-                        const isBev = itemType === "cerveja" || itemType === "drink";
+                        const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
                         const foodSubs = c2.subcriteria.filter(s => ["c2_1", "c2_2", "c2_3"].includes(s.id));
                         const bevSubs = c2.subcriteria.filter(s => ["c2_4", "c2_5", "c2_6"].includes(s.id));
                         const subsToShow = isBev ? bevSubs : foodSubs;

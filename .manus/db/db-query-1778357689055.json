@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, neighborhood, categoryId FROM establishments WHERE name LIKE 'Parque %' OR name LIKE '% Parque' OR name LIKE '%Parque Municipal%' OR name LIKE '%Parque Estadual%' OR name LIKE '%Parque Ibirapuera%' ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, categoryId FROM establishments WHERE name LIKE 'Parque %' OR name LIKE '% Parque' OR name LIKE '%Parque Municipal%' OR name LIKE '%Parque Estadual%' OR name LIKE '%Parque Ibirapuera%' ORDER BY name;",
+  "rows": [
+    {
+      "id": "7185",
+      "name": "Blenz Café O Parque",
+      "neighborhood": "Campo Belo",
+      "categoryId": "8"
+    },
+    {
+      "id": "4521",
+      "name": "Pastel do Parque",
+      "neighborhood": "Campo Belo",
+      "categoryId": "1"
+    },
+    {
+      "id": "5206",
+      "name": "Produtos Herbalife - Parque Ibirapuera",
+      "neighborhood": "Moema",
+      "categoryId": "15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tcategoryId\n7185\tBlenz Café O Parque\tCampo Belo\t8\n4521\tPastel do Parque\tCampo Belo\t1\n5206\tProdutos Herbalife - Parque Ibirapuera\tMoema\t15\n",
+  "stderr": "",
+  "execution_time_ms": 276
+}

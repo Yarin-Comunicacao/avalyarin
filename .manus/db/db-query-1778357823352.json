@@ -1,0 +1,78 @@
+{
+  "query": "SELECT c.name as categoria, COUNT(e.id) as sem_cardapio FROM establishments e JOIN categories c ON e.categoryId = c.id WHERE e.id NOT IN (SELECT DISTINCT establishmentId FROM menu_items) GROUP BY c.name ORDER BY sem_cardapio DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name as categoria, COUNT(e.id) as sem_cardapio FROM establishments e JOIN categories c ON e.categoryId = c.id WHERE e.id NOT IN (SELECT DISTINCT establishmentId FROM menu_items) GROUP BY c.name ORDER BY sem_cardapio DESC;",
+  "rows": [
+    {
+      "categoria": "Bar & Lanchonete",
+      "sem_cardapio": "1618"
+    },
+    {
+      "categoria": "Cozinha Brasileira",
+      "sem_cardapio": "1481"
+    },
+    {
+      "categoria": "Cozinha Internacional",
+      "sem_cardapio": "974"
+    },
+    {
+      "categoria": "Cafeteria",
+      "sem_cardapio": "795"
+    },
+    {
+      "categoria": "Padaria",
+      "sem_cardapio": "606"
+    },
+    {
+      "categoria": "Boteco Tradicional",
+      "sem_cardapio": "498"
+    },
+    {
+      "categoria": "Pizzaria",
+      "sem_cardapio": "381"
+    },
+    {
+      "categoria": "Hamburgueria",
+      "sem_cardapio": "293"
+    },
+    {
+      "categoria": "Saudável",
+      "sem_cardapio": "212"
+    },
+    {
+      "categoria": "Balada",
+      "sem_cardapio": "199"
+    },
+    {
+      "categoria": "Confeitaria",
+      "sem_cardapio": "156"
+    },
+    {
+      "categoria": "Autoral / Contemporâneo",
+      "sem_cardapio": "73"
+    },
+    {
+      "categoria": "Cervejaria",
+      "sem_cardapio": "41"
+    },
+    {
+      "categoria": "Bar Musical",
+      "sem_cardapio": "23"
+    },
+    {
+      "categoria": "Coquetelaria",
+      "sem_cardapio": "23"
+    },
+    {
+      "categoria": "Pub",
+      "sem_cardapio": "12"
+    },
+    {
+      "categoria": "Boteco Moderno",
+      "sem_cardapio": "11"
+    }
+  ],
+  "messages": [],
+  "stdout": "categoria\tsem_cardapio\nBar & Lanchonete\t1618\nCozinha Brasileira\t1481\nCozinha Internacional\t974\nCafeteria\t795\nPadaria\t606\nBoteco Tradicional\t498\nPizzaria\t381\nHamburgueria\t293\nSaudável\t212\nBalada\t199\nConfeitaria\t156\nAutoral / Contemporâneo\t73\nCervejaria\t41\nBar Musical\t23\nCoquetelaria\t23\nPub\t12\nBoteco Moderno\t11\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}
