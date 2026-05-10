@@ -89,9 +89,9 @@ interface BevDirectRating {
 // PERSONALIZED LOW SCORE REASONS BY ITEM TYPE
 // ============================================================
 
-function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "destilado" | "outro" {
+function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "destilado" | "bebida" | "outro" {
   if (item.category === "cerveja" || item.category === "chopp") return "cerveja";
-  if (item.category === "bebida" || item.category === "café") return "cerveja";
+  if (item.category === "bebida" || item.category === "café") return "bebida";
   if (item.category === "drink" || item.category === "vinho") return "drink";
   if (item.category === "destilado") return "destilado";
   if (item.category === "entrada" || item.category === "petisco" || item.category === "salgado") return "entrada";
@@ -166,7 +166,7 @@ const DIRECT_TASTE_REASONS: Record<string, string[]> = {
 };
 
 function getAnalyticItemReasons(subId: string, itemType: string): string[] {
-  const isBeverage = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
+  const isBeverage = itemType === "cerveja" || itemType === "drink" || itemType === "destilado" || itemType === "bebida";
 
   if (itemType === "cerveja") {
     if (subId === "c1_1") return ["Ingredientes sem frescor", "Qualidade abaixo", "Gosto de requentado", "Outros"];
@@ -393,14 +393,6 @@ export default function RatingPage() {
   const backHref = estData?.category ? `/categoria/${estData.category.slug}` : "/#categorias";
   const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
 
-  if (estLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      </div>
-    );
-  }
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -476,9 +468,10 @@ export default function RatingPage() {
   // Track if user attempted to advance without completing required fields
   const [validationAttempted, setValidationAttempted] = useState(false);
 
-  if (!establishment) return <Redirect to="/" />;
+  // NOTE: No early returns allowed here — all hooks must be called unconditionally.
+  // Loading and empty states are handled in the JSX below.
 
-  const menuItems = establishment.menu;
+  const menuItems = establishment?.menu || [];
   const selectedMenuItems = menuItems.filter((m) => selectedItems.includes(m.id));
   const ratableSelectedItems = selectedMenuItems.filter(isRatableItem);
 
@@ -709,7 +702,7 @@ export default function RatingPage() {
   const isAnalyticItemComplete = (rating: AnalyticItemRating): boolean => {
     const item = menuItems.find((m) => m.id === rating.itemId);
     const itemType = item ? getItemType(item) : "outro";
-    const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
+    const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado" || itemType === "bebida";
     const saborSubs = ["c1_1", "c1_2", "c1_3", "c1_4"];
     const apresSubs = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
     const requiredSubs = [...saborSubs, ...apresSubs];
@@ -904,7 +897,7 @@ export default function RatingPage() {
       <div className="p-6 rounded-xl bg-card border border-border/50">
         <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
         <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
-          {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+          {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "bebida" ? "Bebida" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
         </p>
         <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
@@ -974,6 +967,16 @@ export default function RatingPage() {
       </div>
     );
   };
+
+  if (estLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!establishment) return <Redirect to="/" />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -1254,7 +1257,7 @@ export default function RatingPage() {
                     <div className="p-6 rounded-xl bg-card border border-border/50">
                       <h4 className="font-display text-xl tracking-wider text-foreground mb-1">{item?.name}</h4>
                       <p className="text-xs text-muted-foreground/60 mb-1 uppercase tracking-wide">
-                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
+                        {itemType === "cerveja" ? "Cerveja / Chopp" : itemType === "bebida" ? "Bebida" : itemType === "drink" ? "Drink / Coquetel" : itemType === "destilado" ? "Destilado / Highball" : itemType === "entrada" ? "Entrada / Porção" : itemType === "prato" ? "Prato / Lanche" : itemType === "sobremesa" ? "Sobremesa" : "Item"}
                       </p>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
@@ -1289,7 +1292,7 @@ export default function RatingPage() {
 
                       {/* Apresentação subcriteria — split by COMIDA vs BEBIDA */}
                       {(() => {
-                        const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado";
+                        const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado" || itemType === "bebida";
                         const foodSubs = c2.subcriteria.filter(s => ["c2_1", "c2_2", "c2_3"].includes(s.id));
                         const bevSubs = c2.subcriteria.filter(s => ["c2_4", "c2_5", "c2_6"].includes(s.id));
                         const subsToShow = isBev ? bevSubs : foodSubs;

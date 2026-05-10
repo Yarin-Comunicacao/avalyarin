@@ -100,4 +100,4 @@
 - [x] Adicionar cardápio da Raw Burger — 45 itens em 7 categorias (PriceListo, maio 2026)
 - [x] Comparar e atualizar cardápio da Raw Burger com dados do cardápio físico (foto) — 40 itens em 7 categorias
 - [x] Bug: cardápio não aparece na página do estabelecimento Raw Burger N Bar — categorias corrigidas para valores reconhecidos pelo frontend
-- [ ] Bug: tela de avaliação não mostra todos os itens do cardápio (faltam hambúrgueres, petiscos, destilados) e agrupa bebidas com cervejas incorretamente
+- [x] Bug: tela de avaliação não mostra todos os itens do cardápio — corrigido filtros para incluir todas as categorias + adicionadas seções Cervejas, Destilados, Drinks, Pães
