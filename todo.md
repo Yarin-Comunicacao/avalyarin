@@ -101,4 +101,5 @@
 - [x] Comparar e atualizar cardápio da Raw Burger com dados do cardápio físico (foto) — 40 itens em 7 categorias
 - [x] Bug: cardápio não aparece na página do estabelecimento Raw Burger N Bar — categorias corrigidas para valores reconhecidos pelo frontend
 - [x] Bug: tela de avaliação não mostra todos os itens do cardápio — corrigido filtros para incluir todas as categorias + adicionadas seções Cervejas, Destilados, Drinks, Pães
-- [ ] Usar imagem de fundo da tela 18+ como fundo padrão do app inteiro
+- [x] Usar imagem de fundo da tela 18+ como fundo padrão do app inteiro
+- [x] Substituir hero banner da Home pelas imagens dia/noite da tela 18+

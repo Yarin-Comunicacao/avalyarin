@@ -101,13 +101,27 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative h-[70vh] min-h-[500px] flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/hero-banner-hp32XLQHa5feiofZ4netjk.webp"
-            alt="Bares de São Paulo à noite"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+        <div className="absolute inset-0 flex">
+          {/* Left image — daytime restaurant */}
+          <div className="w-1/2 h-full relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
+              alt="Restaurante durante o dia"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/40 to-background/70" />
+          </div>
+          {/* Right image — evening bar */}
+          <div className="w-1/2 h-full relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
+              alt="Bar ao entardecer"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-background/40 to-background/70" />
+          </div>
+          {/* Bottom gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
         <div className="relative container pb-12 pt-24">
           <motion.div
