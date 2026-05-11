@@ -970,7 +970,7 @@ export default function RatingPage() {
 
   if (estLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
@@ -979,7 +979,7 @@ export default function RatingPage() {
   if (!establishment) return <Redirect to="/" />;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
       <div className="pt-20 pb-16">

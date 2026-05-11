@@ -248,7 +248,7 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   // Badge celebration
   if (showBadge) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -305,7 +305,7 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header with progress */}
       <div className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border/30">
         <div className="h-1 bg-secondary">

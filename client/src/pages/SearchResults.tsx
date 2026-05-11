@@ -26,7 +26,7 @@ export default function SearchResults() {
 
   if (!query) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
         <div className="pt-24 container text-center">
@@ -38,7 +38,7 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 

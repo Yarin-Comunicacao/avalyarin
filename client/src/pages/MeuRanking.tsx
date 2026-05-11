@@ -164,7 +164,7 @@ export default function MeuRanking() {
   // Not logged in
   if (!authLoading && !user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
         <div className="container py-20 text-center">
@@ -182,7 +182,7 @@ export default function MeuRanking() {
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 

@@ -68,7 +68,7 @@ export default function BadgesPage() {
   const totalPoints = badgePoints;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground">
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 

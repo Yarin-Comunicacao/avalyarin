@@ -162,7 +162,7 @@ export default function MeusDados() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref="/" onMenuOpen={() => setMenuOpen(true)} />
       <div className="pt-20 pb-16">

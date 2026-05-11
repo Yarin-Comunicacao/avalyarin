@@ -1,0 +1,8 @@
+{
+  "query": "SELECT \n  e.id,\n  e.name,\n  e.address,\n  e.neighborhood,\n  e.hours,\n  c.name as category_name,\n  CASE WHEN EXISTS (SELECT 1 FROM menu_items m WHERE m.establishment_id = e.id) THEN 'Sim' ELSE 'Não' END as tem_cardapio\nFROM establishments e\nLEFT JOIN categories c ON e.category_id = c.id\nORDER BY c.name, e.name\nLIMIT 100;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  e.id,\n  e.name,\n  e.address,\n  e.neighborhood,\n  e.hours,\n  c.name as category_name,\n  CASE WHEN EXISTS (SELECT 1 FROM menu_items m WHERE m.establishment_id = e.id) THEN 'Sim' ELSE 'Não' END as tem_cardapio\nFROM establishments e\nLEFT JOIN categories c ON e.category_id = c.id\nORDER BY c.name, e.name\nLIMIT 100;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'e.category_id' in 'on clause'"
+  ]
+}
