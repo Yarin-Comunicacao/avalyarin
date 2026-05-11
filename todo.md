@@ -103,3 +103,5 @@
 - [x] Bug: tela de avaliação não mostra todos os itens do cardápio — corrigido filtros para incluir todas as categorias + adicionadas seções Cervejas, Destilados, Drinks, Pães
 - [x] Usar imagem de fundo da tela 18+ como fundo padrão do app inteiro
 - [x] Substituir hero banner da Home pelas imagens dia/noite da tela 18+
+- [x] Corrigir layout Home: remover sobreposição de imagens, usar apenas uma imagem de fundo para toda a página
+- [x] Verificar subcategorias possíveis de Saudável

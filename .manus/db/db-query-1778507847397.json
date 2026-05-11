@@ -1,0 +1,70 @@
+{
+  "query": "SELECT name FROM establishments WHERE categoryId = (SELECT id FROM categories WHERE slug = 'saudavel') AND LOWER(name) NOT LIKE '%açaí%' AND LOWER(name) NOT LIKE '%acai%' AND LOWER(name) NOT LIKE '%juice%' AND LOWER(name) NOT LIKE '%suco%' AND LOWER(name) NOT LIKE '%salad%' AND LOWER(name) NOT LIKE '%fit%' AND LOWER(name) NOT LIKE '%vegan%' AND LOWER(name) NOT LIKE '%natural%' AND LOWER(name) NOT LIKE '%orgânic%' AND LOWER(name) NOT LIKE '%saudável%' AND LOWER(name) NOT LIKE '%saudavel%' AND LOWER(name) NOT LIKE '%poke%' ORDER BY name LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT name FROM establishments WHERE categoryId = (SELECT id FROM categories WHERE slug = 'saudavel') AND LOWER(name) NOT LIKE '%açaí%' AND LOWER(name) NOT LIKE '%acai%' AND LOWER(name) NOT LIKE '%juice%' AND LOWER(name) NOT LIKE '%suco%' AND LOWER(name) NOT LIKE '%salad%' AND LOWER(name) NOT LIKE '%fit%' AND LOWER(name) NOT LIKE '%vegan%' AND LOWER(name) NOT LIKE '%natural%' AND LOWER(name) NOT LIKE '%orgânic%' AND LOWER(name) NOT LIKE '%saudável%' AND LOWER(name) NOT LIKE '%saudavel%' AND LOWER(name) NOT LIKE '%poke%' ORDER BY name LIMIT 20;",
+  "rows": [
+    {
+      "name": "Acaí com Morango"
+    },
+    {
+      "name": "Açai Nattus"
+    },
+    {
+      "name": "Açai da Regis - Ipiranga"
+    },
+    {
+      "name": "BUUMBOX AÇAI"
+    },
+    {
+      "name": "Baby Fruta"
+    },
+    {
+      "name": "Bom Bowls Moema"
+    },
+    {
+      "name": "Cia das frutas"
+    },
+    {
+      "name": "Clean foods Moema"
+    },
+    {
+      "name": "DaSelva Vila Nova Conceição"
+    },
+    {
+      "name": "Dale Wrap - Pinheiros"
+    },
+    {
+      "name": "Deli Freshie LivLight"
+    },
+    {
+      "name": "Dieta food flex"
+    },
+    {
+      "name": "Dona Vitamina Consolação"
+    },
+    {
+      "name": "Dona Vitamina Pinheiros"
+    },
+    {
+      "name": "Eco Mercato"
+    },
+    {
+      "name": "Endívia Restaurante Vegetariano"
+    },
+    {
+      "name": "Estação Açai"
+    },
+    {
+      "name": "FRESHOUSE PERDIZES"
+    },
+    {
+      "name": "Filhos da Fruta"
+    },
+    {
+      "name": "Forno Amore - Glúten Free"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\nAcaí com Morango\nAçai Nattus\nAçai da Regis - Ipiranga\nBUUMBOX AÇAI\nBaby Fruta\nBom Bowls Moema\nCia das frutas\nClean foods Moema\nDaSelva Vila Nova Conceição\nDale Wrap - Pinheiros\nDeli Freshie LivLight\nDieta food flex\nDona Vitamina Consolação\nDona Vitamina Pinheiros\nEco Mercato\nEndívia Restaurante Vegetariano\nEstação Açai\nFRESHOUSE PERDIZES\nFilhos da Fruta\nForno Amore - Glúten Free\n",
+  "stderr": "",
+  "execution_time_ms": 339
+}

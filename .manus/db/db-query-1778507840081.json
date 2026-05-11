@@ -1,0 +1,50 @@
+{
+  "query": "SELECT \n  CASE \n    WHEN LOWER(name) LIKE '%açaí%' OR LOWER(name) LIKE '%acai%' THEN 'Açaí'\n    WHEN LOWER(name) LIKE '%juice%' OR LOWER(name) LIKE '%suco%' THEN 'Sucos/Juice'\n    WHEN LOWER(name) LIKE '%salad%' THEN 'Saladas'\n    WHEN LOWER(name) LIKE '%fit%' OR LOWER(name) LIKE '%fitness%' THEN 'Fit/Fitness'\n    WHEN LOWER(name) LIKE '%vegan%' OR LOWER(name) LIKE '%vegano%' THEN 'Vegano'\n    WHEN LOWER(name) LIKE '%natural%' OR LOWER(name) LIKE '%natureba%' THEN 'Natural'\n    WHEN LOWER(name) LIKE '%orgânic%' OR LOWER(name) LIKE '%organic%' THEN 'Orgânico'\n    WHEN LOWER(name) LIKE '%saudável%' OR LOWER(name) LIKE '%saudavel%' THEN 'Saudável'\n    WHEN LOWER(name) LIKE '%poke%' THEN 'Poke'\n    WHEN LOWER(name) LIKE '%smoothie%' THEN 'Smoothie'\n    WHEN LOWER(name) LIKE '%detox%' THEN 'Detox'\n    WHEN LOWER(name) LIKE '%low carb%' THEN 'Low Carb'\n    ELSE 'Outros'\n  END AS subcategoria,\n  COUNT(*) AS total\nFROM establishments \nWHERE categoryId = (SELECT id FROM categories WHERE slug = 'saudavel')\nGROUP BY subcategoria\nORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  CASE \n    WHEN LOWER(name) LIKE '%açaí%' OR LOWER(name) LIKE '%acai%' THEN 'Açaí'\n    WHEN LOWER(name) LIKE '%juice%' OR LOWER(name) LIKE '%suco%' THEN 'Sucos/Juice'\n    WHEN LOWER(name) LIKE '%salad%' THEN 'Saladas'\n    WHEN LOWER(name) LIKE '%fit%' OR LOWER(name) LIKE '%fitness%' THEN 'Fit/Fitness'\n    WHEN LOWER(name) LIKE '%vegan%' OR LOWER(name) LIKE '%vegano%' THEN 'Vegano'\n    WHEN LOWER(name) LIKE '%natural%' OR LOWER(name) LIKE '%natureba%' THEN 'Natural'\n    WHEN LOWER(name) LIKE '%orgânic%' OR LOWER(name) LIKE '%organic%' THEN 'Orgânico'\n    WHEN LOWER(name) LIKE '%saudável%' OR LOWER(name) LIKE '%saudavel%' THEN 'Saudável'\n    WHEN LOWER(name) LIKE '%poke%' THEN 'Poke'\n    WHEN LOWER(name) LIKE '%smoothie%' THEN 'Smoothie'\n    WHEN LOWER(name) LIKE '%detox%' THEN 'Detox'\n    WHEN LOWER(name) LIKE '%low carb%' THEN 'Low Carb'\n    ELSE 'Outros'\n  END AS subcategoria,\n  COUNT(*) AS total\nFROM establishments \nWHERE categoryId = (SELECT id FROM categories WHERE slug = 'saudavel')\nGROUP BY subcategoria\nORDER BY total DESC;",
+  "rows": [
+    {
+      "subcategoria": "Açaí",
+      "total": "71"
+    },
+    {
+      "subcategoria": "Outros",
+      "total": "66"
+    },
+    {
+      "subcategoria": "Vegano",
+      "total": "21"
+    },
+    {
+      "subcategoria": "Sucos/Juice",
+      "total": "19"
+    },
+    {
+      "subcategoria": "Saudável",
+      "total": "13"
+    },
+    {
+      "subcategoria": "Natural",
+      "total": "13"
+    },
+    {
+      "subcategoria": "Fit/Fitness",
+      "total": "12"
+    },
+    {
+      "subcategoria": "Saladas",
+      "total": "5"
+    },
+    {
+      "subcategoria": "Poke",
+      "total": "1"
+    },
+    {
+      "subcategoria": "Orgânico",
+      "total": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "subcategoria\ttotal\nAçaí\t71\nOutros\t66\nVegano\t21\nSucos/Juice\t19\nSaudável\t13\nNatural\t13\nFit/Fitness\t12\nSaladas\t5\nPoke\t1\nOrgânico\t1\n",
+  "stderr": "",
+  "execution_time_ms": 282
+}

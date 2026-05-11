@@ -99,31 +99,9 @@ export default function Home() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      {/* Hero Section */}
-      <section className="relative h-[70vh] min-h-[500px] flex items-end overflow-hidden">
-        <div className="absolute inset-0 flex">
-          {/* Left image — daytime restaurant */}
-          <div className="w-1/2 h-full relative">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
-              alt="Restaurante durante o dia"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/40 to-background/70" />
-          </div>
-          {/* Right image — evening bar */}
-          <div className="w-1/2 h-full relative">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
-              alt="Bar ao entardecer"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-background/40 to-background/70" />
-          </div>
-          {/* Bottom gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        </div>
-        <div className="relative container pb-12 pt-24">
+      {/* Hero Section — text only, background comes from body::before */}
+      <section className="relative pt-28 pb-12">
+        <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
