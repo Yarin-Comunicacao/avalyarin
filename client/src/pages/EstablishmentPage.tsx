@@ -243,19 +243,7 @@ export default function EstablishmentPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      {menu.length > 0 && (
-        <section className="py-6">
-          <div className="container">
-            <Link href={`/avaliar/${establishment.slug}`}>
-              <Button size="lg" className="w-full sm:w-auto font-display text-lg tracking-wider glow-amber">
-                AVALIAR ESTE ESTABELECIMENTO
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </section>
-      )}
+      {/* CTA - inline removed, now fixed at bottom */}
 
       {/* Claim Establishment */}
       <section className="pb-4">
@@ -271,8 +259,9 @@ export default function EstablishmentPage() {
 
       {/* Menu */}
       {menu.length > 0 && (
-        <section className="py-6 pb-16">
+        <section className="py-6 pb-28">
           <div className="container">
+            <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
             <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-6">CARDÁPIO</h3>
 
             <Tabs defaultValue={defaultTab} className="w-full">
@@ -327,8 +316,23 @@ export default function EstablishmentPage() {
                 </TabsContent>
               )}
             </Tabs>
+            </div>
           </div>
         </section>
+      )}
+
+      {/* Fixed CTA at bottom */}
+      {menu.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4">
+          <div className="container">
+            <Link href={`/avaliar/${establishment.slug}`}>
+              <Button size="lg" className="w-full font-display text-lg tracking-wider glow-amber">
+                AVALIAR ESTE ESTABELECIMENTO
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       )}
 
       {/* No menu message */}

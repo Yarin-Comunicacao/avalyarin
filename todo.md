@@ -105,3 +105,5 @@
 - [x] Substituir hero banner da Home pelas imagens dia/noite da tela 18+
 - [x] Corrigir layout Home: remover sobreposição de imagens, usar apenas uma imagem de fundo para toda a página
 - [x] Verificar subcategorias possíveis de Saudável
+- [x] Cardápio com fundo/card visual na EstablishmentPage (igual ao estilo do botão Avaliar)
+- [x] Botão "Avaliar este estabelecimento" fixo na parte inferior da tela (position fixed bottom)
