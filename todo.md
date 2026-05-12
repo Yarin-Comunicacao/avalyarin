@@ -122,3 +122,4 @@
 - [x] Redistribuir estabelecimentos da categoria Saudável para Vegan e Açaí conforme tipo
 - [x] Atualizar frontend para exibir as 3 categorias no grupo Saudável & Bem-estar
 - [x] Nova imagem de capa para Balada: grupo de pessoas estilosas posando com drinks (água, caipirinha, negroni, champagne, whiskey), paleta quente
+- [x] Remover texto da splash screen do PWA — deixar apenas o logo, sem palavras
