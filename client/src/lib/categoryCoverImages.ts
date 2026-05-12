@@ -1,7 +1,7 @@
 // Category cover images - mapped by category slug
 export const categoryCoverImages: Record<string, string> = {
   "autoral-contemporaneo": "/manus-storage/autoral-contemporaneo_61136cb1.jpg",
-  "balada": "/manus-storage/balada_a2df5fbd.jpg",
+  "balada": "/manus-storage/balada-category-cover-new_ed3d8dab.jpg",
   "bar-lanchonete": "/manus-storage/bar-lanchonete_561c6ede.jpg",
   "bar-musical": "/manus-storage/bar-musical_b029535e.jpg",
   "boteco-moderno": "/manus-storage/boteco-moderno_b14e3862.jpg",
