@@ -117,3 +117,7 @@
 - [x] Filtrar resultados de busca por menu para excluir itens de estabelecimentos incompletos
 - [x] Verificar que Admin Panel usa queries sem filtro de completude (rota admin.establishmentsByCategory com bypassFilter=true)
 - [x] Adicionar testes Vitest para filtro de completude (18 testes passando)
+- [x] Dividir categoria Saudável em 3: Vegan, Açaí e Saudável (geral)
+- [x] Criar novas categorias Vegan e Açaí no banco de dados
+- [x] Redistribuir estabelecimentos da categoria Saudável para Vegan e Açaí conforme tipo
+- [x] Atualizar frontend para exibir as 3 categorias no grupo Saudável & Bem-estar

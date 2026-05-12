@@ -47,7 +47,7 @@ const categoryGroups = [
     title: "SAUDÁVEL & BEM-ESTAR",
     subtitle: "Alimentação saudável e natural",
     icon: Heart,
-    categorySlugs: ["saudavel"],
+    categorySlugs: ["vegan", "acai", "saudavel"],
   },
 ];
 
