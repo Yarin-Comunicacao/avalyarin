@@ -1,0 +1,34 @@
+{
+  "query": "\nSELECT \n  'Sem endereço' as campo_faltante, COUNT(*) as count FROM establishments WHERE address IS NULL OR address = ''\nUNION ALL\nSELECT 'Sem bairro', COUNT(*) FROM establishments WHERE neighborhood IS NULL OR neighborhood = ''\nUNION ALL\nSELECT 'Sem telefone', COUNT(*) FROM establishments WHERE phone IS NULL OR phone = ''\nUNION ALL\nSELECT 'Sem Instagram', COUNT(*) FROM establishments WHERE instagram IS NULL OR instagram = ''\nUNION ALL\nSELECT 'Sem horário', COUNT(*) FROM establishments WHERE hours IS NULL OR hours = ''\nUNION ALL\nSELECT 'Sem cardápio (hasMenu=0)', COUNT(*) FROM establishments WHERE hasMenu = 0 OR hasMenu IS NULL\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  'Sem endereço' as campo_faltante, COUNT(*) as count FROM establishments WHERE address IS NULL OR address = ''\nUNION ALL\nSELECT 'Sem bairro', COUNT(*) FROM establishments WHERE neighborhood IS NULL OR neighborhood = ''\nUNION ALL\nSELECT 'Sem telefone', COUNT(*) FROM establishments WHERE phone IS NULL OR phone = ''\nUNION ALL\nSELECT 'Sem Instagram', COUNT(*) FROM establishments WHERE instagram IS NULL OR instagram = ''\nUNION ALL\nSELECT 'Sem horário', COUNT(*) FROM establishments WHERE hours IS NULL OR hours = ''\nUNION ALL\nSELECT 'Sem cardápio (hasMenu=0)', COUNT(*) FROM establishments WHERE hasMenu = 0 OR hasMenu IS NULL\n",
+  "rows": [
+    {
+      "campo_faltante": "Sem bairro",
+      "count": "0"
+    },
+    {
+      "campo_faltante": "Sem telefone",
+      "count": "1444"
+    },
+    {
+      "campo_faltante": "Sem Instagram",
+      "count": "7390"
+    },
+    {
+      "campo_faltante": "Sem endereço",
+      "count": "0"
+    },
+    {
+      "campo_faltante": "Sem horário",
+      "count": "758"
+    },
+    {
+      "campo_faltante": "Sem cardápio (hasMenu=0)",
+      "count": "7396"
+    }
+  ],
+  "messages": [],
+  "stdout": "campo_faltante\tcount\nSem bairro\t0\nSem telefone\t1444\nSem Instagram\t7390\nSem endereço\t0\nSem horário\t758\nSem cardápio (hasMenu=0)\t7396\n",
+  "stderr": "",
+  "execution_time_ms": 277
+}

@@ -241,6 +241,16 @@ export const appRouter = router({
         return await reviewClaim(input.claimId, ctx.user!.id, input.status, input.adminNotes);
       }),
 
+    establishmentsByCategory: adminProcedure
+      .input(z.object({
+        categorySlug: z.string(),
+        limit: z.number().min(1).max(200).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        return await getEstablishmentsByCategory(input.categorySlug, input.limit, input.offset, true);
+      }),
+
     createEstablishment: adminProcedure
       .input(z.object({
         name: z.string().min(2).max(255),

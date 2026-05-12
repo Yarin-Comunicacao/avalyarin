@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT \n  'Total' as status, COUNT(*) as count FROM establishments\nUNION ALL\nSELECT 'Completos (visíveis)' as status, COUNT(*) as count FROM establishments \nWHERE name IS NOT NULL AND name != '' \n  AND address IS NOT NULL AND address != '' \n  AND neighborhood IS NOT NULL AND neighborhood != '' \n  AND phone IS NOT NULL AND phone != '' \n  AND instagram IS NOT NULL AND instagram != '' \n  AND hours IS NOT NULL AND hours != '' \n  AND hasMenu = 1\nUNION ALL\nSELECT 'Incompletos (ocultos)' as status, COUNT(*) as count FROM establishments \nWHERE NOT (name IS NOT NULL AND name != '' \n  AND address IS NOT NULL AND address != '' \n  AND neighborhood IS NOT NULL AND neighborhood != '' \n  AND phone IS NOT NULL AND phone != '' \n  AND instagram IS NOT NULL AND instagram != '' \n  AND hours IS NOT NULL AND hours != '' \n  AND hasMenu = 1)\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  'Total' as status, COUNT(*) as count FROM establishments\nUNION ALL\nSELECT 'Completos (visíveis)' as status, COUNT(*) as count FROM establishments \nWHERE name IS NOT NULL AND name != '' \n  AND address IS NOT NULL AND address != '' \n  AND neighborhood IS NOT NULL AND neighborhood != '' \n  AND phone IS NOT NULL AND phone != '' \n  AND instagram IS NOT NULL AND instagram != '' \n  AND hours IS NOT NULL AND hours != '' \n  AND hasMenu = 1\nUNION ALL\nSELECT 'Incompletos (ocultos)' as status, COUNT(*) as count FROM establishments \nWHERE NOT (name IS NOT NULL AND name != '' \n  AND address IS NOT NULL AND address != '' \n  AND neighborhood IS NOT NULL AND neighborhood != '' \n  AND phone IS NOT NULL AND phone != '' \n  AND instagram IS NOT NULL AND instagram != '' \n  AND hours IS NOT NULL AND hours != '' \n  AND hasMenu = 1)\n",
+  "rows": [
+    {
+      "status": "Total",
+      "count": "7585"
+    },
+    {
+      "status": "Completos (visíveis)",
+      "count": "178"
+    },
+    {
+      "status": "Incompletos (ocultos)",
+      "count": "7407"
+    }
+  ],
+  "messages": [],
+  "stdout": "status\tcount\nTotal\t7585\nCompletos (visíveis)\t178\nIncompletos (ocultos)\t7407\n",
+  "stderr": "",
+  "execution_time_ms": 426
+}

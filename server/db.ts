@@ -121,7 +121,10 @@ export async function getCategoryWithCount(slug: string) {
   
   const [countResult] = await db.select({ count: sql<number>`COUNT(*)` })
     .from(establishments)
-    .where(eq(establishments.categoryId, cat[0].id));
+    .where(and(
+      eq(establishments.categoryId, cat[0].id),
+      completeEstablishmentFilter
+    ));
   
   return { ...cat[0], establishmentCount: countResult.count };
 }
@@ -140,7 +143,10 @@ export async function getCategoriesWithCounts() {
     establishmentCount: sql<number>`COUNT(${establishments.id})`,
   })
     .from(categories)
-    .leftJoin(establishments, eq(establishments.categoryId, categories.id))
+    .leftJoin(establishments, and(
+      eq(establishments.categoryId, categories.id),
+      completeEstablishmentFilter
+    ))
     .groupBy(categories.id);
   
   return result;
@@ -150,29 +156,52 @@ export async function getCategoriesWithCounts() {
 // ESTABLISHMENTS
 // ============================================================
 
-export async function getEstablishmentsByCategory(categorySlug: string, limit = 50, offset = 0) {
+/**
+ * Completeness filter: only show establishments that have ALL required fields filled.
+ * Required: name, categoryId, address, neighborhood, phone, instagram, hours, hasMenu (cardápio).
+ * Used in all public-facing queries. Admin queries bypass this filter.
+ */
+const completeEstablishmentFilter = and(
+  sql`${establishments.name} IS NOT NULL AND ${establishments.name} != ''`,
+  sql`${establishments.address} IS NOT NULL AND ${establishments.address} != ''`,
+  sql`${establishments.neighborhood} IS NOT NULL AND ${establishments.neighborhood} != ''`,
+  sql`${establishments.phone} IS NOT NULL AND ${establishments.phone} != ''`,
+  sql`${establishments.instagram} IS NOT NULL AND ${establishments.instagram} != ''`,
+  sql`${establishments.hours} IS NOT NULL AND ${establishments.hours} != ''`,
+  eq(establishments.hasMenu, true)
+);
+
+export async function getEstablishmentsByCategory(categorySlug: string, limit = 50, offset = 0, bypassFilter = false) {
   const db = await getDb();
   if (!db) return [];
   
   const cat = await db.select().from(categories).where(eq(categories.slug, categorySlug)).limit(1);
   if (cat.length === 0) return [];
   
+  const whereClause = bypassFilter
+    ? eq(establishments.categoryId, cat[0].id)
+    : and(eq(establishments.categoryId, cat[0].id), completeEstablishmentFilter);
+  
   const result = await db.select()
     .from(establishments)
-    .where(eq(establishments.categoryId, cat[0].id))
+    .where(whereClause)
     .limit(limit)
     .offset(offset);
   
   return result;
 }
 
-export async function getEstablishmentBySlug(slug: string) {
+export async function getEstablishmentBySlug(slug: string, bypassFilter = false) {
   const db = await getDb();
   if (!db) return undefined;
   
+  const whereClause = bypassFilter
+    ? eq(establishments.slug, slug)
+    : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+  
   const result = await db.select()
     .from(establishments)
-    .where(eq(establishments.slug, slug))
+    .where(whereClause)
     .limit(1);
   
   if (result.length === 0) return undefined;
@@ -186,13 +215,17 @@ export async function getEstablishmentBySlug(slug: string) {
   };
 }
 
-export async function getEstablishmentWithMenu(slug: string) {
+export async function getEstablishmentWithMenu(slug: string, bypassFilter = false) {
   const db = await getDb();
   if (!db) return undefined;
   
+  const whereClause = bypassFilter
+    ? eq(establishments.slug, slug)
+    : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+  
   const est = await db.select()
     .from(establishments)
-    .where(eq(establishments.slug, slug))
+    .where(whereClause)
     .limit(1);
   
   if (est.length === 0) return undefined;
@@ -249,7 +282,8 @@ export async function getNearbyEstablishments(lat: number, lng: number, radiusKm
       and(
         sql`${establishments.lat} IS NOT NULL`,
         sql`${establishments.lng} IS NOT NULL`,
-        sql`${distanceExpr} < ${radiusKm}`
+        sql`${distanceExpr} < ${radiusKm}`,
+        completeEstablishmentFilter
       )
     )
     .orderBy(distanceExpr)
@@ -280,7 +314,10 @@ export async function searchEstablishments(query: string, limit = 20) {
     hasMenu: establishments.hasMenu,
   })
     .from(establishments)
-    .where(like(establishments.name, searchTerm))
+    .where(and(
+      like(establishments.name, searchTerm),
+      completeEstablishmentFilter
+    ))
     .limit(limit);
   
   return result;
@@ -292,7 +329,7 @@ export async function searchMenuItems(query: string, limit = 50) {
   
   const searchTerm = `%${query}%`;
   
-  // Search by name first, then description
+  // Search by name first, then description (only from complete establishments)
   const byName = await db.select({
     id: menuItems.id,
     name: menuItems.name,
@@ -303,7 +340,11 @@ export async function searchMenuItems(query: string, limit = 50) {
     matchType: sql<string>`'name'`,
   })
     .from(menuItems)
-    .where(like(menuItems.name, searchTerm))
+    .innerJoin(establishments, eq(menuItems.establishmentId, establishments.id))
+    .where(and(
+      like(menuItems.name, searchTerm),
+      completeEstablishmentFilter
+    ))
     .limit(limit);
   
   const byDescription = await db.select({
@@ -316,11 +357,13 @@ export async function searchMenuItems(query: string, limit = 50) {
     matchType: sql<string>`'description'`,
   })
     .from(menuItems)
+    .innerJoin(establishments, eq(menuItems.establishmentId, establishments.id))
     .where(
       and(
         like(menuItems.description, searchTerm),
         // Exclude items already found by name
-        sql`${menuItems.id} NOT IN (${byName.length > 0 ? byName.map(i => i.id).join(',') : '0'})`
+        sql`${menuItems.id} NOT IN (${byName.length > 0 ? byName.map(i => i.id).join(',') : '0'})`,
+        completeEstablishmentFilter
       )
     )
     .limit(limit);
@@ -334,7 +377,7 @@ export async function searchAll(query: string) {
   
   const searchTerm = `%${query}%`;
   
-  // 1. Search establishments by name
+  // 1. Search establishments by name (only complete ones)
   const estResults = await db.select({
     id: establishments.id,
     slug: establishments.slug,
@@ -347,7 +390,10 @@ export async function searchAll(query: string) {
     hasMenu: establishments.hasMenu,
   })
     .from(establishments)
-    .where(like(establishments.name, searchTerm))
+    .where(and(
+      like(establishments.name, searchTerm),
+      completeEstablishmentFilter
+    ))
     .limit(20);
   
   // Get category names for establishments
@@ -365,7 +411,7 @@ export async function searchAll(query: string) {
     categoryName: catMap[e.categoryId] || '',
   }));
   
-  // 2. Search menu items by name
+  // 2. Search menu items by name (only from complete establishments)
   const menuByName = await db.select({
     id: menuItems.id,
     name: menuItems.name,
@@ -375,10 +421,14 @@ export async function searchAll(query: string) {
     establishmentId: menuItems.establishmentId,
   })
     .from(menuItems)
-    .where(like(menuItems.name, searchTerm))
+    .innerJoin(establishments, eq(menuItems.establishmentId, establishments.id))
+    .where(and(
+      like(menuItems.name, searchTerm),
+      completeEstablishmentFilter
+    ))
     .limit(50);
   
-  // 3. Search menu items by description (excluding those already found by name)
+  // 3. Search menu items by description (excluding those already found by name, only from complete establishments)
   const nameIds = menuByName.map(i => i.id);
   const menuByDesc = await db.select({
     id: menuItems.id,
@@ -389,10 +439,12 @@ export async function searchAll(query: string) {
     establishmentId: menuItems.establishmentId,
   })
     .from(menuItems)
+    .innerJoin(establishments, eq(menuItems.establishmentId, establishments.id))
     .where(
       and(
         like(menuItems.description, searchTerm),
-        nameIds.length > 0 ? sql`${menuItems.id} NOT IN (${sql.raw(nameIds.join(','))})` : sql`1=1`
+        nameIds.length > 0 ? sql`${menuItems.id} NOT IN (${sql.raw(nameIds.join(','))})` : sql`1=1`,
+        completeEstablishmentFilter
       )
     )
     .limit(50);

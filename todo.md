@@ -109,3 +109,11 @@
 - [x] Botão "Avaliar este estabelecimento" fixo na parte inferior da tela (position fixed bottom)
 - [x] Verificar se Mocotó Vila Leopoldina está cadastrado no app (NÃO está - confirmar com usuário se deseja adicionar)
 - [x] Cadastrar cardápio da Famiglia Mancini (47 itens: 5 entradas, 24 pratos, 7 sobremesas, 7 drinks, 4 bebidas)
+- [x] Adicionar cardápio (hasMenu) como campo obrigatório para exibição de estabelecimentos
+- [x] Ocultar estabelecimentos incompletos no app (sem nome, categoria, endereço, bairro, telefone, Instagram, horário ou cardápio)
+- [x] Filtrar queries públicas (listagem por categoria, busca, nearby) para excluir incompletos
+- [x] Manter estabelecimentos incompletos visíveis no Admin Panel para gestão
+- [x] Aplicar filtro de completude nas queries por slug (getEstablishmentBySlug, getEstablishmentWithMenu) para bloquear acesso direto
+- [x] Filtrar resultados de busca por menu para excluir itens de estabelecimentos incompletos
+- [x] Verificar que Admin Panel usa queries sem filtro de completude (rota admin.establishmentsByCategory com bypassFilter=true)
+- [x] Adicionar testes Vitest para filtro de completude (18 testes passando)

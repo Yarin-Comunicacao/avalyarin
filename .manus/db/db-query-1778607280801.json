@@ -1,0 +1,78 @@
+{
+  "query": "\nSELECT c.name as categoria, COUNT(e.id) as completos\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.name IS NOT NULL AND e.name != '' \n  AND e.address IS NOT NULL AND e.address != '' \n  AND e.neighborhood IS NOT NULL AND e.neighborhood != '' \n  AND e.phone IS NOT NULL AND e.phone != '' \n  AND e.instagram IS NOT NULL AND e.instagram != '' \n  AND e.hours IS NOT NULL AND e.hours != '' \n  AND e.hasMenu = 1\nGROUP BY c.name\nORDER BY completos DESC\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT c.name as categoria, COUNT(e.id) as completos\nFROM establishments e\nJOIN categories c ON e.categoryId = c.id\nWHERE e.name IS NOT NULL AND e.name != '' \n  AND e.address IS NOT NULL AND e.address != '' \n  AND e.neighborhood IS NOT NULL AND e.neighborhood != '' \n  AND e.phone IS NOT NULL AND e.phone != '' \n  AND e.instagram IS NOT NULL AND e.instagram != '' \n  AND e.hours IS NOT NULL AND e.hours != '' \n  AND e.hasMenu = 1\nGROUP BY c.name\nORDER BY completos DESC\n",
+  "rows": [
+    {
+      "categoria": "Cozinha Internacional",
+      "completos": "20"
+    },
+    {
+      "categoria": "Boteco Tradicional",
+      "completos": "16"
+    },
+    {
+      "categoria": "Padaria",
+      "completos": "15"
+    },
+    {
+      "categoria": "Pizzaria",
+      "completos": "15"
+    },
+    {
+      "categoria": "Cozinha Brasileira",
+      "completos": "15"
+    },
+    {
+      "categoria": "Bar & Lanchonete",
+      "completos": "15"
+    },
+    {
+      "categoria": "Cafeteria",
+      "completos": "13"
+    },
+    {
+      "categoria": "Confeitaria",
+      "completos": "10"
+    },
+    {
+      "categoria": "Balada",
+      "completos": "9"
+    },
+    {
+      "categoria": "Pub",
+      "completos": "9"
+    },
+    {
+      "categoria": "Cervejaria",
+      "completos": "9"
+    },
+    {
+      "categoria": "Bar Musical",
+      "completos": "8"
+    },
+    {
+      "categoria": "Saudável",
+      "completos": "7"
+    },
+    {
+      "categoria": "Boteco Moderno",
+      "completos": "7"
+    },
+    {
+      "categoria": "Hamburgueria",
+      "completos": "5"
+    },
+    {
+      "categoria": "Coquetelaria",
+      "completos": "3"
+    },
+    {
+      "categoria": "Autoral / Contemporâneo",
+      "completos": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "categoria\tcompletos\nCozinha Internacional\t20\nBoteco Tradicional\t16\nPadaria\t15\nPizzaria\t15\nCozinha Brasileira\t15\nBar & Lanchonete\t15\nCafeteria\t13\nConfeitaria\t10\nBalada\t9\nPub\t9\nCervejaria\t9\nBar Musical\t8\nSaudável\t7\nBoteco Moderno\t7\nHamburgueria\t5\nCoquetelaria\t3\nAutoral / Contemporâneo\t2\n",
+  "stderr": "",
+  "execution_time_ms": 284
+}

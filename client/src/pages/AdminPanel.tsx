@@ -338,7 +338,7 @@ function EstablishmentsTab() {
   const { data: categories } = trpc.categories.list.useQuery();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
-  const { data: estData } = trpc.establishments.byCategory.useQuery(
+  const { data: estData } = trpc.admin.establishmentsByCategory.useQuery(
     { categorySlug: selectedCategory, limit: 50 },
     { enabled: !!selectedCategory }
   );
