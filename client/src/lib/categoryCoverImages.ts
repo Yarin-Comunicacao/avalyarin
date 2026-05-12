@@ -17,6 +17,8 @@ export const categoryCoverImages: Record<string, string> = {
   "pizzaria": "/manus-storage/pizzaria_5e6621ea.jpg",
   "pub": "/manus-storage/pub_f0bce0fc.jpg",
   "saudavel": "/manus-storage/saudavel_ba483a9b.jpg",
+  "vegan": "/manus-storage/vegan-category-cover_fb4d5451.jpg",
+  "acai": "/manus-storage/acai-category-cover_ebef39c1.jpg",
 };
 
 export function getCategoryCover(slug: string): string {
