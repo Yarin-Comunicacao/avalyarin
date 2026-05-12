@@ -107,3 +107,5 @@
 - [x] Verificar subcategorias possíveis de Saudável
 - [x] Cardápio com fundo/card visual na EstablishmentPage (igual ao estilo do botão Avaliar)
 - [x] Botão "Avaliar este estabelecimento" fixo na parte inferior da tela (position fixed bottom)
+- [x] Verificar se Mocotó Vila Leopoldina está cadastrado no app (NÃO está - confirmar com usuário se deseja adicionar)
+- [x] Cadastrar cardápio da Famiglia Mancini (47 itens: 5 entradas, 24 pratos, 7 sobremesas, 7 drinks, 4 bebidas)

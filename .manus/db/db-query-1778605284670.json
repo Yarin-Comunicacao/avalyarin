@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(2457, 'Sangrita (sem álcool)', 'Kaly Cherry, suco de uva, suco de laranja e citrus', 38.00, 'bebida'),\n(2457, 'Soda Italiana', 'Xarope de tangerina ou maçã verde com soda limonada ou água com gás', 38.00, 'bebida'),\n(2457, 'Amarula', 'Licor de creme e fruta marula', 32.00, 'bebida'),\n(2457, 'Cuarenta y Tres', 'Licor espanhol de 43 ingredientes', 32.00, 'bebida')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(2457, 'Sangrita (sem álcool)', 'Kaly Cherry, suco de uva, suco de laranja e citrus', 38.00, 'bebida'),\n(2457, 'Soda Italiana', 'Xarope de tangerina ou maçã verde com soda limonada ou água com gás', 38.00, 'bebida'),\n(2457, 'Amarula', 'Licor de creme e fruta marula', 32.00, 'bebida'),\n(2457, 'Cuarenta y Tres', 'Licor espanhol de 43 ingredientes', 32.00, 'bebida')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 268
+}

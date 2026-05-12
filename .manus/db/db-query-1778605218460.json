@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(2457, 'Antepasto Self-Service (100g)', 'Mais de 70 opções de antepastos na mesa self-service', 27.00, 'entrada'),\n(2457, 'Cesto de Pão Italiano', 'Pão italiano artesanal por pessoa (manteiga inclusa)', 10.00, 'entrada'),\n(2457, 'Canja de Galinha', 'Caldo de galinha com arroz, galinha desfiada e cenoura ralada', 136.00, 'entrada'),\n(2457, 'Capeletti in Brodo', 'Caldo de galinha, capeletti, galinha desfiada, cenoura ralada e salsinha', 136.00, 'entrada'),\n(2457, 'Creme de Palmito', 'Creme de leite, gema de ovo e molho branco', 136.00, 'entrada')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (establishmentId, name, description, price, category) VALUES\n(2457, 'Antepasto Self-Service (100g)', 'Mais de 70 opções de antepastos na mesa self-service', 27.00, 'entrada'),\n(2457, 'Cesto de Pão Italiano', 'Pão italiano artesanal por pessoa (manteiga inclusa)', 10.00, 'entrada'),\n(2457, 'Canja de Galinha', 'Caldo de galinha com arroz, galinha desfiada e cenoura ralada', 136.00, 'entrada'),\n(2457, 'Capeletti in Brodo', 'Caldo de galinha, capeletti, galinha desfiada, cenoura ralada e salsinha', 136.00, 'entrada'),\n(2457, 'Creme de Palmito', 'Creme de leite, gema de ovo e molho branco', 136.00, 'entrada')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 293
+}
