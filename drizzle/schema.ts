@@ -188,3 +188,90 @@ export const ageVerificationRequests = mysqlTable("age_verification_requests", {
 
 export type AgeVerificationRequest = typeof ageVerificationRequests.$inferSelect;
 export type InsertAgeVerificationRequest = typeof ageVerificationRequests.$inferInsert;
+
+/**
+ * User plans table — tracks subscription tier per user.
+ * free = default (3 groups max, cannot create influencer groups)
+ * premium = paid (unlimited groups, can create influencer groups)
+ */
+export const userPlans = mysqlTable("user_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  plan: mysqlEnum("plan", ["free", "premium"]).default("free").notNull(),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserPlan = typeof userPlans.$inferSelect;
+export type InsertUserPlan = typeof userPlans.$inferInsert;
+
+/**
+ * Groups table — two types:
+ * - "private": user shares ratings with chosen members (Meus Grupos)
+ * - "influencer": creator publishes reviews/notes, followers can view (Grupos que Sigo)
+ */
+export const groups = mysqlTable("groups", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["private", "influencer"]).notNull(),
+  creatorId: int("creatorId").notNull(),
+  image: text("image"),
+  memberCount: int("memberCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Group = typeof groups.$inferSelect;
+export type InsertGroup = typeof groups.$inferInsert;
+
+/**
+ * Group members table — tracks membership in groups.
+ * For private groups: role is "member" or "admin" (creator)
+ * For influencer groups: role is "creator" or "follower"
+ */
+export const groupMembers = mysqlTable("group_members", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["admin", "member", "creator", "follower"]).default("member").notNull(),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+});
+
+export type GroupMember = typeof groupMembers.$inferSelect;
+export type InsertGroupMember = typeof groupMembers.$inferInsert;
+
+/**
+ * Group invites table — pending invitations for private groups.
+ * Inviter sends to invitee via @username; invitee accepts/rejects.
+ */
+export const groupInvites = mysqlTable("group_invites", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  inviterId: int("inviterId").notNull(),
+  inviteeId: int("inviteeId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GroupInvite = typeof groupInvites.$inferSelect;
+export type InsertGroupInvite = typeof groupInvites.$inferInsert;
+
+/**
+ * Group shared ratings — links a rating to a group so members can see it.
+ * For private groups: any member can share their rating.
+ * For influencer groups: only the creator shares ratings (as "posts").
+ */
+export const groupSharedRatings = mysqlTable("group_shared_ratings", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  ratingId: int("ratingId").notNull(),
+  sharedById: int("sharedById").notNull(),
+  note: text("note"), // Optional note/annotation from the sharer
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GroupSharedRating = typeof groupSharedRatings.$inferSelect;
+export type InsertGroupSharedRating = typeof groupSharedRatings.$inferInsert;

@@ -68,6 +68,15 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       ],
     },
     {
+      id: "grupos",
+      title: "Grupos",
+      icon: <Users className="w-5 h-5" />,
+      items: [
+        { id: "meus-grupos", label: "Meus Grupos", href: "/grupos", icon: <Users className="w-4 h-4" /> },
+        { id: "grupos-sigo", label: "Grupos que Sigo", href: "/grupos", icon: <Crown className="w-4 h-4" /> },
+      ],
+    },
+    {
       id: "avaliacoes",
       title: "Minhas Avaliações",
       icon: <Star className="w-5 h-5" />,

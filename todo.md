@@ -128,3 +128,15 @@
 - [x] Criar imagem de compartilhamento para Stories do Instagram (card visual 9:16 com nota, bar, itens avaliados)
 - [x] Criar aba Notificações no menu lateral (badges alcançados, pesquisas de preferência, atualizações de grupos)
 - [x] Migrar perguntas bônus da avaliação para pesquisas de preferência na aba Notificações
+- [x] Schema de banco: tabelas groups, group_members, group_invites, user_plans
+- [x] Backend: CRUD de grupos (criar, listar, editar, deletar)
+- [x] Backend: sistema de convites (@usuário) com aceitar/recusar
+- [x] Backend: seguir/deixar de seguir grupos de influencers
+- [x] Backend: compartilhar avaliações no grupo
+- [x] Frontend: página de Grupos com abas "Meus Grupos" e "Grupos que Sigo"
+- [x] Frontend: criar grupo privado (Tipo 1) com seleção de membros
+- [x] Frontend: criar grupo de influencer (Tipo 2) — apenas plano pago
+- [x] Frontend: visualizar avaliações compartilhadas dentro do grupo
+- [x] Integrar convites de grupo na aba Notificações (aceitar/recusar com tRPC)
+- [x] Lógica de plano: gratuito = 3 grupos, pago = ilimitado
+- [x] Lógica de plano: grupo influencer requer plano pago para criar

@@ -9,8 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, Trophy, Star, Users, ChevronRight, ChevronLeft,
   ArrowLeft, CheckCircle2, Circle, Sparkles, MessageSquare,
-  ClipboardCheck
+  ClipboardCheck, UserPlus, Check, X, Loader2, Crown
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -103,6 +104,113 @@ const PREFERENCE_SURVEYS = [
 ];
 
 type Tab = "badges" | "pesquisas" | "grupos";
+
+// ─── Group Notifications Tab ─────────────────────────────────────────────────
+function GroupNotificationsTab() {
+  const { data: invites, isLoading } = trpc.groups.pendingInvites.useQuery();
+  const utils = trpc.useUtils();
+
+  const acceptMutation = trpc.groups.respondInvite.useMutation({
+    onSuccess: () => {
+      toast.success("Convite aceito! Você agora faz parte do grupo.");
+      utils.groups.pendingInvites.invalidate();
+      utils.groups.myGroups.invalidate();
+    },
+    onError: () => toast.error("Erro ao aceitar convite"),
+  });
+
+  const declineMutation = trpc.groups.respondInvite.useMutation({
+    onSuccess: () => {
+      toast("Convite recusado");
+      utils.groups.pendingInvites.invalidate();
+    },
+    onError: () => toast.error("Erro ao recusar convite"),
+  });
+
+  return (
+    <motion.div
+      key="grupos"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-6"
+    >
+      {/* Pending invites */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
+          Convites Pendentes
+        </h3>
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : !invites || invites.length === 0 ? (
+          <div className="text-center py-10 bg-secondary/20 rounded-xl border border-border/20">
+            <UserPlus className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">Nenhum convite pendente</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {invites.map((invite: any) => (
+              <div
+                key={invite.id}
+                className="p-4 rounded-xl bg-primary/5 border border-primary/20"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      {invite.groupType === "influencer" ? (
+                        <Crown className="w-4 h-4 text-primary" />
+                      ) : (
+                        <Users className="w-4 h-4 text-primary" />
+                      )}
+                      <p className="text-sm font-medium text-foreground">{invite.groupName}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Convidado por @{invite.inviterUsername}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => acceptMutation.mutate({ inviteId: invite.id, accept: true })}
+                      disabled={acceptMutation.isPending}
+                      className="p-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-500 hover:bg-green-500/20 transition-all"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => declineMutation.mutate({ inviteId: invite.id, accept: false })}
+                      disabled={declineMutation.isPending}
+                      className="p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Link to groups page */}
+      <Link href="/grupos">
+        <div className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Gerenciar Grupos</p>
+                <p className="text-xs text-muted-foreground">Criar, convidar e ver seus grupos</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function NotificacoesPage() {
   const { user, loading: authLoading } = useAuth();
@@ -390,19 +498,7 @@ export default function NotificacoesPage() {
           )}
 
           {activeTab === "grupos" && (
-            <motion.div
-              key="grupos"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-center py-12"
-            >
-              <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="font-display text-xl tracking-wider text-foreground mb-2">EM BREVE</h3>
-              <p className="text-muted-foreground max-w-sm mx-auto">
-                Atualizações de grupos que você participa aparecerão aqui. Fique ligado nas novidades!
-              </p>
-            </motion.div>
+            <GroupNotificationsTab />
           )}
         </AnimatePresence>
       </div>

@@ -57,6 +57,13 @@
       "when": 1778177876792,
       "tag": "0007_flat_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1778684307918,
+      "tag": "0008_dazzling_firestar",
+      "breakpoints": true
     }
   ]
 }

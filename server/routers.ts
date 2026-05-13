@@ -55,6 +55,28 @@ import {
   reviewAgeVerification,
   getUserAgeVerificationStatus,
 } from "./db";
+import {
+  createGroup,
+  getMyGroups,
+  getFollowedGroups,
+  getGroupById,
+  getGroupMembers,
+  deleteGroup,
+  inviteToGroup,
+  getPendingInvites,
+  respondToInvite,
+  followGroup,
+  unfollowGroup,
+  shareRatingToGroup,
+  getGroupFeed,
+  searchUsersByUsername,
+  discoverInfluencerGroups,
+  isGroupMember,
+  removeMemberFromGroup,
+  getUserPlanOrDefault,
+  countUserGroups,
+  updateGroup,
+} from "./db-groups";
 
 export const appRouter = router({
   system: systemRouter,
@@ -454,6 +476,163 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await setUsername(ctx.user!.id, input.username);
       }),
+  }),
+
+  groups: router({
+    // Get user's own groups (private + influencer they created)
+    myGroups: protectedProcedure.query(async ({ ctx }) => {
+      return await getMyGroups(ctx.user!.id);
+    }),
+
+    // Get influencer groups user follows
+    followedGroups: protectedProcedure.query(async ({ ctx }) => {
+      return await getFollowedGroups(ctx.user!.id);
+    }),
+
+    // Discover influencer groups
+    discover: protectedProcedure.query(async ({ ctx }) => {
+      return await discoverInfluencerGroups(ctx.user!.id);
+    }),
+
+    // Get group details
+    getById: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group) throw new Error("Grupo não encontrado");
+        const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+        const members = isMember ? await getGroupMembers(input.groupId) : [];
+        return { ...group, isMember, members };
+      }),
+
+    // Get group feed (shared ratings)
+    feed: protectedProcedure
+      .input(z.object({ groupId: z.number(), limit: z.number().default(20), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+        if (!isMember) throw new Error("Você não é membro deste grupo");
+        return await getGroupFeed(input.groupId, input.limit, input.offset);
+      }),
+
+    // Create a group
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        description: z.string().max(500).optional(),
+        type: z.enum(["private", "influencer"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createGroup({
+          name: input.name,
+          description: input.description,
+          type: input.type,
+          creatorId: ctx.user!.id,
+        });
+      }),
+
+    // Update a group (only creator)
+    update: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        name: z.string().min(2).max(255).optional(),
+        description: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group || group.creatorId !== ctx.user!.id) throw new Error("Sem permissão");
+        await updateGroup(input.groupId, { name: input.name, description: input.description });
+        return { success: true };
+      }),
+
+    // Delete a group (only creator)
+    delete: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group || group.creatorId !== ctx.user!.id) throw new Error("Sem permissão");
+        await deleteGroup(input.groupId);
+        return { success: true };
+      }),
+
+    // Invite user to private group
+    invite: protectedProcedure
+      .input(z.object({ groupId: z.number(), username: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group || group.type !== "private") throw new Error("Grupo inválido");
+        if (group.creatorId !== ctx.user!.id) {
+          const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+          if (!isMember) throw new Error("Sem permissão");
+        }
+        // Find user by username
+        const results = await searchUsersByUsername(input.username);
+        const target = results.find(u => u.username === input.username);
+        if (!target) throw new Error("Usuário não encontrado");
+        return await inviteToGroup(input.groupId, ctx.user!.id, target.id);
+      }),
+
+    // Get pending invites for current user
+    pendingInvites: protectedProcedure.query(async ({ ctx }) => {
+      return await getPendingInvites(ctx.user!.id);
+    }),
+
+    // Respond to invite
+    respondInvite: protectedProcedure
+      .input(z.object({ inviteId: z.number(), accept: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        return await respondToInvite(input.inviteId, ctx.user!.id, input.accept);
+      }),
+
+    // Follow influencer group
+    follow: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group || group.type !== "influencer") throw new Error("Grupo inválido");
+        await followGroup(input.groupId, ctx.user!.id);
+        return { success: true };
+      }),
+
+    // Unfollow influencer group
+    unfollow: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await unfollowGroup(input.groupId, ctx.user!.id);
+        return { success: true };
+      }),
+
+    // Share rating to group
+    shareRating: protectedProcedure
+      .input(z.object({ groupId: z.number(), ratingId: z.number(), note: z.string().max(500).optional() }))
+      .mutation(async ({ ctx, input }) => {
+        const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+        if (!isMember) throw new Error("Você não é membro deste grupo");
+        return await shareRatingToGroup(input.groupId, input.ratingId, ctx.user!.id, input.note);
+      }),
+
+    // Remove member from group (only creator/admin)
+    removeMember: protectedProcedure
+      .input(z.object({ groupId: z.number(), userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const group = await getGroupById(input.groupId);
+        if (!group || group.creatorId !== ctx.user!.id) throw new Error("Sem permissão");
+        await removeMemberFromGroup(input.groupId, input.userId);
+        return { success: true };
+      }),
+
+    // Search users by username (for inviting)
+    searchUsers: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ ctx, input }) => {
+        return await searchUsersByUsername(input.query, ctx.user!.id);
+      }),
+
+    // Get user plan info
+    myPlan: protectedProcedure.query(async ({ ctx }) => {
+      const plan = await getUserPlanOrDefault(ctx.user!.id);
+      const groupCount = await countUserGroups(ctx.user!.id);
+      return { plan, groupCount, maxGroups: plan === "free" ? 3 : null };
+    }),
   }),
 });
 export type AppRouter = typeof appRouter;

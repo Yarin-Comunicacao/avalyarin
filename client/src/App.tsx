@@ -32,6 +32,8 @@ import ListasCollab from "./pages/ListasCollab";
 import BadgesPage from "./pages/BadgesPage";
 // Notificações
 import NotificacoesPage from "./pages/NotificacoesPage";
+// Grupos
+import GruposPage from "./pages/GruposPage";
 // Search
 import SearchResults from "./pages/SearchResults";
 // Admin & Business
@@ -100,6 +102,8 @@ function Router() {
       <Route path="/salvos/collab" component={ListasCollab} />
       {/* Badges */}
       <Route path="/badges" component={BadgesPage} />
+      {/* Grupos */}
+      <Route path="/grupos" component={GruposPage} />
       {/* Notificações */}
       <Route path="/notificacoes" component={NotificacoesPage} />
       <Route path="/notificacoes/:tab" component={NotificacoesPage} />
