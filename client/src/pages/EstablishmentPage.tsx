@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle, Building2 } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,7 @@ import { trpc } from "@/lib/trpc";
 
 export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAddressSheet, setShowAddressSheet] = useState(false);
   const { id } = useParams<{ id: string }>();
 
   const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
@@ -165,17 +166,15 @@ export default function EstablishmentPage() {
             </h2>
             <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
               {establishment.address && (
-                <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setShowAddressSheet(true)}
+                  className="flex items-center gap-1.5 text-left"
+                >
                   <MapPin className="w-4 h-4 shrink-0 text-primary/60" />
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(establishment.name + ' ' + establishment.address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
-                  >
+                  <span className="text-primary hover:text-primary/80 hover:underline transition-colors cursor-pointer">
                     {establishment.address}
-                  </a>
-                </div>
+                  </span>
+                </button>
               )}
               {establishment.hours && (
                 <div className="flex items-center gap-1.5">
@@ -350,6 +349,103 @@ export default function EstablishmentPage() {
           <p className="text-xs text-muted-foreground">AvaLyarin — Sistema de Avaliação Dinâmico</p>
         </div>
       </footer>
+
+      {/* Address Bottom Sheet */}
+      {showAddressSheet && establishment.address && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowAddressSheet(false)}
+          />
+          {/* Sheet */}
+          <div className="fixed bottom-0 left-0 right-0 z-[90] bg-card border-t border-border/50 rounded-t-2xl p-5 pb-8 animate-in slide-in-from-bottom duration-300">
+            {/* Handle */}
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30 mx-auto mb-4" />
+            
+            {/* Address display */}
+            <div className="flex items-start gap-2 mb-5 p-3 rounded-lg bg-secondary/30 border border-border/30">
+              <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{establishment.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{establishment.address}</p>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="space-y-2">
+              {/* Copy */}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(establishment.address!);
+                  setShowAddressSheet(false);
+                  import('sonner').then(({ toast }) => toast.success('Endereço copiado!'));
+                }}
+                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Copy className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground">Copiar endereço</p>
+                  <p className="text-[11px] text-muted-foreground">Copiar para a área de transferência</p>
+                </div>
+              </button>
+
+              {/* Google Maps */}
+              <button
+                onClick={() => {
+                  const query = encodeURIComponent(establishment.name + ' ' + establishment.address);
+                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                  setShowAddressSheet(false);
+                }}
+                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                  <Navigation className="w-5 h-5 text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground">Abrir no Google Maps</p>
+                  <p className="text-[11px] text-muted-foreground">Ver rotas e navegação</p>
+                </div>
+              </button>
+
+              {/* Uber */}
+              <button
+                onClick={() => {
+                  const lat = establishment.lat;
+                  const lng = establishment.lng;
+                  let uberUrl: string;
+                  if (lat && lng) {
+                    uberUrl = `https://m.uber.com/ul/?action=setPickup&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${encodeURIComponent(establishment.name)}`;
+                  } else {
+                    uberUrl = `https://m.uber.com/ul/?action=setPickup&dropoff[formatted_address]=${encodeURIComponent(establishment.address!)}&dropoff[nickname]=${encodeURIComponent(establishment.name)}`;
+                  }
+                  window.open(uberUrl, '_blank');
+                  setShowAddressSheet(false);
+                }}
+                className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                  <Car className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground">Pedir Uber</p>
+                  <p className="text-[11px] text-muted-foreground">Abrir no app Uber</p>
+                </div>
+              </button>
+            </div>
+
+            {/* Close */}
+            <button
+              onClick={() => setShowAddressSheet(false)}
+              className="w-full mt-4 py-2.5 rounded-xl border border-border/30 text-sm text-muted-foreground hover:bg-secondary/30 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

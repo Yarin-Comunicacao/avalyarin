@@ -8,7 +8,7 @@ import {
   X, User, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
   ChevronRight, LogOut, LogIn, Trophy, Palette, Check,
-  Shield, Building2, UserCog, Eye
+  Shield, Building2, UserCog, Eye, Bell
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -19,12 +19,6 @@ interface AppMenuProps {
   onClose: () => void;
 }
 
-// Mock data for demonstration
-const recentVisits = [
-  { id: "cervejaria-nacional", name: "Cervejaria Nacional", image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=100&h=100&fit=crop" },
-  { id: "the-blue-pub", name: "The Blue Pub", image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=100&h=100&fit=crop" },
-  { id: "frigobar-speakeasy", name: "Frigobar Speakeasy", image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=100&h=100&fit=crop" },
-];
 
 interface MenuSection {
   id: string;
@@ -61,6 +55,16 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       icon: <UserCog className="w-5 h-5" />,
       items: [
         { id: "perfil", label: "Nome de Usuário & Preferências", href: "/conta/usuario", icon: <UserCog className="w-4 h-4" /> },
+      ],
+    },
+    {
+      id: "notificacoes",
+      title: "Notificações",
+      icon: <Bell className="w-5 h-5" />,
+      items: [
+        { id: "notif-badges", label: "Badges Alcançados", href: "/notificacoes/badges", icon: <Trophy className="w-4 h-4" /> },
+        { id: "notif-pesquisas", label: "Pesquisas de Preferência", href: "/notificacoes/pesquisas", icon: <Star className="w-4 h-4" /> },
+        { id: "notif-grupos", label: "Atualizações de Grupos", href: "/notificacoes/grupos", icon: <Users className="w-4 h-4" /> },
       ],
     },
     {
@@ -152,20 +156,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
             {/* LOGGED IN: Show all content */}
             {user && (
               <>
-                {/* Recent Visits Preview */}
-                <div className="px-5 py-4 border-b border-border/30">
-                  <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-3">Últimas visitas</p>
-                  <div className="flex gap-2">
-                    {recentVisits.map((visit) => (
-                      <Link key={visit.id} href={`/estabelecimento/${visit.id}`} onClick={onClose}>
-                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-border/30 hover:border-primary/40 transition-colors">
-                          <img src={visit.image} alt={visit.name} className="w-full h-full object-cover" />
-                        </div>
-                        <p className="text-[10px] text-muted-foreground/60 text-center mt-1 truncate w-16">{visit.name.split(" ")[0]}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+
 
                 {/* Menu Sections */}
                 <div className="px-3 py-3">

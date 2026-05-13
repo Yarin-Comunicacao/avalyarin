@@ -123,3 +123,8 @@
 - [x] Atualizar frontend para exibir as 3 categorias no grupo Saudável & Bem-estar
 - [x] Nova imagem de capa para Balada: grupo de pessoas estilosas posando com drinks (água, caipirinha, negroni, champagne, whiskey), paleta quente
 - [x] Remover texto da splash screen do PWA — deixar apenas o logo, sem palavras
+- [x] Endereço com bottom sheet: copiar, abrir no Maps, abrir no Uber ao clicar no endereço do estabelecimento
+- [x] Mover "Últimas Visitas" do menu lateral para dentro de "Meu Usuário" (mobile)
+- [x] Criar imagem de compartilhamento para Stories do Instagram (card visual 9:16 com nota, bar, itens avaliados)
+- [x] Criar aba Notificações no menu lateral (badges alcançados, pesquisas de preferência, atualizações de grupos)
+- [x] Migrar perguntas bônus da avaliação para pesquisas de preferência na aba Notificações

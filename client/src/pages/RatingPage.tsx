@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/sonner";
+import ShareStoryCard from "@/components/ShareStoryCard";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ptBR } from "react-day-picker/locale";
@@ -394,6 +395,8 @@ export default function RatingPage() {
   const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
+  const [savedReviewData, setSavedReviewData] = useState<{ score: number; items: string[]; mode: string; date?: string } | null>(null);
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [mode, setMode] = useState<RatingMode>("direto");
@@ -2168,30 +2171,14 @@ export default function RatingPage() {
                           description: pointsMsg,
                         });
 
-                        // Navigate to badges page if new badge earned, ranking prompt, or home
-                        setTimeout(() => {
-                          const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
-                          if (justEarned) {
-                            window.location.href = "/badges";
-                          } else {
-                            // Prompt user to update their ranking after each rating cycle
-                            const ratingCycleCount = existing.length + 1;
-                            // Show ranking prompt at 3rd, 5th, 10th, and every 5th rating
-                            if (ratingCycleCount === 3 || ratingCycleCount === 5 || ratingCycleCount === 10 || ratingCycleCount % 5 === 0) {
-                              toast("Atualize seu ranking!", {
-                                description: "Você pode organizar seus favoritos nesta categoria.",
-                                action: {
-                                  label: "Ver Ranking",
-                                  onClick: () => { window.location.href = "/meu-ranking"; },
-                                },
-                                duration: 5000,
-                              });
-                              setTimeout(() => { window.location.href = "/"; }, 5000);
-                            } else {
-                              window.location.href = "/";
-                            }
-                          }
-                        }, 1500);
+                        // Show share card instead of immediate redirect
+                        setSavedReviewData({
+                          score: finalScore,
+                          items: selectedMenuItems.map(m => m.name),
+                          mode,
+                          date: visitDate ? visitDate.toISOString() : undefined,
+                        });
+                        setShowShareCard(true);
                       } catch (e: any) {
                         console.error("Failed to save review", e);
                         toast.error("Erro ao salvar avaliação", {
@@ -2210,6 +2197,30 @@ export default function RatingPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Share Story Card */}
+      {showShareCard && savedReviewData && (
+        <ShareStoryCard
+          isOpen={showShareCard}
+          onClose={() => {
+            setShowShareCard(false);
+            // Navigate after closing share card
+            const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
+            if (justEarned) {
+              window.location.href = "/badges";
+            } else {
+              window.location.href = "/";
+            }
+          }}
+          establishmentName={establishment.name}
+          categoryName={parentCategory?.name}
+          neighborhood={establishment.neighborhood || undefined}
+          score={savedReviewData.score}
+          items={savedReviewData.items}
+          mode={savedReviewData.mode as "direto" | "analitico"}
+          date={savedReviewData.date}
+        />
+      )}
     </div>
   );
 }
