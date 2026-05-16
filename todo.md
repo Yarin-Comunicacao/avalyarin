@@ -140,3 +140,4 @@
 - [x] Integrar convites de grupo na aba Notificações (aceitar/recusar com tRPC)
 - [x] Lógica de plano: gratuito = 3 grupos, pago = ilimitado
 - [x] Lógica de plano: grupo influencer requer plano pago para criar
+- [x] Fix: Abas do Painel Admin sobrepostas no mobile — tabs ilegíveis em telas pequenas

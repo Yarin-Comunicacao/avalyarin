@@ -62,26 +62,26 @@ export default function AdminPanel() {
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-border/30">
-        <div className="container flex gap-1 overflow-x-auto">
+      <div className="border-b border-border/30 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1 px-4 sm:px-6 lg:px-8 lg:max-w-[1280px] lg:mx-auto" style={{ minWidth: 'max-content' }}>
           {[
             { id: "dashboard" as const, label: "Dashboard", icon: BarChart3 },
             { id: "users" as const, label: "Usuários", icon: Users },
             { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
             { id: "establishments" as const, label: "Estabelecimentos", icon: Store },
-            { id: "age-verification" as const, label: "Verificação Idade", icon: FileCheck },
-            { id: "code-backup" as const, label: "Código Fonte", icon: Code },
+            { id: "age-verification" as const, label: "Verificação", icon: FileCheck },
+            { id: "code-backup" as const, label: "Código", icon: Code },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {tab.label}
             </button>
           ))}
