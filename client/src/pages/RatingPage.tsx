@@ -985,7 +985,7 @@ export default function RatingPage() {
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-20 pb-16">
+      <div className="pt-24 pb-16">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
           {isNumberedStep && (
@@ -1009,12 +1009,14 @@ export default function RatingPage() {
             {/* Item Selection — NO number */}
             {step === "items" && (
               <motion.div key="items" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <div className="flex items-center gap-3 mb-6">
-                  <ShoppingBag className="w-6 h-6 text-primary" />
-                  <div>
+                <div className="mb-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <ShoppingBag className="w-6 h-6 text-primary" />
                     <h3 className="font-display text-2xl tracking-wider text-primary">O QUE VOCÊ CONSUMIU?</h3>
-                    <p className="text-sm text-muted-foreground">Selecione os itens do cardápio do {establishment.name}</p>
                   </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Olá <span className="text-foreground font-medium">{user?.username || user?.name || 'visitante'}</span>, que bom que veio ao <span className="text-foreground font-medium">{establishment.name}</span>! Selecione apenas os itens que você consumiu e nos fale da sua experiência.
+                  </p>
                 </div>
                 <ItemSelector items={entradas} title={
                   parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "ENTRADAS" :
