@@ -144,3 +144,4 @@
 - [x] Fix: Tela de avaliação — mensagem cortada no topo no mobile, adicionar folga/padding
 - [x] Alterar mensagem da tela de avaliação para: "Olá {{nome}}, que bom que veio ao {{estabelecimento}}! Selecione apenas os itens que você consumiu e nos fale da sua experiência."
 - [x] Tela intermediária após verificação de idade: "Cadastre-se" (login → onboarding) e "Já Tenho Cadastro" (login → home)
+- [x] Fix: Imagem de fundo do hero na Home distorcida no mobile e ao redimensionar janela
