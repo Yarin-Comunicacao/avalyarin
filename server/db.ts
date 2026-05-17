@@ -272,6 +272,7 @@ export async function getNearbyEstablishments(lat: number, lng: number, radiusKm
     instagram: establishments.instagram,
     categoryId: establishments.categoryId,
     categoryName: categories.name,
+    categorySlug: categories.slug,
     hasMenu: establishments.hasMenu,
     source: establishments.source,
     distance: distanceExpr,

@@ -146,3 +146,6 @@
 - [x] Tela intermediária após verificação de idade: "Cadastre-se" (login → onboarding) e "Já Tenho Cadastro" (login → home)
 - [x] Fix: Imagem de fundo do hero na Home distorcida no mobile e ao redimensionar janela
 - [x] Seletor de imagem de fundo na área de Tema do menu lateral (foto noturna, foto diurna, fotos de categorias)
+- [x] Criar ícones/símbolos únicos para cada categoria de estabelecimento
+- [x] Criar página NearbyPage (/perto-de-mim) com listagem completa de estabelecimentos próximos + ícones de categoria
+- [x] Conectar botão "Ver mais" da seção Perto de Você à nova página NearbyPage

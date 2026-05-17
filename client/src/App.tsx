@@ -42,6 +42,8 @@ import AdminPanel from "./pages/AdminPanel";
 import BusinessPanel from "./pages/BusinessPanel";
 // Rankings
 import MeuRanking from "./pages/MeuRanking";
+// Nearby
+import NearbyPage from "./pages/NearbyPage";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
@@ -113,6 +115,8 @@ function Router() {
       <Route path="/busca" component={SearchResults} />
       {/* Rankings */}
       <Route path="/meu-ranking" component={MeuRanking} />
+      {/* Nearby */}
+      <Route path="/perto-de-mim" component={NearbyPage} />
       {/* Admin & Business */}
       <Route path="/admin" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />

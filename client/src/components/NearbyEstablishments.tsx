@@ -1,22 +1,19 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, Star, Loader2 } from "lucide-react";
 import { useGeolocation, formatDistance } from "@/hooks/useGeolocation";
 import { trpc } from "@/lib/trpc";
+import { CategoryIcon } from "@/lib/categoryIcons";
 
 export function NearbyEstablishments() {
   const { latitude, longitude, loading, error, permissionDenied, requestLocation } = useGeolocation();
-  const [showAll, setShowAll] = useState(false);
 
   const { data: nearbyEstablishments = [], isLoading: isLoadingNearby } = trpc.establishments.nearby.useQuery(
     { lat: latitude || 0, lng: longitude || 0, limit: 20 },
     { enabled: !!latitude && !!longitude }
   );
 
-  const displayedEstablishments = showAll
-    ? nearbyEstablishments.slice(0, 20)
-    : nearbyEstablishments.slice(0, 6);
+  const displayedEstablishments = nearbyEstablishments.slice(0, 6);
 
   // Not yet requested location
   if (!latitude && !loading && !error) {
@@ -170,27 +167,23 @@ export function NearbyEstablishments() {
                       )}
                     </div>
                   </div>
+                  {/* Category icon */}
+                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-card border border-border/40 flex items-center justify-center">
+                    <CategoryIcon slug={(est as any).categorySlug || ""} size={18} />
+                  </div>
                 </div>
               </Link>
             </motion.div>
           ))}
         </div>
 
-        {nearbyEstablishments.length > 6 && !showAll && (
+        {nearbyEstablishments.length > 6 && (
           <div className="flex justify-center mt-6">
-            <button
-              onClick={() => setShowAll(true)}
-              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
-            >
-              Ver mais ({nearbyEstablishments.length - 6} restantes)
-            </button>
-          </div>
-        )}
-        {showAll && nearbyEstablishments.length > 20 && (
-          <div className="flex justify-center mt-6">
-            <p className="text-xs text-muted-foreground">
-              Mostrando os 20 mais próximos de {nearbyEstablishments.length} total
-            </p>
+            <Link href="/perto-de-mim">
+              <button className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">
+                Ver mais ({nearbyEstablishments.length - 6} restantes)
+              </button>
+            </Link>
           </div>
         )}
       </div>
