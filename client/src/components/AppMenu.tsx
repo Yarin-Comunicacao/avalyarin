@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
+import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
 
 interface AppMenuProps {
   isOpen: boolean;
@@ -24,14 +25,16 @@ interface MenuSection {
   id: string;
   title: string;
   icon: React.ReactNode;
-  items: { id: string; label: string; href?: string; icon: React.ReactNode; badge?: string; isTheme?: boolean }[];
+  items: { id: string; label: string; href?: string; icon: React.ReactNode; badge?: string; isTheme?: boolean; isBackground?: boolean }[];
 }
 
 export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { background, setBackground } = useBackground();
   const [expandedSection, setExpandedSection] = useState<string | null>("conta");
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [showBgPicker, setShowBgPicker] = useState(false);
 
   const toggleSection = (id: string) => {
     setExpandedSection(prev => prev === id ? null : id);
@@ -47,6 +50,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
         { id: "dados", label: "Meus Dados", href: "/conta/dados", icon: <Eye className="w-4 h-4" /> },
         { id: "planos", label: "Planos", href: "/conta/planos", icon: <Crown className="w-4 h-4" />, badge: "Free" },
         { id: "temas", label: "Tema Visual", icon: <Palette className="w-4 h-4" />, isTheme: true },
+        { id: "fundo", label: "Imagem de Fundo", icon: <Image className="w-4 h-4" />, isBackground: true },
       ],
     },
     {
@@ -244,6 +248,63 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                                                 </div>
                                                 {theme === opt.id && (
                                                   <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                                                )}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                ) : item.isBackground ? (
+                                  <div key={item.id}>
+                                    <button
+                                      onClick={() => setShowBgPicker(!showBgPicker)}
+                                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/30 transition-colors cursor-pointer group"
+                                    >
+                                      <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                                        {item.icon}
+                                      </div>
+                                      <span className="flex-1 text-left text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                                        {item.label}
+                                      </span>
+                                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 capitalize">
+                                        {BACKGROUND_OPTIONS.find(b => b.id === background)?.label || "Noturna"}
+                                      </span>
+                                    </button>
+                                    {/* Background Picker Inline */}
+                                    <AnimatePresence>
+                                      {showBgPicker && (
+                                        <motion.div
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: "auto", opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                          className="overflow-hidden"
+                                        >
+                                          <div className="pl-2 pr-2 py-2 grid grid-cols-3 gap-2">
+                                            {BACKGROUND_OPTIONS.map((opt) => (
+                                              <button
+                                                key={opt.id}
+                                                onClick={() => { setBackground(opt.id); setShowBgPicker(false); }}
+                                                className={`relative rounded-lg overflow-hidden aspect-[9/16] border-2 transition-all ${
+                                                  background === opt.id
+                                                    ? "border-primary shadow-lg shadow-primary/20"
+                                                    : "border-transparent hover:border-primary/40"
+                                                }`}
+                                              >
+                                                <img
+                                                  src={opt.thumbnail}
+                                                  alt={opt.label}
+                                                  className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 flex items-end justify-center pb-1">
+                                                  <span className="text-[9px] text-white font-medium">{opt.label}</span>
+                                                </div>
+                                                {background === opt.id && (
+                                                  <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                                    <Check className="w-2.5 h-2.5 text-black" />
+                                                  </div>
                                                 )}
                                               </button>
                                             ))}

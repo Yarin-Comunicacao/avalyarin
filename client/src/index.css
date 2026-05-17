@@ -288,8 +288,10 @@
     position: fixed;
     inset: 0;
     z-index: -2;
-    background:
-      url('https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp') center center / cover no-repeat;
+    background-image: var(--app-background-url, url('https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp'));
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
   }
   body::after {
     content: '';
@@ -312,14 +314,7 @@
   }
 }
 
-/* Background images - desktop split view */
-@media (min-width: 768px) {
-  body::before {
-    background:
-      url('https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp') left center / 50% 100% no-repeat,
-      url('https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp') right center / 50% 100% no-repeat;
-  }
-}
+/* Background images - desktop uses same dynamic variable */
 
 /* Fix sonner toast positioning */
 [data-sonner-toaster][data-y-position='bottom'] {

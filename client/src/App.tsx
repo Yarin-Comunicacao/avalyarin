@@ -7,6 +7,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { BackgroundProvider } from "./contexts/BackgroundContext";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
 import EstablishmentPage from "./pages/EstablishmentPage";
@@ -246,11 +247,13 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="escuro">
-        <TooltipProvider>
-          <Toaster />
-          <PWAInstallPrompt />
-          <Router />
-        </TooltipProvider>
+        <BackgroundProvider>
+          <TooltipProvider>
+            <Toaster />
+            <PWAInstallPrompt />
+            <Router />
+          </TooltipProvider>
+        </BackgroundProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
