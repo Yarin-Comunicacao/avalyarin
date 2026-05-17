@@ -44,6 +44,7 @@ import MeuRanking from "./pages/MeuRanking";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
+import AuthChoice from "./components/AuthChoice";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -131,6 +132,14 @@ function App() {
     return localStorage.getItem("avalyarin_age_confirmed") === "true";
   });
 
+  // Auth Choice — shown after age gate, before onboarding/home
+  const [authChoiceMade, setAuthChoiceMade] = useState<boolean>(() => {
+    // If user already completed survey OR chose "login" flow, skip this screen
+    const flow = localStorage.getItem("avalyarin_auth_flow");
+    const surveyDone = localStorage.getItem("avalyarin_survey_completed") === "true";
+    return flow !== null || surveyDone;
+  });
+
   // Phase 1 — Onboarding
   const [surveyCompleted, setSurveyCompleted] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_survey_completed") === "true";
@@ -169,7 +178,7 @@ function App() {
     setShowPhase3(false);
   }, []);
 
-  // Show age gate first
+  // 1) Show age gate first
   if (!ageConfirmed) {
     return (
       <ErrorBoundary>
@@ -183,7 +192,25 @@ function App() {
     );
   }
 
-  // Show onboarding survey if not completed yet
+  // 2) Show auth choice (Cadastre-se / Já Tenho Cadastro)
+  if (!authChoiceMade) {
+    return (
+      <ErrorBoundary>
+        <ThemeProvider defaultTheme="escuro">
+          <AuthChoice onChoose={(type) => {
+            setAuthChoiceMade(true);
+            // "login" flow marks survey as completed so user goes straight to home
+            // "register" flow keeps survey pending so user sees onboarding after OAuth
+            if (type === "login") {
+              setSurveyCompleted(true);
+            }
+          }} />
+        </ThemeProvider>
+      </ErrorBoundary>
+    );
+  }
+
+  // 3) Show onboarding survey if not completed yet (new users from "Cadastre-se")
   if (!surveyCompleted) {
     return (
       <ErrorBoundary>
@@ -194,7 +221,7 @@ function App() {
     );
   }
 
-  // Show Phase 2 survey if due
+  // 4) Show Phase 2 survey if due
   if (showPhase2) {
     return (
       <ErrorBoundary>
@@ -205,7 +232,7 @@ function App() {
     );
   }
 
-  // Show Phase 3 survey if due
+  // 5) Show Phase 3 survey if due
   if (showPhase3) {
     return (
       <ErrorBoundary>

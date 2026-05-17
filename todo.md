@@ -143,3 +143,4 @@
 - [x] Fix: Abas do Painel Admin sobrepostas no mobile — tabs ilegíveis em telas pequenas
 - [x] Fix: Tela de avaliação — mensagem cortada no topo no mobile, adicionar folga/padding
 - [x] Alterar mensagem da tela de avaliação para: "Olá {{nome}}, que bom que veio ao {{estabelecimento}}! Selecione apenas os itens que você consumiu e nos fale da sua experiência."
+- [x] Tela intermediária após verificação de idade: "Cadastre-se" (login → onboarding) e "Já Tenho Cadastro" (login → home)
