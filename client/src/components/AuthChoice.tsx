@@ -76,11 +76,11 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
 
         {/* Card */}
         <div className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl p-8 w-full shadow-2xl">
-          <h2 className="font-display text-xl tracking-wider text-foreground text-center mb-2">
-            BEM-VINDO!
+          <h2 className="font-display text-2xl tracking-wider text-primary text-center mb-2">
+            EXPERIMENTE E AVALIE
           </h2>
           <p className="text-sm text-muted-foreground text-center mb-8">
-            O sistema de avaliação mais completo para bares e restaurantes de São Paulo.
+            O sistema de avaliação de bares e restaurantes mais completo de São Paulo.
           </p>
 
           {/* Register button */}

@@ -108,10 +108,10 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <h2 className="font-display text-5xl sm:text-7xl lg:text-8xl tracking-wider text-primary text-glow-amber leading-none mb-4">
-              AVALIE SEU BAR
+              EXPERIMENTE E AVALIE
             </h2>
             <p className="text-lg sm:text-xl text-foreground/80 max-w-xl leading-relaxed">
-              O sistema de avaliação mais completo para bares e restaurantes de São Paulo.
+              O sistema de avaliação de bares e restaurantes mais completo de São Paulo.
             </p>
           </motion.div>
         </div>
