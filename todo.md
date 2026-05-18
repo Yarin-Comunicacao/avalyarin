@@ -158,3 +158,4 @@
 - [x] Campo de data da visita na tela de avaliação (antes de selecionar itens)
 - [x] Tela de badges de nobreza no perfil do usuário
 - [x] Testes vitest para lógica de cálculo de nobreza (constantes e lógica pura)
+- [x] Renomear "Badges de Nobreza" / "Títulos de Nobreza" para "Insígnias" nos textos visíveis ao usuário (frontend)

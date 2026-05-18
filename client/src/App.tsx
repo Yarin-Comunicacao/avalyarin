@@ -104,8 +104,9 @@ function Router() {
       <Route path="/salvos/locais" component={MeusLocais} />
       <Route path="/salvos/influencers" component={InfluencersFavoritos} />
       <Route path="/salvos/collab" component={ListasCollab} />
-      {/* Badges */}
-      <Route path="/badges" component={BadgesPage} />
+      {/* Insígnias */}
+      <Route path="/insignias" component={BadgesPage} />
+      <Route path="/badges" component={BadgesPage} /> {/* Redirect compat */}
       {/* Grupos */}
       <Route path="/grupos" component={GruposPage} />
       {/* Notificações */}

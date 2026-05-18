@@ -1,6 +1,6 @@
 // Design: AvaLyarin — Expandable side menu
 // Pre-login: shows only ENTRAR/CRIAR CONTA button
-// Post-login: shows Últimas Visitas, Minha Conta, Meu Usuário, Minhas Avaliações, Lista de Salvos, Badges
+// Post-login: shows Últimas Visitas, Minha Conta, Meu Usuário, Minhas Avaliações, Lista de Salvos, Insígnias
 import { useState } from "react";
 import { Link } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
@@ -66,7 +66,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       title: "Notificações",
       icon: <Bell className="w-5 h-5" />,
       items: [
-        { id: "notif-badges", label: "Badges Alcançados", href: "/notificacoes/badges", icon: <Trophy className="w-4 h-4" /> },
+        { id: "notif-badges", label: "Insígnias Conquistadas", href: "/notificacoes/badges", icon: <Trophy className="w-4 h-4" /> },
         { id: "notif-pesquisas", label: "Pesquisas de Preferência", href: "/notificacoes/pesquisas", icon: <Star className="w-4 h-4" /> },
         { id: "notif-grupos", label: "Atualizações de Grupos", href: "/notificacoes/grupos", icon: <Users className="w-4 h-4" /> },
       ],
@@ -339,12 +339,12 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                   ))}
                 </div>
 
-                {/* Badges Link */}
+                {/* Insígnias Link */}
                 <div className="px-5 py-3 border-t border-border/30">
-                  <Link href="/badges" onClick={onClose}>
+                  <Link href="/insignias" onClick={onClose}>
                     <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
                       <Trophy className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground group-hover:text-primary transition-colors">Meus Badges</span>
+                      <span className="text-sm text-foreground group-hover:text-primary transition-colors">Minhas Insígnias</span>
                     </div>
                   </Link>
                 </div>

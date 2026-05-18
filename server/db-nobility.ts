@@ -1,7 +1,7 @@
 /**
- * Nobility Badges System
+ * Insígnias System (Nobility Badges)
  * 
- * Three types of nobility badges:
+ * Three types of insígnias:
  * 1. By Category: 52 ratings + 15 unique establishments in rolling 12 months
  * 2. By Neighborhood: 104 ratings + 30 unique establishments in rolling 12 months
  * 3. By Establishment: 52 ratings in rolling 12 months

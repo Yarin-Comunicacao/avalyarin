@@ -1,4 +1,4 @@
-// Badges de Nobreza — Sistema de progressão Barão → Rei
+// Insígnias — Sistema de progressão Barão → Rei
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
@@ -9,8 +9,8 @@ import { getLoginUrl } from "@/const";
 import { Loader2, Crown, MapPin, Store, ChevronRight, Lock, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 
-// Nobility level colors and icons
-const NOBILITY_STYLES = [
+// Insignia level colors and icons
+const INSIGNIA_STYLES = [
   { level: 1, color: "text-amber-700", bgColor: "bg-amber-900/20", borderColor: "border-amber-700/40", gradient: "from-amber-900/30 to-amber-800/10", label: "Bronze" },
   { level: 2, color: "text-slate-300", bgColor: "bg-slate-500/15", borderColor: "border-slate-400/40", gradient: "from-slate-600/20 to-slate-500/10", label: "Prata" },
   { level: 3, color: "text-blue-400", bgColor: "bg-blue-500/15", borderColor: "border-blue-400/40", gradient: "from-blue-600/20 to-blue-500/10", label: "Azul" },
@@ -48,7 +48,7 @@ function ProgressBar({ current, max, label }: { current: number; max: number; la
 }
 
 function BadgeCard({ badge, type }: { badge: any; type: string }) {
-  const style = NOBILITY_STYLES[badge.level - 1] || NOBILITY_STYLES[0];
+  const style = INSIGNIA_STYLES[badge.level - 1] || INSIGNIA_STYLES[0];
   const title = getTitleForDisplay(badge.titleMale, badge.targetName, type);
 
   return (
@@ -115,16 +115,16 @@ function BadgeCard({ badge, type }: { badge: any; type: string }) {
 function EmptyState({ type }: { type: TabType }) {
   const messages: Record<TabType, { title: string; desc: string }> = {
     categorias: {
-      title: "Nenhum título de categoria",
-      desc: "Avalie 3+ estabelecimentos de uma mesma categoria em 12 meses para conquistar seu primeiro título de nobreza!",
+      title: "Nenhuma insígnia de categoria",
+      desc: "Avalie 3+ estabelecimentos de uma mesma categoria em 12 meses para conquistar sua primeira insígnia!",
     },
     bairros: {
-      title: "Nenhum título de bairro",
+      title: "Nenhuma insígnia de bairro",
       desc: "Avalie 5+ estabelecimentos em um mesmo bairro em 12 meses para começar sua jornada de exploração!",
     },
     estabelecimentos: {
-      title: "Nenhum título de fidelidade",
-      desc: "Visite o mesmo estabelecimento 3+ vezes em 12 meses para ganhar seu título de habitué!",
+      title: "Nenhuma insígnia de fidelidade",
+      desc: "Visite o mesmo estabelecimento 3+ vezes em 12 meses para ganhar sua insígnia de habitué!",
     },
   };
 
@@ -187,10 +187,10 @@ export default function BadgesPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-display text-4xl tracking-wider text-primary text-glow-amber mb-2">
-            TÍTULOS DE NOBREZA
+            INSÍGNIAS
           </h1>
           <p className="text-sm text-muted-foreground">
-            Conquiste títulos avaliando estabelecimentos. Progressão: Barão → Visconde → Conde → Marquês → Duque → Príncipe → Rei
+            Conquiste insígnias avaliando estabelecimentos. Progressão: Barão → Visconde → Conde → Marquês → Duque → Príncipe → Rei
           </p>
         </div>
 
@@ -204,7 +204,7 @@ export default function BadgesPage() {
             <div className="flex items-center gap-3 mb-2">
               <Crown className="w-7 h-7 text-yellow-300" />
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Seu maior título</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Sua maior insígnia</p>
                 <h2 className="font-display text-2xl tracking-wider text-yellow-300">
                   {highestBadge.title} {highestBadge.type === "neighborhood" ? "de" : highestBadge.type === "establishment" ? "do" : "da"} {highestBadge.targetName}
                 </h2>
@@ -220,7 +220,7 @@ export default function BadgesPage() {
         <div className="mb-6 p-3 rounded-lg bg-secondary/30 border border-border/30">
           <p className="text-xs text-muted-foreground flex items-center gap-2">
             <TrendingUp className="w-3.5 h-3.5 text-primary shrink-0" />
-            Títulos baseados em avaliações dos <strong className="text-foreground">últimos 12 meses</strong>. Mantenha a frequência para não perder seu título!
+            Insígnias baseadas em avaliações dos <strong className="text-foreground">últimos 12 meses</strong>. Mantenha a frequência para não perder sua insígnia!
           </p>
         </div>
 
@@ -276,9 +276,9 @@ export default function BadgesPage() {
 
         {/* Progression reference */}
         <div className="mt-10 p-5 rounded-xl border border-border/30 bg-card/50">
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-4">PROGRESSÃO DE TÍTULOS</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-4">PROGRESSÃO DE INSÍGNIAS</h3>
           <div className="grid grid-cols-7 gap-1">
-            {NOBILITY_STYLES.map((style, i) => {
+            {INSIGNIA_STYLES.map((style, i) => {
               const titles = ["Barão", "Visconde", "Conde", "Marquês", "Duque", "Príncipe", "Rei"];
               return (
                 <div key={i} className="text-center">
