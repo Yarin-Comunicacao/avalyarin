@@ -1,0 +1,8 @@
+{
+  "query": "SELECT c.name, c.slug, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.category_id = c.id GROUP BY c.id, c.name, c.slug ORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name, c.slug, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.category_id = c.id GROUP BY c.id, c.name, c.slug ORDER BY total DESC;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'e.category_id' in 'on clause'"
+  ]
+}

@@ -149,3 +149,12 @@
 - [x] Criar ícones/símbolos únicos para cada categoria de estabelecimento
 - [x] Criar página NearbyPage (/perto-de-mim) com listagem completa de estabelecimentos próximos + ícones de categoria
 - [x] Conectar botão "Ver mais" da seção Perto de Você à nova página NearbyPage
+- [x] Sistema de badges de nobreza — lógica derivada em db-nobility.ts (sem tabela extra necessária, cálculo em tempo real)
+- [x] Campo visit_date na tabela de avaliações (ratings)
+- [x] Lógica backend: cálculo de nobreza por categoria (52 aval + 15 locais / 12 meses)
+- [x] Lógica backend: cálculo de nobreza por bairro (104 aval + 30 locais / 12 meses)
+- [x] Lógica backend: cálculo de nobreza por estabelecimento (52 aval / 12 meses)
+- [x] Procedures tRPC para consultar badges de nobreza do usuário
+- [x] Campo de data da visita na tela de avaliação (antes de selecionar itens)
+- [x] Tela de badges de nobreza no perfil do usuário
+- [x] Testes vitest para lógica de cálculo de nobreza (constantes e lógica pura)

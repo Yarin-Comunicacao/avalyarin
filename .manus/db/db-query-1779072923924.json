@@ -1,0 +1,18 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood LIKE '%Pinheiros%' GROUP BY neighborhood;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood LIKE '%Pinheiros%' GROUP BY neighborhood;",
+  "rows": [
+    {
+      "neighborhood": "Alto de Pinheiros",
+      "total": "22"
+    },
+    {
+      "neighborhood": "Pinheiros",
+      "total": "924"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\nAlto de Pinheiros\t22\nPinheiros\t924\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}

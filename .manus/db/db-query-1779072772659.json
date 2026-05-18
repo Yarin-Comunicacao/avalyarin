@@ -1,0 +1,124 @@
+{
+  "query": "SELECT c.id, c.name, c.slug, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.categoryId = c.id GROUP BY c.id, c.name, c.slug ORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.id, c.name, c.slug, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.categoryId = c.id GROUP BY c.id, c.name, c.slug ORDER BY total DESC;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "slug": "bar-lanchonete",
+      "total": "1633"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "slug": "cozinha-brasileira",
+      "total": "1496"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "slug": "cozinha-internacional",
+      "total": "997"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "slug": "cafeteria",
+      "total": "809"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "slug": "padaria",
+      "total": "621"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "slug": "boteco-tradicional",
+      "total": "515"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "slug": "pizzaria",
+      "total": "396"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria",
+      "slug": "hamburgueria",
+      "total": "299"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "slug": "balada",
+      "total": "209"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "slug": "confeitaria",
+      "total": "167"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "slug": "saudavel",
+      "total": "120"
+    },
+    {
+      "id": "30002",
+      "name": "Açaí",
+      "slug": "acai",
+      "total": "79"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "slug": "autoral-contemporaneo",
+      "total": "75"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "slug": "cervejaria",
+      "total": "50"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "slug": "bar-musical",
+      "total": "31"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "slug": "coquetelaria",
+      "total": "26"
+    },
+    {
+      "id": "30001",
+      "name": "Vegan",
+      "slug": "vegan",
+      "total": "23"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "slug": "pub",
+      "total": "21"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "slug": "boteco-moderno",
+      "total": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\ttotal\n1\tBar & Lanchonete\tbar-lanchonete\t1633\n2\tCozinha Brasileira\tcozinha-brasileira\t1496\n17\tCozinha Internacional\tcozinha-internacional\t997\n8\tCafeteria\tcafeteria\t809\n9\tPadaria\tpadaria\t621\n4\tBoteco Tradicional\tboteco-tradicional\t515\n14\tPizzaria\tpizzaria\t396\n16\tHamburgueria\thamburgueria\t299\n10\tBalada\tbalada\t209\n11\tConfeitaria\tconfeitaria\t167\n15\tSaudável\tsaudavel\t120\n30002\tAçaí\tacai\t79\n3\tAutoral / Contemporâneo\tautoral-contemporaneo\t75\n13\tCervejaria\tcervejaria\t50\n12\tBar Musical\tbar-musical\t31\n7\tCoquetelaria\tcoquetelaria\t26\n30001\tVegan\tvegan\t23\n6\tPub\tpub\t21\n5\tBoteco Moderno\tboteco-moderno\t18\n",
+  "stderr": "",
+  "execution_time_ms": 286
+}

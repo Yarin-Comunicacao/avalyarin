@@ -77,6 +77,20 @@ import {
   countUserGroups,
   updateGroup,
 } from "./db-groups";
+import {
+  getUserNobilitySummary,
+  getUserCategoryBadges,
+  getUserNeighborhoodBadges,
+  getUserEstablishmentBadges,
+  getCategoryNobilityProgress,
+  getNeighborhoodNobilityProgress,
+  getEstablishmentNobilityProgress,
+  NOBILITY_TITLES,
+  CATEGORY_THRESHOLDS,
+  NEIGHBORHOOD_THRESHOLDS,
+  ESTABLISHMENT_THRESHOLDS,
+  ELIGIBLE_NEIGHBORHOODS,
+} from "./db-nobility";
 
 export const appRouter = router({
   system: systemRouter,
@@ -632,6 +646,61 @@ export const appRouter = router({
       const plan = await getUserPlanOrDefault(ctx.user!.id);
       const groupCount = await countUserGroups(ctx.user!.id);
       return { plan, groupCount, maxGroups: plan === "free" ? 3 : null };
+    }),
+  }),
+
+  // ============ NOBILITY BADGES ============
+  nobility: router({
+    // Get full summary of all nobility badges for current user
+    summary: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserNobilitySummary(ctx.user!.id);
+    }),
+
+    // Get category badges only
+    categoryBadges: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserCategoryBadges(ctx.user!.id);
+    }),
+
+    // Get neighborhood badges only
+    neighborhoodBadges: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserNeighborhoodBadges(ctx.user!.id);
+    }),
+
+    // Get establishment badges only
+    establishmentBadges: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserEstablishmentBadges(ctx.user!.id);
+    }),
+
+    // Get progress for a specific category
+    categoryProgress: protectedProcedure
+      .input(z.object({ categoryId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getCategoryNobilityProgress(ctx.user!.id, input.categoryId);
+      }),
+
+    // Get progress for a specific neighborhood
+    neighborhoodProgress: protectedProcedure
+      .input(z.object({ neighborhood: z.string() }))
+      .query(async ({ ctx, input }) => {
+        return await getNeighborhoodNobilityProgress(ctx.user!.id, input.neighborhood);
+      }),
+
+    // Get progress for a specific establishment
+    establishmentProgress: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getEstablishmentNobilityProgress(ctx.user!.id, input.establishmentId);
+      }),
+
+    // Get constants (thresholds, titles, eligible neighborhoods)
+    constants: publicProcedure.query(() => {
+      return {
+        titles: NOBILITY_TITLES,
+        categoryThresholds: CATEGORY_THRESHOLDS,
+        neighborhoodThresholds: NEIGHBORHOOD_THRESHOLDS,
+        establishmentThresholds: ESTABLISHMENT_THRESHOLDS,
+        eligibleNeighborhoods: ELIGIBLE_NEIGHBORHOODS,
+      };
     }),
   }),
 });

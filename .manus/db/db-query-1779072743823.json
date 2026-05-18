@@ -1,0 +1,110 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood IS NOT NULL AND neighborhood != '' GROUP BY neighborhood ORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood IS NOT NULL AND neighborhood != '' GROUP BY neighborhood ORDER BY total DESC;",
+  "rows": [
+    {
+      "neighborhood": "Pinheiros",
+      "total": "924"
+    },
+    {
+      "neighborhood": "Moema",
+      "total": "637"
+    },
+    {
+      "neighborhood": "Bela Vista",
+      "total": "636"
+    },
+    {
+      "neighborhood": "Ipiranga",
+      "total": "576"
+    },
+    {
+      "neighborhood": "Liberdade",
+      "total": "464"
+    },
+    {
+      "neighborhood": "Consolação",
+      "total": "462"
+    },
+    {
+      "neighborhood": "Perdizes",
+      "total": "456"
+    },
+    {
+      "neighborhood": "República",
+      "total": "377"
+    },
+    {
+      "neighborhood": "Jardim Paulista",
+      "total": "357"
+    },
+    {
+      "neighborhood": "Campo Belo",
+      "total": "342"
+    },
+    {
+      "neighborhood": "Itaim Bibi",
+      "total": "330"
+    },
+    {
+      "neighborhood": "Bom Retiro",
+      "total": "323"
+    },
+    {
+      "neighborhood": "Cambuci",
+      "total": "292"
+    },
+    {
+      "neighborhood": "Lapa",
+      "total": "250"
+    },
+    {
+      "neighborhood": "Barra Funda",
+      "total": "240"
+    },
+    {
+      "neighborhood": "Saúde",
+      "total": "197"
+    },
+    {
+      "neighborhood": "Santa Cecília",
+      "total": "154"
+    },
+    {
+      "neighborhood": "Sé",
+      "total": "143"
+    },
+    {
+      "neighborhood": "Vila Mariana",
+      "total": "138"
+    },
+    {
+      "neighborhood": "Cursino",
+      "total": "117"
+    },
+    {
+      "neighborhood": "Vila Madalena",
+      "total": "114"
+    },
+    {
+      "neighborhood": "Vila Madalena/Sumarezinho",
+      "total": "32"
+    },
+    {
+      "neighborhood": "Alto de Pinheiros",
+      "total": "22"
+    },
+    {
+      "neighborhood": "Morumbi",
+      "total": "1"
+    },
+    {
+      "neighborhood": "Jardins",
+      "total": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\nPinheiros\t924\nMoema\t637\nBela Vista\t636\nIpiranga\t576\nLiberdade\t464\nConsolação\t462\nPerdizes\t456\nRepública\t377\nJardim Paulista\t357\nCampo Belo\t342\nItaim Bibi\t330\nBom Retiro\t323\nCambuci\t292\nLapa\t250\nBarra Funda\t240\nSaúde\t197\nSanta Cecília\t154\nSé\t143\nVila Mariana\t138\nCursino\t117\nVila Madalena\t114\nVila Madalena/Sumarezinho\t32\nAlto de Pinheiros\t22\nMorumbi\t1\nJardins\t1\n",
+  "stderr": "",
+  "execution_time_ms": 855
+}

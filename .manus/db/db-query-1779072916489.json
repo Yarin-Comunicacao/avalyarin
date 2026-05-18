@@ -1,0 +1,40 @@
+{
+  "query": "SELECT neighborhood, COUNT(DISTINCT categoryId) as categorias_distintas, COUNT(*) as total FROM establishments WHERE neighborhood IN ('Pinheiros', 'Moema', 'Bela Vista', 'Liberdade', 'Consolação', 'Vila Madalena') GROUP BY neighborhood ORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(DISTINCT categoryId) as categorias_distintas, COUNT(*) as total FROM establishments WHERE neighborhood IN ('Pinheiros', 'Moema', 'Bela Vista', 'Liberdade', 'Consolação', 'Vila Madalena') GROUP BY neighborhood ORDER BY total DESC;",
+  "rows": [
+    {
+      "neighborhood": "Pinheiros",
+      "categorias_distintas": "19",
+      "total": "924"
+    },
+    {
+      "neighborhood": "Moema",
+      "categorias_distintas": "19",
+      "total": "637"
+    },
+    {
+      "neighborhood": "Bela Vista",
+      "categorias_distintas": "18",
+      "total": "636"
+    },
+    {
+      "neighborhood": "Liberdade",
+      "categorias_distintas": "19",
+      "total": "464"
+    },
+    {
+      "neighborhood": "Consolação",
+      "categorias_distintas": "19",
+      "total": "462"
+    },
+    {
+      "neighborhood": "Vila Madalena",
+      "categorias_distintas": "16",
+      "total": "114"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\tcategorias_distintas\ttotal\nPinheiros\t19\t924\nMoema\t19\t637\nBela Vista\t18\t636\nLiberdade\t19\t464\nConsolação\t19\t462\nVila Madalena\t16\t114\n",
+  "stderr": "",
+  "execution_time_ms": 273
+}
