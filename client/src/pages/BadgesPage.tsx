@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Loader2, Crown, MapPin, Store, ChevronRight, Lock, TrendingUp } from "lucide-react";
+import { Loader2, Crown, MapPin, Store, ChevronRight, Lock, TrendingUp, Award, Compass } from "lucide-react";
 import { Link } from "wouter";
 
 // Insignia level colors and icons
@@ -271,6 +271,58 @@ export default function BadgesPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
+          </div>
+        )}
+
+        {/* Special Neighborhood Insígnias */}
+        {summary?.specialInsignias && summary.specialInsignias.length > 0 && (
+          <div className="mt-8">
+            <h3 className="font-display text-xl tracking-wider text-primary text-glow-amber mb-4 flex items-center gap-2">
+              <Compass className="w-5 h-5" />
+              INSÍGNIAS ESPECIAIS
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Conquistas extraordinárias de exploração por São Paulo
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {summary.specialInsignias.map((insignia) => (
+                <motion.div
+                  key={insignia.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-4 rounded-xl border ${
+                    insignia.earned
+                      ? "border-yellow-400/40 bg-gradient-to-br from-yellow-900/20 to-amber-900/10"
+                      : "border-border/30 bg-card/30 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Award className={`w-5 h-5 ${insignia.earned ? "text-yellow-300" : "text-muted-foreground/50"}`} />
+                    <span className={`font-display text-sm tracking-wider ${
+                      insignia.earned ? "text-yellow-300" : "text-muted-foreground"
+                    }`}>
+                      {insignia.titleMale}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1">{insignia.description}</p>
+                  <p className="text-[10px] text-muted-foreground/70">
+                    {insignia.earned ? "✓ Conquistada" : insignia.requirement}
+                  </p>
+                  {insignia.earned && insignia.neighborhoods.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {insignia.neighborhoods.slice(0, 5).map(n => (
+                        <span key={n} className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-400/10 text-yellow-300/80">
+                          {n}
+                        </span>
+                      ))}
+                      {insignia.neighborhoods.length > 5 && (
+                        <span className="text-[10px] text-muted-foreground">+{insignia.neighborhoods.length - 5}</span>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
 

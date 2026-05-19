@@ -167,3 +167,8 @@
 - [x] Interface de perfil exibindo nível atual, pontos válidos, progresso até próximo nível
 - [x] Testes vitest para lógica de pontos e níveis
 - [x] Alterar sistema de pontos: ao invés de expirar totalmente, usar peso decrescente por idade (1.0 até 1 ano, 0.2 até 2 anos, 0.1 até 3 anos, 0.025 acima de 3 anos)
+- [x] Insígnias especiais de bairro com nome do local (ex: "Desbravador de Pinheiros", "Cartógrafo do Butantã")
+- [x] Carrossel 9:16 de postagens de estabelecimentos na Home
+- [x] Testes para formação correta de títulos de insígnias especiais com preposição (de/do/da + bairro)
+- [x] PostsCarousel: adicionar estado de erro e fallback UX
+- [ ] PostsCarousel: adicionar carrossel "Salvos" para usuários logados com estabelecimentos seguidos

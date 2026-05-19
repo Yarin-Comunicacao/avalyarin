@@ -2,6 +2,7 @@
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { NearbyEstablishments } from "@/components/NearbyEstablishments";
+import { PostsCarousel } from "@/components/PostsCarousel";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
@@ -116,6 +117,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Posts Carousel */}
+      <PostsCarousel />
 
       {/* How it works */}
       <section className="py-16 border-t border-border/30">

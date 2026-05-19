@@ -275,3 +275,46 @@ export const groupSharedRatings = mysqlTable("group_shared_ratings", {
 
 export type GroupSharedRating = typeof groupSharedRatings.$inferSelect;
 export type InsertGroupSharedRating = typeof groupSharedRatings.$inferInsert;
+
+/**
+ * Establishment posts table — ephemeral 9:16 vertical content (Stories-like)
+ * Posted by business accounts, shown in carousels on Home.
+ * Types: event, promotion, brand, menu_daily
+ */
+export const establishmentPosts = mysqlTable("establishment_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(), // who posted (business account)
+  type: mysqlEnum("type", ["event", "promotion", "brand", "menu_daily"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  imageUrl: text("imageUrl").notNull(), // 9:16 vertical image
+  imageKey: varchar("imageKey", { length: 512 }), // S3 key
+  linkUrl: text("linkUrl"), // optional external link
+  // Scheduling and expiration
+  startsAt: timestamp("startsAt").notNull(), // when post becomes visible
+  expiresAt: timestamp("expiresAt").notNull(), // when post disappears
+  // Metrics
+  viewCount: int("viewCount").default(0).notNull(),
+  tapCount: int("tapCount").default(0).notNull(), // taps/clicks
+  // Status
+  status: mysqlEnum("status", ["draft", "active", "expired", "removed"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EstablishmentPost = typeof establishmentPosts.$inferSelect;
+export type InsertEstablishmentPost = typeof establishmentPosts.$inferInsert;
+
+/**
+ * User saved establishments — "following" an establishment for the Salvos carousel
+ */
+export const userSavedEstablishments = mysqlTable("user_saved_establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserSavedEstablishment = typeof userSavedEstablishments.$inferSelect;
+export type InsertUserSavedEstablishment = typeof userSavedEstablishments.$inferInsert;

@@ -90,12 +90,26 @@ import {
   NEIGHBORHOOD_THRESHOLDS,
   ESTABLISHMENT_THRESHOLDS,
   ELIGIBLE_NEIGHBORHOODS,
+  getSpecialNeighborhoodInsignias,
+  getNeighborhoodPreposition,
+  SPECIAL_NEIGHBORHOOD_INSIGNIAS,
 } from "./db-nobility";
 import {
   getUserProgression,
   checkAndProcessLevelUp,
   PROGRESSION_LEVELS,
 } from "./db-progression";
+import {
+  getActivePostsForHome,
+  getSavedEstablishmentPosts,
+  incrementPostView,
+  incrementPostTap,
+  toggleSaveEstablishment,
+  isEstablishmentSaved,
+  getUserSavedEstablishmentIds,
+  createEstablishmentPost,
+  expireOldPosts,
+} from "./db-posts";
 
 export const appRouter = router({
   system: systemRouter,
@@ -705,6 +719,12 @@ export const appRouter = router({
         return await getEstablishmentNobilityProgress(ctx.user!.id, input.establishmentId);
       }),
 
+    // Get special neighborhood insígnias
+    specialInsignias: protectedProcedure.query(async ({ ctx }) => {
+      const neighborhoodBadges = await getUserNeighborhoodBadges(ctx.user!.id);
+      return await getSpecialNeighborhoodInsignias(ctx.user!.id, neighborhoodBadges);
+    }),
+
     // Get constants (thresholds, titles, eligible neighborhoods)
     constants: publicProcedure.query(() => {
       return {
@@ -713,6 +733,14 @@ export const appRouter = router({
         neighborhoodThresholds: NEIGHBORHOOD_THRESHOLDS,
         establishmentThresholds: ESTABLISHMENT_THRESHOLDS,
         eligibleNeighborhoods: ELIGIBLE_NEIGHBORHOODS,
+        specialInsigniaDefinitions: SPECIAL_NEIGHBORHOOD_INSIGNIAS.map(s => ({
+          id: s.id,
+          male: s.male,
+          female: s.female,
+          neutral: s.neutral,
+          requirement: s.requirement,
+          description: s.description,
+        })),
       };
     }),
   }),
@@ -732,6 +760,93 @@ export const appRouter = router({
     // Get progression constants (levels list)
     levels: publicProcedure.query(() => {
       return PROGRESSION_LEVELS;
+    }),
+  }),
+
+  // ==================== ESTABLISHMENT POSTS ====================
+  posts: router({
+    // Get active posts for Home carousel (public)
+    active: publicProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getActivePostsForHome(input?.limit || 20);
+      }),
+
+    // Get posts from saved/followed establishments
+    saved: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        return await getSavedEstablishmentPosts(ctx.user!.id, input?.limit || 20);
+      }),
+
+    // Record a view on a post
+    recordView: publicProcedure
+      .input(z.object({ postId: z.number() }))
+      .mutation(async ({ input }) => {
+        await incrementPostView(input.postId);
+        return { success: true };
+      }),
+
+    // Record a tap/click on a post
+    recordTap: publicProcedure
+      .input(z.object({ postId: z.number() }))
+      .mutation(async ({ input }) => {
+        await incrementPostTap(input.postId);
+        return { success: true };
+      }),
+
+    // Toggle save/follow an establishment
+    toggleSave: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const saved = await toggleSaveEstablishment(ctx.user!.id, input.establishmentId);
+        return { saved };
+      }),
+
+    // Check if establishment is saved
+    isSaved: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await isEstablishmentSaved(ctx.user!.id, input.establishmentId);
+      }),
+
+    // Get all saved establishment IDs
+    savedIds: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserSavedEstablishmentIds(ctx.user!.id);
+    }),
+
+    // Create a post (business accounts only)
+    create: protectedProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        type: z.enum(["event", "promotion", "brand", "menu_daily"]),
+        title: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        imageUrl: z.string(),
+        imageKey: z.string().optional(),
+        linkUrl: z.string().optional(),
+        startsAt: z.date(),
+        expiresAt: z.date(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Only business or admin/owner can create posts
+        if (!['business', 'admin', 'owner'].includes(ctx.user!.role)) {
+          throw new Error("Apenas contas empresariais podem criar postagens.");
+        }
+        const postId = await createEstablishmentPost({
+          ...input,
+          userId: ctx.user!.id,
+        });
+        return { postId };
+      }),
+
+    // Expire old posts (admin utility)
+    expireOld: protectedProcedure.mutation(async ({ ctx }) => {
+      if (!['admin', 'owner'].includes(ctx.user!.role)) {
+        throw new Error("Apenas admins podem executar esta ação.");
+      }
+      const count = await expireOldPosts();
+      return { expired: count };
     }),
   }),
 });
