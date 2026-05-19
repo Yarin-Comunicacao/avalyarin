@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   PROGRESSION_LEVELS,
+  POINT_WEIGHTS,
   calculateLevelFromPoints,
   getLevelInfo,
   getNextLevelInfo,
+  getPointWeight,
 } from "./db-progression";
 
 describe("Progression System - Constants", () => {
@@ -29,7 +31,7 @@ describe("Progression System - Constants", () => {
     }
   });
 
-  it("should have level 16 requiring 365 points (1 per day for a year)", () => {
+  it("should have level 16 requiring 365 points", () => {
     expect(PROGRESSION_LEVELS[15].minPoints).toBe(365);
   });
 
@@ -47,6 +49,84 @@ describe("Progression System - Constants", () => {
     for (const level of PROGRESSION_LEVELS) {
       expect(level.name.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("Progression System - POINT_WEIGHTS", () => {
+  it("should have 4 weight tiers", () => {
+    expect(POINT_WEIGHTS).toHaveLength(4);
+  });
+
+  it("should have 1.0 weight for 0-12 months", () => {
+    expect(POINT_WEIGHTS[0].maxMonths).toBe(12);
+    expect(POINT_WEIGHTS[0].weight).toBe(1.0);
+  });
+
+  it("should have 0.2 weight for 12-24 months", () => {
+    expect(POINT_WEIGHTS[1].maxMonths).toBe(24);
+    expect(POINT_WEIGHTS[1].weight).toBe(0.2);
+  });
+
+  it("should have 0.1 weight for 24-36 months", () => {
+    expect(POINT_WEIGHTS[2].maxMonths).toBe(36);
+    expect(POINT_WEIGHTS[2].weight).toBe(0.1);
+  });
+
+  it("should have 0.025 weight for 36+ months", () => {
+    expect(POINT_WEIGHTS[3].maxMonths).toBe(Infinity);
+    expect(POINT_WEIGHTS[3].weight).toBe(0.025);
+  });
+
+  it("weights should be strictly decreasing", () => {
+    for (let i = 1; i < POINT_WEIGHTS.length; i++) {
+      expect(POINT_WEIGHTS[i].weight).toBeLessThan(POINT_WEIGHTS[i - 1].weight);
+    }
+  });
+});
+
+describe("Progression System - getPointWeight", () => {
+  it("should return 1.0 for 0 months (today)", () => {
+    expect(getPointWeight(0)).toBe(1.0);
+  });
+
+  it("should return 1.0 for 6 months", () => {
+    expect(getPointWeight(6)).toBe(1.0);
+  });
+
+  it("should return 1.0 for 11 months", () => {
+    expect(getPointWeight(11)).toBe(1.0);
+  });
+
+  it("should return 0.2 for 12 months (exactly 1 year)", () => {
+    expect(getPointWeight(12)).toBe(0.2);
+  });
+
+  it("should return 0.2 for 18 months", () => {
+    expect(getPointWeight(18)).toBe(0.2);
+  });
+
+  it("should return 0.2 for 23 months", () => {
+    expect(getPointWeight(23)).toBe(0.2);
+  });
+
+  it("should return 0.1 for 24 months (exactly 2 years)", () => {
+    expect(getPointWeight(24)).toBe(0.1);
+  });
+
+  it("should return 0.1 for 30 months", () => {
+    expect(getPointWeight(30)).toBe(0.1);
+  });
+
+  it("should return 0.025 for 36 months (exactly 3 years)", () => {
+    expect(getPointWeight(36)).toBe(0.025);
+  });
+
+  it("should return 0.025 for 60 months (5 years)", () => {
+    expect(getPointWeight(60)).toBe(0.025);
+  });
+
+  it("should return 0.025 for 120 months (10 years)", () => {
+    expect(getPointWeight(120)).toBe(0.025);
   });
 });
 
@@ -89,6 +169,14 @@ describe("Progression System - calculateLevelFromPoints", () => {
 
   it("should return level 16 for 1000 points (above max)", () => {
     expect(calculateLevelFromPoints(1000)).toBe(16);
+  });
+
+  it("should handle fractional points correctly (e.g. 0.5 < 1 = level 0)", () => {
+    expect(calculateLevelFromPoints(0.5)).toBe(0);
+  });
+
+  it("should handle fractional points at threshold (e.g. 2.9 < 3 = level 1)", () => {
+    expect(calculateLevelFromPoints(2.9)).toBe(1);
   });
 
   it("should return correct level at exact thresholds", () => {
@@ -160,26 +248,53 @@ describe("Progression System - getNextLevelInfo", () => {
   });
 
   it("should cap progress at 100%", () => {
-    // Even if somehow points exceed next threshold
     const next = getNextLevelInfo(1, 5);
     expect(next!.progressPercent).toBeLessThanOrEqual(100);
   });
 
-  it("should return 0 pointsRemaining when points meet next threshold", () => {
-    const next = getNextLevelInfo(1, 3);
-    expect(next!.pointsRemaining).toBe(0);
+  it("should handle fractional pointsRemaining", () => {
+    // At 2.5 points, need 3, remaining = 0.5
+    const next = getNextLevelInfo(1, 2.5);
+    expect(next!.pointsRemaining).toBe(0.5);
   });
 });
 
-describe("Progression System - Level-down scenario", () => {
-  it("points dropping below current level threshold means level should decrease", () => {
-    // User was level 5 (minPoints: 15) but now has 12 points (expired)
-    const newLevel = calculateLevelFromPoints(12);
-    expect(newLevel).toBe(4); // Should drop to level 4 (minPoints: 10)
+describe("Progression System - Weighted point scenarios", () => {
+  it("user with 50 recent + 50 old ratings should have ~60 weighted points", () => {
+    // 50 ratings within 12 months = 50 * 1.0 = 50
+    // 50 ratings 12-24 months ago = 50 * 0.2 = 10
+    // Total = 60
+    const weighted = 50 * 1.0 + 50 * 0.2;
+    expect(weighted).toBe(60);
+    expect(calculateLevelFromPoints(weighted)).toBe(9); // Sommelier (55)
   });
 
-  it("points dropping to 0 means level 0", () => {
-    const newLevel = calculateLevelFromPoints(0);
-    expect(newLevel).toBe(0);
+  it("user with 100 ratings all older than 3 years should have 2.5 points", () => {
+    const weighted = 100 * 0.025;
+    expect(weighted).toBe(2.5);
+    expect(calculateLevelFromPoints(weighted)).toBe(1); // Iniciante (1)
+  });
+
+  it("user with 365 recent ratings should reach level 16", () => {
+    const weighted = 365 * 1.0;
+    expect(weighted).toBe(365);
+    expect(calculateLevelFromPoints(weighted)).toBe(16); // Ícone
+  });
+
+  it("user with mixed history: 30 recent, 100 1-2yr, 200 2-3yr, 500 3yr+", () => {
+    // 30 * 1.0 = 30
+    // 100 * 0.2 = 20
+    // 200 * 0.1 = 20
+    // 500 * 0.025 = 12.5
+    const weighted = 30 + 20 + 20 + 12.5;
+    expect(weighted).toBe(82.5);
+    expect(calculateLevelFromPoints(weighted)).toBe(10); // Gastronomo (75)
+  });
+
+  it("level-down scenario: user stops rating, old points decay", () => {
+    // Was at 100 points (level 11 Mestre) with all recent ratings
+    // 1 year later, those 100 ratings are now 12-24 months old
+    const decayed = 100 * 0.2; // = 20
+    expect(calculateLevelFromPoints(decayed)).toBe(5); // Avaliador (15)
   });
 });

@@ -55,7 +55,7 @@ function ProgressionCard() {
     );
   }
 
-  const { currentLevel, levelName, levelIcon, totalPointsRolling, nextLevel, phrase, topCategories } = progression;
+  const { currentLevel, levelName, levelIcon, totalPointsWeighted, totalRatingsAllTime, nextLevel, phrase, topCategories } = progression;
 
   return (
     <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
@@ -74,7 +74,7 @@ function ProgressionCard() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
-            {totalPointsRolling} {totalPointsRolling === 1 ? "ponto" : "pontos"} nos últimos 12 meses
+            {totalPointsWeighted.toFixed(1)} {totalPointsWeighted === 1 ? "ponto" : "pontos"} ({totalRatingsAllTime} {totalRatingsAllTime === 1 ? "avaliação" : "avaliações"} no total)
           </p>
         </div>
         <Link href="/insignias">

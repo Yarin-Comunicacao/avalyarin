@@ -166,3 +166,4 @@
 - [x] Salvar frase da insígnia de nível no banco (apenas última exibida no perfil)
 - [x] Interface de perfil exibindo nível atual, pontos válidos, progresso até próximo nível
 - [x] Testes vitest para lógica de pontos e níveis
+- [x] Alterar sistema de pontos: ao invés de expirar totalmente, usar peso decrescente por idade (1.0 até 1 ano, 0.2 até 2 anos, 0.1 até 3 anos, 0.025 acima de 3 anos)
