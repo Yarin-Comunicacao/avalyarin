@@ -91,6 +91,11 @@ import {
   ESTABLISHMENT_THRESHOLDS,
   ELIGIBLE_NEIGHBORHOODS,
 } from "./db-nobility";
+import {
+  getUserProgression,
+  checkAndProcessLevelUp,
+  PROGRESSION_LEVELS,
+} from "./db-progression";
 
 export const appRouter = router({
   system: systemRouter,
@@ -182,7 +187,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const userId = ctx.user!.id;
-        return await saveRating(userId, input);
+        const result = await saveRating(userId, input);
+        // Check level-up after saving rating (non-blocking)
+        let levelUp = null;
+        try {
+          levelUp = await checkAndProcessLevelUp(userId);
+        } catch (e) {
+          console.error("[Progression] Level-up check failed:", e);
+        }
+        return { ...result, levelUp };
       }),
 
     myRatings: protectedProcedure
@@ -701,6 +714,24 @@ export const appRouter = router({
         establishmentThresholds: ESTABLISHMENT_THRESHOLDS,
         eligibleNeighborhoods: ELIGIBLE_NEIGHBORHOODS,
       };
+    }),
+  }),
+
+  // ==================== PROGRESSION ====================
+  progression: router({
+    // Get user's current progression (level, points, phrase, next level)
+    me: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserProgression(ctx.user!.id);
+    }),
+
+    // Check level-up after rating (called by frontend after saving a rating)
+    checkLevelUp: protectedProcedure.mutation(async ({ ctx }) => {
+      return await checkAndProcessLevelUp(ctx.user!.id);
+    }),
+
+    // Get progression constants (levels list)
+    levels: publicProcedure.query(() => {
+      return PROGRESSION_LEVELS;
     }),
   }),
 });

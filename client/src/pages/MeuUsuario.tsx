@@ -7,9 +7,128 @@ import AppMenu from "@/components/AppMenu";
 import { toast } from "sonner";
 import {
   UserCog, Check, X, AlertCircle, Loader2, MapPin, Link2,
-  ChevronRight
+  ChevronRight, TrendingUp, Award, Sparkles
 } from "lucide-react";
 import { Link } from "wouter";
+
+function ProgressionCard() {
+  const { data: progression, isLoading, error } = trpc.progression.me.useQuery();
+
+  if (isLoading) {
+    return (
+      <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+          <span className="text-sm text-muted-foreground">Carregando progresso...</span>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
+        <div className="flex items-center gap-3">
+          <TrendingUp className="w-5 h-5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Não foi possível carregar o progresso.</span>
+        </div>
+      </section>
+    );
+  }
+
+  if (!progression || progression.currentLevel === 0) {
+    return (
+      <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-display text-lg tracking-wider text-foreground">MEU NÍVEL</h2>
+            <p className="text-xs text-muted-foreground">Avalie para começar sua jornada</p>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground/60">
+          Faça sua primeira avaliação para desbloquear o sistema de progressão!
+        </p>
+      </section>
+    );
+  }
+
+  const { currentLevel, levelName, levelIcon, totalPointsRolling, nextLevel, phrase, topCategories } = progression;
+
+  return (
+    <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">
+      {/* Level Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center text-2xl">
+          {levelIcon}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-xl tracking-wider text-primary">
+              {levelName.toUpperCase()}
+            </h2>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-numbers">
+              Nv. {currentLevel}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {totalPointsRolling} {totalPointsRolling === 1 ? "ponto" : "pontos"} nos últimos 12 meses
+          </p>
+        </div>
+        <Link href="/insignias">
+          <div className="p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors cursor-pointer">
+            <Award className="w-5 h-5 text-primary" />
+          </div>
+        </Link>
+      </div>
+
+      {/* AI Phrase */}
+      {phrase && (
+        <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+          <div className="flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <p className="text-sm text-foreground/90 italic">"{phrase}"</p>
+          </div>
+        </div>
+      )}
+
+      {/* Progress Bar */}
+      {nextLevel && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Próximo: {nextLevel.name}</span>
+            <span className="font-numbers">{nextLevel.progressPercent}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-secondary/50 border border-border/30 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-primary/80 to-primary transition-all duration-500"
+              style={{ width: `${nextLevel.progressPercent}%` }}
+            />
+          </div>
+          <p className="text-[11px] text-muted-foreground/60 mt-1">
+            Faltam {nextLevel.pointsRemaining} {nextLevel.pointsRemaining === 1 ? "avaliação" : "avaliações"} para o nível {nextLevel.level}
+          </p>
+        </div>
+      )}
+
+      {/* Top Categories */}
+      {topCategories.length > 0 && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-2">Categorias mais avaliadas:</p>
+          <div className="flex flex-wrap gap-1.5">
+            {topCategories.slice(0, 4).map((cat) => (
+              <span key={cat.name} className="text-[11px] px-2 py-0.5 rounded-full bg-secondary/50 border border-border/30 text-muted-foreground">
+                {cat.name} ({cat.count})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
 
 export default function MeuUsuario() {
   const { user } = useAuth();
@@ -175,6 +294,9 @@ export default function MeuUsuario() {
             <p className="text-sm text-muted-foreground">Gerencie seu nome de usuário e preferências</p>
           </div>
         </div>
+
+        {/* Progression Section */}
+        <ProgressionCard />
 
         {/* Username Section */}
         <section className="mb-8 p-5 rounded-xl bg-card border border-border/50">

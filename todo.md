@@ -159,3 +159,10 @@
 - [x] Tela de badges de nobreza no perfil do usuário
 - [x] Testes vitest para lógica de cálculo de nobreza (constantes e lógica pura)
 - [x] Renomear "Badges de Nobreza" / "Títulos de Nobreza" para "Insígnias" nos textos visíveis ao usuário (frontend)
+- [x] Sistema de pontos com validade rolling 365 dias (pontos expiram após 12 meses)
+- [x] Lógica backend para calcular pontos válidos do usuário (soma de pontos das avaliações dos últimos 365 dias)
+- [x] Sistema de 16 níveis de progressão com thresholds definidos
+- [x] Geração de frases personalizadas por IA (invokeLLM) ao subir de nível, baseada nas categorias avaliadas
+- [x] Salvar frase da insígnia de nível no banco (apenas última exibida no perfil)
+- [x] Interface de perfil exibindo nível atual, pontos válidos, progresso até próximo nível
+- [x] Testes vitest para lógica de pontos e níveis
