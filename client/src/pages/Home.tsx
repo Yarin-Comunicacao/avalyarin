@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { NearbyEstablishments } from "@/components/NearbyEstablishments";
 import { PostsCarousel } from "@/components/PostsCarousel";
+import { SavedPostsCarousel } from "@/components/SavedPostsCarousel";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
@@ -120,6 +121,9 @@ export default function Home() {
 
       {/* Posts Carousel */}
       <PostsCarousel />
+
+      {/* Saved Posts Carousel (logged-in users only) */}
+      <SavedPostsCarousel />
 
       {/* How it works */}
       <section className="py-16 border-t border-border/30">

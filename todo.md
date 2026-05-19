@@ -171,4 +171,4 @@
 - [x] Carrossel 9:16 de postagens de estabelecimentos na Home
 - [x] Testes para formação correta de títulos de insígnias especiais com preposição (de/do/da + bairro)
 - [x] PostsCarousel: adicionar estado de erro e fallback UX
-- [ ] PostsCarousel: adicionar carrossel "Salvos" para usuários logados com estabelecimentos seguidos
+- [x] PostsCarousel: adicionar carrossel "Salvos" para usuários logados com estabelecimentos seguidos
