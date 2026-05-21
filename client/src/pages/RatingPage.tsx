@@ -91,22 +91,23 @@ interface BevDirectRating {
 // ============================================================
 
 function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "destilado" | "bebida" | "outro" {
-  if (item.category === "cerveja" || item.category === "chopp") return "cerveja";
-  if (item.category === "bebida" || item.category === "café") return "bebida";
-  if (item.category === "drink" || item.category === "vinho") return "drink";
-  if (item.category === "destilado") return "destilado";
-  if (item.category === "entrada" || item.category === "petisco" || item.category === "salgado") return "entrada";
-  if (item.category === "prato" || item.category === "hamburguer" || item.category === "pizza" || item.category === "lanche" || item.category === "sanduiche" || item.category === "sushi" || item.category === "temaki" || item.category === "ramen" || item.category === "salada" || item.category === "sopa" || item.category === "focaccia") return "prato";
-  if (item.category === "sobremesa" || item.category === "doce" || item.category === "torta") return "sobremesa";
+  const c = (item.category || "").toLowerCase();
+  if (c === "cerveja" || c === "chopp") return "cerveja";
+  if (c === "bebida" || c === "café") return "bebida";
+  if (c === "drink" || c === "vinho") return "drink";
+  if (c === "destilado") return "destilado";
+  if (c === "entrada" || c === "petisco" || c === "salgado") return "entrada";
+  if (c === "prato" || c === "hamburguer" || c === "pizza" || c === "lanche" || c === "sanduiche" || c === "sushi" || c === "temaki" || c === "ramen" || c === "salada" || c === "sopa" || c === "focaccia") return "prato";
+  if (c === "sobremesa" || c === "doce" || c === "torta") return "sobremesa";
   return "outro";
 }
 
 function isFoodItem(item: MenuItem): boolean {
-  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"].includes(item.category);
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"].includes((item.category || "").toLowerCase());
 }
 
 function isBeverageItem(item: MenuItem): boolean {
-  return ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"].includes(item.category);
+  return ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"].includes((item.category || "").toLowerCase());
 }
 
 const DIRECT_TASTE_REASONS: Record<string, string[]> = {
@@ -481,14 +482,15 @@ export default function RatingPage() {
   // Check if user selected ONLY beverages (no food items at all)
   const onlyBeverages = selectedMenuItems.length > 0 && selectedMenuItems.every((m) => isBeverageItem(m));
 
-  const entradas = menuItems.filter((m) => m.category === "entrada" || m.category === "petisco" || m.category === "salgado");
-  const pratos = menuItems.filter((m) => m.category === "prato" || m.category === "hamburguer" || m.category === "pizza" || m.category === "lanche" || m.category === "sanduiche" || m.category === "sushi" || m.category === "temaki" || m.category === "ramen" || m.category === "salada" || m.category === "sopa" || m.category === "focaccia");
-  const sobremesas = menuItems.filter((m) => m.category === "sobremesa" || m.category === "doce" || m.category === "torta");
-  const cervejas = menuItems.filter((m) => m.category === "cerveja" || m.category === "chopp");
-  const bebidas = menuItems.filter((m) => m.category === "bebida" || m.category === "café");
-  const destilados = menuItems.filter((m) => m.category === "destilado");
-  const drinks = menuItems.filter((m) => m.category === "drink" || m.category === "vinho");
-  const paes = menuItems.filter((m) => m.category === "pão" || m.category === "padaria");
+  const c = (m: { category?: string }) => (m.category || "").toLowerCase();
+  const entradas = menuItems.filter((m) => c(m) === "entrada" || c(m) === "petisco" || c(m) === "salgado");
+  const pratos = menuItems.filter((m) => c(m) === "prato" || c(m) === "hamburguer" || c(m) === "pizza" || c(m) === "lanche" || c(m) === "sanduiche" || c(m) === "sushi" || c(m) === "temaki" || c(m) === "ramen" || c(m) === "salada" || c(m) === "sopa" || c(m) === "focaccia");
+  const sobremesas = menuItems.filter((m) => c(m) === "sobremesa" || c(m) === "doce" || c(m) === "torta");
+  const cervejas = menuItems.filter((m) => c(m) === "cerveja" || c(m) === "chopp");
+  const bebidas = menuItems.filter((m) => c(m) === "bebida" || c(m) === "café");
+  const destilados = menuItems.filter((m) => c(m) === "destilado");
+  const drinks = menuItems.filter((m) => c(m) === "drink" || c(m) === "vinho");
+  const paes = menuItems.filter((m) => c(m) === "pão" || c(m) === "padaria");
 
   const toggleItem = (id: string) => {
     setSelectedItems((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);

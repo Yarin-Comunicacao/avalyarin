@@ -5,9 +5,17 @@
  * individual establishment admin page, and menu item CRUD with images.
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
-import { establishments, menuItems, categories } from "../drizzle/schema";
+import { establishments, menuItems, categories, menuCategories } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storagePut } from "./storage";
+
+/**
+ * Capitalize first letter of a string
+ */
+export function capitalizeCategory(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 // ============================================================
 // LISTING — By Category with Active/Hidden separation
@@ -157,17 +165,25 @@ export async function adminAddMenuItem(data: {
   const db = await getDb();
   if (!db) return null;
 
+  // Capitalize category name
+  const finalCategory = data.category ? capitalizeCategory(data.category) : null;
+
   const [result] = await db.insert(menuItems).values({
     establishmentId: data.establishmentId,
     name: data.name,
     description: data.description || null,
     price: data.price || null,
-    category: data.category || null,
+    category: finalCategory,
     imageUrl: data.imageUrl || null,
     imageKey: data.imageKey || null,
     imageThumbUrl: data.imageThumbUrl || null,
     imageThumbKey: data.imageThumbKey || null,
   });
+
+  // Ensure category is tracked in menu_categories table
+  if (finalCategory) {
+    await ensureMenuCategory(data.establishmentId, finalCategory);
+  }
 
   // Update hasMenu flag
   await db.update(establishments)
@@ -198,7 +214,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description;
   if (data.price !== undefined) updateData.price = data.price;
-  if (data.category !== undefined) updateData.category = data.category;
+  if (data.category !== undefined) updateData.category = capitalizeCategory(data.category);
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
   if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;
@@ -207,6 +223,17 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (Object.keys(updateData).length === 0) return { success: true };
 
   await db.update(menuItems).set(updateData).where(eq(menuItems.id, id));
+
+  // If category changed, ensure it's tracked
+  if (updateData.category) {
+    // Get the establishment ID
+    const [item] = await db.select({ establishmentId: menuItems.establishmentId })
+      .from(menuItems).where(eq(menuItems.id, id)).limit(1);
+    if (item) {
+      await ensureMenuCategory(item.establishmentId, updateData.category);
+    }
+  }
+
   return { success: true };
 }
 
@@ -266,19 +293,141 @@ export async function uploadMenuItemImage(
 }
 
 /**
- * Get menu item categories for an establishment (distinct categories used)
+ * Get menu item categories for an establishment, respecting sortOrder from menu_categories table.
+ * Falls back to alphabetical order for categories not in the table.
  */
 export async function getMenuCategories(establishmentId: number) {
   const db = await getDb();
   if (!db) return [];
 
+  // Get distinct categories from menu_items
   const result = await db.selectDistinct({ category: menuItems.category })
     .from(menuItems)
     .where(and(
       eq(menuItems.establishmentId, establishmentId),
       sql`${menuItems.category} IS NOT NULL AND ${menuItems.category} != ''`
-    ))
-    .orderBy(asc(menuItems.category));
+    ));
 
-  return result.map(r => r.category).filter(Boolean) as string[];
+  const rawCategories = result.map(r => r.category).filter(Boolean) as string[];
+
+  // Get sort order from menu_categories table
+  const sortEntries = await db.select()
+    .from(menuCategories)
+    .where(eq(menuCategories.establishmentId, establishmentId))
+    .orderBy(asc(menuCategories.sortOrder));
+
+  const sortMap = new Map(sortEntries.map((e, i) => [e.name.toLowerCase(), i]));
+
+  // Sort: categories with sortOrder first (by sortOrder), then remaining alphabetically
+  const sorted = rawCategories.sort((a, b) => {
+    const aOrder = sortMap.get(a.toLowerCase());
+    const bOrder = sortMap.get(b.toLowerCase());
+    if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+    if (aOrder !== undefined) return -1;
+    if (bOrder !== undefined) return 1;
+    return a.localeCompare(b, 'pt-BR');
+  });
+
+  return sorted;
+}
+
+/**
+ * Get menu categories with their sort order for an establishment
+ */
+export async function getMenuCategoriesWithOrder(establishmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get distinct categories from menu_items
+  const result = await db.selectDistinct({ category: menuItems.category })
+    .from(menuItems)
+    .where(and(
+      eq(menuItems.establishmentId, establishmentId),
+      sql`${menuItems.category} IS NOT NULL AND ${menuItems.category} != ''`
+    ));
+
+  const rawCategories = result.map(r => r.category).filter(Boolean) as string[];
+
+  // Get sort order from menu_categories table
+  const sortEntries = await db.select()
+    .from(menuCategories)
+    .where(eq(menuCategories.establishmentId, establishmentId))
+    .orderBy(asc(menuCategories.sortOrder));
+
+  const sortMap = new Map(sortEntries.map(e => [e.name.toLowerCase(), e.sortOrder]));
+
+  // Build result with sort order
+  const categoriesWithOrder = rawCategories.map(name => ({
+    name,
+    sortOrder: sortMap.get(name.toLowerCase()) ?? 999,
+  }));
+
+  // Sort by sortOrder, then alphabetically
+  categoriesWithOrder.sort((a, b) => {
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return a.name.localeCompare(b.name, 'pt-BR');
+  });
+
+  return categoriesWithOrder;
+}
+
+/**
+ * Save the new order of menu categories for an establishment.
+ * Replaces all existing sort entries for this establishment.
+ */
+export async function reorderMenuCategories(establishmentId: number, orderedNames: string[]) {
+  const db = await getDb();
+  if (!db) return { success: false };
+
+  // Delete existing entries for this establishment
+  await db.delete(menuCategories)
+    .where(eq(menuCategories.establishmentId, establishmentId));
+
+  // Insert new entries with sort order
+  if (orderedNames.length > 0) {
+    const values = orderedNames.map((name, index) => ({
+      establishmentId,
+      name: capitalizeCategory(name),
+      sortOrder: index,
+    }));
+    await db.insert(menuCategories).values(values);
+  }
+
+  return { success: true };
+}
+
+/**
+ * Ensure a category name is capitalized when adding/updating menu items.
+ * Also syncs the menu_categories table if the category is new.
+ */
+export async function ensureMenuCategory(establishmentId: number, categoryName: string) {
+  const db = await getDb();
+  if (!db) return;
+
+  const capitalized = capitalizeCategory(categoryName);
+
+  // Check if this category already exists in menu_categories
+  const existing = await db.select()
+    .from(menuCategories)
+    .where(and(
+      eq(menuCategories.establishmentId, establishmentId),
+      sql`LOWER(${menuCategories.name}) = LOWER(${capitalized})`
+    ))
+    .limit(1);
+
+  if (existing.length === 0) {
+    // Get max sort order for this establishment
+    const maxResult = await db.select({ maxOrder: sql<number>`COALESCE(MAX(${menuCategories.sortOrder}), -1)` })
+      .from(menuCategories)
+      .where(eq(menuCategories.establishmentId, establishmentId));
+    const maxOrder = Number(maxResult[0]?.maxOrder ?? -1);
+
+    await db.insert(menuCategories).values({
+      establishmentId,
+      name: capitalized,
+      sortOrder: maxOrder + 1,
+    });
+  }
+
+  return capitalized;
 }

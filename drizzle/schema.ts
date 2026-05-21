@@ -323,3 +323,18 @@ export const userSavedEstablishments = mysqlTable("user_saved_establishments", {
 
 export type UserSavedEstablishment = typeof userSavedEstablishments.$inferSelect;
 export type InsertUserSavedEstablishment = typeof userSavedEstablishments.$inferInsert;
+
+/**
+ * Menu categories table — tracks category names and their display order per establishment.
+ * Allows drag-and-drop reordering of menu categories.
+ */
+export const menuCategories = mysqlTable("menu_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MenuCategory = typeof menuCategories.$inferSelect;
+export type InsertMenuCategory = typeof menuCategories.$inferInsert;

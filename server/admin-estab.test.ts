@@ -3,6 +3,7 @@
  * Tests the constants and logic without DB dependency
  */
 import { describe, it, expect } from "vitest";
+import { capitalizeCategory } from "./db-admin-estab";
 
 // Test the menu category suggestions
 const MENU_CATEGORY_SUGGESTIONS = [
@@ -114,5 +115,95 @@ describe("Admin Establishments — Alphabetical Ordering", () => {
     expect(sorted[1].name).toBe("Cafeteria");
     expect(sorted[2].name).toBe("Hamburgueria");
     expect(sorted[3].name).toBe("Pub");
+  });
+});
+
+describe("Admin Establishments — Category Capitalization", () => {
+  it("should capitalize first letter of a category", () => {
+    expect(capitalizeCategory("bebida")).toBe("Bebida");
+    expect(capitalizeCategory("entrada")).toBe("Entrada");
+    expect(capitalizeCategory("drink")).toBe("Drink");
+  });
+
+  it("should keep already capitalized categories unchanged", () => {
+    expect(capitalizeCategory("Petiscos")).toBe("Petiscos");
+    expect(capitalizeCategory("Chopp")).toBe("Chopp");
+    expect(capitalizeCategory("Cervejas")).toBe("Cervejas");
+  });
+
+  it("should handle empty string", () => {
+    expect(capitalizeCategory("")).toBe("");
+  });
+
+  it("should handle single character", () => {
+    expect(capitalizeCategory("a")).toBe("A");
+    expect(capitalizeCategory("Z")).toBe("Z");
+  });
+
+  it("should not change rest of the string", () => {
+    expect(capitalizeCategory("café da manhã")).toBe("Café da manhã");
+    expect(capitalizeCategory("pão de queijo")).toBe("Pão de queijo");
+  });
+});
+
+describe("Admin Establishments — Category Sort Order", () => {
+  it("should sort categories by custom order when provided", () => {
+    const categories = ["Drinks", "Entradas", "Pratos", "Sobremesas"];
+    const sortMap = new Map([
+      ["pratos", 0],
+      ["entradas", 1],
+      ["drinks", 2],
+      ["sobremesas", 3],
+    ]);
+
+    const sorted = [...categories].sort((a, b) => {
+      const aOrder = sortMap.get(a.toLowerCase());
+      const bOrder = sortMap.get(b.toLowerCase());
+      if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+      if (aOrder !== undefined) return -1;
+      if (bOrder !== undefined) return 1;
+      return a.localeCompare(b, "pt-BR");
+    });
+
+    expect(sorted).toEqual(["Pratos", "Entradas", "Drinks", "Sobremesas"]);
+  });
+
+  it("should fall back to alphabetical when no sort order exists", () => {
+    const categories = ["Drinks", "Cervejas", "Pratos", "Entradas"];
+    const sortMap = new Map<string, number>(); // empty
+
+    const sorted = [...categories].sort((a, b) => {
+      const aOrder = sortMap.get(a.toLowerCase());
+      const bOrder = sortMap.get(b.toLowerCase());
+      if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+      if (aOrder !== undefined) return -1;
+      if (bOrder !== undefined) return 1;
+      return a.localeCompare(b, "pt-BR");
+    });
+
+    expect(sorted).toEqual(["Cervejas", "Drinks", "Entradas", "Pratos"]);
+  });
+
+  it("should put ordered categories before unordered ones", () => {
+    const categories = ["Vinhos", "Pratos", "Entradas", "Extras"];
+    const sortMap = new Map([
+      ["pratos", 0],
+      ["entradas", 1],
+    ]);
+
+    const sorted = [...categories].sort((a, b) => {
+      const aOrder = sortMap.get(a.toLowerCase());
+      const bOrder = sortMap.get(b.toLowerCase());
+      if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+      if (aOrder !== undefined) return -1;
+      if (bOrder !== undefined) return 1;
+      return a.localeCompare(b, "pt-BR");
+    });
+
+    expect(sorted[0]).toBe("Pratos");
+    expect(sorted[1]).toBe("Entradas");
+    // Remaining sorted alphabetically
+    expect(sorted[2]).toBe("Extras");
+    expect(sorted[3]).toBe("Vinhos");
   });
 });

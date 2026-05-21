@@ -1,8 +1,8 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import AdminEstablishments from "@/components/AdminEstablishments";
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect, useMemo } from "react";
+import { Link, useSearch, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
@@ -12,7 +12,23 @@ import {
 
 export default function AdminPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup">("dashboard");
+  const searchString = useSearch();
+  const [, navigate] = useLocation();
+
+  // Parse URL params to restore tab/category state
+  const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup";
+  const initialCategory = searchParams.get("category") || undefined;
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync tab from URL when navigating back
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab && urlTab !== activeTab) {
+      setActiveTab(urlTab as typeof activeTab);
+    }
+  }, [searchString]);
 
   if (loading) {
     return (
@@ -94,7 +110,7 @@ export default function AdminPanel() {
         {activeTab === "dashboard" && <DashboardTab />}
         {activeTab === "users" && <UsersTab />}
         {activeTab === "claims" && <ClaimsTab />}
-        {activeTab === "establishments" && <EstablishmentsTab />}
+        {activeTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} />}
         {activeTab === "age-verification" && <AgeVerificationTab />}
         {activeTab === "code-backup" && <CodeBackupTab />}
       </div>
@@ -335,8 +351,8 @@ function ClaimsTab() {
   );
 }
 
-function EstablishmentsTab() {
-  return <AdminEstablishments />;
+function EstablishmentsTab({ initialCategoryId }: { initialCategoryId?: string }) {
+  return <AdminEstablishments initialCategoryId={initialCategoryId ? Number(initialCategoryId) : undefined} />;
 }
 
 function EstablishmentsTabLegacy() {

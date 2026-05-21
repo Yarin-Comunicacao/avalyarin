@@ -16,8 +16,8 @@ import {
   Search, CheckSquare, Square, Trash2
 } from "lucide-react";
 
-export default function AdminEstablishments() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+export default function AdminEstablishments({ initialCategoryId }: { initialCategoryId?: number }) {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId ?? null);
   const [activeTab, setActiveTab] = useState<"active" | "hidden">("active");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -263,7 +263,7 @@ export default function AdminEstablishments() {
 
               {/* Clickable name → navigate to estab admin */}
               <button
-                onClick={() => navigate(`/admin/estab/${est.id}`)}
+                onClick={() => navigate(`/admin/estab/${est.id}?fromCategory=${selectedCategoryId}`)}
                 className="flex-1 text-left group"
               >
                 <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors">
@@ -301,7 +301,7 @@ export default function AdminEstablishments() {
                   <Trash2 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => navigate(`/admin/estab/${est.id}`)}
+                  onClick={() => navigate(`/admin/estab/${est.id}?fromCategory=${selectedCategoryId}`)}
                   title="Editar"
                   className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors"
                 >

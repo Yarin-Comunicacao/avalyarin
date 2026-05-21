@@ -4,37 +4,89 @@
  * Features:
  * - Informações gerais do estab
  * - Edição do cardápio: Nome, Descrição, Preço, Foto, Categoria do cardápio
- * - Categorias sugeridas: Petiscos, Pratos, Chopp, Cervejas, Drinks, Sobremesas
+ * - Drag-and-drop para reordenar categorias do cardápio
+ * - Categorias sempre com primeira letra maiúscula
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { useState, useRef } from "react";
-import { Link, useParams, useLocation } from "wouter";
+import { useState, useRef, useMemo } from "react";
+import { Link, useParams, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   ArrowLeft, Store, Plus, Pencil, Trash2, Image as ImageIcon,
-  Save, X, Shield, DollarSign, Tag, FileText, Upload
+  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const MENU_CATEGORY_SUGGESTIONS = [
   "Petiscos", "Pratos", "Chopp", "Cervejas", "Drinks", "Sobremesas",
   "Entradas", "Porções", "Vinhos", "Coquetéis", "Cafés", "Lanches"
 ];
 
+/** Capitalize first letter */
+function capitalize(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function AdminEstabDetail() {
   const { user, loading: authLoading } = useAuth();
   const params = useParams<{ id: string }>();
   const [, navigate] = useLocation();
+  const searchString = useSearch();
   const estabId = Number(params.id);
+
+  // Parse query params for back navigation
+  const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
+  const fromCategoryId = searchParams.get("fromCategory");
 
   const { data: estab, isLoading } = trpc.admin.estabDetail.useQuery(
     { id: estabId },
     { enabled: !!estabId }
   );
 
+  const { data: categoriesWithOrder } = trpc.admin.menuCategoriesWithOrder.useQuery(
+    { establishmentId: estabId },
+    { enabled: !!estabId }
+  );
+
+  const reorderMutation = trpc.admin.reorderMenuCategories.useMutation();
+  const utils = trpc.useUtils();
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleBack = () => {
+    if (fromCategoryId) {
+      navigate(`/admin?tab=establishments&category=${fromCategoryId}`);
+    } else {
+      navigate("/admin?tab=establishments");
+    }
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -62,7 +114,7 @@ export default function AdminEstabDetail() {
         <div className="text-center">
           <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-30" />
           <h1 className="font-display text-xl text-foreground mb-2">Estabelecimento não encontrado</h1>
-          <button onClick={() => navigate("/admin")} className="text-primary hover:underline">
+          <button onClick={handleBack} className="text-primary hover:underline">
             Voltar ao painel
           </button>
         </div>
@@ -70,7 +122,7 @@ export default function AdminEstabDetail() {
     );
   }
 
-  // Group menu items by category
+  // Group menu items by category, using sortOrder from categoriesWithOrder
   const menuByCategory = (estab.menuItems || []).reduce((acc, item) => {
     const cat = item.category || "Sem categoria";
     if (!acc[cat]) acc[cat] = [];
@@ -78,7 +130,18 @@ export default function AdminEstabDetail() {
     return acc;
   }, {} as Record<string, typeof estab.menuItems>);
 
-  const menuCategories = Object.keys(menuByCategory).sort();
+  // Use categoriesWithOrder for ordering, fallback to alphabetical
+  const menuCategories = categoriesWithOrder
+    ? categoriesWithOrder.map(c => c.name).filter(name => menuByCategory[name])
+    : Object.keys(menuByCategory).sort();
+
+  // Add any categories that exist in items but not in the order table
+  const orderedSet = new Set(menuCategories.map(c => c.toLowerCase()));
+  const extraCategories = Object.keys(menuByCategory)
+    .filter(c => !orderedSet.has(c.toLowerCase()))
+    .sort();
+  const allMenuCategories = [...menuCategories, ...extraCategories];
+
   const filteredMenu = filterCategory === "all"
     ? estab.menuItems || []
     : (menuByCategory[filterCategory] || []);
@@ -89,7 +152,7 @@ export default function AdminEstabDetail() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/admin")} className="p-2 rounded-lg hover:bg-secondary/50 transition-colors">
+            <button onClick={handleBack} className="p-2 rounded-lg hover:bg-secondary/50 transition-colors">
               <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </button>
             <div>
@@ -142,20 +205,42 @@ export default function AdminEstabDetail() {
             <div>
               <h3 className="font-display text-xl tracking-wider text-foreground">CARDÁPIO</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {estab.menuItems?.length || 0} itens • {menuCategories.length} categorias
+                {estab.menuItems?.length || 0} itens • {allMenuCategories.length} categorias
               </p>
             </div>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Novo Item
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCategoryManager(!showCategoryManager)}
+                className="flex items-center gap-1.5 px-3 py-2 bg-secondary/50 border border-border rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <GripVertical className="w-3.5 h-3.5" />
+                Ordenar
+              </button>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Novo Item
+              </button>
+            </div>
           </div>
 
+          {/* Category Reorder Manager (drag-and-drop) */}
+          {showCategoryManager && (
+            <CategoryReorderManager
+              establishmentId={estabId}
+              categories={allMenuCategories}
+              onClose={() => setShowCategoryManager(false)}
+              onReordered={() => {
+                utils.admin.menuCategoriesWithOrder.invalidate();
+                utils.admin.estabDetail.invalidate();
+              }}
+            />
+          )}
+
           {/* Category filter */}
-          {menuCategories.length > 1 && (
+          {allMenuCategories.length > 1 && (
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
               <button
                 onClick={() => setFilterCategory("all")}
@@ -167,7 +252,7 @@ export default function AdminEstabDetail() {
               >
                 Todos ({estab.menuItems?.length || 0})
               </button>
-              {menuCategories.map(cat => (
+              {allMenuCategories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setFilterCategory(cat)}
@@ -188,7 +273,7 @@ export default function AdminEstabDetail() {
             <MenuItemForm
               establishmentId={estabId}
               onClose={() => setShowAddForm(false)}
-              existingCategories={menuCategories}
+              existingCategories={allMenuCategories}
             />
           )}
 
@@ -202,7 +287,7 @@ export default function AdminEstabDetail() {
                     establishmentId={estabId}
                     editItem={item}
                     onClose={() => setEditingItem(null)}
-                    existingCategories={menuCategories}
+                    existingCategories={allMenuCategories}
                   />
                 ) : (
                   <MenuItemCard
@@ -227,6 +312,135 @@ export default function AdminEstabDetail() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============ Category Reorder Manager (Drag-and-Drop) ============
+function CategoryReorderManager({
+  establishmentId,
+  categories,
+  onClose,
+  onReordered,
+}: {
+  establishmentId: number;
+  categories: string[];
+  onClose: () => void;
+  onReordered: () => void;
+}) {
+  const [items, setItems] = useState(categories);
+  const reorderMutation = trpc.admin.reorderMenuCategories.useMutation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.indexOf(active.id as string);
+    const newIndex = items.indexOf(over.id as string);
+    const newItems = arrayMove(items, oldIndex, newIndex);
+    setItems(newItems);
+  };
+
+  const handleSave = async () => {
+    try {
+      await reorderMutation.mutateAsync({
+        establishmentId,
+        orderedNames: items,
+      });
+      toast.success("Ordem das categorias salva!");
+      onReordered();
+      onClose();
+    } catch {
+      toast.error("Erro ao salvar ordem");
+    }
+  };
+
+  return (
+    <div className="mb-6 p-4 rounded-xl bg-card border border-primary/30">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-display text-sm tracking-wider text-primary">
+          ORDENAR CATEGORIAS
+        </h4>
+        <button onClick={onClose} className="p-1 rounded hover:bg-secondary/50">
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">
+        Arraste para reordenar as categorias do cardápio
+      </p>
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          <div className="space-y-1.5">
+            {items.map((cat) => (
+              <SortableCategoryItem key={cat} id={cat} name={cat} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+
+      <div className="flex gap-3 mt-4">
+        <button
+          onClick={handleSave}
+          disabled={reorderMutation.isPending}
+          className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          Salvar Ordem
+        </button>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 border border-border text-muted-foreground rounded-lg text-sm hover:text-foreground transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ Sortable Category Item ============
+function SortableCategoryItem({ id, name }: { id: string; name: string }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary/50 border ${
+        isDragging ? "border-primary/50 shadow-lg" : "border-border/30"
+      }`}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-secondary"
+      >
+        <GripVertical className="w-4 h-4 text-muted-foreground" />
+      </button>
+      <span className="text-sm text-foreground font-medium">{name}</span>
     </div>
   );
 }
@@ -341,12 +555,14 @@ function MenuItemForm({
       return;
     }
 
-    const finalCategory = category === "__custom__" ? customCategory : category;
+    const rawCategory = category === "__custom__" ? customCategory : category;
+    const finalCategory = rawCategory ? capitalize(rawCategory) : undefined;
+    
     const data = {
       name: name.trim(),
       description: description.trim() || undefined,
       price: price ? parseFloat(price) : undefined,
-      category: finalCategory || undefined,
+      category: finalCategory,
       imageUrl: imageUrl || undefined,
       imageThumbUrl: imageThumbUrl || undefined,
     };
@@ -360,6 +576,7 @@ function MenuItemForm({
         toast.success("Item adicionado ao cardápio");
       }
       utils.admin.estabDetail.invalidate();
+      utils.admin.menuCategoriesWithOrder.invalidate();
       onClose();
     } catch {
       toast.error("Erro ao salvar item");

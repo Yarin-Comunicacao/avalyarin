@@ -180,3 +180,7 @@
 - [x] Otimização de imagens: instalar Sharp e converter uploads para WebP (thumbnail 400x400 + full 1200x1200)
 - [x] Schema: adicionar campo imageThumbUrl/imageThumbKey ao menu_items
 - [x] Frontend: lazy loading com thumbnails na listagem do cardápio
+- [x] Categorias do cardápio: sempre iniciar com letra maiúscula (capitalize no input e exibição)
+- [x] Categorias do cardápio: campo sortOrder para ordenação personalizada
+- [x] Categorias do cardápio: drag-and-drop para reordenar (dnd-kit)
+- [x] Navegação de volta no AdminEstabDetail: retornar para Admin > Estabelecimentos com categoria correta selecionada

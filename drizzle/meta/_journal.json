@@ -85,6 +85,13 @@
       "when": 1779382011366,
       "tag": "0011_tearful_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1779388545106,
+      "tag": "0012_bitter_madelyne_pryor",
+      "breakpoints": true
     }
   ]
 }

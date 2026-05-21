@@ -120,6 +120,8 @@ import {
   adminDeleteMenuItem,
   uploadMenuItemImage,
   getMenuCategories,
+  getMenuCategoriesWithOrder,
+  reorderMenuCategories,
 } from "./db-admin-estab";
 
 export const appRouter = router({
@@ -427,6 +429,21 @@ export const appRouter = router({
       .input(z.object({ establishmentId: z.number() }))
       .query(async ({ input }) => {
         return await getMenuCategories(input.establishmentId);
+      }),
+
+    menuCategoriesWithOrder: adminProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getMenuCategoriesWithOrder(input.establishmentId);
+      }),
+
+    reorderMenuCategories: adminProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        orderedNames: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        return await reorderMenuCategories(input.establishmentId, input.orderedNames);
       }),
   }),
 
