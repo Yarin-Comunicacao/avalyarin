@@ -39,6 +39,7 @@ import GruposPage from "./pages/GruposPage";
 import SearchResults from "./pages/SearchResults";
 // Admin & Business
 import AdminPanel from "./pages/AdminPanel";
+import AdminEstabDetail from "./pages/AdminEstabDetail";
 import BusinessPanel from "./pages/BusinessPanel";
 // Rankings
 import MeuRanking from "./pages/MeuRanking";
@@ -120,6 +121,7 @@ function Router() {
       <Route path="/perto-de-mim" component={NearbyPage} />
       {/* Admin & Business */}
       <Route path="/admin" component={AdminPanel} />
+      <Route path="/admin/estab/:id" component={AdminEstabDetail} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />

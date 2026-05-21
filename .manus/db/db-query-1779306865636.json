@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, openId, name, email, role, createdAt FROM users WHERE email = 'yarinagencia@gmail.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, openId, name, email, role, createdAt FROM users WHERE email = 'yarinagencia@gmail.com';",
+  "rows": [
+    {
+      "id": "90002",
+      "openId": "bLoRRJFLDmD2UBLRyxLfoZ",
+      "name": "Yarin Agencia",
+      "email": "yarinagencia@gmail.com",
+      "role": "owner",
+      "createdAt": "2026-05-05 01:38:42"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\tcreatedAt\n90002\tbLoRRJFLDmD2UBLRyxLfoZ\tYarin Agencia\tyarinagencia@gmail.com\towner\t2026-05-05 01:38:42\n",
+  "stderr": "",
+  "execution_time_ms": 435
+}

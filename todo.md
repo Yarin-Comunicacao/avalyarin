@@ -172,3 +172,8 @@
 - [x] Testes para formação correta de títulos de insígnias especiais com preposição (de/do/da + bairro)
 - [x] PostsCarousel: adicionar estado de erro e fallback UX
 - [x] PostsCarousel: adicionar carrossel "Salvos" para usuários logados com estabelecimentos seguidos
+- [x] Admin Estab: separar listagem por categorias com ordem alfabética dentro de cada
+- [x] Admin Estab: abas Ativos/Ocultos dentro de cada categoria
+- [x] Admin Estab: botão Ocultar (para ativos) e Ativar (para ocultos)
+- [x] Admin Estab: página individual do Estab clicável com edição de cardápio
+- [x] Schema: campo hidden/active no establishments + imageUrl no menu_items (tabela já existia)

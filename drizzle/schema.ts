@@ -57,6 +57,7 @@ export const establishments = mysqlTable("establishments", {
   instagram: varchar("instagram", { length: 128 }),
   categoryId: int("categoryId").notNull(),
   hasMenu: boolean("hasMenu").default(false).notNull(),
+  hidden: boolean("hidden").default(false).notNull(),
   source: varchar("source", { length: 32 }).default("spreadsheet"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -74,6 +75,8 @@ export const menuItems = mysqlTable("menu_items", {
   description: text("description"),
   price: float("price"),
   category: varchar("category", { length: 64 }),
+  imageUrl: text("imageUrl"),
+  imageKey: varchar("imageKey", { length: 512 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

@@ -110,6 +110,17 @@ import {
   createEstablishmentPost,
   expireOldPosts,
 } from "./db-posts";
+import {
+  getAdminCategoriesWithCounts,
+  getAdminEstablishmentsByCategory,
+  toggleEstablishmentVisibility,
+  getAdminEstablishmentDetail,
+  adminAddMenuItem,
+  adminUpdateMenuItem,
+  adminDeleteMenuItem,
+  uploadMenuItemImage,
+  getMenuCategories,
+} from "./db-admin-estab";
 
 export const appRouter = router({
   system: systemRouter,
@@ -340,6 +351,78 @@ export const appRouter = router({
     getCodeBackups: adminProcedure
       .query(async () => {
         return await getCodeBackups();
+      }),
+
+    // ============ ADMIN ESTAB MANAGEMENT ============
+    categoriesWithCounts: adminProcedure.query(async () => {
+      return await getAdminCategoriesWithCounts();
+    }),
+
+    estabByCategory: adminProcedure
+      .input(z.object({
+        categoryId: z.number(),
+        hidden: z.boolean().default(false),
+        limit: z.number().min(1).max(500).default(100),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        return await getAdminEstablishmentsByCategory(input.categoryId, input.hidden, input.limit, input.offset);
+      }),
+
+    toggleVisibility: adminProcedure
+      .input(z.object({
+        ids: z.array(z.number()).min(1),
+        hidden: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        return await toggleEstablishmentVisibility(input.ids, input.hidden);
+      }),
+
+    estabDetail: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await getAdminEstablishmentDetail(input.id);
+      }),
+
+    addMenuItem: adminProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        name: z.string().min(1),
+        description: z.string().optional(),
+        price: z.number().optional(),
+        category: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageKey: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await adminAddMenuItem(input);
+      }),
+
+    updateMenuItem: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        price: z.number().optional(),
+        category: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageKey: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await adminUpdateMenuItem(id, data);
+      }),
+
+    deleteMenuItem: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await adminDeleteMenuItem(input.id);
+      }),
+
+    menuCategories: adminProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getMenuCategories(input.establishmentId);
       }),
   }),
 

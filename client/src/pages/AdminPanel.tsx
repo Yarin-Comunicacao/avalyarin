@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import AdminEstablishments from "@/components/AdminEstablishments";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -335,6 +336,10 @@ function ClaimsTab() {
 }
 
 function EstablishmentsTab() {
+  return <AdminEstablishments />;
+}
+
+function EstablishmentsTabLegacy() {
   const { data: categories } = trpc.categories.list.useQuery();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
