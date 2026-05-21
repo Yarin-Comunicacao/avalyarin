@@ -77,6 +77,8 @@ export const menuItems = mysqlTable("menu_items", {
   category: varchar("category", { length: 64 }),
   imageUrl: text("imageUrl"),
   imageKey: varchar("imageKey", { length: 512 }),
+  imageThumbUrl: text("imageThumbUrl"),
+  imageThumbKey: varchar("imageThumbKey", { length: 512 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

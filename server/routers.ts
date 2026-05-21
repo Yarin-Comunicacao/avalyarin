@@ -393,6 +393,8 @@ export const appRouter = router({
         category: z.string().optional(),
         imageUrl: z.string().optional(),
         imageKey: z.string().optional(),
+        imageThumbUrl: z.string().optional(),
+        imageThumbKey: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         return await adminAddMenuItem(input);
@@ -407,6 +409,8 @@ export const appRouter = router({
         category: z.string().optional(),
         imageUrl: z.string().optional(),
         imageKey: z.string().optional(),
+        imageThumbUrl: z.string().optional(),
+        imageThumbKey: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

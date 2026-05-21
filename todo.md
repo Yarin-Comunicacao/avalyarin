@@ -177,3 +177,6 @@
 - [x] Admin Estab: botão Ocultar (para ativos) e Ativar (para ocultos)
 - [x] Admin Estab: página individual do Estab clicável com edição de cardápio
 - [x] Schema: campo hidden/active no establishments + imageUrl no menu_items (tabela já existia)
+- [x] Otimização de imagens: instalar Sharp e converter uploads para WebP (thumbnail 400x400 + full 1200x1200)
+- [x] Schema: adicionar campo imageThumbUrl/imageThumbKey ao menu_items
+- [x] Frontend: lazy loading com thumbnails na listagem do cardápio

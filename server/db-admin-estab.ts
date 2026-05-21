@@ -151,6 +151,8 @@ export async function adminAddMenuItem(data: {
   category?: string;
   imageUrl?: string;
   imageKey?: string;
+  imageThumbUrl?: string;
+  imageThumbKey?: string;
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -163,6 +165,8 @@ export async function adminAddMenuItem(data: {
     category: data.category || null,
     imageUrl: data.imageUrl || null,
     imageKey: data.imageKey || null,
+    imageThumbUrl: data.imageThumbUrl || null,
+    imageThumbKey: data.imageThumbKey || null,
   });
 
   // Update hasMenu flag
@@ -183,6 +187,8 @@ export async function adminUpdateMenuItem(id: number, data: {
   category?: string;
   imageUrl?: string;
   imageKey?: string;
+  imageThumbUrl?: string;
+  imageThumbKey?: string;
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -195,6 +201,8 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.category !== undefined) updateData.category = data.category;
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
+  if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;
+  if (data.imageThumbKey !== undefined) updateData.imageThumbKey = data.imageThumbKey;
 
   if (Object.keys(updateData).length === 0) return { success: true };
 

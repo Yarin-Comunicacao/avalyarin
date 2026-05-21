@@ -78,6 +78,13 @@
       "when": 1779370957028,
       "tag": "0010_fuzzy_rockslide",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1779382011366,
+      "tag": "0011_tearful_famine",
+      "breakpoints": true
     }
   ]
 }

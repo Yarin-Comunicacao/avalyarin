@@ -107,15 +107,25 @@ export default function EstablishmentPage() {
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex items-start justify-between p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/20 transition-colors"
+          className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/20 transition-colors"
         >
-          <div className="flex-1 mr-4">
-            <h5 className="text-sm font-semibold text-foreground">{item.name}</h5>
+          {(item.imageThumbUrl || item.imageUrl) && (
+            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-secondary">
+              <img
+                src={(item.imageThumbUrl || item.imageUrl) as string}
+                alt={item.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h5 className="text-sm font-semibold text-foreground truncate">{item.name}</h5>
             {item.description && (
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.description}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{item.description}</p>
             )}
           </div>
-          <span className="font-numbers text-sm font-semibold text-primary whitespace-nowrap">
+          <span className="font-numbers text-sm font-semibold text-primary whitespace-nowrap shrink-0">
             R$ {Number(item.price).toFixed(2).replace(".", ",")}
           </span>
         </div>

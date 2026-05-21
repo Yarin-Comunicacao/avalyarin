@@ -249,10 +249,15 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
 
   return (
     <div className="p-4 rounded-xl bg-card border border-border/50 flex gap-4">
-      {/* Image */}
+      {/* Image — uses thumbnail for fast loading */}
       <div className="w-16 h-16 rounded-lg bg-secondary/50 border border-border/30 flex items-center justify-center shrink-0 overflow-hidden">
-        {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+        {(item.imageThumbUrl || item.imageUrl) ? (
+          <img
+            src={item.imageThumbUrl || item.imageUrl}
+            alt={item.name}
+            className="w-full h-full object-cover rounded-lg"
+            loading="lazy"
+          />
         ) : (
           <ImageIcon className="w-6 h-6 text-muted-foreground/30" />
         )}
@@ -316,6 +321,7 @@ function MenuItemForm({
   const [category, setCategory] = useState(editItem?.category || "");
   const [customCategory, setCustomCategory] = useState("");
   const [imageUrl, setImageUrl] = useState(editItem?.imageUrl || "");
+  const [imageThumbUrl, setImageThumbUrl] = useState(editItem?.imageThumbUrl || "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -342,6 +348,7 @@ function MenuItemForm({
       price: price ? parseFloat(price) : undefined,
       category: finalCategory || undefined,
       imageUrl: imageUrl || undefined,
+      imageThumbUrl: imageThumbUrl || undefined,
     };
 
     try {
@@ -388,9 +395,10 @@ function MenuItemForm({
       });
       
       if (!res.ok) throw new Error("Upload failed");
-      const { url } = await res.json();
+      const { url, thumbUrl } = await res.json();
       setImageUrl(url);
-      toast.success("Imagem enviada");
+      setImageThumbUrl(thumbUrl);
+      toast.success("Imagem otimizada e enviada (WebP)");
     } catch {
       toast.error("Erro ao enviar imagem");
     } finally {

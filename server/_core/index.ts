@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
+import sharp from "sharp";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -55,18 +56,47 @@ async function startServer() {
       return res.status(500).json({ error: "Upload failed" });
     }
   });
-  // Menu image upload endpoint
+  // Menu image upload endpoint — converts to WebP (thumbnail 400x400 + full 1200x1200)
   app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
     try {
-      const contentType = req.headers["content-type"] || "image/jpeg";
-      const fileName = (req.headers["x-file-name"] as string) || `menu-${Date.now()}.jpg`;
       const data = req.body as Buffer;
       if (!data || data.length === 0) {
         return res.status(400).json({ error: "No file data provided" });
       }
-      const key = `menu-images/${Date.now()}-${fileName}`;
-      const result = await storagePut(key, data, contentType);
-      return res.json({ url: result.url, key: result.key });
+
+      const timestamp = Date.now();
+      const baseName = `menu-${timestamp}`;
+
+      // Generate full version (1200x1200 max, WebP quality 80%)
+      const fullBuffer = await sharp(data)
+        .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      // Generate thumbnail version (400x400 max, WebP quality 70%)
+      const thumbBuffer = await sharp(data)
+        .resize(400, 400, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 70 })
+        .toBuffer();
+
+      // Upload both to S3
+      const fullResult = await storagePut(
+        `menu-images/${baseName}-full.webp`,
+        fullBuffer,
+        "image/webp"
+      );
+      const thumbResult = await storagePut(
+        `menu-images/${baseName}-thumb.webp`,
+        thumbBuffer,
+        "image/webp"
+      );
+
+      return res.json({
+        url: fullResult.url,
+        key: fullResult.key,
+        thumbUrl: thumbResult.url,
+        thumbKey: thumbResult.key,
+      });
     } catch (error: any) {
       console.error("[Menu Image Upload] Error:", error);
       return res.status(500).json({ error: "Upload failed" });
