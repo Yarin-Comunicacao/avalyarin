@@ -32,7 +32,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { background, setBackground } = useBackground();
-  const [expandedSection, setExpandedSection] = useState<string | null>("conta");
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showBgPicker, setShowBgPicker] = useState(false);
 

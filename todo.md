@@ -192,3 +192,4 @@
 - [x] Badges nas categorias: mostrar pendências apenas dos estabs ativos (não ocultos)
 - [x] Mover para Ocultos automaticamente todos os estabs ativos sem endereço/horário/cardápio
 - [x] Ícones diferentes por categoria no Admin Estabelecimentos: folha verde (Saudável), caneca cerveja (Bar), prato (Gastronomia), xícara café (Cafés e Doces)
+- [x] Menu lateral: Minha Conta deve vir fechado por padrão, submenu só aparece ao clicar
