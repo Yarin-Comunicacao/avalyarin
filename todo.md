@@ -191,3 +191,4 @@
 - [x] Notificações no Painel Empresarial para usuários "Empresa" sobre itens sem foto
 - [x] Badges nas categorias: mostrar pendências apenas dos estabs ativos (não ocultos)
 - [x] Mover para Ocultos automaticamente todos os estabs ativos sem endereço/horário/cardápio
+- [x] Ícones diferentes por categoria no Admin Estabelecimentos: folha verde (Saudável), caneca cerveja (Bar), prato (Gastronomia), xícara café (Cafés e Doces)

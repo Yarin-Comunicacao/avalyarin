@@ -1,0 +1,124 @@
+{
+  "query": "SELECT id, slug, name, icon FROM categories ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, slug, name, icon FROM categories ORDER BY name;",
+  "rows": [
+    {
+      "id": "3",
+      "slug": "autoral-contemporaneo",
+      "name": "Autoral / Contemporâneo",
+      "icon": "ChefHat"
+    },
+    {
+      "id": "30002",
+      "slug": "acai",
+      "name": "Açaí",
+      "icon": "CupSoda"
+    },
+    {
+      "id": "10",
+      "slug": "balada",
+      "name": "Balada",
+      "icon": "Music"
+    },
+    {
+      "id": "1",
+      "slug": "bar-lanchonete",
+      "name": "Bar & Lanchonete",
+      "icon": "Beer"
+    },
+    {
+      "id": "12",
+      "slug": "bar-musical",
+      "name": "Bar Musical",
+      "icon": "Music"
+    },
+    {
+      "id": "5",
+      "slug": "boteco-moderno",
+      "name": "Boteco Moderno",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "4",
+      "slug": "boteco-tradicional",
+      "name": "Boteco Tradicional",
+      "icon": "Beer"
+    },
+    {
+      "id": "8",
+      "slug": "cafeteria",
+      "name": "Cafeteria",
+      "icon": "Coffee"
+    },
+    {
+      "id": "13",
+      "slug": "cervejaria",
+      "name": "Cervejaria",
+      "icon": "Beer"
+    },
+    {
+      "id": "11",
+      "slug": "confeitaria",
+      "name": "Confeitaria",
+      "icon": "Cake"
+    },
+    {
+      "id": "7",
+      "slug": "coquetelaria",
+      "name": "Coquetelaria",
+      "icon": "Wine"
+    },
+    {
+      "id": "2",
+      "slug": "cozinha-brasileira",
+      "name": "Cozinha Brasileira",
+      "icon": "UtensilsCrossed"
+    },
+    {
+      "id": "17",
+      "slug": "cozinha-internacional",
+      "name": "Cozinha Internacional",
+      "icon": "Globe"
+    },
+    {
+      "id": "16",
+      "slug": "hamburgueria",
+      "name": "Hamburgueria",
+      "icon": "UtensilsCrossed"
+    },
+    {
+      "id": "9",
+      "slug": "padaria",
+      "name": "Padaria",
+      "icon": "Croissant"
+    },
+    {
+      "id": "14",
+      "slug": "pizzaria",
+      "name": "Pizzaria",
+      "icon": "Pizza"
+    },
+    {
+      "id": "6",
+      "slug": "pub",
+      "name": "Pub",
+      "icon": "Beer"
+    },
+    {
+      "id": "15",
+      "slug": "saudavel",
+      "name": "Saudável",
+      "icon": "Leaf"
+    },
+    {
+      "id": "30001",
+      "slug": "vegan",
+      "name": "Vegan",
+      "icon": "Leaf"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tslug\tname\ticon\n3\tautoral-contemporaneo\tAutoral / Contemporâneo\tChefHat\n30002\tacai\tAçaí\tCupSoda\n10\tbalada\tBalada\tMusic\n1\tbar-lanchonete\tBar & Lanchonete\tBeer\n12\tbar-musical\tBar Musical\tMusic\n5\tboteco-moderno\tBoteco Moderno\tSparkles\n4\tboteco-tradicional\tBoteco Tradicional\tBeer\n8\tcafeteria\tCafeteria\tCoffee\n13\tcervejaria\tCervejaria\tBeer\n11\tconfeitaria\tConfeitaria\tCake\n7\tcoquetelaria\tCoquetelaria\tWine\n2\tcozinha-brasileira\tCozinha Brasileira\tUtensilsCrossed\n17\tcozinha-internacional\tCozinha Internacional\tGlobe\n16\thamburgueria\tHamburgueria\tUtensilsCrossed\n9\tpadaria\tPadaria\tCroissant\n14\tpizzaria\tPizzaria\tPizza\n6\tpub\tPub\tBeer\n15\tsaudavel\tSaudável\tLeaf\n30001\tvegan\tVegan\tLeaf\n",
+  "stderr": "",
+  "execution_time_ms": 403
+}

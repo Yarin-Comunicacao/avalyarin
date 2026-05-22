@@ -14,8 +14,70 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Store, Eye, EyeOff, ChevronRight, ArrowLeft,
-  Search, CheckSquare, Square, Trash2, AlertTriangle
+  Search, CheckSquare, Square, Trash2, AlertTriangle,
+  Leaf, Beer, UtensilsCrossed, Coffee, ChefHat, Wine,
+  Sparkles, Cake, CupSoda, Music, Croissant, Globe, Pizza
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+/**
+ * Maps category icon string (from DB) to a Lucide icon component and a color class.
+ * Groups:
+ * - Saudável/Vegan: Leaf (green)
+ * - Bar/Pub/Boteco/Cervejaria: Beer (amber/yellow)
+ * - Gastronomia/Cozinha/Hamburgueria/Pizzaria: UtensilsCrossed/Pizza (orange)
+ * - Café/Confeitaria/Padaria: Coffee/Cake/Croissant (brown/rose)
+ * - Coquetelaria/Autoral: Wine/ChefHat (purple)
+ * - Balada/Bar Musical: Music (pink)
+ */
+function getCategoryIconAndColor(iconName: string, slug: string): { Icon: LucideIcon; bgClass: string; textClass: string } {
+  // Map by slug for more precise matching
+  const slugMap: Record<string, { Icon: LucideIcon; bgClass: string; textClass: string }> = {
+    'saudavel': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
+    'vegan': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
+    'bar-lanchonete': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'pub': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'boteco-tradicional': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'boteco-moderno': { Icon: Sparkles, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'cervejaria': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'cozinha-brasileira': { Icon: UtensilsCrossed, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'cozinha-internacional': { Icon: Globe, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'hamburgueria': { Icon: UtensilsCrossed, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'pizzaria': { Icon: Pizza, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'autoral-contemporaneo': { Icon: ChefHat, bgClass: 'bg-violet-500/15 border-violet-500/30', textClass: 'text-violet-400' },
+    'coquetelaria': { Icon: Wine, bgClass: 'bg-violet-500/15 border-violet-500/30', textClass: 'text-violet-400' },
+    'cafeteria': { Icon: Coffee, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'confeitaria': { Icon: Cake, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'padaria': { Icon: Croissant, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'acai': { Icon: CupSoda, bgClass: 'bg-purple-500/15 border-purple-500/30', textClass: 'text-purple-400' },
+    'balada': { Icon: Music, bgClass: 'bg-pink-500/15 border-pink-500/30', textClass: 'text-pink-400' },
+    'bar-musical': { Icon: Music, bgClass: 'bg-pink-500/15 border-pink-500/30', textClass: 'text-pink-400' },
+  };
+
+  if (slugMap[slug]) return slugMap[slug];
+
+  // Fallback by icon name
+  const iconFallback: Record<string, { Icon: LucideIcon; bgClass: string; textClass: string }> = {
+    'Leaf': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
+    'Beer': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'Coffee': { Icon: Coffee, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'UtensilsCrossed': { Icon: UtensilsCrossed, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'ChefHat': { Icon: ChefHat, bgClass: 'bg-violet-500/15 border-violet-500/30', textClass: 'text-violet-400' },
+    'Wine': { Icon: Wine, bgClass: 'bg-violet-500/15 border-violet-500/30', textClass: 'text-violet-400' },
+    'Sparkles': { Icon: Sparkles, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
+    'Cake': { Icon: Cake, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'CupSoda': { Icon: CupSoda, bgClass: 'bg-purple-500/15 border-purple-500/30', textClass: 'text-purple-400' },
+    'Music': { Icon: Music, bgClass: 'bg-pink-500/15 border-pink-500/30', textClass: 'text-pink-400' },
+    'Croissant': { Icon: Croissant, bgClass: 'bg-rose-500/15 border-rose-500/30', textClass: 'text-rose-400' },
+    'Globe': { Icon: Globe, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+    'Pizza': { Icon: Pizza, bgClass: 'bg-orange-500/15 border-orange-500/30', textClass: 'text-orange-400' },
+  };
+
+  if (iconFallback[iconName]) return iconFallback[iconName];
+
+  // Default fallback
+  return { Icon: Store, bgClass: 'bg-primary/10 border-primary/20', textClass: 'text-primary' };
+}
 
 export default function AdminEstablishments({ initialCategoryId }: { initialCategoryId?: number }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId ?? null);
@@ -106,9 +168,14 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                 className="w-full p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all flex items-center justify-between group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <Store className="w-5 h-5 text-primary" />
-                  </div>
+                  {(() => {
+                    const { Icon, bgClass, textClass } = getCategoryIconAndColor(cat.icon || '', cat.slug);
+                    return (
+                      <div className={`w-10 h-10 rounded-lg border flex items-center justify-center ${bgClass}`}>
+                        <Icon className={`w-5 h-5 ${textClass}`} />
+                      </div>
+                    );
+                  })()}
                   <div className="text-left">
                     <p className="font-medium text-foreground group-hover:text-primary transition-colors">
                       {cat.name}
