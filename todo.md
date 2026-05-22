@@ -189,3 +189,5 @@
 - [x] Badge vermelho no estabelecimento (à esquerda do botão Ocultar) com número de itens faltantes
 - [x] Linha vermelha no cardápio para itens sem foto (destaque visual)
 - [x] Notificações no Painel Empresarial para usuários "Empresa" sobre itens sem foto
+- [x] Badges nas categorias: mostrar pendências apenas dos estabs ativos (não ocultos)
+- [x] Mover para Ocultos automaticamente todos os estabs ativos sem endereço/horário/cardápio

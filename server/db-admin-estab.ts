@@ -6,7 +6,7 @@
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
 import { establishments, menuItems, categories, menuCategories } from "../drizzle/schema";
-import { getDb } from "./db";
+import { getDb, syncEstablishmentVisibility } from "./db";
 import { storagePut } from "./storage";
 
 /**
@@ -40,7 +40,7 @@ export async function getAdminCategoriesWithCounts() {
     categoryId: establishments.categoryId,
     activeCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = false THEN 1 ELSE 0 END)`,
     hiddenCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = true THEN 1 ELSE 0 END)`,
-    incompleteCount: sql<number>`SUM(CASE WHEN (
+    incompleteCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = false AND (
       ${establishments.address} IS NULL OR ${establishments.address} = '' OR
       ${establishments.hours} IS NULL OR ${establishments.hours} = '' OR
       ${establishments.hasMenu} = false
@@ -217,10 +217,11 @@ export async function adminAddMenuItem(data: {
     await ensureMenuCategory(data.establishmentId, finalCategory);
   }
 
-  // Update hasMenu flag
+  // Update hasMenu flag and sync visibility
   await db.update(establishments)
     .set({ hasMenu: true })
     .where(eq(establishments.id, data.establishmentId));
+  await syncEstablishmentVisibility(data.establishmentId);
 
   return { success: true, id: result.insertId };
 }
@@ -284,7 +285,7 @@ export async function adminDeleteMenuItem(id: number) {
 
   await db.delete(menuItems).where(eq(menuItems.id, id));
 
-  // Check if establishment still has menu items
+  // Check if establishment still has menu items and sync visibility
   if (item) {
     const remaining = await db.select({ count: sql<number>`COUNT(*)` })
       .from(menuItems)
@@ -295,6 +296,8 @@ export async function adminDeleteMenuItem(id: number) {
         .set({ hasMenu: false })
         .where(eq(establishments.id, item.establishmentId));
     }
+    // Sync visibility (may hide if last menu item was removed)
+    await syncEstablishmentVisibility(item.establishmentId);
   }
 
   return { success: true };
