@@ -184,3 +184,8 @@
 - [x] Categorias do cardápio: campo sortOrder para ordenação personalizada
 - [x] Categorias do cardápio: drag-and-drop para reordenar (dnd-kit)
 - [x] Navegação de volta no AdminEstabDetail: retornar para Admin > Estabelecimentos com categoria correta selecionada
+- [x] Validação automática: estabs sem endereço/horário/cardápio ficam ocultos automaticamente
+- [x] Badge vermelho nas categorias do admin mostrando quantidade de estabs incompletos
+- [x] Badge vermelho no estabelecimento (à esquerda do botão Ocultar) com número de itens faltantes
+- [x] Linha vermelha no cardápio para itens sem foto (destaque visual)
+- [x] Notificações no Painel Empresarial para usuários "Empresa" sobre itens sem foto

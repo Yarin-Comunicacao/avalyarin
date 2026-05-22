@@ -14,7 +14,7 @@ import { Link, useParams, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   ArrowLeft, Store, Plus, Pencil, Trash2, Image as ImageIcon,
-  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical
+  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle
 } from "lucide-react";
 import {
   DndContext,
@@ -166,6 +166,37 @@ export default function AdminEstabDetail() {
       </header>
 
       <div className="container py-6 space-y-8">
+        {/* Completeness Alert */}
+        {estab.missingFields && estab.missingFields.length > 0 && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-400">Estabelecimento incompleto</p>
+              <p className="text-xs text-red-400/80 mt-1">
+                Campos obrigatórios faltando: <strong>{estab.missingFields.join(', ')}</strong>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Este estabelecimento ficará oculto no app até que todos os campos obrigatórios sejam preenchidos.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Items without photo alert */}
+        {estab.itemsWithoutPhoto > 0 && (
+          <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 flex items-start gap-3">
+            <ImageIcon className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-orange-400">
+                {estab.itemsWithoutPhoto} {estab.itemsWithoutPhoto === 1 ? 'item' : 'itens'} sem foto
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Itens sem foto estão destacados em vermelho no cardápio abaixo.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Establishment Info Card */}
         <div className="p-5 rounded-xl bg-card border border-border/50">
           <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-4">INFORMAÇÕES</h3>
@@ -461,10 +492,20 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
     }
   };
 
+  const hasNoPhoto = !item.imageUrl || item.imageUrl.trim() === '';
+
   return (
-    <div className="p-4 rounded-xl bg-card border border-border/50 flex gap-4">
+    <div className={`p-4 rounded-xl flex gap-4 ${
+      hasNoPhoto
+        ? "bg-red-500/5 border border-red-500/30"
+        : "bg-card border border-border/50"
+    }`}>
       {/* Image — uses thumbnail for fast loading */}
-      <div className="w-16 h-16 rounded-lg bg-secondary/50 border border-border/30 flex items-center justify-center shrink-0 overflow-hidden">
+      <div className={`w-16 h-16 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${
+        hasNoPhoto
+          ? "bg-red-500/10 border border-red-500/30"
+          : "bg-secondary/50 border border-border/30"
+      }`}>
         {(item.imageThumbUrl || item.imageUrl) ? (
           <img
             src={item.imageThumbUrl || item.imageUrl}
@@ -473,7 +514,7 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
             loading="lazy"
           />
         ) : (
-          <ImageIcon className="w-6 h-6 text-muted-foreground/30" />
+          <ImageIcon className={`w-6 h-6 ${hasNoPhoto ? "text-red-400/60" : "text-muted-foreground/30"}`} />
         )}
       </div>
 
@@ -506,8 +547,8 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
               {item.category}
             </span>
           )}
-          {!item.imageUrl && (
-            <span className="text-xs text-orange-400 flex items-center gap-1">
+          {hasNoPhoto && (
+            <span className="text-xs text-red-400 flex items-center gap-1 font-medium">
               <ImageIcon className="w-3 h-3" /> Sem foto
             </span>
           )}

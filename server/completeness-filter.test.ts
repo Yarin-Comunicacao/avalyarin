@@ -1,22 +1,19 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
 
 /**
  * Tests for the completeness filter logic.
  * 
  * The completeEstablishmentFilter in db.ts requires:
- * - name IS NOT NULL AND name != ''
  * - address IS NOT NULL AND address != ''
- * - neighborhood IS NOT NULL AND neighborhood != ''
- * - phone IS NOT NULL AND phone != ''
- * - instagram IS NOT NULL AND instagram != ''
  * - hours IS NOT NULL AND hours != ''
  * - hasMenu = true
  * 
- * We test the filter logic by checking which fields make an establishment "complete".
+ * These are the mandatory fields for a public-facing establishment.
+ * Other fields (name, neighborhood, phone, instagram) are optional for visibility.
  */
 
-// Define the required fields and their test values
-const REQUIRED_FIELDS = ['name', 'address', 'neighborhood', 'phone', 'instagram', 'hours'] as const;
+// Define the required fields for public visibility
+const REQUIRED_FIELDS = ['address', 'hours'] as const;
 
 interface EstablishmentData {
   name: string | null;
@@ -56,17 +53,35 @@ describe("Completeness Filter Logic", () => {
     expect(isComplete({ ...completeEstablishment, hasMenu: false })).toBe(false);
   });
 
-  for (const field of REQUIRED_FIELDS) {
-    it(`should consider an establishment with null ${field} as incomplete`, () => {
-      expect(isComplete({ ...completeEstablishment, [field]: null })).toBe(false);
-    });
+  it("should consider an establishment with null address as incomplete", () => {
+    expect(isComplete({ ...completeEstablishment, address: null })).toBe(false);
+  });
 
-    it(`should consider an establishment with empty ${field} as incomplete`, () => {
-      expect(isComplete({ ...completeEstablishment, [field]: '' })).toBe(false);
-    });
-  }
+  it("should consider an establishment with empty address as incomplete", () => {
+    expect(isComplete({ ...completeEstablishment, address: '' })).toBe(false);
+  });
 
-  it("should consider an establishment missing multiple fields as incomplete", () => {
+  it("should consider an establishment with null hours as incomplete", () => {
+    expect(isComplete({ ...completeEstablishment, hours: null })).toBe(false);
+  });
+
+  it("should consider an establishment with empty hours as incomplete", () => {
+    expect(isComplete({ ...completeEstablishment, hours: '' })).toBe(false);
+  });
+
+  it("should still be complete even without phone (optional field)", () => {
+    expect(isComplete({ ...completeEstablishment, phone: null })).toBe(true);
+  });
+
+  it("should still be complete even without instagram (optional field)", () => {
+    expect(isComplete({ ...completeEstablishment, instagram: null })).toBe(true);
+  });
+
+  it("should still be complete even without neighborhood (optional field)", () => {
+    expect(isComplete({ ...completeEstablishment, neighborhood: null })).toBe(true);
+  });
+
+  it("should consider an establishment missing multiple required fields as incomplete", () => {
     expect(isComplete({
       name: "Bar Sem Dados",
       address: null,
@@ -80,35 +95,35 @@ describe("Completeness Filter Logic", () => {
 });
 
 describe("Required Fields Definition", () => {
-  it("should have exactly 6 required text fields plus hasMenu", () => {
-    expect(REQUIRED_FIELDS).toHaveLength(6);
-    expect(REQUIRED_FIELDS).toContain('name');
+  it("should have exactly 2 required text fields plus hasMenu", () => {
+    expect(REQUIRED_FIELDS).toHaveLength(2);
     expect(REQUIRED_FIELDS).toContain('address');
-    expect(REQUIRED_FIELDS).toContain('neighborhood');
-    expect(REQUIRED_FIELDS).toContain('phone');
-    expect(REQUIRED_FIELDS).toContain('instagram');
     expect(REQUIRED_FIELDS).toContain('hours');
+  });
+
+  it("should NOT require phone, instagram, or neighborhood for public visibility", () => {
+    expect(REQUIRED_FIELDS).not.toContain('phone');
+    expect(REQUIRED_FIELDS).not.toContain('instagram');
+    expect(REQUIRED_FIELDS).not.toContain('neighborhood');
   });
 });
 
 describe("Admin bypass behavior", () => {
   it("getEstablishmentsByCategory with bypassFilter=true should return all (concept test)", () => {
-    // This tests the concept: when bypassFilter is true, the completeness filter is NOT applied
     const incompleteEst: EstablishmentData = {
       name: "Bar Incompleto",
-      address: "Rua X",
+      address: null,
       neighborhood: "Centro",
-      phone: null, // missing phone
-      instagram: null, // missing instagram
-      hours: null, // missing hours
+      phone: null,
+      instagram: null,
+      hours: null,
       hasMenu: false,
     };
 
     // Without bypass (public): should be filtered out
     expect(isComplete(incompleteEst)).toBe(false);
 
-    // With bypass (admin): the filter is not applied, so the establishment would be returned
-    // This is a conceptual test - the actual DB query bypasses the filter via the bypassFilter param
+    // With bypass (admin): the filter is not applied
     const bypassFilter = true;
     const shouldShow = bypassFilter ? true : isComplete(incompleteEst);
     expect(shouldShow).toBe(true);
@@ -117,7 +132,7 @@ describe("Admin bypass behavior", () => {
   it("getEstablishmentsByCategory with bypassFilter=false should filter incomplete", () => {
     const incompleteEst: EstablishmentData = {
       name: "Bar Incompleto",
-      address: "Rua X",
+      address: null,
       neighborhood: "Centro",
       phone: null,
       instagram: null,

@@ -158,15 +158,11 @@ export async function getCategoriesWithCounts() {
 
 /**
  * Completeness filter: only show establishments that have ALL required fields filled.
- * Required: name, categoryId, address, neighborhood, phone, instagram, hours, hasMenu (cardápio).
+ * Required: address, hours, hasMenu (cardápio).
  * Used in all public-facing queries. Admin queries bypass this filter.
  */
 const completeEstablishmentFilter = and(
-  sql`${establishments.name} IS NOT NULL AND ${establishments.name} != ''`,
   sql`${establishments.address} IS NOT NULL AND ${establishments.address} != ''`,
-  sql`${establishments.neighborhood} IS NOT NULL AND ${establishments.neighborhood} != ''`,
-  sql`${establishments.phone} IS NOT NULL AND ${establishments.phone} != ''`,
-  sql`${establishments.instagram} IS NOT NULL AND ${establishments.instagram} != ''`,
   sql`${establishments.hours} IS NOT NULL AND ${establishments.hours} != ''`,
   eq(establishments.hasMenu, true)
 );
@@ -913,6 +909,93 @@ export async function businessDeleteMenuItem(userId: number, menuItemId: number)
   return { success: true };
 }
 
+
+// ============================================================
+// BUSINESS NOTIFICATIONS
+// ============================================================
+
+export async function getBusinessNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get approved claims for this user
+  const claims = await db.select({ establishmentId: businessClaims.establishmentId })
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (claims.length === 0) return [];
+  
+  const estIds = claims.map(c => c.establishmentId);
+  const ests = await db.select()
+    .from(establishments)
+    .where(inArray(establishments.id, estIds));
+  
+  const notifications: Array<{
+    type: 'missing_field' | 'missing_photo';
+    severity: 'error' | 'warning';
+    establishmentId: number;
+    establishmentName: string;
+    message: string;
+    field?: string;
+    count?: number;
+  }> = [];
+  
+  for (const est of ests) {
+    // Check required fields
+    if (!est.address || est.address.trim() === '') {
+      notifications.push({
+        type: 'missing_field',
+        severity: 'error',
+        establishmentId: est.id,
+        establishmentName: est.name,
+        message: `"${est.name}" está sem endereço. O estabelecimento ficará oculto até preencher.`,
+        field: 'endereço',
+      });
+    }
+    if (!est.hours || est.hours.trim() === '') {
+      notifications.push({
+        type: 'missing_field',
+        severity: 'error',
+        establishmentId: est.id,
+        establishmentName: est.name,
+        message: `"${est.name}" está sem horário de funcionamento. O estabelecimento ficará oculto até preencher.`,
+        field: 'horário',
+      });
+    }
+    if (!est.hasMenu) {
+      notifications.push({
+        type: 'missing_field',
+        severity: 'error',
+        establishmentId: est.id,
+        establishmentName: est.name,
+        message: `"${est.name}" está sem cardápio. Adicione itens para ficar visível no app.`,
+        field: 'cardápio',
+      });
+    }
+    
+    // Check menu items without photo
+    const items = await db.select()
+      .from(menuItems)
+      .where(eq(menuItems.establishmentId, est.id));
+    
+    const itemsWithoutPhoto = items.filter(m => !m.imageUrl || m.imageUrl.trim() === '');
+    if (itemsWithoutPhoto.length > 0) {
+      notifications.push({
+        type: 'missing_photo',
+        severity: 'warning',
+        establishmentId: est.id,
+        establishmentName: est.name,
+        message: `"${est.name}" tem ${itemsWithoutPhoto.length} ${itemsWithoutPhoto.length === 1 ? 'item' : 'itens'} sem foto no cardápio.`,
+        count: itemsWithoutPhoto.length,
+      });
+    }
+  }
+  
+  return notifications;
+}
 
 // ============================================================
 // RANKINGS

@@ -28,6 +28,7 @@ import {
   submitClaim,
   getUserClaims,
   getBusinessEstablishments,
+  getBusinessNotifications,
   businessUpdateEstablishment,
   businessAddMenuItem,
   businessDeleteMenuItem,
@@ -547,6 +548,10 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
+
+    notifications: businessProcedure.query(async ({ ctx }) => {
+      return await getBusinessNotifications(ctx.user!.id);
+    }),
    }),
 
   // User profile & username

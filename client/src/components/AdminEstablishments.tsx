@@ -2,10 +2,11 @@
  * AdminEstablishments — Painel Admin > Estabelecimentos
  * 
  * Features:
- * 1. Lista de categorias com contagem (ordem alfabética)
+ * 1. Lista de categorias com contagem (ordem alfabética) + badge vermelho de incompletos
  * 2. Abas Ativos/Ocultos dentro de cada categoria
  * 3. Botões Ocultar/Ativar para cada estab
- * 4. Estabs clicáveis → navega para /admin/estab/:id
+ * 4. Badge vermelho por estab mostrando campos faltantes
+ * 5. Estabs clicáveis → navega para /admin/estab/:id
  */
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -13,7 +14,7 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Store, Eye, EyeOff, ChevronRight, ArrowLeft,
-  Search, CheckSquare, Square, Trash2
+  Search, CheckSquare, Square, Trash2, AlertTriangle
 } from "lucide-react";
 
 export default function AdminEstablishments({ initialCategoryId }: { initialCategoryId?: number }) {
@@ -118,6 +119,13 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
+                  {/* Badge vermelho de incompletos */}
+                  {cat.incompleteCount > 0 && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium">
+                      <AlertTriangle className="w-3 h-3" />
+                      {cat.incompleteCount}
+                    </span>
+                  )}
                   <span className="text-sm font-numbers text-muted-foreground">{cat.totalCount}</span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
@@ -247,7 +255,11 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
           {filteredEstabs.map(est => (
             <div
               key={est.id}
-              className="p-3 rounded-lg bg-card border border-border/50 hover:border-primary/20 transition-all flex items-center gap-3"
+              className={`p-3 rounded-lg border transition-all flex items-center gap-3 ${
+                !est.isComplete
+                  ? "bg-card border-red-500/30 hover:border-red-500/50"
+                  : "bg-card border-border/50 hover:border-primary/20"
+              }`}
             >
               {/* Checkbox */}
               <button
@@ -276,6 +288,16 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
 
               {/* Action buttons */}
               <div className="flex items-center gap-2 shrink-0">
+                {/* Badge vermelho de campos faltantes — à esquerda do botão Ocultar */}
+                {est.missingFields.length > 0 && (
+                  <span
+                    title={`Faltam: ${est.missingFields.join(', ')}`}
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium"
+                  >
+                    <AlertTriangle className="w-3 h-3" />
+                    {est.missingFields.length}
+                  </span>
+                )}
                 {activeTab === "active" ? (
                   <button
                     onClick={() => handleToggleVisibility([est.id], true)}

@@ -6,12 +6,16 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
-  Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2
+  Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
+  Bell, AlertTriangle, Image as ImageIcon
 } from "lucide-react";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu">("establishments");
+  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications">("establishments");
+  const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
 
   if (loading) {
     return (
@@ -68,6 +72,7 @@ export default function BusinessPanel() {
             { id: "establishments" as const, label: "Meus Estabelecimentos", icon: Store },
             { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
             { id: "menu" as const, label: "Cardápio", icon: UtensilsCrossed },
+            { id: "notifications" as const, label: "Notificações", icon: Bell },
           ].map(tab => (
             <button
               key={tab.id}
@@ -80,6 +85,11 @@ export default function BusinessPanel() {
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
+              {tab.id === "notifications" && notifications && notifications.length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] font-bold">
+                  {notifications.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -90,6 +100,7 @@ export default function BusinessPanel() {
         {activeTab === "establishments" && <MyEstablishmentsTab />}
         {activeTab === "claims" && <MyClaimsTab />}
         {activeTab === "menu" && <MenuManagementTab />}
+        {activeTab === "notifications" && <NotificationsTab />}
       </div>
     </div>
   );
@@ -573,6 +584,79 @@ function MenuManagementTab() {
             </p>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+function NotificationsTab() {
+  const { data: notifications, isLoading } = trpc.business.notifications.useQuery();
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando notificações...</div>;
+
+  if (!notifications || notifications.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
+        <h3 className="font-display text-xl text-foreground mb-2">TUDO CERTO!</h3>
+        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+          Seus estabelecimentos estão com todas as informações preenchidas. Nenhuma ação necessária.
+        </p>
+      </div>
+    );
+  }
+
+  const errors = notifications.filter(n => n.severity === 'error');
+  const warnings = notifications.filter(n => n.severity === 'warning');
+
+  return (
+    <div>
+      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">NOTIFICAÇÕES</h2>
+
+      {/* Critical errors — missing required fields */}
+      {errors.length > 0 && (
+        <div className="mb-6">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-red-400 mb-3">
+            <AlertTriangle className="w-4 h-4" />
+            Campos obrigatórios faltando ({errors.length})
+          </h3>
+          <div className="space-y-2">
+            {errors.map((n, i) => (
+              <div key={`err-${i}`} className="p-4 rounded-xl bg-red-500/5 border border-red-500/30 flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-foreground">{n.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    O estabelecimento ficará oculto no app até que este campo seja preenchido.
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Warnings — items without photos */}
+      {warnings.length > 0 && (
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-medium text-orange-400 mb-3">
+            <ImageIcon className="w-4 h-4" />
+            Itens sem foto ({warnings.length})
+          </h3>
+          <div className="space-y-2">
+            {warnings.map((n, i) => (
+              <div key={`warn-${i}`} className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/30 flex items-start gap-3">
+                <ImageIcon className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-foreground">{n.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Adicionar fotos melhora a experiência dos clientes e aumenta a visibilidade do seu estabelecimento.
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

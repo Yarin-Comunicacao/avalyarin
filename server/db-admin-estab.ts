@@ -35,21 +35,31 @@ export async function getAdminCategoriesWithCounts() {
     icon: categories.icon,
   }).from(categories).orderBy(asc(categories.name));
 
-  // Get counts for each category
+  // Get counts for each category (including incomplete count)
   const counts = await db.select({
     categoryId: establishments.categoryId,
     activeCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = false THEN 1 ELSE 0 END)`,
     hiddenCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = true THEN 1 ELSE 0 END)`,
+    incompleteCount: sql<number>`SUM(CASE WHEN (
+      ${establishments.address} IS NULL OR ${establishments.address} = '' OR
+      ${establishments.hours} IS NULL OR ${establishments.hours} = '' OR
+      ${establishments.hasMenu} = false
+    ) THEN 1 ELSE 0 END)`,
   })
     .from(establishments)
     .groupBy(establishments.categoryId);
 
-  const countMap = new Map(counts.map(c => [c.categoryId, { active: Number(c.activeCount) || 0, hidden: Number(c.hiddenCount) || 0 }]));
+  const countMap = new Map(counts.map(c => [c.categoryId, {
+    active: Number(c.activeCount) || 0,
+    hidden: Number(c.hiddenCount) || 0,
+    incomplete: Number(c.incompleteCount) || 0,
+  }]));
 
   return result.map(cat => ({
     ...cat,
     activeCount: countMap.get(cat.id)?.active ?? 0,
     hiddenCount: countMap.get(cat.id)?.hidden ?? 0,
+    incompleteCount: countMap.get(cat.id)?.incomplete ?? 0,
     totalCount: (countMap.get(cat.id)?.active ?? 0) + (countMap.get(cat.id)?.hidden ?? 0),
   }));
 }
@@ -80,6 +90,7 @@ export async function getAdminEstablishmentsByCategory(
       neighborhood: establishments.neighborhood,
       phone: establishments.phone,
       instagram: establishments.instagram,
+      hours: establishments.hours,
       image: establishments.image,
       hasMenu: establishments.hasMenu,
       hidden: establishments.hidden,
@@ -94,7 +105,16 @@ export async function getAdminEstablishmentsByCategory(
       .where(whereClause),
   ]);
 
-  return { items, total: Number(countResult[0]?.count) || 0 };
+  // Compute missing required fields for each establishment
+  const itemsWithCompleteness = items.map(est => {
+    const missing: string[] = [];
+    if (!est.address || est.address.trim() === '') missing.push('endereço');
+    if (!est.hours || est.hours.trim() === '') missing.push('horário');
+    if (!est.hasMenu) missing.push('cardápio');
+    return { ...est, missingFields: missing, isComplete: missing.length === 0 };
+  });
+
+  return { items: itemsWithCompleteness, total: Number(countResult[0]?.count) || 0 };
 }
 
 // ============================================================
@@ -136,11 +156,23 @@ export async function getAdminEstablishmentDetail(id: number) {
     .where(eq(menuItems.establishmentId, id))
     .orderBy(asc(menuItems.category), asc(menuItems.name));
 
+  // Compute completeness
+  const missingFields: string[] = [];
+  if (!est.address || est.address.trim() === '') missingFields.push('endereço');
+  if (!est.hours || est.hours.trim() === '') missingFields.push('horário');
+  if (menu.length === 0) missingFields.push('cardápio');
+
+  // Count menu items without photo
+  const itemsWithoutPhoto = menu.filter(m => !m.imageUrl || m.imageUrl.trim() === '').length;
+
   return {
     ...est,
     categoryName: cat?.name ?? "Desconhecida",
     categorySlug: cat?.slug ?? "",
     menuItems: menu,
+    missingFields,
+    isComplete: missingFields.length === 0,
+    itemsWithoutPhoto,
   };
 }
 
