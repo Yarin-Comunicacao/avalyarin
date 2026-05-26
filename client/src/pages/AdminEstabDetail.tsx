@@ -223,8 +223,8 @@ export default function AdminEstabDetail() {
             </div>
             <div>
               <span className="text-xs text-muted-foreground">Status</span>
-              <p className={estab.hidden ? "text-orange-400" : "text-green-400"}>
-                {estab.hidden ? "Oculto" : "Ativo"}
+              <p className={estab.status === 'active' ? "text-green-400" : estab.status === 'pending' ? "text-yellow-400" : "text-orange-400"}>
+                {estab.status === 'active' ? "Ativo" : estab.status === 'pending' ? "Pendente" : "Oculto"}
               </p>
             </div>
           </div>

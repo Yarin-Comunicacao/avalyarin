@@ -1,0 +1,54 @@
+{
+  "query": "SELECT DISTINCT SUBSTRING_INDEX(address, ' ', 1) as prefix, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY prefix HAVING cnt > 5 ORDER BY cnt DESC LIMIT 40;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT SUBSTRING_INDEX(address, ' ', 1) as prefix, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY prefix HAVING cnt > 5 ORDER BY cnt DESC LIMIT 40;",
+  "rows": [
+    {
+      "prefix": "R.",
+      "cnt": "4766"
+    },
+    {
+      "prefix": "Av.",
+      "cnt": "1188"
+    },
+    {
+      "prefix": "Rua",
+      "cnt": "809"
+    },
+    {
+      "prefix": "Alameda",
+      "cnt": "338"
+    },
+    {
+      "prefix": "Praça",
+      "cnt": "136"
+    },
+    {
+      "prefix": "Shopping",
+      "cnt": "36"
+    },
+    {
+      "prefix": "Largo",
+      "cnt": "30"
+    },
+    {
+      "prefix": "Avenida",
+      "cnt": "19"
+    },
+    {
+      "prefix": "Condomínio",
+      "cnt": "17"
+    },
+    {
+      "prefix": "Galeria",
+      "cnt": "10"
+    },
+    {
+      "prefix": "Dentro",
+      "cnt": "7"
+    }
+  ],
+  "messages": [],
+  "stdout": "prefix\tcnt\nR.\t4766\nAv.\t1188\nRua\t809\nAlameda\t338\nPraça\t136\nShopping\t36\nLargo\t30\nAvenida\t19\nCondomínio\t17\nGaleria\t10\nDentro\t7\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}

@@ -57,7 +57,7 @@ export const establishments = mysqlTable("establishments", {
   instagram: varchar("instagram", { length: 128 }),
   categoryId: int("categoryId").notNull(),
   hasMenu: boolean("hasMenu").default(false).notNull(),
-  hidden: boolean("hidden").default(false).notNull(),
+  status: mysqlEnum("status", ["active", "hidden", "pending"]).default("active").notNull(),
   source: varchar("source", { length: 32 }).default("spreadsheet"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

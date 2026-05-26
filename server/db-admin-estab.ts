@@ -38,9 +38,10 @@ export async function getAdminCategoriesWithCounts() {
   // Get counts for each category (including incomplete count)
   const counts = await db.select({
     categoryId: establishments.categoryId,
-    activeCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = false THEN 1 ELSE 0 END)`,
-    hiddenCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = true THEN 1 ELSE 0 END)`,
-    incompleteCount: sql<number>`SUM(CASE WHEN ${establishments.hidden} = false AND (
+    activeCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'active' THEN 1 ELSE 0 END)`,
+    hiddenCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'hidden' THEN 1 ELSE 0 END)`,
+    pendingCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'pending' THEN 1 ELSE 0 END)`,
+    incompleteCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'active' AND (
       ${establishments.address} IS NULL OR ${establishments.address} = '' OR
       ${establishments.hours} IS NULL OR ${establishments.hours} = '' OR
       ${establishments.hasMenu} = false
@@ -52,6 +53,7 @@ export async function getAdminCategoriesWithCounts() {
   const countMap = new Map(counts.map(c => [c.categoryId, {
     active: Number(c.activeCount) || 0,
     hidden: Number(c.hiddenCount) || 0,
+    pending: Number(c.pendingCount) || 0,
     incomplete: Number(c.incompleteCount) || 0,
   }]));
 
@@ -59,8 +61,9 @@ export async function getAdminCategoriesWithCounts() {
     ...cat,
     activeCount: countMap.get(cat.id)?.active ?? 0,
     hiddenCount: countMap.get(cat.id)?.hidden ?? 0,
+    pendingCount: countMap.get(cat.id)?.pending ?? 0,
     incompleteCount: countMap.get(cat.id)?.incomplete ?? 0,
-    totalCount: (countMap.get(cat.id)?.active ?? 0) + (countMap.get(cat.id)?.hidden ?? 0),
+    totalCount: (countMap.get(cat.id)?.active ?? 0) + (countMap.get(cat.id)?.hidden ?? 0) + (countMap.get(cat.id)?.pending ?? 0),
   }));
 }
 
@@ -69,7 +72,7 @@ export async function getAdminCategoriesWithCounts() {
  */
 export async function getAdminEstablishmentsByCategory(
   categoryId: number,
-  hidden: boolean,
+  statusFilter: 'active' | 'hidden' | 'pending',
   limit = 100,
   offset = 0
 ) {
@@ -78,7 +81,7 @@ export async function getAdminEstablishmentsByCategory(
 
   const whereClause = and(
     eq(establishments.categoryId, categoryId),
-    eq(establishments.hidden, hidden)
+    eq(establishments.status, statusFilter)
   );
 
   const [items, countResult] = await Promise.all([
@@ -93,7 +96,7 @@ export async function getAdminEstablishmentsByCategory(
       hours: establishments.hours,
       image: establishments.image,
       hasMenu: establishments.hasMenu,
-      hidden: establishments.hidden,
+      status: establishments.status,
     })
       .from(establishments)
       .where(whereClause)
@@ -124,12 +127,12 @@ export async function getAdminEstablishmentsByCategory(
 /**
  * Toggle hidden status for one or more establishments
  */
-export async function toggleEstablishmentVisibility(ids: number[], hidden: boolean) {
+export async function toggleEstablishmentStatus(ids: number[], status: 'active' | 'hidden' | 'pending') {
   const db = await getDb();
   if (!db) return { success: false };
 
   await db.update(establishments)
-    .set({ hidden })
+    .set({ status })
     .where(inArray(establishments.id, ids));
 
   return { success: true, affected: ids.length };

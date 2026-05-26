@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, address, hidden FROM establishments WHERE id IN ('45', '1647', '1653');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, hidden FROM establishments WHERE id IN ('45', '1647', '1653');",
+  "rows": [
+    {
+      "id": "45",
+      "name": "Phantom Kitchen",
+      "address": "R. Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo - SP, 01152-010, Brasil",
+      "hidden": "1"
+    },
+    {
+      "id": "1647",
+      "name": "DELIVERY ⚠️ Notorious Fish (restaurante não é aqui!)",
+      "address": "R. Fradique Coutinho, 986 - Pinheiros, São Paulo - SP, 05416-001, Brasil",
+      "hidden": "1"
+    },
+    {
+      "id": "1653",
+      "name": "OTOTO",
+      "address": "Rua Fradique Coutinho, 986 Cozinha 5 - Pinheiros, São Paulo - SP, 05416-010, Brasil",
+      "hidden": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\thidden\n45\tPhantom Kitchen\tR. Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo - SP, 01152-010, Brasil\t1\n1647\tDELIVERY ⚠️ Notorious Fish (restaurante não é aqui!)\tR. Fradique Coutinho, 986 - Pinheiros, São Paulo - SP, 05416-001, Brasil\t1\n1653\tOTOTO\tRua Fradique Coutinho, 986 Cozinha 5 - Pinheiros, São Paulo - SP, 05416-010, Brasil\t1\n",
+  "stderr": "",
+  "execution_time_ms": 358
+}

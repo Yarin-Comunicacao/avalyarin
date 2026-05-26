@@ -3,8 +3,8 @@
  * 
  * Features:
  * 1. Lista de categorias com contagem (ordem alfabética) + badge vermelho de incompletos
- * 2. Abas Ativos/Ocultos dentro de cada categoria
- * 3. Botões Ocultar/Ativar para cada estab
+ * 2. Abas Ativos/Pendentes/Ocultos dentro de cada categoria
+ * 3. Botões de status para cada estab (Ativar, Pendente, Ocultar)
  * 4. Badge vermelho por estab mostrando campos faltantes
  * 5. Estabs clicáveis → navega para /admin/estab/:id
  */
@@ -16,22 +16,15 @@ import {
   Store, Eye, EyeOff, ChevronRight, ArrowLeft,
   Search, CheckSquare, Square, Trash2, AlertTriangle,
   Leaf, Beer, UtensilsCrossed, Coffee, ChefHat, Wine,
-  Sparkles, Cake, CupSoda, Music, Croissant, Globe, Pizza
+  Sparkles, Cake, CupSoda, Music, Croissant, Globe, Pizza,
+  Clock
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 /**
  * Maps category icon string (from DB) to a Lucide icon component and a color class.
- * Groups:
- * - Saudável/Vegan: Leaf (green)
- * - Bar/Pub/Boteco/Cervejaria: Beer (amber/yellow)
- * - Gastronomia/Cozinha/Hamburgueria/Pizzaria: UtensilsCrossed/Pizza (orange)
- * - Café/Confeitaria/Padaria: Coffee/Cake/Croissant (brown/rose)
- * - Coquetelaria/Autoral: Wine/ChefHat (purple)
- * - Balada/Bar Musical: Music (pink)
  */
 function getCategoryIconAndColor(iconName: string, slug: string): { Icon: LucideIcon; bgClass: string; textClass: string } {
-  // Map by slug for more precise matching
   const slugMap: Record<string, { Icon: LucideIcon; bgClass: string; textClass: string }> = {
     'saudavel': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
     'vegan': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
@@ -56,7 +49,6 @@ function getCategoryIconAndColor(iconName: string, slug: string): { Icon: Lucide
 
   if (slugMap[slug]) return slugMap[slug];
 
-  // Fallback by icon name
   const iconFallback: Record<string, { Icon: LucideIcon; bgClass: string; textClass: string }> = {
     'Leaf': { Icon: Leaf, bgClass: 'bg-emerald-500/15 border-emerald-500/30', textClass: 'text-emerald-400' },
     'Beer': { Icon: Beer, bgClass: 'bg-amber-500/15 border-amber-500/30', textClass: 'text-amber-400' },
@@ -75,20 +67,21 @@ function getCategoryIconAndColor(iconName: string, slug: string): { Icon: Lucide
 
   if (iconFallback[iconName]) return iconFallback[iconName];
 
-  // Default fallback
   return { Icon: Store, bgClass: 'bg-primary/10 border-primary/20', textClass: 'text-primary' };
 }
 
+type StatusTab = 'active' | 'pending' | 'hidden';
+
 export default function AdminEstablishments({ initialCategoryId }: { initialCategoryId?: number }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId ?? null);
-  const [activeTab, setActiveTab] = useState<"active" | "hidden">("active");
+  const [activeTab, setActiveTab] = useState<StatusTab>("active");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [, navigate] = useLocation();
 
   const { data: categoriesData, isLoading: catLoading } = trpc.admin.categoriesWithCounts.useQuery();
   const { data: estabData, isLoading: estabLoading } = trpc.admin.estabByCategory.useQuery(
-    { categoryId: selectedCategoryId!, hidden: activeTab === "hidden", limit: 500 },
+    { categoryId: selectedCategoryId!, status: activeTab, limit: 500 },
     { enabled: !!selectedCategoryId }
   );
 
@@ -96,19 +89,22 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
   const deleteMutation = trpc.admin.deleteEstablishment.useMutation();
   const utils = trpc.useUtils();
 
-  const handleToggleVisibility = async (ids: number[], hide: boolean) => {
+  const handleChangeStatus = async (ids: number[], newStatus: StatusTab) => {
     try {
-      await toggleMutation.mutateAsync({ ids, hidden: hide });
+      await toggleMutation.mutateAsync({ ids, status: newStatus });
       utils.admin.estabByCategory.invalidate();
       utils.admin.categoriesWithCounts.invalidate();
       setSelectedIds([]);
+      const labels: Record<StatusTab, string> = {
+        active: 'ativado',
+        pending: 'movido para pendente',
+        hidden: 'ocultado',
+      };
       toast.success(
-        hide
-          ? `${ids.length} estab${ids.length > 1 ? "s" : ""} oculto${ids.length > 1 ? "s" : ""}`
-          : `${ids.length} estab${ids.length > 1 ? "s" : ""} ativado${ids.length > 1 ? "s" : ""}`
+        `${ids.length} estab${ids.length > 1 ? "s" : ""} ${labels[newStatus]}${ids.length > 1 ? "s" : ""}`
       );
     } catch {
-      toast.error("Erro ao alterar visibilidade");
+      toast.error("Erro ao alterar status");
     }
   };
 
@@ -181,7 +177,7 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                       {cat.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {cat.activeCount} ativo{cat.activeCount !== 1 ? "s" : ""} • {cat.hiddenCount} oculto{cat.hiddenCount !== 1 ? "s" : ""}
+                      {cat.activeCount} ativo{cat.activeCount !== 1 ? "s" : ""} • {cat.pendingCount} pendente{cat.pendingCount !== 1 ? "s" : ""} • {cat.hiddenCount} oculto{cat.hiddenCount !== 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
@@ -224,12 +220,12 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
             {selectedCategory?.name}
           </h2>
           <p className="text-xs text-muted-foreground">
-            {selectedCategory?.activeCount} ativos • {selectedCategory?.hiddenCount} ocultos
+            {selectedCategory?.activeCount} ativos • {selectedCategory?.pendingCount} pendentes • {selectedCategory?.hiddenCount} ocultos
           </p>
         </div>
       </div>
 
-      {/* Tabs: Ativos / Ocultos */}
+      {/* Tabs: Ativos / Pendentes / Ocultos */}
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => { setActiveTab("active"); setSelectedIds([]); }}
@@ -241,6 +237,17 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
         >
           <Eye className="w-4 h-4" />
           Ativos ({selectedCategory?.activeCount ?? 0})
+        </button>
+        <button
+          onClick={() => { setActiveTab("pending"); setSelectedIds([]); }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            activeTab === "pending"
+              ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+              : "bg-secondary/50 text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          Pendentes ({selectedCategory?.pendingCount ?? 0})
         </button>
         <button
           onClick={() => { setActiveTab("hidden"); setSelectedIds([]); }}
@@ -271,23 +278,34 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
         {/* Bulk action buttons */}
         {selectedIds.length > 0 && (
           <div className="flex gap-2">
-            {activeTab === "active" ? (
+            {activeTab !== "active" && (
               <button
-                onClick={() => handleToggleVisibility(selectedIds, true)}
-                disabled={toggleMutation.isPending}
-                className="flex items-center gap-1.5 px-3 py-2 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors disabled:opacity-50"
-              >
-                <EyeOff className="w-4 h-4" />
-                Ocultar ({selectedIds.length})
-              </button>
-            ) : (
-              <button
-                onClick={() => handleToggleVisibility(selectedIds, false)}
+                onClick={() => handleChangeStatus(selectedIds, 'active')}
                 disabled={toggleMutation.isPending}
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors disabled:opacity-50"
               >
                 <Eye className="w-4 h-4" />
                 Ativar ({selectedIds.length})
+              </button>
+            )}
+            {activeTab !== "pending" && (
+              <button
+                onClick={() => handleChangeStatus(selectedIds, 'pending')}
+                disabled={toggleMutation.isPending}
+                className="flex items-center gap-1.5 px-3 py-2 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg text-sm font-medium hover:bg-yellow-500/30 transition-colors disabled:opacity-50"
+              >
+                <Clock className="w-4 h-4" />
+                Pendente ({selectedIds.length})
+              </button>
+            )}
+            {activeTab !== "hidden" && (
+              <button
+                onClick={() => handleChangeStatus(selectedIds, 'hidden')}
+                disabled={toggleMutation.isPending}
+                className="flex items-center gap-1.5 px-3 py-2 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors disabled:opacity-50"
+              >
+                <EyeOff className="w-4 h-4" />
+                Ocultar ({selectedIds.length})
               </button>
             )}
           </div>
@@ -355,7 +373,7 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
 
               {/* Action buttons */}
               <div className="flex items-center gap-2 shrink-0">
-                {/* Badge vermelho de campos faltantes — à esquerda do botão Ocultar */}
+                {/* Badge vermelho de campos faltantes */}
                 {est.missingFields.length > 0 && (
                   <span
                     title={`Faltam: ${est.missingFields.join(', ')}`}
@@ -365,22 +383,60 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                     {est.missingFields.length}
                   </span>
                 )}
-                {activeTab === "active" ? (
-                  <button
-                    onClick={() => handleToggleVisibility([est.id], true)}
-                    title="Ocultar"
-                    className="p-1.5 rounded text-orange-400 hover:bg-orange-500/10 transition-colors"
-                  >
-                    <EyeOff className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleToggleVisibility([est.id], false)}
-                    title="Ativar"
-                    className="p-1.5 rounded text-green-400 hover:bg-green-500/10 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
+                {/* Status action buttons */}
+                {activeTab === "active" && (
+                  <>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'pending')}
+                      title="Mover para Pendente"
+                      className="p-1.5 rounded text-yellow-400 hover:bg-yellow-500/10 transition-colors"
+                    >
+                      <Clock className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'hidden')}
+                      title="Ocultar"
+                      className="p-1.5 rounded text-orange-400 hover:bg-orange-500/10 transition-colors"
+                    >
+                      <EyeOff className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                {activeTab === "pending" && (
+                  <>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'active')}
+                      title="Ativar"
+                      className="p-1.5 rounded text-green-400 hover:bg-green-500/10 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'hidden')}
+                      title="Ocultar"
+                      className="p-1.5 rounded text-orange-400 hover:bg-orange-500/10 transition-colors"
+                    >
+                      <EyeOff className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                {activeTab === "hidden" && (
+                  <>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'active')}
+                      title="Ativar"
+                      className="p-1.5 rounded text-green-400 hover:bg-green-500/10 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleChangeStatus([est.id], 'pending')}
+                      title="Mover para Pendente"
+                      className="p-1.5 rounded text-yellow-400 hover:bg-yellow-500/10 transition-colors"
+                    >
+                      <Clock className="w-4 h-4" />
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => handleDelete(est.id, est.name)}
@@ -403,7 +459,7 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <Store className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>Nenhum estabelecimento {activeTab === "active" ? "ativo" : "oculto"} nesta categoria</p>
+          <p>Nenhum estabelecimento {activeTab === "active" ? "ativo" : activeTab === "pending" ? "pendente" : "oculto"} nesta categoria</p>
         </div>
       )}
     </div>

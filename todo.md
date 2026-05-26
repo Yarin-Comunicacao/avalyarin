@@ -193,3 +193,6 @@
 - [x] Mover para Ocultos automaticamente todos os estabs ativos sem endereço/horário/cardápio
 - [x] Ícones diferentes por categoria no Admin Estabelecimentos: folha verde (Saudável), caneca cerveja (Bar), prato (Gastronomia), xícara café (Cafés e Doces)
 - [x] Menu lateral: Minha Conta deve vir fechado por padrão, submenu só aparece ao clicar
+- [x] Novo status "Pendente" para estabelecimentos (além de Ativo e Oculto)
+- [x] Mover todos os estabelecimentos atualmente ocultos para status Pendente
+- [x] Atualizar schema, backend e frontend para suportar 3 status

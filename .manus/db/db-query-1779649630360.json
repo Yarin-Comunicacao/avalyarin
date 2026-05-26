@@ -1,0 +1,185 @@
+{
+  "query": "SELECT id, name, address FROM establishments WHERE address LIKE '%Rebouças, 3970%' ORDER BY name LIMIT 35;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address FROM establishments WHERE address LIKE '%Rebouças, 3970%' ORDER BY name LIMIT 35;",
+  "rows": [
+    {
+      "id": "1274",
+      "name": "Almanara - Shopping Eldorado",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1275",
+      "name": "Amor aos Pedaços",
+      "address": "Av. Rebouças, 3970 - Loja 401a - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1276",
+      "name": "Andiamo Ristorante & Pizzeria Eldorado",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6311",
+      "name": "B.LEM Padaria Portuguesa - Shopping Eldorado",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1277",
+      "name": "BUBBLE KILL",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1278",
+      "name": "Bacio di Latte - Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1280",
+      "name": "Baked Potato",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1281",
+      "name": "Biscoitê A Biscoiteria",
+      "address": "Av. Rebouças, 3970 - Quiosque Biscoitê - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6312",
+      "name": "Bob's Burger - Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - Piso 3 LJ 409 L2 - Pinheiros, São Paulo - SP, 05402-054, Brasil"
+    },
+    {
+      "id": "6313",
+      "name": "Bolo da Madre em Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6314",
+      "name": "Bom Beef Burgers",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6315",
+      "name": "Boutique Nespresso Shopping Eldorado",
+      "address": "Avenida Rebouças, 3970 - Piso Térreo; loja N Q-0011 - Pinheiros, São Paulo - SP, 05401-450, Brasil"
+    },
+    {
+      "id": "6318",
+      "name": "Cabana Burger (Shop. Eldorado)",
+      "address": "Av. Rebouças, 3970 - Loja 412, 3º Piso - Pinheiros, São Paulo - SP, 05402-918, Brasil"
+    },
+    {
+      "id": "6319",
+      "name": "Café Do Ponto",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - quiosque 38 - Jardim Paulista, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1283",
+      "name": "Caipira Express (Shopping Eldorado)",
+      "address": "Av. Rebouças, 3970 - Piso L3 Loja, 401B - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1284",
+      "name": "Cannoleria di Piero",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6321",
+      "name": "Carlo's Bakery São Paulo",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Loja 0101 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1285",
+      "name": "Casa Bauducco",
+      "address": "Av. Rebouças, 3970 - Anexo Ebt-01 - Pinheiros, São Paulo - SP, 05402-918, Brasil"
+    },
+    {
+      "id": "1286",
+      "name": "Coco Bambu - Eldorado",
+      "address": "Avenida Rebouças, 3970, subsolo 2, loja 2017 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1287",
+      "name": "Cortés Asador Eldorado",
+      "address": "144 Shopping Eldorado - Av. Rebouças, 3970 - Térreo - Loja - Pinheiros, São Paulo - SP, 05402-918, Brasil"
+    },
+    {
+      "id": "1288",
+      "name": "Crepefy Pinheiros - Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - 3º piso - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1291",
+      "name": "Divino Fogão - Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - 428 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1293",
+      "name": "Empório de Comidas - Shopping Eldorado",
+      "address": "Av. Rebouças, 3970 - 426L - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1295",
+      "name": "Firehouse Subs - Shopping Eldorado",
+      "address": "Praça de Alimentação - Av. Rebouças, 3970 - 3 piso - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1296",
+      "name": "Freddo",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Piso 3 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1298",
+      "name": "Frutah! (Shop.Eldorado)",
+      "address": "Av. Rebouças, 3970 - 444L - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6322",
+      "name": "Frutaria Fit",
+      "address": "Shopping Eldorado Av. Rebouças, 3970 2°subsolo - Bodytech - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1299",
+      "name": "Frutaria São Paulo - Eldorado",
+      "address": "Av. Rebouças, 3970 - lj 406 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6323",
+      "name": "Gendai - Restaurante Japonês",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1301",
+      "name": "GoldKo - Eldorado",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1303",
+      "name": "Hiro",
+      "address": "Av. Rebouças, 3970 - 408 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1304",
+      "name": "Hiro Express",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1305",
+      "name": "Jin Jin Wok",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05401-070, Brasil"
+    },
+    {
+      "id": "1306",
+      "name": "Johnny Joy Milkshakes - Eldorado",
+      "address": "Av. Rebouças, 3970 - Loja 222 - Piso 1 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "1307",
+      "name": "Kappa Gourmet",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n1274\tAlmanara - Shopping Eldorado\tShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1275\tAmor aos Pedaços\tAv. Rebouças, 3970 - Loja 401a - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1276\tAndiamo Ristorante & Pizzeria Eldorado\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6311\tB.LEM Padaria Portuguesa - Shopping Eldorado\tShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1277\tBUBBLE KILL\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1278\tBacio di Latte - Shopping Eldorado\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1280\tBaked Potato\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1281\tBiscoitê A Biscoiteria\tAv. Rebouças, 3970 - Quiosque Biscoitê - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6312\tBob's Burger - Shopping Eldorado\tAv. Rebouças, 3970 - Piso 3 LJ 409 L2 - Pinheiros, São Paulo - SP, 05402-054, Brasil\n6313\tBolo da Madre em Shopping Eldorado\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6314\tBom Beef Burgers\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6315\tBoutique Nespresso Shopping Eldorado\tAvenida Rebouças, 3970 - Piso Térreo; loja N Q-0011 - Pinheiros, São Paulo - SP, 05401-450, Brasil\n6318\tCabana Burger (Shop. Eldorado)\tAv. Rebouças, 3970 - Loja 412, 3º Piso - Pinheiros, São Paulo - SP, 05402-918, Brasil\n6319\tCafé Do Ponto\tShopping Eldorado - Av. Rebouças, 3970 - quiosque 38 - Jardim Paulista, São Paulo - SP, 05402-600, Brasil\n1283\tCaipira Express (Shopping Eldorado)\tAv. Rebouças, 3970 - Piso L3 Loja, 401B - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1284\tCannoleria di Piero\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6321\tCarlo's Bakery São Paulo\tShopping Eldorado - Av. Rebouças, 3970 - Loja 0101 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1285\tCasa Bauducco\tAv. Rebouças, 3970 - Anexo Ebt-01 - Pinheiros, São Paulo - SP, 05402-918, Brasil\n1286\tCoco Bambu - Eldorado\tAvenida Rebouças, 3970, subsolo 2, loja 2017 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1287\tCortés Asador Eldorado\t144 Shopping Eldorado - Av. Rebouças, 3970 - Térreo - Loja - Pinheiros, São Paulo - SP, 05402-918, Brasil\n1288\tCrepefy Pinheiros - Shopping Eldorado\tAv. Rebouças, 3970 - 3º piso - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1291\tDivino Fogão - Shopping Eldorado\tAv. Rebouças, 3970 - 428 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1293\tEmpório de Comidas - Shopping Eldorado\tAv. Rebouças, 3970 - 426L - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1295\tFirehouse Subs - Shopping Eldorado\tPraça de Alimentação - Av. Rebouças, 3970 - 3 piso - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1296\tFreddo\tShopping Eldorado - Av. Rebouças, 3970 - Piso 3 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1298\tFrutah! (Shop.Eldorado)\tAv. Rebouças, 3970 - 444L - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6322\tFrutaria Fit\tShopping Eldorado Av. Rebouças, 3970 2°subsolo - Bodytech - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1299\tFrutaria São Paulo - Eldorado\tAv. Rebouças, 3970 - lj 406 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6323\tGendai - Restaurante Japonês\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1301\tGoldKo - Eldorado\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1303\tHiro\tAv. Rebouças, 3970 - 408 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1304\tHiro Express\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1305\tJin Jin Wok\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05401-070, Brasil\n1306\tJohnny Joy Milkshakes - Eldorado\tAv. Rebouças, 3970 - Loja 222 - Piso 1 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n1307\tKappa Gourmet\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

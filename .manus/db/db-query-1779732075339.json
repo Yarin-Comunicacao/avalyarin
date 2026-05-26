@@ -1,0 +1,55 @@
+{
+  "query": "SELECT address FROM establishments WHERE address LIKE '%Dr.%' OR address LIKE '%Alm.%' OR address LIKE '%Brig.%' OR address LIKE '%Gen.%' OR address LIKE '%Prof.%' OR address LIKE '%Eng.%' OR address LIKE '%Cel.%' OR address LIKE '%Cap.%' OR address LIKE '%Min.%' OR address LIKE '%Sen.%' OR address LIKE '%Dep.%' OR address LIKE '%Des.%' OR address LIKE '%Mal.%' OR address LIKE '%Com.%' OR address LIKE '%Cons.%' LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address LIKE '%Dr.%' OR address LIKE '%Alm.%' OR address LIKE '%Brig.%' OR address LIKE '%Gen.%' OR address LIKE '%Prof.%' OR address LIKE '%Eng.%' OR address LIKE '%Cel.%' OR address LIKE '%Cap.%' OR address LIKE '%Min.%' OR address LIKE '%Sen.%' OR address LIKE '%Dep.%' OR address LIKE '%Des.%' OR address LIKE '%Mal.%' OR address LIKE '%Com.%' OR address LIKE '%Cons.%' LIMIT 15;",
+  "rows": [
+    {
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil"
+    },
+    {
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil"
+    },
+    {
+      "address": "R. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 315 - Barra Funda, São Paulo - SP, 01137-020, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 151 - Barra Funda, São Paulo - SP, 01137-020, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 360 - Barra Funda, São Paulo - SP, 01137-020, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 278 - Barra Funda, São Paulo - SP, 01137-000, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 33 - Barra Funda, São Paulo - SP, 01137-020, Brasil"
+    },
+    {
+      "address": "R. Dr. Ribeiro de Almeida, 149 - Barra Funda, São Paulo - SP, 01137-020, Brasil"
+    },
+    {
+      "address": "Av. Dr. Adolpho Pinto, 132 - Barra Funda, São Paulo - SP, 01156-050, Brasil"
+    },
+    {
+      "address": "Av. Dr. Adolpho Pinto, 50a - Barra Funda, São Paulo - SP, 01156-050, Brasil"
+    },
+    {
+      "address": "Av. Dr. Adolpho Pinto, 102 - Barra Funda, São Paulo - SP, 01156-050, Brasil"
+    },
+    {
+      "address": "R. Dr. Sérgio Meira, 7 - Barra Funda, São Paulo - SP, 01153-010, Brasil"
+    },
+    {
+      "address": "R. Dr. Sérgio Meira, 51 - Barra Funda, São Paulo - SP, 01153-010, Brasil"
+    },
+    {
+      "address": "R. Dr. Sérgio Meira, 120 - Barra Funda, São Paulo - SP, 01153-010, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\nPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\nR. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil\nR. Dr. Ribeiro de Almeida, 315 - Barra Funda, São Paulo - SP, 01137-020, Brasil\nR. Dr. Ribeiro de Almeida, 151 - Barra Funda, São Paulo - SP, 01137-020, Brasil\nR. Dr. Ribeiro de Almeida, 360 - Barra Funda, São Paulo - SP, 01137-020, Brasil\nR. Dr. Ribeiro de Almeida, 278 - Barra Funda, São Paulo - SP, 01137-000, Brasil\nR. Dr. Ribeiro de Almeida, 33 - Barra Funda, São Paulo - SP, 01137-020, Brasil\nR. Dr. Ribeiro de Almeida, 149 - Barra Funda, São Paulo - SP, 01137-020, Brasil\nAv. Dr. Adolpho Pinto, 132 - Barra Funda, São Paulo - SP, 01156-050, Brasil\nAv. Dr. Adolpho Pinto, 50a - Barra Funda, São Paulo - SP, 01156-050, Brasil\nAv. Dr. Adolpho Pinto, 102 - Barra Funda, São Paulo - SP, 01156-050, Brasil\nR. Dr. Sérgio Meira, 7 - Barra Funda, São Paulo - SP, 01153-010, Brasil\nR. Dr. Sérgio Meira, 51 - Barra Funda, São Paulo - SP, 01153-010, Brasil\nR. Dr. Sérgio Meira, 120 - Barra Funda, São Paulo - SP, 01153-010, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

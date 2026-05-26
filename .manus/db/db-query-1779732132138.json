@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments SET address = REPLACE(address, 'Min. ', 'Ministro ') WHERE address LIKE '%Min. %';\nUPDATE establishments SET address = REPLACE(address, 'Eng. ', 'Engenheiro ') WHERE address LIKE '%Eng. %';\nUPDATE establishments SET address = REPLACE(address, 'Cap. ', 'Capitão ') WHERE address LIKE '%Cap. %';\nUPDATE establishments SET address = REPLACE(address, 'Mal. ', 'Marechal ') WHERE address LIKE '%Mal. %';\nUPDATE establishments SET address = REPLACE(address, 'Sen. ', 'Senador ') WHERE address LIKE '%Sen. %';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments SET address = REPLACE(address, 'Min. ', 'Ministro ') WHERE address LIKE '%Min. %';\nUPDATE establishments SET address = REPLACE(address, 'Eng. ', 'Engenheiro ') WHERE address LIKE '%Eng. %';\nUPDATE establishments SET address = REPLACE(address, 'Cap. ', 'Capitão ') WHERE address LIKE '%Cap. %';\nUPDATE establishments SET address = REPLACE(address, 'Mal. ', 'Marechal ') WHERE address LIKE '%Mal. %';\nUPDATE establishments SET address = REPLACE(address, 'Sen. ', 'Senador ') WHERE address LIKE '%Sen. %';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 391
+}

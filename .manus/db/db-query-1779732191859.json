@@ -1,0 +1,40 @@
+{
+  "query": "SELECT address FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 10;",
+  "rows": [
+    {
+      "address": "Rua Brg. Galvão, 577 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 612 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 576 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 723 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 596 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 592 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 469 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 555 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 672 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    },
+    {
+      "address": "Rua Brg. Galvão, 549 - Barra Funda, São Paulo - SP, 01151-000, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nRua Brg. Galvão, 577 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 612 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 576 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 723 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 596 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 592 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 469 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 555 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 672 - Barra Funda, São Paulo - SP, 01151-000, Brasil\nRua Brg. Galvão, 549 - Barra Funda, São Paulo - SP, 01151-000, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 270
+}

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments SET address = REPLACE(address, 'Vig. ', 'Vigário ') WHERE address LIKE '%Vig. %';\nUPDATE establishments SET address = REPLACE(address, 'Br. ', 'Barão ') WHERE address LIKE '%Br. %';\nUPDATE establishments SET address = REPLACE(address, 'Srg. ', 'Sargento ') WHERE address LIKE '%Srg. %';\nUPDATE establishments SET address = REPLACE(address, 'Res. ', 'Residencial ') WHERE address LIKE '%Res. %';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments SET address = REPLACE(address, 'Vig. ', 'Vigário ') WHERE address LIKE '%Vig. %';\nUPDATE establishments SET address = REPLACE(address, 'Br. ', 'Barão ') WHERE address LIKE '%Br. %';\nUPDATE establishments SET address = REPLACE(address, 'Srg. ', 'Sargento ') WHERE address LIKE '%Srg. %';\nUPDATE establishments SET address = REPLACE(address, 'Res. ', 'Residencial ') WHERE address LIKE '%Res. %';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 357
+}

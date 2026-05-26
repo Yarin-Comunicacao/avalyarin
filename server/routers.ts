@@ -114,7 +114,7 @@ import {
 import {
   getAdminCategoriesWithCounts,
   getAdminEstablishmentsByCategory,
-  toggleEstablishmentVisibility,
+  toggleEstablishmentStatus,
   getAdminEstablishmentDetail,
   adminAddMenuItem,
   adminUpdateMenuItem,
@@ -364,21 +364,21 @@ export const appRouter = router({
     estabByCategory: adminProcedure
       .input(z.object({
         categoryId: z.number(),
-        hidden: z.boolean().default(false),
+        status: z.enum(['active', 'hidden', 'pending']).default('active'),
         limit: z.number().min(1).max(500).default(100),
         offset: z.number().min(0).default(0),
       }))
       .query(async ({ input }) => {
-        return await getAdminEstablishmentsByCategory(input.categoryId, input.hidden, input.limit, input.offset);
+        return await getAdminEstablishmentsByCategory(input.categoryId, input.status, input.limit, input.offset);
       }),
 
     toggleVisibility: adminProcedure
       .input(z.object({
         ids: z.array(z.number()).min(1),
-        hidden: z.boolean(),
+        status: z.enum(['active', 'hidden', 'pending']),
       }))
       .mutation(async ({ input }) => {
-        return await toggleEstablishmentVisibility(input.ids, input.hidden);
+        return await toggleEstablishmentStatus(input.ids, input.status);
       }),
 
     estabDetail: adminProcedure

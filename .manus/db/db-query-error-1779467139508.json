@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, name, address, lat, lng, google_place_id FROM establishments WHERE neighborhood = 'Alto de Pinheiros' AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, lat, lng, google_place_id FROM establishments WHERE neighborhood = 'Alto de Pinheiros' AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY name;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'google_place_id' in 'field list'"
+  ]
+}

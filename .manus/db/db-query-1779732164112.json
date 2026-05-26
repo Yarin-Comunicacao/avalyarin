@@ -1,0 +1,25 @@
+{
+  "query": "SELECT COUNT(*) as total FROM establishments WHERE address LIKE '%Ver. %';\nSELECT address FROM establishments WHERE address LIKE '%Ver. %' LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total FROM establishments WHERE address LIKE '%Ver. %';\nSELECT address FROM establishments WHERE address LIKE '%Ver. %' LIMIT 3;",
+  "rows": [
+    {
+      "total": "13"
+    },
+    {
+      "total": "address"
+    },
+    {
+      "total": "Avenida Ver. José Diniz, 3700 - Santo Amaro, São Paulo - SP, 04604-007, Brasil"
+    },
+    {
+      "total": "Avenida Ver. José Diniz, 3271 - Campo Belo, São Paulo - SP, 04603-002, Brasil"
+    },
+    {
+      "total": "Avenida Ver. José Diniz, 3300 - Campo Belo, São Paulo - SP, 04376-004, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n13\naddress\nAvenida Ver. José Diniz, 3700 - Santo Amaro, São Paulo - SP, 04604-007, Brasil\nAvenida Ver. José Diniz, 3271 - Campo Belo, São Paulo - SP, 04603-002, Brasil\nAvenida Ver. José Diniz, 3300 - Campo Belo, São Paulo - SP, 04376-004, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

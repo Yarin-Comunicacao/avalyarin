@@ -1,0 +1,360 @@
+{
+  "query": "SELECT name, address, neighborhood, hidden, phone FROM establishments ORDER BY name ASC LIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT name, address, neighborhood, hidden, phone FROM establishments ORDER BY name ASC LIMIT 50;",
+  "rows": [
+    {
+      "name": "#Kibedohassib Delivery - Perdizes",
+      "address": "R. Min. Godói, 436 - Perdizes, São Paulo - SP, 05015-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "(11) 91931-6737"
+    },
+    {
+      "name": "'O' Burguer",
+      "address": "Av. Moaci, 806 - Moema, São Paulo - SP, 04083-002, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 95759-3004"
+    },
+    {
+      "name": "( NOPONTO. )",
+      "address": "R. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "(11) 3670-8000"
+    },
+    {
+      "name": "+54 Parrilla - Itaim Bibi",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil",
+      "neighborhood": "Itaim Bibi",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "+Q amigos Friends",
+      "address": "R. Afonso Pena, 580 - Bom Retiro, São Paulo - SP, 01124-000, Brasil",
+      "neighborhood": "Bom Retiro",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": ".it Pizza",
+      "address": "R. Albion, 346 - Lapa, São Paulo - SP, 05077-130, Brasil",
+      "neighborhood": "Lapa",
+      "hidden": "1",
+      "phone": "(11) 91661-5993"
+    },
+    {
+      "name": "0rient House",
+      "address": "Av. Bosque da Saúde, 2074 - Bosque da Saúde, São Paulo - SP, 04142-082, Brasil",
+      "neighborhood": "Saúde",
+      "hidden": "1",
+      "phone": "(11) 5061-2423"
+    },
+    {
+      "name": "1-2-Gatcha (Matcha Café)",
+      "address": "R. Augusta, 243 - Consolação, São Paulo - SP, 01305-000, Brasil",
+      "neighborhood": "Consolação",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "101 FRANGOS",
+      "address": "R. Ituxi, 94 - Vila da Saúde, São Paulo - SP, 04055-020, Brasil",
+      "neighborhood": "Saúde",
+      "hidden": "1",
+      "phone": "(11) 94544-7315"
+    },
+    {
+      "name": "1185 Espetinhos",
+      "address": "Alameda dos Aicás, 1185 - Moema, São Paulo - SP, 04086-003, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 97446-7440"
+    },
+    {
+      "name": "14 Bis Campo Belo",
+      "address": "R. João Álvares Soares, 1815 - Campo Belo, São Paulo - SP, 04609-002, Brasil",
+      "neighborhood": "Campo Belo",
+      "hidden": "1",
+      "phone": "(11) 2364-6005"
+    },
+    {
+      "name": "1900 Pizzeria - Itaim Bibi",
+      "address": "Rua Tabapuã, 554 - Itaim Bibi, São Paulo - SP, 04533-001, Brasil",
+      "neighborhood": "Itaim Bibi",
+      "hidden": "1",
+      "phone": "(11) 5575-1900"
+    },
+    {
+      "name": "1900 Pizzeria - Jardins",
+      "address": "Alameda Campinas, 1630 - Jardim Paulista, São Paulo - SP, 01404-002, Brasil",
+      "neighborhood": "Jardim Paulista",
+      "hidden": "1",
+      "phone": "(11) 5575-1900"
+    },
+    {
+      "name": "1900 Pizzeria - Moema",
+      "address": "Alameda dos Nhambiquaras, 573 - Indianópolis, São Paulo - SP, 04090-011, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 5575-1900"
+    },
+    {
+      "name": "2020 Vinte Vinte",
+      "address": "Rua Correia de Melo, 23 - Bom Retiro, São Paulo - SP, 01123-020, Brasil",
+      "neighborhood": "Bom Retiro",
+      "hidden": "1",
+      "phone": "(11) 93257-1306"
+    },
+    {
+      "name": "21 Grill Bela Vista",
+      "address": "R. Francisca Miquelina, 82 - Bela Vista, São Paulo - SP, 01316-000, Brasil",
+      "neighborhood": "Bela Vista",
+      "hidden": "1",
+      "phone": "(11) 3106-8534"
+    },
+    {
+      "name": "212 Burger",
+      "address": "Alameda Campinas, 1021 - Jardins, São Paulo - SP, 01404-001, Brasil",
+      "neighborhood": "Jardim Paulista",
+      "hidden": "1",
+      "phone": "(11) 3052-1878"
+    },
+    {
+      "name": "22 Acarajé da mara",
+      "address": "Praça Nossa Sra. Aparecida, s/n - Indianópolis, São Paulo - SP, 04075-010, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 95997-4710"
+    },
+    {
+      "name": "2485 Bar e Bilhar",
+      "address": "Av. Ibirapuera, 2485 - Moema, São Paulo - SP, 04029-200, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 2691-2216"
+    },
+    {
+      "name": "269 IPIRANGA BAR",
+      "address": "Av. Prof. Abraão de Morais - Vila da Saúde, São Paulo - SP, 04123-010, Brasil",
+      "neighborhood": "Saúde",
+      "hidden": "1",
+      "phone": "(11) 94704-8596"
+    },
+    {
+      "name": "2ndFloor Bar",
+      "address": "Rua Tabapuã, 391A - Itaim Bibi, São Paulo - SP, 04533-011, Brasil",
+      "neighborhood": "Itaim Bibi",
+      "hidden": "1",
+      "phone": "(11) 3079-4938"
+    },
+    {
+      "name": "3 Brasseurs Itaim",
+      "address": "R. Jesuíno Arruda, 470 - Itaim Bibi, São Paulo - SP, 04532-080, Brasil",
+      "neighborhood": "Itaim Bibi",
+      "hidden": "1",
+      "phone": "(11) 2362-1703"
+    },
+    {
+      "name": "374 BAR",
+      "address": "Alameda dos Guatás, 374 - Vila da Saúde, São Paulo - SP, 04053-040, Brasil",
+      "neighborhood": "Saúde",
+      "hidden": "1",
+      "phone": "(11) 99963-8218"
+    },
+    {
+      "name": "3R Básico Café",
+      "address": "R. Cap. Pinto Ferreira, 47 - Jardim Paulista, São Paulo - SP, 01423-020, Brasil",
+      "neighborhood": "Jardim Paulista",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros",
+      "address": "R. Guaicuí, 29 - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "neighborhood": "Pinheiros",
+      "hidden": "1",
+      "phone": "(11) 3360-7338"
+    },
+    {
+      "name": "448 PARK",
+      "address": "R. Padre Carvalho, 696 - Pinheiros, São Paulo - SP, 05427-020, Brasil",
+      "neighborhood": "Pinheiros",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "448 Urban Life Style",
+      "address": "Rua Desembargador do Vale, 224 - Perdizes, São Paulo - SP, 05010-040, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "5 e 8",
+      "address": "R. Dr. Leonardo Pinto, 58 - Bom Retiro, São Paulo - SP, 01125-010, Brasil",
+      "neighborhood": "Bom Retiro",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "520 Bar lanchonete",
+      "address": "R. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil",
+      "neighborhood": "Pinheiros",
+      "hidden": "1",
+      "phone": "(11) 3098-0491"
+    },
+    {
+      "name": "60's Burger",
+      "address": "Rua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "61.778.873 Thamyris Sthefani de Souza Carvalho",
+      "address": "R. da Consolação, 2336 - Cerqueira César, São Paulo - SP, 01302-002, Brasil",
+      "neighborhood": "Consolação",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "698 Bar e Lanches",
+      "address": "R. Joaquim Floriano, 698 - Itaim Bibi, São Paulo - SP, 04534-003, Brasil",
+      "neighborhood": "Itaim Bibi",
+      "hidden": "1",
+      "phone": "(11) 3071-4006"
+    },
+    {
+      "name": "7 Família Comida Caseira - Unidade Lapa",
+      "address": "R. Albion, 60 - Lapa, São Paulo - SP, 05077-130, Brasil",
+      "neighborhood": "Lapa",
+      "hidden": "1",
+      "phone": "(11) 97836-3419"
+    },
+    {
+      "name": "70g de amor",
+      "address": "R. Agostinho Gomes - Ipiranga, São Paulo - SP, 04206-001, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1",
+      "phone": "(11) 92061-8305"
+    },
+    {
+      "name": "78's Bar",
+      "address": "R. Galvão Bueno, 300 - Liberdade, São Paulo - SP, 01506-000, Brasil",
+      "neighborhood": "Liberdade",
+      "hidden": "1",
+      "phone": "(11) 97847-8398"
+    },
+    {
+      "name": "80's Club",
+      "address": "R. Turiassu, 806 - Perdizes, São Paulo - SP, 05005-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "(11) 98761-1980"
+    },
+    {
+      "name": "83 bar e restaurante",
+      "address": "Av. da Liberdade, 867 - Liberdade, São Paulo - SP, 01503-001, Brasil",
+      "neighborhood": "Liberdade",
+      "hidden": "1",
+      "phone": "(11) 96021-7800"
+    },
+    {
+      "name": "@restauranteguigui",
+      "address": "R. Amazonas, 154 - Bom Retiro, São Paulo - SP, 01123-030, Brasil",
+      "neighborhood": "Bom Retiro",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "A",
+      "address": "Pinheiros, São Paulo - SP, Brasil",
+      "neighborhood": "Pinheiros",
+      "hidden": "1",
+      "phone": "(31) 2535-6006"
+    },
+    {
+      "name": "A Baianeira - MASP",
+      "address": "Av. Paulista, 1510 - Bela Vista, São Paulo - SP, 01310-200, Brasil",
+      "neighborhood": "Bela Vista",
+      "hidden": "1",
+      "phone": "(11) 91107-4074"
+    },
+    {
+      "name": "A Bandeja",
+      "address": "R. Silva Bueno, 867 - Ipiranga, São Paulo - SP, 04208-050, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1",
+      "phone": "(11) 95481-8967"
+    },
+    {
+      "name": "A Barraca de Pastel",
+      "address": "Av. Ernesto Igel, 429 - 05077-010 - loja 1 - Lapa, São Paulo - SP, 05077-010, Brasil",
+      "neighborhood": "Lapa",
+      "hidden": "1",
+      "phone": "(11) 98264-2660"
+    },
+    {
+      "name": "A Bendita Padaria",
+      "address": "Rua Apinajés, 206 - Perdizes, São Paulo - SP, 05017-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "(11) 91266-2303"
+    },
+    {
+      "name": "A Bendita Padaria e café",
+      "address": "Rua Apinajés, 206 - Perdizes, São Paulo - SP, 05017-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1",
+      "phone": "(11) 91266-2303"
+    },
+    {
+      "name": "A Casa Da Panqueca",
+      "address": "R. Bom Pastor, 2271 - Ipiranga, São Paulo - SP, 04203-052, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1",
+      "phone": "(11) 2068-6395"
+    },
+    {
+      "name": "A Casa da Dona Alzira",
+      "address": "R. Clemente Álvares, 523 - Lapa, São Paulo - SP, 05074-050, Brasil",
+      "neighborhood": "Lapa",
+      "hidden": "1",
+      "phone": "(11) 95466-3951"
+    },
+    {
+      "name": "A Casa da Vovó",
+      "address": "R. Artur de Azevedo, 299 - Cerqueira César, São Paulo - SP, 05404-010, Brasil",
+      "neighborhood": "Pinheiros",
+      "hidden": "1",
+      "phone": "NULL"
+    },
+    {
+      "name": "A Casa do Hamburguer",
+      "address": "R. Santo Antônio, 1467 - Bela Vista, São Paulo - SP, 01314-001, Brasil",
+      "neighborhood": "Bela Vista",
+      "hidden": "1",
+      "phone": "(11) 5084-0314"
+    },
+    {
+      "name": "A Casa do Kebabe",
+      "address": "Av. Jurucê, 274 - Moema, São Paulo - SP, 04080-011, Brasil",
+      "neighborhood": "Moema",
+      "hidden": "1",
+      "phone": "(11) 97393-9237"
+    },
+    {
+      "name": "A Casa do Porco Bar",
+      "address": "R. Araújo, 124 - República, São Paulo - SP, 01220-020, Brasil",
+      "neighborhood": "República",
+      "hidden": "1",
+      "phone": "(11) 3258-2578"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\taddress\tneighborhood\thidden\tphone\n#Kibedohassib Delivery - Perdizes\tR. Min. Godói, 436 - Perdizes, São Paulo - SP, 05015-000, Brasil\tPerdizes\t1\t(11) 91931-6737\n'O' Burguer\tAv. Moaci, 806 - Moema, São Paulo - SP, 04083-002, Brasil\tMoema\t1\t(11) 95759-3004\n( NOPONTO. )\tR. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil\tPerdizes\t1\t(11) 3670-8000\n+54 Parrilla - Itaim Bibi\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\tItaim Bibi\t1\tNULL\n+Q amigos Friends\tR. Afonso Pena, 580 - Bom Retiro, São Paulo - SP, 01124-000, Brasil\tBom Retiro\t1\tNULL\n.it Pizza\tR. Albion, 346 - Lapa, São Paulo - SP, 05077-130, Brasil\tLapa\t1\t(11) 91661-5993\n0rient House\tAv. Bosque da Saúde, 2074 - Bosque da Saúde, São Paulo - SP, 04142-082, Brasil\tSaúde\t1\t(11) 5061-2423\n1-2-Gatcha (Matcha Café)\tR. Augusta, 243 - Consolação, São Paulo - SP, 01305-000, Brasil\tConsolação\t1\tNULL\n101 FRANGOS\tR. Ituxi, 94 - Vila da Saúde, São Paulo - SP, 04055-020, Brasil\tSaúde\t1\t(11) 94544-7315\n1185 Espetinhos\tAlameda dos Aicás, 1185 - Moema, São Paulo - SP, 04086-003, Brasil\tMoema\t1\t(11) 97446-7440\n14 Bis Campo Belo\tR. João Álvares Soares, 1815 - Campo Belo, São Paulo - SP, 04609-002, Brasil\tCampo Belo\t1\t(11) 2364-6005\n1900 Pizzeria - Itaim Bibi\tRua Tabapuã, 554 - Itaim Bibi, São Paulo - SP, 04533-001, Brasil\tItaim Bibi\t1\t(11) 5575-1900\n1900 Pizzeria - Jardins\tAlameda Campinas, 1630 - Jardim Paulista, São Paulo - SP, 01404-002, Brasil\tJardim Paulista\t1\t(11) 5575-1900\n1900 Pizzeria - Moema\tAlameda dos Nhambiquaras, 573 - Indianópolis, São Paulo - SP, 04090-011, Brasil\tMoema\t1\t(11) 5575-1900\n2020 Vinte Vinte\tRua Correia de Melo, 23 - Bom Retiro, São Paulo - SP, 01123-020, Brasil\tBom Retiro\t1\t(11) 93257-1306\n21 Grill Bela Vista\tR. Francisca Miquelina, 82 - Bela Vista, São Paulo - SP, 01316-000, Brasil\tBela Vista\t1\t(11) 3106-8534\n212 Burger\tAlameda Campinas, 1021 - Jardins, São Paulo - SP, 01404-001, Brasil\tJardim Paulista\t1\t(11) 3052-1878\n22 Acarajé da mara\tPraça Nossa Sra. Aparecida, s/n - Indianópolis, São Paulo - SP, 04075-010, Brasil\tMoema\t1\t(11) 95997-4710\n2485 Bar e Bilhar\tAv. Ibirapuera, 2485 - Moema, São Paulo - SP, 04029-200, Brasil\tMoema\t1\t(11) 2691-2216\n269 IPIRANGA BAR\tAv. Prof. Abraão de Morais - Vila da Saúde, São Paulo - SP, 04123-010, Brasil\tSaúde\t1\t(11) 94704-8596\n2ndFloor Bar\tRua Tabapuã, 391A - Itaim Bibi, São Paulo - SP, 04533-011, Brasil\tItaim Bibi\t1\t(11) 3079-4938\n3 Brasseurs Itaim\tR. Jesuíno Arruda, 470 - Itaim Bibi, São Paulo - SP, 04532-080, Brasil\tItaim Bibi\t1\t(11) 2362-1703\n374 BAR\tAlameda dos Guatás, 374 - Vila da Saúde, São Paulo - SP, 04053-040, Brasil\tSaúde\t1\t(11) 99963-8218\n3R Básico Café\tR. Cap. Pinto Ferreira, 47 - Jardim Paulista, São Paulo - SP, 01423-020, Brasil\tJardim Paulista\t1\tNULL\n4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros\tR. Guaicuí, 29 - Pinheiros, São Paulo - SP, 05427-030, Brasil\tPinheiros\t1\t(11) 3360-7338\n448 PARK\tR. Padre Carvalho, 696 - Pinheiros, São Paulo - SP, 05427-020, Brasil\tPinheiros\t1\tNULL\n448 Urban Life Style\tRua Desembargador do Vale, 224 - Perdizes, São Paulo - SP, 05010-040, Brasil\tPerdizes\t1\tNULL\n5 e 8\tR. Dr. Leonardo Pinto, 58 - Bom Retiro, São Paulo - SP, 01125-010, Brasil\tBom Retiro\t1\tNULL\n520 Bar lanchonete\tR. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil\tPinheiros\t1\t(11) 3098-0491\n60's Burger\tRua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil\tPerdizes\t1\tNULL\n61.778.873 Thamyris Sthefani de Souza Carvalho\tR. da Consolação, 2336 - Cerqueira César, São Paulo - SP, 01302-002, Brasil\tConsolação\t1\tNULL\n698 Bar e Lanches\tR. Joaquim Floriano, 698 - Itaim Bibi, São Paulo - SP, 04534-003, Brasil\tItaim Bibi\t1\t(11) 3071-4006\n7 Família Comida Caseira - Unidade Lapa\tR. Albion, 60 - Lapa, São Paulo - SP, 05077-130, Brasil\tLapa\t1\t(11) 97836-3419\n70g de amor\tR. Agostinho Gomes - Ipiranga, São Paulo - SP, 04206-001, Brasil\tIpiranga\t1\t(11) 92061-8305\n78's Bar\tR. Galvão Bueno, 300 - Liberdade, São Paulo - SP, 01506-000, Brasil\tLiberdade\t1\t(11) 97847-8398\n80's Club\tR. Turiassu, 806 - Perdizes, São Paulo - SP, 05005-000, Brasil\tPerdizes\t1\t(11) 98761-1980\n83 bar e restaurante\tAv. da Liberdade, 867 - Liberdade, São Paulo - SP, 01503-001, Brasil\tLiberdade\t1\t(11) 96021-7800\n@restauranteguigui\tR. Amazonas, 154 - Bom Retiro, São Paulo - SP, 01123-030, Brasil\tBom Retiro\t1\tNULL\nA\tPinheiros, São Paulo - SP, Brasil\tPinheiros\t1\t(31) 2535-6006\nA Baianeira - MASP\tAv. Paulista, 1510 - Bela Vista, São Paulo - SP, 01310-200, Brasil\tBela Vista\t1\t(11) 91107-4074\nA Bandeja\tR. Silva Bueno, 867 - Ipiranga, São Paulo - SP, 04208-050, Brasil\tIpiranga\t1\t(11) 95481-8967\nA Barraca de Pastel\tAv. Ernesto Igel, 429 - 05077-010 - loja 1 - Lapa, São Paulo - SP, 05077-010, Brasil\tLapa\t1\t(11) 98264-2660\nA Bendita Padaria\tRua Apinajés, 206 - Perdizes, São Paulo - SP, 05017-000, Brasil\tPerdizes\t1\t(11) 91266-2303\nA Bendita Padaria e café\tRua Apinajés, 206 - Perdizes, São Paulo - SP, 05017-000, Brasil\tPerdizes\t1\t(11) 91266-2303\nA Casa Da Panqueca\tR. Bom Pastor, 2271 - Ipiranga, São Paulo - SP, 04203-052, Brasil\tIpiranga\t1\t(11) 2068-6395\nA Casa da Dona Alzira\tR. Clemente Álvares, 523 - Lapa, São Paulo - SP, 05074-050, Brasil\tLapa\t1\t(11) 95466-3951\nA Casa da Vovó\tR. Artur de Azevedo, 299 - Cerqueira César, São Paulo - SP, 05404-010, Brasil\tPinheiros\t1\tNULL\nA Casa do Hamburguer\tR. Santo Antônio, 1467 - Bela Vista, São Paulo - SP, 01314-001, Brasil\tBela Vista\t1\t(11) 5084-0314\nA Casa do Kebabe\tAv. Jurucê, 274 - Moema, São Paulo - SP, 04080-011, Brasil\tMoema\t1\t(11) 97393-9237\nA Casa do Porco Bar\tR. Araújo, 124 - República, São Paulo - SP, 01220-020, Brasil\tRepública\t1\t(11) 3258-2578\n",
+  "stderr": "",
+  "execution_time_ms": 844
+}

@@ -1,0 +1,14 @@
+{
+  "query": "SELECT DISTINCT REGEXP_SUBSTR(address, '[A-Z][a-z]{1,4}\\\\.') as abbr, COUNT(*) as cnt FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' GROUP BY abbr ORDER BY cnt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT REGEXP_SUBSTR(address, '[A-Z][a-z]{1,4}\\\\.') as abbr, COUNT(*) as cnt FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' GROUP BY abbr ORDER BY cnt DESC LIMIT 10;",
+  "rows": [
+    {
+      "abbr": "Btt.",
+      "cnt": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "abbr\tcnt\nBtt.\t1\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

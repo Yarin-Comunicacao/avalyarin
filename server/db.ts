@@ -157,15 +157,11 @@ export async function getCategoriesWithCounts() {
 // ============================================================
 
 /**
- * Completeness filter: only show establishments that have ALL required fields filled.
- * Required: address, hours, hasMenu (cardápio).
+ * Filter that ensures only active establishments are shown publicly.
  * Used in all public-facing queries. Admin queries bypass this filter.
+ * Only establishments with status = 'active' are visible to end users.
  */
-const completeEstablishmentFilter = and(
-  sql`${establishments.address} IS NOT NULL AND ${establishments.address} != ''`,
-  sql`${establishments.hours} IS NOT NULL AND ${establishments.hours} != ''`,
-  eq(establishments.hasMenu, true)
-);
+const completeEstablishmentFilter = eq(establishments.status, 'active');
 
 /**
  * Checks if an establishment is complete (has address, hours, and menu).
@@ -179,9 +175,10 @@ function isEstablishmentComplete(est: { address: string | null; hours: string | 
 }
 
 /**
- * Automatically syncs the `hidden` field based on completeness.
- * If an establishment is incomplete, it gets hidden.
- * If it becomes complete again, it gets shown (unhidden).
+ * Automatically syncs the `status` field based on completeness.
+ * If an establishment is incomplete and active, it moves to 'pending'.
+ * If it becomes complete and is 'pending', it moves to 'active'.
+ * 'hidden' status is manually managed and not auto-changed.
  * Called after any mutation that affects completeness fields.
  */
 export async function syncEstablishmentVisibility(establishmentId: number) {
@@ -192,20 +189,21 @@ export async function syncEstablishmentVisibility(establishmentId: number) {
     address: establishments.address,
     hours: establishments.hours,
     hasMenu: establishments.hasMenu,
-    hidden: establishments.hidden,
+    status: establishments.status,
   }).from(establishments).where(eq(establishments.id, establishmentId)).limit(1);
 
   if (!est) return;
 
   const complete = isEstablishmentComplete(est);
 
-  if (!complete && !est.hidden) {
-    // Incomplete and currently visible -> hide it
-    await db.update(establishments).set({ hidden: true }).where(eq(establishments.id, establishmentId));
-  } else if (complete && est.hidden) {
-    // Complete and currently hidden -> show it
-    await db.update(establishments).set({ hidden: false }).where(eq(establishments.id, establishmentId));
+  if (!complete && est.status === 'active') {
+    // Incomplete and currently active -> move to pending
+    await db.update(establishments).set({ status: 'pending' }).where(eq(establishments.id, establishmentId));
+  } else if (complete && est.status === 'pending') {
+    // Complete and currently pending -> activate
+    await db.update(establishments).set({ status: 'active' }).where(eq(establishments.id, establishmentId));
   }
+  // 'hidden' status is manually managed by admin and not auto-changed
 }
 
 export async function getEstablishmentsByCategory(categorySlug: string, limit = 50, offset = 0, bypassFilter = false) {
@@ -1350,10 +1348,10 @@ export async function createEstablishment(data: {
     .replace(/^-|-$/g, "")
     + "-" + Date.now().toString(36);
 
-  // New establishments without address/hours/menu start hidden
+  // New establishments without address/hours/menu start as pending
   const isComplete = !!(data.address && data.address.trim() !== '' && data.hours && data.hours.trim() !== '');
-  // hasMenu is always false for new estabs (no menu items yet), so always hidden initially
-  const shouldHide = !isComplete || true; // always hidden until menu is added
+  // hasMenu is always false for new estabs (no menu items yet), so always pending initially
+  const shouldHide = !isComplete || true; // always pending until menu is added
 
   const result = await db.insert(establishments).values({
     slug,
@@ -1369,7 +1367,7 @@ export async function createEstablishment(data: {
     hours: data.hours || null,
     image: data.image || null,
     hasMenu: false,
-    hidden: shouldHide,
+    status: shouldHide ? 'pending' : 'active',
     source: "admin",
   });
 
