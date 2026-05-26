@@ -1,0 +1,70 @@
+{
+  "query": "SELECT DISTINCT address FROM establishments WHERE address LIKE '%Brasilio%' OR address LIKE '%Domingos de Morais%' OR address LIKE '%Vergueiro%' OR address LIKE '%Consolacao%' OR address LIKE '%Itapetininga%' OR address LIKE '%Paraiso%' OR address LIKE '%Liberdade%' OR address LIKE '%Jose%' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT address FROM establishments WHERE address LIKE '%Brasilio%' OR address LIKE '%Domingos de Morais%' OR address LIKE '%Vergueiro%' OR address LIKE '%Consolacao%' OR address LIKE '%Itapetininga%' OR address LIKE '%Paraiso%' OR address LIKE '%Liberdade%' OR address LIKE '%Jose%' LIMIT 20;",
+  "rows": [
+    {
+      "address": "Rua Tamandaré, 272 - loja 1 - Liberdade, São Paulo - SP, 01525-000, Brasil"
+    },
+    {
+      "address": "Rua Barão de Iguape, 845 - Liberdade, São Paulo - SP, 01507-001, Brasil"
+    },
+    {
+      "address": "Avenida da Liberdade, 456 - Liberdade, São Paulo - SP, 01502-001, Brasil"
+    },
+    {
+      "address": "Rua Vergueiro, 461 - Liberdade, São Paulo - SP, 01503-000, Brasil"
+    },
+    {
+      "address": "Rua Vergueiro, 915 - Centro Histórico de São Paulo, São Paulo - SP, 01504-001, Brasil"
+    },
+    {
+      "address": "Edifício Hilda Jacob - R. Professor Antônio Prudente, 211 - Liberdade, São Paulo - SP, 01509-010, Brasil"
+    },
+    {
+      "address": "Rua Domingos de Morais, 2987 - Vila Mariana, São Paulo - SP, 04035-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Iguape, 870 - Liberdade, São Paulo - SP, 01507-001, Brasil"
+    },
+    {
+      "address": "Rua da Glória, 152 - loja 160 - Liberdade, São Paulo - SP, 01510-000, Brasil"
+    },
+    {
+      "address": "Rua Doutor Siqueira Campos, 157 - Liberdade, São Paulo - SP, 01509-020, Brasil"
+    },
+    {
+      "address": "Rua Tamandaré, 822 - Liberdade, São Paulo - SP, 01525-001, Brasil"
+    },
+    {
+      "address": "Rua Condessa de São Joaquim, 185 - Liberdade, São Paulo - SP, 01320-000, Brasil"
+    },
+    {
+      "address": "Rua Thomaz Gonzaga, 36a - Liberdade, São Paulo - SP, 01506-020, Brasil"
+    },
+    {
+      "address": "Rua Vergueiro, 709 - Liberdade, São Paulo - SP, 01504-001, Brasil"
+    },
+    {
+      "address": "Rua Mituto Mizumoto, 313 - Liberdade, São Paulo - SP, 01513-040, Brasil"
+    },
+    {
+      "address": "Rua Professor Antônio Prudente, 37 - Liberdade, São Paulo - SP, 01509-010, Brasil"
+    },
+    {
+      "address": "Rua Tamandaré, 993 - Liberdade, São Paulo - SP, 01525-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 99 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua da Glória, 629 - Liberdade, São Paulo - SP, 01510-000, Brasil"
+    },
+    {
+      "address": "Rua Tamandaré, 109 - Liberdade, São Paulo - SP, 01525-001, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nRua Tamandaré, 272 - loja 1 - Liberdade, São Paulo - SP, 01525-000, Brasil\nRua Barão de Iguape, 845 - Liberdade, São Paulo - SP, 01507-001, Brasil\nAvenida da Liberdade, 456 - Liberdade, São Paulo - SP, 01502-001, Brasil\nRua Vergueiro, 461 - Liberdade, São Paulo - SP, 01503-000, Brasil\nRua Vergueiro, 915 - Centro Histórico de São Paulo, São Paulo - SP, 01504-001, Brasil\nEdifício Hilda Jacob - R. Professor Antônio Prudente, 211 - Liberdade, São Paulo - SP, 01509-010, Brasil\nRua Domingos de Morais, 2987 - Vila Mariana, São Paulo - SP, 04035-001, Brasil\nRua Barão de Iguape, 870 - Liberdade, São Paulo - SP, 01507-001, Brasil\nRua da Glória, 152 - loja 160 - Liberdade, São Paulo - SP, 01510-000, Brasil\nRua Doutor Siqueira Campos, 157 - Liberdade, São Paulo - SP, 01509-020, Brasil\nRua Tamandaré, 822 - Liberdade, São Paulo - SP, 01525-001, Brasil\nRua Condessa de São Joaquim, 185 - Liberdade, São Paulo - SP, 01320-000, Brasil\nRua Thomaz Gonzaga, 36a - Liberdade, São Paulo - SP, 01506-020, Brasil\nRua Vergueiro, 709 - Liberdade, São Paulo - SP, 01504-001, Brasil\nRua Mituto Mizumoto, 313 - Liberdade, São Paulo - SP, 01513-040, Brasil\nRua Professor Antônio Prudente, 37 - Liberdade, São Paulo - SP, 01509-010, Brasil\nRua Tamandaré, 993 - Liberdade, São Paulo - SP, 01525-001, Brasil\nRua Barão de Itapetininga, 99 - República, São Paulo - SP, 01042-001, Brasil\nRua da Glória, 629 - Liberdade, São Paulo - SP, 01510-000, Brasil\nRua Tamandaré, 109 - Liberdade, São Paulo - SP, 01525-001, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 323
+}

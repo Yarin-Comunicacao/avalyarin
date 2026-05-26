@@ -1,0 +1,110 @@
+{
+  "query": "SELECT id, name, address FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia)' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia)' LIMIT 20;",
+  "rows": [
+    {
+      "id": "20",
+      "name": "Bolinho Verde | Restaurante Israelense Kasher",
+      "address": "Espaço And’orra - R. Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo - SP, 01232-010, Brasil"
+    },
+    {
+      "id": "123",
+      "name": "Bar do Gil",
+      "address": "em frente ao - Avenida do Pepê, 1430 - quiosque 13 - Barra da Tijuca, Rio de Janeiro - RJ, 22620-170, Brasil"
+    },
+    {
+      "id": "137",
+      "name": "Bar E Lanches",
+      "address": "133 - Rua Professor Wilfrides Alves de Lima, 95 - Barra Funda, São Paulo - SP, 01156-110, Brasil"
+    },
+    {
+      "id": "154",
+      "name": "Big pastel",
+      "address": "Viela Ema Angelo Murari, 81 - Lapa, São Paulo - SP, 05050-093, Brasil"
+    },
+    {
+      "id": "181",
+      "name": "Armazém Garnizé – Bar e Drinks em São Paulo",
+      "address": "L. Padre Péricles, 110 - Barra Funda, São Paulo - SP, 01156-040, Brasil"
+    },
+    {
+      "id": "182",
+      "name": "Ponto Chic Perdizes",
+      "address": "L. Padre Péricles, 139 - Perdizes, São Paulo - SP, 01156-040, Brasil"
+    },
+    {
+      "id": "187",
+      "name": "Paulista",
+      "address": "Barra Funda, São Paulo - SP, Brasil"
+    },
+    {
+      "id": "234",
+      "name": "Manirê",
+      "address": "Brascam - R. Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo - SP, 04534-011, Brasil"
+    },
+    {
+      "id": "246",
+      "name": "Restaurante Punta Piedras • Bar • Boteco",
+      "address": "Bar & Boteco Café Lanchonete Happy hour - R. Joaquim Floriano, 916 - Itaim Bibi, São Paulo - SP, 04534-004, Brasil"
+    },
+    {
+      "id": "257",
+      "name": "Bacalhau Vinho e Cia do ITAIM",
+      "address": "Térreo do Residencial George V - R. Pedroso Alvarenga, 620 - Itaim Bibi, São Paulo - SP, 04531-001, Brasil"
+    },
+    {
+      "id": "293",
+      "name": "Arlindo Bar e Restaurante",
+      "address": "Esquina com a Rua Doutor Mário Ferraz - Rua Tabapuã, 1502 - Itaim Bibi, São Paulo - SP, 04533-005, Brasil"
+    },
+    {
+      "id": "463",
+      "name": "Restaurante Bonjardim",
+      "address": "Edifício The Capital Flat - R. Tenente Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil"
+    },
+    {
+      "id": "498",
+      "name": "Bar e Lanchonete Itaguassu",
+      "address": "Condomínio Edifício Mansao Delacroix - Avenida Brigadeiro Luís Antônio, 2662 - Jardim Paulista, São Paulo - SP, 01402-000, Brasil"
+    },
+    {
+      "id": "533",
+      "name": "Tenda Turca",
+      "address": "Pão de Açúcar - Avenida Brigadeiro Luís Antônio, 2013 - Loja 04 - Bela Vista, São Paulo - SP, 01317-002, Brasil"
+    },
+    {
+      "id": "539",
+      "name": "Women Invest Summit",
+      "address": "Hotel Unique - Avenida Brigadeiro Luís Antônio, 4700 - Jardim Paulista, São Paulo - SP, 01402-002, Brasil"
+    },
+    {
+      "id": "542",
+      "name": "Andreia C Souza",
+      "address": "Sobreloja do café pão pão - R. Pamplona, 1306 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil"
+    },
+    {
+      "id": "579",
+      "name": "SOUQ Restaurante - Culinária Libanesa",
+      "address": "Shopping Jardim Pamplona - R. Pamplona, 1704 - 4 andar - Jardim Paulista, São Paulo - SP, 01405-002, Brasil"
+    },
+    {
+      "id": "631",
+      "name": "La cuisine Mike mike",
+      "address": "Instagram : @la_cuisine_mike.mike - Rua Peixoto Gomide, 1801 - Jardim Paulista, São Paulo - SP, 01409-003, Brasil"
+    },
+    {
+      "id": "661",
+      "name": "FIICA",
+      "address": "Condomínio Edifício 21ST Century Flat - Alameda Lorena, 473 - Térreo - Jardim Paulista, São Paulo - SP, 01424-003, Brasil"
+    },
+    {
+      "id": "664",
+      "name": "Mondo Pane | São Paulo",
+      "address": "Condomínio Edifício 21ST Century Flat - Alameda Lorena, 473 - Térreo - Jardim Paulista, São Paulo - SP, 01424-003, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n20\tBolinho Verde | Restaurante Israelense Kasher\tEspaço And’orra - R. Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo - SP, 01232-010, Brasil\n123\tBar do Gil\tem frente ao - Avenida do Pepê, 1430 - quiosque 13 - Barra da Tijuca, Rio de Janeiro - RJ, 22620-170, Brasil\n137\tBar E Lanches\t133 - Rua Professor Wilfrides Alves de Lima, 95 - Barra Funda, São Paulo - SP, 01156-110, Brasil\n154\tBig pastel\tViela Ema Angelo Murari, 81 - Lapa, São Paulo - SP, 05050-093, Brasil\n181\tArmazém Garnizé – Bar e Drinks em São Paulo\tL. Padre Péricles, 110 - Barra Funda, São Paulo - SP, 01156-040, Brasil\n182\tPonto Chic Perdizes\tL. Padre Péricles, 139 - Perdizes, São Paulo - SP, 01156-040, Brasil\n187\tPaulista\tBarra Funda, São Paulo - SP, Brasil\n234\tManirê\tBrascam - R. Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo - SP, 04534-011, Brasil\n246\tRestaurante Punta Piedras • Bar • Boteco\tBar & Boteco Café Lanchonete Happy hour - R. Joaquim Floriano, 916 - Itaim Bibi, São Paulo - SP, 04534-004, Brasil\n257\tBacalhau Vinho e Cia do ITAIM\tTérreo do Residencial George V - R. Pedroso Alvarenga, 620 - Itaim Bibi, São Paulo - SP, 04531-001, Brasil\n293\tArlindo Bar e Restaurante\tEsquina com a Rua Doutor Mário Ferraz - Rua Tabapuã, 1502 - Itaim Bibi, São Paulo - SP, 04533-005, Brasil\n463\tRestaurante Bonjardim\tEdifício The Capital Flat - R. Tenente Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil\n498\tBar e Lanchonete Itaguassu\tCondomínio Edifício Mansao Delacroix - Avenida Brigadeiro Luís Antônio, 2662 - Jardim Paulista, São Paulo - SP, 01402-000, Brasil\n533\tTenda Turca\tPão de Açúcar - Avenida Brigadeiro Luís Antônio, 2013 - Loja 04 - Bela Vista, São Paulo - SP, 01317-002, Brasil\n539\tWomen Invest Summit\tHotel Unique - Avenida Brigadeiro Luís Antônio, 4700 - Jardim Paulista, São Paulo - SP, 01402-002, Brasil\n542\tAndreia C Souza\tSobreloja do café pão pão - R. Pamplona, 1306 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil\n579\tSOUQ Restaurante - Culinária Libanesa\tShopping Jardim Pamplona - R. Pamplona, 1704 - 4 andar - Jardim Paulista, São Paulo - SP, 01405-002, Brasil\n631\tLa cuisine Mike mike\tInstagram : @la_cuisine_mike.mike - Rua Peixoto Gomide, 1801 - Jardim Paulista, São Paulo - SP, 01409-003, Brasil\n661\tFIICA\tCondomínio Edifício 21ST Century Flat - Alameda Lorena, 473 - Térreo - Jardim Paulista, São Paulo - SP, 01424-003, Brasil\n664\tMondo Pane | São Paulo\tCondomínio Edifício 21ST Century Flat - Alameda Lorena, 473 - Térreo - Jardim Paulista, São Paulo - SP, 01424-003, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

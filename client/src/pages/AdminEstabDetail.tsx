@@ -73,6 +73,69 @@ export default function AdminEstabDetail() {
   const [editingItem, setEditingItem] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [editingInfo, setEditingInfo] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
+  const [editInfo, setEditInfo] = useState({
+    name: '',
+    description: '',
+    address: '',
+    addressNumber: '',
+    complement: '',
+    neighborhood: '',
+    phone: '',
+    instagram: '',
+    hours: '',
+    status: 'active' as 'active' | 'hidden' | 'pending',
+  });
+
+  const updateEstabMutation = trpc.admin.updateEstablishment.useMutation({
+    onSuccess: () => {
+      toast.success('Informações atualizadas!');
+      setEditingInfo(false);
+      utils.admin.estabDetail.invalidate({ id: estabId });
+    },
+    onError: (err) => {
+      toast.error('Erro ao salvar: ' + err.message);
+    },
+  });
+
+  // Initialize edit form when estab data loads or editing starts
+  const startEditing = () => {
+    if (estab) {
+      setEditInfo({
+        name: estab.name || '',
+        description: (estab as any).description || '',
+        address: estab.address || '',
+        addressNumber: (estab as any).addressNumber || '',
+        complement: (estab as any).complement || '',
+        neighborhood: estab.neighborhood || '',
+        phone: estab.phone || '',
+        instagram: estab.instagram || '',
+        hours: estab.hours || '',
+        status: estab.status || 'active',
+      });
+      setEditingInfo(true);
+    }
+  };
+
+  const handleSaveInfo = () => {
+    setSavingInfo(true);
+    updateEstabMutation.mutate({
+      id: estabId,
+      name: editInfo.name || undefined,
+      description: editInfo.description || undefined,
+      address: editInfo.address || undefined,
+      addressNumber: editInfo.addressNumber || undefined,
+      complement: editInfo.complement || undefined,
+      neighborhood: editInfo.neighborhood || undefined,
+      phone: editInfo.phone || undefined,
+      instagram: editInfo.instagram || undefined,
+      hours: editInfo.hours || undefined,
+      status: editInfo.status,
+    }, {
+      onSettled: () => setSavingInfo(false),
+    });
+  };
 
   // DnD sensors
   const sensors = useSensors(
@@ -199,35 +262,181 @@ export default function AdminEstabDetail() {
 
         {/* Establishment Info Card */}
         <div className="p-5 rounded-xl bg-card border border-border/50">
-          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-4">INFORMAÇÕES</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-xs text-muted-foreground">Endereço</span>
-              <p className="text-foreground">{estab.address || "—"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Bairro</span>
-              <p className="text-foreground">{estab.neighborhood || "—"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Telefone</span>
-              <p className="text-foreground">{estab.phone || "—"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Instagram</span>
-              <p className="text-foreground">{estab.instagram || "—"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Horário</span>
-              <p className="text-foreground">{estab.hours || "—"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-muted-foreground">Status</span>
-              <p className={estab.status === 'active' ? "text-green-400" : estab.status === 'pending' ? "text-yellow-400" : "text-orange-400"}>
-                {estab.status === 'active' ? "Ativo" : estab.status === 'pending' ? "Pendente" : "Oculto"}
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-sm tracking-wider text-muted-foreground">INFORMAÇÕES</h3>
+            <button
+              onClick={() => editingInfo ? setEditingInfo(false) : startEditing()}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 border border-border rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Pencil className="w-3 h-3" />
+              {editingInfo ? 'Cancelar' : 'Editar'}
+            </button>
           </div>
+
+          {editingInfo ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Nome</label>
+                  <input
+                    type="text"
+                    value={editInfo.name}
+                    onChange={(e) => setEditInfo({...editInfo, name: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Descrição</label>
+                  <input
+                    type="text"
+                    value={editInfo.description}
+                    onChange={(e) => setEditInfo({...editInfo, description: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    placeholder="Ex: Hamburgueria artesanal"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Endereço (logradouro)</label>
+                  <input
+                    type="text"
+                    value={editInfo.address}
+                    onChange={(e) => setEditInfo({...editInfo, address: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    placeholder="Rua, Avenida, Alameda..."
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-1">Número</label>
+                    <input
+                      type="text"
+                      value={editInfo.addressNumber}
+                      onChange={(e) => setEditInfo({...editInfo, addressNumber: e.target.value})}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                      placeholder="123"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-1">Complemento</label>
+                    <input
+                      type="text"
+                      value={editInfo.complement}
+                      onChange={(e) => setEditInfo({...editInfo, complement: e.target.value})}
+                      className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                      placeholder="Shopping, Loja 5"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Bairro</label>
+                  <input
+                    type="text"
+                    value={editInfo.neighborhood}
+                    onChange={(e) => setEditInfo({...editInfo, neighborhood: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Telefone</label>
+                  <input
+                    type="text"
+                    value={editInfo.phone}
+                    onChange={(e) => setEditInfo({...editInfo, phone: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Instagram</label>
+                  <input
+                    type="text"
+                    value={editInfo.instagram}
+                    onChange={(e) => setEditInfo({...editInfo, instagram: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Horário</label>
+                  <input
+                    type="text"
+                    value={editInfo.hours}
+                    onChange={(e) => setEditInfo({...editInfo, hours: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Status</label>
+                  <select
+                    value={editInfo.status}
+                    onChange={(e) => setEditInfo({...editInfo, status: e.target.value as 'active' | 'hidden' | 'pending'})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  >
+                    <option value="active">Ativo</option>
+                    <option value="pending">Pendente</option>
+                    <option value="hidden">Oculto</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setEditingInfo(false)}
+                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveInfo}
+                  disabled={savingInfo}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  {savingInfo ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-xs text-muted-foreground">Endereço</span>
+                <p className="text-foreground">
+                  {estab.address ? `${estab.address}${estab.addressNumber ? ', ' + estab.addressNumber : ''}` : "—"}
+                </p>
+              </div>
+              {estab.complement && (
+                <div>
+                  <span className="text-xs text-muted-foreground">Complemento</span>
+                  <p className="text-foreground">{estab.complement}</p>
+                </div>
+              )}
+              <div>
+                <span className="text-xs text-muted-foreground">Bairro</span>
+                <p className="text-foreground">{estab.neighborhood || "—"}</p>
+              </div>
+              {estab.description && (
+                <div>
+                  <span className="text-xs text-muted-foreground">Descrição</span>
+                  <p className="text-foreground">{estab.description}</p>
+                </div>
+              )}
+              <div>
+                <span className="text-xs text-muted-foreground">Telefone</span>
+                <p className="text-foreground">{estab.phone || "—"}</p>
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground">Instagram</span>
+                <p className="text-foreground">{estab.instagram || "—"}</p>
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground">Horário</span>
+                <p className="text-foreground">{estab.hours || "—"}</p>
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground">Status</span>
+                <p className={estab.status === 'active' ? "text-green-400" : estab.status === 'pending' ? "text-yellow-400" : "text-orange-400"}>
+                  {estab.status === 'active' ? "Ativo" : estab.status === 'pending' ? "Pendente" : "Oculto"}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Menu Section */}

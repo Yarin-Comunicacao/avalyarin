@@ -1,0 +1,40 @@
+{
+  "query": "SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP 'Lidio|Ovidio|Valerio|Silverio|Honorio|Pedroso|Custodio|Eusebio|Januario|Hilario|Teodoro|Lazaro|Cesario|Genaro|Nazario|Rosario'\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP 'Lidio|Ovidio|Valerio|Silverio|Honorio|Pedroso|Custodio|Eusebio|Januario|Hilario|Teodoro|Lazaro|Cesario|Genaro|Nazario|Rosario'\nLIMIT 20;",
+  "rows": [
+    {
+      "logradouro": "Rua Doutor Teodoro Baima"
+    },
+    {
+      "logradouro": "Térreo do Residencial George V"
+    },
+    {
+      "logradouro": "Avenida Pedroso de Morais"
+    },
+    {
+      "logradouro": "Rua Lidio dos Santos"
+    },
+    {
+      "logradouro": "Rua Teodoro Sampaio"
+    },
+    {
+      "logradouro": "Rua dos Pinheiros"
+    },
+    {
+      "logradouro": "Rua Pedroso"
+    },
+    {
+      "logradouro": "Rua Pedroso Alvarenga"
+    },
+    {
+      "logradouro": "MED CLINIC DIEGOLI"
+    },
+    {
+      "logradouro": "Centro Empresarial Pinheiros"
+    }
+  ],
+  "messages": [],
+  "stdout": "logradouro\nRua Doutor Teodoro Baima\nTérreo do Residencial George V\nAvenida Pedroso de Morais\nRua Lidio dos Santos\nRua Teodoro Sampaio\nRua dos Pinheiros\nRua Pedroso\nRua Pedroso Alvarenga\nMED CLINIC DIEGOLI\nCentro Empresarial Pinheiros\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

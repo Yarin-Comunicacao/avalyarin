@@ -1,0 +1,64 @@
+{
+  "query": "SELECT DISTINCT address FROM establishments WHERE \naddress LIKE '%Angelica%' AND address NOT LIKE '%Angélica%'\nOR address LIKE '%Consolacao%' AND address NOT LIKE '%Consolação%'\nOR address LIKE '%Paraiso%' AND address NOT LIKE '%Paraíso%'\nOR address LIKE '%Itapetininga%'\nOR address LIKE '%Brasilio%'\nOR address LIKE '%Inacio%' AND address NOT LIKE '%Inácio%'\nOR address LIKE '%Joao%' AND address NOT LIKE '%João%'\nOR address LIKE '%Antonio%' AND address NOT LIKE '%Antônio%'\nOR address LIKE '%Olimpia%' AND address NOT LIKE '%Olímpia%'\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT address FROM establishments WHERE \naddress LIKE '%Angelica%' AND address NOT LIKE '%Angélica%'\nOR address LIKE '%Consolacao%' AND address NOT LIKE '%Consolação%'\nOR address LIKE '%Paraiso%' AND address NOT LIKE '%Paraíso%'\nOR address LIKE '%Itapetininga%'\nOR address LIKE '%Brasilio%'\nOR address LIKE '%Inacio%' AND address NOT LIKE '%Inácio%'\nOR address LIKE '%Joao%' AND address NOT LIKE '%João%'\nOR address LIKE '%Antonio%' AND address NOT LIKE '%Antônio%'\nOR address LIKE '%Olimpia%' AND address NOT LIKE '%Olímpia%'\nLIMIT 20;",
+  "rows": [
+    {
+      "address": "Rua Barão de Itapetininga, 242 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 37 - Loja 38 - República, São Paulo - SP, 01042-000, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 267 - Loja 13 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 108 - República, São Paulo - SP, 01042-000, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 263 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 112 - Centro Histórico de São Paulo, São Paulo - SP, 01042-000, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 204 - República, São Paulo - SP, 01042-000, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 37 - Loja 84 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 162 - loja 04 - República, São Paulo - SP, 01042-010, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 37 - Loja 68 - República, São Paulo - SP, 01042-916, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 273 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 267 - 7a - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 282 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 99 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Praça Carlos Antonio Cordeiro, 24 - Bom Retiro, São Paulo - SP, 01153-000, Brasil"
+    },
+    {
+      "address": "Rua Apeú, 162 - Vila Brasilio Machado, São Paulo - SP, 04288-150, Brasil"
+    },
+    {
+      "address": "Rua Barão de Itapetininga, 243 - República, São Paulo - SP, 01042-001, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nRua Barão de Itapetininga, 242 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 37 - Loja 38 - República, São Paulo - SP, 01042-000, Brasil\nRua Barão de Itapetininga, 267 - Loja 13 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 108 - República, São Paulo - SP, 01042-000, Brasil\nRua Barão de Itapetininga, 263 - Centro Histórico de São Paulo, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 112 - Centro Histórico de São Paulo, São Paulo - SP, 01042-000, Brasil\nRua Barão de Itapetininga, 204 - República, São Paulo - SP, 01042-000, Brasil\nRua Barão de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 37 - Loja 84 - República, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 162 - loja 04 - República, São Paulo - SP, 01042-010, Brasil\nRua Barão de Itapetininga, 37 - Loja 68 - República, São Paulo - SP, 01042-916, Brasil\nRua Barão de Itapetininga, 273 - República, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 267 - 7a - República, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 282 - República, São Paulo - SP, 01042-001, Brasil\nRua Barão de Itapetininga, 99 - República, São Paulo - SP, 01042-001, Brasil\nPraça Carlos Antonio Cordeiro, 24 - Bom Retiro, São Paulo - SP, 01153-000, Brasil\nRua Apeú, 162 - Vila Brasilio Machado, São Paulo - SP, 04288-150, Brasil\nRua Barão de Itapetininga, 243 - República, São Paulo - SP, 01042-001, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 371
+}

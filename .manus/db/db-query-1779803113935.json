@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total FROM establishments WHERE \naddress LIKE '%Eugenio%' OR address LIKE '%Americo%' OR address LIKE '%Olimpio%' \nOR address LIKE '%Jeronimo%' OR address LIKE '%Candido%' OR address LIKE '%Alvaro%' \nOR address LIKE '%Otavio%' OR address LIKE '%Lucio%' OR address LIKE '%Decio%' \nOR address LIKE '%Tulio%' OR address LIKE '%Angelica%' OR address LIKE '%Consolacao%'\nOR address LIKE '%Paraiso%' OR address LIKE '%Inacio%' OR (address LIKE '% Joao %' AND address NOT LIKE '% João %')\nOR address LIKE '%Mauricio%' OR address LIKE '%Fabricio%' OR address LIKE '%Rogerio%'\nOR address LIKE '%Sergio%' OR address LIKE '%Virgilio%' OR address LIKE '%Emilio%'\nOR address LIKE '%Claudio%' OR address LIKE '%Vinicius%' OR address LIKE '%Cicero%'\nOR address LIKE '%Conceicao%' OR address LIKE '%Goncalves%' OR address LIKE '%Sebastiao%'\nOR address LIKE '%Chacara%' OR (address LIKE '%Mario%' AND address NOT LIKE '%Mário%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total FROM establishments WHERE \naddress LIKE '%Eugenio%' OR address LIKE '%Americo%' OR address LIKE '%Olimpio%' \nOR address LIKE '%Jeronimo%' OR address LIKE '%Candido%' OR address LIKE '%Alvaro%' \nOR address LIKE '%Otavio%' OR address LIKE '%Lucio%' OR address LIKE '%Decio%' \nOR address LIKE '%Tulio%' OR address LIKE '%Angelica%' OR address LIKE '%Consolacao%'\nOR address LIKE '%Paraiso%' OR address LIKE '%Inacio%' OR (address LIKE '% Joao %' AND address NOT LIKE '% João %')\nOR address LIKE '%Mauricio%' OR address LIKE '%Fabricio%' OR address LIKE '%Rogerio%'\nOR address LIKE '%Sergio%' OR address LIKE '%Virgilio%' OR address LIKE '%Emilio%'\nOR address LIKE '%Claudio%' OR address LIKE '%Vinicius%' OR address LIKE '%Cicero%'\nOR address LIKE '%Conceicao%' OR address LIKE '%Goncalves%' OR address LIKE '%Sebastiao%'\nOR address LIKE '%Chacara%' OR (address LIKE '%Mario%' AND address NOT LIKE '%Mário%');",
+  "rows": [
+    {
+      "total": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n0\n",
+  "stderr": "",
+  "execution_time_ms": 475
+}

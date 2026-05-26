@@ -284,10 +284,15 @@ export const appRouter = router({
         id: z.number(),
         name: z.string().optional(),
         address: z.string().optional(),
+        addressNumber: z.string().optional(),
+        complement: z.string().optional(),
+        description: z.string().optional(),
         neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),
+        hours: z.string().optional(),
         active: z.boolean().optional(),
+        status: z.enum(['active', 'hidden', 'pending']).optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
@@ -333,6 +338,9 @@ export const appRouter = router({
         name: z.string().min(2).max(255),
         categoryId: z.number().min(1),
         address: z.string().min(5, "Endereço é obrigatório (mín. 5 caracteres)"),
+        addressNumber: z.string().optional(),
+        complement: z.string().optional(),
+        description: z.string().optional(),
         neighborhood: z.string().min(2, "Bairro é obrigatório"),
         region: z.string().optional(),
         lat: z.number().optional(),
@@ -522,8 +530,13 @@ export const appRouter = router({
         establishmentId: z.number(),
         name: z.string().optional(),
         address: z.string().optional(),
+        addressNumber: z.string().optional(),
+        complement: z.string().optional(),
+        description: z.string().optional(),
+        neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),
+        hours: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const { establishmentId, ...data } = input;

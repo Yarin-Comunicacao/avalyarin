@@ -726,10 +726,15 @@ export async function updateUserRole(userId: number, role: "user" | "admin" | "o
 export async function adminUpdateEstablishment(id: number, data: {
   name?: string;
   address?: string;
+  addressNumber?: string;
+  complement?: string;
+  description?: string;
   neighborhood?: string;
   phone?: string;
   instagram?: string;
+  hours?: string;
   active?: boolean;
+  status?: 'active' | 'hidden' | 'pending';
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -879,8 +884,13 @@ export async function getBusinessEstablishments(userId: number) {
 export async function businessUpdateEstablishment(userId: number, establishmentId: number, data: {
   name?: string;
   address?: string;
+  addressNumber?: string;
+  complement?: string;
+  description?: string;
+  neighborhood?: string;
   phone?: string;
   instagram?: string;
+  hours?: string;
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -1327,6 +1337,9 @@ export async function createEstablishment(data: {
   name: string;
   categoryId: number;
   address?: string;
+  addressNumber?: string;
+  complement?: string;
+  description?: string;
   neighborhood?: string;
   region?: string;
   lat?: number;
@@ -1358,6 +1371,9 @@ export async function createEstablishment(data: {
     name: data.name,
     categoryId: data.categoryId,
     address: data.address || null,
+    addressNumber: data.addressNumber || null,
+    complement: data.complement || null,
+    description: data.description || null,
     neighborhood: data.neighborhood || null,
     region: data.region || null,
     lat: data.lat || null,

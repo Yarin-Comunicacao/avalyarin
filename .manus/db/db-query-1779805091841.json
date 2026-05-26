@@ -1,0 +1,160 @@
+{
+  "query": "SELECT id, name, address, complement FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 25;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, complement FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 25;",
+  "rows": [
+    {
+      "id": "137",
+      "name": "Bar E Lanches",
+      "address": "133 - Rua Professor Wilfrides Alves de Lima",
+      "complement": "NULL"
+    },
+    {
+      "id": "187",
+      "name": "Paulista",
+      "address": "Barra Funda, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "1247",
+      "name": "Union du Pain",
+      "address": "R - Rua Coronel Melo de Oliveira",
+      "complement": "NULL"
+    },
+    {
+      "id": "1637",
+      "name": "A",
+      "address": "Pinheiros, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "1819",
+      "name": "Pinheiros",
+      "address": "Pinheiros, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "1859",
+      "name": "Ô LUGAR",
+      "address": "Pinheiros, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "2033",
+      "name": "Dogão",
+      "address": "Vila Madalena, São Paulo - SP, 05417-070, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "2174",
+      "name": "O",
+      "address": "Bela Vista, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "2244",
+      "name": "Central Bela Vista",
+      "address": "Chácara de Recreio Jardim Alvorada, Botucatu - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "2899",
+      "name": "Mapa",
+      "address": "Cambuci, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "3123",
+      "name": "Centro de São Paulo",
+      "address": "Consolação, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "3402",
+      "name": "Lanchonete Cuca Grande",
+      "address": "BELA VISTA - Praça Franklin Roosevelt",
+      "complement": "NULL"
+    },
+    {
+      "id": "3527",
+      "name": "Charme da Vergueiro",
+      "address": "ZAP (13 - Rua Vergueiro- Condomínio Edifício Vergueiro",
+      "complement": "NULL"
+    },
+    {
+      "id": "3529",
+      "name": "Citron CCSP",
+      "address": "Centro Cultural 01504-000 - Rua Vergueiro",
+      "complement": "NULL"
+    },
+    {
+      "id": "3668",
+      "name": "Menu",
+      "address": "Liberdade, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "3684",
+      "name": "BAR DO DUTE",
+      "address": "Cond Edifício Gama - Rua Tamandaré",
+      "complement": "NULL"
+    },
+    {
+      "id": "3711",
+      "name": "Liberdade",
+      "address": "Liberdade, São Paulo - SP, Brasil",
+      "complement": "NULL"
+    },
+    {
+      "id": "4112",
+      "name": "BIFROST BURGUER",
+      "address": "Pc. Dom José GasparAB",
+      "complement": "NULL"
+    },
+    {
+      "id": "4113",
+      "name": "Cachaçaria Do Rancho",
+      "address": "Pç Dom José Gaspar",
+      "complement": "NULL"
+    },
+    {
+      "id": "4114",
+      "name": "Esquina da Praça Chopperia e Restaurante",
+      "address": "Pç Dom José Gaspar",
+      "complement": "NULL"
+    },
+    {
+      "id": "4115",
+      "name": "Gaspar Bar & Praça",
+      "address": "Pç Dom José Gaspar",
+      "complement": "NULL"
+    },
+    {
+      "id": "4117",
+      "name": "Pastel da Praça",
+      "address": "Pç Dom José Gaspar",
+      "complement": "NULL"
+    },
+    {
+      "id": "4213",
+      "name": "Apogeu 77",
+      "address": "Apogeu 77 - Rua Tupi",
+      "complement": "NULL"
+    },
+    {
+      "id": "4277",
+      "name": "Lanchonete refeições sabor mix",
+      "address": "Se 204 - Praça da Sé",
+      "complement": "NULL"
+    },
+    {
+      "id": "4281",
+      "name": "celularpluspro1",
+      "address": "LOGRADOURO BAIRRO CEP - Praça da Sé",
+      "complement": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tcomplement\n137\tBar E Lanches\t133 - Rua Professor Wilfrides Alves de Lima\tNULL\n187\tPaulista\tBarra Funda, São Paulo - SP, Brasil\tNULL\n1247\tUnion du Pain\tR - Rua Coronel Melo de Oliveira\tNULL\n1637\tA\tPinheiros, São Paulo - SP, Brasil\tNULL\n1819\tPinheiros\tPinheiros, São Paulo - SP, Brasil\tNULL\n1859\tÔ LUGAR\tPinheiros, São Paulo - SP, Brasil\tNULL\n2033\tDogão\tVila Madalena, São Paulo - SP, 05417-070, Brasil\tNULL\n2174\tO\tBela Vista, São Paulo - SP, Brasil\tNULL\n2244\tCentral Bela Vista\tChácara de Recreio Jardim Alvorada, Botucatu - SP, Brasil\tNULL\n2899\tMapa\tCambuci, São Paulo - SP, Brasil\tNULL\n3123\tCentro de São Paulo\tConsolação, São Paulo - SP, Brasil\tNULL\n3402\tLanchonete Cuca Grande\tBELA VISTA - Praça Franklin Roosevelt\tNULL\n3527\tCharme da Vergueiro\tZAP (13 - Rua Vergueiro- Condomínio Edifício Vergueiro\tNULL\n3529\tCitron CCSP\tCentro Cultural 01504-000 - Rua Vergueiro\tNULL\n3668\tMenu\tLiberdade, São Paulo - SP, Brasil\tNULL\n3684\tBAR DO DUTE\tCond Edifício Gama - Rua Tamandaré\tNULL\n3711\tLiberdade\tLiberdade, São Paulo - SP, Brasil\tNULL\n4112\tBIFROST BURGUER\tPc. Dom José GasparAB\tNULL\n4113\tCachaçaria Do Rancho\tPç Dom José Gaspar\tNULL\n4114\tEsquina da Praça Chopperia e Restaurante\tPç Dom José Gaspar\tNULL\n4115\tGaspar Bar & Praça\tPç Dom José Gaspar\tNULL\n4117\tPastel da Praça\tPç Dom José Gaspar\tNULL\n4213\tApogeu 77\tApogeu 77 - Rua Tupi\tNULL\n4277\tLanchonete refeições sabor mix\tSe 204 - Praça da Sé\tNULL\n4281\tcelularpluspro1\tLOGRADOURO BAIRRO CEP - Praça da Sé\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 373
+}

@@ -196,3 +196,18 @@
 - [x] Novo status "Pendente" para estabelecimentos (além de Ativo e Oculto)
 - [x] Mover todos os estabelecimentos atualmente ocultos para status Pendente
 - [x] Atualizar schema, backend e frontend para suportar 3 status
+- [x] Adicionar campo description ao schema de establishments
+- [x] Limpar nomes: extrair descrições longas do nome para campo description
+- [x] Endereço: deve começar com logradouro padrão (Rua, Avenida, Alameda, Praça, Travessa, Largo, Estrada, Rodovia)
+- [x] Endereço: mover complementos (Shopping, Galeria, etc.) do campo endereço para campo complemento
+- [x] Número: extrair números do endereço para campo addressNumber
+- [x] Complemento: Shopping, galeria, sala, loja, conjunto, edifício — campo separado
+- [x] Marcar como Pendente todos os estabs sem endereço com logradouro válido
+- [x] Remover estabs com nomes inválidos (A, O, Menu, Liberdade, Paulista, Mapa, Centro de SP, Pinheiros)
+- [x] Remover estabs fora de SP capital (Botucatu, Limeira, Brasília)
+- [x] Corrigir abreviações remanescentes (Pç→Praça, L.→Largo, R.→Rua)
+- [x] Corrigir endereços com prefixos inválidos (Shopping X - Rua Y, ZAP, CEP, etc.)
+- [x] Backend: novos campos (description, complement, addressNumber) nas queries de leitura/escrita
+- [x] Frontend: formulário de edição de informações no AdminEstabDetail com todos os novos campos
+- [ ] Bairro: deve ser o bairro exato do Google (não subprefeitura)
+- [ ] Validações no backend para novos campos (regex de logradouro, etc.)

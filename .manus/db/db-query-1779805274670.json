@@ -1,0 +1,13 @@
+{
+  "query": "-- Verificar quantos ativos não têm endereço\nSELECT COUNT(*) as ativos_sem_endereco FROM establishments WHERE status = 'active' AND (address IS NULL OR address = '');\n\n-- Marcar como Pendente os ativos sem endereço válido\nUPDATE establishments SET status = 'pending' WHERE status = 'active' AND (address IS NULL OR address = '');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute -- Verificar quantos ativos não têm endereço\nSELECT COUNT(*) as ativos_sem_endereco FROM establishments WHERE status = 'active' AND (address IS NULL OR address = '');\n\n-- Marcar como Pendente os ativos sem endereço válido\nUPDATE establishments SET status = 'pending' WHERE status = 'active' AND (address IS NULL OR address = '');",
+  "rows": [
+    {
+      "ativos_sem_endereco": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "ativos_sem_endereco\n0\n",
+  "stderr": "",
+  "execution_time_ms": 284
+}

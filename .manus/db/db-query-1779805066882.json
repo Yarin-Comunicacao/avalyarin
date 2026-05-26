@@ -1,0 +1,85 @@
+{
+  "query": "SELECT id, name, address FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 15;",
+  "rows": [
+    {
+      "id": "20",
+      "name": "Bolinho Verde",
+      "address": "Espaço And’orra - R. Conselheiro Brotero do"
+    },
+    {
+      "id": "137",
+      "name": "Bar E Lanches",
+      "address": "133 - Rua Professor Wilfrides Alves de Lima"
+    },
+    {
+      "id": "181",
+      "name": "Armazém Garnizé – Bar e Drinks em São Paulo",
+      "address": "L. Padre Péricles"
+    },
+    {
+      "id": "182",
+      "name": "Ponto Chic Perdizes",
+      "address": "L. Padre Péricles"
+    },
+    {
+      "id": "187",
+      "name": "Paulista",
+      "address": "Barra Funda, São Paulo - SP, Brasil"
+    },
+    {
+      "id": "234",
+      "name": "Manirê",
+      "address": "Brascam - R. Joaquim Floriano"
+    },
+    {
+      "id": "246",
+      "name": "Restaurante Punta Piedras • Bar • Boteco",
+      "address": "Bar & Boteco Café Lanchonete Happy hour - R. Joaquim Floriano"
+    },
+    {
+      "id": "257",
+      "name": "Bacalhau Vinho e Cia do ITAIM",
+      "address": "Térreo do Residencial George V - R. Pedroso Alvarenga"
+    },
+    {
+      "id": "463",
+      "name": "Restaurante Bonjardim",
+      "address": "Edifício The Capital Flat - R. Tenente Negrão"
+    },
+    {
+      "id": "542",
+      "name": "Andreia C Souza",
+      "address": "Sobreloja do café pão pão - R. Pamplona"
+    },
+    {
+      "id": "579",
+      "name": "SOUQ Restaurante",
+      "address": "Shopping Jardim Pamplona - R. Pamplona- 4 andar"
+    },
+    {
+      "id": "860",
+      "name": "Lanches Mercado da Lapa",
+      "address": "Mercado da Lapa - R. Herbart"
+    },
+    {
+      "id": "861",
+      "name": "Mikeli acai",
+      "address": "mercadao da lapa - R. Herbart- box 67"
+    },
+    {
+      "id": "905",
+      "name": "Batatas Batats - Anhanguera",
+      "address": "dentro da Mega Vestcasa Marginal Tietê - Avenida Ernesto Igel"
+    },
+    {
+      "id": "906",
+      "name": "Churras Express Anhanguera (VestCasa)",
+      "address": "Dentro do Estacionamento da VestCasa - Avenida Ernesto Igel- estacionamento"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n20\tBolinho Verde\tEspaço And’orra - R. Conselheiro Brotero do\n137\tBar E Lanches\t133 - Rua Professor Wilfrides Alves de Lima\n181\tArmazém Garnizé – Bar e Drinks em São Paulo\tL. Padre Péricles\n182\tPonto Chic Perdizes\tL. Padre Péricles\n187\tPaulista\tBarra Funda, São Paulo - SP, Brasil\n234\tManirê\tBrascam - R. Joaquim Floriano\n246\tRestaurante Punta Piedras • Bar • Boteco\tBar & Boteco Café Lanchonete Happy hour - R. Joaquim Floriano\n257\tBacalhau Vinho e Cia do ITAIM\tTérreo do Residencial George V - R. Pedroso Alvarenga\n463\tRestaurante Bonjardim\tEdifício The Capital Flat - R. Tenente Negrão\n542\tAndreia C Souza\tSobreloja do café pão pão - R. Pamplona\n579\tSOUQ Restaurante\tShopping Jardim Pamplona - R. Pamplona- 4 andar\n860\tLanches Mercado da Lapa\tMercado da Lapa - R. Herbart\n861\tMikeli acai\tmercadao da lapa - R. Herbart- box 67\n905\tBatatas Batats - Anhanguera\tdentro da Mega Vestcasa Marginal Tietê - Avenida Ernesto Igel\n906\tChurras Express Anhanguera (VestCasa)\tDentro do Estacionamento da VestCasa - Avenida Ernesto Igel- estacionamento\n",
+  "stderr": "",
+  "execution_time_ms": 271
+}

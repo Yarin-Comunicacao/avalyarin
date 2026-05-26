@@ -1,0 +1,13 @@
+{
+  "query": "SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP BINARY '[A-Z][a-z]+io[^n]' \nAND address NOT REGEXP '[áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇ]'\nAND address NOT LIKE '%Pinheiros%'\nAND address NOT LIKE '%Pedroso%'\nAND address NOT LIKE '%Teodoro%'\nAND address NOT LIKE '%Mario%'\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP BINARY '[A-Z][a-z]+io[^n]' \nAND address NOT REGEXP '[áéíóúâêîôûãõçÁÉÍÓÚÂÊÎÔÛÃÕÇ]'\nAND address NOT LIKE '%Pinheiros%'\nAND address NOT LIKE '%Pedroso%'\nAND address NOT LIKE '%Teodoro%'\nAND address NOT LIKE '%Mario%'\nLIMIT 10;",
+  "rows": [
+    {
+      "logradouro": "Chacara de Recreio Jardim Alvorada"
+    }
+  ],
+  "messages": [],
+  "stdout": "logradouro\nChacara de Recreio Jardim Alvorada\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}
