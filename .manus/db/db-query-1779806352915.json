@@ -1,0 +1,9 @@
+{
+  "query": "\nSELECT id, address, HEX(SUBSTRING(address, 1, 6)) as hex_prefix\nFROM establishments \nWHERE status = 'pending' \n  AND address LIKE 'Rua.%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, address, HEX(SUBSTRING(address, 1, 6)) as hex_prefix\nFROM establishments \nWHERE status = 'pending' \n  AND address LIKE 'Rua.%'\nLIMIT 5;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 263
+}

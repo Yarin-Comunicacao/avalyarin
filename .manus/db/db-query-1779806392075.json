@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as com_complemento_no_endereco\nFROM establishments \nWHERE status = 'pending' \n  AND complement IS NULL\n  AND (\n    address LIKE '%- Shopping%' OR address LIKE '%- Galeria%' OR address LIKE '%- Loja%' \n    OR address LIKE '%- Sala%' OR address LIKE '%- Conj%' OR address LIKE '%- Edif%'\n    OR address LIKE '%- Bloco%' OR address LIKE '%- Torre%' OR address LIKE '%- Piso%'\n    OR address LIKE '%-Shopping%' OR address LIKE '%-Galeria%' OR address LIKE '%-Loja%'\n    OR address LIKE '%- loja%' OR address LIKE '%- shopping%' OR address LIKE '%- conj%'\n    OR address LIKE '%, Lj%' OR address LIKE '%, lj%' OR address LIKE '%- Lj%'\n  );\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT COUNT(*) as com_complemento_no_endereco\nFROM establishments \nWHERE status = 'pending' \n  AND complement IS NULL\n  AND (\n    address LIKE '%- Shopping%' OR address LIKE '%- Galeria%' OR address LIKE '%- Loja%' \n    OR address LIKE '%- Sala%' OR address LIKE '%- Conj%' OR address LIKE '%- Edif%'\n    OR address LIKE '%- Bloco%' OR address LIKE '%- Torre%' OR address LIKE '%- Piso%'\n    OR address LIKE '%-Shopping%' OR address LIKE '%-Galeria%' OR address LIKE '%-Loja%'\n    OR address LIKE '%- loja%' OR address LIKE '%- shopping%' OR address LIKE '%- conj%'\n    OR address LIKE '%, Lj%' OR address LIKE '%, lj%' OR address LIKE '%- Lj%'\n  );\n",
+  "rows": [
+    {
+      "com_complemento_no_endereco": "32"
+    }
+  ],
+  "messages": [],
+  "stdout": "com_complemento_no_endereco\n32\n",
+  "stderr": "",
+  "execution_time_ms": 378
+}

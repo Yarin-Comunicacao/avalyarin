@@ -1,0 +1,26 @@
+{
+  "query": "\nSELECT \n  status,\n  COUNT(*) as total,\n  SUM(CASE WHEN address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao\nFROM establishments \nGROUP BY status;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  status,\n  COUNT(*) as total,\n  SUM(CASE WHEN address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao\nFROM establishments \nGROUP BY status;\n",
+  "rows": [
+    {
+      "status": "active",
+      "total": "189",
+      "endereco_valido": "189",
+      "com_numero": "188",
+      "com_complemento": "9",
+      "com_descricao": "1"
+    },
+    {
+      "status": "pending",
+      "total": "7277",
+      "endereco_valido": "7277",
+      "com_numero": "7031",
+      "com_complemento": "420",
+      "com_descricao": "241"
+    }
+  ],
+  "messages": [],
+  "stdout": "status\ttotal\tendereco_valido\tcom_numero\tcom_complemento\tcom_descricao\nactive\t189\t189\t188\t9\t1\npending\t7277\t7277\t7031\t420\t241\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}

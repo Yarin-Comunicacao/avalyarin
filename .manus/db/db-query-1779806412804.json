@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as sem_complemento_com_padrao\nFROM establishments \nWHERE status = 'pending' \n  AND (complement IS NULL OR complement = '')\n  AND (\n    address LIKE '%Shopping%' OR address LIKE '%Galeria%' \n    OR address LIKE '% Lj %' OR address LIKE '% Lj.%' OR address LIKE '%- Lj%'\n    OR address LIKE '%, conj%' OR address LIKE '%, bloco%'\n  );\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT COUNT(*) as sem_complemento_com_padrao\nFROM establishments \nWHERE status = 'pending' \n  AND (complement IS NULL OR complement = '')\n  AND (\n    address LIKE '%Shopping%' OR address LIKE '%Galeria%' \n    OR address LIKE '% Lj %' OR address LIKE '% Lj.%' OR address LIKE '%- Lj%'\n    OR address LIKE '%, conj%' OR address LIKE '%, bloco%'\n  );\n",
+  "rows": [
+    {
+      "sem_complemento_com_padrao": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "sem_complemento_com_padrao\n2\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

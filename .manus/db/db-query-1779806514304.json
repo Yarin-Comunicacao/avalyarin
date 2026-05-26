@@ -1,0 +1,35 @@
+{
+  "query": "\nSELECT id, name, address FROM establishments \nWHERE status = 'pending' AND (address IS NULL OR address = '')\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, name, address FROM establishments \nWHERE status = 'pending' AND (address IS NULL OR address = '')\nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "1859",
+      "name": "Ô LUGAR",
+      "address": "NULL"
+    },
+    {
+      "id": "2033",
+      "name": "Dogão",
+      "address": "NULL"
+    },
+    {
+      "id": "4562",
+      "name": "Verdade",
+      "address": "NULL"
+    },
+    {
+      "id": "4894",
+      "name": "ipiranga",
+      "address": "NULL"
+    },
+    {
+      "id": "5539",
+      "name": "Subway",
+      "address": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n1859\tÔ LUGAR\tNULL\n2033\tDogão\tNULL\n4562\tVerdade\tNULL\n4894\tipiranga\tNULL\n5539\tSubway\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 267
+}

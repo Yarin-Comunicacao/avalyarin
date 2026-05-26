@@ -1,0 +1,160 @@
+{
+  "query": "\nSELECT id, name, address \nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) '\nORDER BY address\nLIMIT 30;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, name, address \nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) '\nORDER BY address\nLIMIT 30;\n",
+  "rows": [
+    {
+      "id": "1921",
+      "name": "BARU Bistrô - Iguatemi",
+      "address": "Avenidade - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Avenida Brigadeiro Faria Lima"
+    },
+    {
+      "id": "6134",
+      "name": "Delícia Natural Barbosa",
+      "address": "Rua. Albion"
+    },
+    {
+      "id": "5563",
+      "name": "Brasil Culinária e Amora",
+      "address": "Rua. Araguari"
+    },
+    {
+      "id": "4104",
+      "name": "Varanda Copan",
+      "address": "Rua. Araújo"
+    },
+    {
+      "id": "3156",
+      "name": "Luiz e Ivanete Cafés e Salgados",
+      "address": "Rua. Augusta"
+    },
+    {
+      "id": "3159",
+      "name": "Mate Por Favor",
+      "address": "Rua. Augusta"
+    },
+    {
+      "id": "2147",
+      "name": "Casa Do Pão De Queijo",
+      "address": "Rua. Augusta- Lj 113"
+    },
+    {
+      "id": "3195",
+      "name": "We protein",
+      "address": "Rua. Augusta- Lj 113"
+    },
+    {
+      "id": "4612",
+      "name": "Assil Restaurante Árabe campo belo",
+      "address": "Rua. Açatunga"
+    },
+    {
+      "id": "7143",
+      "name": "Doces e Bolos | São Paulo | Little Sweet Brazil",
+      "address": "Rua. Baronesa de Itu- conj 121"
+    },
+    {
+      "id": "6912",
+      "name": "The Coffee Passeio Paulista",
+      "address": "Rua. Bela Cintra"
+    },
+    {
+      "id": "4025",
+      "name": "Arouche Beach",
+      "address": "Rua. Bento Freitas"
+    },
+    {
+      "id": "7368",
+      "name": "Confeitaria Bruna Migotto| Bolos e doces",
+      "address": "Rua. Brigadeiro Jordão"
+    },
+    {
+      "id": "6686",
+      "name": "Café Corsini",
+      "address": "Rua. Carlos Comenale- bloco 2"
+    },
+    {
+      "id": "7406",
+      "name": "Ponto de Táxi Sala Vip Pizza - Bar",
+      "address": "Rua. Cisplatina"
+    },
+    {
+      "id": "7262",
+      "name": "Dolce Stupendo - Ateliê de Bolos Personalizados",
+      "address": "Rua. Cláudio Mendonça"
+    },
+    {
+      "id": "20",
+      "name": "Bolinho Verde",
+      "address": "Rua. Conselheiro Brotero do"
+    },
+    {
+      "id": "3900",
+      "name": "Restaurante Outback Steakhouse",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "7071",
+      "name": "B.lem Padaria Portuguesa",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "3888",
+      "name": "KFC - FRANGO FRITO",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "3899",
+      "name": "Restaurante Mei Mei",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "3904",
+      "name": "Spoleto",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "3905",
+      "name": "SuperGrill Express",
+      "address": "Rua. Coronel Xavier de Toledo"
+    },
+    {
+      "id": "1078",
+      "name": "Petí Gastronomia",
+      "address": "Rua. Cotoxó"
+    },
+    {
+      "id": "4351",
+      "name": "Rancho da je",
+      "address": "Rua. Direita- box 13"
+    },
+    {
+      "id": "4568",
+      "name": "RESTAURANTE Nova Aliança",
+      "address": "Rua. Dom Pedro IIB - Campo Belo, MG, 37270-000, Brasil"
+    },
+    {
+      "id": "2924",
+      "name": "Free Soul Food",
+      "address": "Rua. Dona Ana Neri"
+    },
+    {
+      "id": "7116",
+      "name": "Lado Burger - Hamburgueria Artesanal",
+      "address": "Rua. Doutor Cesário Mota Júnior"
+    },
+    {
+      "id": "6146",
+      "name": "Costa Verde Padaria Express",
+      "address": "Rua. Doutor Cincinato Pomponet"
+    },
+    {
+      "id": "6631",
+      "name": "rei do hamburguer",
+      "address": "Rua. Doutor Luís Barreto"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n1921\tBARU Bistrô - Iguatemi\tAvenidade - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Avenida Brigadeiro Faria Lima\n6134\tDelícia Natural Barbosa\tRua. Albion\n5563\tBrasil Culinária e Amora\tRua. Araguari\n4104\tVaranda Copan\tRua. Araújo\n3156\tLuiz e Ivanete Cafés e Salgados\tRua. Augusta\n3159\tMate Por Favor\tRua. Augusta\n2147\tCasa Do Pão De Queijo\tRua. Augusta- Lj 113\n3195\tWe protein\tRua. Augusta- Lj 113\n4612\tAssil Restaurante Árabe campo belo\tRua. Açatunga\n7143\tDoces e Bolos | São Paulo | Little Sweet Brazil\tRua. Baronesa de Itu- conj 121\n6912\tThe Coffee Passeio Paulista\tRua. Bela Cintra\n4025\tArouche Beach\tRua. Bento Freitas\n7368\tConfeitaria Bruna Migotto| Bolos e doces\tRua. Brigadeiro Jordão\n6686\tCafé Corsini\tRua. Carlos Comenale- bloco 2\n7406\tPonto de Táxi Sala Vip Pizza - Bar\tRua. Cisplatina\n7262\tDolce Stupendo - Ateliê de Bolos Personalizados\tRua. Cláudio Mendonça\n20\tBolinho Verde\tRua. Conselheiro Brotero do\n3900\tRestaurante Outback Steakhouse\tRua. Coronel Xavier de Toledo\n7071\tB.lem Padaria Portuguesa\tRua. Coronel Xavier de Toledo\n3888\tKFC - FRANGO FRITO\tRua. Coronel Xavier de Toledo\n3899\tRestaurante Mei Mei\tRua. Coronel Xavier de Toledo\n3904\tSpoleto\tRua. Coronel Xavier de Toledo\n3905\tSuperGrill Express\tRua. Coronel Xavier de Toledo\n1078\tPetí Gastronomia\tRua. Cotoxó\n4351\tRancho da je\tRua. Direita- box 13\n4568\tRESTAURANTE Nova Aliança\tRua. Dom Pedro IIB - Campo Belo, MG, 37270-000, Brasil\n2924\tFree Soul Food\tRua. Dona Ana Neri\n7116\tLado Burger - Hamburgueria Artesanal\tRua. Doutor Cesário Mota Júnior\n6146\tCosta Verde Padaria Express\tRua. Doutor Cincinato Pomponet\n6631\trei do hamburguer\tRua. Doutor Luís Barreto\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as nomes_longos \nFROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND LENGTH(name) > 50;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT COUNT(*) as nomes_longos \nFROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND LENGTH(name) > 50;\n",
+  "rows": [
+    {
+      "nomes_longos": "59"
+    }
+  ],
+  "messages": [],
+  "stdout": "nomes_longos\n59\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

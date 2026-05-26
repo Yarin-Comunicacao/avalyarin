@@ -1,0 +1,9 @@
+{
+  "query": "\nUPDATE establishments \nSET \n  description = TRIM(SUBSTRING(name, LOCATE(' - ', name) + 3)),\n  name = TRIM(SUBSTRING(name, 1, LOCATE(' - ', name) - 1))\nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND name LIKE '% - %'\n  AND LENGTH(name) > 60;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nUPDATE establishments \nSET \n  description = TRIM(SUBSTRING(name, LOCATE(' - ', name) + 3)),\n  name = TRIM(SUBSTRING(name, 1, LOCATE(' - ', name) - 1))\nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND name LIKE '% - %'\n  AND LENGTH(name) > 60;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 289
+}

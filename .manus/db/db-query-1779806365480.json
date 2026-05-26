@@ -1,0 +1,46 @@
+{
+  "query": "\nSELECT DISTINCT LEFT(address, 10) as prefixo, COUNT(*) as qty\nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) '\nGROUP BY LEFT(address, 10)\nORDER BY qty DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT DISTINCT LEFT(address, 10) as prefixo, COUNT(*) as qty\nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) '\nGROUP BY LEFT(address, 10)\nORDER BY qty DESC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "prefixo": "Ruaa Maest",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Taman",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Pedro",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Coron",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Caram",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Tupi",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Avenidade ",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Vergu",
+      "qty": "1"
+    },
+    {
+      "prefixo": "Ruaa Tabap",
+      "qty": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "prefixo\tqty\nRuaa Maest\t1\nRuaa Taman\t1\nRuaa Pedro\t1\nRuaa Coron\t1\nRuaa Caram\t1\nRuaa Tupi\t1\nAvenidade \t1\nRuaa Vergu\t1\nRuaa Tabap\t1\n",
+  "stderr": "",
+  "execution_time_ms": 270
+}

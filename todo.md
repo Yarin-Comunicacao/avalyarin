@@ -210,4 +210,9 @@
 - [x] Backend: novos campos (description, complement, addressNumber) nas queries de leitura/escrita
 - [x] Frontend: formulário de edição de informações no AdminEstabDetail com todos os novos campos
 - [ ] Bairro: deve ser o bairro exato do Google (não subprefeitura)
-- [ ] Validações no backend para novos campos (regex de logradouro, etc.)
+- [x] Validações no backend para novos campos (regex de logradouro, número, complemento, descrição)
+- [x] Limpeza em massa dos 7.277 pendentes: 100% endereços com logradouro válido
+- [x] Corrigir typos em massa (Ruaa→Rua, Avenidade→Avenida)
+- [x] Extrair complementos embutidos nos endereços dos pendentes
+- [x] Separar nomes longos com descrições (pipes, dois pontos, traços)
+- [x] Remover 5 estabs sem endereço algum (dados insuficientes)

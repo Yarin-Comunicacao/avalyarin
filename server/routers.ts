@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { ADDRESS_REGEX } from "@shared/address-validation";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure } from "./_core/trpc";
 import { systemRouter } from "./_core/systemRouter";
@@ -283,10 +284,22 @@ export const appRouter = router({
       .input(z.object({
         id: z.number(),
         name: z.string().optional(),
-        address: z.string().optional(),
-        addressNumber: z.string().optional(),
-        complement: z.string().optional(),
-        description: z.string().optional(),
+        address: z.string().refine(
+          (val) => !val || ADDRESS_REGEX.test(val.trim()),
+          { message: 'Endereço deve começar com logradouro válido (Rua, Avenida, Alameda, etc.)' }
+        ).optional(),
+        addressNumber: z.string().refine(
+          (val) => {
+            if (!val || val.trim() === '') return true;
+            const t = val.trim().toLowerCase();
+            if (t === 's/n' || t === 'sn') return true;
+            const n = parseInt(t, 10);
+            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+          },
+          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+        ).optional(),
+        complement: z.string().max(200, 'Complemento deve ter no máximo 200 caracteres').optional(),
+        description: z.string().max(500, 'Descrição deve ter no máximo 500 caracteres').optional(),
         neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),
@@ -337,10 +350,22 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(2).max(255),
         categoryId: z.number().min(1),
-        address: z.string().min(5, "Endereço é obrigatório (mín. 5 caracteres)"),
-        addressNumber: z.string().optional(),
-        complement: z.string().optional(),
-        description: z.string().optional(),
+        address: z.string().min(5, "Endereço é obrigatório (mín. 5 caracteres)").refine(
+          (val) => ADDRESS_REGEX.test(val.trim()),
+          { message: 'Endereço deve começar com logradouro válido (Rua, Avenida, Alameda, etc.)' }
+        ),
+        addressNumber: z.string().refine(
+          (val) => {
+            if (!val || val.trim() === '') return true;
+            const t = val.trim().toLowerCase();
+            if (t === 's/n' || t === 'sn') return true;
+            const n = parseInt(t, 10);
+            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+          },
+          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+        ).optional(),
+        complement: z.string().max(200, 'Complemento máx. 200 caracteres').optional(),
+        description: z.string().max(500, 'Descrição máx. 500 caracteres').optional(),
         neighborhood: z.string().min(2, "Bairro é obrigatório"),
         region: z.string().optional(),
         lat: z.number().optional(),
@@ -529,10 +554,22 @@ export const appRouter = router({
       .input(z.object({
         establishmentId: z.number(),
         name: z.string().optional(),
-        address: z.string().optional(),
-        addressNumber: z.string().optional(),
-        complement: z.string().optional(),
-        description: z.string().optional(),
+        address: z.string().refine(
+          (val) => !val || ADDRESS_REGEX.test(val.trim()),
+          { message: 'Endereço deve começar com logradouro válido (Rua, Avenida, Alameda, etc.)' }
+        ).optional(),
+        addressNumber: z.string().refine(
+          (val) => {
+            if (!val || val.trim() === '') return true;
+            const t = val.trim().toLowerCase();
+            if (t === 's/n' || t === 'sn') return true;
+            const n = parseInt(t, 10);
+            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+          },
+          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+        ).optional(),
+        complement: z.string().max(200, 'Complemento máx. 200 caracteres').optional(),
+        description: z.string().max(500, 'Descrição máx. 500 caracteres').optional(),
         neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),

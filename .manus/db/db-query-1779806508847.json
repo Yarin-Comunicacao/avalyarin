@@ -1,0 +1,21 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' AND address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN hours IS NOT NULL AND hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN name IS NOT NULL AND LENGTH(name) <= 50 THEN 1 ELSE 0 END) as nome_ok\nFROM establishments \nWHERE status = 'pending';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' AND address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN hours IS NOT NULL AND hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN name IS NOT NULL AND LENGTH(name) <= 50 THEN 1 ELSE 0 END) as nome_ok\nFROM establishments \nWHERE status = 'pending';\n",
+  "rows": [
+    {
+      "total": "7282",
+      "endereco_valido": "7277",
+      "com_numero": "7031",
+      "com_complemento": "420",
+      "com_descricao": "241",
+      "com_bairro": "7282",
+      "com_telefone": "5867",
+      "com_horario": "6541",
+      "nome_ok": "7251"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tendereco_valido\tcom_numero\tcom_complemento\tcom_descricao\tcom_bairro\tcom_telefone\tcom_horario\tnome_ok\n7282\t7277\t7031\t420\t241\t7282\t5867\t6541\t7251\n",
+  "stderr": "",
+  "execution_time_ms": 276
+}
