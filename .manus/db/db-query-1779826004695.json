@@ -1,0 +1,14 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as grupos_duplicados,\n  SUM(qty) as total_registros_duplicados\nFROM (\n  SELECT address, addressNumber, COUNT(*) as qty\n  FROM establishments \n  WHERE address IS NOT NULL AND address != '' \n    AND addressNumber IS NOT NULL AND addressNumber != ''\n  GROUP BY address, addressNumber \n  HAVING COUNT(*) > 1\n) sub;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  COUNT(*) as grupos_duplicados,\n  SUM(qty) as total_registros_duplicados\nFROM (\n  SELECT address, addressNumber, COUNT(*) as qty\n  FROM establishments \n  WHERE address IS NOT NULL AND address != '' \n    AND addressNumber IS NOT NULL AND addressNumber != ''\n  GROUP BY address, addressNumber \n  HAVING COUNT(*) > 1\n) sub;\n",
+  "rows": [
+    {
+      "grupos_duplicados": "639",
+      "total_registros_duplicados": "1591"
+    }
+  ],
+  "messages": [],
+  "stdout": "grupos_duplicados\ttotal_registros_duplicados\n639\t1591\n",
+  "stderr": "",
+  "execution_time_ms": 278
+}

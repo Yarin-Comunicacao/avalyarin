@@ -1,0 +1,190 @@
+{
+  "query": "\nSELECT address, addressNumber, COUNT(*) as qty, \n       GROUP_CONCAT(id ORDER BY id SEPARATOR ',') as ids,\n       GROUP_CONCAT(name ORDER BY id SEPARATOR ' | ') as names,\n       GROUP_CONCAT(neighborhood ORDER BY id SEPARATOR ' | ') as neighborhoods,\n       GROUP_CONCAT(status ORDER BY id SEPARATOR ' | ') as statuses\nFROM establishments \nWHERE address IS NOT NULL AND address != '' \n  AND addressNumber IS NOT NULL AND addressNumber != ''\nGROUP BY address, addressNumber \nHAVING COUNT(*) > 1\nORDER BY qty DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT address, addressNumber, COUNT(*) as qty, \n       GROUP_CONCAT(id ORDER BY id SEPARATOR ',') as ids,\n       GROUP_CONCAT(name ORDER BY id SEPARATOR ' | ') as names,\n       GROUP_CONCAT(neighborhood ORDER BY id SEPARATOR ' | ') as neighborhoods,\n       GROUP_CONCAT(status ORDER BY id SEPARATOR ' | ') as statuses\nFROM establishments \nWHERE address IS NOT NULL AND address != '' \n  AND addressNumber IS NOT NULL AND addressNumber != ''\nGROUP BY address, addressNumber \nHAVING COUNT(*) > 1\nORDER BY qty DESC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "qty": "43",
+      "ids": "1274,1275,1276,1277,1278,1280,1284,1287,1296,1299,1301,1304,1305,1307,1310,1311,1312,1313,1314,1325,1326,1329,1330,1331,1333,1334,1335,1338,1339,1343,1344,1345,1347,1348,1349,1353,1355,6311,6313,6314,6321,6322,6323",
+      "names": "Almanara - Shopping Eldorado | Amor aos Pedaços | Andiamo Ristorante & Pizzeria Eldorado | BUBBLE KILL | Bacio di Latte - Shopping Eldorado | Baked Potato | Cannoleria di Piero | Cortés Asador Eldorado | Freddo | Frutaria São Paulo - Eldorado | GoldKo - Eldorado | Hiro Express | Jin Jin Wok | Kappa Gourmet | Madero Steak House Eldorado | Mahá Mistura Criativa | Mana Poke Shopping Eldorado | Mania de Churrasco | Maria da Villa | Papila Deli - Shopping Eldorado | Patroni | Piadina Romagnola | Pipo Bronze + Paul Cho | Pipo Restaurante | Popeyes | Praça de alimentação Shopping Eldorado | Premiatto Shopping Eldorado | Restaurante America | Restaurante Ibiza | Si Señor! Shopping Eldorado | Spicy Tuna - Autêntico Poke Havaiano | Spoleto | Strô Gastronomia | Taco Bell - Shopping Eldorado | Temakeria e Cia - Shopping Eldorado | The Steak Factory - Shopping Eldorado | Viena | B.LEM Padaria Portuguesa - Shopping Eldorado | Bolo da Madre em Shopping Eldorado | Bom Beef Burgers | Carlo's Bakery São Paulo | Frut",
+      "neighborhoods": "Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | active | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Praça Leonor Kaupa",
+      "addressNumber": "100",
+      "qty": "25",
+      "ids": "4630,4631,4632,4633,4634,4635,4636,4637,4638,4639,4640,4641,4643,4644,4646,4647,4648,4649,4652,4654,4655,4657,7274,7275,7277",
+      "names": "Amor aos Pedaços (Plaza Sul Shopping) | Bacio di Latte | Baked Potato | Bar do Alemao | Biscoitê A Biscoiteria | Calle 54 (Shopping Plaza Sul) | Casa Bauducco | Coco Bambu Plaza Sul | Dengo Chocolates | Griletto | Jin Jin | KFC - FRANGO FRITO | Madero Steak House - Shopping Plaza Sul | Mania de Churrasco | Montana Express | Mr Cheney Cookies - Shopping Plaza Sul | OAKBERRY Açaí | Pecorino Bar & Trattoria Plaza Sul | Restaurante Mei Mei | Restaurante Spoleto | Starbucks Shopping Plaza Sul | Vivenda do Camarão | Bom Beef Burgers Plaza Sul | Burger King | Sucos S/A - Alimentação Saudável - Shopping Plaza Sul",
+      "neighborhoods": "Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "qty": "20",
+      "ids": "5177,5178,5182,5185,5186,5187,5190,5192,5198,5200,5201,5204,5207,5213,5217,5219,5220,7435,7441,7442",
+      "names": "Andiamo Ristorante & Pizzeria Ibirapuera | Bacio di Latte - Shopping Ibirapuera | Blend Cacao Shopping Ibirapuera | Casa Bauducco | Chocolate Lugano | Degusti | Frutaria São Paulo - Shopping Ibirapuera | Giraffas Shopping Ibirapuera | Mercato San Vincenzo | Mr. Cheney Cookies | Noir Chocolates - quiosque | Ofner - Shopping Ibirapuera | Quiosque FINI Shopping Ibirapuera | Restaurante Spoleto | Shopping Bar | Taco Bell - SHOPPING IBIRAPUERA | The Steak Factory - Shop. Ibirapuera | Bolos | Mania de Churrasco | Pecorino Bar & Trattoria Shopping Ibirapuera",
+      "neighborhoods": "Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Frei Caneca",
+      "addressNumber": "569",
+      "qty": "19",
+      "ids": "3260,3263,3264,3273,3276,3280,3283,3284,3287,3288,3290,3291,3298,3300,3302,6529,6889,6897,7072",
+      "names": "Casa Bauducco | Croma café | Divino Fogão - Frei Caneca | Kopenhagen | Latife - Gastronomia Árabe (Shopping Frei Caneca) | Maniadechurrasco | North Bar e Grill | Oakberry Açaí Bowls - Shopping Frei Caneca | Pastelândia - Frei Caneca | Pateo da Luz | PopCorn Frei Caneca | Prime Express | Temakeria e Cia | Terra do Fogo Frei Caneca | Vivenda do Camarão | BOALI - Alimentação Saudável | Bolo da Madre Shopping Frei | Gendai | BOALI - Alimentação Saudável",
+      "neighborhoods": "Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Bela Vista | Consolação | Consolação | República",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Coronel Xavier de Toledo",
+      "addressNumber": "23",
+      "qty": "18",
+      "ids": "3882,3883,3884,3885,3887,3888,3891,3894,3895,3898,3899,3900,3904,3905,3908,3941,7071,7075",
+      "names": "Bacio di Latte - Shopping Light | Batata Dipz | CasaBauduco | Empada Brasil - Shopping Light | Habib's - Quiosque Shopping Light | KFC - FRANGO FRITO | Mania de Churrasco | Pecorino Bar & Trattoria Shopping Light | Popeyes | Restaurante Detroit Steakhouse | Restaurante Mei Mei | Restaurante Outback Steakhouse | Spoleto | SuperGrill Express | York Grill Express | Departamento de compras | B.lem Padaria Portuguesa | GRÃO ESPRESSO",
+      "neighborhoods": "República | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Barão de Iguape",
+      "addressNumber": "158",
+      "qty": "12",
+      "ids": "3446,3455,3456,3458,3459,3462,3463,3465,3474,3476,3479,6969",
+      "names": "Butamão | Jjang Bap | Jjang Toast | KYMZ | Katsuya Tokyo Milanesa | Libas Food Court | Liberdade Side Street | NYKO Lamen | Shu Chan Teppan Liberdade | Takoyaki8 | Thailand Street Food | Sushiro by Chef Kasuga",
+      "neighborhoods": "Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "qty": "11",
+      "ids": "212,215,220,221,222,233,234,247,252,5954,5962",
+      "names": "+54 Parrilla - Itaim Bibi | Bacio di Latte - Brascan Itaim | Casa Bauducco | Casa do Pão de Queijo | Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi) | Madero Steak House Brascan | Manirê | Rizzo Gourmet | Think Tasty | Brascan - Poke Shack - Burger + - Terra do Fogo | Shoyu Bar: Poke & Sushi",
+      "neighborhoods": "Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | active"
+    },
+    {
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "qty": "10",
+      "ids": "3820,3828,3840,3865,3870,3871,3877,7057,7062,7068",
+      "names": "A Casa do Porco Lab - Laboratório de Ideias | Brisa do Barú | FARINELLA | Paloma | Santa Efigênia Pão & Cia | Serra Vila Comércio Paes Alimentos | Tem Umami | Cacau Show Copan | Cuia Café e Restaurante | Magg Café Copan",
+      "neighborhoods": "República | República | República | República | República | República | República | República | República | República",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Paulista",
+      "addressNumber": "807",
+      "qty": "10",
+      "ids": "2130,2141,2149,2154,2155,2166,2178,2183,2185,2188",
+      "names": "Amarivin | CAPRICHO Lanchonete e Restaurante | Caverna do Espeto | Empório das Delícias | Energy Bar CT | Mamma Della Pasta | Raclete | Restaurante Porto Café | Rilston Restaurantes Ltda | SP Stilo Paulista",
+      "neighborhoods": "Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Pamplona",
+      "addressNumber": "1704",
+      "qty": "9",
+      "ids": "546,561,565,566,568,626,6041,6046,6049",
+      "names": "Biscoitê A Biscoiteria | Las Leñas Parrilla Uruguaya | Mr. Cheney Cookies | OAKBERRY | PATRONI | Havanna | Cafeteria Praça da Moça Café | Havanna Cafeteria | Nagairô Sushi - Jardim Pamplona",
+      "neighborhoods": "Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida São Luís",
+      "addressNumber": "187",
+      "qty": "9",
+      "ids": "3915,3918,3922,3925,3930,3931,3933,3936,7082",
+      "names": "Divino Feijão | Metrópole Bar | República Mineira | Restaurante How Are You | Sabor Colorido | Sabor y Amor | Sossego Mineiro | mister roll metropole | La Baguette",
+      "neighborhoods": "República | República | República | República | República | República | República | República | República",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Paulista",
+      "addressNumber": "854",
+      "qty": "8",
+      "ids": "2135,2158,2167,2193,2194,2195,6547,6548",
+      "names": "Bacio di Latte - Top Center - SP | Griletto Top Center | Manai Gastronomia - Shopping Top Center | Subway - Top Center Shopping | Super Chef Oriental | lulis gastronomia | Keito (Pub Kei) | Madero & Jeronimo Burger Top Center",
+      "neighborhoods": "Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista",
+      "statuses": "pending | pending | pending | pending | pending | pending | active | pending"
+    },
+    {
+      "address": "Rua Augusta",
+      "addressNumber": "1291",
+      "qty": "8",
+      "ids": "3089,3107,3142,3161,3191,6850,6854,6868",
+      "names": "Assanhadxs: Nu Erotic Food Augusta | Bear Picanharia | Ganesha Asian Food | Mex Machine | Tempo di Pasta - Pasta e Grill | Doces Candy candy | Lox Deli Burger | Ungaro's Burger",
+      "neighborhoods": "Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Roque Petroni Júnior",
+      "addressNumber": "1089",
+      "qty": "7",
+      "ids": "4425,4426,4429,4434,4435,4437,4439",
+      "names": "Badaró | Barbacoa Morumbi | Esplanada Grill | Pirajá Morumbi | Pobre Juan Morumbi Shopping | Super Grill Express-Shopping Morumbi | Zucco Cucina",
+      "neighborhoods": "Campo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Ipiranga",
+      "addressNumber": "344",
+      "qty": "7",
+      "ids": "3831,3832,3861,3878,4140,7064,7070",
+      "names": "Circolo Cucina | Circolo Italiano San Paolo | Mirante Edificio Itália | Terraço Itália | Restaurante Loda Itália São Paulo | Hunicah Café Bar | The Singular Club - São Paulo",
+      "neighborhoods": "República | República | República | República | República | República | República",
+      "statuses": "pending | pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Nazaré",
+      "addressNumber": "186",
+      "qty": "6",
+      "ids": "4845,4854,4856,4859,4861,7335",
+      "names": "Açaí do Museu do Ipiranga | Museum Food Park | Pastelaria do Ipiranga | Si Drinks | Tufão Grill | Eita Coisa Boa Hamburgueria",
+      "neighborhoods": "Ipiranga | Ipiranga | Ipiranga | Ipiranga | Ipiranga | Ipiranga",
+      "statuses": "pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "qty": "6",
+      "ids": "6027,6155,6180,6328,7077,7263",
+      "names": "Pizza Hut | Pizza Hut | Pizza Hut | Pizza Hut | Pizza Hut | Pizza Hut",
+      "neighborhoods": "Vila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas",
+      "statuses": "pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Paim",
+      "addressNumber": "235",
+      "qty": "6",
+      "ids": "2347,2348,2351,2354,2357,2358",
+      "names": "Bar Clesio | Bar Do Bombado | Bistrô Paim | Galeria 14, Cabelo e CIA | Quero Mais | SweetnSalt",
+      "neighborhoods": "Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista",
+      "statuses": "pending | pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Monte Alegre",
+      "addressNumber": "984",
+      "qty": "5",
+      "ids": "1116,1118,1119,1127,6233",
+      "names": "( NOPONTO. ) | Cantina 22 de Agosto | Cantina da PUC | Toca do Leão | Café Havana Puc",
+      "neighborhoods": "Perdizes | Perdizes | Perdizes | Perdizes | Perdizes",
+      "statuses": "pending | pending | pending | pending | pending"
+    },
+    {
+      "address": "Rua Itapeva",
+      "addressNumber": "435",
+      "qty": "5",
+      "ids": "2311,2316,2317,2321,2328",
+      "names": "Blaise | Cidade Matarazzo | Emerald Garden Pool & Bar | Le Jardin | Taraz",
+      "neighborhoods": "Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista",
+      "statuses": "pending | pending | pending | pending | pending"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\taddressNumber\tqty\tids\tnames\tneighborhoods\tstatuses\nAvenida Rebouças\t3970\t43\t1274,1275,1276,1277,1278,1280,1284,1287,1296,1299,1301,1304,1305,1307,1310,1311,1312,1313,1314,1325,1326,1329,1330,1331,1333,1334,1335,1338,1339,1343,1344,1345,1347,1348,1349,1353,1355,6311,6313,6314,6321,6322,6323\tAlmanara - Shopping Eldorado | Amor aos Pedaços | Andiamo Ristorante & Pizzeria Eldorado | BUBBLE KILL | Bacio di Latte - Shopping Eldorado | Baked Potato | Cannoleria di Piero | Cortés Asador Eldorado | Freddo | Frutaria São Paulo - Eldorado | GoldKo - Eldorado | Hiro Express | Jin Jin Wok | Kappa Gourmet | Madero Steak House Eldorado | Mahá Mistura Criativa | Mana Poke Shopping Eldorado | Mania de Churrasco | Maria da Villa | Papila Deli - Shopping Eldorado | Patroni | Piadina Romagnola | Pipo Bronze + Paul Cho | Pipo Restaurante | Popeyes | Praça de alimentação Shopping Eldorado | Premiatto Shopping Eldorado | Restaurante America | Restaurante Ibiza | Si Señor! Shopping Eldorado | Spicy Tuna - Autêntico Poke Havaiano | Spoleto | Strô Gastronomia | Taco Bell - Shopping Eldorado | Temakeria e Cia - Shopping Eldorado | The Steak Factory - Shopping Eldorado | Viena | B.LEM Padaria Portuguesa - Shopping Eldorado | Bolo da Madre em Shopping Eldorado | Bom Beef Burgers | Carlo's Bakery São Paulo | Frut\tPinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros | Pinheiros\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | active | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nPraça Leonor Kaupa\t100\t25\t4630,4631,4632,4633,4634,4635,4636,4637,4638,4639,4640,4641,4643,4644,4646,4647,4648,4649,4652,4654,4655,4657,7274,7275,7277\tAmor aos Pedaços (Plaza Sul Shopping) | Bacio di Latte | Baked Potato | Bar do Alemao | Biscoitê A Biscoiteria | Calle 54 (Shopping Plaza Sul) | Casa Bauducco | Coco Bambu Plaza Sul | Dengo Chocolates | Griletto | Jin Jin | KFC - FRANGO FRITO | Madero Steak House - Shopping Plaza Sul | Mania de Churrasco | Montana Express | Mr Cheney Cookies - Shopping Plaza Sul | OAKBERRY Açaí | Pecorino Bar & Trattoria Plaza Sul | Restaurante Mei Mei | Restaurante Spoleto | Starbucks Shopping Plaza Sul | Vivenda do Camarão | Bom Beef Burgers Plaza Sul | Burger King | Sucos S/A - Alimentação Saudável - Shopping Plaza Sul\tCursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino | Cursino\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nAvenida Ibirapuera\t3103\t20\t5177,5178,5182,5185,5186,5187,5190,5192,5198,5200,5201,5204,5207,5213,5217,5219,5220,7435,7441,7442\tAndiamo Ristorante & Pizzeria Ibirapuera | Bacio di Latte - Shopping Ibirapuera | Blend Cacao Shopping Ibirapuera | Casa Bauducco | Chocolate Lugano | Degusti | Frutaria São Paulo - Shopping Ibirapuera | Giraffas Shopping Ibirapuera | Mercato San Vincenzo | Mr. Cheney Cookies | Noir Chocolates - quiosque | Ofner - Shopping Ibirapuera | Quiosque FINI Shopping Ibirapuera | Restaurante Spoleto | Shopping Bar | Taco Bell - SHOPPING IBIRAPUERA | The Steak Factory - Shop. Ibirapuera | Bolos | Mania de Churrasco | Pecorino Bar & Trattoria Shopping Ibirapuera\tMoema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema | Moema\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nRua Frei Caneca\t569\t19\t3260,3263,3264,3273,3276,3280,3283,3284,3287,3288,3290,3291,3298,3300,3302,6529,6889,6897,7072\tCasa Bauducco | Croma café | Divino Fogão - Frei Caneca | Kopenhagen | Latife - Gastronomia Árabe (Shopping Frei Caneca) | Maniadechurrasco | North Bar e Grill | Oakberry Açaí Bowls - Shopping Frei Caneca | Pastelândia - Frei Caneca | Pateo da Luz | PopCorn Frei Caneca | Prime Express | Temakeria e Cia | Terra do Fogo Frei Caneca | Vivenda do Camarão | BOALI - Alimentação Saudável | Bolo da Madre Shopping Frei | Gendai | BOALI - Alimentação Saudável\tConsolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Bela Vista | Consolação | Consolação | República\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nRua Coronel Xavier de Toledo\t23\t18\t3882,3883,3884,3885,3887,3888,3891,3894,3895,3898,3899,3900,3904,3905,3908,3941,7071,7075\tBacio di Latte - Shopping Light | Batata Dipz | CasaBauduco | Empada Brasil - Shopping Light | Habib's - Quiosque Shopping Light | KFC - FRANGO FRITO | Mania de Churrasco | Pecorino Bar & Trattoria Shopping Light | Popeyes | Restaurante Detroit Steakhouse | Restaurante Mei Mei | Restaurante Outback Steakhouse | Spoleto | SuperGrill Express | York Grill Express | Departamento de compras | B.lem Padaria Portuguesa | GRÃO ESPRESSO\tRepública | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República | República\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nRua Barão de Iguape\t158\t12\t3446,3455,3456,3458,3459,3462,3463,3465,3474,3476,3479,6969\tButamão | Jjang Bap | Jjang Toast | KYMZ | Katsuya Tokyo Milanesa | Libas Food Court | Liberdade Side Street | NYKO Lamen | Shu Chan Teppan Liberdade | Takoyaki8 | Thailand Street Food | Sushiro by Chef Kasuga\tLiberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade | Liberdade\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nRua Joaquim Floriano\t466\t11\t212,215,220,221,222,233,234,247,252,5954,5962\t+54 Parrilla - Itaim Bibi | Bacio di Latte - Brascan Itaim | Casa Bauducco | Casa do Pão de Queijo | Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi) | Madero Steak House Brascan | Manirê | Rizzo Gourmet | Think Tasty | Brascan - Poke Shack - Burger + - Terra do Fogo | Shoyu Bar: Poke & Sushi\tItaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi | Itaim Bibi\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending | active\nAvenida Ipiranga\t200\t10\t3820,3828,3840,3865,3870,3871,3877,7057,7062,7068\tA Casa do Porco Lab - Laboratório de Ideias | Brisa do Barú | FARINELLA | Paloma | Santa Efigênia Pão & Cia | Serra Vila Comércio Paes Alimentos | Tem Umami | Cacau Show Copan | Cuia Café e Restaurante | Magg Café Copan\tRepública | República | República | República | República | República | República | República | República | República\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nAvenida Paulista\t807\t10\t2130,2141,2149,2154,2155,2166,2178,2183,2185,2188\tAmarivin | CAPRICHO Lanchonete e Restaurante | Caverna do Espeto | Empório das Delícias | Energy Bar CT | Mamma Della Pasta | Raclete | Restaurante Porto Café | Rilston Restaurantes Ltda | SP Stilo Paulista\tBela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista\tpending | pending | pending | pending | pending | pending | pending | pending | pending | pending\nRua Pamplona\t1704\t9\t546,561,565,566,568,626,6041,6046,6049\tBiscoitê A Biscoiteria | Las Leñas Parrilla Uruguaya | Mr. Cheney Cookies | OAKBERRY | PATRONI | Havanna | Cafeteria Praça da Moça Café | Havanna Cafeteria | Nagairô Sushi - Jardim Pamplona\tJardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista | Jardim Paulista\tpending | pending | pending | pending | pending | pending | pending | pending | pending\nAvenida São Luís\t187\t9\t3915,3918,3922,3925,3930,3931,3933,3936,7082\tDivino Feijão | Metrópole Bar | República Mineira | Restaurante How Are You | Sabor Colorido | Sabor y Amor | Sossego Mineiro | mister roll metropole | La Baguette\tRepública | República | República | República | República | República | República | República | República\tpending | pending | pending | pending | pending | pending | pending | pending | pending\nAvenida Paulista\t854\t8\t2135,2158,2167,2193,2194,2195,6547,6548\tBacio di Latte - Top Center - SP | Griletto Top Center | Manai Gastronomia - Shopping Top Center | Subway - Top Center Shopping | Super Chef Oriental | lulis gastronomia | Keito (Pub Kei) | Madero & Jeronimo Burger Top Center\tBela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista\tpending | pending | pending | pending | pending | pending | active | pending\nRua Augusta\t1291\t8\t3089,3107,3142,3161,3191,6850,6854,6868\tAssanhadxs: Nu Erotic Food Augusta | Bear Picanharia | Ganesha Asian Food | Mex Machine | Tempo di Pasta - Pasta e Grill | Doces Candy candy | Lox Deli Burger | Ungaro's Burger\tConsolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação | Consolação\tpending | pending | pending | pending | pending | pending | pending | pending\nAvenida Roque Petroni Júnior\t1089\t7\t4425,4426,4429,4434,4435,4437,4439\tBadaró | Barbacoa Morumbi | Esplanada Grill | Pirajá Morumbi | Pobre Juan Morumbi Shopping | Super Grill Express-Shopping Morumbi | Zucco Cucina\tCampo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo | Campo Belo\tpending | pending | pending | pending | pending | pending | pending\nAvenida Ipiranga\t344\t7\t3831,3832,3861,3878,4140,7064,7070\tCircolo Cucina | Circolo Italiano San Paolo | Mirante Edificio Itália | Terraço Itália | Restaurante Loda Itália São Paulo | Hunicah Café Bar | The Singular Club - São Paulo\tRepública | República | República | República | República | República | República\tpending | pending | pending | pending | pending | pending | pending\nAvenida Nazaré\t186\t6\t4845,4854,4856,4859,4861,7335\tAçaí do Museu do Ipiranga | Museum Food Park | Pastelaria do Ipiranga | Si Drinks | Tufão Grill | Eita Coisa Boa Hamburgueria\tIpiranga | Ipiranga | Ipiranga | Ipiranga | Ipiranga | Ipiranga\tpending | pending | pending | pending | pending | pending\nAvenida Washington Luísº, Praça de Alimentação\ts/n\t6\t6027,6155,6180,6328,7077,7263\tPizza Hut | Pizza Hut | Pizza Hut | Pizza Hut | Pizza Hut | Pizza Hut\tVila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas | Vila Congonhas\tpending | pending | pending | pending | pending | pending\nRua Paim\t235\t6\t2347,2348,2351,2354,2357,2358\tBar Clesio | Bar Do Bombado | Bistrô Paim | Galeria 14, Cabelo e CIA | Quero Mais | SweetnSalt\tBela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista\tpending | pending | pending | pending | pending | pending\nRua Monte Alegre\t984\t5\t1116,1118,1119,1127,6233\t( NOPONTO. ) | Cantina 22 de Agosto | Cantina da PUC | Toca do Leão | Café Havana Puc\tPerdizes | Perdizes | Perdizes | Perdizes | Perdizes\tpending | pending | pending | pending | pending\nRua Itapeva\t435\t5\t2311,2316,2317,2321,2328\tBlaise | Cidade Matarazzo | Emerald Garden Pool & Bar | Le Jardin | Taraz\tBela Vista | Bela Vista | Bela Vista | Bela Vista | Bela Vista\tpending | pending | pending | pending | pending\n",
+  "stderr": "",
+  "execution_time_ms": 3320
+}

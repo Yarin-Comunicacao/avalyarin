@@ -1,0 +1,30 @@
+{
+  "query": "\nSELECT \n  CASE \n    WHEN qty = 2 THEN '2 registros'\n    WHEN qty = 3 THEN '3 registros'\n    WHEN qty BETWEEN 4 AND 10 THEN '4-10 registros'\n    WHEN qty > 10 THEN '10+ registros (shoppings)'\n  END as tipo,\n  COUNT(*) as grupos,\n  SUM(qty) as total_registros\nFROM (\n  SELECT address, addressNumber, COUNT(*) as qty\n  FROM establishments \n  WHERE address IS NOT NULL AND address != '' \n    AND addressNumber IS NOT NULL AND addressNumber != ''\n  GROUP BY address, addressNumber \n  HAVING COUNT(*) > 1\n) sub\nGROUP BY CASE \n    WHEN qty = 2 THEN '2 registros'\n    WHEN qty = 3 THEN '3 registros'\n    WHEN qty BETWEEN 4 AND 10 THEN '4-10 registros'\n    WHEN qty > 10 THEN '10+ registros (shoppings)'\n  END\nORDER BY MIN(qty);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  CASE \n    WHEN qty = 2 THEN '2 registros'\n    WHEN qty = 3 THEN '3 registros'\n    WHEN qty BETWEEN 4 AND 10 THEN '4-10 registros'\n    WHEN qty > 10 THEN '10+ registros (shoppings)'\n  END as tipo,\n  COUNT(*) as grupos,\n  SUM(qty) as total_registros\nFROM (\n  SELECT address, addressNumber, COUNT(*) as qty\n  FROM establishments \n  WHERE address IS NOT NULL AND address != '' \n    AND addressNumber IS NOT NULL AND addressNumber != ''\n  GROUP BY address, addressNumber \n  HAVING COUNT(*) > 1\n) sub\nGROUP BY CASE \n    WHEN qty = 2 THEN '2 registros'\n    WHEN qty = 3 THEN '3 registros'\n    WHEN qty BETWEEN 4 AND 10 THEN '4-10 registros'\n    WHEN qty > 10 THEN '10+ registros (shoppings)'\n  END\nORDER BY MIN(qty);\n",
+  "rows": [
+    {
+      "tipo": "2 registros",
+      "grupos": "534",
+      "total_registros": "1068"
+    },
+    {
+      "tipo": "3 registros",
+      "grupos": "63",
+      "total_registros": "189"
+    },
+    {
+      "tipo": "4-10 registros",
+      "grupos": "35",
+      "total_registros": "186"
+    },
+    {
+      "tipo": "10+ registros (shoppings)",
+      "grupos": "7",
+      "total_registros": "148"
+    }
+  ],
+  "messages": [],
+  "stdout": "tipo\tgrupos\ttotal_registros\n2 registros\t534\t1068\n3 registros\t63\t189\n4-10 registros\t35\t186\n10+ registros (shoppings)\t7\t148\n",
+  "stderr": "",
+  "execution_time_ms": 292
+}

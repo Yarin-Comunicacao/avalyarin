@@ -216,3 +216,8 @@
 - [x] Extrair complementos embutidos nos endereços dos pendentes
 - [x] Separar nomes longos com descrições (pipes, dois pontos, traços)
 - [x] Remover 5 estabs sem endereço algum (dados insuficientes)
+- [x] Identificar duplicidades (mesmo endereço + número) em todos os estabelecimentos (170 encontradas)
+- [x] Verificar no Google Maps o nome e bairro correto dos 11 grupos com bairros divergentes
+- [x] Verificar 11 duplicidades com bairros divergentes no Google Maps
+- [x] Corrigir bairros (Consolação, Vila Madalena, Jardim Luzitânia, Vila Mariana, Vila Nova Conceição) e remover 11 duplicatas
+- [x] Gerar planilha das 158 duplicidades restantes (mesmo bairro) para revisão manual do usuário
