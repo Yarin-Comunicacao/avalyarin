@@ -1,0 +1,31 @@
+{
+  "query": "SELECT DISTINCT status FROM establishments LIMIT 10; SELECT DISTINCT neighborhood FROM establishments WHERE neighborhood LIKE '%Madalena%' OR neighborhood LIKE '%Pinheiros%' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT status FROM establishments LIMIT 10; SELECT DISTINCT neighborhood FROM establishments WHERE neighborhood LIKE '%Madalena%' OR neighborhood LIKE '%Pinheiros%' LIMIT 20;",
+  "rows": [
+    {
+      "status": "pending"
+    },
+    {
+      "status": "active"
+    },
+    {
+      "status": "neighborhood"
+    },
+    {
+      "status": "Pinheiros"
+    },
+    {
+      "status": "Alto de Pinheiros"
+    },
+    {
+      "status": "Vila Madalena"
+    },
+    {
+      "status": "Vila Madalena/Sumarezinho"
+    }
+  ],
+  "messages": [],
+  "stdout": "status\npending\nactive\nneighborhood\nPinheiros\nAlto de Pinheiros\nVila Madalena\nVila Madalena/Sumarezinho\n",
+  "stderr": "",
+  "execution_time_ms": 418
+}

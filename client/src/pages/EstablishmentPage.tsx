@@ -5,7 +5,9 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, Star, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X } from "lucide-react";
+import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
+import { AvalyarinReviews } from "@/components/AvalyarinReviews";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -159,19 +161,7 @@ export default function EstablishmentPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {establishment.rating && (
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-border/50">
-                  <Star className="w-4 h-4 text-primary fill-primary" />
-                  <span className="font-numbers text-base font-semibold text-primary">{establishment.rating}</span>
-                </div>
-                {establishment.reviewCount && (
-                  <span className="text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-border/50">
-                    {establishment.reviewCount.toLocaleString("pt-BR")} avaliações
-                  </span>
-                )}
-              </div>
-            )}
+
             <h2 className="font-display text-4xl sm:text-5xl tracking-wider text-primary text-glow-amber">
               {establishment.name.toUpperCase()}
             </h2>
@@ -254,6 +244,29 @@ export default function EstablishmentPage() {
       </section>
 
       {/* CTA - inline removed, now fixed at bottom */}
+
+      {/* Ratings Section: Google + Avalyarin side by side */}
+      <section className="py-4">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Google Rating */}
+            {(establishment.rating || establishment.reviewCount) && (
+              <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/30">
+                <h4 className="font-display text-sm tracking-wider text-muted-foreground mb-3">GOOGLE</h4>
+                <GoogleRatingBadge
+                  rating={establishment.rating ? Number(establishment.rating) : null}
+                  reviewCount={establishment.reviewCount ? Number(establishment.reviewCount) : null}
+                />
+              </div>
+            )}
+            {/* Avalyarin Reviews */}
+            <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20">
+              <h4 className="font-display text-sm tracking-wider text-primary mb-3">AVALYARIN</h4>
+              <AvalyarinReviews establishmentId={establishment.id} />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Claim Establishment */}
       <section className="pb-4">

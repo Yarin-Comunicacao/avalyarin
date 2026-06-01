@@ -1,0 +1,2110 @@
+{
+  "query": "\n-- Pegar os IDs únicos (sem repetição) dos estabs que não têm Instagram\n-- Usar UNION para pegar tanto id1 quanto id2 sem Instagram\nWITH duplicate_pairs AS (\n  SELECT e1.id as id1, e1.name as name1, e1.instagram as ig1, e1.address as addr1, e1.addressNumber as num1, e1.neighborhood as bairro1,\n         e2.id as id2, e2.name as name2, e2.instagram as ig2\n  FROM establishments e1\n  JOIN establishments e2 ON e1.address = e2.address \n    AND e1.addressNumber = e2.addressNumber \n    AND e1.id < e2.id\n    AND e1.address IS NOT NULL \n    AND e1.address != ''\n    AND e1.addressNumber IS NOT NULL\n    AND e1.addressNumber != ''\n    AND e1.neighborhood = e2.neighborhood\n  WHERE (\n    LOWER(e1.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e2.name, ' ', 1)), '%')\n    OR LOWER(e2.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e1.name, ' ', 1)), '%')\n  )\n),\nunique_ids AS (\n  SELECT id1 as id, name1 as name, addr1 as address, num1 as addressNumber, bairro1 as neighborhood FROM duplicate_pairs WHERE ig1 IS NULL OR ig1 = ''\n  UNION\n  SELECT id2 as id, name2 as name, addr1 as address, num1 as addressNumber, bairro1 as neighborhood FROM duplicate_pairs WHERE ig2 IS NULL OR ig2 = ''\n)\nSELECT id, name, address, addressNumber, neighborhood FROM unique_ids ORDER BY name LIMIT 300;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \n-- Pegar os IDs únicos (sem repetição) dos estabs que não têm Instagram\n-- Usar UNION para pegar tanto id1 quanto id2 sem Instagram\nWITH duplicate_pairs AS (\n  SELECT e1.id as id1, e1.name as name1, e1.instagram as ig1, e1.address as addr1, e1.addressNumber as num1, e1.neighborhood as bairro1,\n         e2.id as id2, e2.name as name2, e2.instagram as ig2\n  FROM establishments e1\n  JOIN establishments e2 ON e1.address = e2.address \n    AND e1.addressNumber = e2.addressNumber \n    AND e1.id < e2.id\n    AND e1.address IS NOT NULL \n    AND e1.address != ''\n    AND e1.addressNumber IS NOT NULL\n    AND e1.addressNumber != ''\n    AND e1.neighborhood = e2.neighborhood\n  WHERE (\n    LOWER(e1.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e2.name, ' ', 1)), '%')\n    OR LOWER(e2.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e1.name, ' ', 1)), '%')\n  )\n),\nunique_ids AS (\n  SELECT id1 as id, name1 as name, addr1 as address, num1 as addressNumber, bairro1 as neighborhood FROM duplicate_pairs WHERE ig1 IS NULL OR ig1 = ''\n  UNION\n  SELECT id2 as id, name2 as name, addr1 as address, num1 as addressNumber, bairro1 as neighborhood FROM duplicate_pairs WHERE ig2 IS NULL OR ig2 = ''\n)\nSELECT id, name, address, addressNumber, neighborhood FROM unique_ids ORDER BY name LIMIT 300;\n",
+  "rows": [
+    {
+      "id": "1662",
+      "name": "520 Bar lanchonete",
+      "address": "Rua Cunha Gago",
+      "addressNumber": "520",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6277",
+      "name": "A Bendita Padaria",
+      "address": "Rua Apinajés",
+      "addressNumber": "206",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "6219",
+      "name": "A Bendita Padaria e café",
+      "address": "Rua Apinajés",
+      "addressNumber": "206",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "3820",
+      "name": "A Casa do Porco Lab - Laboratório de Ideias",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "7213",
+      "name": "A Chapa Hamburgers - Vila Mascote",
+      "address": "Avenida Doutor Lino de Moraes Leme",
+      "addressNumber": "1159",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "6592",
+      "name": "A DONNA MUSIC CLUB",
+      "address": "Rua Rui Barbosa",
+      "addressNumber": "354",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "1357",
+      "name": "A Favorita",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "1976",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "3048",
+      "name": "A Juriti",
+      "address": "Rua Amarante",
+      "addressNumber": "31",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "7114",
+      "name": "A Toca",
+      "address": "Rua Doutor Cesário Mota Júnior",
+      "addressNumber": "112",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "5988",
+      "name": "A menor confeitaria do mundo",
+      "address": "Rua Doutor Renato Paes de Barros",
+      "addressNumber": "908",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "2941",
+      "name": "Aclimação Bar",
+      "address": "Avenida Lacerda Franco",
+      "addressNumber": "1599",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "6248",
+      "name": "Aimbeer 850 PUB",
+      "address": "Rua Aimberê",
+      "addressNumber": "850",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1274",
+      "name": "Almanara - Shopping Eldorado",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "3205",
+      "name": "Art Lanches",
+      "address": "Rua da Consolação",
+      "addressNumber": "1975",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "4620",
+      "name": "BAR DO MINEIRO",
+      "address": "Rua Gil Eanes",
+      "addressNumber": "815",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "1538",
+      "name": "BARK BBQ",
+      "address": "Rua Artur de Azevedo",
+      "addressNumber": "657",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "215",
+      "name": "Bacio di Latte - Brascan Itaim",
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "5178",
+      "name": "Bacio di Latte - Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4148",
+      "name": "Baffs",
+      "address": "Rua Doutor Cesário Mota Júnior",
+      "addressNumber": "112",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "3014",
+      "name": "Bar",
+      "address": "Rua Amarante",
+      "addressNumber": "31",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "5114",
+      "name": "Bar",
+      "address": "Rua Lord Cockrane",
+      "addressNumber": "625",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5375",
+      "name": "Bar & Lanchonete Bandeira Um",
+      "address": "Rua Abílio Soares",
+      "addressNumber": "998",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4007",
+      "name": "Bar A Preferida Da República",
+      "address": "Avenida Vieira de Carvalho",
+      "addressNumber": "11",
+      "neighborhood": "República"
+    },
+    {
+      "id": "2347",
+      "name": "Bar Clesio",
+      "address": "Rua Paim",
+      "addressNumber": "235",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2348",
+      "name": "Bar Do Bombado",
+      "address": "Rua Paim",
+      "addressNumber": "235",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2795",
+      "name": "Bar Do Gordao",
+      "address": "Rua Joaquim Murtinho",
+      "addressNumber": "299",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "1233",
+      "name": "Bar E Mercearia Mourão",
+      "address": "Rua Piracuama",
+      "addressNumber": "9",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "4721",
+      "name": "Bar Estrela",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "2073",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "1794",
+      "name": "Bar Long Neck",
+      "address": "Rua Guaicuí",
+      "addressNumber": "10",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1234",
+      "name": "Bar Sabetudo",
+      "address": "Rua Piracuama",
+      "addressNumber": "9",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "3059",
+      "name": "Bar da Branca",
+      "address": "Rua Gama Cerqueira",
+      "addressNumber": "410",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "4864",
+      "name": "Bar da Xuxa",
+      "address": "Rua Almirante Mariath",
+      "addressNumber": "118",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4801",
+      "name": "Bar da velha",
+      "address": "Avenida Doutor Gentil de Moura",
+      "addressNumber": "206",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4633",
+      "name": "Bar do Alemao",
+      "address": "Praça Leonor Kaupa",
+      "addressNumber": "100",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "2331",
+      "name": "Bar do Careca Moralista",
+      "address": "Rua Conselheiro Ramalho",
+      "addressNumber": "800",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "4621",
+      "name": "Bar do Juarez Brooklin",
+      "address": "Rua Joaquim Nabuco",
+      "addressNumber": "325",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "5572",
+      "name": "Bar do Juarez Moema",
+      "address": "Avenida Jurema- Moema, Indianópolis - SP, 04079-001, Brasil",
+      "addressNumber": "324",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5395",
+      "name": "Bar do Marcio",
+      "address": "Alameda Iraé",
+      "addressNumber": "421",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4576",
+      "name": "Bar do Mineiro",
+      "address": "Rua Gil Eanes",
+      "addressNumber": "815",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "3030",
+      "name": "Bar do Neco",
+      "address": "Rua Paulo Orozimbo",
+      "addressNumber": "317",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "5376",
+      "name": "Bar do Neto Restaurante",
+      "address": "Rua Abílio Soares",
+      "addressNumber": "998",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2942",
+      "name": "Bar do Zuza",
+      "address": "Avenida Lacerda Franco",
+      "addressNumber": "1599",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "4804",
+      "name": "Bar do gordinho",
+      "address": "Rua Cipriano Barata",
+      "addressNumber": "1842",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4805",
+      "name": "Bar do gordo",
+      "address": "Rua Cipriano Barata",
+      "addressNumber": "1842",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "1609",
+      "name": "Bar e Lanches Cardeal",
+      "address": "Rua Cardeal Arcoverde",
+      "addressNumber": "2281",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1495",
+      "name": "Bar e Lanches Conquista",
+      "address": "Rua Padre Carvalho",
+      "addressNumber": "715",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5396",
+      "name": "Bar e Lanches El Relicario",
+      "address": "Alameda Iraé",
+      "addressNumber": "421",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4896",
+      "name": "Bar e Lanches Idiltonio",
+      "address": "Rua Lino Coutinho",
+      "addressNumber": "920",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4723",
+      "name": "Bar e Lanches Jonuvi",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "2073",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "3031",
+      "name": "Bar e Lanches Orozimbo",
+      "address": "Rua Paulo Orozimbo",
+      "addressNumber": "317",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "2837",
+      "name": "Bar e Lanches Reige",
+      "address": "Rua Três Rios",
+      "addressNumber": "12",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "4897",
+      "name": "Bar e Lanches redenção",
+      "address": "Rua Lino Coutinho",
+      "addressNumber": "920",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "1610",
+      "name": "Bar e Lanchonete",
+      "address": "Rua Cunha Gago",
+      "addressNumber": "520",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "3825",
+      "name": "Bar e Restaurante",
+      "address": "Avenida Vieira de Carvalho",
+      "addressNumber": "160",
+      "neighborhood": "República"
+    },
+    {
+      "id": "367",
+      "name": "Bar e Restaurante Amigos do Itaim",
+      "address": "Rua Doutor Renato Paes de Barros",
+      "addressNumber": "545",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "4200",
+      "name": "Bar e Restaurante Esquina da Lins",
+      "address": "Rua Doutor Albuquerque Lins",
+      "addressNumber": "291",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "4201",
+      "name": "Bar e Restaurante Lins",
+      "address": "Rua Doutor Albuquerque Lins",
+      "addressNumber": "291",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "4962",
+      "name": "Bar e Restaurante Nono",
+      "address": "Rua Clemente Pereira",
+      "addressNumber": "572",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "6633",
+      "name": "Bar e pizzaria união",
+      "address": "Rua Manoel Dutra",
+      "addressNumber": "126",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "1540",
+      "name": "Bark n'Crust",
+      "address": "Rua Artur de Azevedo",
+      "addressNumber": "657",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6620",
+      "name": "Bela Binna Café e Açaí",
+      "address": "Rua RochaA",
+      "addressNumber": "206",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6594",
+      "name": "Bela Vista Show",
+      "address": "Rua Rui Barbosa",
+      "addressNumber": "354",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6673",
+      "name": "Bella Napoli Pizzaria",
+      "address": "Rua São Domingos",
+      "addressNumber": "84",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2711",
+      "name": "Bellapan",
+      "address": "Rua Prates",
+      "addressNumber": "563",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "6709",
+      "name": "Bellapan Bakery",
+      "address": "Rua Prates",
+      "addressNumber": "563",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "1361",
+      "name": "Big Salgados",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "2130",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1362",
+      "name": "Big Salgados Pinheiros",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "2130",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2378",
+      "name": "Binna Artesanal",
+      "address": "Rua RochaA",
+      "addressNumber": "206",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "1952",
+      "name": "Bistrô Charlô",
+      "address": "Rua Henrique Monteiro",
+      "addressNumber": "154",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5182",
+      "name": "Blend Cacao Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "430",
+      "name": "Blenz",
+      "address": "Rua Leopoldo Couto Magalhães Júnior",
+      "addressNumber": "1421",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "5977",
+      "name": "Blenz Café - São Luiz",
+      "address": "Rua Leopoldo Couto Magalhães Júnior",
+      "addressNumber": "1421",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "7274",
+      "name": "Bom Beef Burgers Plaza Sul",
+      "address": "Praça Leonor Kaupa",
+      "addressNumber": "100",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "1860",
+      "name": "Bosco Restaurante",
+      "address": "Rua João Moura",
+      "addressNumber": "976",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "369",
+      "name": "Braca Bar - Itaim Bibi",
+      "address": "Rua Doutor Renato Paes de Barros",
+      "addressNumber": "908",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "5954",
+      "name": "Brascan - Poke Shack - Burger + - Terra do Fogo",
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "3828",
+      "name": "Brisa do Barú",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "7275",
+      "name": "Burger King",
+      "address": "Praça Leonor Kaupa",
+      "addressNumber": "100",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "2141",
+      "name": "CAPRICHO Lanchonete e Restaurante",
+      "address": "Avenida Paulista",
+      "addressNumber": "807",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7057",
+      "name": "Cacau Show Copan",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "6485",
+      "name": "Cafe La Bamba",
+      "address": "Rua Baltazar Carrasco",
+      "addressNumber": "46",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6486",
+      "name": "Cafe monik",
+      "address": "Rua Baltazar Carrasco",
+      "addressNumber": "46",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6041",
+      "name": "Cafeteria Praça da Moça Café",
+      "address": "Rua Pamplona",
+      "addressNumber": "1704",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "6090",
+      "name": "Café do Villa",
+      "address": "Avenida Nove de Julho",
+      "addressNumber": "4939",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "1118",
+      "name": "Cantina 22 de Agosto",
+      "address": "Rua Monte Alegre",
+      "addressNumber": "984",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1119",
+      "name": "Cantina da PUC",
+      "address": "Rua Monte Alegre",
+      "addressNumber": "984",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "220",
+      "name": "Casa Bauducco",
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "6016",
+      "name": "Casa De Bolos",
+      "address": "Avenida Brigadeiro Luís Antônio",
+      "addressNumber": "2449",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "6998",
+      "name": "Casa de Bolos",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "1314",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "6844",
+      "name": "Casa de Bolos",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "1314",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "7303",
+      "name": "Casa de Bolos",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "1314",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "7160",
+      "name": "Casa de Bolos",
+      "address": "Rua Silva Bueno",
+      "addressNumber": "1314",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "6018",
+      "name": "Casa de Bolos Brigadeiro",
+      "address": "Avenida Brigadeiro Luís Antônio",
+      "addressNumber": "2449",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "7504",
+      "name": "Casa de Bolos Moema Pássaros",
+      "address": "Rua Inhambu",
+      "addressNumber": "1076",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7567",
+      "name": "Casa do Bolo",
+      "address": "Rua Inhambu",
+      "addressNumber": "1076",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "221",
+      "name": "Casa do Pão de Queijo",
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "2149",
+      "name": "Caverna do Espeto",
+      "address": "Avenida Paulista",
+      "addressNumber": "807",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6371",
+      "name": "Cervejaria Oak",
+      "address": "Rua Padre Carvalho",
+      "addressNumber": "769",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6258",
+      "name": "Cervejaria Perdizes Cerveja Artesanal",
+      "address": "Rua Ministro Ferreira Alves",
+      "addressNumber": "192",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "7385",
+      "name": "Cervejaria, Bar e Restaurante Hettwer Ipiranga",
+      "address": "Rua General Lecor",
+      "addressNumber": "175",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "1954",
+      "name": "Cha Cha",
+      "address": "Rua Henrique Monteiro",
+      "addressNumber": "154",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1645",
+      "name": "Cheirin Bão Pinheiros",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "2183",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1368",
+      "name": "Cheirin Bão Teodoro Sampaio",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "2183",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5484",
+      "name": "Chico Grill Moema",
+      "address": "Alameda dos Pamaris",
+      "addressNumber": "301",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "1249",
+      "name": "Chiquinho Bar & Espetinhos",
+      "address": "Rua Doutor Homem de Melo",
+      "addressNumber": "952",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1034",
+      "name": "Chiquinho Bar & Restaurante",
+      "address": "Rua Doutor Homem de Melo",
+      "addressNumber": "952",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "5186",
+      "name": "Chocolate Lugano",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2316",
+      "name": "Cidade Matarazzo",
+      "address": "Rua Itapeva",
+      "addressNumber": "435",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "3831",
+      "name": "Circolo Cucina",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "344",
+      "neighborhood": "República"
+    },
+    {
+      "id": "3832",
+      "name": "Circolo Italiano San Paolo",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "344",
+      "neighborhood": "República"
+    },
+    {
+      "id": "7168",
+      "name": "Coffee it",
+      "address": "Rua Vieira de Morais",
+      "addressNumber": "1110",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "7602",
+      "name": "Confeitaria",
+      "address": "Avenida Moema",
+      "addressNumber": "324",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2336",
+      "name": "Conselheiro Listening Bar",
+      "address": "Rua Conselheiro Ramalho",
+      "addressNumber": "800",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "596",
+      "name": "Consentido Culinária Espanhola",
+      "address": "Alameda Campinas",
+      "addressNumber": "1061",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "1435",
+      "name": "Consulado Baiano - Pinheiros",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "534",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1437",
+      "name": "Consulado da Bahia - Pinheiros",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "534",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1439",
+      "name": "Cozinha 212",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "174",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "7062",
+      "name": "Cuia Café e Restaurante",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5232",
+      "name": "DIB - Especialidades Árabes",
+      "address": "Avenida Macuco",
+      "addressNumber": "328",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5509",
+      "name": "DIB Especialidades Árabes",
+      "address": "Avenida Macuco",
+      "addressNumber": "328",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2032",
+      "name": "De Primeira Botequim",
+      "address": "Rua Aspicuelta",
+      "addressNumber": "271",
+      "neighborhood": "Vila Madalena"
+    },
+    {
+      "id": "7216",
+      "name": "Delícia de Bolos Caseiros 2",
+      "address": "Rua João de Sousa Dias",
+      "addressNumber": "569",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "4505",
+      "name": "Delícias do Campo",
+      "address": "Rua João de Sousa Dias",
+      "addressNumber": "569",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "5636",
+      "name": "Dolcíssimo Lanchonete e Café",
+      "address": "Rua Pedro de Toledo",
+      "addressNumber": "1800",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6625",
+      "name": "Dom Felipe Pizzaria e Restaurante",
+      "address": "Rua Doutor Luís Barreto",
+      "addressNumber": "154",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "3660",
+      "name": "Dona Deola BP para pacientes",
+      "address": "Rua Maestro Cardim",
+      "addressNumber": "769",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "1877",
+      "name": "Dona Vitamina Pinheiros",
+      "address": "Rua Mateus Grou",
+      "addressNumber": "152",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2701",
+      "name": "Dong Re",
+      "address": "Rua Silva Pinto",
+      "addressNumber": "469",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "2702",
+      "name": "Dong Re Restaurante",
+      "address": "Rua Silva Pinto",
+      "addressNumber": "469",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "2607",
+      "name": "Duco Tea-Milk",
+      "address": "Rua Prates",
+      "addressNumber": "595",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "1576",
+      "name": "Due Cuochi",
+      "address": "Rua Ferreira de Araújo",
+      "addressNumber": "470",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1577",
+      "name": "Due Cuochi Trattoria",
+      "address": "Rua Ferreira de Araújo",
+      "addressNumber": "470",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "4182",
+      "name": "Esfiha Chic - Higienópolis",
+      "address": "Rua Martim Francisco",
+      "addressNumber": "149",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "4236",
+      "name": "Esfiha Chic Delivery",
+      "address": "Rua Martim Francisco",
+      "addressNumber": "149",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "3661",
+      "name": "Espaço Dona Deôla Comidinhas & Cia",
+      "address": "Rua Maestro Cardim",
+      "addressNumber": "769",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3536",
+      "name": "Espaço Vergueiro",
+      "address": "Rua Vergueiro",
+      "addressNumber": "170",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "6985",
+      "name": "Espaço Vergueiro",
+      "address": "Rua Vergueiro",
+      "addressNumber": "170",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3133",
+      "name": "Espetinho Bela Vista",
+      "address": "Rua Augusta",
+      "addressNumber": "747",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "3134",
+      "name": "Espetinho Dona Augusta",
+      "address": "Rua Augusta",
+      "addressNumber": "747",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "5045",
+      "name": "Esquina Bar",
+      "address": "Rua Costa Aguiar",
+      "addressNumber": "701",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "3840",
+      "name": "FARINELLA",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5460",
+      "name": "Farabbud",
+      "address": "Alameda dos Anapurus",
+      "addressNumber": "1253",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5309",
+      "name": "Farabbud Moema",
+      "address": "Alameda dos Anapurus",
+      "addressNumber": "1253",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "3841",
+      "name": "Fazenda Steakhouse",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "978",
+      "neighborhood": "República"
+    },
+    {
+      "id": "3842",
+      "name": "Fazenda steakhouse",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "978",
+      "neighborhood": "República"
+    },
+    {
+      "id": "6322",
+      "name": "Frutaria Fit",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1299",
+      "name": "Frutaria São Paulo - Eldorado",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5190",
+      "name": "Frutaria São Paulo - Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "3140",
+      "name": "Fábrica Augusta",
+      "address": "Rua Augusta",
+      "addressNumber": "1283",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "3141",
+      "name": "Fábrica Drinks",
+      "address": "Rua Augusta",
+      "addressNumber": "1283",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "1581",
+      "name": "Gael Cozinha Mestiça",
+      "address": "Rua Ferreira de Araújo- e 322",
+      "addressNumber": "320",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6344",
+      "name": "Galeria Musical Julinho Clube",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "1946",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "624",
+      "name": "Geiko San",
+      "address": "Rua Peixoto Gomide",
+      "addressNumber": "1492",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "625",
+      "name": "Geiko San Oficial",
+      "address": "Rua Peixoto Gomide",
+      "addressNumber": "1492",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "5192",
+      "name": "Giraffas Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5575",
+      "name": "Grill Moema",
+      "address": "Alameda dos Pamaris",
+      "addressNumber": "301",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "1832",
+      "name": "Guilhotina Bar",
+      "address": "Rua Costa Carvalho",
+      "addressNumber": "84",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "4811",
+      "name": "Gula Bar",
+      "address": "Avenida Almirante Delamare",
+      "addressNumber": "592",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4812",
+      "name": "Gula Rooftop",
+      "address": "Avenida Almirante Delamare",
+      "addressNumber": "592",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "626",
+      "name": "Havanna",
+      "address": "Rua Pamplona",
+      "addressNumber": "1704",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "6046",
+      "name": "Havanna Cafeteria",
+      "address": "Rua Pamplona",
+      "addressNumber": "1704",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "6177",
+      "name": "Hobby Hamburger",
+      "address": "Rua Cardoso de Almeida",
+      "addressNumber": "1393",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "6178",
+      "name": "Hobby hamburguer",
+      "address": "Rua Cardoso de Almeida",
+      "addressNumber": "1393",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "6640",
+      "name": "Hyandra Pizzaria e Hamburgueria",
+      "address": "Rua Maria José",
+      "addressNumber": "20",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7065",
+      "name": "Ipiranga Pizzaria",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "746",
+      "neighborhood": "República"
+    },
+    {
+      "id": "6917",
+      "name": "Iracema Pães e Doces",
+      "address": "Avenida Angélica",
+      "addressNumber": "101",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "2295",
+      "name": "Itália Mia / Casa Volpato",
+      "address": "Rua Rui Barbosa",
+      "addressNumber": "354",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "386",
+      "name": "Jamie Oliver Kitchen",
+      "address": "Avenida Horácio Lafer",
+      "addressNumber": "61",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "387",
+      "name": "Jamie's Italian São Paulo",
+      "address": "Avenida Horácio Lafer",
+      "addressNumber": "61",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "3455",
+      "name": "Jjang Bap",
+      "address": "Rua Barão de Iguape",
+      "addressNumber": "158",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3456",
+      "name": "Jjang Toast",
+      "address": "Rua Barão de Iguape",
+      "addressNumber": "158",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4965",
+      "name": "Julia's Bar e Restaurante",
+      "address": "Rua Clemente Pereira",
+      "addressNumber": "572",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "6348",
+      "name": "Julinho Clube",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "1946",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "779",
+      "name": "Ki Pastel",
+      "address": "Rua Afonso Sardinha",
+      "addressNumber": "80",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "826",
+      "name": "Ki pastel",
+      "address": "Rua Afonso Sardinha",
+      "addressNumber": "80",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "3889",
+      "name": "Kopenhagen",
+      "address": "Rua Dom José de Barros",
+      "addressNumber": "158",
+      "neighborhood": "República"
+    },
+    {
+      "id": "3993",
+      "name": "Kopenhagen Dom Jose de Barros",
+      "address": "Rua Dom José de Barros",
+      "addressNumber": "158",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5420",
+      "name": "La Boca Burguer",
+      "address": "Avenida Moema",
+      "addressNumber": "218",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "681",
+      "name": "La Bodega",
+      "address": "Avenida Nove de Julho",
+      "addressNumber": "3680",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "6270",
+      "name": "La Brasa Burger Perdizes",
+      "address": "Rua João Ramalho",
+      "addressNumber": "951",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "5421",
+      "name": "La Parrilla Argentina",
+      "address": "Avenida Moema",
+      "addressNumber": "218",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6271",
+      "name": "La Pietra Pizzaria Perdizes",
+      "address": "Rua João Ramalho",
+      "addressNumber": "951",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "6272",
+      "name": "La furiosa Pizzaria Perdizes",
+      "address": "Rua João Ramalho",
+      "addressNumber": "951",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1511",
+      "name": "Lanches Cardeal",
+      "address": "Rua Cardeal Arcoverde",
+      "addressNumber": "2281",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "4444",
+      "name": "Lanchonete",
+      "address": "Rua Vieira de Morais",
+      "addressNumber": "566",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "4402",
+      "name": "Lanchonete Belo Burguer",
+      "address": "Rua Vieira de Morais",
+      "addressNumber": "566",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "3542",
+      "name": "Lanchonete Cavalcante paraíso",
+      "address": "Rua Vergueiro",
+      "addressNumber": "1555",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3994",
+      "name": "Lanchonete E Bar",
+      "address": "Avenida Vieira de Carvalho",
+      "addressNumber": "11",
+      "neighborhood": "República"
+    },
+    {
+      "id": "682",
+      "name": "Lanchonete Estrela Nove",
+      "address": "Avenida Nove de Julho",
+      "addressNumber": "3680",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "2926",
+      "name": "Lanchonete Francisval",
+      "address": "Rua Dona Ana Neri",
+      "addressNumber": "822",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3853",
+      "name": "Lanchonete Ipiranga",
+      "address": "Praça da República",
+      "addressNumber": "124",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5637",
+      "name": "Lanchonete Marella's",
+      "address": "Rua Pedro de Toledo",
+      "addressNumber": "1800",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4871",
+      "name": "Lanchonete Mariath",
+      "address": "Rua Almirante Mariath",
+      "addressNumber": "102",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "3545",
+      "name": "Lanchonete Metrô Paraiso",
+      "address": "Rua Vergueiro",
+      "addressNumber": "1555",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4086",
+      "name": "Lanchonete da Praça da República",
+      "address": "Praça da República",
+      "addressNumber": "124",
+      "neighborhood": "República"
+    },
+    {
+      "id": "373",
+      "name": "Lanchonete lanchonete princesa da Paes de Barros",
+      "address": "Rua Doutor Renato Paes de Barros",
+      "addressNumber": "545",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "3692",
+      "name": "Lanchonete sabor da fruta",
+      "address": "Rua Vergueiro",
+      "addressNumber": "441",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "7127",
+      "name": "Le Jazz Brasserie",
+      "address": "Rua Doutor Albuquerque Lins",
+      "addressNumber": "1333",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "7517",
+      "name": "Leclair Confeitaria - Bolos, Doces e Café - Moema",
+      "address": "Avenida Moema",
+      "addressNumber": "324",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6211",
+      "name": "Leggera Pizza Napoletana Perdizes",
+      "address": "Rua Diana",
+      "addressNumber": "80",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "3463",
+      "name": "Liberdade Side Street",
+      "address": "Rua Barão de Iguape",
+      "addressNumber": "158",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "1139",
+      "name": "Luiz do Milho",
+      "address": "Rua Ministro Godói",
+      "addressNumber": "969",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "5706",
+      "name": "MC Donald's",
+      "address": "Avenida Professor Abraão de Morais",
+      "addressNumber": "1180",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "233",
+      "name": "Madero Steak House Brascan",
+      "address": "Rua Joaquim Floriano",
+      "addressNumber": "466",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "7068",
+      "name": "Magg Café Copan",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "1312",
+      "name": "Mana Poke Shopping Eldorado",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "7037",
+      "name": "Mano's Drinks & Pizzaria",
+      "address": "Rua São Paulo",
+      "addressNumber": "19",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3061",
+      "name": "Maria do Carmo de Abreu Bar",
+      "address": "Rua Gama Cerqueira",
+      "addressNumber": "410",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "4872",
+      "name": "Mariath Gourmet",
+      "address": "Rua Almirante Mariath",
+      "addressNumber": "102",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5707",
+      "name": "McDonald's",
+      "address": "Avenida Professor Abraão de Morais",
+      "addressNumber": "1180",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "7001",
+      "name": "Melts Gastrobar",
+      "address": "Avenida da Liberdade",
+      "addressNumber": "472",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "1140",
+      "name": "Milho da PUC",
+      "address": "Rua Ministro Godói",
+      "addressNumber": "969",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "2171",
+      "name": "Mirante",
+      "address": "Rua Carlos Comenale",
+      "addressNumber": "s/n",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "5866",
+      "name": "Misa Lanche",
+      "address": "Rua Olga Abujamra",
+      "addressNumber": "132",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "5867",
+      "name": "Misa Lanches",
+      "address": "Rua Olga Abujamra",
+      "addressNumber": "132",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "3919",
+      "name": "Mundo Pão do Olivier - Praça da República",
+      "address": "Avenida São Luís",
+      "addressNumber": "29",
+      "neighborhood": "República"
+    },
+    {
+      "id": "1758",
+      "name": "Na Cozinha",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "174",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "395",
+      "name": "Naga",
+      "address": "Rua Bandeira Paulista",
+      "addressNumber": "369",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "396",
+      "name": "Nagayama",
+      "address": "Rua Bandeira Paulista",
+      "addressNumber": "369",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "2743",
+      "name": "Niágara Bar e Lanches",
+      "address": "Rua Três Rios",
+      "addressNumber": "12",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "5201",
+      "name": "Noir Chocolates - quiosque",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "840",
+      "name": "Nossa Esfiha",
+      "address": "Rua Roma",
+      "addressNumber": "672",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "854",
+      "name": "Nossa esfiha",
+      "address": "Rua Roma",
+      "addressNumber": "672",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "7458",
+      "name": "Nosso Lastro - Parrilla Cervejaria e Drinks",
+      "address": "Alameda dos Maracatins",
+      "addressNumber": "1088",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "3232",
+      "name": "Nova Art",
+      "address": "Rua da Consolação",
+      "addressNumber": "1975",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "5328",
+      "name": "Novo Windhuk",
+      "address": "Alameda Jauaperi",
+      "addressNumber": "1343",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "605",
+      "name": "O Casarão das Alamedas",
+      "address": "Alameda Campinas",
+      "addressNumber": "1061",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "2255",
+      "name": "O Gaúcho Bar e Restaurante",
+      "address": "Rua Santo Antônio",
+      "addressNumber": "601",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2623",
+      "name": "O Onívoro",
+      "address": "Rua Prates",
+      "addressNumber": "595",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "1833",
+      "name": "O carrasco bar",
+      "address": "Rua Costa Carvalho",
+      "addressNumber": "84",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5278",
+      "name": "O Árabe",
+      "address": "Alameda dos Anapurus",
+      "addressNumber": "1253",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "1321",
+      "name": "OAKBERRY",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "466",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "874",
+      "name": "OAKBERRY Açaí",
+      "address": "Praça Cívica",
+      "addressNumber": "70",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "1156",
+      "name": "OAKBERRY Açaí",
+      "address": "Rua Traipu",
+      "addressNumber": "188",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1391",
+      "name": "OAKBERRY Açaí",
+      "address": "Rua dos Pinheiros",
+      "addressNumber": "466",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "875",
+      "name": "OAKBERRY Vila Romana",
+      "address": "Praça Cívica",
+      "addressNumber": "70",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "1258",
+      "name": "Oakberry açaí",
+      "address": "Rua Traipu",
+      "addressNumber": "188",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1322",
+      "name": "Ofner",
+      "address": "Avenida Pedroso de Morais",
+      "addressNumber": "1099",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1844",
+      "name": "Ofner - Pinheiros",
+      "address": "Avenida Pedroso de Morais",
+      "addressNumber": "1099",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5204",
+      "name": "Ofner - Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5205",
+      "name": "Ofner express",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "2033",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2929",
+      "name": "Orion restaurante e lanchonete",
+      "address": "Rua Dona Ana Neri",
+      "addressNumber": "822",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "1323",
+      "name": "Outback",
+      "address": "Avenida RebouçasLoja Arco C H E I, Andar térreo, Pavimento 1º - Avenida Rebouças, 2636",
+      "addressNumber": "2636",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6212",
+      "name": "PIPA Confeitaria Afetiva - por encomenda",
+      "address": "Rua Diana",
+      "addressNumber": "1039",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "7589",
+      "name": "Padaria",
+      "address": "Rua Canário",
+      "addressNumber": "669",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6831",
+      "name": "Padaria Big Bread",
+      "address": "Avenida Lacerda Franco",
+      "addressNumber": "548",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "6786",
+      "name": "Padaria Big Bread Prime - Cambuci",
+      "address": "Avenida Lacerda Franco",
+      "addressNumber": "548",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "6288",
+      "name": "Padaria Delícia de Perdizes",
+      "address": "Rua Piracuama",
+      "addressNumber": "197",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "7519",
+      "name": "Padaria Dengosa de Moema",
+      "address": "Rua Canário",
+      "addressNumber": "669",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6681",
+      "name": "Padaria SK",
+      "address": "Rua João Julião",
+      "addressNumber": "318",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6470",
+      "name": "Padaria Z Deli",
+      "address": "Rua Francisco Leitão",
+      "addressNumber": "16",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1593",
+      "name": "Padoca do Gael",
+      "address": "Rua Ferreira de Araújo- e 322",
+      "addressNumber": "320",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "3865",
+      "name": "Paloma",
+      "address": "Avenida Ipiranga",
+      "addressNumber": "200",
+      "neighborhood": "República"
+    },
+    {
+      "id": "3584",
+      "name": "Pastel do Sonho (Um Sonho de Coxinha)",
+      "address": "Rua da Glória",
+      "addressNumber": "629",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4821",
+      "name": "Pastelaria E Massa Monte seu pastel",
+      "address": "Avenida Almirante Delamare",
+      "addressNumber": "509",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "1167",
+      "name": "Peccatore Trattoria",
+      "address": "Rua Aimberê",
+      "addressNumber": "503",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "4649",
+      "name": "Pecorino Bar & Trattoria Plaza Sul",
+      "address": "Praça Leonor Kaupa",
+      "addressNumber": "100",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "7442",
+      "name": "Pecorino Bar & Trattoria Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "1330",
+      "name": "Pipo Bronze + Paul Cho",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1331",
+      "name": "Pipo Restaurante",
+      "address": "Avenida Rebouças",
+      "addressNumber": "3970",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "7557",
+      "name": "Pizza & Bar - Nova São Jorge",
+      "address": "Avenida Santo Amaro",
+      "addressNumber": "2148",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6213",
+      "name": "Pizza Artesanal",
+      "address": "Rua Aimberê",
+      "addressNumber": "236",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "7039",
+      "name": "Pizza Chic Pizzaria",
+      "address": "Rua São Paulo",
+      "addressNumber": "19",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "6155",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "6027",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "6180",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "7263",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "6328",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "7077",
+      "name": "Pizza Hut",
+      "address": "Avenida Washington Luísº, Praça de Alimentação",
+      "addressNumber": "s/n",
+      "neighborhood": "Vila Congonhas"
+    },
+    {
+      "id": "6627",
+      "name": "Pizzaria",
+      "address": "Rua São Domingos",
+      "addressNumber": "84",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6642",
+      "name": "Pizzaria & Esfiharia Lá Gabriela",
+      "address": "Rua Maria José",
+      "addressNumber": "20",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6628",
+      "name": "Pizzaria 5 estrelas",
+      "address": "Rua Doutor Luís Barreto",
+      "addressNumber": "154",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7558",
+      "name": "Pizzaria Bella Roma",
+      "address": "Avenida Santo Amaro",
+      "addressNumber": "2148",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7131",
+      "name": "Pizzaria Dona Ofélia",
+      "address": "Rua Doutor Albuquerque Lins",
+      "addressNumber": "321",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "7651",
+      "name": "Pizzaria Donna Maru",
+      "address": "Rua Traituba",
+      "addressNumber": "400",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "7154",
+      "name": "Pizzaria Espaço Liberdade",
+      "address": "Rua dos Estudantes",
+      "addressNumber": "306",
+      "neighborhood": "Sé"
+    },
+    {
+      "id": "6704",
+      "name": "Pizzaria Família Nova União",
+      "address": "Rua Monsenhor Passaláqua",
+      "addressNumber": "178",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6636",
+      "name": "Pizzaria La Biondina",
+      "address": "Rua Manoel Dutra",
+      "addressNumber": "126",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6705",
+      "name": "Pizzaria La Nostra Pizza",
+      "address": "Rua Monsenhor Passaláqua",
+      "addressNumber": "178",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7132",
+      "name": "Pizzaria Philomena",
+      "address": "Rua Doutor Albuquerque Lins",
+      "addressNumber": "321",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "6578",
+      "name": "Pizzaria Santino",
+      "address": "Rua Santo Antônio",
+      "addressNumber": "1072",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7041",
+      "name": "Pizzaria Sonho De Pizza Prime",
+      "address": "Rua São Paulo",
+      "addressNumber": "19",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "6579",
+      "name": "Pizzaria Venetto Bela Vista",
+      "address": "Rua Santo Antônio",
+      "addressNumber": "1072",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7155",
+      "name": "Pizzaria e esfiharia Cantina",
+      "address": "Rua dos Estudantes",
+      "addressNumber": "306",
+      "neighborhood": "Sé"
+    },
+    {
+      "id": "7257",
+      "name": "Pizzaria e restaurante Alsácia",
+      "address": "Rua Alsácia",
+      "addressNumber": "22",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "4493",
+      "name": "Ponto Da Esfiha",
+      "address": "Avenida Doutor Lino de Moraes Leme",
+      "addressNumber": "1159",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "1916",
+      "name": "Postinho da Vila Restaurante",
+      "address": "Rua Sumidouro",
+      "addressNumber": "555",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5063",
+      "name": "Quinkas Bar",
+      "address": "Rua Lord Cockrane",
+      "addressNumber": "625",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5207",
+      "name": "Quiosque FINI Shopping Ibirapuera",
+      "address": "Avenida Ibirapuera",
+      "addressNumber": "3103",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "1400",
+      "name": "RAFA BAR - Snacks and Juices",
+      "address": "Rua Teodoro Sampaio",
+      "addressNumber": "1976",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "5481",
+      "name": "RAÍZ DE MINAS",
+      "address": "Alameda dos Maracatins",
+      "addressNumber": "1650",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "992",
+      "name": "RESTAURANTE E LANCHONETE 28",
+      "address": "Rua Caraíbas",
+      "addressNumber": "28",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1955",
+      "name": "RESTAURANTE SANTA FÉ PINHEIROS",
+      "address": "Rua Henrique Monteiro",
+      "addressNumber": "108",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "4055",
+      "name": "Ragazzo",
+      "address": "Rua Dom José de Barros",
+      "addressNumber": "153",
+      "neighborhood": "República"
+    },
+    {
+      "id": "3997",
+      "name": "Ragazzo!",
+      "address": "Rua Dom José de Barros",
+      "addressNumber": "153",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5268",
+      "name": "Raízes de Minas",
+      "address": "Alameda dos Maracatins",
+      "addressNumber": "1650",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7042",
+      "name": "Rei da Pizza - Liberdade",
+      "address": "Rua São Paulo",
+      "addressNumber": "19",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4170",
+      "name": "Rei do Mate",
+      "address": "Rua Doutor Cesário Mota Júnior",
+      "addressNumber": "112",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "781",
+      "name": "Rei dos salgados",
+      "address": "Rua Nossa Senhora da Lapa",
+      "addressNumber": "35",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "7107",
+      "name": "República padaria Olivier",
+      "address": "Avenida São Luís",
+      "addressNumber": "29",
+      "neighborhood": "República"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\taddressNumber\tneighborhood\n1662\t520 Bar lanchonete\tRua Cunha Gago\t520\tPinheiros\n6277\tA Bendita Padaria\tRua Apinajés\t206\tPerdizes\n6219\tA Bendita Padaria e café\tRua Apinajés\t206\tPerdizes\n3820\tA Casa do Porco Lab - Laboratório de Ideias\tAvenida Ipiranga\t200\tRepública\n7213\tA Chapa Hamburgers - Vila Mascote\tAvenida Doutor Lino de Moraes Leme\t1159\tCampo Belo\n6592\tA DONNA MUSIC CLUB\tRua Rui Barbosa\t354\tBela Vista\n1357\tA Favorita\tRua Teodoro Sampaio\t1976\tPinheiros\n3048\tA Juriti\tRua Amarante\t31\tCambuci\n7114\tA Toca\tRua Doutor Cesário Mota Júnior\t112\tSanta Cecília\n5988\tA menor confeitaria do mundo\tRua Doutor Renato Paes de Barros\t908\tItaim Bibi\n2941\tAclimação Bar\tAvenida Lacerda Franco\t1599\tCambuci\n6248\tAimbeer 850 PUB\tRua Aimberê\t850\tPerdizes\n1274\tAlmanara - Shopping Eldorado\tAvenida Rebouças\t3970\tPinheiros\n3205\tArt Lanches\tRua da Consolação\t1975\tConsolação\n4620\tBAR DO MINEIRO\tRua Gil Eanes\t815\tCampo Belo\n1538\tBARK BBQ\tRua Artur de Azevedo\t657\tPinheiros\n215\tBacio di Latte - Brascan Itaim\tRua Joaquim Floriano\t466\tItaim Bibi\n5178\tBacio di Latte - Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n4148\tBaffs\tRua Doutor Cesário Mota Júnior\t112\tSanta Cecília\n3014\tBar\tRua Amarante\t31\tCambuci\n5114\tBar\tRua Lord Cockrane\t625\tIpiranga\n5375\tBar & Lanchonete Bandeira Um\tRua Abílio Soares\t998\tMoema\n4007\tBar A Preferida Da República\tAvenida Vieira de Carvalho\t11\tRepública\n2347\tBar Clesio\tRua Paim\t235\tBela Vista\n2348\tBar Do Bombado\tRua Paim\t235\tBela Vista\n2795\tBar Do Gordao\tRua Joaquim Murtinho\t299\tBom Retiro\n1233\tBar E Mercearia Mourão\tRua Piracuama\t9\tPerdizes\n4721\tBar Estrela\tRua Silva Bueno\t2073\tIpiranga\n1794\tBar Long Neck\tRua Guaicuí\t10\tPinheiros\n1234\tBar Sabetudo\tRua Piracuama\t9\tPerdizes\n3059\tBar da Branca\tRua Gama Cerqueira\t410\tCambuci\n4864\tBar da Xuxa\tRua Almirante Mariath\t118\tIpiranga\n4801\tBar da velha\tAvenida Doutor Gentil de Moura\t206\tIpiranga\n4633\tBar do Alemao\tPraça Leonor Kaupa\t100\tCursino\n2331\tBar do Careca Moralista\tRua Conselheiro Ramalho\t800\tBela Vista\n4621\tBar do Juarez Brooklin\tRua Joaquim Nabuco\t325\tCampo Belo\n5572\tBar do Juarez Moema\tAvenida Jurema- Moema, Indianópolis - SP, 04079-001, Brasil\t324\tMoema\n5395\tBar do Marcio\tAlameda Iraé\t421\tMoema\n4576\tBar do Mineiro\tRua Gil Eanes\t815\tCampo Belo\n3030\tBar do Neco\tRua Paulo Orozimbo\t317\tCambuci\n5376\tBar do Neto Restaurante\tRua Abílio Soares\t998\tMoema\n2942\tBar do Zuza\tAvenida Lacerda Franco\t1599\tCambuci\n4804\tBar do gordinho\tRua Cipriano Barata\t1842\tIpiranga\n4805\tBar do gordo\tRua Cipriano Barata\t1842\tIpiranga\n1609\tBar e Lanches Cardeal\tRua Cardeal Arcoverde\t2281\tPinheiros\n1495\tBar e Lanches Conquista\tRua Padre Carvalho\t715\tPinheiros\n5396\tBar e Lanches El Relicario\tAlameda Iraé\t421\tMoema\n4896\tBar e Lanches Idiltonio\tRua Lino Coutinho\t920\tIpiranga\n4723\tBar e Lanches Jonuvi\tRua Silva Bueno\t2073\tIpiranga\n3031\tBar e Lanches Orozimbo\tRua Paulo Orozimbo\t317\tCambuci\n2837\tBar e Lanches Reige\tRua Três Rios\t12\tBom Retiro\n4897\tBar e Lanches redenção\tRua Lino Coutinho\t920\tIpiranga\n1610\tBar e Lanchonete\tRua Cunha Gago\t520\tPinheiros\n3825\tBar e Restaurante\tAvenida Vieira de Carvalho\t160\tRepública\n367\tBar e Restaurante Amigos do Itaim\tRua Doutor Renato Paes de Barros\t545\tItaim Bibi\n4200\tBar e Restaurante Esquina da Lins\tRua Doutor Albuquerque Lins\t291\tSanta Cecília\n4201\tBar e Restaurante Lins\tRua Doutor Albuquerque Lins\t291\tSanta Cecília\n4962\tBar e Restaurante Nono\tRua Clemente Pereira\t572\tIpiranga\n6633\tBar e pizzaria união\tRua Manoel Dutra\t126\tBela Vista\n1540\tBark n'Crust\tRua Artur de Azevedo\t657\tPinheiros\n6620\tBela Binna Café e Açaí\tRua RochaA\t206\tBela Vista\n6594\tBela Vista Show\tRua Rui Barbosa\t354\tBela Vista\n6673\tBella Napoli Pizzaria\tRua São Domingos\t84\tBela Vista\n2711\tBellapan\tRua Prates\t563\tBom Retiro\n6709\tBellapan Bakery\tRua Prates\t563\tBom Retiro\n1361\tBig Salgados\tRua Teodoro Sampaio\t2130\tPinheiros\n1362\tBig Salgados Pinheiros\tRua Teodoro Sampaio\t2130\tPinheiros\n2378\tBinna Artesanal\tRua RochaA\t206\tBela Vista\n1952\tBistrô Charlô\tRua Henrique Monteiro\t154\tPinheiros\n5182\tBlend Cacao Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n430\tBlenz\tRua Leopoldo Couto Magalhães Júnior\t1421\tItaim Bibi\n5977\tBlenz Café - São Luiz\tRua Leopoldo Couto Magalhães Júnior\t1421\tItaim Bibi\n7274\tBom Beef Burgers Plaza Sul\tPraça Leonor Kaupa\t100\tCursino\n1860\tBosco Restaurante\tRua João Moura\t976\tPinheiros\n369\tBraca Bar - Itaim Bibi\tRua Doutor Renato Paes de Barros\t908\tItaim Bibi\n5954\tBrascan - Poke Shack - Burger + - Terra do Fogo\tRua Joaquim Floriano\t466\tItaim Bibi\n3828\tBrisa do Barú\tAvenida Ipiranga\t200\tRepública\n7275\tBurger King\tPraça Leonor Kaupa\t100\tCursino\n2141\tCAPRICHO Lanchonete e Restaurante\tAvenida Paulista\t807\tBela Vista\n7057\tCacau Show Copan\tAvenida Ipiranga\t200\tRepública\n6485\tCafe La Bamba\tRua Baltazar Carrasco\t46\tPinheiros\n6486\tCafe monik\tRua Baltazar Carrasco\t46\tPinheiros\n6041\tCafeteria Praça da Moça Café\tRua Pamplona\t1704\tJardim Paulista\n6090\tCafé do Villa\tAvenida Nove de Julho\t4939\tJardim Paulista\n1118\tCantina 22 de Agosto\tRua Monte Alegre\t984\tPerdizes\n1119\tCantina da PUC\tRua Monte Alegre\t984\tPerdizes\n220\tCasa Bauducco\tRua Joaquim Floriano\t466\tItaim Bibi\n6016\tCasa De Bolos\tAvenida Brigadeiro Luís Antônio\t2449\tJardim Paulista\n6998\tCasa de Bolos\tRua Silva Bueno\t1314\tIpiranga\n6844\tCasa de Bolos\tRua Silva Bueno\t1314\tIpiranga\n7303\tCasa de Bolos\tRua Silva Bueno\t1314\tIpiranga\n7160\tCasa de Bolos\tRua Silva Bueno\t1314\tIpiranga\n6018\tCasa de Bolos Brigadeiro\tAvenida Brigadeiro Luís Antônio\t2449\tJardim Paulista\n7504\tCasa de Bolos Moema Pássaros\tRua Inhambu\t1076\tMoema\n7567\tCasa do Bolo\tRua Inhambu\t1076\tMoema\n221\tCasa do Pão de Queijo\tRua Joaquim Floriano\t466\tItaim Bibi\n2149\tCaverna do Espeto\tAvenida Paulista\t807\tBela Vista\n6371\tCervejaria Oak\tRua Padre Carvalho\t769\tPinheiros\n6258\tCervejaria Perdizes Cerveja Artesanal\tRua Ministro Ferreira Alves\t192\tPerdizes\n7385\tCervejaria, Bar e Restaurante Hettwer Ipiranga\tRua General Lecor\t175\tIpiranga\n1954\tCha Cha\tRua Henrique Monteiro\t154\tPinheiros\n1645\tCheirin Bão Pinheiros\tRua Teodoro Sampaio\t2183\tPinheiros\n1368\tCheirin Bão Teodoro Sampaio\tRua Teodoro Sampaio\t2183\tPinheiros\n5484\tChico Grill Moema\tAlameda dos Pamaris\t301\tMoema\n1249\tChiquinho Bar & Espetinhos\tRua Doutor Homem de Melo\t952\tPerdizes\n1034\tChiquinho Bar & Restaurante\tRua Doutor Homem de Melo\t952\tPerdizes\n5186\tChocolate Lugano\tAvenida Ibirapuera\t3103\tMoema\n2316\tCidade Matarazzo\tRua Itapeva\t435\tBela Vista\n3831\tCircolo Cucina\tAvenida Ipiranga\t344\tRepública\n3832\tCircolo Italiano San Paolo\tAvenida Ipiranga\t344\tRepública\n7168\tCoffee it\tRua Vieira de Morais\t1110\tCampo Belo\n7602\tConfeitaria\tAvenida Moema\t324\tMoema\n2336\tConselheiro Listening Bar\tRua Conselheiro Ramalho\t800\tBela Vista\n596\tConsentido Culinária Espanhola\tAlameda Campinas\t1061\tJardim Paulista\n1435\tConsulado Baiano - Pinheiros\tRua dos Pinheiros\t534\tPinheiros\n1437\tConsulado da Bahia - Pinheiros\tRua dos Pinheiros\t534\tPinheiros\n1439\tCozinha 212\tRua dos Pinheiros\t174\tPinheiros\n7062\tCuia Café e Restaurante\tAvenida Ipiranga\t200\tRepública\n5232\tDIB - Especialidades Árabes\tAvenida Macuco\t328\tMoema\n5509\tDIB Especialidades Árabes\tAvenida Macuco\t328\tMoema\n2032\tDe Primeira Botequim\tRua Aspicuelta\t271\tVila Madalena\n7216\tDelícia de Bolos Caseiros 2\tRua João de Sousa Dias\t569\tCampo Belo\n4505\tDelícias do Campo\tRua João de Sousa Dias\t569\tCampo Belo\n5636\tDolcíssimo Lanchonete e Café\tRua Pedro de Toledo\t1800\tMoema\n6625\tDom Felipe Pizzaria e Restaurante\tRua Doutor Luís Barreto\t154\tBela Vista\n3660\tDona Deola BP para pacientes\tRua Maestro Cardim\t769\tLiberdade\n1877\tDona Vitamina Pinheiros\tRua Mateus Grou\t152\tPinheiros\n2701\tDong Re\tRua Silva Pinto\t469\tBom Retiro\n2702\tDong Re Restaurante\tRua Silva Pinto\t469\tBom Retiro\n2607\tDuco Tea-Milk\tRua Prates\t595\tBom Retiro\n1576\tDue Cuochi\tRua Ferreira de Araújo\t470\tPinheiros\n1577\tDue Cuochi Trattoria\tRua Ferreira de Araújo\t470\tPinheiros\n4182\tEsfiha Chic - Higienópolis\tRua Martim Francisco\t149\tSanta Cecília\n4236\tEsfiha Chic Delivery\tRua Martim Francisco\t149\tSanta Cecília\n3661\tEspaço Dona Deôla Comidinhas & Cia\tRua Maestro Cardim\t769\tLiberdade\n3536\tEspaço Vergueiro\tRua Vergueiro\t170\tLiberdade\n6985\tEspaço Vergueiro\tRua Vergueiro\t170\tLiberdade\n3133\tEspetinho Bela Vista\tRua Augusta\t747\tConsolação\n3134\tEspetinho Dona Augusta\tRua Augusta\t747\tConsolação\n5045\tEsquina Bar\tRua Costa Aguiar\t701\tIpiranga\n3840\tFARINELLA\tAvenida Ipiranga\t200\tRepública\n5460\tFarabbud\tAlameda dos Anapurus\t1253\tMoema\n5309\tFarabbud Moema\tAlameda dos Anapurus\t1253\tMoema\n3841\tFazenda Steakhouse\tAvenida Ipiranga\t978\tRepública\n3842\tFazenda steakhouse\tAvenida Ipiranga\t978\tRepública\n6322\tFrutaria Fit\tAvenida Rebouças\t3970\tPinheiros\n1299\tFrutaria São Paulo - Eldorado\tAvenida Rebouças\t3970\tPinheiros\n5190\tFrutaria São Paulo - Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n3140\tFábrica Augusta\tRua Augusta\t1283\tConsolação\n3141\tFábrica Drinks\tRua Augusta\t1283\tConsolação\n1581\tGael Cozinha Mestiça\tRua Ferreira de Araújo- e 322\t320\tPinheiros\n6344\tGaleria Musical Julinho Clube\tRua Teodoro Sampaio\t1946\tPinheiros\n624\tGeiko San\tRua Peixoto Gomide\t1492\tJardim Paulista\n625\tGeiko San Oficial\tRua Peixoto Gomide\t1492\tJardim Paulista\n5192\tGiraffas Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n5575\tGrill Moema\tAlameda dos Pamaris\t301\tMoema\n1832\tGuilhotina Bar\tRua Costa Carvalho\t84\tPinheiros\n4811\tGula Bar\tAvenida Almirante Delamare\t592\tIpiranga\n4812\tGula Rooftop\tAvenida Almirante Delamare\t592\tIpiranga\n626\tHavanna\tRua Pamplona\t1704\tJardim Paulista\n6046\tHavanna Cafeteria\tRua Pamplona\t1704\tJardim Paulista\n6177\tHobby Hamburger\tRua Cardoso de Almeida\t1393\tPerdizes\n6178\tHobby hamburguer\tRua Cardoso de Almeida\t1393\tPerdizes\n6640\tHyandra Pizzaria e Hamburgueria\tRua Maria José\t20\tBela Vista\n7065\tIpiranga Pizzaria\tAvenida Ipiranga\t746\tRepública\n6917\tIracema Pães e Doces\tAvenida Angélica\t101\tConsolação\n2295\tItália Mia / Casa Volpato\tRua Rui Barbosa\t354\tBela Vista\n386\tJamie Oliver Kitchen\tAvenida Horácio Lafer\t61\tItaim Bibi\n387\tJamie's Italian São Paulo\tAvenida Horácio Lafer\t61\tItaim Bibi\n3455\tJjang Bap\tRua Barão de Iguape\t158\tLiberdade\n3456\tJjang Toast\tRua Barão de Iguape\t158\tLiberdade\n4965\tJulia's Bar e Restaurante\tRua Clemente Pereira\t572\tIpiranga\n6348\tJulinho Clube\tRua Teodoro Sampaio\t1946\tPinheiros\n779\tKi Pastel\tRua Afonso Sardinha\t80\tLapa\n826\tKi pastel\tRua Afonso Sardinha\t80\tLapa\n3889\tKopenhagen\tRua Dom José de Barros\t158\tRepública\n3993\tKopenhagen Dom Jose de Barros\tRua Dom José de Barros\t158\tRepública\n5420\tLa Boca Burguer\tAvenida Moema\t218\tMoema\n681\tLa Bodega\tAvenida Nove de Julho\t3680\tJardim Paulista\n6270\tLa Brasa Burger Perdizes\tRua João Ramalho\t951\tPerdizes\n5421\tLa Parrilla Argentina\tAvenida Moema\t218\tMoema\n6271\tLa Pietra Pizzaria Perdizes\tRua João Ramalho\t951\tPerdizes\n6272\tLa furiosa Pizzaria Perdizes\tRua João Ramalho\t951\tPerdizes\n1511\tLanches Cardeal\tRua Cardeal Arcoverde\t2281\tPinheiros\n4444\tLanchonete\tRua Vieira de Morais\t566\tCampo Belo\n4402\tLanchonete Belo Burguer\tRua Vieira de Morais\t566\tCampo Belo\n3542\tLanchonete Cavalcante paraíso\tRua Vergueiro\t1555\tLiberdade\n3994\tLanchonete E Bar\tAvenida Vieira de Carvalho\t11\tRepública\n682\tLanchonete Estrela Nove\tAvenida Nove de Julho\t3680\tJardim Paulista\n2926\tLanchonete Francisval\tRua Dona Ana Neri\t822\tCambuci\n3853\tLanchonete Ipiranga\tPraça da República\t124\tRepública\n5637\tLanchonete Marella's\tRua Pedro de Toledo\t1800\tMoema\n4871\tLanchonete Mariath\tRua Almirante Mariath\t102\tIpiranga\n3545\tLanchonete Metrô Paraiso\tRua Vergueiro\t1555\tLiberdade\n4086\tLanchonete da Praça da República\tPraça da República\t124\tRepública\n373\tLanchonete lanchonete princesa da Paes de Barros\tRua Doutor Renato Paes de Barros\t545\tItaim Bibi\n3692\tLanchonete sabor da fruta\tRua Vergueiro\t441\tLiberdade\n7127\tLe Jazz Brasserie\tRua Doutor Albuquerque Lins\t1333\tSanta Cecília\n7517\tLeclair Confeitaria - Bolos, Doces e Café - Moema\tAvenida Moema\t324\tMoema\n6211\tLeggera Pizza Napoletana Perdizes\tRua Diana\t80\tPerdizes\n3463\tLiberdade Side Street\tRua Barão de Iguape\t158\tLiberdade\n1139\tLuiz do Milho\tRua Ministro Godói\t969\tPerdizes\n5706\tMC Donald's\tAvenida Professor Abraão de Morais\t1180\tSaúde\n233\tMadero Steak House Brascan\tRua Joaquim Floriano\t466\tItaim Bibi\n7068\tMagg Café Copan\tAvenida Ipiranga\t200\tRepública\n1312\tMana Poke Shopping Eldorado\tAvenida Rebouças\t3970\tPinheiros\n7037\tMano's Drinks & Pizzaria\tRua São Paulo\t19\tLiberdade\n3061\tMaria do Carmo de Abreu Bar\tRua Gama Cerqueira\t410\tCambuci\n4872\tMariath Gourmet\tRua Almirante Mariath\t102\tIpiranga\n5707\tMcDonald's\tAvenida Professor Abraão de Morais\t1180\tSaúde\n7001\tMelts Gastrobar\tAvenida da Liberdade\t472\tLiberdade\n1140\tMilho da PUC\tRua Ministro Godói\t969\tPerdizes\n2171\tMirante\tRua Carlos Comenale\ts/n\tBela Vista\n5866\tMisa Lanche\tRua Olga Abujamra\t132\tVila Mariana\n5867\tMisa Lanches\tRua Olga Abujamra\t132\tVila Mariana\n3919\tMundo Pão do Olivier - Praça da República\tAvenida São Luís\t29\tRepública\n1758\tNa Cozinha\tRua dos Pinheiros\t174\tPinheiros\n395\tNaga\tRua Bandeira Paulista\t369\tItaim Bibi\n396\tNagayama\tRua Bandeira Paulista\t369\tItaim Bibi\n2743\tNiágara Bar e Lanches\tRua Três Rios\t12\tBom Retiro\n5201\tNoir Chocolates - quiosque\tAvenida Ibirapuera\t3103\tMoema\n840\tNossa Esfiha\tRua Roma\t672\tLapa\n854\tNossa esfiha\tRua Roma\t672\tLapa\n7458\tNosso Lastro - Parrilla Cervejaria e Drinks\tAlameda dos Maracatins\t1088\tMoema\n3232\tNova Art\tRua da Consolação\t1975\tConsolação\n5328\tNovo Windhuk\tAlameda Jauaperi\t1343\tMoema\n605\tO Casarão das Alamedas\tAlameda Campinas\t1061\tJardim Paulista\n2255\tO Gaúcho Bar e Restaurante\tRua Santo Antônio\t601\tBela Vista\n2623\tO Onívoro\tRua Prates\t595\tBom Retiro\n1833\tO carrasco bar\tRua Costa Carvalho\t84\tPinheiros\n5278\tO Árabe\tAlameda dos Anapurus\t1253\tMoema\n1321\tOAKBERRY\tRua dos Pinheiros\t466\tPinheiros\n874\tOAKBERRY Açaí\tPraça Cívica\t70\tLapa\n1156\tOAKBERRY Açaí\tRua Traipu\t188\tPerdizes\n1391\tOAKBERRY Açaí\tRua dos Pinheiros\t466\tPinheiros\n875\tOAKBERRY Vila Romana\tPraça Cívica\t70\tLapa\n1258\tOakberry açaí\tRua Traipu\t188\tPerdizes\n1322\tOfner\tAvenida Pedroso de Morais\t1099\tPinheiros\n1844\tOfner - Pinheiros\tAvenida Pedroso de Morais\t1099\tPinheiros\n5204\tOfner - Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n5205\tOfner express\tAvenida Ibirapuera\t2033\tMoema\n2929\tOrion restaurante e lanchonete\tRua Dona Ana Neri\t822\tCambuci\n1323\tOutback\tAvenida RebouçasLoja Arco C H E I, Andar térreo, Pavimento 1º - Avenida Rebouças, 2636\t2636\tPinheiros\n6212\tPIPA Confeitaria Afetiva - por encomenda\tRua Diana\t1039\tPerdizes\n7589\tPadaria\tRua Canário\t669\tMoema\n6831\tPadaria Big Bread\tAvenida Lacerda Franco\t548\tCambuci\n6786\tPadaria Big Bread Prime - Cambuci\tAvenida Lacerda Franco\t548\tCambuci\n6288\tPadaria Delícia de Perdizes\tRua Piracuama\t197\tPerdizes\n7519\tPadaria Dengosa de Moema\tRua Canário\t669\tMoema\n6681\tPadaria SK\tRua João Julião\t318\tBela Vista\n6470\tPadaria Z Deli\tRua Francisco Leitão\t16\tPinheiros\n1593\tPadoca do Gael\tRua Ferreira de Araújo- e 322\t320\tPinheiros\n3865\tPaloma\tAvenida Ipiranga\t200\tRepública\n3584\tPastel do Sonho (Um Sonho de Coxinha)\tRua da Glória\t629\tLiberdade\n4821\tPastelaria E Massa Monte seu pastel\tAvenida Almirante Delamare\t509\tIpiranga\n1167\tPeccatore Trattoria\tRua Aimberê\t503\tPerdizes\n4649\tPecorino Bar & Trattoria Plaza Sul\tPraça Leonor Kaupa\t100\tCursino\n7442\tPecorino Bar & Trattoria Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n1330\tPipo Bronze + Paul Cho\tAvenida Rebouças\t3970\tPinheiros\n1331\tPipo Restaurante\tAvenida Rebouças\t3970\tPinheiros\n7557\tPizza & Bar - Nova São Jorge\tAvenida Santo Amaro\t2148\tMoema\n6213\tPizza Artesanal\tRua Aimberê\t236\tPerdizes\n7039\tPizza Chic Pizzaria\tRua São Paulo\t19\tLiberdade\n6155\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n6027\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n6180\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n7263\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n6328\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n7077\tPizza Hut\tAvenida Washington Luísº, Praça de Alimentação\ts/n\tVila Congonhas\n6627\tPizzaria\tRua São Domingos\t84\tBela Vista\n6642\tPizzaria & Esfiharia Lá Gabriela\tRua Maria José\t20\tBela Vista\n6628\tPizzaria 5 estrelas\tRua Doutor Luís Barreto\t154\tBela Vista\n7558\tPizzaria Bella Roma\tAvenida Santo Amaro\t2148\tMoema\n7131\tPizzaria Dona Ofélia\tRua Doutor Albuquerque Lins\t321\tSanta Cecília\n7651\tPizzaria Donna Maru\tRua Traituba\t400\tSaúde\n7154\tPizzaria Espaço Liberdade\tRua dos Estudantes\t306\tSé\n6704\tPizzaria Família Nova União\tRua Monsenhor Passaláqua\t178\tBela Vista\n6636\tPizzaria La Biondina\tRua Manoel Dutra\t126\tBela Vista\n6705\tPizzaria La Nostra Pizza\tRua Monsenhor Passaláqua\t178\tBela Vista\n7132\tPizzaria Philomena\tRua Doutor Albuquerque Lins\t321\tSanta Cecília\n6578\tPizzaria Santino\tRua Santo Antônio\t1072\tBela Vista\n7041\tPizzaria Sonho De Pizza Prime\tRua São Paulo\t19\tLiberdade\n6579\tPizzaria Venetto Bela Vista\tRua Santo Antônio\t1072\tBela Vista\n7155\tPizzaria e esfiharia Cantina\tRua dos Estudantes\t306\tSé\n7257\tPizzaria e restaurante Alsácia\tRua Alsácia\t22\tCampo Belo\n4493\tPonto Da Esfiha\tAvenida Doutor Lino de Moraes Leme\t1159\tCampo Belo\n1916\tPostinho da Vila Restaurante\tRua Sumidouro\t555\tPinheiros\n5063\tQuinkas Bar\tRua Lord Cockrane\t625\tIpiranga\n5207\tQuiosque FINI Shopping Ibirapuera\tAvenida Ibirapuera\t3103\tMoema\n1400\tRAFA BAR - Snacks and Juices\tRua Teodoro Sampaio\t1976\tPinheiros\n5481\tRAÍZ DE MINAS\tAlameda dos Maracatins\t1650\tMoema\n992\tRESTAURANTE E LANCHONETE 28\tRua Caraíbas\t28\tPerdizes\n1955\tRESTAURANTE SANTA FÉ PINHEIROS\tRua Henrique Monteiro\t108\tPinheiros\n4055\tRagazzo\tRua Dom José de Barros\t153\tRepública\n3997\tRagazzo!\tRua Dom José de Barros\t153\tRepública\n5268\tRaízes de Minas\tAlameda dos Maracatins\t1650\tMoema\n7042\tRei da Pizza - Liberdade\tRua São Paulo\t19\tLiberdade\n4170\tRei do Mate\tRua Doutor Cesário Mota Júnior\t112\tSanta Cecília\n781\tRei dos salgados\tRua Nossa Senhora da Lapa\t35\tLapa\n7107\tRepública padaria Olivier\tAvenida São Luís\t29\tRepública\n",
+  "stderr": "",
+  "execution_time_ms": 320
+}

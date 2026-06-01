@@ -221,3 +221,11 @@
 - [x] Verificar 11 duplicidades com bairros divergentes no Google Maps
 - [x] Corrigir bairros (Consolação, Vila Madalena, Jardim Luzitânia, Vila Mariana, Vila Nova Conceição) e remover 11 duplicatas
 - [x] Gerar planilha das 158 duplicidades restantes (mesmo bairro) para revisão manual do usuário
+- [x] Renomear categoria Hamburgueria para "Hamburgueria e Lanches"
+- [x] Mover Black Dog e Pastel da Praça para categoria Hamburgueria e Lanches
+- [x] Excluir todos os estabelecimentos pendentes do banco (6.292 removidos, restam 187 ativos)
+- [x] Ocultar nota Google de estabs com nota abaixo de 4.7 (mostrar apenas quantidade de avaliações)
+- [x] Para estabs com nota 4.7 a 5.0: exibir nota com 5 estrelas pintadas proporcionalmente + quantidade "no Google"
+- [x] Exibir avaliações Avalyarin ao lado das avaliações Google
+- [x] Avaliações Avalyarin clicáveis: mostrar resumo do pedido (itens pedidos, data, @usuário em fonte menor)
+- [ ] LEMBRETE: Definir critérios de relevância para ordenação das avaliações Avalyarin (a definir com Alão)

@@ -657,8 +657,10 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
     id: ratings.id,
     type: ratings.type,
     overallScore: ratings.overallScore,
+    visitDate: ratings.visitDate,
     createdAt: ratings.createdAt,
     userName: users.name,
+    username: users.username,
   })
     .from(ratings)
     .innerJoin(users, eq(ratings.userId, users.id))
@@ -667,7 +669,24 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
     .limit(limit)
     .offset(offset);
   
-  return result;
+  // Fetch items for each rating
+  const ratingsWithItems = await Promise.all(
+    result.map(async (r) => {
+      const items = await db.select({
+        id: ratingItems.id,
+        itemName: ratingItems.itemName,
+        score: ratingItems.score,
+        quantity: ratingItems.quantity,
+        price: ratingItems.price,
+        comment: ratingItems.comment,
+      })
+        .from(ratingItems)
+        .where(eq(ratingItems.ratingId, r.id));
+      return { ...r, items };
+    })
+  );
+  
+  return ratingsWithItems;
 }
 
 // ============ ADMIN FUNCTIONS ============

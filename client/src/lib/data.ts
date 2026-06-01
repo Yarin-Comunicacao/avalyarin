@@ -6332,9 +6332,9 @@ export const categories: Category[] = [
   },
   {
     id: "hamburgueria",
-    name: "Hamburgueria",
+    name: "Hamburgueria e Lanches",
     icon: "Utensils",
-    description: "As melhores hamburguerias artesanais",
+    description: "Hamburguerias artesanais, hot dogs, pastéis e lanches",
     active: true,
     establishments: [
       {

@@ -1,0 +1,26 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total FROM establishments WHERE status = 'pending' AND neighborhood IN ('Pinheiros', 'Vila Madalena', 'Alto de Pinheiros', 'Vila Madalena/Sumarezinho') GROUP BY neighborhood;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total FROM establishments WHERE status = 'pending' AND neighborhood IN ('Pinheiros', 'Vila Madalena', 'Alto de Pinheiros', 'Vila Madalena/Sumarezinho') GROUP BY neighborhood;",
+  "rows": [
+    {
+      "neighborhood": "Vila Madalena/Sumarezinho",
+      "total": "31"
+    },
+    {
+      "neighborhood": "Alto de Pinheiros",
+      "total": "13"
+    },
+    {
+      "neighborhood": "Vila Madalena",
+      "total": "101"
+    },
+    {
+      "neighborhood": "Pinheiros",
+      "total": "875"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\nVila Madalena/Sumarezinho\t31\nAlto de Pinheiros\t13\nVila Madalena\t101\nPinheiros\t875\n",
+  "stderr": "",
+  "execution_time_ms": 267
+}
