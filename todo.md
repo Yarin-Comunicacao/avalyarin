@@ -237,3 +237,6 @@
 - [x] Bug: nota 25/10 desproporcional no modo direto — corrigido (escala 0-10, dados migrados no banco)
 - [x] Remover Pontos Bônus completamente da avaliação (step de bônus + cálculo da nota)
 - [x] Bug: redirecionamento pós-avaliação vai para /badges genérico — corrigido para /insignias ou /conta/usuario
+- [x] Criar página unificada "Minhas Avaliações" (/minhas-avaliacoes) com 4 abas: Avaliações, Meu Ranking, Locais Visitados, Galeria
+- [x] Menu lateral: "Minhas Avaliações" como item expansível com sub-itens apontando para /minhas-avaliacoes/:tab
+- [x] Redirecionamento pós-avaliação: ir para /minhas-avaliacoes/avaliacoes

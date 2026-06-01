@@ -85,10 +85,10 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       title: "Minhas Avaliações",
       icon: <Star className="w-5 h-5" />,
       items: [
-        { id: "avaliacoes-lista", label: "Avaliações", href: "/avaliacoes", icon: <Star className="w-4 h-4" /> },
-        { id: "meu-ranking", label: "Meu Ranking", href: "/meu-ranking", icon: <Trophy className="w-4 h-4" /> },
-        { id: "locais", label: "Locais Visitados", href: "/locais-visitados", icon: <MapPin className="w-4 h-4" /> },
-        { id: "galeria", label: "Galeria", href: "/galeria", icon: <Image className="w-4 h-4" /> },
+        { id: "avaliacoes-lista", label: "Avaliações", href: "/minhas-avaliacoes/avaliacoes", icon: <Star className="w-4 h-4" /> },
+        { id: "meu-ranking", label: "Meu Ranking", href: "/minhas-avaliacoes/ranking", icon: <Trophy className="w-4 h-4" /> },
+        { id: "locais", label: "Locais Visitados", href: "/minhas-avaliacoes/locais", icon: <MapPin className="w-4 h-4" /> },
+        { id: "galeria", label: "Galeria", href: "/minhas-avaliacoes/galeria", icon: <Image className="w-4 h-4" /> },
       ],
     },
     {

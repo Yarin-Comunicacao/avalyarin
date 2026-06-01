@@ -21,10 +21,8 @@ import Cadastro from "./pages/Cadastro";
 import ContasConectadas from "./pages/ContasConectadas";
 import MeuUsuario from "./pages/MeuUsuario";
 import Planos from "./pages/Planos";
-// Reviews pages
-import Avaliacoes from "./pages/Avaliacoes";
-import LocaisVisitados from "./pages/LocaisVisitados";
-import Galeria from "./pages/Galeria";
+// Reviews pages (unified)
+import MinhasAvaliacoes from "./pages/MinhasAvaliacoes";
 // Saved pages
 import MeusLocais from "./pages/MeusLocais";
 import InfluencersFavoritos from "./pages/InfluencersFavoritos";
@@ -97,10 +95,13 @@ function Router() {
       <Route path="/conta/conectadas" component={ContasConectadas} />
       <Route path="/conta/usuario" component={MeuUsuario} />
       <Route path="/conta/planos" component={Planos} />
-      {/* Reviews */}
-      <Route path="/avaliacoes" component={Avaliacoes} />
-      <Route path="/locais-visitados" component={LocaisVisitados} />
-      <Route path="/galeria" component={Galeria} />
+      {/* Reviews (unified page with tabs) */}
+      <Route path="/minhas-avaliacoes" component={MinhasAvaliacoes} />
+      <Route path="/minhas-avaliacoes/:tab" component={MinhasAvaliacoes} />
+      {/* Legacy redirects */}
+      <Route path="/avaliacoes" component={MinhasAvaliacoes} />
+      <Route path="/locais-visitados">{() => { window.location.replace("/minhas-avaliacoes/locais"); return null; }}</Route>
+      <Route path="/galeria">{() => { window.location.replace("/minhas-avaliacoes/galeria"); return null; }}</Route>
       {/* Saved */}
       <Route path="/salvos/locais" component={MeusLocais} />
       <Route path="/salvos/influencers" component={InfluencersFavoritos} />
@@ -115,8 +116,8 @@ function Router() {
       <Route path="/notificacoes/:tab" component={NotificacoesPage} />
       {/* Search */}
       <Route path="/busca" component={SearchResults} />
-      {/* Rankings */}
-      <Route path="/meu-ranking" component={MeuRanking} />
+      {/* Rankings (legacy redirect) */}
+      <Route path="/meu-ranking">{() => { window.location.replace("/minhas-avaliacoes/ranking"); return null; }}</Route>
       {/* Nearby */}
       <Route path="/perto-de-mim" component={NearbyPage} />
       {/* Admin & Business */}

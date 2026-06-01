@@ -2152,12 +2152,7 @@ export default function RatingPage() {
           onClose={() => {
             setShowShareCard(false);
             // Navigate after closing share card
-            const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
-            if (justEarned) {
-              window.location.href = "/insignias";
-            } else {
-              window.location.href = "/conta/usuario";
-            }
+            window.location.href = "/minhas-avaliacoes/avaliacoes";
           }}
           establishmentName={establishment.name}
           categoryName={parentCategory?.name}
