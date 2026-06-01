@@ -1,0 +1,150 @@
+{
+  "query": "SELECT r.id, r.userId, r.overallScore, r.type, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.overallScore > 10 ORDER BY r.id DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT r.id, r.userId, r.overallScore, r.type, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.overallScore > 10 ORDER BY r.id DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "1020002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "1020001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "930002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "930001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "900002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "900001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "870002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "870001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "840002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "840001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "810002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "810001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780006",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780005",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780004",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780003",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780002",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "780001",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    },
+    {
+      "id": "750004",
+      "userId": "99",
+      "overallScore": "85",
+      "type": "analytic",
+      "estabName": "NULL"
+    },
+    {
+      "id": "750003",
+      "userId": "99",
+      "overallScore": "75",
+      "type": "direct",
+      "estabName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\toverallScore\ttype\testabName\n1020002\t99\t85\tanalytic\tNULL\n1020001\t99\t75\tdirect\tNULL\n930002\t99\t85\tanalytic\tNULL\n930001\t99\t75\tdirect\tNULL\n900002\t99\t85\tanalytic\tNULL\n900001\t99\t75\tdirect\tNULL\n870002\t99\t85\tanalytic\tNULL\n870001\t99\t75\tdirect\tNULL\n840002\t99\t85\tanalytic\tNULL\n840001\t99\t75\tdirect\tNULL\n810002\t99\t85\tanalytic\tNULL\n810001\t99\t75\tdirect\tNULL\n780006\t99\t85\tanalytic\tNULL\n780005\t99\t75\tdirect\tNULL\n780004\t99\t85\tanalytic\tNULL\n780003\t99\t75\tdirect\tNULL\n780002\t99\t85\tanalytic\tNULL\n780001\t99\t75\tdirect\tNULL\n750004\t99\t85\tanalytic\tNULL\n750003\t99\t75\tdirect\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

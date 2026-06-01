@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, userId, overallScore, type FROM ratings WHERE overallScore > 10 LIMIT 5; SELECT id, overallScore, type FROM ratings WHERE userId=90002 ORDER BY id DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, userId, overallScore, type FROM ratings WHERE overallScore > 10 LIMIT 5; SELECT id, overallScore, type FROM ratings WHERE userId=90002 ORDER BY id DESC;",
+  "rows": [
+    {
+      "id": "1020003",
+      "overallScore": "9.8",
+      "type": "direct"
+    },
+    {
+      "id": "990001",
+      "overallScore": "9.5",
+      "type": "direct"
+    },
+    {
+      "id": "960001",
+      "overallScore": "8.7",
+      "type": "analytic"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\toverallScore\ttype\n1020003\t9.8\tdirect\n990001\t9.5\tdirect\n960001\t8.7\tanalytic\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

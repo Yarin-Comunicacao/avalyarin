@@ -1,0 +1,55 @@
+{
+  "query": "SELECT ri.ratingId, ri.itemName, ri.score FROM rating_items ri WHERE ri.ratingId IN (1020003, 990001, 960001) ORDER BY ri.ratingId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT ri.ratingId, ri.itemName, ri.score FROM rating_items ri WHERE ri.ratingId IN (1020003, 990001, 960001) ORDER BY ri.ratingId;",
+  "rows": [
+    {
+      "ratingId": "960001",
+      "itemName": "Iscas de Peixe",
+      "score": "87"
+    },
+    {
+      "ratingId": "960001",
+      "itemName": "Cerveja Original 600ml",
+      "score": "87"
+    },
+    {
+      "ratingId": "990001",
+      "itemName": "Couve Flor na Brasa",
+      "score": "9"
+    },
+    {
+      "ratingId": "990001",
+      "itemName": "Torta de Chocolate",
+      "score": "10"
+    },
+    {
+      "ratingId": "1020003",
+      "itemName": "Picanha",
+      "score": "9"
+    },
+    {
+      "ratingId": "1020003",
+      "itemName": "Chopp",
+      "score": "10"
+    },
+    {
+      "ratingId": "1020003",
+      "itemName": "Ancho Black",
+      "score": "10"
+    },
+    {
+      "ratingId": "1020003",
+      "itemName": "Onion Rings",
+      "score": "10"
+    },
+    {
+      "ratingId": "1020003",
+      "itemName": "Caipirinha",
+      "score": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "ratingId\titemName\tscore\n960001\tIscas de Peixe\t87\n960001\tCerveja Original 600ml\t87\n990001\tCouve Flor na Brasa\t9\n990001\tTorta de Chocolate\t10\n1020003\tPicanha\t9\n1020003\tChopp\t10\n1020003\tAncho Black\t10\n1020003\tOnion Rings\t10\n1020003\tCaipirinha\t10\n",
+  "stderr": "",
+  "execution_time_ms": 278
+}

@@ -1,0 +1,31 @@
+{
+  "query": "SELECT r.id, r.userId, r.overallScore, r.type, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.userId=90002 ORDER BY r.id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT r.id, r.userId, r.overallScore, r.type, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.userId=90002 ORDER BY r.id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "1020003",
+      "userId": "90002",
+      "overallScore": "25",
+      "type": "direct",
+      "estabName": "Mania de Churrasco"
+    },
+    {
+      "id": "990001",
+      "userId": "90002",
+      "overallScore": "35",
+      "type": "direct",
+      "estabName": "Tan Tan"
+    },
+    {
+      "id": "960001",
+      "userId": "90002",
+      "overallScore": "87",
+      "type": "analytic",
+      "estabName": "O Mineiro Prime"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\toverallScore\ttype\testabName\n1020003\t90002\t25\tdirect\tMania de Churrasco\n990001\t90002\t35\tdirect\tTan Tan\n960001\t90002\t87\tanalytic\tO Mineiro Prime\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

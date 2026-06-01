@@ -49,7 +49,7 @@ describe("ratings.save", () => {
       caller.ratings.save({
         establishmentId: 1,
         type: "direct",
-        overallScore: 75,
+        overallScore: 7.5,
         items: [{ itemName: "Test Item", score: 8 }],
       })
     ).rejects.toThrow();
@@ -62,21 +62,34 @@ describe("ratings.save", () => {
       caller.ratings.save({
         establishmentId: 1,
         type: "invalid" as any,
-        overallScore: 75,
+        overallScore: 7.5,
         items: [{ itemName: "Test Item", score: 8 }],
       })
     ).rejects.toThrow();
   });
 
-  it("validates overallScore range (0-115)", async () => {
+  it("validates overallScore range (0-10)", async () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
     await expect(
       caller.ratings.save({
         establishmentId: 1,
         type: "direct",
-        overallScore: 200,
+        overallScore: 25,
         items: [{ itemName: "Test Item", score: 8 }],
+      })
+    ).rejects.toThrow();
+  });
+
+  it("validates item score range (0-10)", async () => {
+    const ctx = createAuthContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.ratings.save({
+        establishmentId: 1,
+        type: "direct",
+        overallScore: 8,
+        items: [{ itemName: "Test Item", score: 15 }],
       })
     ).rejects.toThrow();
   });
@@ -84,27 +97,24 @@ describe("ratings.save", () => {
   it("accepts empty items array (saves rating without items)", async () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
-    // Empty items is valid at schema level - DB may accept or reject
     const result = await caller.ratings.save({
       establishmentId: 1,
       type: "direct",
-      overallScore: 75,
+      overallScore: 7.5,
       items: [],
     });
     expect(result).toHaveProperty("success", true);
   });
 
-  it("accepts valid input with all optional fields", async () => {
+  it("accepts valid input with all optional fields (no bonusScores)", async () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
-    // This will fail at DB level since establishment doesn't exist in test,
-    // but it validates the schema passes
     try {
       await caller.ratings.save({
         establishmentId: 999999,
         type: "analytic",
         visitDate: "2025-01-15T00:00:00.000Z",
-        overallScore: 85,
+        overallScore: 8.5,
         subtotal: 150.50,
         servicePercent: 10,
         couvert: 15,
@@ -112,7 +122,6 @@ describe("ratings.save", () => {
         parking: 20,
         totalCost: 215.50,
         criteriaScores: { globalRatings: [], itemRatings: [] },
-        bonusScores: ["b1", "b2"],
         items: [
           {
             menuItemId: 1,
@@ -136,7 +145,6 @@ describe("ratings.byEstablishment", () => {
   it("is a public procedure (no auth required)", async () => {
     const ctx = createUnauthContext();
     const caller = appRouter.createCaller(ctx);
-    // Should not throw auth error, may throw DB error
     try {
       await caller.ratings.byEstablishment({
         establishmentId: 1,

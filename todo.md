@@ -229,3 +229,11 @@
 - [x] Exibir avaliações Avalyarin ao lado das avaliações Google
 - [x] Avaliações Avalyarin clicáveis: mostrar resumo do pedido (itens pedidos, data, @usuário em fonte menor)
 - [ ] LEMBRETE: Definir critérios de relevância para ordenação das avaliações Avalyarin (a definir com Alão)
+- [x] Bug: nota overall mostra 25/10 — cálculo corrigido para escala 0-10 (média direta + normalização analítica)
+- [x] Bug: após avaliação redireciona para /badges genérica — corrigido para /insignias ou /conta/usuario
+- [x] Remover Pontos Bônus completamente da avaliação (step removido, cálculo limpo)
+- [ ] Bug: cerveja não apareceu para avaliar no Mania de Churrasco — verificar cardápio
+- [ ] Critério "Originalidade" deve aparecer apenas em estabs que foquem nisso
+- [x] Bug: nota 25/10 desproporcional no modo direto — corrigido (escala 0-10, dados migrados no banco)
+- [x] Remover Pontos Bônus completamente da avaliação (step de bônus + cálculo da nota)
+- [x] Bug: redirecionamento pós-avaliação vai para /badges genérico — corrigido para /insignias ou /conta/usuario

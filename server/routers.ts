@@ -196,7 +196,7 @@ export const appRouter = router({
         establishmentId: z.number(),
         type: z.enum(["direct", "analytic"]),
         visitDate: z.string().optional(),
-        overallScore: z.number().min(0).max(115).optional(),
+        overallScore: z.number().min(0).max(10).optional(),
         subtotal: z.number().optional(),
         servicePercent: z.number().optional(),
         couvert: z.number().optional(),
@@ -204,11 +204,11 @@ export const appRouter = router({
         parking: z.number().optional(),
         totalCost: z.number().optional(),
         criteriaScores: z.any().optional(),
-        bonusScores: z.any().optional(),
+
         items: z.array(z.object({
           menuItemId: z.number().optional(),
           itemName: z.string(),
-          score: z.number().min(0).max(115),
+          score: z.number().min(0).max(10),
           comment: z.string().optional(),
           quantity: z.number().optional(),
           price: z.number().optional(),

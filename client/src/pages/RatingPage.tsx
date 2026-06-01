@@ -7,7 +7,7 @@
 // 5. Harmonização (c10) only shown if user has both food AND beverage items; excluded from score otherwise
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
-import { PUB_CRITERIA, BONUS_CRITERIA } from "@/lib/data";
+import { PUB_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -17,7 +17,7 @@ import { useParams, Redirect } from "wouter";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { toast } from "@/components/ui/sonner";
 import ShareStoryCard from "@/components/ShareStoryCard";
 import { Calendar } from "@/components/ui/calendar";
@@ -25,12 +25,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ptBR } from "react-day-picker/locale";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
-  ShoppingBag, ClipboardCheck, Award, ThumbsUp, ThumbsDown, Users,
+  ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
   CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
-type Step = "items" | "visitDate" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "bonus" | "spend" | "qualify" | "result";
+type Step = "items" | "visitDate" | "mode" | "rating" | "analyticBevDirect" | "analyticItems" | "analyticGlobal" | "spend" | "qualify" | "result";
 
 interface ItemComment {
   itemId: string;
@@ -461,7 +461,7 @@ export default function RatingPage() {
     }));
   };
 
-  const [bonuses, setBonuses] = useState<string[]>([]);
+
 
   // Qualify step state
   const [itemComments, setItemComments] = useState<ItemComment[]>([]);
@@ -674,9 +674,7 @@ export default function RatingPage() {
     );
   };
 
-  const toggleBonus = (id: string) => {
-    setBonuses((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
-  };
+
 
   // ============================================================
   // VALIDATION: all fields mandatory, low-score reasons 1-3 required
@@ -737,19 +735,18 @@ export default function RatingPage() {
   // ============================================================
 
   const finalScore = useMemo(() => {
-    let base = 0;
     if (mode === "direto") {
+      // Modo direto: nota é simplesmente a média de sabor dos itens (escala 0-10)
       const avgTaste = directRatings.reduce((s, r) => s + r.taste, 0) / (directRatings.length || 1);
-      base = (avgTaste / 10) * 25;
+      return parseFloat(avgTaste.toFixed(1));
     } else {
-      // Analytic mode
+      // Analytic mode: escala 0-100 (soma dos pesos) + bônus, normalizada para 0-10
+      let base = 0;
       if (onlyBeverages) {
         // Beverages-only: use bevDirectRatings for Sabor score
         const avgTaste = bevDirectRatings.reduce((s, r) => s + r.taste, 0) / (bevDirectRatings.length || 1);
         const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
         base = (avgTaste / 10) * c1.weight;
-        // No c2 (Apresentação) score for beverages-only in this flow
-        // c2 weight is redistributed or zeroed — we skip it
       } else {
         const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
         let avgSabor = 0;
@@ -789,10 +786,11 @@ export default function RatingPage() {
       }, 0);
 
       base += globalScore;
+      // base is now 0-100 scale, normalize to 0-10
+      const normalized = (base / 100) * 10;
+      return parseFloat(Math.min(10, normalized).toFixed(1));
     }
-    const bonusPoints = BONUS_CRITERIA.filter((b) => bonuses.includes(b.id)).reduce((s, b) => s + b.points, 0);
-    return Math.min(115, Math.round(base + bonusPoints));
-  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bonuses, bevDirectRatings, onlyBeverages]);
+  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bevDirectRatings, onlyBeverages]);
 
   // Classification
   const getClassification = (score: number, isDirectMode: boolean) => {
@@ -805,11 +803,12 @@ export default function RatingPage() {
       if (avgTaste >= 5) return { label: "Regular", color: "text-yellow-400" };
       return { label: "Abaixo da Média", color: "text-red-400" };
     }
-    if (score >= 90) return { label: "Excepcional", color: "text-green-400" };
-    if (score >= 80) return { label: "Excelente", color: "text-green-400" };
-    if (score >= 70) return { label: "Muito Bom", color: "text-primary" };
-    if (score >= 60) return { label: "Bom", color: "text-primary" };
-    if (score >= 50) return { label: "Regular", color: "text-yellow-400" };
+    // Modo analítico agora também usa escala 0-10
+    if (score >= 9) return { label: "Excepcional", color: "text-green-400" };
+    if (score >= 8) return { label: "Excelente", color: "text-green-400" };
+    if (score >= 7) return { label: "Muito Bom", color: "text-primary" };
+    if (score >= 6) return { label: "Bom", color: "text-primary" };
+    if (score >= 5) return { label: "Regular", color: "text-yellow-400" };
     return { label: "Abaixo da Média", color: "text-red-400" };
   };
 
@@ -862,7 +861,6 @@ export default function RatingPage() {
     if (mode === "direto") {
       return [
         { step: "rating", label: "Avaliação" },
-        { step: "bonus", label: "Bônus" },
         { step: "result", label: "Resultado" },
       ];
     }
@@ -871,14 +869,12 @@ export default function RatingPage() {
       return [
         { step: "analyticBevDirect", label: "Avaliação" },
         { step: "analyticGlobal", label: "Critérios Gerais" },
-        { step: "bonus", label: "Bônus" },
         { step: "result", label: "Resultado" },
       ];
     }
     return [
       { step: "analyticItems", label: "Sabor e Apresentação" },
       { step: "analyticGlobal", label: "Critérios Gerais" },
-      { step: "bonus", label: "Bônus" },
       { step: "result", label: "Resultado" },
     ];
   };
@@ -1180,12 +1176,12 @@ export default function RatingPage() {
                       if (currentDirectIdx < directRatings.length - 1) {
                         setCurrentDirectIdx(currentDirectIdx + 1);
                       } else {
-                        setStep("bonus");
+                        setStep("spend");
                       }
                     }}
                     className="font-display tracking-wider glow-amber"
                   >
-                    {currentDirectIdx < directRatings.length - 1 ? "PRÓXIMO ITEM" : "BÔNUS"} <ChevronRight className="w-4 h-4 ml-1" />
+                    {currentDirectIdx < directRatings.length - 1 ? "PRÓXIMO ITEM" : "CONTA"} <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               </motion.div>
@@ -1443,59 +1439,17 @@ export default function RatingPage() {
                         return;
                       }
                       setValidationAttempted(false);
-                      setStep("bonus");
+                      setStep("spend");
                     }}
                     className="font-display tracking-wider glow-amber"
                   >
-                    BÔNUS <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Bonus Step */}
-            {step === "bonus" && (
-              <motion.div key="bonus" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <div className="flex items-center gap-3 mb-6">
-                  <Award className="w-6 h-6 text-primary" />
-                  <div>
-                    <h3 className="font-display text-2xl tracking-wider text-primary">PONTOS BÔNUS</h3>
-                    <p className="text-sm text-muted-foreground">Marque os diferenciais que o estabelecimento oferece</p>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {BONUS_CRITERIA.map((bonus) => (
-                    <button
-                      key={bonus.id}
-                      onClick={() => toggleBonus(bonus.id)}
-                      className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                        bonuses.includes(bonus.id)
-                          ? "border-primary/60 bg-primary/10"
-                          : "border-border/30 bg-card hover:border-border/60"
-                      }`}
-                    >
-                      <Checkbox checked={bonuses.includes(bonus.id)} />
-                      <div className="flex-1">
-                        <h5 className="text-sm font-semibold text-foreground">{bonus.name}</h5>
-                        <p className="text-xs text-muted-foreground">{bonus.description}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <div className="flex justify-between mt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep(mode === "analitico" ? "analyticGlobal" : "rating")}
-                    className="font-display tracking-wider"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
-                  </Button>
-                  <Button onClick={() => setStep("spend")} className="font-display tracking-wider glow-amber">
                     CONTA <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               </motion.div>
             )}
+
+
 
             {/* Spend Summary Step */}
             {step === "spend" && (() => {
@@ -1652,7 +1606,7 @@ export default function RatingPage() {
                   <div className="flex justify-between mt-6">
                     <Button
                       variant="outline"
-                      onClick={() => setStep("bonus")}
+                      onClick={() => setStep(mode === "analitico" ? "analyticGlobal" : "rating")}
                       className="font-display tracking-wider"
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
@@ -2036,18 +1990,7 @@ export default function RatingPage() {
                     )}
                   </div>
 
-                  {bonuses.length > 0 && (
-                    <div className="text-left p-6 rounded-xl bg-card border border-border/50 mb-6">
-                      <h4 className="font-display text-lg tracking-wider text-primary mb-3">BÔNUS APLICADOS</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {BONUS_CRITERIA.filter((b) => bonuses.includes(b.id)).map((b) => (
-                          <span key={b.id} className="text-xs bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg border border-green-500/20">
-                            {b.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+
 
                   <Button
                     disabled={saveRatingMutation.isPending}
@@ -2109,7 +2052,7 @@ export default function RatingPage() {
                             globalRatings: analyticGlobalRatings,
                             itemRatings: analyticItemRatings,
                           } : undefined,
-                          bonusScores: bonuses.length > 0 ? bonuses : undefined,
+
                           items: selectedMenuItems.map(m => {
                             const dr = directRatings.find(r => r.itemId === m.id);
                             const comment = itemComments.find(c => c.itemId === m.id)?.comment || "";
@@ -2211,9 +2154,9 @@ export default function RatingPage() {
             // Navigate after closing share card
             const justEarned = localStorage.getItem("avalyarin_badge_just_earned");
             if (justEarned) {
-              window.location.href = "/badges";
+              window.location.href = "/insignias";
             } else {
-              window.location.href = "/";
+              window.location.href = "/conta/usuario";
             }
           }}
           establishmentName={establishment.name}
