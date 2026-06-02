@@ -1,0 +1,105 @@
+{
+  "query": "SELECT id, slug, name FROM categories ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, slug, name FROM categories ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "slug": "bar-lanchonete",
+      "name": "Bar & Lanchonete"
+    },
+    {
+      "id": "2",
+      "slug": "cozinha-brasileira",
+      "name": "Cozinha Brasileira"
+    },
+    {
+      "id": "3",
+      "slug": "autoral-contemporaneo",
+      "name": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4",
+      "slug": "boteco-tradicional",
+      "name": "Boteco Tradicional"
+    },
+    {
+      "id": "5",
+      "slug": "boteco-moderno",
+      "name": "Boteco Moderno"
+    },
+    {
+      "id": "6",
+      "slug": "pub",
+      "name": "Pub"
+    },
+    {
+      "id": "7",
+      "slug": "coquetelaria",
+      "name": "Coquetelaria"
+    },
+    {
+      "id": "8",
+      "slug": "cafeteria",
+      "name": "Cafeteria"
+    },
+    {
+      "id": "9",
+      "slug": "padaria",
+      "name": "Padaria"
+    },
+    {
+      "id": "10",
+      "slug": "balada",
+      "name": "Balada"
+    },
+    {
+      "id": "11",
+      "slug": "confeitaria",
+      "name": "Confeitaria"
+    },
+    {
+      "id": "12",
+      "slug": "bar-musical",
+      "name": "Bar Musical"
+    },
+    {
+      "id": "13",
+      "slug": "cervejaria",
+      "name": "Cervejaria"
+    },
+    {
+      "id": "14",
+      "slug": "pizzaria",
+      "name": "Pizzaria"
+    },
+    {
+      "id": "15",
+      "slug": "saudavel",
+      "name": "Saudável"
+    },
+    {
+      "id": "16",
+      "slug": "hamburgueria",
+      "name": "Hamburgueria e Lanches"
+    },
+    {
+      "id": "17",
+      "slug": "cozinha-internacional",
+      "name": "Cozinha Internacional"
+    },
+    {
+      "id": "30001",
+      "slug": "vegan",
+      "name": "Vegan"
+    },
+    {
+      "id": "30002",
+      "slug": "acai",
+      "name": "Açaí"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tslug\tname\n1\tbar-lanchonete\tBar & Lanchonete\n2\tcozinha-brasileira\tCozinha Brasileira\n3\tautoral-contemporaneo\tAutoral / Contemporâneo\n4\tboteco-tradicional\tBoteco Tradicional\n5\tboteco-moderno\tBoteco Moderno\n6\tpub\tPub\n7\tcoquetelaria\tCoquetelaria\n8\tcafeteria\tCafeteria\n9\tpadaria\tPadaria\n10\tbalada\tBalada\n11\tconfeitaria\tConfeitaria\n12\tbar-musical\tBar Musical\n13\tcervejaria\tCervejaria\n14\tpizzaria\tPizzaria\n15\tsaudavel\tSaudável\n16\thamburgueria\tHamburgueria e Lanches\n17\tcozinha-internacional\tCozinha Internacional\n30001\tvegan\tVegan\n30002\tacai\tAçaí\n",
+  "stderr": "",
+  "execution_time_ms": 352
+}

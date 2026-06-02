@@ -1,0 +1,9 @@
+{
+  "query": "SET @counter = 0;\nUPDATE ratings SET code = CONCAT('ra', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;\nSET @counter = 0;\nUPDATE `groups` SET code = CONCAT('gr', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;\nSET @counter = 0;\nUPDATE menu_items SET code = CONCAT('mi', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SET @counter = 0;\nUPDATE ratings SET code = CONCAT('ra', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;\nSET @counter = 0;\nUPDATE `groups` SET code = CONCAT('gr', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;\nSET @counter = 0;\nUPDATE menu_items SET code = CONCAT('mi', LPAD(@counter := @counter + 1, 6, '0')) WHERE code IS NULL ORDER BY id;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2710
+}

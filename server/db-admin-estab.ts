@@ -6,7 +6,7 @@
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
 import { establishments, menuItems, categories, menuCategories } from "../drizzle/schema";
-import { getDb, syncEstablishmentVisibility } from "./db";
+import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 
 /**
@@ -203,8 +203,12 @@ export async function adminAddMenuItem(data: {
   // Capitalize category name
   const finalCategory = data.category ? capitalizeCategory(data.category) : null;
 
+  // Generate code for new menu item
+  const itemCode = await generateCode('menu_items');
+
   const [result] = await db.insert(menuItems).values({
     establishmentId: data.establishmentId,
+    code: itemCode,
     name: data.name,
     description: data.description || null,
     price: data.price || null,

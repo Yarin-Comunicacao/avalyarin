@@ -5,6 +5,7 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, j
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 16 }).unique(), // Visual ID: numeric (1-200000000)
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -26,6 +27,7 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const categories = mysqlTable("categories", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 8 }).unique(), // Visual ID: ca001-ca999
   slug: varchar("slug", { length: 128 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
@@ -42,6 +44,7 @@ export type InsertCategory = typeof categories.$inferInsert;
  */
 export const establishments = mysqlTable("establishments", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: es000001-es999999
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   address: text("address"),
@@ -73,6 +76,7 @@ export type InsertEstablishment = typeof establishments.$inferInsert;
  */
 export const menuItems = mysqlTable("menu_items", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: mi000001-mi999999
   establishmentId: int("establishmentId").notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
@@ -93,6 +97,7 @@ export type InsertMenuItem = typeof menuItems.$inferInsert;
  */
 export const ratings = mysqlTable("ratings", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: ra000001-ra999999
   userId: int("userId").notNull(),
   establishmentId: int("establishmentId").notNull(),
   type: mysqlEnum("type", ["direct", "analytic"]).notNull(),
@@ -221,6 +226,7 @@ export type InsertUserPlan = typeof userPlans.$inferInsert;
  */
 export const groups = mysqlTable("groups", {
   id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: gr000001-gr999999
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   type: mysqlEnum("type", ["private", "influencer"]).notNull(),

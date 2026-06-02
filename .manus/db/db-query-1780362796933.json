@@ -1,0 +1,9 @@
+{
+  "query": "CREATE UNIQUE INDEX idx_users_code ON users(code);\nCREATE UNIQUE INDEX idx_categories_code ON categories(code);\nCREATE UNIQUE INDEX idx_establishments_code ON establishments(code);\nCREATE UNIQUE INDEX idx_ratings_code ON ratings(code);\nCREATE UNIQUE INDEX idx_groups_code ON `groups`(code);\nCREATE UNIQUE INDEX idx_menu_items_code ON menu_items(code);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute CREATE UNIQUE INDEX idx_users_code ON users(code);\nCREATE UNIQUE INDEX idx_categories_code ON categories(code);\nCREATE UNIQUE INDEX idx_establishments_code ON establishments(code);\nCREATE UNIQUE INDEX idx_ratings_code ON ratings(code);\nCREATE UNIQUE INDEX idx_groups_code ON `groups`(code);\nCREATE UNIQUE INDEX idx_menu_items_code ON menu_items(code);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2495
+}

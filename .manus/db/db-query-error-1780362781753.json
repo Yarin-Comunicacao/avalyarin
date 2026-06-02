@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE users ADD COLUMN code VARCHAR(16) UNIQUE AFTER id;\nALTER TABLE categories ADD COLUMN code VARCHAR(8) UNIQUE AFTER id;\nALTER TABLE establishments ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE ratings ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE `groups` ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE menu_items ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute ALTER TABLE users ADD COLUMN code VARCHAR(16) UNIQUE AFTER id;\nALTER TABLE categories ADD COLUMN code VARCHAR(8) UNIQUE AFTER id;\nALTER TABLE establishments ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE ratings ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE `groups` ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;\nALTER TABLE menu_items ADD COLUMN code VARCHAR(12) UNIQUE AFTER id;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 8200 (HY000) at line 1: unsupported add column 'code' constraint UNIQUE KEY when altering 'WG3U3sVg2ZrW6m8T99FRdE.users'"
+  ]
+}

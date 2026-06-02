@@ -1,5 +1,5 @@
 import { eq, and, or, desc, sql, like } from "drizzle-orm";
-import { getDb } from "./db";
+import { getDb, generateCode } from "./db";
 import {
   groups, groupMembers, groupInvites, groupSharedRatings, userPlans,
   users, ratings, ratingItems, establishments,
@@ -46,8 +46,12 @@ export async function createGroup(data: {
     }
   }
 
+  // Generate code for new group
+  const groupCode = await generateCode('groups');
+
   const [result] = await db.insert(groups).values({
     name: data.name,
+    code: groupCode,
     description: data.description ?? null,
     type: data.type,
     creatorId: data.creatorId,

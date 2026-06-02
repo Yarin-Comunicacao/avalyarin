@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as total FROM establishments WHERE code IS NULL;\nSELECT MIN(id) as min_id, MAX(id) as max_id FROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total FROM establishments WHERE code IS NULL;\nSELECT MIN(id) as min_id, MAX(id) as max_id FROM establishments;",
+  "rows": [
+    {
+      "total": "187"
+    },
+    {
+      "total": "min_id\tmax_id"
+    },
+    {
+      "total": "2\t30001"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n187\nmin_id\tmax_id\n2\t30001\n",
+  "stderr": "",
+  "execution_time_ms": 285
+}

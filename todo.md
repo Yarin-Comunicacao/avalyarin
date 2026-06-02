@@ -240,3 +240,9 @@
 - [x] Criar página unificada "Minhas Avaliações" (/minhas-avaliacoes) com 4 abas: Avaliações, Meu Ranking, Locais Visitados, Galeria
 - [x] Menu lateral: "Minhas Avaliações" como item expansível com sub-itens apontando para /minhas-avaliacoes/:tab
 - [x] Redirecionamento pós-avaliação: ir para /minhas-avaliacoes/avaliacoes
+- [x] Adicionar campo `code` visual nas tabelas: users, categories, establishments, ratings, groups, menu_items
+- [x] Gerar codes para dados existentes (users: 1-200000000, categories: ca001-ca999, establishments: es000001-es999999, ratings: ra000001, groups: gr000001, menu_items: mi000001)
+- [x] Geração automática de code ao criar novos registros no backend
+- [x] Botão de salvar (bandeirinha/bookmark) na página do estabelecimento
+- [x] Backend: endpoints para salvar/remover estabelecimento dos favoritos (já existiam)
+- [x] Frontend: estado visual do bookmark (salvo/não salvo) na EstablishmentPage

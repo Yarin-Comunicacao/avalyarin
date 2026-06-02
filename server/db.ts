@@ -1,10 +1,61 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// ============================================================
+// CODE GENERATION HELPERS
+// ============================================================
+
+/**
+ * Generate a visual code for a new record.
+ * Prefix + zero-padded sequential number based on max existing code.
+ * users: numeric only (1-200000000)
+ * categories: ca + 3 digits (ca001-ca999)
+ * establishments: es + 6 digits (es000001-es999999)
+ * ratings: ra + 6 digits (ra000001-ra999999)
+ * groups: gr + 6 digits (gr000001-gr999999)
+ * menu_items: mi + 6 digits (mi000001-mi999999)
+ */
+export async function generateCode(table: 'users' | 'categories' | 'establishments' | 'ratings' | 'groups' | 'menu_items'): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available for code generation");
+
+  const config: Record<string, { prefix: string; digits: number; tableRef: any }> = {
+    users: { prefix: '', digits: 0, tableRef: users },
+    categories: { prefix: 'ca', digits: 3, tableRef: categories },
+    establishments: { prefix: 'es', digits: 6, tableRef: establishments },
+    ratings: { prefix: 'ra', digits: 6, tableRef: ratings },
+    groups: { prefix: 'gr', digits: 6, tableRef: groups },
+    menu_items: { prefix: 'mi', digits: 6, tableRef: menuItems },
+  };
+
+  const { prefix, digits, tableRef } = config[table];
+
+  // Get the max code from the table
+  const [row] = await db.select({ maxCode: sql<string>`MAX(code)` }).from(tableRef);
+  const maxCode = row?.maxCode;
+
+  let nextNum = 1;
+  if (maxCode) {
+    if (prefix) {
+      // Extract numeric part after prefix
+      const numStr = maxCode.replace(prefix, '');
+      nextNum = parseInt(numStr, 10) + 1;
+    } else {
+      // Users: purely numeric
+      nextNum = parseInt(maxCode, 10) + 1;
+    }
+  }
+
+  if (prefix) {
+    return `${prefix}${String(nextNum).padStart(digits, '0')}`;
+  }
+  return String(nextNum);
+}
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -70,6 +121,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     if (Object.keys(updateSet).length === 0) {
       updateSet.lastSignedIn = new Date();
     }
+
+    // Generate code for new users
+    const newCode = await generateCode('users');
+    values.code = newCode;
 
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
@@ -556,9 +611,13 @@ export async function saveRating(userId: number, data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Generate code for new rating
+  const ratingCode = await generateCode('ratings');
+
   // Insert rating
   const [result] = await db.insert(ratings).values({
     userId,
+    code: ratingCode,
     establishmentId: data.establishmentId,
     type: data.type,
     visitDate: data.visitDate ? new Date(data.visitDate) : null,
@@ -955,8 +1014,12 @@ export async function businessAddMenuItem(userId: number, establishmentId: numbe
   
   if (!claim) return null;
   
+  // Generate code for new menu item
+  const itemCode = await generateCode('menu_items');
+
   const result = await db.insert(menuItems).values({
     establishmentId,
+    code: itemCode,
     name: data.name,
     description: data.description || null,
     price: data.price || null,
@@ -1385,8 +1448,12 @@ export async function createEstablishment(data: {
   // hasMenu is always false for new estabs (no menu items yet), so always pending initially
   const shouldHide = !isComplete || true; // always pending until menu is added
 
+  // Generate code for new establishment
+  const estabCode = await generateCode('establishments');
+
   const result = await db.insert(establishments).values({
     slug,
+    code: estabCode,
     name: data.name,
     categoryId: data.categoryId,
     address: data.address || null,

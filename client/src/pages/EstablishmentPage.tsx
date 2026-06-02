@@ -5,13 +5,47 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark } from "lucide-react";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
 import { AvalyarinReviews } from "@/components/AvalyarinReviews";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
+
+function SaveBookmarkButton({ establishmentId }: { establishmentId: number }) {
+  const { isAuthenticated } = useAuth();
+  const utils = trpc.useUtils();
+
+  const { data: isSaved, isLoading: checkingStatus } = trpc.posts.isSaved.useQuery(
+    { establishmentId },
+    { enabled: isAuthenticated }
+  );
+
+  const toggleMutation = trpc.posts.toggleSave.useMutation({
+    onSuccess: () => {
+      utils.posts.isSaved.invalidate({ establishmentId });
+      utils.posts.savedIds.invalidate();
+    },
+  });
+
+  if (!isAuthenticated) return null;
+
+  return (
+    <button
+      onClick={() => toggleMutation.mutate({ establishmentId })}
+      disabled={toggleMutation.isPending || checkingStatus}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+        isSaved
+          ? "bg-primary/20 border-primary/50 text-primary"
+          : "bg-secondary/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary"
+      }`}
+    >
+      <Bookmark className={`w-4 h-4 ${isSaved ? "fill-primary" : ""}`} />
+      {isSaved ? "Salvo" : "Salvar"}
+    </button>
+  );
+}
 
 export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -209,8 +243,8 @@ export default function EstablishmentPage() {
               )}
             </div>
 
-            {/* Share buttons */}
-            <div className="flex gap-3 mt-5">
+            {/* Share & Save buttons */}
+            <div className="flex gap-3 mt-5 flex-wrap">
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(`Confira ${establishment.name} no AvaLyarin! ${window.location.href}`)}`}
                 target="_blank"
@@ -238,6 +272,7 @@ export default function EstablishmentPage() {
                 <Share2 className="w-4 h-4" />
                 Compartilhar
               </button>
+              <SaveBookmarkButton establishmentId={establishment.id} />
             </div>
           </motion.div>
         </div>
