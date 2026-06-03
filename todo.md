@@ -246,3 +246,4 @@
 - [x] Botão de salvar (bandeirinha/bookmark) na página do estabelecimento
 - [x] Backend: endpoints para salvar/remover estabelecimento dos favoritos (já existiam)
 - [x] Frontend: estado visual do bookmark (salvo/não salvo) na EstablishmentPage
+- [x] Integrar Brandbook como subpágina na área de Admin (/admin/brandbook)

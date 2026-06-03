@@ -1,13 +1,14 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import AdminEstablishments from "@/components/AdminEstablishments";
+import BrandbookTab from "@/components/BrandbookTab";
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearch, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode
+  Code, Download, RefreshCw, FileCode, BookOpen
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -17,7 +18,7 @@ export default function AdminPanel() {
 
   // Parse URL params to restore tab/category state
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
-  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup";
+  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -88,6 +89,7 @@ export default function AdminPanel() {
             { id: "establishments" as const, label: "Estabelecimentos", icon: Store },
             { id: "age-verification" as const, label: "Verificação", icon: FileCheck },
             { id: "code-backup" as const, label: "Código", icon: Code },
+            { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
           ].map(tab => (
             <button
               key={tab.id}
@@ -113,6 +115,7 @@ export default function AdminPanel() {
         {activeTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} />}
         {activeTab === "age-verification" && <AgeVerificationTab />}
         {activeTab === "code-backup" && <CodeBackupTab />}
+        {activeTab === "brandbook" && <BrandbookTab />}
       </div>
     </div>
   );
