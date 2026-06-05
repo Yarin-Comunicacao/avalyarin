@@ -482,6 +482,9 @@ export default function RatingPage() {
   // Check if user selected ONLY beverages (no food items at all)
   const onlyBeverages = selectedMenuItems.length > 0 && selectedMenuItems.every((m) => isBeverageItem(m));
 
+  // Check if there are beverages in a mixed selection (food + beverages)
+  const hasMixedBeverages = !onlyBeverages && selectedMenuItems.some((m) => isBeverageItem(m));
+
   const c = (m: { category?: string }) => (m.category || "").toLowerCase();
   const entradas = menuItems.filter((m) => c(m) === "entrada" || c(m) === "petisco" || c(m) === "salgado");
   const pratos = menuItems.filter((m) => c(m) === "prato" || c(m) === "hamburguer" || c(m) === "pizza" || c(m) === "lanche" || c(m) === "sanduiche" || c(m) === "sushi" || c(m) === "temaki" || c(m) === "ramen" || c(m) === "salada" || c(m) === "sopa" || c(m) === "focaccia");
@@ -757,6 +760,13 @@ export default function RatingPage() {
           });
           avgSabor = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
         }
+        // In mixed mode, include beverage direct ratings in the Sabor average
+        if (bevDirectRatings.length > 0) {
+          const bevAvgTaste = bevDirectRatings.reduce((s, r) => s + r.taste, 0) / bevDirectRatings.length;
+          // Weighted average: food items from analytic + beverage items from direct
+          const totalItems = analyticItemRatings.length + bevDirectRatings.length;
+          avgSabor = ((avgSabor * analyticItemRatings.length) + (bevAvgTaste * bevDirectRatings.length)) / totalItems;
+        }
         const c1Score = (avgSabor / 10) * c1.weight;
 
         const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
@@ -790,7 +800,7 @@ export default function RatingPage() {
       const normalized = (base / 100) * 10;
       return parseFloat(Math.min(10, normalized).toFixed(1));
     }
-  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bevDirectRatings, onlyBeverages]);
+  }, [mode, directRatings, analyticItemRatings, analyticGlobalRatings, bevDirectRatings, onlyBeverages, hasMixedBeverages]);
 
   // Classification
   const getClassification = (score: number, isDirectMode: boolean) => {
@@ -868,6 +878,14 @@ export default function RatingPage() {
     if (onlyBeverages) {
       return [
         { step: "analyticBevDirect", label: "Avaliação" },
+        { step: "analyticGlobal", label: "Critérios Gerais" },
+        { step: "result", label: "Resultado" },
+      ];
+    }
+    if (hasMixedBeverages) {
+      return [
+        { step: "analyticItems", label: "Sabor e Apresentação" },
+        { step: "analyticBevDirect", label: "Avaliação de Bebidas" },
         { step: "analyticGlobal", label: "Critérios Gerais" },
         { step: "result", label: "Resultado" },
       ];
@@ -1207,7 +1225,7 @@ export default function RatingPage() {
                 <div className="flex justify-between mt-6">
                   <Button
                     variant="outline"
-                    onClick={() => currentBevDirectIdx > 0 ? setCurrentBevDirectIdx(currentBevDirectIdx - 1) : setStep("mode")}
+                    onClick={() => currentBevDirectIdx > 0 ? setCurrentBevDirectIdx(currentBevDirectIdx - 1) : (hasMixedBeverages ? setStep("analyticItems") : setStep("mode"))}
                     className="font-display tracking-wider"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
@@ -1363,6 +1381,10 @@ export default function RatingPage() {
                       setValidationAttempted(false);
                       if (ratableSelectedItems.length > 0 && currentAnalyticItemIdx < ratableSelectedItems.length - 1) {
                         setCurrentAnalyticItemIdx(currentAnalyticItemIdx + 1);
+                      } else if (hasMixedBeverages) {
+                        // Mixed mode: go to beverage direct ratings after food items
+                        setCurrentBevDirectIdx(0);
+                        setStep("analyticBevDirect");
                       } else {
                         setStep("analyticGlobal");
                       }
@@ -1428,6 +1450,7 @@ export default function RatingPage() {
                 <div className="flex justify-between mt-6">
                   <Button variant="outline" onClick={() => {
                     if (onlyBeverages) setStep("analyticBevDirect");
+                    else if (hasMixedBeverages) setStep("analyticBevDirect");
                     else setStep("analyticItems");
                   }} className="font-display tracking-wider">
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
@@ -1967,7 +1990,7 @@ export default function RatingPage() {
                         </span>
                       ))}
                     </div>
-                    {(mode === "direto" || (mode === "analitico" && onlyBeverages)) && (
+                    {(mode === "direto" || (mode === "analitico" && (onlyBeverages || hasMixedBeverages))) && (
                       <div className="mt-4 pt-3 border-t border-border/20">
                         <div className="flex flex-wrap gap-3">
                           {(mode === "direto" ? directRatings : bevDirectRatings).map((r) => {
@@ -2055,13 +2078,14 @@ export default function RatingPage() {
 
                           items: selectedMenuItems.map(m => {
                             const dr = directRatings.find(r => r.itemId === m.id);
+                            const bevDr = bevDirectRatings.find(r => r.itemId === m.id);
                             const comment = itemComments.find(c => c.itemId === m.id)?.comment || "";
                             return {
                               menuItemId: parseInt(m.id) || undefined,
                               itemName: m.name,
-                              score: dr?.taste || finalScore,
+                              score: dr?.taste || bevDr?.taste || finalScore,
                               comment: comment || undefined,
-                              quantity: dr?.serves || undefined,
+                              quantity: dr?.serves || bevDr?.serves || undefined,
                               price: m.price > 0 ? m.price : undefined,
                             };
                           }),

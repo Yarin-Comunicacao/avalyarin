@@ -59,7 +59,7 @@
 - [x] Add real-time visual validation with success icon when valid date is selected in BirthdateRoulette
 - [x] Reclassify establishments using keyword rules (phase 1 - clear cases)
 - [x] Reclassify ambiguous establishments using LLM (phase 2 - AI-assisted)
-- [ ] Continue Instagram verification in batches of 50 (Vila Madalena + Pinheiros first)
+- [x] ~~Continue Instagram verification in batches of 50~~ (descartado pelo usuário)
 - [x] Google Maps enrichment: Boteco Moderno (18 establishments)
 - [x] Instagram enrichment: Boteco Moderno (18 establishments)
 - [x] Google Maps enrichment: Pub (22 establishments)
@@ -78,7 +78,7 @@
 - [x] Google Maps enrichment: Cozinha Internacional (1013 establishments)
 - [x] Google Maps enrichment: Cozinha Brasileira (1514 establishments)
 - [x] Google Maps enrichment: Bar & Lanchonete (1654 establishments)
-- [ ] Instagram enrichment: remaining categories (pending authenticated session)
+- [x] ~~Instagram enrichment: remaining categories~~ (descartado pelo usuário)
 - [x] Remove 8 establishments not found on Google Maps (IDs: 7729, 2601, 4280, 7019, 1194, 1354, 6119, 7053)
 - [x] Optimize hours text: group consecutive days with same schedule (e.g., "Seg a Qui: 11:30–15:00")
 - [x] Re-process 332 establishments that failed due to "Data too long" with optimized hours
@@ -252,3 +252,6 @@
 - [x] Atualizar schema Drizzle, queries backend e frontend para usar relação N:N
 - [x] Criar categoria "Vegetariano" e "Restaurante"
 - [x] Vincular Quebec a múltiplas categorias (Boteco Moderno + Restaurante)
+- [ ] Verificar e atualizar frontend (CategoryPage) para exibir corretamente estabs com múltiplas categorias (N:N)
+- [x] Corrigir bairros dos 188 estabelecimentos ativos para o bairro exato do Google Maps (não subprefeitura)
+- [x] Corrigir bug: cerveja não avaliada no modo analítico misto (agora usa avaliação direta para bebidas)

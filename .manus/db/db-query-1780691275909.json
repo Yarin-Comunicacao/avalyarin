@@ -1,0 +1,50 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total FROM establishments WHERE status = 'active' GROUP BY neighborhood ORDER BY total ASC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total FROM establishments WHERE status = 'active' GROUP BY neighborhood ORDER BY total ASC LIMIT 10;",
+  "rows": [
+    {
+      "neighborhood": "Jardins",
+      "total": "1"
+    },
+    {
+      "neighborhood": "Vila Madalena/Sumarezinho",
+      "total": "1"
+    },
+    {
+      "neighborhood": "Cursino",
+      "total": "1"
+    },
+    {
+      "neighborhood": "Morumbi",
+      "total": "1"
+    },
+    {
+      "neighborhood": "Vila Mariana",
+      "total": "2"
+    },
+    {
+      "neighborhood": "Itaim Bibi",
+      "total": "2"
+    },
+    {
+      "neighborhood": "Alto de Pinheiros",
+      "total": "3"
+    },
+    {
+      "neighborhood": "Barra Funda",
+      "total": "3"
+    },
+    {
+      "neighborhood": "Saúde",
+      "total": "3"
+    },
+    {
+      "neighborhood": "Cambuci",
+      "total": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\nJardins\t1\nVila Madalena/Sumarezinho\t1\nCursino\t1\nMorumbi\t1\nVila Mariana\t2\nItaim Bibi\t2\nAlto de Pinheiros\t3\nBarra Funda\t3\nSaúde\t3\nCambuci\t4\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}
