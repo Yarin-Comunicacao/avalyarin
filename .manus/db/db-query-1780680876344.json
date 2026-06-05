@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, code FROM categories WHERE slug IN ('vegetariano', 'restaurante');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, code FROM categories WHERE slug IN ('vegetariano', 'restaurante');",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "Vegetariano",
+      "code": "ca020"
+    },
+    {
+      "id": "60002",
+      "name": "Restaurante",
+      "code": "ca021"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcode\n60001\tVegetariano\tca020\n60002\tRestaurante\tca021\n",
+  "stderr": "",
+  "execution_time_ms": 264
+}

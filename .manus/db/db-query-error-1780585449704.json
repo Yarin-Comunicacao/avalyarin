@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO establishments (id, code, slug, name, address, neighborhood, region, phone, instagram, hours, category_id, description, has_menu, status, source, lat, lng)\nVALUES (\n  30002,\n  'es030002',\n  'quebec-bar-pinheiros',\n  'Québec Bar e Restaurante',\n  'Rua dos Pinheiros, 1183 - Pinheiros, São Paulo - SP',\n  'Pinheiros',\n  'Zona Oeste',\n  '(11) 2769-1285',\n  '@quebec.bar',\n  'Seg: 07h-22h | Ter a Qua: 07h-23h | Qui a Sex: 07h-02h | Sáb: 11h30-22h | Dom: 11h30-18h30',\n  5,\n  'Bar e restaurante especializado em risotos e drinks autorais. Ambiente moderno com parrilla e cardápio variado.',\n  true,\n  'active',\n  'manual',\n  -23.5618,\n  -46.6912\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO establishments (id, code, slug, name, address, neighborhood, region, phone, instagram, hours, category_id, description, has_menu, status, source, lat, lng)\nVALUES (\n  30002,\n  'es030002',\n  'quebec-bar-pinheiros',\n  'Québec Bar e Restaurante',\n  'Rua dos Pinheiros, 1183 - Pinheiros, São Paulo - SP',\n  'Pinheiros',\n  'Zona Oeste',\n  '(11) 2769-1285',\n  '@quebec.bar',\n  'Seg: 07h-22h | Ter a Qua: 07h-23h | Qui a Sex: 07h-02h | Sáb: 11h30-22h | Dom: 11h30-18h30',\n  5,\n  'Bar e restaurante especializado em risotos e drinks autorais. Ambiente moderno com parrilla e cardápio variado.',\n  true,\n  'active',\n  'manual',\n  -23.5618,\n  -46.6912\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'category_id' in 'field list'"
+  ]
+}

@@ -334,6 +334,21 @@ export type UserSavedEstablishment = typeof userSavedEstablishments.$inferSelect
 export type InsertUserSavedEstablishment = typeof userSavedEstablishments.$inferInsert;
 
 /**
+ * Establishment categories (N:N) — allows multiple categories per establishment.
+ * isPrimary = true means the original/main category.
+ */
+export const establishmentCategories = mysqlTable("establishment_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  isPrimary: boolean("isPrimary").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EstablishmentCategory = typeof establishmentCategories.$inferSelect;
+export type InsertEstablishmentCategory = typeof establishmentCategories.$inferInsert;
+
+/**
  * Menu categories table — tracks category names and their display order per establishment.
  * Allows drag-and-drop reordering of menu categories.
  */

@@ -5,7 +5,7 @@
  * individual establishment admin page, and menu item CRUD with images.
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
-import { establishments, menuItems, categories, menuCategories } from "../drizzle/schema";
+import { establishments, menuItems, categories, menuCategories, establishmentCategories } from "../drizzle/schema";
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 
@@ -35,9 +35,9 @@ export async function getAdminCategoriesWithCounts() {
     icon: categories.icon,
   }).from(categories).orderBy(asc(categories.name));
 
-  // Get counts for each category (including incomplete count)
+  // Get counts for each category via N:N table
   const counts = await db.select({
-    categoryId: establishments.categoryId,
+    categoryId: establishmentCategories.categoryId,
     activeCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'active' THEN 1 ELSE 0 END)`,
     hiddenCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'hidden' THEN 1 ELSE 0 END)`,
     pendingCount: sql<number>`SUM(CASE WHEN ${establishments.status} = 'pending' THEN 1 ELSE 0 END)`,
@@ -47,8 +47,9 @@ export async function getAdminCategoriesWithCounts() {
       ${establishments.hasMenu} = false
     ) THEN 1 ELSE 0 END)`,
   })
-    .from(establishments)
-    .groupBy(establishments.categoryId);
+    .from(establishmentCategories)
+    .innerJoin(establishments, eq(establishments.id, establishmentCategories.establishmentId))
+    .groupBy(establishmentCategories.categoryId);
 
   const countMap = new Map(counts.map(c => [c.categoryId, {
     active: Number(c.activeCount) || 0,
@@ -79,8 +80,16 @@ export async function getAdminEstablishmentsByCategory(
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
 
+  // Get establishment IDs in this category via N:N
+  const ecRows = await db.select({ establishmentId: establishmentCategories.establishmentId })
+    .from(establishmentCategories)
+    .where(eq(establishmentCategories.categoryId, categoryId));
+  const estIdsInCat = ecRows.map(r => r.establishmentId);
+  
+  if (estIdsInCat.length === 0) return { items: [], total: 0 };
+  
   const whereClause = and(
-    eq(establishments.categoryId, categoryId),
+    inArray(establishments.id, estIdsInCat),
     eq(establishments.status, statusFilter)
   );
 
@@ -152,7 +161,17 @@ export async function getAdminEstablishmentDetail(id: number) {
   const [est] = await db.select().from(establishments).where(eq(establishments.id, id)).limit(1);
   if (!est) return null;
 
-  const [cat] = await db.select().from(categories).where(eq(categories.id, est.categoryId)).limit(1);
+  // Get all categories via N:N
+  const estCats = await db.select({
+    id: categories.id,
+    name: categories.name,
+    slug: categories.slug,
+    isPrimary: establishmentCategories.isPrimary,
+  })
+    .from(establishmentCategories)
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+    .where(eq(establishmentCategories.establishmentId, id));
+  const cat = estCats.find(c => c.isPrimary) || estCats[0] || null;
 
   const menu = await db.select()
     .from(menuItems)
@@ -172,6 +191,7 @@ export async function getAdminEstablishmentDetail(id: number) {
     ...est,
     categoryName: cat?.name ?? "Desconhecida",
     categorySlug: cat?.slug ?? "",
+    categories: estCats,
     menuItems: menu,
     missingFields,
     isComplete: missingFields.length === 0,

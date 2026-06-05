@@ -247,3 +247,8 @@
 - [x] Backend: endpoints para salvar/remover estabelecimento dos favoritos (já existiam)
 - [x] Frontend: estado visual do bookmark (salvo/não salvo) na EstablishmentPage
 - [x] Integrar Brandbook como subpágina na área de Admin (/admin/brandbook)
+- [x] Criar tabela establishment_categories (relação N:N) para múltiplas categorias por estabelecimento
+- [x] Migrar dados existentes de categoryId para a nova tabela de relação
+- [x] Atualizar schema Drizzle, queries backend e frontend para usar relação N:N
+- [x] Criar categoria "Vegetariano" e "Restaurante"
+- [x] Vincular Quebec a múltiplas categorias (Boteco Moderno + Restaurante)

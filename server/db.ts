@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, establishmentCategories } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -174,10 +174,12 @@ export async function getCategoryWithCount(slug: string) {
   const cat = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
   if (cat.length === 0) return undefined;
   
-  const [countResult] = await db.select({ count: sql<number>`COUNT(*)` })
-    .from(establishments)
+  // Count establishments via N:N table (includes both primary and secondary categories)
+  const [countResult] = await db.select({ count: sql<number>`COUNT(DISTINCT ${establishmentCategories.establishmentId})` })
+    .from(establishmentCategories)
+    .innerJoin(establishments, eq(establishments.id, establishmentCategories.establishmentId))
     .where(and(
-      eq(establishments.categoryId, cat[0].id),
+      eq(establishmentCategories.categoryId, cat[0].id),
       completeEstablishmentFilter
     ));
   
@@ -188,6 +190,7 @@ export async function getCategoriesWithCounts() {
   const db = await getDb();
   if (!db) return [];
   
+  // Count via N:N table to include establishments with multiple categories
   const result = await db.select({
     id: categories.id,
     slug: categories.slug,
@@ -195,11 +198,12 @@ export async function getCategoriesWithCounts() {
     description: categories.description,
     icon: categories.icon,
     active: categories.active,
-    establishmentCount: sql<number>`COUNT(${establishments.id})`,
+    establishmentCount: sql<number>`COUNT(DISTINCT ${establishmentCategories.establishmentId})`,
   })
     .from(categories)
+    .leftJoin(establishmentCategories, eq(establishmentCategories.categoryId, categories.id))
     .leftJoin(establishments, and(
-      eq(establishments.categoryId, categories.id),
+      eq(establishments.id, establishmentCategories.establishmentId),
       completeEstablishmentFilter
     ))
     .groupBy(categories.id);
@@ -268,9 +272,18 @@ export async function getEstablishmentsByCategory(categorySlug: string, limit = 
   const cat = await db.select().from(categories).where(eq(categories.slug, categorySlug)).limit(1);
   if (cat.length === 0) return [];
   
+  // Use N:N table to find establishments in this category
+  const ecRows = await db.select({ establishmentId: establishmentCategories.establishmentId })
+    .from(establishmentCategories)
+    .where(eq(establishmentCategories.categoryId, cat[0].id));
+  
+  if (ecRows.length === 0) return [];
+  
+  const estIds = ecRows.map(r => r.establishmentId);
+  
   const whereClause = bypassFilter
-    ? eq(establishments.categoryId, cat[0].id)
-    : and(eq(establishments.categoryId, cat[0].id), completeEstablishmentFilter);
+    ? inArray(establishments.id, estIds)
+    : and(inArray(establishments.id, estIds), completeEstablishmentFilter);
   
   const result = await db.select()
     .from(establishments)
@@ -296,12 +309,27 @@ export async function getEstablishmentBySlug(slug: string, bypassFilter = false)
   
   if (result.length === 0) return undefined;
   
-  // Get category info
-  const cat = await db.select().from(categories).where(eq(categories.id, result[0].categoryId)).limit(1);
+  // Get all categories via N:N table
+  const estCategories = await db.select({
+    id: categories.id,
+    slug: categories.slug,
+    name: categories.name,
+    icon: categories.icon,
+    isPrimary: establishmentCategories.isPrimary,
+  })
+    .from(establishmentCategories)
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+    .where(eq(establishmentCategories.establishmentId, result[0].id));
+  
+  // Primary category (fallback to legacy categoryId)
+  const primaryCat = estCategories.find(c => c.isPrimary) || estCategories[0];
+  // Fallback to legacy if N:N has no entries
+  const legacyCat = primaryCat ? null : await db.select().from(categories).where(eq(categories.id, result[0].categoryId)).limit(1).then(r => r[0] || null);
   
   return {
     ...result[0],
-    category: cat.length > 0 ? cat[0] : null,
+    category: primaryCat ? { id: primaryCat.id, slug: primaryCat.slug, name: primaryCat.name, icon: primaryCat.icon } : legacyCat,
+    categories: estCategories.length > 0 ? estCategories : (legacyCat ? [{ ...legacyCat, isPrimary: true }] : []),
   };
 }
 
@@ -320,7 +348,20 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
   
   if (est.length === 0) return undefined;
   
-  const cat = await db.select().from(categories).where(eq(categories.id, est[0].categoryId)).limit(1);
+  // Get all categories via N:N table
+  const estCategories = await db.select({
+    id: categories.id,
+    slug: categories.slug,
+    name: categories.name,
+    icon: categories.icon,
+    isPrimary: establishmentCategories.isPrimary,
+  })
+    .from(establishmentCategories)
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+    .where(eq(establishmentCategories.establishmentId, est[0].id));
+  
+  const primaryCat = estCategories.find(c => c.isPrimary) || estCategories[0];
+  const legacyCat = primaryCat ? null : await db.select().from(categories).where(eq(categories.id, est[0].categoryId)).limit(1).then(r => r[0] || null);
   
   const menu = await db.select()
     .from(menuItems)
@@ -328,7 +369,8 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
   
   return {
     ...est[0],
-    category: cat.length > 0 ? cat[0] : null,
+    category: primaryCat ? { id: primaryCat.id, slug: primaryCat.slug, name: primaryCat.name, icon: primaryCat.icon } : legacyCat,
+    categories: estCategories.length > 0 ? estCategories : (legacyCat ? [{ ...legacyCat, isPrimary: true }] : []),
     menu,
   };
 }
@@ -346,6 +388,7 @@ export async function getNearbyEstablishments(lat: number, lng: number, radiusKm
     )
   )`;
   
+  // Join with N:N table to get primary category name/slug
   const result = await db.select({
     id: establishments.id,
     slug: establishments.slug,
@@ -368,7 +411,11 @@ export async function getNearbyEstablishments(lat: number, lng: number, radiusKm
     distance: distanceExpr,
   })
     .from(establishments)
-    .innerJoin(categories, eq(establishments.categoryId, categories.id))
+    .innerJoin(establishmentCategories, and(
+      eq(establishmentCategories.establishmentId, establishments.id),
+      eq(establishmentCategories.isPrimary, true)
+    ))
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
     .where(
       and(
         sql`${establishments.lat} IS NOT NULL`,
@@ -487,19 +534,26 @@ export async function searchAll(query: string) {
     ))
     .limit(20);
   
-  // Get category names for establishments
-  const catIds = Array.from(new Set(estResults.map(e => e.categoryId)));
+  // Get category names for establishments via N:N (primary category)
+  const estIdsForCat = estResults.map(e => e.id);
   let catMap: Record<number, string> = {};
-  if (catIds.length > 0) {
-    const cats = await db.select({ id: categories.id, name: categories.name, slug: categories.slug })
-      .from(categories)
-      .where(inArray(categories.id, catIds));
-    catMap = Object.fromEntries(cats.map(c => [c.id, c.name]));
+  if (estIdsForCat.length > 0) {
+    const ecPrimary = await db.select({
+      establishmentId: establishmentCategories.establishmentId,
+      categoryName: categories.name,
+    })
+      .from(establishmentCategories)
+      .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+      .where(and(
+        inArray(establishmentCategories.establishmentId, estIdsForCat),
+        eq(establishmentCategories.isPrimary, true)
+      ));
+    catMap = Object.fromEntries(ecPrimary.map(r => [r.establishmentId, r.categoryName]));
   }
   
   const establishmentResults = estResults.map(e => ({
     ...e,
-    categoryName: catMap[e.categoryId] || '',
+    categoryName: catMap[e.id] || '',
   }));
   
   // 2. Search menu items by name (only from complete establishments)
@@ -548,20 +602,23 @@ export async function searchAll(query: string) {
       id: establishments.id,
       name: establishments.name,
       slug: establishments.slug,
-      categoryId: establishments.categoryId,
     })
       .from(establishments)
       .where(inArray(establishments.id, estIds));
     
-    // Get categories for these establishments
-    const estCatIds = Array.from(new Set(ests.map(e => e.categoryId)));
-    if (estCatIds.length > 0) {
-      const estCats = await db.select({ id: categories.id, name: categories.name })
-        .from(categories)
-        .where(inArray(categories.id, estCatIds));
-      const estCatMap = Object.fromEntries(estCats.map(c => [c.id, c.name]));
-      estMap = Object.fromEntries(ests.map(e => [e.id, { name: e.name, slug: e.slug, categoryName: estCatMap[e.categoryId] || '' }]));
-    }
+    // Get primary categories for these establishments via N:N
+    const ecPrimaryForMenu = await db.select({
+      establishmentId: establishmentCategories.establishmentId,
+      categoryName: categories.name,
+    })
+      .from(establishmentCategories)
+      .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+      .where(and(
+        inArray(establishmentCategories.establishmentId, estIds),
+        eq(establishmentCategories.isPrimary, true)
+      ));
+    const menuCatMap = Object.fromEntries(ecPrimaryForMenu.map(r => [r.establishmentId, r.categoryName]));
+    estMap = Object.fromEntries(ests.map(e => [e.id, { name: e.name, slug: e.slug, categoryName: menuCatMap[e.id] || '' }]));
   }
   
   const menuItemsByName = menuByName.map(item => ({
@@ -669,7 +726,11 @@ export async function getUserRatings(userId: number, limit = 50, offset = 0) {
   })
     .from(ratings)
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
-    .innerJoin(categories, eq(establishments.categoryId, categories.id))
+    .leftJoin(establishmentCategories, and(
+      eq(establishmentCategories.establishmentId, establishments.id),
+      eq(establishmentCategories.isPrimary, true)
+    ))
+    .leftJoin(categories, eq(categories.id, establishmentCategories.categoryId))
     .where(eq(ratings.userId, userId))
     .orderBy(desc(ratings.createdAt))
     .limit(limit)
@@ -1180,10 +1241,11 @@ export async function getUserRatedEstablishmentsByCategory(userId: number, categ
   })
     .from(ratings)
     .innerJoin(establishments, eq(establishments.id, ratings.establishmentId))
-    .where(and(
-      eq(ratings.userId, userId),
-      eq(establishments.categoryId, categoryId),
+    .innerJoin(establishmentCategories, and(
+      eq(establishmentCategories.establishmentId, establishments.id),
+      eq(establishmentCategories.categoryId, categoryId)
     ))
+    .where(eq(ratings.userId, userId))
     .groupBy(establishments.id);
 
   return result;
@@ -1275,21 +1337,29 @@ export async function getDiscoveryEstablishments(userId: number, categoryId: num
   const db = await getDb();
   if (!db) return [];
 
-  // Get IDs the user already rated in this category
+  // Get IDs the user already rated in this category (via N:N)
   const ratedIds = await db.select({ id: ratings.establishmentId })
     .from(ratings)
     .innerJoin(establishments, eq(establishments.id, ratings.establishmentId))
-    .where(and(
-      eq(ratings.userId, userId),
-      eq(establishments.categoryId, categoryId),
+    .innerJoin(establishmentCategories, and(
+      eq(establishmentCategories.establishmentId, establishments.id),
+      eq(establishmentCategories.categoryId, categoryId)
     ))
+    .where(eq(ratings.userId, userId))
     .groupBy(ratings.establishmentId);
 
   const ratedIdSet = ratedIds.map(r => r.id);
 
-  // Query establishments in this category that user hasn't rated
+  // Query establishments in this category (via N:N) that user hasn't rated
+  const ecInCategory = await db.select({ establishmentId: establishmentCategories.establishmentId })
+    .from(establishmentCategories)
+    .where(eq(establishmentCategories.categoryId, categoryId));
+  const estIdsInCategory = ecInCategory.map(r => r.establishmentId);
+  
+  if (estIdsInCategory.length === 0) return [];
+  
   const conditions = [
-    eq(establishments.categoryId, categoryId),
+    inArray(establishments.id, estIdsInCategory),
     ...(ratedIdSet.length > 0 ? [notInArray(establishments.id, ratedIdSet)] : []),
   ];
 

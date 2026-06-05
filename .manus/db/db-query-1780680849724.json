@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS establishment_categories (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  establishmentId INT NOT NULL,\n  categoryId INT NOT NULL,\n  isPrimary TINYINT(1) NOT NULL DEFAULT 0,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  UNIQUE KEY uq_estab_cat (establishmentId, categoryId)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute CREATE TABLE IF NOT EXISTS establishment_categories (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  establishmentId INT NOT NULL,\n  categoryId INT NOT NULL,\n  isPrimary TINYINT(1) NOT NULL DEFAULT 0,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  UNIQUE KEY uq_estab_cat (establishmentId, categoryId)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1570
+}

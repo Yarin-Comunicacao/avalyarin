@@ -1,0 +1,24 @@
+{
+  "query": "SELECT id, name, slug, icon, code FROM categories WHERE id >= 60000 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, icon, code FROM categories WHERE id >= 60000 ORDER BY id;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "Vegetariano",
+      "slug": "vegetariano",
+      "icon": "NULL",
+      "code": "ca020"
+    },
+    {
+      "id": "60002",
+      "name": "Restaurante",
+      "slug": "restaurante",
+      "icon": "NULL",
+      "code": "ca021"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\ticon\tcode\n60001\tVegetariano\tvegetariano\tNULL\tca020\n60002\tRestaurante\trestaurante\tNULL\tca021\n",
+  "stderr": "",
+  "execution_time_ms": 409
+}

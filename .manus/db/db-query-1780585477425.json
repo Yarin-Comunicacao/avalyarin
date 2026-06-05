@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100001', 30002, 'Risoto Camarão', 'Risoto de camarão à moda da casa', 65.80, 'Risotos'),\n('mi100002', 30002, 'Risoto Queijo Brie', 'Risoto com queijo brie e salada de rúcula', 56.80, 'Risotos'),\n('mi100003', 30002, 'Risoto de Carne Seca', 'Risoto de carne seca com abóbora cabotia e cubos de queijo coalho grelhado', 61.90, 'Risotos'),\n('mi100004', 30002, 'Risoto Mix de Cogumelos', 'Risoto com mix de cogumelos (shitake, shimeji e champignon paris)', 52.80, 'Risotos'),\n('mi100005', 30002, 'Risoto Mignon com Brócolis', 'Risoto de filé mignon com brócolis', 67.90, 'Risotos');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100001', 30002, 'Risoto Camarão', 'Risoto de camarão à moda da casa', 65.80, 'Risotos'),\n('mi100002', 30002, 'Risoto Queijo Brie', 'Risoto com queijo brie e salada de rúcula', 56.80, 'Risotos'),\n('mi100003', 30002, 'Risoto de Carne Seca', 'Risoto de carne seca com abóbora cabotia e cubos de queijo coalho grelhado', 61.90, 'Risotos'),\n('mi100004', 30002, 'Risoto Mix de Cogumelos', 'Risoto com mix de cogumelos (shitake, shimeji e champignon paris)', 52.80, 'Risotos'),\n('mi100005', 30002, 'Risoto Mignon com Brócolis', 'Risoto de filé mignon com brócolis', 67.90, 'Risotos');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 279
+}
