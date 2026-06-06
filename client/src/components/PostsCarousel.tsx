@@ -1,8 +1,9 @@
 /**
  * PostsCarousel — Carrossel horizontal de postagens de estabelecimentos (9:16 vertical)
  * Exibido na Home com posts ativos de contas empresariais.
+ * Modal expandido com auto-play de 15s e setas de navegação.
  */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Calendar, Tag, Megaphone, UtensilsCrossed, X } from "lucide-react";
@@ -15,13 +16,18 @@ const typeConfig = {
   menu_daily: { label: "Cardápio do Dia", icon: UtensilsCrossed, color: "text-amber-300 bg-amber-500/20 border-amber-500/30" },
 };
 
+const AUTO_PLAY_DURATION = 15000; // 15 seconds
+
 export function PostsCarousel() {
   const { data: posts, isLoading, isError } = trpc.posts.active.useQuery({ limit: 15 });
   const recordView = trpc.posts.recordView.useMutation();
   const recordTap = trpc.posts.recordTap.useMutation();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [expandedPost, setExpandedPost] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [viewedPosts, setViewedPosts] = useState<Set<number>>(new Set());
+  const [progress, setProgress] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
 
   // No posts available or error — don't render section
   if (isError) return null;
@@ -43,12 +49,75 @@ export function PostsCarousel() {
     }
   };
 
-  const handlePostTap = (postId: number) => {
-    setExpandedPost(postId);
+  const handlePostTap = (postId: number, index: number) => {
+    setExpandedIndex(index);
+    setProgress(0);
     recordTap.mutate({ postId });
   };
 
-  const expandedPostData = posts?.find(p => p.id === expandedPost);
+  const goToNext = useCallback(() => {
+    if (!posts) return;
+    setExpandedIndex(prev => {
+      if (prev === null) return null;
+      if (prev >= posts.length - 1) return null; // Close on last
+      return prev + 1;
+    });
+    setProgress(0);
+  }, [posts]);
+
+  const goToPrev = useCallback(() => {
+    setExpandedIndex(prev => {
+      if (prev === null || prev <= 0) return prev;
+      return prev - 1;
+    });
+    setProgress(0);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setExpandedIndex(null);
+    setProgress(0);
+  }, []);
+
+  // Auto-play timer for expanded modal
+  useEffect(() => {
+    if (expandedIndex === null) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (progressRef.current) clearInterval(progressRef.current);
+      return;
+    }
+
+    // Record view for current post
+    if (posts && posts[expandedIndex]) {
+      handlePostView(posts[expandedIndex].id);
+    }
+
+    // Reset progress
+    setProgress(0);
+
+    // Progress bar update every 100ms
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        const next = prev + (100 / (AUTO_PLAY_DURATION / 100));
+        return next >= 100 ? 100 : next;
+      });
+    }, 100);
+    progressRef.current = progressInterval;
+
+    // Auto-advance after 15s
+    const timer = setTimeout(() => {
+      goToNext();
+    }, AUTO_PLAY_DURATION);
+    timerRef.current = timer;
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
+  }, [expandedIndex]);
+
+  const expandedPostData = posts && expandedIndex !== null ? posts[expandedIndex] : null;
+  const canGoLeft = expandedIndex !== null && expandedIndex > 0;
+  const canGoRight = posts && expandedIndex !== null && expandedIndex < posts.length - 1;
 
   return (
     <>
@@ -95,7 +164,7 @@ export function PostsCarousel() {
                 />
               ))
             ) : (
-              posts?.map((post) => {
+              posts?.map((post, index) => {
                 const config = typeConfig[post.type as keyof typeof typeConfig];
                 const TypeIcon = config?.icon || Calendar;
                 return (
@@ -107,7 +176,7 @@ export function PostsCarousel() {
                     style={{ scrollSnapAlign: "start" }}
                     onClick={() => {
                       handlePostView(post.id);
-                      handlePostTap(post.id);
+                      handlePostTap(post.id, index);
                     }}
                     onViewportEnter={() => handlePostView(post.id)}
                   >
@@ -146,15 +215,15 @@ export function PostsCarousel() {
         </div>
       </section>
 
-      {/* Expanded post modal */}
+      {/* Expanded post modal with auto-play and navigation */}
       <AnimatePresence>
-        {expandedPost && expandedPostData && (
+        {expandedIndex !== null && expandedPostData && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setExpandedPost(null)}
+            onClick={closeModal}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -163,24 +232,47 @@ export function PostsCarousel() {
               className="relative w-full max-w-[360px] aspect-[9/16] rounded-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={expandedPostData.imageUrl}
-                alt={expandedPostData.title}
-                className="w-full h-full object-cover"
-              />
+              {/* Progress bars at top */}
+              <div className="absolute top-0 left-0 right-0 z-20 flex gap-1 px-3 pt-2">
+                {posts?.map((_, i) => (
+                  <div key={i} className="flex-1 h-[3px] rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-100 ease-linear"
+                      style={{
+                        width: i < expandedIndex ? "100%" : i === expandedIndex ? `${progress}%` : "0%",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Image */}
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={expandedPostData.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  src={expandedPostData.imageUrl}
+                  alt={expandedPostData.title}
+                  className="w-full h-full object-cover"
+                />
+              </AnimatePresence>
+
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40" />
 
               {/* Close button */}
               <button
-                onClick={() => setExpandedPost(null)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-all"
+                onClick={closeModal}
+                className="absolute top-5 right-3 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-all z-20"
               >
                 <X className="w-4 h-4" />
               </button>
 
               {/* Top info */}
-              <div className="absolute top-3 left-3 flex items-center gap-2">
+              <div className="absolute top-5 left-3 flex items-center gap-2 z-10">
                 {expandedPostData.establishmentImage && (
                   <img
                     src={expandedPostData.establishmentImage}
@@ -196,8 +288,26 @@ export function PostsCarousel() {
                 </div>
               </div>
 
+              {/* Navigation arrows */}
+              {canGoLeft && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); goToPrev(); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-all z-20"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
+              {canGoRight && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); goToNext(); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-all z-20"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
+
               {/* Bottom content */}
-              <div className="absolute bottom-0 left-0 right-0 p-5">
+              <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
                 <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border mb-2 ${typeConfig[expandedPostData.type as keyof typeof typeConfig]?.color || ""}`}>
                   {typeConfig[expandedPostData.type as keyof typeof typeConfig]?.label}
                 </div>
