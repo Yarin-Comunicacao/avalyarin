@@ -252,7 +252,7 @@
 - [x] Atualizar schema Drizzle, queries backend e frontend para usar relação N:N
 - [x] Criar categoria "Vegetariano" e "Restaurante"
 - [x] Vincular Quebec a múltiplas categorias (Boteco Moderno + Restaurante)
-- [ ] Verificar e atualizar frontend (CategoryPage) para exibir corretamente estabs com múltiplas categorias (N:N)
+- [x] Verificar e atualizar frontend (CategoryPage) para exibir corretamente estabs com múltiplas categorias (N:N)
 - [x] Corrigir bairros dos 188 estabelecimentos ativos para o bairro exato do Google Maps (não subprefeitura)
 - [x] Corrigir bug: cerveja não avaliada no modo analítico misto (agora usa avaliação direta para bebidas)
 - [x] Criar categoria "Gastrobar" e reclassificar 6 estabs (Melts, Marú, Ministro, Oink, Othê, Fábrica Drinks)
@@ -263,3 +263,4 @@
 - [x] Redesenhar tela inicial: seção "Veja todas as Categorias" com GIF animado
 - [x] Criar GIF animado alternando entre imagens de categorias
 - [x] Gerar imagens para os 4 grupos de categorias
+- [x] Corrigir fluxo: categorias individuais não devem aparecer na Home — devem abrir apenas ao clicar em um grupo na seção "Explore outros grupos"

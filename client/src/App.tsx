@@ -10,6 +10,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { BackgroundProvider } from "./contexts/BackgroundContext";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
+import CategoryGroupPage from "./pages/CategoryGroupPage";
+import AllCategoriesPage from "./pages/AllCategoriesPage";
 import EstablishmentPage from "./pages/EstablishmentPage";
 import RatingPage from "./pages/RatingPage";
 import OnboardingSurvey from "./pages/OnboardingSurvey";
@@ -87,6 +89,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/categoria/:id" component={CategoryPage} />
+      <Route path="/grupo/:id" component={CategoryGroupPage} />
+      <Route path="/todas-categorias" component={AllCategoriesPage} />
       <Route path="/estabelecimento/:id" component={EstablishmentPage} />
       <Route path="/avaliar/:establishmentId" component={RatingPage} />
       {/* Account */}

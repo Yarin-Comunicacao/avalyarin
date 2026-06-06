@@ -280,14 +280,9 @@ export default function Home() {
                   viewport={{ once: true }}
                   variants={fadeUp}
                 >
-                  <Link href={`/#grupo-${group.id}`}>
+                  <Link href={`/grupo/${group.id}`}>
                     <div
                       className="group relative rounded-xl overflow-hidden border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber h-56"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const el = document.getElementById(`grupo-${group.id}`);
-                        if (el) el.scrollIntoView({ behavior: "smooth" });
-                      }}
                     >
                       <img
                         src={group.image}
@@ -320,62 +315,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Expanded group sections (scrolled to when clicking a group card) */}
-          {!isLoading && groupedCategories.map((group) => (
-            <div key={`detail-${group.id}`} id={`grupo-${group.id}`} className="mt-12 scroll-mt-24">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <group.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-display text-xl tracking-wider text-foreground">
-                    {group.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">
-                    {group.subtitle} — {group.totalEstablishments.toLocaleString("pt-BR")} estabelecimentos
-                  </p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {group.categories.map((cat, i) => {
-                  const count = cat.establishmentCount || 0;
-                  return (
-                    <motion.div
-                      key={cat.slug}
-                      custom={i}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                      variants={fadeUp}
-                    >
-                      <Link href={`/categoria/${cat.slug}`}>
-                        <div className="group relative rounded-xl overflow-hidden border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber h-48">
-                          <img
-                            src={getCategoryCover(cat.slug)}
-                            alt={cat.name}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                          <div className="relative h-full flex flex-col justify-end p-4">
-                            <h4 className="font-display text-lg tracking-wider text-white group-hover:text-primary transition-colors">
-                              {cat.name}
-                            </h4>
-                            <p className="text-xs text-white/70 mt-1">{cat.description}</p>
-                            <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium">
-                              <span>{count.toLocaleString("pt-BR")} {count === 1 ? "estabelecimento" : "estabelecimentos"}</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -405,14 +345,9 @@ export default function Home() {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <Link href="/#categorias">
+            <Link href="/todas-categorias">
               <div
                 className="group relative rounded-xl overflow-hidden border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber h-64 sm:h-80"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const el = document.getElementById("categorias");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
-                }}
               >
                 <img
                   src="/manus-storage/categories-all-gif_67a05430.gif"
