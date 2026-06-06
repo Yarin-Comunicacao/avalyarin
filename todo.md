@@ -209,7 +209,7 @@
 - [x] Corrigir endereços com prefixos inválidos (Shopping X - Rua Y, ZAP, CEP, etc.)
 - [x] Backend: novos campos (description, complement, addressNumber) nas queries de leitura/escrita
 - [x] Frontend: formulário de edição de informações no AdminEstabDetail com todos os novos campos
-- [ ] Bairro: deve ser o bairro exato do Google (não subprefeitura)
+- [x] Bairro: deve ser o bairro exato do Google (não subprefeitura)
 - [x] Validações no backend para novos campos (regex de logradouro, número, complemento, descrição)
 - [x] Limpeza em massa dos 7.277 pendentes: 100% endereços com logradouro válido
 - [x] Corrigir typos em massa (Ruaa→Rua, Avenidade→Avenida)
@@ -232,7 +232,7 @@
 - [x] Bug: nota overall mostra 25/10 — cálculo corrigido para escala 0-10 (média direta + normalização analítica)
 - [x] Bug: após avaliação redireciona para /badges genérica — corrigido para /insignias ou /conta/usuario
 - [x] Remover Pontos Bônus completamente da avaliação (step removido, cálculo limpo)
-- [ ] Bug: cerveja não apareceu para avaliar no Mania de Churrasco — verificar cardápio
+- [x] Bug: cerveja não apareceu para avaliar no Mania de Churrasco — corrigido (avaliação direta no modo analítico misto)
 - [ ] Critério "Originalidade" deve aparecer apenas em estabs que foquem nisso
 - [x] Bug: nota 25/10 desproporcional no modo direto — corrigido (escala 0-10, dados migrados no banco)
 - [x] Remover Pontos Bônus completamente da avaliação (step de bônus + cálculo da nota)
@@ -255,3 +255,11 @@
 - [ ] Verificar e atualizar frontend (CategoryPage) para exibir corretamente estabs com múltiplas categorias (N:N)
 - [x] Corrigir bairros dos 188 estabelecimentos ativos para o bairro exato do Google Maps (não subprefeitura)
 - [x] Corrigir bug: cerveja não avaliada no modo analítico misto (agora usa avaliação direta para bebidas)
+- [x] Criar categoria "Gastrobar" e reclassificar 6 estabs (Melts, Marú, Ministro, Oink, Othê, Fábrica Drinks)
+- [x] Criar categoria "Lanches" e mover Black Dog Paulista + Pastel da Praça para ela
+- [x] Redesenhar tela inicial: seção "Minhas Preferidas" (5 categorias da survey)
+- [x] Redesenhar tela inicial: seção "Explore outros grupos" (4 grupos com imagens)
+- [x] Renomear grupo "Saudável e Bem-estar" para "Saudável & Natural"
+- [x] Redesenhar tela inicial: seção "Veja todas as Categorias" com GIF animado
+- [x] Criar GIF animado alternando entre imagens de categorias
+- [x] Gerar imagens para os 4 grupos de categorias

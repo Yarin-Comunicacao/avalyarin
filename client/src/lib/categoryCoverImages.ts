@@ -19,6 +19,10 @@ export const categoryCoverImages: Record<string, string> = {
   "saudavel": "/manus-storage/saudavel_ba483a9b.jpg",
   "vegan": "/manus-storage/vegan-category-cover_fb4d5451.jpg",
   "acai": "/manus-storage/acai-category-cover_ebef39c1.jpg",
+  "gastrobar": "/manus-storage/gastrobar-cover_c7665b3a.jpg",
+  "lanches": "/manus-storage/lanches-cover_10d9f2ce.jpg",
+  "vegetariano": "/manus-storage/vegetariano-cover_f478b92d.jpg",
+  "restaurante": "/manus-storage/restaurante-cover_8d42fb8d.jpg",
 };
 
 export function getCategoryCover(slug: string): string {
