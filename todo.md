@@ -269,3 +269,6 @@
 - [x] Links clicáveis no carrossel expandido: nome do bar → página do estab, bairro → busca por bairro, badge tipo → busca por tipo
 - [x] Bug: cardápio vazio no Bar Teste Avalyarin — matchCat() atualizado para suportar plural/singular e nomes compostos
 - [x] Bug: estab salvo não aparece na aba de salvos do usuário — novo endpoint posts.savedEstablishments com JOIN completo
+- [x] Bug: itens do cardápio não aparecem na tela de avaliação do Bar Teste — corrigido com normalizeCategory() que mapeia plural/composto para singular canônico
+- [x] Bug: botão "Reivindicar" no estab redireciona direto ao Painel Empresarial — agora abre ClaimFormModal inline com questionário completo
+- [x] Bug: tabs do Painel Empresarial sobrepostas no mobile — labels abreviados no mobile (sm:hidden/sm:inline), scroll horizontal com scrollbar-hide

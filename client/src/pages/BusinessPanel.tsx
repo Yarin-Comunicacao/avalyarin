@@ -67,31 +67,34 @@ export default function BusinessPanel() {
 
       {/* Tabs */}
       <div className="border-b border-border/30">
-        <div className="container flex gap-1 overflow-x-auto">
-          {[
-            { id: "establishments" as const, label: "Meus Estabelecimentos", icon: Store },
-            { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
-            { id: "menu" as const, label: "Cardápio", icon: UtensilsCrossed },
-            { id: "notifications" as const, label: "Notificações", icon: Bell },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-              {tab.id === "notifications" && notifications && notifications.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] font-bold">
-                  {notifications.length}
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="container overflow-x-auto scrollbar-hide">
+          <div className="flex gap-0 min-w-max">
+            {[
+              { id: "establishments" as const, label: "Meus Estab.", labelFull: "Meus Estabelecimentos", icon: Store },
+              { id: "claims" as const, label: "Solicitações", labelFull: "Solicitações", icon: ClipboardCheck },
+              { id: "menu" as const, label: "Cardápio", labelFull: "Cardápio", icon: UtensilsCrossed },
+              { id: "notifications" as const, label: "Alertas", labelFull: "Notificações", icon: Bell },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                  activeTab === tab.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <tab.icon className="w-4 h-4 shrink-0" />
+                <span className="sm:hidden">{tab.label}</span>
+                <span className="hidden sm:inline">{tab.labelFull}</span>
+                {tab.id === "notifications" && notifications && notifications.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] font-bold">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

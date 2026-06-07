@@ -91,7 +91,7 @@ interface BevDirectRating {
 // ============================================================
 
 function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" | "sobremesa" | "destilado" | "bebida" | "outro" {
-  const c = (item.category || "").toLowerCase();
+  const c = normalizeCategory(item.category || "");
   if (c === "cerveja" || c === "chopp") return "cerveja";
   if (c === "bebida" || c === "café") return "bebida";
   if (c === "drink" || c === "vinho") return "drink";
@@ -102,12 +102,50 @@ function getItemType(item: MenuItem): "cerveja" | "drink" | "entrada" | "prato" 
   return "outro";
 }
 
+// Normalize category names from DB (plural/composite) to canonical singular values
+function normalizeCategory(raw: string): string {
+  const s = (raw || "").toLowerCase().trim();
+  // Exact matches first
+  const FOOD_CATS = ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"];
+  const BEV_CATS = ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"];
+  if ([...FOOD_CATS, ...BEV_CATS].includes(s)) return s;
+  // Mapping rules for plural/composite names
+  if (s.startsWith("cerveja")) return "cerveja"; // Cervejas, Cervejas Artesanais
+  if (s.startsWith("drink") || s === "coquetéis" || s.includes("coquetel")) return "drink";
+  if (s.startsWith("vinho")) return "vinho";
+  if (s.startsWith("hamburguer") || s.startsWith("hambúrguer")) return "hamburguer";
+  if (s.startsWith("pizza")) return "pizza";
+  if (s.startsWith("lanche")) return "lanche";
+  if (s.startsWith("petisco")) return "petisco";
+  if (s.startsWith("sobremesa")) return "sobremesa";
+  if (s.startsWith("entrada")) return "entrada";
+  if (s.startsWith("destilado")) return "destilado";
+  if (s.startsWith("bebida") || s === "não alcoólicos" || s.startsWith("não alcoólic")) return "bebida";
+  if (s.startsWith("café") || s.startsWith("cafeteria")) return "café";
+  if (s.startsWith("pão") || s.startsWith("padaria") || s.startsWith("pães")) return "pão";
+  if (s.startsWith("salgado")) return "salgado";
+  if (s.startsWith("doce")) return "doce";
+  if (s.startsWith("torta")) return "torta";
+  if (s.startsWith("salada")) return "salada";
+  if (s.startsWith("sopa")) return "sopa";
+  if (s.startsWith("vegetariano") || s.startsWith("vegano") || s.startsWith("vegan")) return "prato";
+  if (s.startsWith("prato") || s.includes("principal") || s.includes("internacional")) return "prato";
+  if (s.startsWith("chopp")) return "chopp";
+  if (s.startsWith("sushi") || s.startsWith("temaki")) return "sushi";
+  if (s.startsWith("ramen")) return "ramen";
+  if (s.startsWith("focaccia")) return "focaccia";
+  if (s.startsWith("sanduiche") || s.startsWith("sanduíche")) return "sanduiche";
+  return "outro";
+}
+
 function isFoodItem(item: MenuItem): boolean {
-  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"].includes((item.category || "").toLowerCase());
+  const cat = normalizeCategory(item.category || "");
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "pão", "padaria"].includes(cat);
 }
 
 function isBeverageItem(item: MenuItem): boolean {
-  return ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"].includes((item.category || "").toLowerCase());
+  const cat = normalizeCategory(item.category || "");
+  return ["bebida", "cerveja", "chopp", "drink", "vinho", "destilado", "café"].includes(cat);
 }
 
 const DIRECT_TASTE_REASONS: Record<string, string[]> = {
@@ -234,9 +272,9 @@ const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
   c10_2: ["Sem sugestão de harmonização", "Garçom não sabe sugerir", "Sem indicação no cardápio", "Falta orientação", "Nenhuma recomendação", "Outra"],
 };
 
-function isRatableItem(item: MenuItem):
-  boolean {
-  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria"].includes(item.category);
+function isRatableItem(item: MenuItem): boolean {
+  const cat = normalizeCategory(item.category || "");
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria"].includes(cat);
 }
 
 // ============================================================
@@ -485,15 +523,15 @@ export default function RatingPage() {
   // Check if there are beverages in a mixed selection (food + beverages)
   const hasMixedBeverages = !onlyBeverages && selectedMenuItems.some((m) => isBeverageItem(m));
 
-  const c = (m: { category?: string }) => (m.category || "").toLowerCase();
-  const entradas = menuItems.filter((m) => c(m) === "entrada" || c(m) === "petisco" || c(m) === "salgado");
-  const pratos = menuItems.filter((m) => c(m) === "prato" || c(m) === "hamburguer" || c(m) === "pizza" || c(m) === "lanche" || c(m) === "sanduiche" || c(m) === "sushi" || c(m) === "temaki" || c(m) === "ramen" || c(m) === "salada" || c(m) === "sopa" || c(m) === "focaccia");
-  const sobremesas = menuItems.filter((m) => c(m) === "sobremesa" || c(m) === "doce" || c(m) === "torta");
-  const cervejas = menuItems.filter((m) => c(m) === "cerveja" || c(m) === "chopp");
-  const bebidas = menuItems.filter((m) => c(m) === "bebida" || c(m) === "café");
-  const destilados = menuItems.filter((m) => c(m) === "destilado");
-  const drinks = menuItems.filter((m) => c(m) === "drink" || c(m) === "vinho");
-  const paes = menuItems.filter((m) => c(m) === "pão" || c(m) === "padaria");
+  const nc = (m: { category?: string }) => normalizeCategory(m.category || "");
+  const entradas = menuItems.filter((m) => nc(m) === "entrada" || nc(m) === "petisco" || nc(m) === "salgado");
+  const pratos = menuItems.filter((m) => nc(m) === "prato" || nc(m) === "hamburguer" || nc(m) === "pizza" || nc(m) === "lanche" || nc(m) === "sanduiche" || nc(m) === "sushi" || nc(m) === "temaki" || nc(m) === "ramen" || nc(m) === "salada" || nc(m) === "sopa" || nc(m) === "focaccia");
+  const sobremesas = menuItems.filter((m) => nc(m) === "sobremesa" || nc(m) === "doce" || nc(m) === "torta");
+  const cervejas = menuItems.filter((m) => nc(m) === "cerveja" || nc(m) === "chopp");
+  const bebidas = menuItems.filter((m) => nc(m) === "bebida" || nc(m) === "café");
+  const destilados = menuItems.filter((m) => nc(m) === "destilado");
+  const drinks = menuItems.filter((m) => nc(m) === "drink" || nc(m) === "vinho");
+  const paes = menuItems.filter((m) => nc(m) === "pão" || nc(m) === "padaria");
 
   const toggleItem = (id: string) => {
     setSelectedItems((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);

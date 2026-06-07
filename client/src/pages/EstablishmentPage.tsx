@@ -5,7 +5,9 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import { getLoginUrl } from "@/const";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
 import { AvalyarinReviews } from "@/components/AvalyarinReviews";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -50,6 +52,7 @@ function SaveBookmarkButton({ establishmentId }: { establishmentId: number }) {
 export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
+  const [showClaimForm, setShowClaimForm] = useState(false);
   const { id } = useParams<{ id: string }>();
 
   const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
@@ -310,14 +313,24 @@ export default function EstablishmentPage() {
       {/* Claim Establishment */}
       <section className="pb-4">
         <div className="container">
-          <Link href={`/painel-empresarial`}>
-            <button className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors">
-              <Building2 className="w-3.5 h-3.5" />
-              <span>É dono deste estabelecimento? Reivindique aqui</span>
-            </button>
-          </Link>
+          <button
+            onClick={() => setShowClaimForm(true)}
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>É dono deste estabelecimento? Reivindique aqui</span>
+          </button>
         </div>
       </section>
+
+      {/* Claim Form Modal */}
+      {showClaimForm && (
+        <ClaimFormModal
+          establishmentId={estData?.id || 0}
+          establishmentName={estData?.name || ""}
+          onClose={() => setShowClaimForm(false)}
+        />
+      )}
 
       {/* Menu */}
       {menu.length > 0 && (
@@ -509,6 +522,151 @@ export default function EstablishmentPage() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+
+// Claim Form Modal — questionário inline para reivindicação de estabelecimento
+function ClaimFormModal({ establishmentId, establishmentName, onClose }: {
+  establishmentId: number;
+  establishmentName: string;
+  onClose: () => void;
+}) {
+  const { isAuthenticated } = useAuth();
+  const [step, setStep] = useState<"form" | "success">("form");
+  const [formData, setFormData] = useState({
+    businessName: "",
+    contactPhone: "",
+    contactEmail: "",
+    proofDescription: "",
+  });
+
+  const submitMutation = trpc.business.submitClaim.useMutation({
+    onSuccess: () => setStep("success"),
+    onError: (err) => toast.error(err.message || "Erro ao enviar solicitação"),
+  });
+
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="w-full sm:max-w-md bg-card border border-border/50 rounded-t-2xl sm:rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-lg tracking-wider text-primary">REIVINDICAR ESTABELECIMENTO</h3>
+            <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Para reivindicar este estabelecimento, você precisa estar logado.
+          </p>
+          <a
+            href={getLoginUrl()}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors w-full justify-center"
+          >
+            Entrar para continuar
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "success") {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="w-full sm:max-w-md bg-card border border-border/50 rounded-t-2xl sm:rounded-2xl p-6 text-center">
+          <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+          <h3 className="font-display text-xl tracking-wider text-foreground mb-2">SOLICITAÇÃO ENVIADA!</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Sua reivindicação para <span className="text-foreground font-medium">{establishmentName}</span> foi enviada com sucesso. Aguarde a análise do administrador.
+          </p>
+          <Button onClick={onClose} className="w-full">Fechar</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleSubmit = () => {
+    if (!formData.businessName || !formData.contactPhone || !formData.contactEmail || !formData.proofDescription) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+    submitMutation.mutate({
+      establishmentId,
+      ...formData,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="w-full sm:max-w-lg bg-card border border-border/50 rounded-t-2xl sm:rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display text-lg tracking-wider text-primary">REIVINDICAR ESTABELECIMENTO</h3>
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-5">
+          Preencha os dados abaixo para comprovar que você é o responsável por <span className="text-foreground font-medium">{establishmentName}</span>.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-muted-foreground block mb-1">Nome da Empresa / Razão Social</label>
+            <input
+              type="text"
+              value={formData.businessName}
+              onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
+              placeholder="Ex: Bar do João LTDA"
+              className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-muted-foreground block mb-1">Telefone de Contato</label>
+            <input
+              type="tel"
+              value={formData.contactPhone}
+              onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+              placeholder="(11) 99999-9999"
+              className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-muted-foreground block mb-1">Email de Contato</label>
+            <input
+              type="email"
+              value={formData.contactEmail}
+              onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+              placeholder="contato@empresa.com"
+              className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-muted-foreground block mb-1">Como podemos verificar que você é o responsável?</label>
+            <textarea
+              value={formData.proofDescription}
+              onChange={(e) => setFormData(prev => ({ ...prev, proofDescription: e.target.value }))}
+              placeholder="Ex: Sou o proprietário registrado no CNPJ, posso enviar contrato social, tenho acesso ao Instagram oficial..."
+              rows={3}
+              className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <Button
+            onClick={handleSubmit}
+            disabled={submitMutation.isPending}
+            className="flex-1 font-display tracking-wider"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {submitMutation.isPending ? "Enviando..." : "Enviar Solicitação"}
+          </Button>
+          <Button variant="outline" onClick={onClose} className="font-display tracking-wider">
+            Cancelar
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
