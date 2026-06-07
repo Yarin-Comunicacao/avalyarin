@@ -113,6 +113,7 @@ import {
   getUserSavedEstablishmentIds,
   createEstablishmentPost,
   expireOldPosts,
+  getSavedEstablishmentsWithDetails,
 } from "./db-posts";
 import {
   getAdminCategoriesWithCounts,
@@ -980,6 +981,11 @@ export const appRouter = router({
     // Get all saved establishment IDs
     savedIds: protectedProcedure.query(async ({ ctx }) => {
       return await getUserSavedEstablishmentIds(ctx.user!.id);
+    }),
+
+    // Get saved establishments with full details (for Meus Locais page)
+    savedEstablishments: protectedProcedure.query(async ({ ctx }) => {
+      return await getSavedEstablishmentsWithDetails(ctx.user!.id);
     }),
 
     // Create a post (business accounts only)

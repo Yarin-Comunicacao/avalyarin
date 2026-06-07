@@ -73,16 +73,20 @@ export default function EstablishmentPage() {
   const menu = establishment.menu || [];
   const backHref = establishment.category ? `/categoria/${establishment.category.slug}` : "/#categorias";
 
-  // Categorize menu items (case-insensitive comparison)
+  // Categorize menu items (case-insensitive, supports singular/plural and compound names)
   const cat = (m: { category?: string | null }) => (m.category || "").toLowerCase();
-  const entradas = menu.filter((m) => cat(m) === "entrada" || cat(m) === "petisco" || cat(m) === "salgado");
-  const pratos = menu.filter((m) => cat(m) === "prato" || cat(m) === "hamburguer" || cat(m) === "pizza" || cat(m) === "lanche" || cat(m) === "sanduiche" || cat(m) === "sushi" || cat(m) === "temaki" || cat(m) === "ramen" || cat(m) === "salada" || cat(m) === "sopa" || cat(m) === "focaccia");
-  const sobremesas = menu.filter((m) => cat(m) === "sobremesa" || cat(m) === "doce" || cat(m) === "torta");
-  const bebidas = menu.filter((m) => cat(m) === "bebida" || cat(m) === "cerveja" || cat(m) === "café");
-  const chopps = menu.filter((m) => cat(m) === "chopp");
-  const drinks = menu.filter((m) => cat(m) === "drink" || cat(m) === "vinho");
-  const destilados = menu.filter((m) => cat(m) === "destilado");
-  const paes = menu.filter((m) => cat(m) === "pão" || cat(m) === "padaria");
+  const matchCat = (m: typeof menu[0], ...keywords: string[]) => {
+    const c = cat(m);
+    return keywords.some(k => c === k || c === k + "s" || c.includes(k));
+  };
+  const entradas = menu.filter((m) => matchCat(m, "entrada", "petisco", "salgado"));
+  const pratos = menu.filter((m) => matchCat(m, "prato", "hamburguer", "hamb\u00farguer", "pizza", "lanche", "sanduiche", "sandu\u00edche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "grelhado", "risoto", "vegetariano", "pratos principais", "pratos internacionais"));
+  const sobremesas = menu.filter((m) => matchCat(m, "sobremesa", "doce", "torta"));
+  const bebidas = menu.filter((m) => matchCat(m, "bebida", "cerveja", "caf\u00e9", "n\u00e3o alco\u00f3lico", "n\u00e3o alcoolico"));
+  const chopps = menu.filter((m) => matchCat(m, "chopp", "chope"));
+  const drinks = menu.filter((m) => matchCat(m, "drink", "vinho", "caipirinha", "gin t\u00f4nica", "coquetel"));
+  const destilados = menu.filter((m) => matchCat(m, "destilado", "mead"));
+  const paes = menu.filter((m) => matchCat(m, "p\u00e3o", "padaria"));
 
   // Determine establishment type based on category
   const catSlug = establishment.category?.slug || "";

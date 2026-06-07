@@ -1,33 +1,29 @@
-// Design: AvaLyarin — Meus Locais (Saved Places) page
+// Design: AvaLyarin — Meus Locais (Saved Places) page — uses real data from backend
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
-import { Bookmark, MapPin, Star, Trash2 } from "lucide-react";
+import { Bookmark, MapPin, Star, Trash2, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
-
-interface SavedPlace {
-  id: string;
-  name: string;
-  image: string;
-  neighborhood: string;
-  category: string;
-  rating: number;
-}
-
-const mockSaved: SavedPlace[] = [
-  { id: "cervejaria-nacional", name: "Cervejaria Nacional", image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=200&fit=crop", neighborhood: "Pinheiros", category: "Cervejaria", rating: 4.5 },
-  { id: "frigobar-speakeasy", name: "Frigobar Speakeasy", image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=200&h=200&fit=crop", neighborhood: "Vila Madalena", category: "Coquetelaria", rating: 4.7 },
-  { id: "the-blue-pub", name: "The Blue Pub", image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=200&h=200&fit=crop", neighborhood: "Consolação", category: "Pub", rating: 4.3 },
-  { id: "le-jazz-brasserie", name: "Le Jazz Brasserie", image: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=200&h=200&fit=crop", neighborhood: "Jardins", category: "Bar Musical", rating: 4.6 },
-];
+import { trpc } from "@/lib/trpc";
+import { getCategoryCover } from "@/lib/categoryCoverImages";
 
 export default function MeusLocais() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [places, setPlaces] = useState(mockSaved);
+  const utils = trpc.useUtils();
 
-  const removePlace = (id: string, name: string) => {
-    setPlaces(prev => prev.filter(p => p.id !== id));
+  // Get saved establishments with full details
+  const { data: savedPlaces, isLoading } = trpc.posts.savedEstablishments.useQuery();
+
+  const toggleSave = trpc.posts.toggleSave.useMutation({
+    onSuccess: () => {
+      utils.posts.savedEstablishments.invalidate();
+      utils.posts.savedIds.invalidate();
+    },
+  });
+
+  const removePlace = (id: number, name: string) => {
+    toggleSave.mutate({ establishmentId: id });
     toast(`${name} removido dos salvos`);
   };
 
@@ -43,11 +39,17 @@ export default function MeusLocais() {
             </div>
             <div>
               <h2 className="font-display text-2xl tracking-wider text-primary">MEUS LOCAIS</h2>
-              <p className="text-sm text-muted-foreground">{places.length} locais salvos</p>
+              <p className="text-sm text-muted-foreground">
+                {isLoading ? "Carregando..." : `${savedPlaces?.length || 0} locais salvos`}
+              </p>
             </div>
           </div>
 
-          {places.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          ) : !savedPlaces || savedPlaces.length === 0 ? (
             <div className="text-center py-16">
               <Bookmark className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
               <p className="text-muted-foreground">Nenhum local salvo ainda</p>
@@ -55,29 +57,41 @@ export default function MeusLocais() {
             </div>
           ) : (
             <div className="space-y-2">
-              {places.map((place) => (
+              {savedPlaces.map((place) => (
                 <div key={place.id} className="flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all group">
-                  <Link href={`/estabelecimento/${place.id}`} className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0">
-                      <img src={place.image} alt={place.name} className="w-full h-full object-cover" />
+                  <Link href={`/estabelecimento/${place.slug}`} className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-secondary">
+                      {place.imageUrl ? (
+                        <img src={place.imageUrl} alt={place.name} className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <img
+                          src={getCategoryCover(place.categorySlug || "")}
+                          alt={place.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground text-sm truncate">{place.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {place.neighborhood}
+                          <MapPin className="w-3 h-3" /> {place.neighborhood || ""}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/60">{place.category}</span>
+                        <span className="text-[10px] text-muted-foreground/60">{place.categoryName || ""}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Star className="w-3.5 h-3.5 text-primary fill-primary" />
-                      <span className="font-numbers text-sm font-bold text-primary">{place.rating}</span>
-                    </div>
+                    {place.googleRating && Number(place.googleRating) >= 4.7 && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                        <span className="font-numbers text-sm font-bold text-primary">{Number(place.googleRating).toFixed(1)}</span>
+                      </div>
+                    )}
                   </Link>
                   <button
                     onClick={() => removePlace(place.id, place.name)}
                     className="p-2 rounded-lg hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
+                    disabled={toggleSave.isPending}
                   >
                     <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
                   </button>

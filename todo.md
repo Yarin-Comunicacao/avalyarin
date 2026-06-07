@@ -267,3 +267,5 @@
 - [x] Adicionar tipos de destaque: "Novidade" (new_item) e "Parceria" (collab) ao sistema
 - [x] Implementar durações diferenciadas por tipo: brand=30d, menu_daily=até fechar, promotion=7d, event=15d ou até data do evento, new_item=30d, collab=21d
 - [x] Links clicáveis no carrossel expandido: nome do bar → página do estab, bairro → busca por bairro, badge tipo → busca por tipo
+- [x] Bug: cardápio vazio no Bar Teste Avalyarin — matchCat() atualizado para suportar plural/singular e nomes compostos
+- [x] Bug: estab salvo não aparece na aba de salvos do usuário — novo endpoint posts.savedEstablishments com JOIN completo

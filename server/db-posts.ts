@@ -363,3 +363,58 @@ export async function expireOldPosts(): Promise<number> {
   const rows = (result as any)[0] || result;
   return (rows as any).affectedRows || 0;
 }
+
+/**
+ * Get saved establishments with full details for "Meus Locais" page
+ */
+export interface SavedEstablishmentDetail {
+  id: number;
+  name: string;
+  slug: string | null;
+  neighborhood: string | null;
+  imageUrl: string | null;
+  googleRating: string | null;
+  googleRatingsTotal: number | null;
+  categoryName: string | null;
+  categorySlug: string | null;
+  savedAt: Date;
+}
+
+export async function getSavedEstablishmentsWithDetails(userId: number): Promise<SavedEstablishmentDetail[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db.execute(sql`
+    SELECT 
+      e.id,
+      e.name,
+      e.slug,
+      e.neighborhood,
+      e.image as imageUrl,
+      e.googleRating,
+      e.googleRatingsTotal,
+      c.name as categoryName,
+      c.slug as categorySlug,
+      s.createdAt as savedAt
+    FROM user_saved_establishments s
+    JOIN establishments e ON e.id = s.establishmentId
+    LEFT JOIN establishment_categories ec ON ec.establishmentId = e.id AND ec.isPrimary = 1
+    LEFT JOIN categories c ON c.id = ec.categoryId
+    WHERE s.userId = ${userId}
+    ORDER BY s.createdAt DESC
+  `);
+
+  const rows = (results as any)[0] || results;
+  return (rows as any[]).map((row: any) => ({
+    id: Number(row.id),
+    name: row.name,
+    slug: row.slug || null,
+    neighborhood: row.neighborhood || null,
+    imageUrl: row.imageUrl || null,
+    googleRating: row.googleRating || null,
+    googleRatingsTotal: row.googleRatingsTotal ? Number(row.googleRatingsTotal) : null,
+    categoryName: row.categoryName || null,
+    categorySlug: row.categorySlug || null,
+    savedAt: new Date(row.savedAt),
+  }));
+}
