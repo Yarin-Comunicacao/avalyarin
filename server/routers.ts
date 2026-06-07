@@ -13,6 +13,7 @@ import {
   getEstablishmentWithMenu,
   getNearbyEstablishments,
   searchAll,
+  getEstablishmentsByNeighborhood,
   saveRating,
   getUserRatings,
   getRatingById,
@@ -103,6 +104,7 @@ import {
 } from "./db-progression";
 import {
   getActivePostsForHome,
+  getActivePostsByType,
   getSavedEstablishmentPosts,
   incrementPostView,
   incrementPostTap,
@@ -187,6 +189,12 @@ export const appRouter = router({
       .input(z.object({ query: z.string().min(1) }))
       .query(async ({ input }) => {
         return await searchAll(input.query);
+      }),
+
+    byNeighborhood: publicProcedure
+      .input(z.object({ neighborhood: z.string().min(1), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await getEstablishmentsByNeighborhood(input.neighborhood, input.limit || 50);
       }),
   }),
 
@@ -978,7 +986,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         establishmentId: z.number(),
-        type: z.enum(["event", "promotion", "brand", "menu_daily"]),
+        type: z.enum(["event", "promotion", "brand", "menu_daily", "new_item", "collab"]),
         title: z.string().min(1).max(255),
         description: z.string().max(1000).optional(),
         imageUrl: z.string(),
@@ -997,6 +1005,13 @@ export const appRouter = router({
           userId: ctx.user!.id,
         });
         return { postId };
+      }),
+
+    // Get active posts by type (for /busca?tipo= page)
+    byType: publicProcedure
+      .input(z.object({ type: z.string().min(1), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await getActivePostsByType(input.type, input.limit || 30);
       }),
 
     // Expire old posts (admin utility)

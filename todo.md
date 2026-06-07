@@ -264,3 +264,6 @@
 - [x] Criar GIF animado alternando entre imagens de categorias
 - [x] Gerar imagens para os 4 grupos de categorias
 - [x] Corrigir fluxo: categorias individuais não devem aparecer na Home — devem abrir apenas ao clicar em um grupo na seção "Explore outros grupos"
+- [x] Adicionar tipos de destaque: "Novidade" (new_item) e "Parceria" (collab) ao sistema
+- [x] Implementar durações diferenciadas por tipo: brand=30d, menu_daily=até fechar, promotion=7d, event=15d ou até data do evento, new_item=30d, collab=21d
+- [x] Links clicáveis no carrossel expandido: nome do bar → página do estab, bairro → busca por bairro, badge tipo → busca por tipo

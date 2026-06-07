@@ -1,19 +1,22 @@
 /**
- * PostsCarousel — Carrossel horizontal de postagens de estabelecimentos (9:16 vertical)
+ * PostsCarousel — Carrossel horizontal de Destaques (9:16 vertical)
  * Exibido na Home com posts ativos de contas empresariais.
  * Modal expandido com auto-play de 15s e setas de navegação.
+ * Links clicáveis: nome do bar → página do estab, bairro → busca por bairro, badge → busca por tipo
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Calendar, Tag, Megaphone, UtensilsCrossed, X } from "lucide-react";
-import { Link } from "wouter";
+import { ChevronLeft, ChevronRight, Calendar, Tag, Megaphone, UtensilsCrossed, X, Sparkles, Handshake } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
-const typeConfig = {
+const typeConfig: Record<string, { label: string; icon: any; color: string }> = {
   event: { label: "Evento", icon: Calendar, color: "text-purple-300 bg-purple-500/20 border-purple-500/30" },
   promotion: { label: "Promoção", icon: Tag, color: "text-green-300 bg-green-500/20 border-green-500/30" },
   brand: { label: "Divulgação", icon: Megaphone, color: "text-blue-300 bg-blue-500/20 border-blue-500/30" },
   menu_daily: { label: "Cardápio do Dia", icon: UtensilsCrossed, color: "text-amber-300 bg-amber-500/20 border-amber-500/30" },
+  new_item: { label: "Novidade", icon: Sparkles, color: "text-pink-300 bg-pink-500/20 border-pink-500/30" },
+  collab: { label: "Parceria", icon: Handshake, color: "text-cyan-300 bg-cyan-500/20 border-cyan-500/30" },
 };
 
 const AUTO_PLAY_DURATION = 15000; // 15 seconds
@@ -28,6 +31,7 @@ export function PostsCarousel() {
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
+  const [, navigate] = useLocation();
 
   // No posts available or error — don't render section
   if (isError) return null;
@@ -119,6 +123,30 @@ export function PostsCarousel() {
   const canGoLeft = expandedIndex !== null && expandedIndex > 0;
   const canGoRight = posts && expandedIndex !== null && expandedIndex < posts.length - 1;
 
+  // Navigate to establishment page
+  const handleEstabClick = (post: typeof expandedPostData) => {
+    if (!post) return;
+    const slug = (post as any).slug;
+    if (slug) {
+      navigate(`/estabelecimento/${slug}`);
+    } else {
+      navigate(`/estabelecimento/${post.establishmentId}`);
+    }
+    closeModal();
+  };
+
+  // Navigate to search by neighborhood
+  const handleNeighborhoodClick = (neighborhood: string) => {
+    navigate(`/busca?bairro=${encodeURIComponent(neighborhood)}`);
+    closeModal();
+  };
+
+  // Navigate to search by post type
+  const handleTypeClick = (type: string) => {
+    navigate(`/busca?tipo=${encodeURIComponent(type)}`);
+    closeModal();
+  };
+
   return (
     <>
       <section className="py-10 border-t border-border/30">
@@ -165,8 +193,8 @@ export function PostsCarousel() {
               ))
             ) : (
               posts?.map((post, index) => {
-                const config = typeConfig[post.type as keyof typeof typeConfig];
-                const TypeIcon = config?.icon || Calendar;
+                const config = typeConfig[post.type] || typeConfig.brand;
+                const TypeIcon = config.icon;
                 return (
                   <motion.div
                     key={post.id}
@@ -192,9 +220,9 @@ export function PostsCarousel() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       
                       {/* Type badge */}
-                      <div className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-medium border ${config?.color || "text-white bg-black/40 border-white/20"}`}>
+                      <div className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-medium border ${config.color}`}>
                         <TypeIcon className="w-2.5 h-2.5 inline mr-0.5" />
-                        {config?.label}
+                        {config.label}
                       </div>
 
                       {/* Bottom info */}
@@ -271,19 +299,30 @@ export function PostsCarousel() {
                 <X className="w-4 h-4" />
               </button>
 
-              {/* Top info */}
+              {/* Top info — clickable name and neighborhood */}
               <div className="absolute top-5 left-3 flex items-center gap-2 z-10">
                 {expandedPostData.establishmentImage && (
                   <img
                     src={expandedPostData.establishmentImage}
                     alt=""
-                    className="w-8 h-8 rounded-full object-cover border border-white/30"
+                    className="w-8 h-8 rounded-full object-cover border border-white/30 cursor-pointer"
+                    onClick={() => handleEstabClick(expandedPostData)}
                   />
                 )}
                 <div>
-                  <p className="text-xs text-white font-medium">{expandedPostData.establishmentName}</p>
+                  <p
+                    className="text-xs text-white font-medium cursor-pointer hover:underline"
+                    onClick={() => handleEstabClick(expandedPostData)}
+                  >
+                    {expandedPostData.establishmentName}
+                  </p>
                   {expandedPostData.neighborhood && (
-                    <p className="text-[10px] text-white/60">{expandedPostData.neighborhood}</p>
+                    <p
+                      className="text-[10px] text-white/60 cursor-pointer hover:underline hover:text-white/80"
+                      onClick={() => handleNeighborhoodClick(expandedPostData.neighborhood!)}
+                    >
+                      {expandedPostData.neighborhood}
+                    </p>
                   )}
                 </div>
               </div>
@@ -308,18 +347,27 @@ export function PostsCarousel() {
 
               {/* Bottom content */}
               <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
-                <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border mb-2 ${typeConfig[expandedPostData.type as keyof typeof typeConfig]?.color || ""}`}>
-                  {typeConfig[expandedPostData.type as keyof typeof typeConfig]?.label}
+                {/* Type badge — clickable */}
+                <div
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border mb-2 cursor-pointer hover:opacity-80 ${typeConfig[expandedPostData.type]?.color || "text-white bg-black/40 border-white/20"}`}
+                  onClick={() => handleTypeClick(expandedPostData.type)}
+                >
+                  {(() => {
+                    const TypeIcon = typeConfig[expandedPostData.type]?.icon || Calendar;
+                    return <TypeIcon className="w-3 h-3" />;
+                  })()}
+                  {typeConfig[expandedPostData.type]?.label || expandedPostData.type}
                 </div>
                 <h4 className="text-lg text-white font-bold mb-1">{expandedPostData.title}</h4>
                 {expandedPostData.description && (
                   <p className="text-sm text-white/80 line-clamp-3 mb-3">{expandedPostData.description}</p>
                 )}
-                <Link href={`/estabelecimento/${expandedPostData.establishmentId}`}>
-                  <button className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all">
-                    Ver Estabelecimento
-                  </button>
-                </Link>
+                <button
+                  onClick={() => handleEstabClick(expandedPostData)}
+                  className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all"
+                >
+                  Ver Estabelecimento
+                </button>
               </div>
             </motion.div>
           </motion.div>

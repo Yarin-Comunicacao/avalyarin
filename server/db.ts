@@ -639,6 +639,55 @@ export async function searchAll(query: string) {
 }
 
 // ============================================================
+// SEARCH BY NEIGHBORHOOD
+// ============================================================
+
+export async function getEstablishmentsByNeighborhood(neighborhood: string, limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const estResults = await db.select({
+    id: establishments.id,
+    slug: establishments.slug,
+    name: establishments.name,
+    address: establishments.address,
+    neighborhood: establishments.neighborhood,
+    rating: establishments.rating,
+    image: establishments.image,
+    categoryId: establishments.categoryId,
+    hasMenu: establishments.hasMenu,
+  })
+    .from(establishments)
+    .where(and(
+      eq(establishments.neighborhood, neighborhood),
+      completeEstablishmentFilter
+    ))
+    .limit(limit);
+
+  // Get primary category names via N:N
+  const estIds = estResults.map(e => e.id);
+  let catMap: Record<number, string> = {};
+  if (estIds.length > 0) {
+    const ecPrimary = await db.select({
+      establishmentId: establishmentCategories.establishmentId,
+      categoryName: categories.name,
+    })
+      .from(establishmentCategories)
+      .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+      .where(and(
+        inArray(establishmentCategories.establishmentId, estIds),
+        eq(establishmentCategories.isPrimary, true)
+      ));
+    catMap = Object.fromEntries(ecPrimary.map(r => [r.establishmentId, r.categoryName]));
+  }
+
+  return estResults.map(e => ({
+    ...e,
+    categoryName: catMap[e.id] || '',
+  }));
+}
+
+// ============================================================
 // RATINGS
 // ============================================================
 

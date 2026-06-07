@@ -299,7 +299,7 @@ export const establishmentPosts = mysqlTable("establishment_posts", {
   id: int("id").autoincrement().primaryKey(),
   establishmentId: int("establishmentId").notNull(),
   userId: int("userId").notNull(), // who posted (business account)
-  type: mysqlEnum("type", ["event", "promotion", "brand", "menu_daily"]).notNull(),
+  type: mysqlEnum("type", ["event", "promotion", "brand", "menu_daily", "new_item", "collab"]).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   imageUrl: text("imageUrl").notNull(), // 9:16 vertical image

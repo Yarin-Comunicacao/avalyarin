@@ -1,14 +1,16 @@
 /**
- * Establishment Posts System
+ * Establishment Posts System (Destaques)
  * 
- * Ephemeral 9:16 vertical content (Stories-like) posted by business accounts.
+ * Ephemeral 9:16 vertical content posted by business accounts.
  * Shown in carousels on Home: "Salvos" (followed) and "Perto de Mim" (geo-based).
  * 
- * Post types:
- * - event: Programação/Evento (expires day after event)
- * - promotion: Promoção (up to 7 days)
- * - brand: Divulgação de Marca (up to 7 days)
- * - menu_daily: Cardápio Pontual (same day only)
+ * Post types & default durations:
+ * - brand: Divulgação (30 dias)
+ * - menu_daily: Cardápio do Dia (expira no horário de fechamento do estab)
+ * - promotion: Promoção (7 dias)
+ * - event: Evento (15 dias ou até a data do evento)
+ * - new_item: Novidade (30 dias)
+ * - collab: Parceria (21 dias)
  */
 
 import { drizzle } from "drizzle-orm/mysql2";
@@ -26,13 +28,26 @@ async function getDb() {
 
 // ==================== TYPES ====================
 
+export type PostType = "event" | "promotion" | "brand" | "menu_daily" | "new_item" | "collab";
+
+/** Default duration in days for each post type */
+export const POST_TYPE_DURATIONS: Record<PostType, number> = {
+  brand: 30,
+  menu_daily: 1, // special: expires at closing time
+  promotion: 7,
+  event: 15, // or until event date
+  new_item: 30,
+  collab: 21,
+};
+
 export interface PostForCarousel {
   id: number;
   establishmentId: number;
   establishmentName: string;
   establishmentImage: string | null;
   neighborhood: string | null;
-  type: "event" | "promotion" | "brand" | "menu_daily";
+  slug: string | null;
+  type: PostType;
   title: string;
   description: string | null;
   imageUrl: string;
@@ -61,6 +76,7 @@ export async function getActivePostsForHome(limit: number = 20): Promise<PostFor
       e.name as establishmentName,
       e.image as establishmentImage,
       e.neighborhood,
+      e.slug,
       p.type,
       p.title,
       p.description,
@@ -85,6 +101,61 @@ export async function getActivePostsForHome(limit: number = 20): Promise<PostFor
     establishmentName: row.establishmentName,
     establishmentImage: row.establishmentImage,
     neighborhood: row.neighborhood,
+    slug: row.slug || null,
+    type: row.type,
+    title: row.title,
+    description: row.description,
+    imageUrl: row.imageUrl,
+    linkUrl: row.linkUrl,
+    startsAt: new Date(row.startsAt),
+    expiresAt: new Date(row.expiresAt),
+    viewCount: Number(row.viewCount),
+  }));
+}
+
+/**
+ * Get active posts filtered by type (for /busca?tipo= page)
+ */
+export async function getActivePostsByType(type: string, limit: number = 30): Promise<PostForCarousel[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const now = new Date();
+
+  const results = await db.execute(sql`
+    SELECT 
+      p.id,
+      p.establishmentId,
+      e.name as establishmentName,
+      e.image as establishmentImage,
+      e.neighborhood,
+      e.slug,
+      p.type,
+      p.title,
+      p.description,
+      p.imageUrl,
+      p.linkUrl,
+      p.startsAt,
+      p.expiresAt,
+      p.viewCount
+    FROM establishment_posts p
+    JOIN establishments e ON e.id = p.establishmentId
+    WHERE p.status = 'active'
+      AND p.type = ${type}
+      AND p.startsAt <= ${now}
+      AND p.expiresAt > ${now}
+    ORDER BY p.createdAt DESC
+    LIMIT ${limit}
+  `);
+
+  const rows = (results as any)[0] || results;
+  return (rows as any[]).map(row => ({
+    id: Number(row.id),
+    establishmentId: Number(row.establishmentId),
+    establishmentName: row.establishmentName,
+    establishmentImage: row.establishmentImage,
+    neighborhood: row.neighborhood,
+    slug: row.slug || null,
     type: row.type,
     title: row.title,
     description: row.description,
@@ -112,6 +183,7 @@ export async function getSavedEstablishmentPosts(userId: number, limit: number =
       e.name as establishmentName,
       e.image as establishmentImage,
       e.neighborhood,
+      e.slug,
       p.type,
       p.title,
       p.description,
@@ -137,6 +209,7 @@ export async function getSavedEstablishmentPosts(userId: number, limit: number =
     establishmentName: row.establishmentName,
     establishmentImage: row.establishmentImage,
     neighborhood: row.neighborhood,
+    slug: row.slug || null,
     type: row.type,
     title: row.title,
     description: row.description,
@@ -248,7 +321,7 @@ export async function getUserSavedEstablishmentIds(userId: number): Promise<numb
 export async function createEstablishmentPost(data: {
   establishmentId: number;
   userId: number;
-  type: "event" | "promotion" | "brand" | "menu_daily";
+  type: PostType;
   title: string;
   description?: string;
   imageUrl: string;
