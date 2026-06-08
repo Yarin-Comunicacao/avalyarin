@@ -272,3 +272,8 @@
 - [x] Bug: itens do cardápio não aparecem na tela de avaliação do Bar Teste — corrigido com normalizeCategory() que mapeia plural/composto para singular canônico
 - [x] Bug: botão "Reivindicar" no estab redireciona direto ao Painel Empresarial — agora abre ClaimFormModal inline com questionário completo
 - [x] Bug: tabs do Painel Empresarial sobrepostas no mobile — labels abreviados no mobile (sm:hidden/sm:inline), scroll horizontal com scrollbar-hide
+- [x] Fix: margem entre barra de busca e conteúdo na tela de avaliação — pt-24 → pt-32
+- [x] Fix: date picker da avaliação deve iniciar no mês/ano vigente — defaultMonth={new Date()}
+- [x] Fix: scroll to top ao navegar entre páginas — componente ScrollToTop com useLocation no Router
+- [x] Contas business: ocultar funcionalidades de avaliação — menu filtrado, botão Avaliar oculto, RatingPage redireciona, backend bloqueia save
+- [x] Notificação ao business owner quando receber nova avaliação — tabela business_notifications, insert após saveRating, UI na tab Notificações do BusinessPanel

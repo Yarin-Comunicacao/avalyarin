@@ -53,6 +53,7 @@ export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
 
   const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
@@ -396,8 +397,8 @@ export default function EstablishmentPage() {
         </section>
       )}
 
-      {/* Fixed CTA at bottom */}
-      {menu.length > 0 && (
+      {/* Fixed CTA at bottom — hidden for business accounts */}
+      {menu.length > 0 && user?.role !== "business" && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4">
           <div className="container">
             <Link href={`/avaliar/${establishment.slug}`}>

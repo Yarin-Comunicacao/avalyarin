@@ -362,3 +362,22 @@ export const menuCategories = mysqlTable("menu_categories", {
 
 export type MenuCategory = typeof menuCategories.$inferSelect;
 export type InsertMenuCategory = typeof menuCategories.$inferInsert;
+
+
+// ============================================================
+// Business Notifications (persistent, e.g. new ratings received)
+// ============================================================
+export const businessNotifications = mysqlTable("business_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // business owner
+  establishmentId: int("establishmentId").notNull(),
+  type: varchar("type", { length: 64 }).notNull(), // 'new_rating', 'claim_approved', etc.
+  title: varchar("title", { length: 256 }).notNull(),
+  message: text("message"),
+  ratingId: int("ratingId"), // optional reference to the rating
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BusinessNotification = typeof businessNotifications.$inferSelect;
+export type InsertBusinessNotification = typeof businessNotifications.$inferInsert;

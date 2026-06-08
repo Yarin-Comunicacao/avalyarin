@@ -7,7 +7,7 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon
+  Bell, AlertTriangle, Image as ImageIcon, Star
 } from "lucide-react";
 
 export default function BusinessPanel() {
@@ -594,10 +594,17 @@ function MenuManagementTab() {
 
 function NotificationsTab() {
   const { data: notifications, isLoading } = trpc.business.notifications.useQuery();
+  const { data: ratingNotifs, isLoading: ratingLoading } = trpc.business.ratingNotifications.useQuery();
+  const markRead = trpc.business.markNotificationRead.useMutation({
+    onSuccess: () => trpc.useUtils().business.ratingNotifications.invalidate(),
+  });
 
-  if (isLoading) return <div className="text-muted-foreground">Carregando notificações...</div>;
+  if (isLoading && ratingLoading) return <div className="text-muted-foreground">Carregando notificações...</div>;
 
-  if (!notifications || notifications.length === 0) {
+  const hasSystemNotifs = notifications && notifications.length > 0;
+  const hasRatingNotifs = ratingNotifs && ratingNotifs.length > 0;
+
+  if (!hasSystemNotifs && !hasRatingNotifs) {
     return (
       <div className="text-center py-12">
         <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
@@ -609,8 +616,8 @@ function NotificationsTab() {
     );
   }
 
-  const errors = notifications.filter(n => n.severity === 'error');
-  const warnings = notifications.filter(n => n.severity === 'warning');
+  const errors = (notifications || []).filter(n => n.severity === 'error');
+  const warnings = (notifications || []).filter(n => n.severity === 'warning');
 
   return (
     <div>
@@ -656,6 +663,41 @@ function NotificationsTab() {
                     Adicionar fotos melhora a experiência dos clientes e aumenta a visibilidade do seu estabelecimento.
                   </p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Rating notifications — new reviews received */}
+      {hasRatingNotifs && (
+        <div className="mt-6">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-green-400 mb-3">
+            <Star className="w-4 h-4" />
+            Avaliações Recebidas ({ratingNotifs!.filter(n => !n.isRead).length} novas)
+          </h3>
+          <div className="space-y-2">
+            {ratingNotifs!.map((n) => (
+              <div
+                key={n.id}
+                className={`p-4 rounded-xl flex items-start gap-3 cursor-pointer transition-all ${
+                  n.isRead
+                    ? "bg-card/30 border border-border/30 opacity-60"
+                    : "bg-green-500/5 border border-green-500/30"
+                }`}
+                onClick={() => !n.isRead && markRead.mutate({ notificationId: n.id })}
+              >
+                <Star className={`w-4 h-4 shrink-0 mt-0.5 ${n.isRead ? "text-muted-foreground" : "text-green-400"}`} />
+                <div className="flex-1">
+                  <p className="text-sm text-foreground font-medium">{n.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    {new Date(n.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+                {!n.isRead && (
+                  <span className="w-2 h-2 rounded-full bg-green-400 shrink-0 mt-2" />
+                )}
               </div>
             ))}
           </div>

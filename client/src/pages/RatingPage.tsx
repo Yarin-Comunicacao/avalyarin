@@ -1035,11 +1035,16 @@ export default function RatingPage() {
 
   if (!establishment) return <Redirect to="/" />;
 
+  // Business accounts cannot evaluate
+  if (user?.role === "business") {
+    return <Redirect to="/painel-empresarial" />;
+  }
+
   return (
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-24 pb-16">
+      <div className="pt-32 pb-16">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
           {isNumberedStep && (
@@ -1130,7 +1135,7 @@ export default function RatingPage() {
                         selected={visitDate}
                         onSelect={setVisitDate}
                         locale={ptBR}
-                        defaultMonth={new Date(2026, 0, 1)}
+                        defaultMonth={new Date()}
                         disabled={(date) => date > new Date()}
                       />
                     </PopoverContent>

@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { ADDRESS_REGEX } from "@shared/address-validation";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
 import {
@@ -34,6 +35,8 @@ import {
   businessUpdateEstablishment,
   businessAddMenuItem,
   businessDeleteMenuItem,
+  getBusinessRatingNotifications,
+  markBusinessNotificationRead,
   // Rankings
   getUserRatedEstablishmentsByCategory,
   getUserRanking,
@@ -225,6 +228,10 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const userId = ctx.user!.id;
+        // Business accounts cannot create ratings
+        if (ctx.user!.role === "business") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Contas empresariais não podem avaliar estabelecimentos." });
+        }
         const result = await saveRating(userId, input);
         // Check level-up after saving rating (non-blocking)
         let levelUp = null;
@@ -611,6 +618,16 @@ export const appRouter = router({
     notifications: businessProcedure.query(async ({ ctx }) => {
       return await getBusinessNotifications(ctx.user!.id);
     }),
+
+    ratingNotifications: businessProcedure.query(async ({ ctx }) => {
+      return await getBusinessRatingNotifications(ctx.user!.id);
+    }),
+
+    markNotificationRead: businessProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await markBusinessNotificationRead(ctx.user!.id, input.notificationId);
+      }),
    }),
 
   // User profile & username

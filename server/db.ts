@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, establishmentCategories } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, establishmentCategories, businessNotifications } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -754,6 +754,37 @@ export async function saveRating(userId: number, data: {
       }))
     );
   }
+
+  // Notify business owner(s) of the new rating (non-blocking)
+  try {
+    const ownerClaims = await db.select({ userId: businessClaims.userId })
+      .from(businessClaims)
+      .where(and(
+        eq(businessClaims.establishmentId, data.establishmentId),
+        eq(businessClaims.status, "approved")
+      ));
+    if (ownerClaims.length > 0) {
+      const est = await db.select({ name: establishments.name })
+        .from(establishments)
+        .where(eq(establishments.id, data.establishmentId))
+        .limit(1);
+      const estName = est[0]?.name || "Estabelecimento";
+      const score = data.overallScore ?? (data.items.length > 0 ? (data.items.reduce((s, i) => s + i.score, 0) / data.items.length) : 0);
+      const itemNames = data.items.slice(0, 3).map(i => i.itemName).join(", ");
+      await db.insert(businessNotifications).values(
+        ownerClaims.map(c => ({
+          userId: c.userId,
+          establishmentId: data.establishmentId,
+          type: "new_rating",
+          title: `Nova avaliação em ${estName}`,
+          message: `Nota ${score.toFixed(1)} — Itens: ${itemNames}${data.items.length > 3 ? ` (+${data.items.length - 3})` : ""}`,
+          ratingId,
+        }))
+      );
+    }
+  } catch (e) {
+    console.error("[Notification] Failed to notify business owner:", e);
+  }
   
   return { id: ratingId, success: true };
 }
@@ -1265,6 +1296,32 @@ export async function getBusinessNotifications(userId: number) {
   }
   
   return notifications;
+}
+
+// ============================================================
+// BUSINESS RATING NOTIFICATIONS (persistent)
+// ============================================================
+
+export async function getBusinessRatingNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select()
+    .from(businessNotifications)
+    .where(eq(businessNotifications.userId, userId))
+    .orderBy(desc(businessNotifications.createdAt))
+    .limit(50);
+}
+
+export async function markBusinessNotificationRead(userId: number, notificationId: number) {
+  const db = await getDb();
+  if (!db) return { success: false };
+  await db.update(businessNotifications)
+    .set({ isRead: true })
+    .where(and(
+      eq(businessNotifications.id, notificationId),
+      eq(businessNotifications.userId, userId)
+    ));
+  return { success: true };
 }
 
 // ============================================================

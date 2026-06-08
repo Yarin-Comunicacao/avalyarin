@@ -171,9 +171,17 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
               <>
 
 
-                {/* Menu Sections */}
+                {/* Menu Sections — hide evaluation-related sections for business accounts */}
                 <div className="px-3 py-3">
-                  {loggedInSections.map((section) => (
+                  {loggedInSections
+                    .filter((section) => {
+                      // Business accounts cannot evaluate — hide review/ranking/groups/insignias sections
+                      if (user.role === "business") {
+                        return !["avaliacoes", "grupos", "notificacoes"].includes(section.id);
+                      }
+                      return true;
+                    })
+                    .map((section) => (
                     <div key={section.id} className="mb-1">
                       {/* Section Header */}
                       <button
@@ -339,15 +347,17 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                   ))}
                 </div>
 
-                {/* Insígnias Link */}
-                <div className="px-5 py-3 border-t border-border/30">
-                  <Link href="/insignias" onClick={onClose}>
-                    <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
-                      <Trophy className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground group-hover:text-primary transition-colors">Minhas Insígnias</span>
-                    </div>
-                  </Link>
-                </div>
+                {/* Insígnias Link — hidden for business accounts */}
+                {user.role !== "business" && (
+                  <div className="px-5 py-3 border-t border-border/30">
+                    <Link href="/insignias" onClick={onClose}>
+                      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                        <Trophy className="w-4 h-4 text-primary" />
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Minhas Insígnias</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
 
                 {/* Admin & Business Links */}
                 {(user.role === "admin" || user.role === "owner") && (
