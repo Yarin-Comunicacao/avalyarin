@@ -183,7 +183,7 @@ export default function BadgesPage() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="container pt-24 pb-12">
+      <div className="container pt-28 pb-12">
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-display text-4xl tracking-wider text-primary text-glow-amber mb-2">

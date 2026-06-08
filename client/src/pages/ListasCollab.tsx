@@ -59,7 +59,7 @@ export default function ListasCollab() {
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref="/" onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-20 pb-16">
+      <div className="pt-28 pb-16">
         <div className="container max-w-2xl">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">

@@ -70,7 +70,7 @@ export default function SearchResults() {
       <div className="min-h-screen">
         <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
-        <div className="pt-24 container text-center">
+        <div className="pt-28 container text-center">
           <Search className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <p className="text-muted-foreground">Digite algo para buscar</p>
         </div>
@@ -83,7 +83,7 @@ export default function SearchResults() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="pt-24 pb-12 container">
+      <div className="pt-28 pb-12 container">
         {/* Header */}
         <div className="mb-8">
           {pageSubtitle && (

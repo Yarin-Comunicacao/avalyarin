@@ -1044,7 +1044,7 @@ export default function RatingPage() {
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-32 pb-16">
+      <div className="pt-36 pb-16">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
           {isNumberedStep && (

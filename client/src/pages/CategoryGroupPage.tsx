@@ -92,7 +92,7 @@ export default function CategoryGroupPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
         </div>
-        <div className="relative container pb-8 pt-24">
+        <div className="relative container pb-8 pt-28">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
               <GroupIcon className="w-6 h-6 text-primary" />

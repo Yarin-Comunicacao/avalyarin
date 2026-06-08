@@ -51,7 +51,7 @@ export default function CategoryPage() {
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Category Hero */}
-      <section className="relative pt-24 pb-12 overflow-hidden">
+      <section className="relative pt-28 pb-12 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src={getCategoryCover(category.slug)}

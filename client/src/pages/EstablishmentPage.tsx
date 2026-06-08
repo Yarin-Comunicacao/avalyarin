@@ -184,7 +184,7 @@ export default function EstablishmentPage() {
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Hero */}
-      <section className="relative pt-16">
+      <section className="relative pt-28">
         {establishment.image ? (
           <div className="relative h-64 sm:h-80 overflow-hidden">
             <img
