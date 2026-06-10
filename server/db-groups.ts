@@ -35,7 +35,7 @@ export async function createGroup(data: {
   // Check plan limits
   const plan = await getUserPlanOrDefault(data.creatorId);
   
-  if (data.type === "influencer" && plan !== "premium") {
+  if (data.type === "influencer" && plan !== "premium" && plan !== "embaixador") {
     throw new Error("PLAN_REQUIRED: Grupos de influencer requerem plano premium");
   }
 

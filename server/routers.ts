@@ -158,6 +158,19 @@ import {
   getEstablishmentPartnerships,
   getAdminPendingPartnerships,
 } from "./db-influencer";
+import {
+  getUserPlanDetails,
+  canUserRate,
+  upgradePlan,
+  cancelSubscription,
+  downgradePlan,
+  getBusinessPlanDetails,
+  upgradeBusinessPlan,
+  adminGrantPlan,
+  getAdminSubscriptions,
+  PLAN_LIMITS,
+  BUSINESS_PLAN_LIMITS,
+} from "./db-plans";
 
 export const appRouter = router({
   system: systemRouter,
@@ -258,6 +271,14 @@ export const appRouter = router({
         // Business accounts cannot create ratings
         if (ctx.user!.role === "business") {
           throw new TRPCError({ code: "FORBIDDEN", message: "Contas empresariais não podem avaliar estabelecimentos." });
+        }
+        // Check daily rating limit based on plan
+        const rateCheck = await canUserRate(userId);
+        if (!rateCheck.allowed) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Limite diário de avaliações atingido (${PLAN_LIMITS[rateCheck.plan].dailyRatings}/dia). Faça upgrade do seu plano para avaliar mais!`,
+          });
         }
         const result = await saveRating(userId, input);
         // Check level-up after saving rating (non-blocking)
@@ -949,7 +970,8 @@ export const appRouter = router({
     myPlan: protectedProcedure.query(async ({ ctx }) => {
       const plan = await getUserPlanOrDefault(ctx.user!.id);
       const groupCount = await countUserGroups(ctx.user!.id);
-      return { plan, groupCount, maxGroups: plan === "free" ? 3 : null };
+      const planType = plan as keyof typeof PLAN_LIMITS;
+      return { plan, groupCount, maxGroups: PLAN_LIMITS[planType]?.maxGroups ?? 3 };
     }),
   }),
 
@@ -1265,6 +1287,19 @@ export const appRouter = router({
         if (!['business', 'admin', 'owner'].includes(ctx.user!.role)) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas contas empresariais ou influencers podem criar códigos.' });
         }
+        // Check promo code limit based on plan
+        const userPlan = await getUserPlanDetails(ctx.user!.id);
+        const maxCodes = userPlan.limits.maxPromoCodes;
+        if (maxCodes !== null) {
+          const existingCodes = await getUserPromoCodes(ctx.user!.id);
+          const activeCodes = existingCodes.filter((c: any) => c.status === 'active' || c.status === 'pending_approval');
+          if (activeCodes.length >= maxCodes) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: `Limite de ${maxCodes} código(s) ativo(s) atingido no seu plano. Faça upgrade para criar mais!`,
+            });
+          }
+        }
         // Check if code is taken
         const taken = await isCodeTaken(input.code);
         if (taken) {
@@ -1323,6 +1358,170 @@ export const appRouter = router({
       .input(z.object({ codeId: z.number() }))
       .query(async ({ ctx, input }) => {
         return await getPromoCodeStats(input.codeId);
+      }),
+  }),
+
+  // ============================================================
+  // Plans & Subscriptions
+  // ============================================================
+  plans: router({
+    // Get current user's plan details
+    myPlan: protectedProcedure.query(async ({ ctx }) => {
+      const userId = ctx.user!.id;
+      const details = await getUserPlanDetails(userId);
+      const rateCheck = await canUserRate(userId);
+      return {
+        ...details,
+        ratingsToday: rateCheck.remaining,
+        canRate: rateCheck.allowed,
+      };
+    }),
+
+    // Check if user can rate (used before showing rating page)
+    canRate: protectedProcedure.query(async ({ ctx }) => {
+      return await canUserRate(ctx.user!.id);
+    }),
+
+    // Get all plan options (public)
+    options: publicProcedure.query(() => {
+      return {
+        user: [
+          {
+            id: "free",
+            name: "Explorador",
+            price: 0,
+            period: "",
+            limits: PLAN_LIMITS.free,
+            features: [
+              "3 avaliações por dia",
+              "Até 3 grupos",
+              "Perfil básico",
+              "Ver avaliações da comunidade",
+              "Salvar locais favoritos",
+            ],
+          },
+          {
+            id: "premium",
+            name: "Conhecedor",
+            price: 9.9,
+            period: "/mês",
+            limits: PLAN_LIMITS.premium,
+            popular: true,
+            features: [
+              "5 avaliações por dia",
+              "Grupos ilimitados",
+              "Criar grupo de influencer",
+              "\"Double\" na primeira visita",
+              "Selo Conhecedor no perfil",
+              "Filtros avançados de busca",
+            ],
+          },
+          {
+            id: "embaixador",
+            name: "Embaixador",
+            price: 19.9,
+            period: "/mês",
+            limits: PLAN_LIMITS.embaixador,
+            features: [
+              "Avaliações ilimitadas",
+              "Tudo do Conhecedor",
+              "Descontos em parceiros",
+              "Destaque nas avaliações",
+              "Convites para inaugurações",
+              "Suporte prioritário",
+              "Acesso a eventos exclusivos",
+            ],
+          },
+        ],
+        business: [
+          {
+            id: "free",
+            name: "Básico",
+            price: 0,
+            period: "",
+            limits: BUSINESS_PLAN_LIMITS.free,
+            features: [
+              "Perfil do estabelecimento",
+              "QR Code personalizado",
+              "1 código promocional ativo",
+              "Notificações de avaliações",
+            ],
+          },
+          {
+            id: "premium",
+            name: "Premium",
+            price: 29.9,
+            period: "/mês",
+            limits: BUSINESS_PLAN_LIMITS.premium,
+            features: [
+              "Códigos promocionais ilimitados",
+              "Analytics e métricas",
+              "Destaque no app",
+              "Tudo do plano Básico",
+            ],
+          },
+        ],
+      };
+    }),
+
+    // Upgrade plan (simulated — no real payment yet)
+    upgrade: protectedProcedure
+      .input(z.object({
+        plan: z.enum(["premium", "embaixador"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        return await upgradePlan({
+          userId,
+          plan: input.plan,
+          paymentMethod: "admin_grant", // TODO: integrate real payment
+          durationMonths: 1,
+        });
+      }),
+
+    // Cancel subscription
+    cancel: protectedProcedure.mutation(async ({ ctx }) => {
+      return await cancelSubscription(ctx.user!.id);
+    }),
+
+    // Downgrade to free (immediate)
+    downgrade: protectedProcedure.mutation(async ({ ctx }) => {
+      return await downgradePlan(ctx.user!.id);
+    }),
+
+    // Business plan details
+    businessPlan: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getBusinessPlanDetails(input.establishmentId);
+      }),
+
+    // Upgrade business plan
+    upgradeBusiness: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await upgradeBusinessPlan({
+          establishmentId: input.establishmentId,
+          userId: ctx.user!.id,
+        });
+      }),
+
+    // Admin: grant plan to user
+    adminGrant: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        plan: z.enum(["premium", "embaixador"]),
+        durationMonths: z.number().min(1).max(12).default(1),
+      }))
+      .mutation(async ({ input }) => {
+        return await adminGrantPlan(input.userId, input.plan, input.durationMonths);
+      }),
+
+    // Admin: list subscriptions
+    adminSubscriptions: adminProcedure
+      .input(z.object({ status: z.string().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getAdminSubscriptions(input?.status);
       }),
   }),
 });

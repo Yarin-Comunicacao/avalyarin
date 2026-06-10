@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { getDb } from "./db";
+import { ratings } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
@@ -42,6 +45,14 @@ function createUnauthContext(): TrpcContext {
 }
 
 describe("ratings.save", () => {
+  beforeAll(async () => {
+    // Clean up test user ratings to avoid daily limit issues
+    const db = await getDb();
+    if (db) {
+      await db.delete(ratings).where(eq(ratings.userId, 99));
+    }
+  });
+
   it("rejects unauthenticated users", async () => {
     const ctx = createUnauthContext();
     const caller = appRouter.createCaller(ctx);

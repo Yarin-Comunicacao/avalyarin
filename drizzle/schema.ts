@@ -204,13 +204,14 @@ export type InsertAgeVerificationRequest = typeof ageVerificationRequests.$infer
 
 /**
  * User plans table — tracks subscription tier per user.
- * free = default (3 groups max, cannot create influencer groups)
- * premium = paid (unlimited groups, can create influencer groups)
+ * free = default (3 avaliações/dia, 3 groups max)
+ * premium = R$9,90/mês (5 avaliações/dia, grupos ilimitados, Double na 1ª visita)
+ * embaixador = R$19,90/mês (avaliações ilimitadas, descontos parceiros, destaque)
  */
 export const userPlans = mysqlTable("user_plans", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
-  plan: mysqlEnum("plan", ["free", "premium"]).default("free").notNull(),
+  plan: mysqlEnum("plan", ["free", "premium", "embaixador"]).default("free").notNull(),
   expiresAt: timestamp("expiresAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -218,6 +219,45 @@ export const userPlans = mysqlTable("user_plans", {
 
 export type UserPlan = typeof userPlans.$inferSelect;
 export type InsertUserPlan = typeof userPlans.$inferInsert;
+
+/**
+ * Subscriptions table — tracks payment history and subscription lifecycle.
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  plan: mysqlEnum("plan", ["premium", "embaixador"]).notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "expired", "past_due"]).default("active").notNull(),
+  priceMonthly: float("priceMonthly").notNull(), // valor em R$
+  paymentMethod: mysqlEnum("paymentMethod", ["pix", "credit_card", "admin_grant"]).default("admin_grant").notNull(),
+  startsAt: timestamp("startsAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+  cancelledAt: timestamp("cancelledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Business subscriptions — plans for establishments.
+ * free = 1 código promo ativo, perfil básico
+ * premium = códigos ilimitados, analytics, destaque no app
+ */
+export const businessSubscriptions = mysqlTable("business_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(), // business owner
+  plan: mysqlEnum("plan", ["free", "premium"]).default("free").notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "expired"]).default("active").notNull(),
+  priceMonthly: float("priceMonthly"), // null = free
+  startsAt: timestamp("startsAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BusinessSubscription = typeof businessSubscriptions.$inferSelect;
+export type InsertBusinessSubscription = typeof businessSubscriptions.$inferInsert;
 
 /**
  * Groups table — two types:

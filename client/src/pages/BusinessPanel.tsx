@@ -8,12 +8,12 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap
 } from "lucide-react";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships">("establishments");
+  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan">("establishments");
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -78,6 +78,7 @@ export default function BusinessPanel() {
               { id: "qrcode" as const, label: "QR Code", labelFull: "QR Code", icon: QrCodeIcon },
               { id: "promo" as const, label: "Códigos", labelFull: "Códigos Promocionais", icon: Tag },
               { id: "partnerships" as const, label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
+              { id: "plan" as const, label: "Plano", labelFull: "Meu Plano", icon: Crown },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -111,6 +112,7 @@ export default function BusinessPanel() {
         {activeTab === "qrcode" && <QRCodeTab />}
         {activeTab === "promo" && <PromoCodesTab />}
         {activeTab === "partnerships" && <PartnershipsTab />}
+        {activeTab === "plan" && <BusinessPlanTab />}
       </div>
     </div>
   );
@@ -1170,6 +1172,129 @@ function PartnershipsTab() {
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+
+function BusinessPlanTab() {
+  const { data: establishments } = trpc.business.myEstablishments.useQuery();
+  const [selectedEst, setSelectedEst] = useState<number | null>(null);
+
+  const estId = selectedEst || (establishments && establishments.length > 0 ? establishments[0].id : null);
+  const { data: planDetails, refetch } = trpc.plans.businessPlan.useQuery(
+    { establishmentId: estId! },
+    { enabled: !!estId }
+  );
+
+  const upgradeMutation = trpc.plans.upgradeBusiness.useMutation({
+    onSuccess: () => {
+      toast.success("Plano empresarial ativado!", { description: "Seu estabelecimento agora é Premium." });
+      refetch();
+    },
+    onError: (err) => toast.error("Erro ao ativar plano", { description: err.message }),
+  });
+
+  if (!establishments || establishments.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Crown className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Nenhum estabelecimento vinculado.</p>
+      </div>
+    );
+  }
+
+  const currentPlan = planDetails?.plan ?? "free";
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      {/* Select establishment */}
+      {establishments.length > 1 && (
+        <div className="mb-6">
+          <label className="text-sm text-muted-foreground block mb-2">Estabelecimento</label>
+          <select
+            className="w-full p-3 rounded-lg bg-card border border-border/50 text-foreground"
+            value={estId || ""}
+            onChange={(e) => setSelectedEst(Number(e.target.value))}
+          >
+            {establishments.map((est: any) => (
+              <option key={est.id} value={est.id}>{est.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Current plan */}
+      <div className="p-6 rounded-xl bg-card border border-border/50 mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+            currentPlan === "premium" ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+          }`}>
+            {currentPlan === "premium" ? <Zap className="w-5 h-5" /> : <Store className="w-5 h-5" />}
+          </div>
+          <div>
+            <h3 className="font-display text-lg tracking-wider text-foreground">
+              {currentPlan === "premium" ? "PREMIUM" : "BÁSICO"}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {currentPlan === "premium" ? "R$ 29,90/mês" : "Grátis"}
+            </p>
+          </div>
+          {currentPlan === "premium" && (
+            <span className="ml-auto px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-display tracking-wider">
+              ATIVO
+            </span>
+          )}
+        </div>
+
+        {/* Features comparison */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className={`p-4 rounded-lg border ${currentPlan === "free" ? "border-primary/30 bg-primary/5" : "border-border/30"}`}>
+            <h4 className="font-display text-sm tracking-wider text-foreground mb-3">BÁSICO</h4>
+            <ul className="space-y-2">
+              {["Perfil do estabelecimento", "QR Code personalizado", "1 código promo ativo", "Notificações"].map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                  <span className="text-foreground/70">{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className={`p-4 rounded-lg border ${currentPlan === "premium" ? "border-primary/30 bg-primary/5" : "border-border/30"}`}>
+            <h4 className="font-display text-sm tracking-wider text-primary mb-3">PREMIUM</h4>
+            <ul className="space-y-2">
+              {["Códigos promo ilimitados", "Analytics e métricas", "Destaque no app", "Tudo do Básico"].map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs">
+                  <Check className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+                  <span className="text-foreground/70">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 font-numbers text-lg font-bold text-primary">R$ 29,90<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
+          </div>
+        </div>
+      </div>
+
+      {/* Upgrade button */}
+      {currentPlan === "free" && (
+        <button
+          onClick={() => upgradeMutation.mutate({ establishmentId: estId! })}
+          disabled={upgradeMutation.isPending}
+          className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-display tracking-wider text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {upgradeMutation.isPending ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Ativando...</>
+          ) : (
+            <><Crown className="w-4 h-4" /> ATIVAR PLANO PREMIUM</>
+          )}
+        </button>
+      )}
+
+      {currentPlan === "free" && (
+        <p className="text-center text-xs text-muted-foreground mt-3">
+          Na versão beta, o upgrade é concedido sem cobrança real.
+        </p>
       )}
     </div>
   );

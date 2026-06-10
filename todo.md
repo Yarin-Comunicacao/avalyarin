@@ -312,3 +312,18 @@
 - [x] Endpoint: admin.approvePartnership / admin.rejectPartnership (admin aprova/rejeita parceria final)
 - [x] Frontend: tela de parcerias no Painel Empresarial
 - [x] Testes vitest para sistema de influencer (12 testes passando)
+
+## Fase 3 — Sistema de Planos e Monetização
+
+- [x] Atualizar enum de planos no schema: free, premium (R$9,90), embaixador (R$19,90)
+- [x] Criar tabela subscriptions (histórico de assinaturas, método pagamento, status)
+- [x] Criar tabela business_subscriptions (planos para estabelecimentos)
+- [x] Backend: endpoint para consultar plano atual e limites (plans.options, plans.myPlan)
+- [x] Backend: limite de avaliações por dia baseado no plano (free=3, premium=5, embaixador=ilimitado)
+- [x] Backend: endpoint para upgrade/downgrade de plano (plans.upgrade, plans.cancel)
+- [x] Backend: controle de códigos promo por plano (free=1 ativo, premium=5, embaixador=ilimitado)
+- [x] Frontend: redesenhar página de Planos com os 3 tiers e features reais
+- [x] Frontend: toast de upgrade quando usuário atinge limite diário de avaliações (redireciona para /conta/planos)
+- [x] Frontend: indicador de plano no perfil/menu (badge dinâmico "Free"/"Premium"/"Embaixador")
+- [x] Frontend: planos para estabelecimentos no Painel Empresarial (aba "Meu Plano")
+- [x] Testes vitest para limites de plano (23 testes passando)

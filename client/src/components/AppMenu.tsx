@@ -14,6 +14,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
+import { trpc } from "@/lib/trpc";
 
 interface AppMenuProps {
   isOpen: boolean;
@@ -40,6 +41,10 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
     setExpandedSection(prev => prev === id ? null : id);
   };
 
+  // Dynamic plan badge
+  const { data: myPlanData } = trpc.plans.myPlan.useQuery(undefined, { enabled: !!user });
+  const planBadge = myPlanData?.plan === "embaixador" ? "Embaixador" : myPlanData?.plan === "premium" ? "Premium" : "Free";
+
   // Sections visible only when logged in
   const loggedInSections: MenuSection[] = [
     {
@@ -48,7 +53,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       icon: <User className="w-5 h-5" />,
       items: [
         { id: "dados", label: "Meus Dados", href: "/conta/dados", icon: <Eye className="w-4 h-4" /> },
-        { id: "planos", label: "Planos", href: "/conta/planos", icon: <Crown className="w-4 h-4" />, badge: "Free" },
+        { id: "planos", label: "Planos", href: "/conta/planos", icon: <Crown className="w-4 h-4" />, badge: planBadge },
         { id: "temas", label: "Tema Visual", icon: <Palette className="w-4 h-4" />, isTheme: true },
         { id: "fundo", label: "Imagem de Fundo", icon: <Image className="w-4 h-4" />, isBackground: true },
       ],

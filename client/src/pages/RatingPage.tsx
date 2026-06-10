@@ -2195,9 +2195,21 @@ export default function RatingPage() {
                         setShowShareCard(true);
                       } catch (e: any) {
                         console.error("Failed to save review", e);
-                        toast.error("Erro ao salvar avaliação", {
-                          description: e?.message || "Tente novamente",
-                        });
+                        const isLimitError = e?.message?.includes("Limite diário");
+                        if (isLimitError) {
+                          toast.error("Limite diário atingido!", {
+                            description: "Faça upgrade do seu plano para avaliar mais.",
+                            action: {
+                              label: "Ver Planos",
+                              onClick: () => { window.location.href = "/conta/planos"; },
+                            },
+                            duration: 8000,
+                          });
+                        } else {
+                          toast.error("Erro ao salvar avaliação", {
+                            description: e?.message || "Tente novamente",
+                          });
+                        }
                       }
                     }}
                     size="lg"
