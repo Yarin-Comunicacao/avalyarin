@@ -295,3 +295,20 @@
 - [x] Frontend: Painel Empresarial → aba QR Code (gerar/baixar)
 - [x] Frontend: Painel Empresarial → aba Códigos Promocionais (criar/gerenciar)
 - [x] Frontend: Admin → seção Códigos (aprovar/rejeitar)
+
+## Fase 2 — Sistema de Influencer + Parcerias
+
+- [x] Adicionar role 'influencer' ao enum de roles no schema
+- [x] Criar tabela influencer_applications (solicitação com avaliações selecionadas)
+- [x] Criar tabela partnerships (parceria influencer↔estab com status)
+- [x] Endpoint: influencer.submitApplication (submeter solicitação com avaliações selecionadas)
+- [x] Endpoint: influencer.myRatings (listar avaliações dos últimos 365 dias com status qualificada/não)
+- [x] Endpoint: admin.influencerApplications (listar solicitações pendentes)
+- [x] Endpoint: admin.approveInfluencer / admin.rejectInfluencer
+- [x] Frontend: formulário de solicitação influencer com lista de avaliações (vermelho se não qualificada)
+- [x] Frontend: sub-abas no Admin Solicitações (Estabelecimento | Influencer)
+- [x] Endpoint: influencer.proposePartnership (influencer propõe parceria a estab)
+- [x] Endpoint: business.respondPartnership (estab aceita/rejeita)
+- [x] Endpoint: admin.approvePartnership / admin.rejectPartnership (admin aprova/rejeita parceria final)
+- [x] Frontend: tela de parcerias no Painel Empresarial
+- [x] Testes vitest para sistema de influencer (12 testes passando)

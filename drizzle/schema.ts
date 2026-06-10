@@ -13,7 +13,7 @@ export const users = mysqlTable("users", {
   username: varchar("username", { length: 64 }).unique(),
   birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
   surveyData: json("surveyData"), // Full survey answers JSON
-  role: mysqlEnum("role", ["user", "admin", "owner", "business"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -423,3 +423,45 @@ export const promoCodeUses = mysqlTable("promo_code_uses", {
 
 export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
 export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;
+
+// ============================================================
+// Influencer Applications — solicitações para virar influencer
+// ============================================================
+export const influencerApplications = mysqlTable("influencer_applications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // quem está solicitando
+  selectedRatingIds: json("selectedRatingIds").notNull(), // array de IDs de ratings selecionadas
+  totalRatings: int("totalRatings").notNull(), // total de avaliações do usuário no momento
+  qualifiedRatings: int("qualifiedRatings").notNull(), // quantas das selecionadas são qualificadas
+  motivation: text("motivation"), // texto opcional de motivação
+  socialMedia: text("socialMedia"), // links de redes sociais (Instagram, TikTok, etc.)
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"), // notas do admin ao aprovar/rejeitar
+  reviewedAt: bigint("reviewedAt", { mode: "number" }), // quando foi revisado
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InfluencerApplication = typeof influencerApplications.$inferSelect;
+export type InsertInfluencerApplication = typeof influencerApplications.$inferInsert;
+
+// ============================================================
+// Partnerships — parcerias entre influencers e estabelecimentos
+// ============================================================
+export const partnerships = mysqlTable("partnerships", {
+  id: int("id").autoincrement().primaryKey(),
+  influencerId: int("influencerId").notNull(), // user id do influencer
+  establishmentId: int("establishmentId").notNull(), // estab parceiro
+  promoCodeId: int("promoCodeId"), // código vinculado à parceria (opcional)
+  proposedBy: mysqlEnum("proposedBy", ["influencer", "establishment"]).notNull(),
+  status: mysqlEnum("status", ["pending_estab", "pending_admin", "active", "rejected_estab", "rejected_admin", "cancelled", "expired"]).default("pending_estab").notNull(),
+  terms: text("terms"), // termos da parceria (desconto oferecido, condições)
+  estabNotes: text("estabNotes"), // notas do estab ao aceitar/rejeitar
+  adminNotes: text("adminNotes"), // notas do admin ao aprovar
+  startsAt: bigint("startsAt", { mode: "number" }), // início da parceria
+  expiresAt: bigint("expiresAt", { mode: "number" }), // fim da parceria (NULL = indefinido)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Partnership = typeof partnerships.$inferSelect;
+export type InsertPartnership = typeof partnerships.$inferInsert;

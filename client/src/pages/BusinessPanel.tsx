@@ -13,7 +13,7 @@ import {
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo">("establishments");
+  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships">("establishments");
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -77,6 +77,7 @@ export default function BusinessPanel() {
               { id: "notifications" as const, label: "Alertas", labelFull: "Notificações", icon: Bell },
               { id: "qrcode" as const, label: "QR Code", labelFull: "QR Code", icon: QrCodeIcon },
               { id: "promo" as const, label: "Códigos", labelFull: "Códigos Promocionais", icon: Tag },
+              { id: "partnerships" as const, label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -109,6 +110,7 @@ export default function BusinessPanel() {
         {activeTab === "notifications" && <NotificationsTab />}
         {activeTab === "qrcode" && <QRCodeTab />}
         {activeTab === "promo" && <PromoCodesTab />}
+        {activeTab === "partnerships" && <PartnershipsTab />}
       </div>
     </div>
   );
@@ -1033,6 +1035,140 @@ function PromoCodesTab() {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PartnershipsTab() {
+  const { data: establishments } = trpc.business.myEstablishments.useQuery();
+  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
+
+  const estabId = selectedEstab || (establishments && establishments.length > 0 ? establishments[0].id : null);
+
+  const { data: partnerships, isLoading } = trpc.business.partnerships.useQuery(
+    { establishmentId: estabId! },
+    { enabled: !!estabId }
+  );
+  const respondMutation = trpc.business.respondPartnership.useMutation();
+  const utils = trpc.useUtils();
+  const [notes, setNotes] = useState<Record<number, string>>({});
+
+  const handleRespond = async (partnershipId: number, accept: boolean) => {
+    try {
+      await respondMutation.mutateAsync({
+        partnershipId,
+        accept,
+        estabNotes: notes[partnershipId] || undefined,
+      });
+      utils.business.partnerships.invalidate();
+      toast.success(accept ? "Parceria aceita! Aguardando aprovação do admin." : "Parceria recusada.");
+    } catch {
+      toast.error("Erro ao responder parceria");
+    }
+  };
+
+  const statusLabels: Record<string, string> = {
+    pending_estab: "Aguardando sua resposta",
+    pending_admin: "Aguardando admin",
+    active: "Ativa",
+    rejected_estab: "Recusada por você",
+    rejected_admin: "Rejeitada pelo admin",
+    cancelled: "Cancelada",
+    expired: "Expirada",
+  };
+
+  const statusColors: Record<string, string> = {
+    pending_estab: "text-orange-400",
+    pending_admin: "text-blue-400",
+    active: "text-green-400",
+    rejected_estab: "text-destructive",
+    rejected_admin: "text-destructive",
+    cancelled: "text-muted-foreground",
+    expired: "text-muted-foreground",
+  };
+
+  if (!establishments || establishments.length === 0) {
+    return <p className="text-muted-foreground text-center py-8">Nenhum estabelecimento vinculado.</p>;
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">PARCERIAS</h2>
+        {establishments.length > 1 && (
+          <select
+            value={estabId || ""}
+            onChange={(e) => setSelectedEstab(Number(e.target.value))}
+            className="text-sm bg-background border border-border rounded-lg px-3 py-1.5 text-foreground"
+          >
+            {establishments.map((e) => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {isLoading ? (
+        <p className="text-muted-foreground">Carregando parcerias...</p>
+      ) : partnerships?.length === 0 ? (
+        <p className="text-muted-foreground text-center py-8">Nenhuma parceria encontrada para este estabelecimento.</p>
+      ) : (
+        <div className="space-y-4">
+          {partnerships?.map((p) => (
+            <div key={p.id} className="p-5 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-medium text-foreground">{p.influencerName || "Influencer"}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Proposta em {new Date(p.createdAt).toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+                <span className={`text-xs font-medium ${statusColors[p.status]}`}>
+                  {statusLabels[p.status] || p.status}
+                </span>
+              </div>
+
+              {p.terms && (
+                <p className="text-sm text-muted-foreground mb-3">
+                  <span className="font-medium text-foreground">Termos:</span> {p.terms}
+                </p>
+              )}
+
+              {p.status === "pending_estab" && (
+                <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/30">
+                  <input
+                    type="text"
+                    placeholder="Notas (opcional)"
+                    value={notes[p.id] || ""}
+                    onChange={(e) => setNotes(prev => ({ ...prev, [p.id]: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRespond(p.id, true)}
+                      className="flex items-center gap-1 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4" /> Aceitar
+                    </button>
+                    <button
+                      onClick={() => handleRespond(p.id, false)}
+                      className="flex items-center gap-1 px-4 py-2 text-sm bg-destructive hover:bg-destructive/80 text-white rounded-lg transition-colors"
+                    >
+                      <XCircle className="w-4 h-4" /> Recusar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {p.estabNotes && (
+                <p className="text-xs text-muted-foreground mt-2 italic">
+                  Sua nota: {p.estabNotes}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

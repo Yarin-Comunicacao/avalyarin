@@ -46,6 +46,8 @@ import BusinessPanel from "./pages/BusinessPanel";
 import MeuRanking from "./pages/MeuRanking";
 // QR Scan
 import QRScanPage from "./pages/QRScanPage";
+// Influencer
+import InfluencerApplicationPage from "./pages/InfluencerApplicationPage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
 // PWA
@@ -135,6 +137,7 @@ function Router() {
       <Route path="/admin" component={AdminPanel} />
       <Route path="/admin/estab/:id" component={AdminEstabDetail} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
+      <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

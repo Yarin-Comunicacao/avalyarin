@@ -229,6 +229,43 @@ function UsersTab() {
 }
 
 function ClaimsTab() {
+  const [subTab, setSubTab] = useState<"establishments" | "influencers">("establishments");
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">SOLICITAÇÕES</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSubTab("establishments")}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              subTab === "establishments"
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Estabelecimentos
+          </button>
+          <button
+            onClick={() => setSubTab("influencers")}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              subTab === "influencers"
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Influencers
+          </button>
+        </div>
+      </div>
+
+      {subTab === "establishments" && <EstablishmentClaimsSubTab />}
+      {subTab === "influencers" && <InfluencerApplicationsSubTab />}
+    </div>
+  );
+}
+
+function EstablishmentClaimsSubTab() {
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | undefined>(undefined);
   const { data: claims, isLoading } = trpc.admin.claims.useQuery({ status: filter });
   const reviewMutation = trpc.admin.reviewClaim.useMutation();
@@ -261,28 +298,25 @@ function ClaimsTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-2xl tracking-wider text-foreground">SOLICITAÇÕES</h2>
-        <div className="flex gap-2">
-          {[
-            { value: undefined, label: "Todas" },
-            { value: "pending" as const, label: "Pendentes" },
-            { value: "approved" as const, label: "Aprovadas" },
-            { value: "rejected" as const, label: "Rejeitadas" },
-          ].map(f => (
-            <button
-              key={f.label}
-              onClick={() => setFilter(f.value)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                filter === f.value
-                  ? "border-primary text-primary bg-primary/10"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-2 mb-4">
+        {[
+          { value: undefined, label: "Todas" },
+          { value: "pending" as const, label: "Pendentes" },
+          { value: "approved" as const, label: "Aprovadas" },
+          { value: "rejected" as const, label: "Rejeitadas" },
+        ].map(f => (
+          <button
+            key={f.label}
+            onClick={() => setFilter(f.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              filter === f.value
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {claims?.length === 0 ? (
@@ -350,6 +384,155 @@ function ClaimsTab() {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfluencerApplicationsSubTab() {
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | undefined>(undefined);
+  const { data: applications, isLoading } = trpc.admin.influencerApplications.useQuery({ status: filter });
+  const approveMutation = trpc.admin.approveInfluencer.useMutation();
+  const rejectMutation = trpc.admin.rejectInfluencer.useMutation();
+  const utils = trpc.useUtils();
+  const [notes, setNotes] = useState<Record<number, string>>({});
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando solicitações de influencer...</div>;
+
+  const handleApprove = async (applicationId: number) => {
+    try {
+      await approveMutation.mutateAsync({ applicationId, adminNotes: notes[applicationId] });
+      utils.admin.influencerApplications.invalidate();
+      toast.success("Influencer aprovado!");
+    } catch {
+      toast.error("Erro ao aprovar");
+    }
+  };
+
+  const handleReject = async (applicationId: number) => {
+    const note = notes[applicationId];
+    if (!note || note.trim().length === 0) {
+      toast.error("Adicione uma nota explicando o motivo da rejeição");
+      return;
+    }
+    try {
+      await rejectMutation.mutateAsync({ applicationId, adminNotes: note });
+      utils.admin.influencerApplications.invalidate();
+      toast.success("Solicitação rejeitada");
+    } catch {
+      toast.error("Erro ao rejeitar");
+    }
+  };
+
+  const statusColors: Record<string, string> = {
+    pending: "text-orange-400",
+    approved: "text-green-400",
+    rejected: "text-destructive",
+  };
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-4">
+        {[
+          { value: undefined, label: "Todas" },
+          { value: "pending" as const, label: "Pendentes" },
+          { value: "approved" as const, label: "Aprovadas" },
+          { value: "rejected" as const, label: "Rejeitadas" },
+        ].map(f => (
+          <button
+            key={f.label}
+            onClick={() => setFilter(f.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              filter === f.value
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {applications?.length === 0 ? (
+        <p className="text-muted-foreground text-center py-8">Nenhuma solicitação de influencer encontrada.</p>
+      ) : (
+        <div className="space-y-4">
+          {applications?.map(app => (
+            <div key={app.id} className="p-5 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-medium text-foreground">{app.userName || "Usuário"}</h3>
+                  <p className="text-sm text-muted-foreground">{app.userEmail}</p>
+                </div>
+                <span className={`text-xs font-medium capitalize ${statusColors[app.status]}`}>
+                  {app.status}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm mb-3">
+                <div>
+                  <span className="text-muted-foreground">Total avaliações:</span>{" "}
+                  <span className="font-medium">{app.totalRatings}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Qualificadas:</span>{" "}
+                  <span className="font-medium text-green-500">{app.qualifiedRatings}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Selecionadas:</span>{" "}
+                  <span className="font-medium">{(app.selectedRatingIds as number[])?.length || 0}</span>
+                </div>
+              </div>
+
+              {app.motivation && (
+                <p className="text-sm text-muted-foreground mb-2">
+                  <span className="font-medium text-foreground">Motivação:</span> {app.motivation}
+                </p>
+              )}
+              {app.socialMedia && (
+                <p className="text-sm text-muted-foreground mb-2">
+                  <span className="font-medium text-foreground">Redes:</span> {app.socialMedia}
+                </p>
+              )}
+
+              <p className="text-xs text-muted-foreground">
+                Enviada em {new Date(app.createdAt).toLocaleDateString("pt-BR")}
+              </p>
+
+              {app.status === "pending" && (
+                <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/30">
+                  <input
+                    type="text"
+                    placeholder="Notas do admin (obrigatório para rejeição)"
+                    value={notes[app.id] || ""}
+                    onChange={(e) => setNotes(prev => ({ ...prev, [app.id]: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApprove(app.id)}
+                      className="flex items-center gap-1 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4" /> Aprovar
+                    </button>
+                    <button
+                      onClick={() => handleReject(app.id)}
+                      className="flex items-center gap-1 px-4 py-2 text-sm bg-destructive hover:bg-destructive/80 text-white rounded-lg transition-colors"
+                    >
+                      <XCircle className="w-4 h-4" /> Rejeitar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {app.adminNotes && (
+                <p className="text-xs text-muted-foreground mt-2 italic">
+                  Nota do admin: {app.adminNotes}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -143,6 +143,21 @@ import {
   getMenuCategoriesWithOrder,
   reorderMenuCategories,
 } from "./db-admin-estab";
+import {
+  getRatingsForInfluencerApplication,
+  submitInfluencerApplication,
+  getInfluencerApplications,
+  approveInfluencerApplication,
+  rejectInfluencerApplication,
+  getMyInfluencerApplication,
+  proposePartnership,
+  respondToPartnership,
+  adminApprovePartnership,
+  adminRejectPartnership,
+  getInfluencerPartnerships,
+  getEstablishmentPartnerships,
+  getAdminPendingPartnerships,
+} from "./db-influencer";
 
 export const appRouter = router({
   system: systemRouter,
@@ -507,6 +522,54 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         return await reorderMenuCategories(input.establishmentId, input.orderedNames);
       }),
+
+    // Influencer applications
+    influencerApplications: adminProcedure
+      .input(z.object({ status: z.string().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getInfluencerApplications(input?.status);
+      }),
+
+    approveInfluencer: adminProcedure
+      .input(z.object({
+        applicationId: z.number(),
+        adminNotes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await approveInfluencerApplication(input.applicationId, input.adminNotes);
+      }),
+
+    rejectInfluencer: adminProcedure
+      .input(z.object({
+        applicationId: z.number(),
+        adminNotes: z.string().min(1),
+      }))
+      .mutation(async ({ input }) => {
+        return await rejectInfluencerApplication(input.applicationId, input.adminNotes);
+      }),
+
+    // Partnerships pending admin approval
+    pendingPartnerships: adminProcedure.query(async () => {
+      return await getAdminPendingPartnerships();
+    }),
+
+    approvePartnership: adminProcedure
+      .input(z.object({
+        partnershipId: z.number(),
+        adminNotes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await adminApprovePartnership(input.partnershipId, input.adminNotes);
+      }),
+
+    rejectPartnership: adminProcedure
+      .input(z.object({
+        partnershipId: z.number(),
+        adminNotes: z.string().min(1),
+      }))
+      .mutation(async ({ input }) => {
+        return await adminRejectPartnership(input.partnershipId, input.adminNotes);
+      }),
   }),
 
   // ============ RANKINGS ============
@@ -639,6 +702,23 @@ export const appRouter = router({
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         return await markBusinessNotificationRead(ctx.user!.id, input.notificationId);
+      }),
+
+    // Partnerships for business
+    partnerships: businessProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getEstablishmentPartnerships(input.establishmentId);
+      }),
+
+    respondPartnership: businessProcedure
+      .input(z.object({
+        partnershipId: z.number(),
+        accept: z.boolean(),
+        estabNotes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await respondToPartnership(input.partnershipId, input.accept, input.estabNotes);
       }),
    }),
 
@@ -1056,6 +1136,65 @@ export const appRouter = router({
       }
       const count = await expireOldPosts();
       return { expired: count };
+    }),
+  }),
+
+  // ============================================================
+  // Influencer
+  // ============================================================
+  influencer: router({
+    // Get my ratings for application (last 365 days with qualification status)
+    myRatings: protectedProcedure.query(async ({ ctx }) => {
+      return await getRatingsForInfluencerApplication(ctx.user!.id);
+    }),
+
+    // Submit influencer application
+    submitApplication: protectedProcedure
+      .input(z.object({
+        selectedRatingIds: z.array(z.number()).min(50),
+        totalRatings: z.number(),
+        qualifiedRatings: z.number(),
+        motivation: z.string().optional(),
+        socialMedia: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const id = await submitInfluencerApplication({
+          userId: ctx.user!.id,
+          ...input,
+        });
+        return { id };
+      }),
+
+    // Get my application status
+    myApplication: protectedProcedure.query(async ({ ctx }) => {
+      return await getMyInfluencerApplication(ctx.user!.id);
+    }),
+
+    // Propose a partnership (influencer only)
+    proposePartnership: protectedProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        terms: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "influencer") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas influencers podem propor parcerias." });
+        }
+        const id = await proposePartnership({
+          influencerId: ctx.user!.id,
+          establishmentId: input.establishmentId,
+          terms: input.terms,
+          proposedBy: "influencer",
+        });
+        return { id };
+      }),
+
+    // Get my partnerships (influencer)
+    myPartnerships: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user!.role !== "influencer") {
+        return [];
+      }
+      return await getInfluencerPartnerships(ctx.user!.id);
     }),
   }),
 

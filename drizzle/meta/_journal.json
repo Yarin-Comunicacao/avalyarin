@@ -92,6 +92,13 @@
       "when": 1779388545106,
       "tag": "0012_bitter_madelyne_pryor",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1781059377304,
+      "tag": "0013_add_influencer_tables",
+      "breakpoints": true
     }
   ]
 }
