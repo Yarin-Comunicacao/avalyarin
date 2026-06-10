@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { QRCodeCanvas } from "qrcode.react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -7,12 +8,12 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy
 } from "lucide-react";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications">("establishments");
+  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo">("establishments");
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -74,6 +75,8 @@ export default function BusinessPanel() {
               { id: "claims" as const, label: "Solicitações", labelFull: "Solicitações", icon: ClipboardCheck },
               { id: "menu" as const, label: "Cardápio", labelFull: "Cardápio", icon: UtensilsCrossed },
               { id: "notifications" as const, label: "Alertas", labelFull: "Notificações", icon: Bell },
+              { id: "qrcode" as const, label: "QR Code", labelFull: "QR Code", icon: QrCodeIcon },
+              { id: "promo" as const, label: "Códigos", labelFull: "Códigos Promocionais", icon: Tag },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -104,6 +107,8 @@ export default function BusinessPanel() {
         {activeTab === "claims" && <MyClaimsTab />}
         {activeTab === "menu" && <MenuManagementTab />}
         {activeTab === "notifications" && <NotificationsTab />}
+        {activeTab === "qrcode" && <QRCodeTab />}
+        {activeTab === "promo" && <PromoCodesTab />}
       </div>
     </div>
   );
@@ -701,6 +706,333 @@ function NotificationsTab() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// QR CODE TAB
+// ============================================================
+function QRCodeTab() {
+  const { data: establishments } = trpc.business.myEstablishments.useQuery();
+  const [selectedEst, setSelectedEst] = useState<number | null>(null);
+
+  const selected = establishments?.find((e: any) => e.id === selectedEst);
+  const qrUrl = selected ? `${window.location.origin}/e/${selected.slug}` : "";
+
+  // Auto-select first establishment
+  if (!selectedEst && establishments && establishments.length > 0) {
+    setSelectedEst((establishments[0] as any).id);
+  }
+
+  const handleDownloadQR = () => {
+    const canvas = document.querySelector("#qr-code-canvas canvas") as HTMLCanvasElement;
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `qrcode-${selected?.slug || "estab"}.png`;
+    a.click();
+    toast.success("QR Code baixado!");
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(qrUrl);
+    toast.success("Link copiado!");
+  };
+
+  if (!establishments || establishments.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <QrCodeIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Você precisa ter um estabelecimento vinculado para gerar o QR Code.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Select establishment */}
+      {establishments.length > 1 && (
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block">Selecione o estabelecimento:</label>
+          <select
+            value={selectedEst || ""}
+            onChange={(e) => setSelectedEst(Number(e.target.value))}
+            className="w-full bg-card border border-border rounded-lg px-3 py-2 text-foreground"
+          >
+            {establishments.map((est: any) => (
+              <option key={est.id} value={est.id}>{est.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {selected && (
+        <div className="text-center space-y-4">
+          <h3 className="font-display text-xl text-foreground">{selected.name}</h3>
+          <p className="text-sm text-muted-foreground">
+            Imprima este QR Code e coloque na entrada ou nas mesas do seu estabelecimento.
+          </p>
+
+          {/* QR Code */}
+          <div id="qr-code-canvas" className="inline-block bg-white p-6 rounded-xl">
+            <QRCodeCanvas value={qrUrl} size={256} level="H" includeMargin={true} />
+          </div>
+
+          <p className="text-xs text-muted-foreground font-mono break-all">{qrUrl}</p>
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={handleDownloadQR}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Baixar PNG
+            </button>
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-foreground hover:bg-accent transition-colors"
+            >
+              <Copy className="w-4 h-4" />
+              Copiar Link
+            </button>
+          </div>
+
+          <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-xl text-left">
+            <h4 className="font-semibold text-foreground text-sm mb-2">Como funciona:</h4>
+            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>O cliente escaneia o QR Code ao chegar no seu estabelecimento</li>
+              <li>Ele é direcionado para o cardápio do seu local no Avalyarin</li>
+              <li>Um pop-up pergunta se ele tem código promocional</li>
+              <li>Após consumir, ele pode avaliar a experiência</li>
+            </ol>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// PROMO CODES TAB
+// ============================================================
+function PromoCodesTab() {
+  const { data: myCodes, refetch } = trpc.promo.myCodes.useQuery();
+  const createMutation = trpc.promo.create.useMutation({
+    onSuccess: () => {
+      toast.success("Código criado! Aguardando aprovação do admin.");
+      refetch();
+      setShowCreate(false);
+      resetForm();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const deleteMutation = trpc.promo.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Código excluído.");
+      refetch();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [formCode, setFormCode] = useState("");
+  const [formType, setFormType] = useState<"percentage" | "buy_one_get_one" | "free_item" | "fixed_discount">("percentage");
+  const [formValue, setFormValue] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formMaxUses, setFormMaxUses] = useState("");
+  const [formFirstVisit, setFormFirstVisit] = useState(false);
+
+  const resetForm = () => {
+    setFormCode("");
+    setFormType("percentage");
+    setFormValue("");
+    setFormDescription("");
+    setFormMaxUses("");
+    setFormFirstVisit(false);
+  };
+
+  const handleCreate = () => {
+    if (!formCode.trim()) {
+      toast.error("Informe o código");
+      return;
+    }
+    createMutation.mutate({
+      code: formCode.trim(),
+      type: formType,
+      value: formValue ? Number(formValue) : undefined,
+      description: formDescription || undefined,
+      maxUses: formMaxUses ? Number(formMaxUses) : undefined,
+      firstVisitOnly: formFirstVisit,
+    });
+  };
+
+  const statusLabel: Record<string, { text: string; color: string }> = {
+    pending_approval: { text: "Aguardando", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30" },
+    active: { text: "Ativo", color: "text-green-400 bg-green-500/10 border-green-500/30" },
+    paused: { text: "Pausado", color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
+    rejected: { text: "Rejeitado", color: "text-red-400 bg-red-500/10 border-red-500/30" },
+    expired: { text: "Expirado", color: "text-muted-foreground bg-muted/50 border-border" },
+  };
+
+  const typeLabel: Record<string, string> = {
+    percentage: "% Desconto",
+    buy_one_get_one: "Pague 1 Leve 2",
+    free_item: "Item Grátis",
+    fixed_discount: "R$ Desconto",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-lg text-foreground">Meus Códigos</h3>
+        <button
+          onClick={() => setShowCreate(!showCreate)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Criar Código
+        </button>
+      </div>
+
+      {/* Create form */}
+      {showCreate && (
+        <div className="p-4 bg-card border border-border rounded-xl space-y-3">
+          <div>
+            <label className="text-xs text-muted-foreground">Código (ex: SAMBA10)</label>
+            <input
+              value={formCode}
+              onChange={(e) => setFormCode(e.target.value.toUpperCase())}
+              placeholder="SAMBA10"
+              maxLength={20}
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground font-mono uppercase mt-1"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground">Tipo</label>
+              <select
+                value={formType}
+                onChange={(e) => setFormType(e.target.value as any)}
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground mt-1"
+              >
+                <option value="percentage">% Desconto</option>
+                <option value="buy_one_get_one">Pague 1 Leve 2</option>
+                <option value="free_item">Item Grátis</option>
+                <option value="fixed_discount">R$ Desconto</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Valor (se aplicável)</label>
+              <input
+                value={formValue}
+                onChange={(e) => setFormValue(e.target.value)}
+                placeholder="10"
+                type="number"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground mt-1"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Descrição (opcional)</label>
+            <input
+              value={formDescription}
+              onChange={(e) => setFormDescription(e.target.value)}
+              placeholder="10% de desconto na conta"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground mt-1"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground">Limite de usos (total)</label>
+              <input
+                value={formMaxUses}
+                onChange={(e) => setFormMaxUses(e.target.value)}
+                placeholder="100"
+                type="number"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground mt-1"
+              />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formFirstVisit}
+                  onChange={(e) => setFormFirstVisit(e.target.checked)}
+                  className="rounded border-border"
+                />
+                Só 1ª visita
+              </label>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={handleCreate}
+              disabled={createMutation.isPending}
+              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
+            >
+              {createMutation.isPending ? "Criando..." : "Criar Código"}
+            </button>
+            <button
+              onClick={() => { setShowCreate(false); resetForm(); }}
+              className="px-4 py-2 bg-card border border-border rounded-lg text-foreground hover:bg-accent transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            * Todos os códigos precisam de aprovação do administrador antes de ficarem ativos.
+          </p>
+        </div>
+      )}
+
+      {/* List of codes */}
+      {!myCodes || myCodes.length === 0 ? (
+        <div className="text-center py-8">
+          <Tag className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">Você ainda não criou nenhum código promocional.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {myCodes.map((code: any) => {
+            const status = statusLabel[code.status] || statusLabel.expired;
+            return (
+              <div key={code.id} className="p-4 bg-card border border-border/50 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-mono text-lg font-bold text-primary">{code.code}</span>
+                    <span className={`ml-2 text-xs px-2 py-0.5 rounded-full border ${status.color}`}>
+                      {status.text}
+                    </span>
+                  </div>
+                  {["pending_approval", "paused"].includes(code.status) && (
+                    <button
+                      onClick={() => deleteMutation.mutate({ codeId: code.id })}
+                      className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>{typeLabel[code.type] || code.type}</span>
+                  {code.value && <span>• Valor: {code.type === "percentage" ? `${code.value}%` : `R$${code.value}`}</span>}
+                  {code.maxUses && <span>• Limite: {code.maxUses} usos</span>}
+                  {code.firstVisitOnly && <span>• Só 1ª visita</span>}
+                </div>
+                {code.description && (
+                  <p className="text-xs text-muted-foreground/80 mt-1">{code.description}</p>
+                )}
+                {code.adminNotes && code.status === "rejected" && (
+                  <p className="text-xs text-red-400 mt-1">Motivo: {code.adminNotes}</p>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

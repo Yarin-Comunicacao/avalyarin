@@ -277,3 +277,21 @@
 - [x] Fix: scroll to top ao navegar entre páginas — componente ScrollToTop com useLocation no Router
 - [x] Contas business: ocultar funcionalidades de avaliação — menu filtrado, botão Avaliar oculto, RatingPage redireciona, backend bloqueia save
 - [x] Notificação ao business owner quando receber nova avaliação — tabela business_notifications, insert após saveRating, UI na tab Notificações do BusinessPanel
+
+## Fase 1 — QR Code + Códigos Promocionais
+- [x] Adicionar campo slug aos estabelecimentos (já existia no schema)
+- [x] Criar tabela promo_codes no banco
+- [x] Criar tabela promo_code_uses no banco
+- [x] Endpoint: establishments.getBySlug (já existia)
+- [x] Endpoint: promo.validate (validar código + retornar promoção)
+- [x] Endpoint: promo.use (registrar uso do código)
+- [x] Endpoint: promo.create (criar código, status pending_approval)
+- [x] Endpoint: promo.myCodesList (listar códigos do usuário)
+- [x] Endpoint: promo.delete (excluir código próprio)
+- [x] Endpoint: admin.promoCodes (listar códigos para aprovação)
+- [x] Endpoint: admin.approveCode (aprovar código)
+- [x] Endpoint: admin.rejectCode (rejeitar código)
+- [x] Frontend: rota /e/:slug com cardápio + pop-up de código
+- [x] Frontend: Painel Empresarial → aba QR Code (gerar/baixar)
+- [x] Frontend: Painel Empresarial → aba Códigos Promocionais (criar/gerenciar)
+- [x] Frontend: Admin → seção Códigos (aprovar/rejeitar)

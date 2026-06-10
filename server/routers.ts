@@ -119,6 +119,18 @@ import {
   getSavedEstablishmentsWithDetails,
 } from "./db-posts";
 import {
+  createPromoCode,
+  validatePromoCode,
+  usePromoCode,
+  getUserPromoCodes,
+  deletePromoCode,
+  getAdminPromoCodes,
+  approvePromoCode,
+  rejectPromoCode,
+  isCodeTaken,
+  getPromoCodeStats,
+} from "./db-promo";
+import {
   getAdminCategoriesWithCounts,
   getAdminEstablishmentsByCategory,
   toggleEstablishmentStatus,
@@ -1045,6 +1057,134 @@ export const appRouter = router({
       const count = await expireOldPosts();
       return { expired: count };
     }),
+  }),
+
+  // ============================================================
+  // Promo Codes
+  // ============================================================
+  promo: router({
+    // Validate a code for a specific establishment (public — used on QR scan page)
+    validate: publicProcedure
+      .input(z.object({
+        code: z.string().min(1).max(20),
+        establishmentId: z.number(),
+        userId: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        // If no userId, just check if code exists and is active
+        const result = await validatePromoCode(
+          input.code,
+          input.establishmentId,
+          input.userId ?? 0
+        );
+        if (!result) return { valid: false, promo: null };
+        return {
+          valid: true,
+          promo: {
+            id: result.id,
+            code: result.code,
+            type: result.type,
+            value: result.value,
+            description: result.description,
+            firstVisitOnly: result.firstVisitOnly,
+          },
+        };
+      }),
+
+    // Register usage of a code
+    use: protectedProcedure
+      .input(z.object({
+        codeId: z.number(),
+        establishmentId: z.number(),
+        discountApplied: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const id = await usePromoCode({
+          codeId: input.codeId,
+          userId: ctx.user!.id,
+          establishmentId: input.establishmentId,
+          discountApplied: input.discountApplied,
+        });
+        return { id };
+      }),
+
+    // Create a new promo code (business or influencer)
+    create: protectedProcedure
+      .input(z.object({
+        code: z.string().min(3).max(20).regex(/^[A-Z0-9]+$/i, "Código deve conter apenas letras e números"),
+        type: z.enum(["percentage", "buy_one_get_one", "free_item", "fixed_discount"]),
+        value: z.number().optional(),
+        description: z.string().max(500).optional(),
+        establishmentId: z.number().optional(),
+        startsAt: z.number().optional(),
+        expiresAt: z.number().optional(),
+        maxUses: z.number().optional(),
+        maxUsesPerUser: z.number().optional(),
+        firstVisitOnly: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!['business', 'admin', 'owner'].includes(ctx.user!.role)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas contas empresariais ou influencers podem criar códigos.' });
+        }
+        // Check if code is taken
+        const taken = await isCodeTaken(input.code);
+        if (taken) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Este código já está em uso.' });
+        }
+        const creatorType = ctx.user!.role === 'business' ? 'business' : 'influencer';
+        const id = await createPromoCode({
+          ...input,
+          creatorId: ctx.user!.id,
+          creatorType: creatorType as "business" | "influencer",
+        });
+        return { id };
+      }),
+
+    // List my promo codes
+    myCodes: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserPromoCodes(ctx.user!.id);
+    }),
+
+    // Delete my promo code
+    delete: protectedProcedure
+      .input(z.object({ codeId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const success = await deletePromoCode(input.codeId, ctx.user!.id);
+        if (!success) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Não foi possível excluir este código.' });
+        }
+        return { success: true };
+      }),
+
+    // Admin: list all codes
+    adminList: adminProcedure
+      .input(z.object({ status: z.string().optional() }).optional())
+      .query(async ({ input }) => {
+        return await getAdminPromoCodes(input?.status);
+      }),
+
+    // Admin: approve code
+    adminApprove: adminProcedure
+      .input(z.object({ codeId: z.number(), notes: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        await approvePromoCode(input.codeId, input.notes);
+        return { success: true };
+      }),
+
+    // Admin: reject code
+    adminReject: adminProcedure
+      .input(z.object({ codeId: z.number(), notes: z.string().min(1) }))
+      .mutation(async ({ input }) => {
+        await rejectPromoCode(input.codeId, input.notes);
+        return { success: true };
+      }),
+
+    // Stats for a code (owner or admin)
+    stats: protectedProcedure
+      .input(z.object({ codeId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getPromoCodeStats(input.codeId);
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

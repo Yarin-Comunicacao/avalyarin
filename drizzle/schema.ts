@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json, date } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json, date, bigint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -381,3 +381,45 @@ export const businessNotifications = mysqlTable("business_notifications", {
 
 export type BusinessNotification = typeof businessNotifications.$inferSelect;
 export type InsertBusinessNotification = typeof businessNotifications.$inferInsert;
+
+
+// ============================================================
+// Promo Codes — códigos promocionais criados por estabs ou influencers
+// ============================================================
+export const promoCodes = mysqlTable("promo_codes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 20 }).notNull().unique(), // ex: YARIN10, SAMBA20
+  type: mysqlEnum("type", ["percentage", "buy_one_get_one", "free_item", "fixed_discount"]).notNull(),
+  value: float("value"), // valor do desconto (% ou R$), null para buy_one_get_one
+  description: text("description"), // descrição visível ao usuário
+  creatorId: int("creatorId").notNull(), // user id do criador
+  creatorType: mysqlEnum("creatorType", ["influencer", "business"]).notNull(),
+  establishmentId: int("establishmentId"), // estab vinculado (NULL = qualquer parceiro)
+  startsAt: bigint("startsAt", { mode: "number" }), // início validade (timestamp ms)
+  expiresAt: bigint("expiresAt", { mode: "number" }), // fim validade (NULL = permanente, requer plano pago)
+  maxUses: int("maxUses"), // limite total (NULL = ilimitado)
+  maxUsesPerUser: int("maxUsesPerUser").default(1), // limite por usuário
+  firstVisitOnly: boolean("firstVisitOnly").default(false).notNull(), // só na primeira visita
+  status: mysqlEnum("status", ["pending_approval", "active", "rejected", "expired", "paused"]).default("pending_approval").notNull(),
+  adminNotes: text("adminNotes"), // notas do admin ao aprovar/rejeitar
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type InsertPromoCode = typeof promoCodes.$inferInsert;
+
+// ============================================================
+// Promo Code Uses — registro de uso de códigos por usuários
+// ============================================================
+export const promoCodeUses = mysqlTable("promo_code_uses", {
+  id: int("id").autoincrement().primaryKey(),
+  codeId: int("codeId").notNull(), // FK para promo_codes.id
+  userId: int("userId").notNull(), // usuário que usou
+  establishmentId: int("establishmentId").notNull(), // estab onde foi usado
+  discountApplied: float("discountApplied"), // valor real do desconto aplicado
+  usedAt: timestamp("usedAt").defaultNow().notNull(),
+});
+
+export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
+export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;

@@ -44,6 +44,8 @@ import AdminEstabDetail from "./pages/AdminEstabDetail";
 import BusinessPanel from "./pages/BusinessPanel";
 // Rankings
 import MeuRanking from "./pages/MeuRanking";
+// QR Scan
+import QRScanPage from "./pages/QRScanPage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
 // PWA
@@ -125,6 +127,8 @@ function Router() {
       <Route path="/busca" component={SearchResults} />
       {/* Rankings (legacy redirect) */}
       <Route path="/meu-ranking">{() => { window.location.replace("/minhas-avaliacoes/ranking"); return null; }}</Route>
+      {/* QR Code Scan Landing */}
+      <Route path="/e/:slug" component={QRScanPage} />
       {/* Nearby */}
       <Route path="/perto-de-mim" component={NearbyPage} />
       {/* Admin & Business */}

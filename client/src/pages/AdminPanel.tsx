@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -18,7 +18,7 @@ export default function AdminPanel() {
 
   // Parse URL params to restore tab/category state
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
-  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook";
+  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -90,6 +90,7 @@ export default function AdminPanel() {
             { id: "age-verification" as const, label: "Verificação", icon: FileCheck },
             { id: "code-backup" as const, label: "Código", icon: Code },
             { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
+            { id: "promos" as const, label: "Códigos", icon: TagIcon },
           ].map(tab => (
             <button
               key={tab.id}
@@ -116,6 +117,7 @@ export default function AdminPanel() {
         {activeTab === "age-verification" && <AgeVerificationTab />}
         {activeTab === "code-backup" && <CodeBackupTab />}
         {activeTab === "brandbook" && <BrandbookTab />}
+        {activeTab === "promos" && <PromoCodesAdminTab />}
       </div>
     </div>
   );
@@ -863,6 +865,134 @@ function CodeBackupTab() {
               </a>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// PROMO CODES ADMIN TAB
+// ============================================================
+function PromoCodesAdminTab() {
+  const [filter, setFilter] = useState<"pending_approval" | "active" | "rejected" | undefined>(undefined);
+  const { data: codes, isLoading, refetch } = trpc.promo.adminList.useQuery({ status: filter });
+  const approveMutation = trpc.promo.adminApprove.useMutation({
+    onSuccess: () => { toast.success("Código aprovado!"); refetch(); },
+    onError: (err: any) => toast.error(err.message),
+  });
+  const rejectMutation = trpc.promo.adminReject.useMutation({
+    onSuccess: () => { toast.success("Código rejeitado."); refetch(); },
+    onError: (err: any) => toast.error(err.message),
+  });
+  const [notes, setNotes] = useState<Record<number, string>>({});
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando códigos...</div>;
+
+  const statusLabel: Record<string, { text: string; color: string }> = {
+    pending_approval: { text: "Pendente", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30" },
+    active: { text: "Ativo", color: "text-green-400 bg-green-500/10 border-green-500/30" },
+    paused: { text: "Pausado", color: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
+    rejected: { text: "Rejeitado", color: "text-red-400 bg-red-500/10 border-red-500/30" },
+    expired: { text: "Expirado", color: "text-muted-foreground bg-muted/50 border-border" },
+  };
+
+  const typeLabel: Record<string, string> = {
+    percentage: "% Desconto",
+    buy_one_get_one: "Pague 1 Leve 2",
+    free_item: "Item Grátis",
+    fixed_discount: "R$ Desconto",
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">CÓDIGOS PROMOCIONAIS</h2>
+        <div className="flex gap-2">
+          {[
+            { value: undefined, label: "Todos" },
+            { value: "pending_approval" as const, label: "Pendentes" },
+            { value: "active" as const, label: "Ativos" },
+            { value: "rejected" as const, label: "Rejeitados" },
+          ].map(f => (
+            <button
+              key={f.label}
+              onClick={() => setFilter(f.value)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                filter === f.value
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {!codes || codes.length === 0 ? (
+        <p className="text-muted-foreground text-center py-8">Nenhum código encontrado.</p>
+      ) : (
+        <div className="space-y-4">
+          {codes.map((code: any) => {
+            const status = statusLabel[code.status] || statusLabel.expired;
+            return (
+              <div key={code.id} className="p-5 rounded-xl bg-card border border-border/50">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <span className="font-mono text-xl font-bold text-primary">{code.code}</span>
+                    <span className={`ml-3 text-xs px-2 py-0.5 rounded-full border ${status.color}`}>
+                      {status.text}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(code.createdAt).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mb-3">
+                  <p><span className="text-muted-foreground">Tipo:</span> {typeLabel[code.type] || code.type}</p>
+                  {code.value && <p><span className="text-muted-foreground">Valor:</span> {code.type === "percentage" ? `${code.value}%` : `R$${code.value}`}</p>}
+                  <p><span className="text-muted-foreground">Criado por:</span> {code.ownerType} (ID: {code.ownerId})</p>
+                  {code.maxUses && <p><span className="text-muted-foreground">Limite:</span> {code.maxUses} usos</p>}
+                  {code.firstVisitOnly && <p><span className="text-muted-foreground">Restrição:</span> Apenas 1ª visita</p>}
+                </div>
+
+                {code.description && (
+                  <p className="text-sm text-muted-foreground mb-3">{code.description}</p>
+                )}
+
+                {code.status === "pending_approval" && (
+                  <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/30">
+                    <input
+                      type="text"
+                      placeholder="Notas do admin (opcional)"
+                      value={notes[code.id] || ""}
+                      onChange={(e) => setNotes(prev => ({ ...prev, [code.id]: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => approveMutation.mutate({ codeId: code.id, notes: notes[code.id] })}
+                        disabled={approveMutation.isPending}
+                        className="flex items-center gap-1 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Aprovar
+                      </button>
+                      <button
+                        onClick={() => rejectMutation.mutate({ codeId: code.id, notes: notes[code.id] || "Rejeitado" })}
+                        disabled={rejectMutation.isPending}
+                        className="flex items-center gap-1 px-4 py-2 text-sm bg-destructive hover:bg-destructive/80 text-white rounded-lg transition-colors"
+                      >
+                        <XCircle className="w-4 h-4" /> Rejeitar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
