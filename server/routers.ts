@@ -176,6 +176,27 @@ import {
   getBusinessInsights,
   getUserStats,
 } from "./db-analytics";
+import {
+  registerQrScan,
+  getLatestQrScan,
+  classifyRatingSource,
+  determineRatingSource,
+  checkVerifiedStatus,
+  updateVerifiedStatus,
+  getUserQrScans,
+  isNearEstablishment,
+} from "./db-qr";
+import {
+  followInfluencer,
+  unfollowInfluencer,
+  isFollowingInfluencer,
+  getFollowerCount,
+  getFollowedInfluencers,
+  getInfluencerProfile,
+  getInfluencerRatings,
+  getInfluencerFeed,
+  listInfluencers,
+} from "./db-influencer-follow";
 
 export const appRouter = router({
   system: systemRouter,
@@ -277,15 +298,34 @@ export const appRouter = router({
         if (ctx.user!.role === "business") {
           throw new TRPCError({ code: "FORBIDDEN", message: "Contas empresariais não podem avaliar estabelecimentos." });
         }
-        // Check daily rating limit based on plan
-        const rateCheck = await canUserRate(userId);
-        if (!rateCheck.allowed) {
+        // Determine rating source (presencial/hibrido/remoto)
+        const source = await determineRatingSource(userId, input.establishmentId);
+        // Influencers can only rate via QR (presencial or hibrido)
+        if (ctx.user!.role === "influencer" && source === "remoto") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `Limite diário de avaliações atingido (${PLAN_LIMITS[rateCheck.plan].dailyRatings}/dia). Faça upgrade do seu plano para avaliar mais!`,
+            message: "Influencers só podem avaliar presencialmente. Escaneie o QR Code do estabelecimento antes de avaliar.",
           });
         }
-        const result = await saveRating(userId, input);
+        // Check daily rating limit based on plan (influencers are unlimited)
+        if (ctx.user!.role !== "influencer") {
+          const rateCheck = await canUserRate(userId);
+          if (!rateCheck.allowed) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: `Limite diário de avaliações atingido (${PLAN_LIMITS[rateCheck.plan].dailyRatings}/dia). Faça upgrade do seu plano para avaliar mais!`,
+            });
+          }
+        }
+        const result = await saveRating(userId, { ...input, source });
+        // Check verified status after saving (non-blocking)
+        try {
+          if (source === "presencial") {
+            await updateVerifiedStatus(userId);
+          }
+        } catch (e) {
+          console.error("[Verified] Status check failed:", e);
+        }
         // Check level-up after saving rating (non-blocking)
         let levelUp = null;
         try {
@@ -293,7 +333,7 @@ export const appRouter = router({
         } catch (e) {
           console.error("[Progression] Level-up check failed:", e);
         }
-        return { ...result, levelUp };
+        return { ...result, levelUp, source };
       }),
 
     myRatings: protectedProcedure
@@ -746,6 +786,28 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         return await respondToPartnership(input.partnershipId, input.accept, input.estabNotes);
       }),
+
+    // Business proposes partnership to an influencer
+    proposePartnership: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        influencerId: z.number(),
+        terms: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const id = await proposePartnership({
+          influencerId: input.influencerId,
+          establishmentId: input.establishmentId,
+          terms: input.terms,
+          proposedBy: "establishment",
+        });
+        return { id };
+      }),
+
+    // List available influencers for partnership proposals
+    availableInfluencers: businessProcedure.query(async () => {
+      return await listInfluencers();
+    }),
    }),
 
   // User profile & username
@@ -1557,6 +1619,101 @@ export const appRouter = router({
     // User personal stats
     myStats: protectedProcedure.query(async ({ ctx }) => {
       return await getUserStats(ctx.user!.id);
+    }),
+  }),
+
+  // ============================================================
+  // QR Scan & Presential Ratings
+  // ============================================================
+  qr: router({
+    // Register a QR scan with geolocation
+    scan: protectedProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        return await registerQrScan({
+          userId,
+          establishmentId: input.establishmentId,
+          latitude: input.latitude,
+          longitude: input.longitude,
+        });
+      }),
+
+    // Get latest scan for a specific establishment
+    latestScan: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const scan = await getLatestQrScan(ctx.user!.id, input.establishmentId);
+        if (!scan) return { scan: null, source: "remoto" as const };
+        const source = classifyRatingSource(scan.scannedAt);
+        return { scan, source };
+      }),
+
+    // Get all user's QR scans
+    myScans: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserQrScans(ctx.user!.id);
+    }),
+  }),
+
+  // ============================================================
+  // Influencer Follow & Public Profiles
+  // ============================================================
+  influencerProfile: router({
+    // Get influencer public profile
+    get: publicProcedure
+      .input(z.object({ influencerId: z.number() }))
+      .query(async ({ input }) => {
+        return await getInfluencerProfile(input.influencerId);
+      }),
+
+    // Get influencer's recent ratings
+    ratings: publicProcedure
+      .input(z.object({ influencerId: z.number(), limit: z.number().max(50).default(20) }))
+      .query(async ({ input }) => {
+        return await getInfluencerRatings(input.influencerId, input.limit);
+      }),
+
+    // List all influencers (discovery)
+    list: publicProcedure.query(async () => {
+      return await listInfluencers();
+    }),
+
+    // Follow an influencer
+    follow: protectedProcedure
+      .input(z.object({ influencerId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user!.id === input.influencerId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Voc\u00ea n\u00e3o pode seguir a si mesmo." });
+        }
+        return await followInfluencer(ctx.user!.id, input.influencerId);
+      }),
+
+    // Unfollow an influencer
+    unfollow: protectedProcedure
+      .input(z.object({ influencerId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await unfollowInfluencer(ctx.user!.id, input.influencerId);
+      }),
+
+    // Check if following
+    isFollowing: protectedProcedure
+      .input(z.object({ influencerId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await isFollowingInfluencer(ctx.user!.id, input.influencerId);
+      }),
+
+    // Get followed influencers list
+    following: protectedProcedure.query(async ({ ctx }) => {
+      return await getFollowedInfluencers(ctx.user!.id);
+    }),
+
+    // Get feed from followed influencers
+    feed: protectedProcedure.query(async ({ ctx }) => {
+      return await getInfluencerFeed(ctx.user!.id);
     }),
   }),
 });

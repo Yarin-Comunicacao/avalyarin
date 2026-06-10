@@ -8,7 +8,7 @@ import {
   X, User, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
   ChevronRight, LogOut, LogIn, Trophy, Palette, Check,
-  Shield, Building2, UserCog, Eye, Bell
+  Shield, Building2, UserCog, Eye, Bell, BadgeCheck
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -371,6 +371,16 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                       <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
                         <Shield className="w-4 h-4 text-yellow-400" />
                         <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Admin</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
+                {user.role === "influencer" && (
+                  <div className="px-5 py-2">
+                    <Link href="/painel-influencer" onClick={onClose}>
+                      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                        <BadgeCheck className="w-4 h-4 text-blue-400" />
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Influencer</span>
                       </div>
                     </Link>
                   </div>

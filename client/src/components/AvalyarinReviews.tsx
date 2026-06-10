@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { StarRating } from "./StarRating";
-import { X, User, Calendar, ShoppingBag } from "lucide-react";
+import { X, User, Calendar, ShoppingBag, BadgeCheck } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -62,10 +62,16 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-[11px] text-muted-foreground">{visitDateStr}</span>
                 {review.username && (
-                  <span className="text-[11px] text-primary/70">@{review.username}</span>
+                  <span className="text-[11px] text-primary/70 inline-flex items-center gap-0.5">
+                    @{review.username}
+                    {(review as any).userVerified && <BadgeCheck className="w-3 h-3 text-blue-400" />}
+                  </span>
                 )}
                 {!review.username && review.userName && (
-                  <span className="text-[11px] text-muted-foreground">{review.userName}</span>
+                  <span className="text-[11px] text-muted-foreground inline-flex items-center gap-0.5">
+                    {review.userName}
+                    {(review as any).userVerified && <BadgeCheck className="w-3 h-3 text-blue-400" />}
+                  </span>
                 )}
               </div>
               {/* Score */}
@@ -107,6 +113,7 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                   <div className="flex items-center gap-1 text-xs text-primary/70">
                     <User className="w-3 h-3" />
                     {selected.username ? `@${selected.username}` : selected.userName}
+                    {(selected as any).userVerified && <BadgeCheck className="w-3 h-3 text-blue-400" />}
                   </div>
                 </div>
               </div>

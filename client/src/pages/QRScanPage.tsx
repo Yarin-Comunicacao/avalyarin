@@ -40,16 +40,44 @@ export default function QRScanPage() {
     { enabled: !!slug }
   );
 
-  // Mark that user arrived via QR
+  // Register QR scan with geolocation in the backend
+  const qrScanMutation = trpc.qr.scan.useMutation();
+
   useEffect(() => {
-    if (estab) {
+    if (estab && user) {
+      // Save to sessionStorage for immediate frontend use
       sessionStorage.setItem("avalyarin_qr_scan", JSON.stringify({
         establishmentId: estab.id,
         slug: estab.slug,
         timestamp: Date.now(),
       }));
+
+      // Register scan in backend with geolocation
+      const registerScan = (lat?: number, lng?: number) => {
+        qrScanMutation.mutate({
+          establishmentId: estab.id,
+          latitude: lat,
+          longitude: lng,
+        });
+      };
+
+      // Request geolocation (non-blocking)
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            registerScan(pos.coords.latitude, pos.coords.longitude);
+          },
+          () => {
+            // User denied or error — register without coordinates
+            registerScan();
+          },
+          { timeout: 5000, maximumAge: 60000 }
+        );
+      } else {
+        registerScan();
+      }
     }
-  }, [estab]);
+  }, [estab, user]);
 
   const handleValidateCode = async () => {
     if (!promoInput.trim() || !estab) return;

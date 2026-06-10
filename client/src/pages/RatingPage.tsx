@@ -433,6 +433,12 @@ export default function RatingPage() {
   const backHref = estData?.category ? `/categoria/${estData.category.slug}` : "/#categorias";
   const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
 
+  // Check QR scan status for this establishment (determines source: presencial/hibrido/remoto)
+  const { data: qrStatus } = trpc.qr.latestScan.useQuery(
+    { establishmentId: estData?.id ?? 0 },
+    { enabled: !!estData?.id && !!user }
+  );
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
   const [savedReviewData, setSavedReviewData] = useState<{ score: number; items: string[]; mode: string; date?: string } | null>(null);
@@ -1076,6 +1082,20 @@ export default function RatingPage() {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     Olá <span className="text-foreground font-medium">{user?.username || user?.name || 'visitante'}</span>, que bom que veio ao <span className="text-foreground font-medium">{establishment.name}</span>! Selecione apenas os itens que você consumiu e nos fale da sua experiência.
                   </p>
+                  {qrStatus && (
+                    <div className={`mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      qrStatus.source === "presencial" ? "bg-green-500/10 text-green-400 border border-green-500/30" :
+                      qrStatus.source === "hibrido" ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/30" :
+                      "bg-muted text-muted-foreground border border-border/50"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        qrStatus.source === "presencial" ? "bg-green-400" :
+                        qrStatus.source === "hibrido" ? "bg-yellow-400" : "bg-muted-foreground"
+                      }`} />
+                      {qrStatus.source === "presencial" ? "Avalia\u00e7\u00e3o Presencial" :
+                       qrStatus.source === "hibrido" ? "Avalia\u00e7\u00e3o H\u00edbrida" : "Avalia\u00e7\u00e3o Remota"}
+                    </div>
+                  )}
                 </div>
                 <ItemSelector items={entradas} title={
                   parentCategory?.id === "cozinha-brasileira" || parentCategory?.id === "cozinha-internacional" || parentCategory?.id === "autoral" ? "ENTRADAS" :

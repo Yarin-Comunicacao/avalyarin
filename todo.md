@@ -338,3 +338,42 @@
 - [x] Frontend: Aba Insights no Painel Empresarial (nota média, evolução 30d, top/worst itens, tendência 7d/30d)
 - [x] Frontend: Aba Estatísticas no Minhas Avaliações (resumo pessoal, favoritos, gráfico mensal, melhores locais)
 - [x] Testes vitest para endpoints de analytics (10 testes passando, 320 total)
+
+## Fase 5 — Mudanças no Fluxo Existente
+
+### 5.1 Avaliação Presencial (QR + Geolocalização)
+- [x] Schema: campo `source` enum (presencial, hibrido, remote) adicionado na tabela ratings
+- [x] Schema: tabela `qr_scans` criada (userId, establishmentId, scannedAt, lat, lng)
+- [x] Schema: establishments já possuíam lat/lng — usado para validação de proximidade
+- [x] Backend: endpoint qr.registerScan com geolocalização
+- [x] Backend: classificação automática — presencial (≤8h), híbrido (8h-48h), remoto (sem QR)
+- [x] Backend: geolocalização como complemento (valida proximidade ~200m)
+- [x] Frontend: solicita permissão de geolocalização ao escanear QR (QRScanPage)
+- [x] Frontend: indicador visual de source (presencial/híbrido/remoto) no header da avaliação
+
+### 5.2 Selo Verificado + Regras de Influencer
+- [x] Schema: campo `verified` boolean adicionado na tabela users
+- [x] Backend: lógica de selo verificado (3 QR scans em 3 estabs diferentes) — critério oculto, checkAndGrantVerified()
+- [x] Backend: bloquear avaliações remotas para influencers (só presencial/híbrido via QR)
+- [x] Backend: influencer tem avaliações ilimitadas (PLAN_LIMITS override)
+- [x] Frontend: ícone de verificado (BadgeCheck azul) ao lado do nome nas avaliações
+
+### 5.3 Painel do Influencer
+- [x] Frontend: página /painel-influencer com 4 abas (Visão Geral, Parcerias, Códigos, Meu Perfil)
+- [x] Frontend: link "Painel Influencer" no menu lateral (visível apenas para role influencer)
+- [x] Frontend: UI para gerenciar códigos promo na aba Códigos
+
+### 5.4 Página Pública do Influencer + Follow
+- [x] Schema: tabela `influencer_follows` criada (userId, influencerId, createdAt)
+- [x] Backend: endpoints follow/unfollow/isFollowing/following/feed
+- [x] Backend: endpoint para feed de avaliações dos influencers seguidos
+- [x] Frontend: página /influencer/:id (perfil público, stats, avaliações recentes, botão seguir)
+- [x] Frontend: endpoint influencerProfile.list para descoberta de influencers
+
+### 5.5 Conta Business — Adaptação
+- [x] Backend: business.proposePartnership (bidirecional — estab propõe a influencer)
+- [x] Backend: business.availableInfluencers (lista influencers para proposta)
+- [x] Frontend: formulário de propor parceria no Painel Empresarial (aba Parcerias)
+
+### Testes
+- [x] 14 testes vitest para Fase 5 (334 total passando)

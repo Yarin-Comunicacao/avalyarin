@@ -14,6 +14,7 @@ export const users = mysqlTable("users", {
   birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
   surveyData: json("surveyData"), // Full survey answers JSON
   role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer"]).default("user").notNull(),
+  verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -114,6 +115,7 @@ export const ratings = mysqlTable("ratings", {
   criteriaScores: json("criteriaScores"),
   // Bonus criteria scores
   bonusScores: json("bonusScores"),
+  source: mysqlEnum("source", ["presencial", "hibrido", "remoto"]).default("remoto").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -505,3 +507,33 @@ export const partnerships = mysqlTable("partnerships", {
 
 export type Partnership = typeof partnerships.$inferSelect;
 export type InsertPartnership = typeof partnerships.$inferInsert;
+
+
+// ============================================================
+// QR Scans — registro de scans de QR code com geolocalização
+// ============================================================
+export const qrScans = mysqlTable("qr_scans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  latitude: float("latitude"),
+  longitude: float("longitude"),
+  scannedAt: bigint("scannedAt", { mode: "number" }).notNull(), // Unix timestamp ms
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type QrScan = typeof qrScans.$inferSelect;
+export type InsertQrScan = typeof qrScans.$inferInsert;
+
+// ============================================================
+// Influencer Follows — usuários seguindo influencers
+// ============================================================
+export const influencerFollows = mysqlTable("influencer_follows", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // quem segue
+  influencerId: int("influencerId").notNull(), // influencer seguido
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InfluencerFollow = typeof influencerFollows.$inferSelect;
+export type InsertInfluencerFollow = typeof influencerFollows.$inferInsert;

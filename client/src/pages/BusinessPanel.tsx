@@ -1048,6 +1048,9 @@ function PromoCodesTab() {
 function PartnershipsTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
+  const [showPropose, setShowPropose] = useState(false);
+  const [proposeInfluencerId, setProposeInfluencerId] = useState<number | null>(null);
+  const [proposeTerms, setProposeTerms] = useState("");
 
   const estabId = selectedEstab || (establishments && establishments.length > 0 ? establishments[0].id : null);
 
@@ -1055,9 +1058,32 @@ function PartnershipsTab() {
     { establishmentId: estabId! },
     { enabled: !!estabId }
   );
+  const { data: influencers } = trpc.business.availableInfluencers.useQuery(
+    undefined,
+    { enabled: showPropose }
+  );
   const respondMutation = trpc.business.respondPartnership.useMutation();
+  const proposeMutation = trpc.business.proposePartnership.useMutation();
   const utils = trpc.useUtils();
   const [notes, setNotes] = useState<Record<number, string>>({});
+
+  const handlePropose = async () => {
+    if (!estabId || !proposeInfluencerId) return;
+    try {
+      await proposeMutation.mutateAsync({
+        establishmentId: estabId,
+        influencerId: proposeInfluencerId,
+        terms: proposeTerms || undefined,
+      });
+      utils.business.partnerships.invalidate();
+      toast.success("Proposta de parceria enviada!");
+      setShowPropose(false);
+      setProposeInfluencerId(null);
+      setProposeTerms("");
+    } catch (e: any) {
+      toast.error(e?.message || "Erro ao propor parceria");
+    }
+  };
 
   const handleRespond = async (partnershipId: number, accept: boolean) => {
     try {
@@ -1101,18 +1127,73 @@ function PartnershipsTab() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-2xl tracking-wider text-foreground">PARCERIAS</h2>
-        {establishments.length > 1 && (
-          <select
-            value={estabId || ""}
-            onChange={(e) => setSelectedEstab(Number(e.target.value))}
-            className="text-sm bg-background border border-border rounded-lg px-3 py-1.5 text-foreground"
+        <div className="flex items-center gap-3">
+          {establishments.length > 1 && (
+            <select
+              value={estabId || ""}
+              onChange={(e) => setSelectedEstab(Number(e.target.value))}
+              className="text-sm bg-background border border-border rounded-lg px-3 py-1.5 text-foreground"
+            >
+              {establishments.map((e) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          )}
+          <button
+            onClick={() => setShowPropose(!showPropose)}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
-            {establishments.map((e) => (
-              <option key={e.id} value={e.id}>{e.name}</option>
-            ))}
-          </select>
-        )}
+            + Propor Parceria
+          </button>
+        </div>
       </div>
+
+      {/* Propose Partnership Form */}
+      {showPropose && (
+        <div className="mb-6 p-5 rounded-xl bg-card border border-primary/30">
+          <h3 className="font-display text-lg tracking-wider text-primary mb-4">PROPOR PARCERIA</h3>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Influencer</label>
+              <select
+                value={proposeInfluencerId || ""}
+                onChange={(e) => setProposeInfluencerId(Number(e.target.value))}
+                className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+              >
+                <option value="">Selecione um influencer...</option>
+                {influencers?.map((inf: any) => (
+                  <option key={inf.id} value={inf.id}>{inf.name || inf.username || `Influencer #${inf.id}`}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Termos da parceria (opcional)</label>
+              <input
+                type="text"
+                value={proposeTerms}
+                onChange={(e) => setProposeTerms(e.target.value)}
+                placeholder="Ex: 2 avaliações por mês, divulgação no perfil..."
+                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handlePropose}
+                disabled={!proposeInfluencerId || proposeMutation.isPending}
+                className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
+              >
+                {proposeMutation.isPending ? "Enviando..." : "Enviar Proposta"}
+              </button>
+              <button
+                onClick={() => setShowPropose(false)}
+                className="px-4 py-2 text-sm border border-border rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="text-muted-foreground">Carregando parcerias...</p>

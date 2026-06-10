@@ -705,6 +705,7 @@ export async function saveRating(userId: number, data: {
   totalCost?: number;
   criteriaScores?: any;
   bonusScores?: any;
+  source?: "presencial" | "hibrido" | "remoto";
   items: Array<{
     menuItemId?: number;
     itemName: string;
@@ -736,6 +737,7 @@ export async function saveRating(userId: number, data: {
     totalCost: data.totalCost ?? null,
     criteriaScores: data.criteriaScores ?? null,
     bonusScores: data.bonusScores ?? null,
+    source: data.source ?? "remoto",
   }).$returningId();
   
   const ratingId = result.id;
@@ -852,15 +854,16 @@ export async function getRatingById(ratingId: number, userId: number) {
 export async function getEstablishmentRatings(establishmentId: number, limit = 20, offset = 0) {
   const db = await getDb();
   if (!db) return [];
-  
   const result = await db.select({
     id: ratings.id,
     type: ratings.type,
     overallScore: ratings.overallScore,
     visitDate: ratings.visitDate,
     createdAt: ratings.createdAt,
+    source: ratings.source,
     userName: users.name,
     username: users.username,
+    userVerified: users.verified,
   })
     .from(ratings)
     .innerJoin(users, eq(ratings.userId, users.id))

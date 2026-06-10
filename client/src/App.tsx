@@ -48,6 +48,8 @@ import MeuRanking from "./pages/MeuRanking";
 import QRScanPage from "./pages/QRScanPage";
 // Influencer
 import InfluencerApplicationPage from "./pages/InfluencerApplicationPage";
+import InfluencerPanel from "./pages/InfluencerPanel";
+import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
 // PWA
@@ -138,6 +140,8 @@ function Router() {
       <Route path="/admin/estab/:id" component={AdminEstabDetail} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
+      <Route path="/painel-influencer" component={InfluencerPanel} />
+      <Route path="/influencer/:id" component={InfluencerProfilePage} />
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
