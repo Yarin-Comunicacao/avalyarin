@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -18,7 +18,7 @@ export default function AdminPanel() {
 
   // Parse URL params to restore tab/category state
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
-  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos";
+  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -91,6 +91,7 @@ export default function AdminPanel() {
             { id: "code-backup" as const, label: "Código", icon: Code },
             { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
             { id: "promos" as const, label: "Códigos", icon: TagIcon },
+            { id: "insights" as const, label: "Insights", icon: TrendingUp },
           ].map(tab => (
             <button
               key={tab.id}
@@ -118,6 +119,7 @@ export default function AdminPanel() {
         {activeTab === "code-backup" && <CodeBackupTab />}
         {activeTab === "brandbook" && <BrandbookTab />}
         {activeTab === "promos" && <PromoCodesAdminTab />}
+        {activeTab === "insights" && <InsightsTab />}
       </div>
     </div>
   );
@@ -1176,6 +1178,172 @@ function PromoCodesAdminTab() {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InsightsTab() {
+  const { data, isLoading } = trpc.analytics.adminDashboard.useQuery();
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando insights...</div>;
+  if (!data) return <div className="text-destructive">Erro ao carregar insights</div>;
+
+  return (
+    <div className="space-y-8">
+      <h2 className="font-display text-2xl tracking-wider text-foreground">INSIGHTS DA PLATAFORMA</h2>
+
+      {/* Growth Cards */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Crescimento</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: "Novos Usuários (7d)", value: data.growth.usersLast7Days, color: "text-green-400" },
+            { label: "Novos Usuários (30d)", value: data.growth.usersLast30Days, color: "text-green-400" },
+            { label: "Avaliações (7d)", value: data.growth.ratingsLast7Days, color: "text-blue-400" },
+            { label: "Avaliações (30d)", value: data.growth.ratingsLast30Days, color: "text-blue-400" },
+          ].map(card => (
+            <div key={card.label} className="p-4 rounded-xl bg-card border border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">{card.label}</p>
+              <p className={`font-numbers text-2xl font-bold ${card.color}`}>
+                {card.value.toLocaleString("pt-BR")}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* User Activity */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Atividade de Usuários</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <div className="flex items-center gap-2 mb-1">
+              <Activity className="w-4 h-4 text-primary" />
+              <p className="text-xs text-muted-foreground">Ativos (7 dias)</p>
+            </div>
+            <p className="font-numbers text-2xl font-bold text-foreground">{data.userActivity.activeUsersLast7Days}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <div className="flex items-center gap-2 mb-1">
+              <Activity className="w-4 h-4 text-primary" />
+              <p className="text-xs text-muted-foreground">Ativos (30 dias)</p>
+            </div>
+            <p className="font-numbers text-2xl font-bold text-foreground">{data.userActivity.activeUsersLast30Days}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <div className="flex items-center gap-2 mb-1">
+              <Star className="w-4 h-4 text-yellow-400" />
+              <p className="text-xs text-muted-foreground">Média Aval./Usuário</p>
+            </div>
+            <p className="font-numbers text-2xl font-bold text-foreground">{data.userActivity.avgRatingsPerUser}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Rating Types */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Tipos de Avaliação</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <p className="text-xs text-muted-foreground mb-1">Avaliação Direta</p>
+            <p className="font-numbers text-2xl font-bold text-foreground">{data.ratingTypes.direct.toLocaleString("pt-BR")}</p>
+            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full"
+                style={{ width: `${((data.ratingTypes.direct / (data.ratingTypes.direct + data.ratingTypes.analytic)) * 100) || 0}%` }}
+              />
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <p className="text-xs text-muted-foreground mb-1">Avaliação Analítica</p>
+            <p className="font-numbers text-2xl font-bold text-foreground">{data.ratingTypes.analytic.toLocaleString("pt-BR")}</p>
+            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-blue-400 rounded-full"
+                style={{ width: `${((data.ratingTypes.analytic / (data.ratingTypes.direct + data.ratingTypes.analytic)) * 100) || 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ratings Over Time */}
+      {data.ratingsOverTime.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Avaliações por Dia (últimos 30 dias)</h3>
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <div className="flex items-end gap-1 h-32">
+              {data.ratingsOverTime.map((day, i) => {
+                const maxCount = Math.max(...data.ratingsOverTime.map(d => d.count));
+                const height = maxCount > 0 ? (day.count / maxCount) * 100 : 0;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1" title={`${day.date}: ${day.count} avaliações`}>
+                    <div
+                      className="w-full bg-primary/80 rounded-t min-h-[2px]"
+                      style={{ height: `${height}%` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] text-muted-foreground">
+                {data.ratingsOverTime[0]?.date?.slice(5) || ""}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {data.ratingsOverTime[data.ratingsOverTime.length - 1]?.date?.slice(5) || ""}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Distribution */}
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Distribuição por Categoria</h3>
+        <div className="space-y-2">
+          {data.categoryDistribution.map(cat => {
+            const maxRatings = Math.max(...data.categoryDistribution.map(c => c.ratingCount));
+            const width = maxRatings > 0 ? (cat.ratingCount / maxRatings) * 100 : 0;
+            return (
+              <div key={cat.categoryId} className="p-3 rounded-lg bg-card border border-border/50">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-foreground">{cat.categoryName}</span>
+                  <div className="flex gap-3 text-xs text-muted-foreground">
+                    <span>{cat.establishmentCount} estabs</span>
+                    <span>{cat.ratingCount} avaliações</span>
+                  </div>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary/70 rounded-full" style={{ width: `${width}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Top Establishments */}
+      {data.topEstablishments.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Top 10 Estabelecimentos (mín. 3 avaliações)</h3>
+          <div className="space-y-2">
+            {data.topEstablishments.map((est, i) => (
+              <div key={est.id} className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-3">
+                <span className="font-numbers text-lg font-bold text-primary/50 w-6 text-center">{i + 1}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{est.name}</p>
+                  <p className="text-xs text-muted-foreground">{est.neighborhood || "—"}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-numbers text-lg font-bold text-primary">{est.avgScore}</p>
+                  <p className="text-[10px] text-muted-foreground">{est.ratingCount} aval.</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

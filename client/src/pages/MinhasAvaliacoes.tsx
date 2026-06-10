@@ -16,10 +16,10 @@ import {
   ArrowRight, GripVertical, Save, Compass, Image, Camera, X,
   Coffee, Beer, UtensilsCrossed, ChefHat, Sparkles, Cake,
   Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
-  Loader2, ArrowLeft, Navigation
+  Loader2, ArrowLeft, Navigation, BarChart3
 } from "lucide-react";
 
-type Tab = "avaliacoes" | "ranking" | "locais" | "galeria";
+type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -33,6 +33,129 @@ interface RankedItem {
   image: string | null;
   neighborhood: string | null;
   avgScore?: number | null;
+}
+
+function UserStatsSection() {
+  const { data: stats, isLoading } = trpc.analytics.myStats.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="text-center py-20">
+        <BarChart3 className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+        <h3 className="font-display text-xl tracking-wider text-foreground mb-2">SEM DADOS</h3>
+        <p className="text-sm text-muted-foreground">Faça avaliações para ver suas estatísticas.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="p-4 rounded-xl bg-card border border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Total de Avaliações</p>
+          <p className="font-numbers text-2xl font-bold text-foreground">{stats.totalRatings}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-card border border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Nota Média</p>
+          <p className="font-numbers text-2xl font-bold text-primary">{stats.avgScore}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-card border border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Locais Visitados</p>
+          <p className="font-numbers text-2xl font-bold text-foreground">{stats.establishmentsVisited}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-card border border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Categorias</p>
+          <p className="font-numbers text-2xl font-bold text-foreground">{stats.categoriesEvaluated}</p>
+        </div>
+        <div className="p-4 rounded-xl bg-card border border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Últimos 30 dias</p>
+          <p className="font-numbers text-2xl font-bold text-foreground">{stats.ratingsLast30Days}</p>
+        </div>
+        {stats.avgCostPerVisit && (
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <p className="text-xs text-muted-foreground mb-1">Gasto Médio</p>
+            <p className="font-numbers text-2xl font-bold text-foreground">R$ {stats.avgCostPerVisit}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Favorites */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {stats.favoriteCategory && (
+          <div className="p-4 rounded-xl bg-card border border-primary/20">
+            <p className="text-xs text-muted-foreground mb-1">Categoria Favorita</p>
+            <p className="text-lg font-medium text-foreground">{stats.favoriteCategory.name}</p>
+            <p className="text-xs text-primary">{stats.favoriteCategory.count} avaliações</p>
+          </div>
+        )}
+        {stats.favoriteNeighborhood && (
+          <div className="p-4 rounded-xl bg-card border border-primary/20">
+            <p className="text-xs text-muted-foreground mb-1">Bairro Favorito</p>
+            <p className="text-lg font-medium text-foreground">{stats.favoriteNeighborhood.name}</p>
+            <p className="text-xs text-primary">{stats.favoriteNeighborhood.count} visitas</p>
+          </div>
+        )}
+      </div>
+
+      {/* Ratings by Month */}
+      {stats.ratingsByMonth.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Avaliações por Mês</h3>
+          <div className="p-4 rounded-xl bg-card border border-border/50">
+            <div className="flex items-end gap-1 h-24">
+              {stats.ratingsByMonth.map((m: any, i: number) => {
+                const maxCount = Math.max(...stats.ratingsByMonth.map((x: any) => x.count));
+                const height = maxCount > 0 ? (m.count / maxCount) * 100 : 0;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end" title={`${m.month}: ${m.count}`}>
+                    <span className="text-[9px] text-muted-foreground mb-1">{m.count}</span>
+                    <div
+                      className="w-full bg-primary/80 rounded-t min-h-[2px]"
+                      style={{ height: `${height}%` }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] text-muted-foreground">{stats.ratingsByMonth[0]?.month || ""}</span>
+              <span className="text-[10px] text-muted-foreground">{stats.ratingsByMonth[stats.ratingsByMonth.length - 1]?.month || ""}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Rated */}
+      {stats.topRatedEstablishments.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Seus Melhores Locais</h3>
+          <div className="space-y-2">
+            {stats.topRatedEstablishments.map((est: any, i: number) => (
+              <div key={i} className="p-3 rounded-lg bg-card border border-border/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="font-numbers text-sm font-bold text-primary/50 w-5">{i + 1}</span>
+                  <span className="text-sm text-foreground">{est.name}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="w-3 h-3 text-primary" />
+                  <span className="font-numbers text-sm font-bold text-primary">{est.score}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function MinhasAvaliacoes() {
@@ -172,6 +295,7 @@ export default function MinhasAvaliacoes() {
     { id: "ranking", label: "Meu Ranking", icon: <Trophy className="w-4 h-4" /> },
     { id: "locais", label: "Locais Visitados", icon: <MapPin className="w-4 h-4" /> },
     { id: "galeria", label: "Galeria", icon: <Image className="w-4 h-4" /> },
+    { id: "stats", label: "Estatísticas", icon: <BarChart3 className="w-4 h-4" /> },
   ];
 
   return (
@@ -533,6 +657,13 @@ export default function MinhasAvaliacoes() {
                   </p>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* ============ ESTATÍSTICAS TAB ============ */}
+          {activeTab === "stats" && (
+            <motion.div key="stats" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <UserStatsSection />
             </motion.div>
           )}
         </AnimatePresence>

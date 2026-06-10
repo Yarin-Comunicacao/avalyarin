@@ -327,3 +327,14 @@
 - [x] Frontend: indicador de plano no perfil/menu (badge dinâmico "Free"/"Premium"/"Embaixador")
 - [x] Frontend: planos para estabelecimentos no Painel Empresarial (aba "Meu Plano")
 - [x] Testes vitest para limites de plano (23 testes passando)
+
+## Fase 4 — Dashboard de Insights
+
+- [x] Backend: db-analytics.ts com queries agregadas e cache em memória (5 min admin, 10 min business, 15 min user)
+- [x] Backend: endpoint analytics.adminDashboard (métricas globais: users, ratings, estabs, growth, top estabs, planos)
+- [x] Backend: endpoint analytics.businessInsights (overview, scoreOverTime, topItems, worstItems, ratingDistribution, recentTrend)
+- [x] Backend: endpoint analytics.myStats (totalRatings, avgScore, categorias, bairro favorito, ratingsByMonth, topRated)
+- [x] Frontend: Aba Insights no Admin com cards de métricas, gráfico de avaliações/dia, top estabs, distribuição de planos
+- [x] Frontend: Aba Insights no Painel Empresarial (nota média, evolução 30d, top/worst itens, tendência 7d/30d)
+- [x] Frontend: Aba Estatísticas no Minhas Avaliações (resumo pessoal, favoritos, gráfico mensal, melhores locais)
+- [x] Testes vitest para endpoints de analytics (10 testes passando, 320 total)

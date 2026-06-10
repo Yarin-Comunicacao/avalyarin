@@ -8,12 +8,12 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3
 } from "lucide-react";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan">("establishments");
+  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights">("establishments");
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -79,6 +79,7 @@ export default function BusinessPanel() {
               { id: "promo" as const, label: "Códigos", labelFull: "Códigos Promocionais", icon: Tag },
               { id: "partnerships" as const, label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
               { id: "plan" as const, label: "Plano", labelFull: "Meu Plano", icon: Crown },
+              { id: "insights" as const, label: "Insights", labelFull: "Insights", icon: TrendingUp },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -113,6 +114,7 @@ export default function BusinessPanel() {
         {activeTab === "promo" && <PromoCodesTab />}
         {activeTab === "partnerships" && <PartnershipsTab />}
         {activeTab === "plan" && <BusinessPlanTab />}
+        {activeTab === "insights" && <BusinessInsightsTab />}
       </div>
     </div>
   );
@@ -1296,6 +1298,163 @@ function BusinessPlanTab() {
           Na versão beta, o upgrade é concedido sem cobrança real.
         </p>
       )}
+    </div>
+  );
+}
+
+function BusinessInsightsTab() {
+  const { data: establishments, isLoading: loadingEstabs } = trpc.business.myEstablishments.useQuery();
+  const [selectedEstId, setSelectedEstId] = useState<number | null>(null);
+
+  // Auto-select first establishment
+  const estId = selectedEstId || (establishments && establishments.length > 0 ? establishments[0].id : null);
+
+  const { data: insights, isLoading: loadingInsights } = trpc.analytics.businessInsights.useQuery(
+    { establishmentId: estId! },
+    { enabled: !!estId }
+  );
+
+  if (loadingEstabs) return <div className="text-muted-foreground">Carregando...</div>;
+
+  if (!establishments || establishments.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="font-display text-xl text-foreground mb-2">SEM DADOS</h3>
+        <p className="text-muted-foreground text-sm">Você precisa ter estabelecimentos vinculados para ver insights.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">INSIGHTS</h2>
+        {establishments.length > 1 && (
+          <select
+            value={estId || ""}
+            onChange={(e) => setSelectedEstId(Number(e.target.value))}
+            className="text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+          >
+            {establishments.map((est: any) => (
+              <option key={est.id} value={est.id}>{est.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {loadingInsights ? (
+        <div className="text-muted-foreground">Carregando insights...</div>
+      ) : insights ? (
+        <div className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Total de Avaliações</p>
+              <p className="font-numbers text-2xl font-bold text-foreground">{insights.overview.totalRatings}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Nota Média</p>
+              <p className="font-numbers text-2xl font-bold text-primary">{insights.overview.avgScore}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Promos Criados</p>
+              <p className="font-numbers text-2xl font-bold text-foreground">{insights.overview.totalPromos}</p>
+            </div>
+            <div className="p-4 rounded-xl bg-card border border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Códigos Usados</p>
+              <p className="font-numbers text-2xl font-bold text-foreground">{insights.overview.promoUses}</p>
+            </div>
+          </div>
+
+          {/* Score Over Time */}
+          {insights.scoreOverTime.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Nota Média por Dia (30 dias)</h3>
+              <div className="p-4 rounded-xl bg-card border border-border/50">
+                <div className="flex items-end gap-1 h-24">
+                  {insights.scoreOverTime.map((day: any, i: number) => {
+                    const height = day.avgScore ? (day.avgScore / 10) * 100 : 0;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end" title={`${day.date}: ${day.avgScore}`}>
+                        <div
+                          className="w-full bg-primary/80 rounded-t min-h-[2px]"
+                          style={{ height: `${height}%` }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-2">
+                  <span className="text-[10px] text-muted-foreground">{insights.scoreOverTime[0]?.date?.slice(5) || ""}</span>
+                  <span className="text-[10px] text-muted-foreground">{insights.scoreOverTime[insights.scoreOverTime.length - 1]?.date?.slice(5) || ""}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Top Items */}
+          {insights.topItems.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Top Itens Avaliados</h3>
+              <div className="space-y-2">
+                {insights.topItems.map((item: any, i: number) => (
+                  <div key={i} className="p-3 rounded-lg bg-card border border-border/50 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-numbers text-sm font-bold text-primary/50 w-5">{i + 1}</span>
+                      <span className="text-sm text-foreground">{item.itemName}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground">{item.ratingCount}x</span>
+                      <span className="font-numbers text-sm font-bold text-primary">{item.avgScore}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Trend */}
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Tendência Recente</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-card border border-border/50">
+                <p className="text-xs text-muted-foreground mb-1">Últimos 7 dias</p>
+                <p className="font-numbers text-xl font-bold text-foreground">
+                  {insights.recentTrend.last7DaysAvg !== null ? insights.recentTrend.last7DaysAvg : "—"}
+                </p>
+              </div>
+              <div className="p-4 rounded-xl bg-card border border-border/50">
+                <p className="text-xs text-muted-foreground mb-1">Últimos 30 dias</p>
+                <p className="font-numbers text-xl font-bold text-foreground">
+                  {insights.recentTrend.last30DaysAvg !== null ? insights.recentTrend.last30DaysAvg : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Worst Items */}
+          {insights.worstItems.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Itens com Menor Nota</h3>
+              <div className="space-y-2">
+                {insights.worstItems.map((item: any, i: number) => (
+                  <div key={i} className="p-3 rounded-lg bg-card border border-red-500/20 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-numbers text-sm font-bold text-red-400/50 w-5">{i + 1}</span>
+                      <span className="text-sm text-foreground">{item.itemName}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground">{item.ratingCount}x</span>
+                      <span className="font-numbers text-sm font-bold text-red-400">{item.avgScore}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

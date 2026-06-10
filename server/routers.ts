@@ -171,6 +171,11 @@ import {
   PLAN_LIMITS,
   BUSINESS_PLAN_LIMITS,
 } from "./db-plans";
+import {
+  getAdminDashboard,
+  getBusinessInsights,
+  getUserStats,
+} from "./db-analytics";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1523,6 +1528,36 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await getAdminSubscriptions(input?.status);
       }),
+  }),
+
+  // ============================================================
+  // Analytics & Insights (cached, lazy-loaded)
+  // ============================================================
+  analytics: router({
+    // Admin dashboard - full platform metrics
+    adminDashboard: adminProcedure.query(async () => {
+      return await getAdminDashboard();
+    }),
+
+    // Business insights - per establishment
+    businessInsights: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        // Verify user owns this establishment or is admin
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getBusinessInsights(input.establishmentId);
+      }),
+
+    // User personal stats
+    myStats: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserStats(ctx.user!.id);
+    }),
   }),
 });
 export type AppRouter = typeof appRouter;
