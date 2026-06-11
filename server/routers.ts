@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { ADDRESS_REGEX } from "@shared/address-validation";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
@@ -197,6 +197,18 @@ import {
   getInfluencerFeed,
   listInfluencers,
 } from "./db-influencer-follow";
+import {
+  getSupportAssignments,
+  supportHasAccessToEstab,
+  assignEstabsToSupport,
+  revokeEstabFromSupport,
+  createSupportTicket,
+  getSupportTickets,
+  resolveSupportTicket,
+  getSupportStats,
+  getAllSupportUsers,
+  getSupportAssignmentCounts,
+} from "./db-support";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1715,6 +1727,107 @@ export const appRouter = router({
     feed: protectedProcedure.query(async ({ ctx }) => {
       return await getInfluencerFeed(ctx.user!.id);
     }),
+  }),
+
+  // ============================================================
+  // SUPPORT ROUTES
+  // ============================================================
+  support: router({
+    // Get my assigned establishments
+    myAssignments: supportProcedure.query(async ({ ctx }) => {
+      return await getSupportAssignments(ctx.user!.id);
+    }),
+
+    // Get my stats
+    myStats: supportProcedure.query(async ({ ctx }) => {
+      return await getSupportStats(ctx.user!.id);
+    }),
+
+    // Get my tickets
+    myTickets: supportProcedure.query(async ({ ctx }) => {
+      return await getSupportTickets(ctx.user!.id);
+    }),
+
+    // Create a ticket
+    createTicket: supportProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Validate support has access to this estab
+        const hasAccess = await supportHasAccessToEstab(ctx.user!.id, input.establishmentId);
+        if (!hasAccess) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Voc\u00ea n\u00e3o tem acesso a este estabelecimento" });
+        }
+        return await createSupportTicket({
+          ...input,
+          supportUserId: ctx.user!.id,
+          createdById: ctx.user!.id,
+        });
+      }),
+
+    // Resolve a ticket
+    resolveTicket: supportProcedure
+      .input(z.object({
+        ticketId: z.number(),
+        resolution: z.string().min(1),
+      }))
+      .mutation(async ({ input }) => {
+        await resolveSupportTicket(input.ticketId, input.resolution);
+        return { success: true };
+      }),
+
+    // Check access to estab
+    hasAccess: supportProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await supportHasAccessToEstab(ctx.user!.id, input.establishmentId);
+      }),
+  }),
+
+  // Admin: manage support assignments
+  adminSupport: router({
+    // List all support users
+    listSupportUsers: adminProcedure.query(async () => {
+      return await getAllSupportUsers();
+    }),
+
+    // Get assignment counts
+    assignmentCounts: adminProcedure.query(async () => {
+      return await getSupportAssignmentCounts();
+    }),
+
+    // Assign estabs to support
+    assignEstabs: adminProcedure
+      .input(z.object({
+        supportUserId: z.number(),
+        establishmentIds: z.array(z.number()).min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await assignEstabsToSupport(input.supportUserId, input.establishmentIds, ctx.user!.id);
+        return { success: true };
+      }),
+
+    // Revoke estab from support
+    revokeEstab: adminProcedure
+      .input(z.object({
+        supportUserId: z.number(),
+        establishmentId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await revokeEstabFromSupport(input.supportUserId, input.establishmentId);
+        return { success: true };
+      }),
+
+    // Get assignments for a specific support user
+    getUserAssignments: adminProcedure
+      .input(z.object({ supportUserId: z.number() }))
+      .query(async ({ input }) => {
+        return await getSupportAssignments(input.supportUserId);
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

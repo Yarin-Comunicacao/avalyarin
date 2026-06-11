@@ -13,7 +13,7 @@ export const users = mysqlTable("users", {
   username: varchar("username", { length: 64 }).unique(),
   birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
   surveyData: json("surveyData"), // Full survey answers JSON
-  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer", "support"]).default("user").notNull(),
   verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -537,3 +537,39 @@ export const influencerFollows = mysqlTable("influencer_follows", {
 
 export type InfluencerFollow = typeof influencerFollows.$inferSelect;
 export type InsertInfluencerFollow = typeof influencerFollows.$inferInsert;
+
+// ============================================================
+// Support Assignments — vincula estabs à carteira de um suporte
+// ============================================================
+export const supportAssignments = mysqlTable("support_assignments", {
+  id: int("id").autoincrement().primaryKey(),
+  supportUserId: int("supportUserId").notNull(), // user com role 'support'
+  establishmentId: int("establishmentId").notNull(),
+  assignedBy: int("assignedBy").notNull(), // admin que fez a atribuição
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+});
+
+export type SupportAssignment = typeof supportAssignments.$inferSelect;
+export type InsertSupportAssignment = typeof supportAssignments.$inferInsert;
+
+// ============================================================
+// Support Tickets — tickets de suporte vinculados a estabs
+// ============================================================
+export const supportTickets = mysqlTable("support_tickets", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: st000001-st999999
+  establishmentId: int("establishmentId").notNull(),
+  supportUserId: int("supportUserId"), // suporte atribuído (null = não atribuído)
+  createdById: int("createdById").notNull(), // quem criou (business, support ou admin)
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  resolution: text("resolution"), // notas de resolução
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = typeof supportTickets.$inferInsert;

@@ -52,6 +52,9 @@ import InfluencerPanel from "./pages/InfluencerPanel";
 import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
+// Profiles
+import RoleBasedProfile from "./components/profiles";
+import BottomNav from "./components/BottomNav";
 // PWA
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
@@ -142,6 +145,9 @@ function Router() {
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />
+      <Route path="/perfil">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte/estabs">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte/tickets">{() => <RoleBasedProfile />}</Route>
       {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -279,6 +285,7 @@ function App() {
             <Toaster />
             <PWAInstallPrompt />
             <Router />
+            <BottomNav />
           </TooltipProvider>
         </BackgroundProvider>
       </ThemeProvider>

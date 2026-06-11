@@ -60,3 +60,20 @@ export const businessProcedure = t.procedure.use(
     });
   }),
 );
+
+export const supportProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+
+    if (!ctx.user || !['admin', 'owner', 'support'].includes(ctx.user.role)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    });
+  }),
+);

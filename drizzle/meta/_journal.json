@@ -99,6 +99,13 @@
       "when": 1781059377304,
       "tag": "0013_add_influencer_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1749676800000,
+      "tag": "0014_add_support_role_tables",
+      "breakpoints": true
     }
   ]
 }

@@ -377,3 +377,70 @@
 
 ### Testes
 - [x] 14 testes vitest para Fase 5 (334 total passando)
+
+## Fase 6 — Layouts de Perfil (Rede Social) + Role Suporte
+
+### 6.1 Schema & Backend
+- [x] Adicionar role 'support' ao enum de roles no schema (user, influencer, business, support, admin, owner)
+- [x] Criar tabela support_assignments (supportUserId, establishmentId, assignedAt, assignedBy)
+- [x] Criar tabela support_tickets (id, establishmentId, supportUserId, title, description, priority, status, createdAt, resolvedAt)
+- [x] Backend: regras de visibilidade de roles (user vê user/influencer/business; influencer/business veem +support; support vê +admin; admin/owner veem todos)
+- [x] Backend: endpoints de suporte (tickets.list, tickets.resolve, tickets.create, myAssignments)
+- [x] Backend: admin.assignEstabsToSupport (vincular estabs à carteira do suporte)
+- [x] Backend: admin.revokeEstabFromSupport (remover estab da carteira)
+- [x] Backend: suporte só pode acessar/editar estabs da sua carteira (middleware de validação)
+
+### 6.2 Frontend — Perfil Usuário (estilo rede social)
+- [x] Página de perfil com layout Instagram: avatar+câmera, métricas (avaliações|avaliados) à direita, nome/nível/bio à direita do avatar
+- [x] Abas: Avaliações (grid carrossel) | Rankings (troféu) | Títulos (coroa) | Salvos
+- [x] Grid de avaliações: logo do estab como capa, nota amber, dots de carrossel, selo verificado azul para presenciais
+- [ ] Expansão do card: ao clicar abre carrossel com fotos do usuário (pendente - requer upload de fotos)
+- [x] Menu inferior: Início | Destaques (megafone) | Grupos | Busca | Perfil (apenas ativo em amber)
+
+### 6.3 Frontend — Perfil Influencer
+- [x] Avatar com borda dourada + estrela 4 pontas (pontas cima/baixo maiores, saindo da borda)
+- [x] 4 métricas: avaliações | seguidores | seguindo | parcerias
+- [x] Badge "Influencer" dourado + nível
+- [x] Painel de Parcerias exclusivo (ativas, pendentes, alcance)
+- [x] Botões: "Seguir" (filled amber) + "Propor Parceria" (outline)
+- [x] 5 abas: Avaliações | Destaques | Rankings | Parcerias | Títulos
+- [x] Grid com selo verificado em TODAS + tag "PARCERIA" nas patrocinadas
+- [x] Menu inferior com anel dourado no perfil
+
+### 6.4 Frontend — Perfil Business
+- [x] Header com dropdown de múltiplos estabelecimentos (seta para baixo)
+- [x] Logo do estab + métricas (nota média, avaliações, visitantes)
+- [x] Painel de Insights (esta semana, vs anterior, média)
+- [x] Botões: Editar Cardápio | Novo Post | QR Code
+- [x] 5 abas: Cardápio | Posts | Avaliações | Insights | Promos
+- [x] Menu inferior: Início | Destaques | Meu Bar (orange) | Insights | Config
+- [x] Dropdown: listar estabs vinculados + opção "Adicionar estabelecimento"
+
+### 6.5 Frontend — Perfil Suporte
+- [x] Avatar com borda teal + badge headset
+- [x] Info: nome + "Suporte" + carteira de estabs + status online
+- [x] 3 cards: Estabs vinculados | Tickets abertos | Resolvidos hoje
+- [x] Lista de tickets abertos com prioridade (BAIXA/MÉDIA/ALTA)
+- [x] Log de ações recentes
+- [x] Menu inferior: Início | Tickets | Estabs (teal central) | Chat | Perfil
+- [x] Só pode ver/editar estabs da sua carteira
+
+### 6.6 Frontend — Perfil Admin
+- [x] Avatar com borda vermelha + escudo
+- [x] 4 cards stats: Usuários ativos | Estabelecimentos | Avaliações total | Pendentes
+- [x] Seção Aprovações Pendentes (claims, influencers, promos) com Aprovar/Rejeitar
+- [x] Ações Rápidas: Gerenciar Usuários, Moderar, Claims, Relatórios
+- [x] Menu inferior: Início | Usuários | Admin (red) | Analytics | Config
+
+### 6.7 Frontend — Perfil Owner
+- [x] Avatar com coroa dourada + badge "Owner"
+- [x] Visão Geral da Plataforma (usuários, estabs, avaliações, receita)
+- [x] Saúde do Sistema (servidor, BD, testes)
+- [x] Controles do Owner (6 cards: Roles, Admins, Config, Financeiro, Backup, Logs)
+- [x] Atividade Recente
+- [x] Menu inferior: Início | Analytics | Owner (gold) | Admin | Sistema
+
+### 6.8 Testes
+- [ ] Testes vitest para role support (CRUD tickets, assignments, validação de carteira) (pendente - requer mock de DB)
+- [x] Testes vitest para regras de visibilidade de roles (21 testes passando)
+- [ ] Testes vitest para dropdown de múltiplos estabs (business) (pendente - teste de componente)
