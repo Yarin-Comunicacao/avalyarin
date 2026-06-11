@@ -52,6 +52,8 @@ import InfluencerPanel from "./pages/InfluencerPanel";
 import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
+// Destaques
+import DestaquesPage from "./pages/DestaquesPage";
 // Profiles
 import RoleBasedProfile from "./components/profiles";
 import BottomNav from "./components/BottomNav";
@@ -138,10 +140,17 @@ function Router() {
       <Route path="/e/:slug" component={QRScanPage} />
       {/* Nearby */}
       <Route path="/perto-de-mim" component={NearbyPage} />
+      {/* Destaques */}
+      <Route path="/destaques" component={DestaquesPage} />
       {/* Admin & Business */}
       <Route path="/admin" component={AdminPanel} />
       <Route path="/admin/estab/:id" component={AdminEstabDetail} />
+      <Route path="/admin/usuarios">{() => { window.location.replace("/admin?tab=users"); return null; }}</Route>
+      <Route path="/admin/analytics">{() => { window.location.replace("/admin?tab=insights"); return null; }}</Route>
+      <Route path="/admin/config">{() => { window.location.replace("/admin?tab=dashboard"); return null; }}</Route>
       <Route path="/painel-empresarial" component={BusinessPanel} />
+      <Route path="/painel-empresarial/insights">{() => { window.location.replace("/painel-empresarial?tab=insights"); return null; }}</Route>
+      <Route path="/painel-empresarial/config">{() => { window.location.replace("/painel-empresarial?tab=establishments"); return null; }}</Route>
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />

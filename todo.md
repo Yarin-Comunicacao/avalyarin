@@ -444,3 +444,6 @@
 - [ ] Testes vitest para role support (CRUD tickets, assignments, validação de carteira) (pendente - requer mock de DB)
 - [x] Testes vitest para regras de visibilidade de roles (21 testes passando)
 - [ ] Testes vitest para dropdown de múltiplos estabs (business) (pendente - teste de componente)
+
+## Bugs Reportados
+- [x] Fix: Páginas Destaques, Insights e Config retornando 404 (rotas do BottomNav business sem componentes)

@@ -13,7 +13,9 @@ import {
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<"establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights">("establishments");
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialTab = (searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
