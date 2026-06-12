@@ -937,7 +937,7 @@ export async function getAllUsers(limit = 50, offset = 0) {
     .offset(offset);
 }
 
-export async function updateUserRole(userId: number, role: "user" | "admin" | "owner" | "business") {
+export async function updateUserRole(userId: number, role: "user" | "influencer" | "business" | "support" | "admin" | "owner") {
   const db = await getDb();
   if (!db) return null;
   
@@ -1583,13 +1583,39 @@ export async function getUserProfile(userId: number) {
       name: users.name,
       email: users.email,
       username: users.username,
+      birthdate: users.birthdate,
       role: users.role,
+      verified: users.verified,
       createdAt: users.createdAt,
     })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
   return rows[0] || null;
+}
+
+export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string }) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const updateData: Record<string, any> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
+  if (data.username !== undefined) {
+    // Check username availability
+    const existing = await db.select({ id: users.id }).from(users)
+      .where(and(eq(users.username, data.username), sql`${users.id} != ${userId}`))
+      .limit(1);
+    if (existing.length > 0) {
+      throw new Error("Username já está em uso");
+    }
+    updateData.username = data.username;
+  }
+  
+  if (Object.keys(updateData).length === 0) return { success: true };
+  
+  await db.update(users).set(updateData).where(eq(users.id, userId));
+  return { success: true };
 }
 
 // ─── Create Establishment (Admin) ────────────────────────────────────────────

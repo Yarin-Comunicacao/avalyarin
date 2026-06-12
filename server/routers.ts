@@ -48,6 +48,7 @@ import {
   generateUsernameSuggestions,
   setUsername,
   getUserProfile,
+  updateUserProfile,
   // Create
   createEstablishment,
   // Code Backup
@@ -402,7 +403,7 @@ export const appRouter = router({
     updateUserRole: adminProcedure
       .input(z.object({
         userId: z.number(),
-        role: z.enum(["user", "admin", "owner", "business"]),
+        role: z.enum(["user", "influencer", "business", "support", "admin", "owner"]),
       }))
       .mutation(async ({ input }) => {
         return await updateUserRole(input.userId, input.role);
@@ -900,6 +901,15 @@ export const appRouter = router({
       .input(z.object({ username: z.string().min(3).max(30) }))
       .mutation(async ({ ctx, input }) => {
         return await setUsername(ctx.user!.id, input.username);
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        name: z.string().min(2).max(100).optional(),
+        username: z.string().min(3).max(30).optional(),
+        birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await updateUserProfile(ctx.user!.id, input);
       }),
   }),
 

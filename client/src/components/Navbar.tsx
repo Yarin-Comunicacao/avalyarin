@@ -2,6 +2,7 @@
 import { Link, useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { MenuTrigger } from "./AppMenu";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 import SearchBar from "./SearchBar";
 
@@ -13,14 +14,17 @@ interface NavbarProps {
 export default function Navbar({ backHref, onMenuOpen }: NavbarProps) {
   const [location] = useLocation();
   const isHome = location === "/";
+  const { user } = useAuth();
 
+  // Menu hamburger only visible for admin and owner
+  const showMenu = onMenuOpen && (user?.role === "admin" || user?.role === "owner");
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
       <div className="container flex items-center justify-between h-16 gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Menu trigger - always visible on left */}
-          {onMenuOpen && <MenuTrigger onClick={onMenuOpen} />}
+          {/* Menu trigger - only for admin/owner */}
+          {showMenu && <MenuTrigger onClick={onMenuOpen} />}
 
           {!isHome && (
             <Link href={backHref || "/#categorias"}>

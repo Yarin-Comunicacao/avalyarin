@@ -181,18 +181,22 @@ function UsersTab() {
   const roleLabels: Record<string, string> = {
     owner: "Owner",
     admin: "Admin",
-    business: "Empresa",
-    user: "Usuário",
+    support: "Support",
+    business: "Business",
+    influencer: "Influencer",
+    user: "User",
   };
 
   const roleColors: Record<string, string> = {
     owner: "bg-yellow-500/20 text-yellow-400",
-    admin: "bg-blue-500/20 text-blue-400",
-    business: "bg-green-500/20 text-green-400",
+    admin: "bg-red-500/20 text-red-400",
+    support: "bg-teal-500/20 text-teal-400",
+    business: "bg-orange-500/20 text-orange-400",
+    influencer: "bg-yellow-400/20 text-yellow-300",
     user: "bg-muted text-muted-foreground",
   };
 
-  const handleRoleChange = async (userId: number, role: "user" | "admin" | "owner" | "business") => {
+  const handleRoleChange = async (userId: number, role: "user" | "admin" | "owner" | "business" | "influencer" | "support") => {
     try {
       await updateRole.mutateAsync({ userId, role });
       utils.admin.users.invalidate();
@@ -228,10 +232,12 @@ function UsersTab() {
                 onChange={(e) => handleRoleChange(u.id, e.target.value as any)}
                 className="text-xs bg-background border border-border rounded px-2 py-1 text-foreground"
               >
-                <option value="user">Usuário</option>
+                <option value="user">User</option>
+                <option value="influencer">Influencer</option>
+                <option value="business">Business</option>
+                <option value="support">Support</option>
                 <option value="admin">Admin</option>
                 <option value="owner">Owner</option>
-                <option value="business">Empresa</option>
               </select>
             </div>
           </div>

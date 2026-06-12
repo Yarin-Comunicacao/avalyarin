@@ -463,3 +463,16 @@
 - [x] Página TestSuitePage.tsx com lista completa dos 334 testes, filtros por módulo/arquivo, busca por nome/funcionalidade
 - [x] Número 334 clicável no SystemPanel (aba Testes) com Link para /owner/sistema/testes
 - [x] Rota /owner/sistema/testes registrada no App.tsx (antes de /owner/sistema para match correto)
+## Fase 8 — Remover menu hambúrguer para user/influencer/business/support
+- [x] Menu hambúrguer visível apenas para admin e owner
+- [x] Redistribuir funcionalidades do menu lateral no BottomNav para user/influencer/business/support
+- [x] Criar página hub "Conta" acessível pelo BottomNav (agrupa: Meus Dados, Planos, Tema, Fundo, Notificações, Insígnias, Logout)
+- [x] BottomNav user: Início, Destaques, Busca, Avaliações, Conta
+- [x] BottomNav influencer: Início, Destaques, Busca, Avaliações, Conta
+- [x] BottomNav business: Início, Meu Bar, Insights, Alertas, Conta
+- [x] BottomNav support: Início, Tickets, Estabs, Chat, Conta
+- [x] Navbar sem botão hambúrguer para user/influencer/business/support
+- [x] Funcionalidades de Grupos e Salvos acessíveis via página Conta ou sub-abas
+- [x] Botão "Editar Perfil" na página Conta com campos de Minha Conta + Meu Usuário (Nome, Sobrenome, Username) — endpoint profile.update criado
+- [x] Critérios de qualificação para avaliar: 18+, Nome e Sobrenome preenchidos, username definido — bloqueio na RatingPage
+- [x] Padronizar nomes de roles no Painel Admin > Usuários: Owner, Admin, Support, Business, Influencer, User

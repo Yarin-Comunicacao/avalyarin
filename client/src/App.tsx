@@ -54,6 +54,8 @@ import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 import NearbyPage from "./pages/NearbyPage";
 // Destaques
 import DestaquesPage from "./pages/DestaquesPage";
+// Conta Hub
+import ContaPage from "./pages/ContaPage";
 // Owner & System
 import OwnerPanel from "./pages/OwnerPanel";
 import SystemPanel from "./pages/SystemPanel";
@@ -112,6 +114,7 @@ function Router() {
       <Route path="/estabelecimento/:id" component={EstablishmentPage} />
       <Route path="/avaliar/:establishmentId" component={RatingPage} />
       {/* Account */}
+      <Route path="/conta" component={ContaPage} />
       <Route path="/conta/dados" component={MeusDados} />
       <Route path="/conta/cadastro" component={Cadastro} />
       <Route path="/conta/conectadas" component={ContasConectadas} />

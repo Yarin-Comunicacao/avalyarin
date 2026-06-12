@@ -26,7 +26,7 @@ import { ptBR } from "react-day-picker/locale";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
-  CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X
+  CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X, AlertCircle
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
@@ -1044,6 +1044,61 @@ export default function RatingPage() {
   // Business accounts cannot evaluate
   if (user?.role === "business") {
     return <Redirect to="/painel-empresarial" />;
+  }
+
+  // Qualification check: must have name (Nome e Sobrenome), username, and be 18+
+  const profileData = trpc.profile.get.useQuery(undefined, { enabled: !!user });
+  const surveyInfo = trpc.survey.get.useQuery(undefined, { enabled: !!user });
+  
+  const hasName = !!profileData.data?.name && profileData.data.name.trim().split(/\s+/).length >= 2;
+  const hasUsername = !!profileData.data?.username;
+  const birthdate = profileData.data?.birthdate || surveyInfo.data?.birthdate;
+  const isAdult = (() => {
+    if (!birthdate) return false;
+    const birth = new Date(birthdate);
+    const today = new Date();
+    const age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) return age - 1 >= 18;
+    return age >= 18;
+  })();
+  
+  const isQualified = hasName && hasUsername && isAdult;
+  
+  if (user && !profileData.isLoading && !isQualified) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
+        <div className="pt-28 pb-16 container max-w-md">
+          <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-amber-400" />
+            </div>
+            <h2 className="font-display text-xl text-foreground mb-2">COMPLETE SEU PERFIL</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Para publicar avaliações, você precisa completar seu perfil:
+            </p>
+            <div className="space-y-2 text-left mb-6">
+              <div className={`flex items-center gap-2 text-sm ${hasName ? "text-green-400" : "text-red-400"}`}>
+                <span>{hasName ? "✓" : "✗"}</span>
+                <span>Nome e Sobrenome</span>
+              </div>
+              <div className={`flex items-center gap-2 text-sm ${hasUsername ? "text-green-400" : "text-red-400"}`}>
+                <span>{hasUsername ? "✓" : "✗"}</span>
+                <span>Username definido</span>
+              </div>
+              <div className={`flex items-center gap-2 text-sm ${isAdult ? "text-green-400" : "text-red-400"}`}>
+                <span>{isAdult ? "✓" : "✗"}</span>
+                <span>Maior de 18 anos (data de nascimento)</span>
+              </div>
+            </div>
+            <a href="/conta" className="inline-block w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors">
+              Completar Perfil
+            </a>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
