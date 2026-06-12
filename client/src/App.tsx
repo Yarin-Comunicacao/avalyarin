@@ -54,6 +54,9 @@ import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 import NearbyPage from "./pages/NearbyPage";
 // Destaques
 import DestaquesPage from "./pages/DestaquesPage";
+// Owner & System
+import OwnerPanel from "./pages/OwnerPanel";
+import SystemPanel from "./pages/SystemPanel";
 // Profiles
 import RoleBasedProfile from "./components/profiles";
 import BottomNav from "./components/BottomNav";
@@ -154,6 +157,8 @@ function Router() {
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />
+      <Route path="/owner" component={OwnerPanel} />
+      <Route path="/owner/sistema" component={SystemPanel} />
       <Route path="/perfil">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/estabs">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/tickets">{() => <RoleBasedProfile />}</Route>

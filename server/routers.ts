@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { ADDRESS_REGEX } from "@shared/address-validation";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure, ownerProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
@@ -198,12 +198,19 @@ import {
   listInfluencers,
 } from "./db-influencer-follow";
 import {
+  getOwnerStats,
+  getOwnerGrowth,
+  getOwnerFinancials,
+  getSystemHealth,
+  getSystemAuditLog,
+} from "./db-owner";
+import {
   getSupportAssignments,
+  getSupportTickets,
   supportHasAccessToEstab,
   assignEstabsToSupport,
   revokeEstabFromSupport,
   createSupportTicket,
-  getSupportTickets,
   resolveSupportTicket,
   getSupportStats,
   getAllSupportUsers,
@@ -1827,6 +1834,29 @@ export const appRouter = router({
       .input(z.object({ supportUserId: z.number() }))
       .query(async ({ input }) => {
         return await getSupportAssignments(input.supportUserId);
+      }),
+  }),
+  // Owner Panel
+  ownerPanel: router({
+    stats: ownerProcedure.query(async () => {
+      return await getOwnerStats();
+    }),
+    growth: ownerProcedure.query(async () => {
+      return await getOwnerGrowth();
+    }),
+    financials: ownerProcedure.query(async () => {
+      return await getOwnerFinancials();
+    }),
+  }),
+  // System Panel (owner only)
+  systemPanel: router({
+    health: ownerProcedure.query(async () => {
+      return await getSystemHealth();
+    }),
+    auditLog: ownerProcedure
+      .input(z.object({ limit: z.number().min(1).max(100).default(20) }).optional())
+      .query(async ({ input }) => {
+        return await getSystemAuditLog(input?.limit || 20);
       }),
   }),
 });

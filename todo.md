@@ -447,3 +447,14 @@
 
 ## Bugs Reportados
 - [x] Fix: Páginas Destaques, Insights e Config retornando 404 (rotas do BottomNav business sem componentes)
+
+## Fase 7 — Páginas Owner e Sistema
+- [x] Backend: endpoint owner.stats (KPIs, receita, crescimento, roles)
+- [x] Backend: endpoint owner.financials (receita por plano, MRR, churn)
+- [x] Backend: endpoint owner.growth (novos usuários/mês, novos estabs/mês, conversão)
+- [x] Backend: endpoint system.health (status servidor, BD, testes, integrações)
+- [x] Backend: endpoint system.auditLog (ações críticas recentes)
+- [x] Frontend: Página OwnerPanel com KPIs, Financeiro, Crescimento, Gestão de Roles, Parcerias
+- [x] Frontend: Página SystemPanel com Status, BD, Testes, Logs, Audit Trail, Backup, Feature Flags
+- [x] Rotas /owner e /owner/sistema no App.tsx
+- [ ] Testes vitest para endpoints owner e system (pendente)
