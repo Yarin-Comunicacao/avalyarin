@@ -18,18 +18,29 @@ export default function AdminPanel() {
 
   // Parse URL params to restore tab/category state
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
-  const initialTab = (searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights";
+  
+  // Map sub-routes to tabs
+  const getTabFromPath = (): string | null => {
+    const path = window.location.pathname;
+    if (path === "/admin/usuarios") return "users";
+    if (path === "/admin/analytics") return "insights";
+    if (path === "/admin/config") return "dashboard";
+    return null;
+  };
+  
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
 
-  // Sync tab from URL when navigating back
+  // Sync tab from URL when navigating back or sub-route changes
   useEffect(() => {
-    const urlTab = searchParams.get("tab");
+    const pathTab = getTabFromPath();
+    const urlTab = pathTab || searchParams.get("tab");
     if (urlTab && urlTab !== activeTab) {
       setActiveTab(urlTab as typeof activeTab);
     }
-  }, [searchString]);
+  }, [searchString, window.location.pathname]);
 
   if (loading) {
     return (

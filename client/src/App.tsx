@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Redirect, useLocation } from "wouter";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -145,12 +145,12 @@ function Router() {
       {/* Admin & Business */}
       <Route path="/admin" component={AdminPanel} />
       <Route path="/admin/estab/:id" component={AdminEstabDetail} />
-      <Route path="/admin/usuarios">{() => { window.location.replace("/admin?tab=users"); return null; }}</Route>
-      <Route path="/admin/analytics">{() => { window.location.replace("/admin?tab=insights"); return null; }}</Route>
-      <Route path="/admin/config">{() => { window.location.replace("/admin?tab=dashboard"); return null; }}</Route>
+      <Route path="/admin/usuarios" component={AdminPanel} />
+      <Route path="/admin/analytics" component={AdminPanel} />
+      <Route path="/admin/config" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
-      <Route path="/painel-empresarial/insights">{() => { window.location.replace("/painel-empresarial?tab=insights"); return null; }}</Route>
-      <Route path="/painel-empresarial/config">{() => { window.location.replace("/painel-empresarial?tab=establishments"); return null; }}</Route>
+      <Route path="/painel-empresarial/insights" component={BusinessPanel} />
+      <Route path="/painel-empresarial/config" component={BusinessPanel} />
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />

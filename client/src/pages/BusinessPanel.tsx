@@ -14,7 +14,16 @@ import {
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
   const searchParams = new URLSearchParams(window.location.search);
-  const initialTab = (searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights";
+  
+  // Map sub-routes to tabs
+  const getTabFromPath = (): string | null => {
+    const path = window.location.pathname;
+    if (path === "/painel-empresarial/insights") return "insights";
+    if (path === "/painel-empresarial/config") return "establishments";
+    return null;
+  };
+  
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
