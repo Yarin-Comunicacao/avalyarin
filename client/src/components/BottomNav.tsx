@@ -25,8 +25,14 @@ export default function BottomNav() {
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = iconMap[item.icon] || Home;
-          const isActive = location === item.path || 
-            (item.path !== "/" && location.startsWith(item.path));
+          // Check for exact match first, then startsWith but only if no other item has a more specific match
+          const isExactMatch = location === item.path;
+          const isPartialMatch = item.path !== "/" && location.startsWith(item.path + "/");
+          const hasMoreSpecificMatch = navItems.some(
+            (other) => other.path !== item.path && other.path.startsWith(item.path + "/") && 
+              (location === other.path || location.startsWith(other.path + "/"))
+          );
+          const isActive = isExactMatch || (isPartialMatch && !hasMoreSpecificMatch);
 
           return (
             <Link key={item.path} href={item.path}>
