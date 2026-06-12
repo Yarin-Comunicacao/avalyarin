@@ -458,3 +458,8 @@
 - [x] Frontend: Página SystemPanel com Status, BD, Testes, Logs, Audit Trail, Backup, Feature Flags
 - [x] Rotas /owner e /owner/sistema no App.tsx
 - [ ] Testes vitest para endpoints owner e system (pendente)
+## Fase 7.1 — Página de Suite de Testes
+- [x] JSON com 334 testes extraído da planilha e salvo em client/src/data/test-suite.json
+- [x] Página TestSuitePage.tsx com lista completa dos 334 testes, filtros por módulo/arquivo, busca por nome/funcionalidade
+- [x] Número 334 clicável no SystemPanel (aba Testes) com Link para /owner/sistema/testes
+- [x] Rota /owner/sistema/testes registrada no App.tsx (antes de /owner/sistema para match correto)

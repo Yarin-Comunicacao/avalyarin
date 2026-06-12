@@ -312,8 +312,11 @@ export default function SystemPanel() {
 
                   {/* Big Number */}
                   <div className="text-center py-6">
-                    <p className="text-5xl font-bold text-green-400">{health.tests.passing}</p>
+                    <Link href="/owner/sistema/testes">
+                      <p className="text-5xl font-bold text-green-400 cursor-pointer hover:text-green-300 underline-offset-4 hover:underline transition-colors">{health.tests.passing}</p>
+                    </Link>
                     <p className="text-sm text-muted-foreground mt-1">de {health.tests.total} testes passando</p>
+                    <p className="text-xs text-muted-foreground/60 mt-0.5">Clique no número para ver todos os testes</p>
                   </div>
 
                   {/* Progress Bar */}
