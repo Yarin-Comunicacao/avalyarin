@@ -11,7 +11,7 @@ export default function DestaquesPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 

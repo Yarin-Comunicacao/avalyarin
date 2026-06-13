@@ -70,7 +70,7 @@ export default function AllCategoriesPage() {
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Header */}
-      <section className="pt-28 pb-8">
+      <section className="pt-28 pb-24">
         <div className="container">
           <h2 className="font-display text-4xl sm:text-5xl tracking-wider text-primary text-glow-amber leading-none mb-3">
             TODAS AS CATEGORIAS

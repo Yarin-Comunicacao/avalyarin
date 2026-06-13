@@ -83,7 +83,7 @@ export default function SearchResults() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="pt-28 pb-12 container">
+      <div className="pt-28 pb-24 container">
         {/* Header */}
         <div className="mb-8">
           {pageSubtitle && (

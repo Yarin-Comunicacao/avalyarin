@@ -283,7 +283,7 @@ export default function MeuUsuario() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="pt-28 pb-12 container max-w-2xl">
+      <div className="pt-28 pb-24 container max-w-2xl">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">

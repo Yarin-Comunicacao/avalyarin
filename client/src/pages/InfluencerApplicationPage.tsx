@@ -99,7 +99,7 @@ export default function InfluencerApplicationPage() {
       <div className="min-h-screen bg-background">
         <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
-        <div className="container pt-28 pb-12 max-w-2xl">
+        <div className="container pt-28 pb-24 max-w-2xl">
           <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
@@ -156,7 +156,7 @@ export default function InfluencerApplicationPage() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="container pt-28 pb-12 max-w-3xl">
+      <div className="container pt-28 pb-24 max-w-3xl">
         <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-4 h-4" /> Voltar
         </button>

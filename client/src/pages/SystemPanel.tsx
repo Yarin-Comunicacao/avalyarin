@@ -60,7 +60,7 @@ export default function SystemPanel() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="bg-gradient-to-b from-blue-900/20 to-background border-b border-blue-500/20 px-4 pt-6 pb-4">
         <div className="container">

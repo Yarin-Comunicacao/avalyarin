@@ -66,7 +66,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">

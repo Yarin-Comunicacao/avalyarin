@@ -46,7 +46,7 @@ export default function InfluencerPanel() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="container pt-24 pb-8">
+      <div className="container pt-24 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">

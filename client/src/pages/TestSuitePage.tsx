@@ -86,7 +86,7 @@ export default function TestSuitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="bg-gradient-to-b from-green-900/30 to-background border-b border-border/30">
         <div className="container px-4 pt-6 pb-4">

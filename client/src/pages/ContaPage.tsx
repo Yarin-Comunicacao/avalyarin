@@ -36,7 +36,7 @@ export default function ContaPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pt-28 pb-20">
+      <div className="min-h-screen bg-background pt-28 pb-24">
         <Navbar />
         <div className="container max-w-md text-center">
           <p className="text-muted-foreground mb-4">Faça login para acessar sua conta.</p>

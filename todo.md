@@ -476,3 +476,7 @@
 - [x] Botão "Editar Perfil" na página Conta com campos de Minha Conta + Meu Usuário (Nome, Sobrenome, Username) — endpoint profile.update criado
 - [x] Critérios de qualificação para avaliar: 18+, Nome e Sobrenome preenchidos, username definido — bloqueio na RatingPage
 - [x] Padronizar nomes de roles no Painel Admin > Usuários: Owner, Admin, Support, Business, Influencer, User
+## Fase 8.1 — Ajustes de menu e margens
+- [x] Remover item "Admin" do menu hambúrguer (AppMenu) — já acessível pelo BottomNav
+- [x] Corrigir padding-bottom em todas as páginas para não serem cortadas pelo BottomNav (pb-24 em todas)
+- [x] Corrigir padding-top em todas as páginas para não serem cortadas pela Navbar (pt-28 já existente em todas)

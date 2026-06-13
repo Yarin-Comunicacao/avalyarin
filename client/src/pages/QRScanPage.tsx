@@ -144,7 +144,7 @@ export default function QRScanPage() {
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <div className="container pt-28 pb-8">
+      <div className="container pt-28 pb-24">
         {/* Welcome header */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4">

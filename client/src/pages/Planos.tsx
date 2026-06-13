@@ -88,7 +88,7 @@ export default function Planos() {
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref="/" onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-28 pb-16">
+      <div className="pt-28 pb-24">
         <div className="container max-w-3xl">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">

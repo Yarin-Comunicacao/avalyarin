@@ -81,7 +81,7 @@ export default function InfluencerProfilePage() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="container pt-24 pb-8 max-w-lg mx-auto">
+      <div className="container pt-24 pb-24 max-w-lg mx-auto">
         {/* Back button */}
         <Link href="/">
           <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">

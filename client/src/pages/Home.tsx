@@ -124,7 +124,7 @@ export default function Home() {
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Hero Section — text only, background comes from body::before */}
-      <section className="relative pt-28 pb-12">
+      <section className="relative pt-28 pb-24">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -374,7 +374,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border/30">
+      <footer className="py-8 pb-24 border-t border-border/30">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-base">🧄</span>

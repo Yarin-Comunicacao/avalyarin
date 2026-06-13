@@ -1069,7 +1069,7 @@ export default function RatingPage() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
-        <div className="pt-28 pb-16 container max-w-md">
+        <div className="pt-28 pb-24 container max-w-md">
           <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-amber-400" />
@@ -1105,7 +1105,7 @@ export default function RatingPage() {
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
-      <div className="pt-36 pb-16">
+      <div className="pt-36 pb-24">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
           {isNumberedStep && (

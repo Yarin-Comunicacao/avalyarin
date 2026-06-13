@@ -36,7 +36,7 @@ export default function NearbyPage() {
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
-      <div className="container pt-28 pb-12">
+      <div className="container pt-28 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link href="/">
