@@ -492,4 +492,4 @@
 - [x] Página CalendarioGrupo: calendário mensal + lista de eventos do grupo
 - [x] Página EventoDetalhe: detalhes do evento + lista de presenças + botões RSVP
 - [x] Rotas no App.tsx: /grupo/:id/calendario, /evento/:id
-- [ ] Notificação ao criar evento (membros do grupo)
+- [x] Notificação ao criar evento (membros do grupo) — badge com contagem de eventos no botão de calendário

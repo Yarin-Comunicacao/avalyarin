@@ -267,6 +267,10 @@ function GroupDetail({
     { groupId, limit: 20, offset: 0 },
     { enabled: !!group?.isMember }
   );
+  const { data: groupEvents } = trpc.events.listByGroup.useQuery(
+    { groupId, status: "active" },
+    { enabled: !!group?.isMember }
+  );
   const [showInvite, setShowInvite] = useState(false);
   const utils = trpc.useUtils();
   const { user } = useAuth();
@@ -406,12 +410,21 @@ function GroupDetail({
           <Link href={`/grupo/${groupId}/calendario`}>
             <button className="w-full p-4 rounded-xl bg-primary/10 border border-primary/30 hover:border-primary/60 transition-all flex items-center justify-between group cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <div className="relative w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                   <CalendarDays className="w-5 h-5 text-primary" />
+                  {groupEvents && groupEvents.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {groupEvents.length}
+                    </span>
+                  )}
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-medium text-foreground">Calendário de Eventos</p>
-                  <p className="text-xs text-muted-foreground">Agende encontros com o grupo</p>
+                  <p className="text-xs text-muted-foreground">
+                    {groupEvents && groupEvents.length > 0
+                      ? `${groupEvents.length} evento${groupEvents.length > 1 ? "s" : ""} próximo${groupEvents.length > 1 ? "s" : ""}`
+                      : "Agende encontros com o grupo"}
+                  </p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
