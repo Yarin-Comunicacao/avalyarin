@@ -480,3 +480,6 @@
 - [x] Remover item "Admin" do menu hambúrguer (AppMenu) — já acessível pelo BottomNav
 - [x] Corrigir padding-bottom em todas as páginas para não serem cortadas pelo BottomNav (pb-24 em todas)
 - [x] Corrigir padding-top em todas as páginas para não serem cortadas pela Navbar (pt-28 já existente em todas)
+## Fase 8.2 — Reorganização do Admin (supervisão do Support)
+- [x] BottomNav admin: Início, Equipe, Influencers, Estabs, Config
+- [x] Rotas /admin/equipe, /admin/influencers, /admin/estabs mapeadas para abas do AdminPanel

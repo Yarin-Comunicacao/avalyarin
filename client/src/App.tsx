@@ -155,6 +155,9 @@ function Router() {
       <Route path="/admin/usuarios" component={AdminPanel} />
       <Route path="/admin/analytics" component={AdminPanel} />
       <Route path="/admin/config" component={AdminPanel} />
+      <Route path="/admin/equipe" component={AdminPanel} />
+      <Route path="/admin/influencers" component={AdminPanel} />
+      <Route path="/admin/estabs" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       <Route path="/painel-empresarial/insights" component={BusinessPanel} />
       <Route path="/painel-empresarial/config" component={BusinessPanel} />

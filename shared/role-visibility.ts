@@ -105,10 +105,10 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   admin: [
     { icon: "Home", label: "Início", path: "/" },
-    { icon: "Users", label: "Usuários", path: "/admin/usuarios" },
-    { icon: "Shield", label: "Admin", path: "/admin" },
-    { icon: "BarChart3", label: "Analytics", path: "/admin/analytics" },
-    { icon: "Settings", label: "Config", path: "/admin/config" },
+    { icon: "Users", label: "Equipe", path: "/admin/equipe" },
+    { icon: "Star", label: "Influencers", path: "/admin/influencers" },
+    { icon: "Store", label: "Estabs", path: "/admin/estabs" },
+    { icon: "Settings", label: "Config", path: "/admin" },
   ],
   owner: [
     { icon: "Home", label: "Início", path: "/" },

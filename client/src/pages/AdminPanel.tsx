@@ -25,6 +25,9 @@ export default function AdminPanel() {
     if (path === "/admin/usuarios") return "users";
     if (path === "/admin/analytics") return "insights";
     if (path === "/admin/config") return "dashboard";
+    if (path === "/admin/equipe") return "users";
+    if (path === "/admin/influencers") return "claims";
+    if (path === "/admin/estabs") return "establishments";
     return null;
   };
   
