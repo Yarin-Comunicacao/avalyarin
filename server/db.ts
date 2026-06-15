@@ -2194,3 +2194,17 @@ export async function getEventsByEstablishment(establishmentId: number, upcoming
 
   return eventsWithRsvps;
 }
+
+// ============================================================
+// User Location
+// ============================================================
+export async function saveUserLocation(userId: number, lat: number, lng: number) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.update(users).set({
+    lat,
+    lng,
+    locationUpdatedAt: Date.now(),
+  }).where(eq(users.id, userId));
+  return { success: true };
+}

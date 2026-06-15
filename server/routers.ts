@@ -70,6 +70,7 @@ import {
   getUserEvents,
   cancelGroupEvent,
   getEventsByEstablishment,
+  saveUserLocation,
 } from "./db";
 import {
   createGroup,
@@ -919,6 +920,14 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         return await updateUserProfile(ctx.user!.id, input);
+      }),
+    saveLocation: protectedProcedure
+      .input(z.object({
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
       }),
   }),
 

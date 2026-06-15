@@ -509,3 +509,6 @@
 ## Fase 9.4 — Mover "Como Funciona" para pop-up de finalização de cadastro
 - [x] Remover seção "Como Funciona" da Home
 - [x] Criar pop-up "Como Funciona" exibido ao finalizar cadastro da conta (HowItWorksDialog)
+
+## Fase 9.5 — Captação de localização permanente na criação da conta
+- [x] Solicitar permissão de localização durante o onboarding e salvar no perfil do usuário
