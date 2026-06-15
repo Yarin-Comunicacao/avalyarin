@@ -29,7 +29,7 @@ export default function InfluencerApplicationPage() {
   const submitMutation = trpc.influencer.submitApplication.useMutation({
     onSuccess: () => {
       toast.success("Solicitação enviada com sucesso! Aguarde a análise do admin.");
-      navigate("/");
+      navigate("/conta");
     },
     onError: (err) => {
       toast.error(err.message || "Erro ao enviar solicitação");
@@ -100,7 +100,7 @@ export default function InfluencerApplicationPage() {
         <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
         <div className="container pt-28 pb-24 max-w-2xl">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
+          <button onClick={() => navigate("/conta")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
 
@@ -157,7 +157,7 @@ export default function InfluencerApplicationPage() {
       <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       <div className="container pt-28 pb-24 max-w-3xl">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
+        <button onClick={() => navigate("/conta")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-4 h-4" /> Voltar
         </button>
 

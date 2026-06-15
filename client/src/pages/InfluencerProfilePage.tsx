@@ -83,12 +83,10 @@ export default function InfluencerProfilePage() {
 
       <div className="container pt-24 pb-24 max-w-lg mx-auto">
         {/* Back button */}
-        <Link href="/">
-          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Voltar
-          </button>
-        </Link>
+        <button onClick={() => window.history.back()} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </button>
 
         {/* Profile Header */}
         <div className="bg-card border border-border/30 rounded-xl p-6 text-center mb-6">

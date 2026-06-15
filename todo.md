@@ -499,3 +499,6 @@
 - [x] Adicionar aba Calendário no BusinessPanel (dentro de Meu Bar)
 - [x] Endpoint para listar eventos agendados por estabelecimento (events.listByEstablishment)
 - [x] Visão business: lista de eventos, contagem de confirmados/talvez/recusados, vagas
+
+## Fase 9.2 — Navegação contextual nas setas de voltar
+- [x] Corrigir setas de voltar: navegar para página pai do mesmo menu (não para /) em todas as páginas

@@ -298,7 +298,7 @@ export default function NotificacoesPage() {
       <div className="container pt-28 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/">
+          <Link href="/conta">
             <button className="p-2 rounded-lg bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors">
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>

@@ -65,11 +65,7 @@ export default function BusinessPanel() {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <span className="text-muted-foreground hover:text-foreground transition-colors">
-                <ArrowLeft className="w-5 h-5" />
-              </span>
-            </Link>
+
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-primary" />
               <h1 className="font-display text-xl tracking-wider text-primary">PAINEL EMPRESARIAL</h1>

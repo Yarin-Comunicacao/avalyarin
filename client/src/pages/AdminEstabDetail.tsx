@@ -165,7 +165,7 @@ export default function AdminEstabDetail() {
         <div className="text-center">
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
-          <Link href="/"><span className="text-primary hover:underline">Voltar</span></Link>
+          <Link href="/admin"><span className="text-primary hover:underline">Voltar ao Admin</span></Link>
         </div>
       </div>
     );
