@@ -18,7 +18,17 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  try {
+    window.location.replace(getLoginUrl());
+  } catch {
+    // Fallback: some browsers/plugins intercept history and throw SecurityError
+    // Navigate via anchor element to bypass pushState interception
+    const a = document.createElement("a");
+    a.href = getLoginUrl();
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+  }
 };
 
 queryClient.getQueryCache().subscribe(event => {

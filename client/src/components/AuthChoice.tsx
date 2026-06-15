@@ -17,7 +17,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
     // Mark as new user so after OAuth callback we show onboarding
     localStorage.setItem("avalyarin_auth_flow", "register");
     onChoose("register");
-    window.location.href = getLoginUrl();
+    try { window.location.replace(getLoginUrl()); } catch { const a = document.createElement("a"); a.href = getLoginUrl(); a.rel = "noopener"; document.body.appendChild(a); a.click(); }
   };
 
   const handleLogin = () => {
@@ -26,7 +26,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
     // Mark survey as completed so existing users skip onboarding
     localStorage.setItem("avalyarin_survey_completed", "true");
     onChoose("login");
-    window.location.href = getLoginUrl();
+    try { window.location.replace(getLoginUrl()); } catch { const a = document.createElement("a"); a.href = getLoginUrl(); a.rel = "noopener"; document.body.appendChild(a); a.click(); }
   };
 
   return (

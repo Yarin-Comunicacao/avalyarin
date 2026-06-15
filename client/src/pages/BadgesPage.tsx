@@ -156,7 +156,7 @@ export default function BadgesPage() {
   }
 
   if (!user) {
-    window.location.href = getLoginUrl();
+    try { window.location.replace(getLoginUrl()); } catch { const a = document.createElement("a"); a.href = getLoginUrl(); a.rel = "noopener"; document.body.appendChild(a); a.click(); }
     return null;
   }
 

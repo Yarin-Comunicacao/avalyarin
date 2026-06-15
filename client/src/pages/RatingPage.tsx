@@ -2139,7 +2139,7 @@ export default function RatingPage() {
                       // Check authentication
                       if (!isAuthenticated || !user) {
                         toast.error("Faça login para salvar sua avaliação", {
-                          action: { label: "Entrar", onClick: () => { window.location.href = getLoginUrl(); } },
+                          action: { label: "Entrar", onClick: () => { try { window.location.replace(getLoginUrl()); } catch { const a = document.createElement("a"); a.href = getLoginUrl(); a.rel = "noopener"; document.body.appendChild(a); a.click(); } } },
                         });
                         return;
                       }
