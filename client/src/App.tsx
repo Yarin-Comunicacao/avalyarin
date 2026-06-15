@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,6 +46,8 @@ import BusinessPanel from "./pages/BusinessPanel";
 import MeuRanking from "./pages/MeuRanking";
 // QR Scan
 import QRScanPage from "./pages/QRScanPage";
+// QR Scanner (camera-based, lazy loaded)
+const QRScannerPage = lazy(() => import("./pages/QRScannerPage"));
 // Influencer
 import InfluencerApplicationPage from "./pages/InfluencerApplicationPage";
 import InfluencerPanel from "./pages/InfluencerPanel";
@@ -149,6 +151,8 @@ function Router() {
       <Route path="/busca" component={SearchResults} />
       {/* Rankings (legacy redirect) */}
       <Route path="/meu-ranking">{() => { window.location.replace("/minhas-avaliacoes/ranking"); return null; }}</Route>
+      {/* QR Scanner (camera) */}
+      <Route path="/scan">{() => <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}><QRScannerPage /></Suspense>}</Route>
       {/* QR Code Scan Landing */}
       <Route path="/e/:slug" component={QRScanPage} />
       {/* Nearby */}

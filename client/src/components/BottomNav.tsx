@@ -2,14 +2,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation, Link } from "wouter";
 import {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
-  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell
+  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine
 } from "lucide-react";
 import { ROLE_BOTTOM_NAV, ROLE_COLORS, type AppRole } from "@shared/role-visibility";
 import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
-  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell,
+  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine,
 };
 
 export default function BottomNav() {

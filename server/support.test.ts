@@ -100,10 +100,10 @@ describe("Role Visibility Rules", () => {
       });
     });
 
-    it("user nav includes Busca, Destaques, Grupos, Avaliações, Conta", () => {
+    it("user nav includes Busca, Scan, Grupos, Avaliações, Conta", () => {
       const labels = ROLE_BOTTOM_NAV.user.map((item) => item.label);
       expect(labels).toContain("Busca");
-      expect(labels).toContain("Destaques");
+      expect(labels).toContain("Scan");
       expect(labels).toContain("Grupos");
       expect(labels).toContain("Avaliações");
       expect(labels).toContain("Conta");

@@ -512,3 +512,9 @@
 
 ## Fase 9.5 — Captação de localização permanente na criação da conta
 - [x] Solicitar permissão de localização durante o onboarding e salvar no perfil do usuário
+
+## Fase 9.6 — Scanner de QR code dentro do app (câmera via browser)
+- [x] Instalar biblioteca html5-qrcode para leitura de QR via câmera
+- [x] Criar página /scan com scanner de câmera e lazy loading
+- [x] Integrar botão Scan no BottomNav (user e influencer)
+- [x] Manter fluxo atual da câmera nativa (/e/:slug) funcionando

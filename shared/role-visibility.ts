@@ -77,14 +77,14 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; path: string }[]> = {
   user: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "Megaphone", label: "Destaques", path: "/destaques" },
+    { icon: "ScanLine", label: "Scan", path: "/scan" },
     { icon: "Users", label: "Grupos", path: "/grupos" },
     { icon: "Star", label: "Avaliações", path: "/minhas-avaliacoes" },
     { icon: "User", label: "Conta", path: "/conta" },
   ],
   influencer: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "Megaphone", label: "Destaques", path: "/destaques" },
+    { icon: "ScanLine", label: "Scan", path: "/scan" },
     { icon: "Users", label: "Grupos", path: "/grupos" },
     { icon: "Star", label: "Avaliações", path: "/minhas-avaliacoes" },
     { icon: "User", label: "Conta", path: "/conta" },
