@@ -100,13 +100,13 @@ describe("Role Visibility Rules", () => {
       });
     });
 
-    it("user nav includes Início, Destaques, Grupos, Busca, Perfil", () => {
+    it("user nav includes Busca, Destaques, Grupos, Avaliações, Conta", () => {
       const labels = ROLE_BOTTOM_NAV.user.map((item) => item.label);
-      expect(labels).toContain("Início");
+      expect(labels).toContain("Busca");
       expect(labels).toContain("Destaques");
       expect(labels).toContain("Grupos");
-      expect(labels).toContain("Busca");
-      expect(labels).toContain("Perfil");
+      expect(labels).toContain("Avaliações");
+      expect(labels).toContain("Conta");
     });
 
     it("support nav has Estabs as central item", () => {

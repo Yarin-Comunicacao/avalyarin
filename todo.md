@@ -493,3 +493,9 @@
 - [x] Página EventoDetalhe: detalhes do evento + lista de presenças + botões RSVP
 - [x] Rotas no App.tsx: /grupo/:id/calendario, /evento/:id
 - [x] Notificação ao criar evento (membros do grupo) — badge com contagem de eventos no botão de calendário
+
+## Fase 9.1 — Calendário Business + Fix Alertas
+- [x] Corrigir ícone Alertas no BottomNav do business (leva para 404)
+- [x] Adicionar aba Calendário no BusinessPanel (dentro de Meu Bar)
+- [x] Endpoint para listar eventos agendados por estabelecimento (events.listByEstablishment)
+- [x] Visão business: lista de eventos, contagem de confirmados/talvez/recusados, vagas

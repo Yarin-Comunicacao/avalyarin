@@ -8,7 +8,7 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown
 } from "lucide-react";
 
 export default function BusinessPanel() {
@@ -19,11 +19,13 @@ export default function BusinessPanel() {
   const getTabFromPath = (): string | null => {
     const path = window.location.pathname;
     if (path === "/painel-empresarial/insights") return "insights";
+    if (path === "/painel-empresarial/notificacoes") return "notifications";
+    if (path === "/painel-empresarial/calendario") return "calendar";
     if (path === "/painel-empresarial/config") return "establishments";
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -91,6 +93,7 @@ export default function BusinessPanel() {
               { id: "partnerships" as const, label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
               { id: "plan" as const, label: "Plano", labelFull: "Meu Plano", icon: Crown },
               { id: "insights" as const, label: "Insights", labelFull: "Insights", icon: TrendingUp },
+              { id: "calendar" as const, label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -126,6 +129,7 @@ export default function BusinessPanel() {
         {activeTab === "partnerships" && <PartnershipsTab />}
         {activeTab === "plan" && <BusinessPlanTab />}
         {activeTab === "insights" && <BusinessInsightsTab />}
+        {activeTab === "calendar" && <CalendarioBusinessTab />}
       </div>
     </div>
   );
@@ -1547,6 +1551,159 @@ function BusinessInsightsTab() {
           )}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+
+// ============================================================
+// CALENDÁRIO BUSINESS TAB — Eventos agendados nos estabelecimentos
+// ============================================================
+
+function CalendarioBusinessTab() {
+  const { data: establishments, isLoading: loadingEstabs } = trpc.business.myEstablishments.useQuery();
+  const [selectedEstabId, setSelectedEstabId] = useState<number | null>(null);
+  const [showPast, setShowPast] = useState(false);
+
+  // Auto-select first establishment
+  const estabId = selectedEstabId || (establishments && establishments.length > 0 ? establishments[0].id : null);
+
+  const { data: events, isLoading: loadingEvents } = trpc.events.listByEstablishment.useQuery(
+    { establishmentId: estabId!, upcoming: !showPast },
+    { enabled: !!estabId }
+  );
+
+  if (loadingEstabs) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!establishments || establishments.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <CalendarDays className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+        <p className="text-muted-foreground">Nenhum estabelecimento vinculado.</p>
+        <p className="text-xs text-muted-foreground/60 mt-1">Solicite a vinculação de um estabelecimento para ver eventos agendados.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Calendário de Eventos</h3>
+          <p className="text-sm text-muted-foreground">Eventos agendados por grupos no seu estabelecimento</p>
+        </div>
+
+        {/* Establishment selector */}
+        {establishments.length > 1 && (
+          <select
+            value={estabId || ''}
+            onChange={(e) => setSelectedEstabId(Number(e.target.value))}
+            className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground"
+          >
+            {establishments.map((est: any) => (
+              <option key={est.id} value={est.id}>{est.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Toggle upcoming/past */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowPast(false)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            !showPast ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Próximos
+        </button>
+        <button
+          onClick={() => setShowPast(true)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            showPast ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Passados
+        </button>
+      </div>
+
+      {/* Events list */}
+      {loadingEvents ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        </div>
+      ) : !events || events.length === 0 ? (
+        <div className="text-center py-12 border border-border/30 rounded-xl bg-card/50">
+          <CalendarDays className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">
+            {showPast ? 'Nenhum evento passado encontrado.' : 'Nenhum evento agendado para este estabelecimento.'}
+          </p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            {!showPast && 'Quando grupos agendarem eventos aqui, eles aparecerão nesta lista.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {events.map((event: any) => (
+            <div key={event.id} className="p-4 rounded-xl border border-border/50 bg-card hover:border-primary/30 transition-colors">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-foreground truncate">{event.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Grupo: <span className="text-foreground/80">{event.groupName}</span>
+                    {' · '}Criado por: <span className="text-foreground/80">{event.creatorName}</span>
+                  </p>
+                  {event.description && (
+                    <p className="text-xs text-muted-foreground/80 mt-1 line-clamp-2">{event.description}</p>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-sm font-medium text-primary">
+                    {new Date(event.eventDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(event.eventDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+              </div>
+
+              {/* RSVP counts */}
+              <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/30">
+                <div className="flex items-center gap-1.5 text-xs">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+                  <span className="text-green-400 font-medium">{event.rsvpCounts.confirmed}</span>
+                  <span className="text-muted-foreground">confirmados</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <HelpCircle className="w-3.5 h-3.5 text-yellow-400" />
+                  <span className="text-yellow-400 font-medium">{event.rsvpCounts.maybe}</span>
+                  <span className="text-muted-foreground">talvez</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs">
+                  <ThumbsDown className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-red-400 font-medium">{event.rsvpCounts.declined}</span>
+                  <span className="text-muted-foreground">não vão</span>
+                </div>
+                {event.maxGuests && (
+                  <div className="flex items-center gap-1.5 text-xs ml-auto">
+                    <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {event.totalConfirmed}/{event.maxGuests} vagas
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

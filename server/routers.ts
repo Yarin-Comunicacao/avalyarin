@@ -69,6 +69,7 @@ import {
   rsvpEvent,
   getUserEvents,
   cancelGroupEvent,
+  getEventsByEstablishment,
 } from "./db";
 import {
   createGroup,
@@ -1968,6 +1969,21 @@ export const appRouter = router({
       .input(z.object({ eventId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         return await cancelGroupEvent(input.eventId, ctx.user!.id);
+      }),
+
+    listByEstablishment: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        upcoming: z.boolean().default(true),
+      }))
+      .query(async ({ ctx, input }) => {
+        // Verify the business user owns this establishment
+        const myEstabs = await getBusinessEstablishments(ctx.user!.id);
+        const ownsEstab = myEstabs.some((e: any) => e.id === input.establishmentId);
+        if (!ownsEstab) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este estabelecimento." });
+        }
+        return await getEventsByEstablishment(input.establishmentId, input.upcoming);
       }),
   }),
 });

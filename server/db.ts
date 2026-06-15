@@ -2132,3 +2132,65 @@ export async function cancelGroupEvent(eventId: number, userId: number) {
 
   return { success: true };
 }
+
+
+// ============================================================
+// EVENTS BY ESTABLISHMENT — para o painel business ver eventos agendados
+// ============================================================
+
+export async function getEventsByEstablishment(establishmentId: number, upcoming: boolean = true) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const dateFilter = upcoming
+    ? sql`${groupEvents.eventDate} >= NOW()`
+    : sql`${groupEvents.eventDate} < NOW()`;
+
+  const rows = await db.select({
+    id: groupEvents.id,
+    code: groupEvents.code,
+    groupId: groupEvents.groupId,
+    creatorId: groupEvents.creatorId,
+    establishmentId: groupEvents.establishmentId,
+    title: groupEvents.title,
+    description: groupEvents.description,
+    eventDate: groupEvents.eventDate,
+    maxGuests: groupEvents.maxGuests,
+    status: groupEvents.status,
+    createdAt: groupEvents.createdAt,
+    creatorName: users.name,
+    groupName: groups.name,
+  })
+    .from(groupEvents)
+    .innerJoin(users, eq(users.id, groupEvents.creatorId))
+    .innerJoin(groups, eq(groups.id, groupEvents.groupId))
+    .where(and(
+      eq(groupEvents.establishmentId, establishmentId),
+      eq(groupEvents.status, 'active'),
+      dateFilter
+    ))
+    .orderBy(groupEvents.eventDate);
+
+  // For each event, get RSVP counts
+  const eventsWithRsvps = await Promise.all(rows.map(async (event) => {
+    const rsvpCounts = await db.select({
+      status: eventRsvps.status,
+      count: sql<number>`COUNT(*)`,
+    })
+      .from(eventRsvps)
+      .where(eq(eventRsvps.eventId, event.id))
+      .groupBy(eventRsvps.status);
+
+    const confirmed = rsvpCounts.find(r => r.status === 'confirmed')?.count || 0;
+    const maybe = rsvpCounts.find(r => r.status === 'maybe')?.count || 0;
+    const declined = rsvpCounts.find(r => r.status === 'declined')?.count || 0;
+
+    return {
+      ...event,
+      rsvpCounts: { confirmed: Number(confirmed), maybe: Number(maybe), declined: Number(declined) },
+      totalConfirmed: Number(confirmed) + Number(maybe),
+    };
+  }));
+
+  return eventsWithRsvps;
+}

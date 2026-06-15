@@ -165,6 +165,8 @@ function Router() {
       <Route path="/admin/estabs" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       <Route path="/painel-empresarial/insights" component={BusinessPanel} />
+      <Route path="/painel-empresarial/notificacoes" component={BusinessPanel} />
+      <Route path="/painel-empresarial/calendario" component={BusinessPanel} />
       <Route path="/painel-empresarial/config" component={BusinessPanel} />
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
