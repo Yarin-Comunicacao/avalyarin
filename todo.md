@@ -505,3 +505,7 @@
 
 ## Fase 9.3 — Calendário para Influencer
 - [x] Adicionar aba/seção Calendário no InfluencerPanel (eventos dos grupos do influencer)
+
+## Fase 9.4 — Mover "Como Funciona" para pop-up de finalização de cadastro
+- [x] Remover seção "Como Funciona" da Home
+- [x] Criar pop-up "Como Funciona" exibido ao finalizar cadastro da conta (HowItWorksDialog)

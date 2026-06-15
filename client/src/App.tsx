@@ -70,6 +70,7 @@ import BottomNav from "./components/BottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
 import AuthChoice from "./components/AuthChoice";
+import HowItWorksDialog from "./components/HowItWorksDialog";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -214,11 +215,15 @@ function App() {
   // Phase 3 — Connoisseur (after 10 reviews)
   const [showPhase3, setShowPhase3] = useState<boolean>(() => isSurveyPhase3Due());
 
+  // "Como Funciona" pop-up — shown once after onboarding completes
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+
   const saveSurveyMutation = trpc.survey.save.useMutation();
   const handleSurveyComplete = useCallback((answers: any) => {
     localStorage.setItem("avalyarin_survey_completed", "true");
     localStorage.setItem("avalyarin_survey_answers", JSON.stringify(answers));
     setSurveyCompleted(true);
+    setShowHowItWorks(true);
     // Also persist to DB if user is authenticated
     try {
       saveSurveyMutation.mutate(answers);
@@ -313,6 +318,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <PWAInstallPrompt />
+            <HowItWorksDialog open={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
             <Router />
             <BottomNav />
           </TooltipProvider>

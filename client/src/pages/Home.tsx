@@ -14,7 +14,7 @@ import { useState, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
-  Star, ClipboardCheck, BarChart3, ArrowRight,
+  ArrowRight,
   Utensils, PartyPopper, CakeSlice, Heart
 } from "lucide-react";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
@@ -146,41 +146,6 @@ export default function Home() {
 
       {/* Saved Posts Carousel (logged-in users only) */}
       <SavedPostsCarousel />
-
-      {/* How it works */}
-      <section className="py-16 border-t border-border/30">
-        <div className="container">
-          <h3 className="font-display text-3xl tracking-wider text-primary text-glow-amber mb-10">
-            COMO FUNCIONA
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: Star, title: "Escolha uma das categorias", desc: "Selecione o estabelecimento cadastrado que você visitou." },
-              { icon: ClipboardCheck, title: "Avalie o que Consumiu", desc: "Escolha os itens do cardápio e avalie no modo Direto ou Analítico." },
-              { icon: BarChart3, title: "Veja a Nota", desc: "O sistema calcula automaticamente com pesos dinâmicos por categoria." },
-            ].map((step, i) => (
-              <motion.div
-                key={step.title}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="relative p-6 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all group"
-              >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:glow-amber transition-all">
-                  <step.icon className="w-6 h-6 text-primary" />
-                </div>
-                <span className="font-numbers text-5xl font-bold text-primary/10 absolute top-4 right-6">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h4 className="font-display text-xl tracking-wider text-foreground mb-2">{step.title}</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Nearby Establishments */}
       <NearbyEstablishments />
