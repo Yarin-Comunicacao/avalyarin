@@ -483,3 +483,13 @@
 ## Fase 8.2 — Reorganização do Admin (supervisão do Support)
 - [x] BottomNav admin: Início, Equipe, Influencers, Estabs, Config
 - [x] Rotas /admin/equipe, /admin/influencers, /admin/estabs mapeadas para abas do AdminPanel
+
+## Fase 9 — Calendário de Eventos (User)
+- [x] Schema: tabela group_events (id, groupId, creatorId, establishmentId, title, description, eventDate, createdAt)
+- [x] Schema: tabela event_rsvps (id, eventId, userId, status: confirmed/maybe/declined, respondedAt)
+- [x] DB helpers: createEvent, getGroupEvents, getEventById, rsvpEvent, getEventRsvps
+- [x] Endpoints tRPC: events.create, events.listByGroup, events.getById, events.rsvp, events.myEvents
+- [x] Página CalendarioGrupo: calendário mensal + lista de eventos do grupo
+- [x] Página EventoDetalhe: detalhes do evento + lista de presenças + botões RSVP
+- [x] Rotas no App.tsx: /grupo/:id/calendario, /evento/:id
+- [ ] Notificação ao criar evento (membros do grupo)

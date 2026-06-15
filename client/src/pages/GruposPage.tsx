@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Users, Plus, Crown, Lock, ArrowLeft, UserPlus, Search,
-  ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye
+  ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -397,6 +397,26 @@ function GroupDetail({
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Calendar Button */}
+      {!isInfluencer && group.isMember && (
+        <div className="mb-6">
+          <Link href={`/grupo/${groupId}/calendario`}>
+            <button className="w-full p-4 rounded-xl bg-primary/10 border border-primary/30 hover:border-primary/60 transition-all flex items-center justify-between group cursor-pointer">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <CalendarDays className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground">Calendário de Eventos</p>
+                  <p className="text-xs text-muted-foreground">Agende encontros com o grupo</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+            </button>
+          </Link>
         </div>
       )}
 

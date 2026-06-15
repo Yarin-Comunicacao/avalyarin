@@ -573,3 +573,36 @@ export const supportTickets = mysqlTable("support_tickets", {
 
 export type SupportTicket = typeof supportTickets.$inferSelect;
 export type InsertSupportTicket = typeof supportTickets.$inferInsert;
+
+// ============================================================
+// Group Events — eventos agendados dentro de grupos
+// ============================================================
+export const groupEvents = mysqlTable("group_events", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: ev000001-ev999999
+  groupId: int("groupId").notNull(),
+  creatorId: int("creatorId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventDate: timestamp("eventDate").notNull(), // data e hora do evento
+  maxGuests: int("maxGuests"), // limite de pessoas (null = sem limite)
+  status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type GroupEvent = typeof groupEvents.$inferSelect;
+export type InsertGroupEvent = typeof groupEvents.$inferInsert;
+
+// ============================================================
+// Event RSVPs — confirmações de presença nos eventos
+// ============================================================
+export const eventRsvps = mysqlTable("event_rsvps", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  userId: int("userId").notNull(),
+  status: mysqlEnum("status", ["confirmed", "maybe", "declined"]).default("confirmed").notNull(),
+  respondedAt: timestamp("respondedAt").defaultNow().notNull(),
+});
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = typeof eventRsvps.$inferInsert;

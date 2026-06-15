@@ -60,6 +60,9 @@ import ContaPage from "./pages/ContaPage";
 import OwnerPanel from "./pages/OwnerPanel";
 import SystemPanel from "./pages/SystemPanel";
 import TestSuitePage from "./pages/TestSuitePage";
+// Calendar & Events
+import CalendarioGrupo from "./pages/CalendarioGrupo";
+import EventoDetalhe from "./pages/EventoDetalhe";
 // Profiles
 import RoleBasedProfile from "./components/profiles";
 import BottomNav from "./components/BottomNav";
@@ -109,6 +112,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/categoria/:id" component={CategoryPage} />
+      <Route path="/grupo/:id/calendario" component={CalendarioGrupo} />
+      <Route path="/evento/:id" component={EventoDetalhe} />
       <Route path="/grupo/:id" component={CategoryGroupPage} />
       <Route path="/todas-categorias" component={AllCategoriesPage} />
       <Route path="/estabelecimento/:id" component={EstablishmentPage} />

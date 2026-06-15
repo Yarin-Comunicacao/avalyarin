@@ -61,6 +61,14 @@ import {
   getAgeVerificationRequests,
   reviewAgeVerification,
   getUserAgeVerificationStatus,
+  // Events
+  createGroupEvent,
+  getGroupEvents,
+  getEventById,
+  getEventRsvps,
+  rsvpEvent,
+  getUserEvents,
+  cancelGroupEvent,
 } from "./db";
 import {
   createGroup,
@@ -1867,6 +1875,99 @@ export const appRouter = router({
       .input(z.object({ limit: z.number().min(1).max(100).default(20) }).optional())
       .query(async ({ input }) => {
         return await getSystemAuditLog(input?.limit || 20);
+      }),
+  }),
+
+  // ============ GROUP EVENTS / CALENDAR ============
+  events: router({
+    create: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        establishmentId: z.number(),
+        title: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        eventDate: z.string(), // ISO string
+        maxGuests: z.number().min(1).max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        // Verify user is a member of the group
+        const isMember = await isGroupMember(input.groupId, userId);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        }
+        return await createGroupEvent({
+          groupId: input.groupId,
+          creatorId: userId,
+          establishmentId: input.establishmentId,
+          title: input.title,
+          description: input.description,
+          eventDate: new Date(input.eventDate),
+          maxGuests: input.maxGuests,
+        });
+      }),
+
+    listByGroup: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        status: z.enum(["active", "cancelled", "completed"]).default("active"),
+      }))
+      .query(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const isMember = await isGroupMember(input.groupId, userId);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        }
+        return await getGroupEvents(input.groupId, input.status);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        }
+        // Verify user is member of the event's group
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este evento." });
+        }
+        const rsvps = await getEventRsvps(input.eventId);
+        return { ...event, rsvps };
+      }),
+
+    rsvp: protectedProcedure
+      .input(z.object({
+        eventId: z.number(),
+        status: z.enum(["confirmed", "maybe", "declined"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        // Verify event exists and user is member of its group
+        const event = await getEventById(input.eventId);
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        }
+        const isMember = await isGroupMember(event.groupId, userId);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        }
+        return await rsvpEvent(input.eventId, userId, input.status);
+      }),
+
+    myEvents: protectedProcedure
+      .input(z.object({
+        upcoming: z.boolean().default(true),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        return await getUserEvents(ctx.user!.id, input?.upcoming ?? true);
+      }),
+
+    cancel: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await cancelGroupEvent(input.eventId, ctx.user!.id);
       }),
   }),
 });

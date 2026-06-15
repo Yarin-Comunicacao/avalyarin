@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, establishmentCategories, businessNotifications } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -1909,4 +1909,226 @@ export async function getUserAgeVerificationStatus(userId: number) {
     .orderBy(desc(ageVerificationRequests.createdAt))
     .limit(1);
   return rows[0] || null;
+}
+
+// ============================================================
+// GROUP EVENTS
+// ============================================================
+
+export async function createGroupEvent(data: {
+  groupId: number;
+  creatorId: number;
+  establishmentId: number;
+  title: string;
+  description?: string;
+  eventDate: Date;
+  maxGuests?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const code = `ev${String(Date.now() % 999999).padStart(6, '0')}`;
+
+  const [result] = await db.insert(groupEvents).values({
+    code,
+    groupId: data.groupId,
+    creatorId: data.creatorId,
+    establishmentId: data.establishmentId,
+    title: data.title,
+    description: data.description || null,
+    eventDate: data.eventDate,
+    maxGuests: data.maxGuests || null,
+  }).$returningId();
+
+  return { id: result.id, code };
+}
+
+export async function getGroupEvents(groupId: number, status: 'active' | 'cancelled' | 'completed' = 'active') {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db.select({
+    id: groupEvents.id,
+    code: groupEvents.code,
+    groupId: groupEvents.groupId,
+    creatorId: groupEvents.creatorId,
+    establishmentId: groupEvents.establishmentId,
+    title: groupEvents.title,
+    description: groupEvents.description,
+    eventDate: groupEvents.eventDate,
+    maxGuests: groupEvents.maxGuests,
+    status: groupEvents.status,
+    createdAt: groupEvents.createdAt,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    establishmentNeighborhood: establishments.neighborhood,
+    establishmentAddress: establishments.address,
+    establishmentImage: establishments.image,
+    creatorName: users.name,
+  })
+    .from(groupEvents)
+    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .innerJoin(users, eq(users.id, groupEvents.creatorId))
+    .where(and(
+      eq(groupEvents.groupId, groupId),
+      eq(groupEvents.status, status)
+    ))
+    .orderBy(groupEvents.eventDate);
+
+  return rows;
+}
+
+export async function getEventById(eventId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [event] = await db.select({
+    id: groupEvents.id,
+    code: groupEvents.code,
+    groupId: groupEvents.groupId,
+    creatorId: groupEvents.creatorId,
+    establishmentId: groupEvents.establishmentId,
+    title: groupEvents.title,
+    description: groupEvents.description,
+    eventDate: groupEvents.eventDate,
+    maxGuests: groupEvents.maxGuests,
+    status: groupEvents.status,
+    createdAt: groupEvents.createdAt,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    establishmentNeighborhood: establishments.neighborhood,
+    establishmentAddress: establishments.address,
+    establishmentImage: establishments.image,
+    establishmentLat: establishments.lat,
+    establishmentLng: establishments.lng,
+    creatorName: users.name,
+    groupName: groups.name,
+  })
+    .from(groupEvents)
+    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .innerJoin(users, eq(users.id, groupEvents.creatorId))
+    .innerJoin(groups, eq(groups.id, groupEvents.groupId))
+    .where(eq(groupEvents.id, eventId))
+    .limit(1);
+
+  return event || null;
+}
+
+export async function getEventRsvps(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db.select({
+    id: eventRsvps.id,
+    eventId: eventRsvps.eventId,
+    userId: eventRsvps.userId,
+    status: eventRsvps.status,
+    respondedAt: eventRsvps.respondedAt,
+    userName: users.name,
+    userUsername: users.username,
+  })
+    .from(eventRsvps)
+    .innerJoin(users, eq(users.id, eventRsvps.userId))
+    .where(eq(eventRsvps.eventId, eventId));
+
+  return rows;
+}
+
+export async function rsvpEvent(eventId: number, userId: number, status: 'confirmed' | 'maybe' | 'declined') {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if RSVP already exists
+  const existing = await db.select()
+    .from(eventRsvps)
+    .where(and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.userId, userId)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Update existing RSVP
+    await db.update(eventRsvps)
+      .set({ status, respondedAt: new Date() })
+      .where(and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.userId, userId)));
+  } else {
+    // Create new RSVP
+    await db.insert(eventRsvps).values({
+      eventId,
+      userId,
+      status,
+      respondedAt: new Date(),
+    });
+  }
+
+  return { success: true };
+}
+
+export async function getUserEvents(userId: number, upcoming = true) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all groups the user is a member of
+  const memberGroups = await db.select({ groupId: groupMembers.groupId })
+    .from(groupMembers)
+    .where(eq(groupMembers.userId, userId));
+
+  if (memberGroups.length === 0) return [];
+
+  const groupIds = memberGroups.map(g => g.groupId);
+
+  const dateFilter = upcoming
+    ? sql`${groupEvents.eventDate} >= NOW()`
+    : sql`${groupEvents.eventDate} < NOW()`;
+
+  const rows = await db.select({
+    id: groupEvents.id,
+    code: groupEvents.code,
+    groupId: groupEvents.groupId,
+    creatorId: groupEvents.creatorId,
+    establishmentId: groupEvents.establishmentId,
+    title: groupEvents.title,
+    description: groupEvents.description,
+    eventDate: groupEvents.eventDate,
+    maxGuests: groupEvents.maxGuests,
+    status: groupEvents.status,
+    createdAt: groupEvents.createdAt,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    establishmentNeighborhood: establishments.neighborhood,
+    establishmentImage: establishments.image,
+    creatorName: users.name,
+    groupName: groups.name,
+  })
+    .from(groupEvents)
+    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .innerJoin(users, eq(users.id, groupEvents.creatorId))
+    .innerJoin(groups, eq(groups.id, groupEvents.groupId))
+    .where(and(
+      inArray(groupEvents.groupId, groupIds),
+      eq(groupEvents.status, 'active'),
+      dateFilter
+    ))
+    .orderBy(groupEvents.eventDate);
+
+  return rows;
+}
+
+export async function cancelGroupEvent(eventId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Only creator can cancel
+  const [event] = await db.select({ creatorId: groupEvents.creatorId })
+    .from(groupEvents)
+    .where(eq(groupEvents.id, eventId))
+    .limit(1);
+
+  if (!event || event.creatorId !== userId) {
+    throw new Error("Apenas o criador pode cancelar o evento");
+  }
+
+  await db.update(groupEvents)
+    .set({ status: 'cancelled' })
+    .where(eq(groupEvents.id, eventId));
+
+  return { success: true };
 }
