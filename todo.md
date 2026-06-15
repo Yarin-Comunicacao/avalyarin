@@ -502,3 +502,6 @@
 
 ## Fase 9.2 — Navegação contextual nas setas de voltar
 - [x] Corrigir setas de voltar: navegar para página pai do mesmo menu (não para /) em todas as páginas
+
+## Fase 9.3 — Calendário para Influencer
+- [x] Adicionar aba/seção Calendário no InfluencerPanel (eventos dos grupos do influencer)

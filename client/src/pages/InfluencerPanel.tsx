@@ -11,11 +11,11 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
-import { Redirect } from "wouter";
-import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck } from "lucide-react";
+import { Redirect, Link } from "wouter";
+import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
-type Tab = "overview" | "partnerships" | "promos" | "profile";
+type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
 
 export default function InfluencerPanel() {
   const { user, loading } = useAuth();
@@ -36,6 +36,7 @@ export default function InfluencerPanel() {
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: "overview", label: "Visão Geral", icon: BarChart3 },
+    { id: "calendar", label: "Calendário", icon: CalendarDays },
     { id: "partnerships", label: "Parcerias", icon: Handshake },
     { id: "promos", label: "Códigos", icon: Tag },
     { id: "profile", label: "Meu Perfil", icon: UserCircle },
@@ -81,6 +82,7 @@ export default function InfluencerPanel() {
 
         {/* Tab Content */}
         {activeTab === "overview" && <OverviewTab userId={user.id} />}
+        {activeTab === "calendar" && <CalendarTab />}
         {activeTab === "partnerships" && <PartnershipsTab userId={user.id} />}
         {activeTab === "promos" && <PromosTab userId={user.id} />}
         {activeTab === "profile" && <ProfileTab userId={user.id} userName={user.name || user.username || ""} />}
@@ -317,6 +319,100 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
           Este é o preview do seu perfil público. Os usuários que te seguirem verão suas avaliações no feed e receberão notificações de novas publicações.
         </p>
       </div>
+    </div>
+  );
+}
+
+function CalendarTab() {
+  const [showUpcoming, setShowUpcoming] = useState(true);
+  const { data: events, isLoading } = trpc.events.myEvents.useQuery({ upcoming: showUpcoming });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Toggle */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowUpcoming(true)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            showUpcoming
+              ? "bg-primary/20 text-primary border border-primary/40"
+              : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+          }`}
+        >
+          Próximos
+        </button>
+        <button
+          onClick={() => setShowUpcoming(false)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            !showUpcoming
+              ? "bg-primary/20 text-primary border border-primary/40"
+              : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+          }`}
+        >
+          Passados
+        </button>
+      </div>
+
+      {/* Events list */}
+      {!events || events.length === 0 ? (
+        <div className="text-center py-12 bg-secondary/20 rounded-xl border border-border/20">
+          <CalendarDays className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">
+            {showUpcoming ? "Nenhum evento próximo" : "Nenhum evento passado"}
+          </p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Eventos são criados nos calendários dos seus grupos.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {events.map((event: any) => (
+            <Link key={event.id} href={`/evento/${event.id}`}>
+              <div className="p-4 rounded-xl bg-card border border-border/30 hover:border-primary/30 transition-all cursor-pointer">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-foreground">{event.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {event.groupName} • {event.establishmentName}
+                    </p>
+                    {event.establishmentNeighborhood && (
+                      <p className="text-xs text-muted-foreground/70 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3" />
+                        {event.establishmentNeighborhood}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-primary">
+                      {new Date(event.eventDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-0.5 justify-end">
+                      <Clock className="w-3 h-3" />
+                      {new Date(event.eventDate).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+                {event.maxGuests && (
+                  <div className="mt-2 pt-2 border-t border-border/20">
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      {event.maxGuests} vagas
+                    </p>
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
