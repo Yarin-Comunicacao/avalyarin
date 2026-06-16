@@ -415,7 +415,7 @@ export default function EstablishmentPage() {
       {menu.length === 0 && (
         <section className="py-12">
           <div className="container text-center">
-            <p className="text-muted-foreground">Cardápio ainda não disponível para este estabelecimento.</p>
+            <p className="text-muted-foreground">Este local ainda não possui itens em nosso cardápio.</p>
           </div>
         </section>
       )}

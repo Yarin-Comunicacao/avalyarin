@@ -118,11 +118,11 @@ export const ratings = mysqlTable("ratings", {
   criteriaScores: json("criteriaScores"),
   // Bonus criteria scores
   bonusScores: json("bonusScores"),
-  source: mysqlEnum("source", ["presencial", "hibrido", "remoto"]).default("remoto").notNull(),
+    source: mysqlEnum("source", ["presencial", "hibrido", "remoto"]).default("remoto").notNull(),
+  relevanceScore: int("relevanceScore"), // 0-100, LLM-calculated comment depth/utility score
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
-
 export type Rating = typeof ratings.$inferSelect;
 export type InsertRating = typeof ratings.$inferInsert;
 
@@ -609,3 +609,18 @@ export const eventRsvps = mysqlTable("event_rsvps", {
 });
 export type EventRsvp = typeof eventRsvps.$inferSelect;
 export type InsertEventRsvp = typeof eventRsvps.$inferInsert;
+
+// ============================================================
+// Rating Photos — fotos enviadas nas avaliações
+// ============================================================
+export const ratingPhotos = mysqlTable("rating_photos", {
+  id: int("id").autoincrement().primaryKey(),
+  ratingId: int("ratingId").notNull(),
+  userId: int("userId").notNull(),
+  storageKey: varchar("storageKey", { length: 512 }).notNull(),
+  url: varchar("url", { length: 512 }).notNull(),
+  taggedItemIds: text("taggedItemIds"), // JSON array of menu item IDs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type RatingPhoto = typeof ratingPhotos.$inferSelect;
+export type InsertRatingPhoto = typeof ratingPhotos.$inferInsert;

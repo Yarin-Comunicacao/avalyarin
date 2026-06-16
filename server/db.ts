@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -868,7 +868,7 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
     .from(ratings)
     .innerJoin(users, eq(ratings.userId, users.id))
     .where(eq(ratings.establishmentId, establishmentId))
-    .orderBy(desc(ratings.createdAt))
+    .orderBy(desc(ratings.relevanceScore), desc(ratings.createdAt))
     .limit(limit)
     .offset(offset);
   
@@ -2207,4 +2207,51 @@ export async function saveUserLocation(userId: number, lat: number, lng: number)
     locationUpdatedAt: Date.now(),
   }).where(eq(users.id, userId));
   return { success: true };
+}
+
+
+// ============================================================
+// Rating Photos
+// ============================================================
+export async function saveRatingPhoto(data: {
+  ratingId: number;
+  userId: number;
+  storageKey: string;
+  url: string;
+  taggedItemIds?: string[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(ratingPhotos).values({
+    ratingId: data.ratingId,
+    userId: data.userId,
+    storageKey: data.storageKey,
+    url: data.url,
+    taggedItemIds: data.taggedItemIds ? JSON.stringify(data.taggedItemIds) : null,
+  });
+  return { id: Number(result[0].insertId) };
+}
+
+export async function getRatingPhotos(ratingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select().from(ratingPhotos).where(eq(ratingPhotos.ratingId, ratingId));
+}
+
+export async function getEstablishmentPhotos(establishmentId: number, limit = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select({
+    id: ratingPhotos.id,
+    url: ratingPhotos.url,
+    taggedItemIds: ratingPhotos.taggedItemIds,
+    createdAt: ratingPhotos.createdAt,
+    userName: users.name,
+  })
+    .from(ratingPhotos)
+    .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
+    .innerJoin(users, eq(ratingPhotos.userId, users.id))
+    .where(eq(ratings.establishmentId, establishmentId))
+    .orderBy(desc(ratingPhotos.createdAt))
+    .limit(limit);
 }

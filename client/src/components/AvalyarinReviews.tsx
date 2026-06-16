@@ -1,8 +1,8 @@
-// AvalyarinReviews — Displays clickable Avalyarin reviews with order summary
+// AvalyarinReviews — Displays clickable Avalyarin reviews with order summary + photo carousel
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { StarRating } from "./StarRating";
-import { X, User, Calendar, ShoppingBag, BadgeCheck } from "lucide-react";
+import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -12,10 +12,17 @@ interface AvalyarinReviewsProps {
 
 export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
   const [selectedReview, setSelectedReview] = useState<number | null>(null);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   const { data: reviews, isLoading } = trpc.ratings.byEstablishment.useQuery(
     { establishmentId, limit: 10, offset: 0 },
     { enabled: !!establishmentId }
+  );
+
+  // Fetch photos for the selected review
+  const { data: reviewPhotos } = trpc.ratings.getPhotos.useQuery(
+    { ratingId: selectedReview! },
+    { enabled: !!selectedReview }
   );
 
   if (isLoading) {
@@ -36,6 +43,11 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
 
   const selected = reviews.find((r) => r.id === selectedReview);
 
+  const handleSelectReview = (id: number) => {
+    setSelectedReview(id);
+    setPhotoIndex(0);
+  };
+
   return (
     <div>
       {/* Review cards */}
@@ -51,7 +63,7 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
           return (
             <button
               key={review.id}
-              onClick={() => setSelectedReview(review.id)}
+              onClick={() => handleSelectReview(review.id)}
               className="w-full text-left p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/30 transition-all"
             >
               {/* Title: items ordered */}
@@ -124,6 +136,67 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
+
+            {/* Photo Carousel */}
+            {reviewPhotos && reviewPhotos.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <ImageIcon className="w-4 h-4 text-primary/60" />
+                  <span className="text-sm font-medium text-foreground">Fotos ({reviewPhotos.length})</span>
+                </div>
+                <div className="relative rounded-xl overflow-hidden bg-black/20 border border-border/30">
+                  <img
+                    src={reviewPhotos[photoIndex].url}
+                    alt={`Foto ${photoIndex + 1}`}
+                    className="w-full h-48 object-contain"
+                  />
+                  {/* Navigation arrows */}
+                  {reviewPhotos.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setPhotoIndex((prev) => (prev - 1 + reviewPhotos.length) % reviewPhotos.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setPhotoIndex((prev) => (prev + 1) % reviewPhotos.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                      {/* Dots indicator */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                        {reviewPhotos.map((_, idx) => (
+                          <div
+                            key={idx}
+                            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                              idx === photoIndex ? "bg-primary" : "bg-white/40"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Tagged items for current photo */}
+                {reviewPhotos[photoIndex].taggedItemIds && (
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Itens marcados: {(() => {
+                      try {
+                        const ids = JSON.parse(reviewPhotos[photoIndex].taggedItemIds as string);
+                        const taggedNames = selected.items
+                          ?.filter((item) => ids.includes(String(item.id)) || ids.includes(item.id))
+                          .map((item) => item.itemName);
+                        return taggedNames?.join(", ") || "—";
+                      } catch {
+                        return "—";
+                      }
+                    })()}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Overall score */}
             {selected.overallScore && (

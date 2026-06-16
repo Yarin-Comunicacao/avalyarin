@@ -363,6 +363,14 @@ export const appRouter = router({
         } catch (e) {
           console.error("[Progression] Level-up check failed:", e);
         }
+        // Calculate relevance score (non-blocking, fire-and-forget)
+        if (result?.id) {
+          import("./relevance").then(({ scoreAndSaveRelevance }) => {
+            scoreAndSaveRelevance(result.id).catch((e: unknown) =>
+              console.error("[Relevance] Score calculation failed:", e)
+            );
+          });
+        }
         return { ...result, levelUp, source };
       }),
 
@@ -392,6 +400,47 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset);
+      }),
+
+    uploadPhoto: protectedProcedure
+      .input(z.object({
+        ratingId: z.number(),
+        base64Data: z.string(), // base64-encoded image
+        mimeType: z.string().default("image/jpeg"),
+        taggedItemIds: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const buffer = Buffer.from(input.base64Data, "base64");
+        const ext = input.mimeType.includes("png") ? "png" : "jpg";
+        const key = `ratings/${input.ratingId}/photo_${Date.now()}.${ext}`;
+        const { storagePut } = await import("./storage");
+        const { key: storageKey, url } = await storagePut(key, buffer, input.mimeType);
+        const { saveRatingPhoto } = await import("./db");
+        return await saveRatingPhoto({
+          ratingId: input.ratingId,
+          userId,
+          storageKey,
+          url,
+          taggedItemIds: input.taggedItemIds,
+        });
+      }),
+
+    getPhotos: publicProcedure
+      .input(z.object({ ratingId: z.number() }))
+      .query(async ({ input }) => {
+        const { getRatingPhotos } = await import("./db");
+        return await getRatingPhotos(input.ratingId);
+      }),
+
+    getEstablishmentPhotos: publicProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        limit: z.number().min(1).max(50).default(20),
+      }))
+      .query(async ({ input }) => {
+        const { getEstablishmentPhotos } = await import("./db");
+        return await getEstablishmentPhotos(input.establishmentId, input.limit);
       }),
   }),
 

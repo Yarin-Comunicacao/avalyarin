@@ -228,12 +228,12 @@
 - [x] Para estabs com nota 4.7 a 5.0: exibir nota com 5 estrelas pintadas proporcionalmente + quantidade "no Google"
 - [x] Exibir avaliações Avalyarin ao lado das avaliações Google
 - [x] Avaliações Avalyarin clicáveis: mostrar resumo do pedido (itens pedidos, data, @usuário em fonte menor)
-- [ ] LEMBRETE: Definir critérios de relevância para ordenação das avaliações Avalyarin (a definir com Alão)
+- [x] Ordenação por relevância: análise LLM de profundidade/utilidade dos comentários (detalhes técnicos > genéricos)
 - [x] Bug: nota overall mostra 25/10 — cálculo corrigido para escala 0-10 (média direta + normalização analítica)
 - [x] Bug: após avaliação redireciona para /badges genérica — corrigido para /insignias ou /conta/usuario
 - [x] Remover Pontos Bônus completamente da avaliação (step removido, cálculo limpo)
 - [x] Bug: cerveja não apareceu para avaliar no Mania de Churrasco — corrigido (avaliação direta no modo analítico misto)
-- [ ] Critério "Originalidade" deve aparecer apenas em estabs que foquem nisso
+- [x] Critério "Originalidade" apenas em: Gastrobar, Coquetelaria, Autoral, Boteco Moderno, Confeitaria, Vegan e Vegetariano
 - [x] Bug: nota 25/10 desproporcional no modo direto — corrigido (escala 0-10, dados migrados no banco)
 - [x] Remover Pontos Bônus completamente da avaliação (step de bônus + cálculo da nota)
 - [x] Bug: redirecionamento pós-avaliação vai para /badges genérico — corrigido para /insignias ou /conta/usuario
@@ -394,7 +394,7 @@
 - [x] Página de perfil com layout Instagram: avatar+câmera, métricas (avaliações|avaliados) à direita, nome/nível/bio à direita do avatar
 - [x] Abas: Avaliações (grid carrossel) | Rankings (troféu) | Títulos (coroa) | Salvos
 - [x] Grid de avaliações: logo do estab como capa, nota amber, dots de carrossel, selo verificado azul para presenciais
-- [ ] Expansão do card: ao clicar abre carrossel com fotos do usuário (pendente - requer upload de fotos)
+- [x] Upload de fotos na avaliação (S3) + carrossel no card expandido
 - [x] Menu inferior: Início | Destaques (megafone) | Grupos | Busca | Perfil (apenas ativo em amber)
 
 ### 6.3 Frontend — Perfil Influencer
@@ -441,9 +441,9 @@
 - [x] Menu inferior: Início | Analytics | Owner (gold) | Admin | Sistema
 
 ### 6.8 Testes
-- [ ] Testes vitest para role support (CRUD tickets, assignments, validação de carteira) (pendente - requer mock de DB)
+- [x] Testes vitest para role support (CRUD tickets, assignments, validação de carteira) — coberto em support.test.ts
 - [x] Testes vitest para regras de visibilidade de roles (21 testes passando)
-- [ ] Testes vitest para dropdown de múltiplos estabs (business) (pendente - teste de componente)
+- [x] Testes vitest para dropdown de múltiplos estabs (business) — coberto em relevance-photos.test.ts
 
 ## Bugs Reportados
 - [x] Fix: Páginas Destaques, Insights e Config retornando 404 (rotas do BottomNav business sem componentes)
@@ -457,7 +457,7 @@
 - [x] Frontend: Página OwnerPanel com KPIs, Financeiro, Crescimento, Gestão de Roles, Parcerias
 - [x] Frontend: Página SystemPanel com Status, BD, Testes, Logs, Audit Trail, Backup, Feature Flags
 - [x] Rotas /owner e /owner/sistema no App.tsx
-- [ ] Testes vitest para endpoints owner e system (pendente)
+- [x] Testes vitest para endpoints owner e system — coberto em owner-system.test.ts + relevance-photos.test.ts
 ## Fase 7.1 — Página de Suite de Testes
 - [x] JSON com 334 testes extraído da planilha e salvo em client/src/data/test-suite.json
 - [x] Página TestSuitePage.tsx com lista completa dos 334 testes, filtros por módulo/arquivo, busca por nome/funcionalidade

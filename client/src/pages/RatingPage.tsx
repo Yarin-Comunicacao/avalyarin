@@ -401,6 +401,7 @@ export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
   const { user, isAuthenticated } = useAuth();
   const saveRatingMutation = trpc.ratings.save.useMutation();
+  const uploadPhotoMutation = trpc.ratings.uploadPhoto.useMutation();
   
   const { data: estData, isLoading: estLoading } = trpc.establishments.getWithMenu.useQuery(
     { slug: establishmentId || "" },
@@ -484,14 +485,24 @@ export default function RatingPage() {
 
   const showHarmonizacao = hasFood && hasBeverage;
 
-  // Global criteria: exclude c1, c2, and conditionally c10
+  // Categories where "Originalidade" (c7) criterion applies
+  const ORIGINALIDADE_CATEGORIES = [
+    "gastrobar", "coquetelaria", "autoral-contemporaneo", "autoral",
+    "boteco-moderno", "confeitaria", "vegan", "vegetariano",
+  ];
+  const showOriginalidade = parentCategory
+    ? ORIGINALIDADE_CATEGORIES.includes(parentCategory.id)
+    : false;
+
+  // Global criteria: exclude c1, c2, conditionally c7 (Originalidade) and c10
   const globalCriteria = useMemo(() => {
     return PUB_CRITERIA.filter((c) => {
       if (c.id === "c1" || c.id === "c2") return false;
+      if (c.id === "c7" && !showOriginalidade) return false;
       if (c.id === "c10" && !showHarmonizacao) return false;
       return true;
     });
-  }, [showHarmonizacao]);
+  }, [showHarmonizacao, showOriginalidade]);
 
   const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>([]);
 
@@ -2178,7 +2189,7 @@ export default function RatingPage() {
 
                       // Save to database via tRPC
                       try {
-                        await saveRatingMutation.mutateAsync({
+                        const saveResult = await saveRatingMutation.mutateAsync({
                           establishmentId: estData!.id,
                           type: mode === "direto" ? "direct" : "analytic",
                           visitDate: visitDate ? visitDate.toISOString() : undefined,
@@ -2208,6 +2219,26 @@ export default function RatingPage() {
                             };
                           }),
                         });
+
+                        // Upload photos to S3 (non-blocking, fire-and-forget)
+                        const savedRatingId = saveResult?.id;
+                        if (savedRatingId && photos.length > 0) {
+                          for (const photo of photos) {
+                            try {
+                              const base64 = photo.dataUrl.split(",")[1];
+                              if (base64) {
+                                await uploadPhotoMutation.mutateAsync({
+                                  ratingId: savedRatingId,
+                                  base64Data: base64,
+                                  mimeType: photo.dataUrl.startsWith("data:image/png") ? "image/png" : "image/jpeg",
+                                  taggedItemIds: photo.taggedItemIds,
+                                });
+                              }
+                            } catch (e) {
+                              console.error("[Photo Upload] Failed:", e);
+                            }
+                          }
+                        }
 
                         // Also persist to localStorage for badge/survey tracking
                         const newReview = {
