@@ -5,43 +5,42 @@
  */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Html5Qrcode } from "html5-qrcode";
 import { Button } from "@/components/ui/button";
-import { Camera, CameraOff, ScanLine, ArrowLeft, Flashlight } from "lucide-react";
+import { Camera, CameraOff, ScanLine, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export default function QRScannerPage() {
   const [, navigate] = useLocation();
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
+  const [status, setStatus] = useState<"loading" | "scanning" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scannerRef = useRef<any>(null);
   const hasNavigated = useRef(false);
+  const mountedRef = useRef(true);
 
   const stopScanner = useCallback(async () => {
     if (scannerRef.current) {
       try {
         const state = scannerRef.current.getState();
-        if (state === 2) { // SCANNING
+        // State 2 = SCANNING
+        if (state === 2) {
           await scannerRef.current.stop();
         }
       } catch {
         // ignore stop errors
       }
+      try {
+        scannerRef.current.clear();
+      } catch {
+        // ignore clear errors
+      }
       scannerRef.current = null;
     }
-    setIsScanning(false);
   }, []);
 
   const handleScanSuccess = useCallback((decodedText: string) => {
     if (hasNavigated.current) return;
-    
+
     // Try to extract the slug from the URL
-    // Expected formats: 
-    //   https://avaliabar-xxx.manus.space/e/slug
-    //   /e/slug
-    //   or just the slug itself
     let slug: string | null = null;
 
     try {
@@ -56,7 +55,6 @@ export default function QRScannerPage() {
       if (pathMatch) {
         slug = pathMatch[1];
       } else if (/^[a-z0-9-]+$/.test(decodedText)) {
-        // Might be just a slug
         slug = decodedText;
       }
     }
@@ -67,14 +65,30 @@ export default function QRScannerPage() {
       toast.success("QR Code lido!", { description: "Redirecionando..." });
       navigate(`/e/${slug}`);
     } else {
-      toast.error("QR Code inválido", { 
-        description: "Este QR code não pertence a um estabelecimento do AvaLyarin." 
+      toast.error("QR Code inválido", {
+        description: "Este QR code não pertence a um estabelecimento do AvaLyarin.",
       });
     }
   }, [navigate, stopScanner]);
 
   const startScanner = useCallback(async () => {
-    if (!containerRef.current || scannerRef.current) return;
+    // Dynamically import html5-qrcode to ensure lazy loading
+    const { Html5Qrcode } = await import("html5-qrcode");
+
+    if (!mountedRef.current) return;
+
+    // Make sure the container element exists
+    const container = document.getElementById("qr-reader");
+    if (!container) {
+      setError("Erro interno: container não encontrado.");
+      setStatus("error");
+      return;
+    }
+
+    // Clean up any previous instance
+    if (scannerRef.current) {
+      await stopScanner();
+    }
 
     try {
       const scanner = new Html5Qrcode("qr-reader");
@@ -85,35 +99,51 @@ export default function QRScannerPage() {
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
-          aspectRatio: 1,
         },
         handleScanSuccess,
         () => {} // ignore scan failures (no QR in frame)
       );
 
-      setIsScanning(true);
-      setHasPermission(true);
-      setError(null);
-    } catch (err: any) {
-      const msg = err?.message || String(err);
-      if (msg.includes("NotAllowedError") || msg.includes("Permission")) {
-        setHasPermission(false);
-        setError("Permissão de câmera negada. Ative nas configurações do navegador.");
-      } else if (msg.includes("NotFoundError") || msg.includes("no camera")) {
-        setError("Nenhuma câmera encontrada neste dispositivo.");
-      } else {
-        setError("Não foi possível acessar a câmera. Tente novamente.");
+      if (mountedRef.current) {
+        setStatus("scanning");
+        setError(null);
       }
+    } catch (err: any) {
+      if (!mountedRef.current) return;
+      const msg = err?.message || String(err);
+      if (msg.includes("NotAllowedError") || msg.includes("Permission") || msg.includes("denied")) {
+        setError("Permissão de câmera negada. Ative nas configurações do navegador e tente novamente.");
+      } else if (msg.includes("NotFoundError") || msg.includes("Requested device not found") || msg.includes("no camera")) {
+        setError("Nenhuma câmera encontrada neste dispositivo.");
+      } else if (msg.includes("NotReadableError") || msg.includes("Could not start")) {
+        setError("A câmera está sendo usada por outro aplicativo. Feche-o e tente novamente.");
+      } else {
+        setError(`Não foi possível acessar a câmera: ${msg}`);
+      }
+      setStatus("error");
       scannerRef.current = null;
     }
-  }, [handleScanSuccess]);
+  }, [handleScanSuccess, stopScanner]);
 
   useEffect(() => {
-    startScanner();
+    mountedRef.current = true;
+    // Small delay to ensure DOM is rendered before starting scanner
+    const timer = setTimeout(() => {
+      startScanner();
+    }, 300);
+
     return () => {
+      mountedRef.current = false;
+      clearTimeout(timer);
       stopScanner();
     };
-  }, [startScanner, stopScanner]);
+  }, []);
+
+  const handleRetry = () => {
+    setStatus("loading");
+    setError(null);
+    startScanner();
+  };
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -133,16 +163,19 @@ export default function QRScannerPage() {
 
       {/* Scanner area */}
       <div className="flex-1 flex flex-col items-center justify-center relative">
-        {/* Camera feed container */}
+        {/* Camera feed container — always in DOM, hidden via opacity when not scanning */}
         <div
           id="qr-reader"
-          ref={containerRef}
-          className="w-full max-w-sm aspect-square rounded-2xl overflow-hidden"
-          style={{ display: isScanning ? "block" : "none" }}
+          className="w-full max-w-sm aspect-square overflow-hidden"
+          style={{
+            opacity: status === "scanning" ? 1 : 0,
+            position: status === "scanning" ? "relative" : "absolute",
+            pointerEvents: status === "scanning" ? "auto" : "none",
+          }}
         />
 
         {/* Scanning overlay */}
-        {isScanning && (
+        {status === "scanning" && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
             <div className="w-64 h-64 relative">
               {/* Corner markers */}
@@ -156,8 +189,8 @@ export default function QRScannerPage() {
           </div>
         )}
 
-        {/* Permission denied / error state */}
-        {!isScanning && error && (
+        {/* Error state */}
+        {status === "error" && error && (
           <div className="text-center px-6">
             <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4">
               <CameraOff className="w-10 h-10 text-red-400" />
@@ -166,7 +199,7 @@ export default function QRScannerPage() {
             <p className="text-white/60 text-sm mb-6">{error}</p>
             <div className="flex flex-col gap-3">
               <Button
-                onClick={() => { setError(null); startScanner(); }}
+                onClick={handleRetry}
                 className="font-display tracking-wider"
               >
                 <Camera className="w-4 h-4 mr-2" />
@@ -184,12 +217,13 @@ export default function QRScannerPage() {
         )}
 
         {/* Loading state */}
-        {!isScanning && !error && (
+        {status === "loading" && (
           <div className="text-center">
             <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4 animate-pulse">
               <Camera className="w-10 h-10 text-primary" />
             </div>
             <p className="text-white/60 text-sm">Acessando câmera...</p>
+            <p className="text-white/40 text-xs mt-2">Permita o acesso quando solicitado</p>
           </div>
         )}
       </div>
