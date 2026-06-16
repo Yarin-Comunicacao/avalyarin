@@ -177,15 +177,6 @@ export default function QRScanPage() {
         <div className="flex flex-col gap-3">
           <Button
             size="lg"
-            className="w-full font-display tracking-wider glow-amber"
-            onClick={() => navigate(`/avaliar/${estab.slug}`)}
-          >
-            <Star className="w-5 h-5 mr-2" />
-            AVALIAR ESTE ESTABELECIMENTO
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
             className="w-full font-display tracking-wider"
             onClick={handleGoToMenu}
           >
@@ -193,9 +184,9 @@ export default function QRScanPage() {
           </Button>
           {!appliedPromo && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="w-full text-muted-foreground"
+              className="w-full"
               onClick={() => setShowPromoDialog(true)}
             >
               <Tag className="w-4 h-4 mr-2" />
