@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Tag, Gift, Percent, Check, X, QrCode } from "lucide-react";
+import { Loader2, Tag, Gift, Percent, Check, X, QrCode, Star } from "lucide-react";
 
 export default function QRScanPage() {
   const [, params] = useRoute("/e/:slug");
@@ -177,6 +177,15 @@ export default function QRScanPage() {
         <div className="flex flex-col gap-3">
           <Button
             size="lg"
+            className="w-full font-display tracking-wider glow-amber"
+            onClick={() => navigate(`/avaliar/${estab.slug}`)}
+          >
+            <Star className="w-5 h-5 mr-2" />
+            AVALIAR ESTE ESTABELECIMENTO
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
             className="w-full font-display tracking-wider"
             onClick={handleGoToMenu}
           >
@@ -184,9 +193,9 @@ export default function QRScanPage() {
           </Button>
           {!appliedPromo && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="lg"
-              className="w-full"
+              className="w-full text-muted-foreground"
               onClick={() => setShowPromoDialog(true)}
             >
               <Tag className="w-4 h-4 mr-2" />
