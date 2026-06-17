@@ -518,3 +518,9 @@
 - [x] Criar página /scan com scanner de câmera e lazy loading
 - [x] Integrar botão Scan no BottomNav (user e influencer)
 - [x] Manter fluxo atual da câmera nativa (/e/:slug) funcionando
+
+## Fase 10 — Integração Connect Yarin
+- [x] Campo Connect Yarin automático no perfil (URL gerada: yarinconn-4cnl6xuq.manus.space/{username})
+- [x] Exibir link Connect Yarin no perfil público (user/business/influencer)
+- [x] Atualizar URL automaticamente quando username muda (usa getConnectYarinUrl(username) — constante em shared/const.ts)
+- [ ] Preparar estrutura para consumir API do Connect Yarin (aguardando token + endpoints)

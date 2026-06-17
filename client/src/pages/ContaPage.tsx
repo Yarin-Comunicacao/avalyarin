@@ -8,8 +8,9 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import {
   User, Mail, Crown, Palette, Image, Bell, Users, Bookmark, Trophy,
-  LogOut, ChevronRight, Edit, Star, MapPin, Heart, Loader2, Check, X
+  LogOut, ChevronRight, Edit, Star, MapPin, Heart, Loader2, Check, X, ExternalLink
 } from "lucide-react";
+import { getConnectYarinUrl } from "@shared/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
 
@@ -61,6 +62,17 @@ export default function ContaPage() {
             <p className="text-sm text-muted-foreground">
               {profile?.username ? `@${profile.username}` : "Sem username"}
             </p>
+            {profile?.username && (
+              <a
+                href={getConnectYarinUrl(profile.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary/80 hover:text-primary transition-colors mt-0.5"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Connect Yarin
+              </a>
+            )}
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
           <button

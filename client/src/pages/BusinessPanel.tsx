@@ -8,8 +8,9 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink
 } from "lucide-react";
+import { getConnectYarinUrl } from "@shared/const";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -71,7 +72,20 @@ export default function BusinessPanel() {
               <h1 className="font-display text-xl tracking-wider text-primary">PAINEL EMPRESARIAL</h1>
             </div>
           </div>
-          <span className="text-xs text-muted-foreground">{user?.name}</span>
+          <div className="flex items-center gap-3">
+            {user?.username && (
+              <a
+                href={getConnectYarinUrl(user.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-primary/80 hover:text-primary transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Connect Yarin
+              </a>
+            )}
+            <span className="text-xs text-muted-foreground">{user?.name}</span>
+          </div>
         </div>
       </header>
 

@@ -12,7 +12,8 @@ import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Redirect, Link } from "wouter";
-import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle } from "lucide-react";
+import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink } from "lucide-react";
+import { getConnectYarinUrl } from "@shared/const";
 import { toast } from "sonner";
 
 type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
@@ -298,6 +299,17 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
           <BadgeCheck className="w-4 h-4 text-blue-400" />
           <span className="text-xs text-blue-400">Influencer Verificado</span>
         </div>
+        {profile?.username && (
+          <a
+            href={getConnectYarinUrl(profile.username)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1 text-xs text-primary/80 hover:text-primary transition-colors mt-2"
+          >
+            <ExternalLink className="w-3 h-3" />
+            Connect Yarin
+          </a>
+        )}
         <div className="flex items-center justify-center gap-6 mt-4">
           <div className="text-center">
             <p className="font-numbers text-lg font-bold text-foreground">{profile?.followerCount || 0}</p>
