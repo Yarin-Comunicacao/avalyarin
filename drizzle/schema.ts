@@ -624,3 +624,18 @@ export const ratingPhotos = mysqlTable("rating_photos", {
 });
 export type RatingPhoto = typeof ratingPhotos.$inferSelect;
 export type InsertRatingPhoto = typeof ratingPhotos.$inferInsert;
+
+// ============================================================
+// Integrations — tokens e configurações de integrações externas
+// ============================================================
+export const integrations = mysqlTable("integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(),
+  value: text("value"),
+  label: varchar("label", { length: 255 }),
+  updatedBy: int("updatedBy"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = typeof integrations.$inferInsert;

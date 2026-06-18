@@ -71,6 +71,10 @@ import {
   cancelGroupEvent,
   getEventsByEstablishment,
   saveUserLocation,
+  getIntegration,
+  setIntegration,
+  getAllIntegrations,
+  deleteIntegration,
 } from "./db";
 import {
   createGroup,
@@ -1935,6 +1939,40 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await getSystemAuditLog(input?.limit || 20);
       }),
+  }),
+
+  // ============ INTEGRATIONS (owner/admin) ============
+  integrations: router({
+    list: adminProcedure.query(async () => {
+      return await getAllIntegrations();
+    }),
+    get: adminProcedure
+      .input(z.object({ key: z.string() }))
+      .query(async ({ input }) => {
+        const value = await getIntegration(input.key);
+        return { key: input.key, value };
+      }),
+    set: adminProcedure
+      .input(z.object({
+        key: z.string().min(1).max(128),
+        value: z.string().max(2000),
+        label: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await setIntegration(input.key, input.value, input.label || input.key, ctx.user!.id);
+        return { success: true };
+      }),
+    delete: adminProcedure
+      .input(z.object({ key: z.string() }))
+      .mutation(async ({ input }) => {
+        await deleteIntegration(input.key);
+        return { success: true };
+      }),
+    // Public endpoint to get GTM ID (no auth required for frontend injection)
+    getGtmId: publicProcedure.query(async () => {
+      const value = await getIntegration("gtm_id");
+      return { gtmId: value };
+    }),
   }),
 
   // ============ GROUP EVENTS / CALENDAR ============

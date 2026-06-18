@@ -524,3 +524,11 @@
 - [x] Exibir link Connect Yarin no perfil público (user/business/influencer)
 - [x] Atualizar URL automaticamente quando username muda (usa getConnectYarinUrl(username) — constante em shared/const.ts)
 - [ ] Preparar estrutura para consumir API do Connect Yarin (aguardando token + endpoints)
+
+## Fase 10.1 — Aba Integrações (Owner/Admin)
+- [x] Criar tabela integrations no banco (key/value para tokens e configs)
+- [x] Criar endpoints tRPC para salvar/ler integrações (adminProcedure)
+- [x] Criar aba "Integrações" no AdminPanel com campo para token Connect Yarin
+- [x] Adicionar campo para GTM ID (Google Tag Manager) na aba Integrações
+- [x] Injetar script do GTM no frontend quando o ID estiver configurado
+- [x] Estrutura extensível para futuros tokens/integrações

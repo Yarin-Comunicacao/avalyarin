@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2254,4 +2254,39 @@ export async function getEstablishmentPhotos(establishmentId: number, limit = 20
     .where(eq(ratings.establishmentId, establishmentId))
     .orderBy(desc(ratingPhotos.createdAt))
     .limit(limit);
+}
+
+
+// ============================================================
+// INTEGRATIONS HELPERS
+// ============================================================
+
+export async function getIntegration(key: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db.select().from(integrations).where(eq(integrations.key, key)).limit(1);
+  return row?.value ?? null;
+}
+
+export async function setIntegration(key: string, value: string, label: string, updatedBy: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [existing] = await db.select().from(integrations).where(eq(integrations.key, key)).limit(1);
+  if (existing) {
+    await db.update(integrations).set({ value, label, updatedBy }).where(eq(integrations.key, key));
+  } else {
+    await db.insert(integrations).values({ key, value, label, updatedBy });
+  }
+}
+
+export async function getAllIntegrations() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(integrations).orderBy(integrations.key);
+}
+
+export async function deleteIntegration(key: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(integrations).where(eq(integrations.key, key));
 }

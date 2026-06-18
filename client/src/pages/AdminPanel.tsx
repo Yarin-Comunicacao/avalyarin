@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -31,7 +31,7 @@ export default function AdminPanel() {
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights" | "integrations";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -102,6 +102,7 @@ export default function AdminPanel() {
             { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
             { id: "promos" as const, label: "Códigos", icon: TagIcon },
             { id: "insights" as const, label: "Insights", icon: TrendingUp },
+            { id: "integrations" as const, label: "Integrações", icon: Plug },
           ].map(tab => (
             <button
               key={tab.id}
@@ -130,6 +131,7 @@ export default function AdminPanel() {
         {activeTab === "brandbook" && <BrandbookTab />}
         {activeTab === "promos" && <PromoCodesAdminTab />}
         {activeTab === "insights" && <InsightsTab />}
+        {activeTab === "integrations" && <IntegrationsTab />}
       </div>
     </div>
   );
@@ -1362,6 +1364,183 @@ function InsightsTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// INTEGRATIONS TAB
+// ============================================================
+
+const INTEGRATION_FIELDS = [
+  {
+    key: "connect_yarin_token",
+    label: "Connect Yarin — API Token",
+    description: "Token de autenticação para a API do Connect Yarin (Bearer token). Permite consultar estatísticas de visitas e cliques no perfil.",
+    placeholder: "cole o token aqui...",
+    sensitive: true,
+  },
+  {
+    key: "gtm_id",
+    label: "Google Tag Manager — Container ID",
+    description: "ID do container GTM (formato: GTM-XXXXXXX). Será injetado automaticamente em todas as páginas do app.",
+    placeholder: "GTM-XXXXXXX",
+    sensitive: false,
+  },
+];
+
+function IntegrationsTab() {
+  const { data: integrationsList, isLoading } = trpc.integrations.list.useQuery();
+  const setMutation = trpc.integrations.set.useMutation();
+  const deleteMutation = trpc.integrations.delete.useMutation();
+  const utils = trpc.useUtils();
+
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+
+  // Sync from server
+  useEffect(() => {
+    if (integrationsList) {
+      const map: Record<string, string> = {};
+      integrationsList.forEach((item: any) => {
+        map[item.key] = item.value || "";
+      });
+      setValues(prev => ({ ...prev, ...map }));
+    }
+  }, [integrationsList]);
+
+  const handleSave = async (key: string, label: string) => {
+    const value = values[key]?.trim();
+    if (!value) {
+      toast.error("O campo não pode estar vazio");
+      return;
+    }
+    setSaving(prev => ({ ...prev, [key]: true }));
+    try {
+      await setMutation.mutateAsync({ key, value, label });
+      utils.integrations.list.invalidate();
+      utils.integrations.getGtmId.invalidate();
+      toast.success(`${label} salvo com sucesso!`);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao salvar");
+    } finally {
+      setSaving(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
+  const handleDelete = async (key: string, label: string) => {
+    if (!confirm(`Tem certeza que deseja remover "${label}"?`)) return;
+    try {
+      await deleteMutation.mutateAsync({ key });
+      utils.integrations.list.invalidate();
+      utils.integrations.getGtmId.invalidate();
+      setValues(prev => ({ ...prev, [key]: "" }));
+      toast.success(`${label} removido`);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao remover");
+    }
+  };
+
+  const isConfigured = (key: string) => {
+    return integrationsList?.some((item: any) => item.key === key && item.value);
+  };
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando integrações...</div>;
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h2 className="font-display text-2xl tracking-wider text-foreground mb-2">INTEGRAÇÕES</h2>
+        <p className="text-sm text-muted-foreground">
+          Configure tokens e IDs de serviços externos. Os valores são salvos de forma segura no banco de dados.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        {INTEGRATION_FIELDS.map(field => {
+          const configured = isConfigured(field.key);
+          return (
+            <div key={field.key} className="p-5 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Plug className="w-4 h-4 text-primary" />
+                  <h3 className="font-medium text-foreground">{field.label}</h3>
+                  {configured && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/40 text-green-400 font-bold">
+                      ATIVO
+                    </span>
+                  )}
+                </div>
+                {configured && (
+                  <button
+                    onClick={() => handleDelete(field.key, field.label)}
+                    className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
+                    title="Remover integração"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">{field.description}</p>
+              
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={field.sensitive && !showValues[field.key] ? "password" : "text"}
+                    value={values[field.key] || ""}
+                    onChange={(e) => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
+                    placeholder={field.placeholder}
+                    className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 font-mono"
+                  />
+                  {field.sensitive && (
+                    <button
+                      onClick={() => setShowValues(prev => ({ ...prev, [field.key]: !prev[field.key] }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showValues[field.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleSave(field.key, field.label)}
+                  disabled={saving[field.key] || !values[field.key]?.trim()}
+                  className="flex items-center gap-1.5 px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Save className="w-4 h-4" />
+                  {saving[field.key] ? "Salvando..." : "Salvar"}
+                </button>
+              </div>
+
+              {field.key === "gtm_id" && configured && (
+                <p className="text-xs text-green-400/80 mt-3 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  GTM ativo — o script será carregado em todas as páginas automaticamente.
+                </p>
+              )}
+              {field.key === "connect_yarin_token" && configured && (
+                <p className="text-xs text-green-400/80 mt-3 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  Token configurado — as estatísticas do Connect Yarin serão exibidas nos perfis.
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Info box */}
+      <div className="mt-8 p-4 rounded-lg bg-primary/5 border border-primary/20">
+        <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+          <ExternalLink className="w-4 h-4 text-primary" />
+          Precisa adicionar outra integração?
+        </h4>
+        <p className="text-xs text-muted-foreground">
+          Para adicionar novos tokens ou chaves de API, entre em contato com o suporte técnico ou solicite via chat.
+          A estrutura suporta qualquer integração key/value.
+        </p>
+      </div>
     </div>
   );
 }
