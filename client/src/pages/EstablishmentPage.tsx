@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
@@ -456,9 +456,15 @@ export default function EstablishmentPage() {
 
       {/* No menu message */}
       {menu.length === 0 && (
-        <section className="py-12">
-          <div className="container text-center">
-            <p className="text-muted-foreground">Este local ainda não possui itens em nosso cardápio.</p>
+        <section className="py-16 pb-28">
+          <div className="container flex flex-col items-center justify-center text-center">
+            <div className="w-20 h-20 rounded-full bg-secondary/50 border border-border/30 flex items-center justify-center mb-5">
+              <UtensilsCrossed className="w-9 h-9 text-muted-foreground/40" />
+            </div>
+            <h3 className="font-display text-xl tracking-wider text-foreground/70 mb-2">CARDÁPIO INDISPONÍVEL</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Este local ainda não possui itens cadastrados em nosso cardápio. Em breve estará disponível!
+            </p>
           </div>
         </section>
       )}
