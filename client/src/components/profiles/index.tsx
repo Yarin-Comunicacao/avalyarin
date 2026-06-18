@@ -6,6 +6,7 @@ import BusinessProfile from "./BusinessProfile";
 import SupportProfile from "./SupportProfile";
 import AdminProfile from "./AdminProfile";
 import OwnerProfile from "./OwnerProfile";
+import CriticProfile from "./CriticProfile";
 
 /**
  * Renders the appropriate profile component based on the user's role
@@ -34,6 +35,8 @@ export default function RoleBasedProfile() {
       return <AdminProfile />;
     case "owner":
       return <OwnerProfile />;
+    case "critic":
+      return <CriticProfile />;
     default:
       return <UserProfile />;
   }

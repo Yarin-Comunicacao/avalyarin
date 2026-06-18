@@ -78,6 +78,23 @@ export const supportProcedure = t.procedure.use(
   }),
 );
 
+export const criticProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    const { ctx, next } = opts;
+
+    if (!ctx.user || !['admin', 'owner', 'critic'].includes(ctx.user.role)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Acesso restrito a Críticos" });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    });
+  }),
+);
+
 export const ownerProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;

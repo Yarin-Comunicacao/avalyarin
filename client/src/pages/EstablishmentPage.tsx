@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper } from "lucide-react";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
@@ -207,6 +207,8 @@ export default function EstablishmentPage() {
             <h2 className="font-display text-4xl sm:text-5xl tracking-wider text-primary text-glow-amber">
               {establishment.name.toUpperCase()}
             </h2>
+            {/* Selo Crítico */}
+            <CriticSealBadge establishmentId={establishment.id} />
             <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
               {establishment.address && (
                 <button
@@ -668,6 +670,35 @@ function ClaimFormModal({ establishmentId, establishmentName, onClose }: {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// CRITIC SEAL BADGE — Selo Crítico Gastronômico
+// ============================================================
+function CriticSealBadge({ establishmentId }: { establishmentId: number }) {
+  const { data, isLoading } = trpc.critic.establishmentSeal.useQuery(
+    { establishmentId },
+    { enabled: !!establishmentId }
+  );
+
+  if (isLoading || !data?.hasSeal) return null;
+
+  return (
+    <div className="flex items-center gap-2 mt-2">
+      {data.critics.map((critic: any, idx: number) => (
+        <div
+          key={idx}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30"
+        >
+          <Newspaper className="w-3.5 h-3.5 text-purple-400" />
+          <span className="text-xs font-medium text-purple-400">
+            Selo Crítico — {critic.criticName || "Crítico Verificado"}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

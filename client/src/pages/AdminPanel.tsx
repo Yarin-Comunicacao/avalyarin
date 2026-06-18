@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink, Newspaper
 } from "lucide-react";
 
 export default function AdminPanel() {
@@ -31,7 +31,7 @@ export default function AdminPanel() {
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights" | "integrations";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights" | "critics" | "integrations";
   const initialCategory = searchParams.get("category") || undefined;
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -102,6 +102,7 @@ export default function AdminPanel() {
             { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
             { id: "promos" as const, label: "Códigos", icon: TagIcon },
             { id: "insights" as const, label: "Insights", icon: TrendingUp },
+            { id: "critics" as const, label: "Cr\u00edticos", icon: Newspaper },
             { id: "integrations" as const, label: "Integrações", icon: Plug },
           ].map(tab => (
             <button
@@ -131,6 +132,7 @@ export default function AdminPanel() {
         {activeTab === "brandbook" && <BrandbookTab />}
         {activeTab === "promos" && <PromoCodesAdminTab />}
         {activeTab === "insights" && <InsightsTab />}
+        {activeTab === "critics" && <CriticsTab />}
         {activeTab === "integrations" && <IntegrationsTab />}
       </div>
     </div>
@@ -1541,6 +1543,168 @@ function IntegrationsTab() {
           A estrutura suporta qualquer integração key/value.
         </p>
       </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// CRITICS TAB — Gerenciamento de Críticos Gastronômicos
+// ============================================================
+function CriticsTab() {
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | undefined>(undefined);
+  const { data: applications, isLoading } = trpc.critic.adminList.useQuery({ status: filter });
+  const utils = trpc.useUtils();
+
+  const approveMutation = trpc.critic.adminApprove.useMutation({
+    onSuccess: () => {
+      utils.critic.adminList.invalidate();
+      toast.success("Crítico aprovado com sucesso!");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const rejectMutation = trpc.critic.adminReject.useMutation({
+    onSuccess: () => {
+      utils.critic.adminList.invalidate();
+      toast.success("Solicitação rejeitada.");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const [rejectId, setRejectId] = useState<number | null>(null);
+  const [rejectNotes, setRejectNotes] = useState("");
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-xl tracking-wider text-foreground">CRÍTICOS GASTRONÔMICOS</h2>
+        <div className="flex gap-2">
+          {(["pending", "approved", "rejected"] as const).map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(filter === status ? undefined : status)}
+              className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                filter === status
+                  ? "bg-purple-500/20 border-purple-500/50 text-purple-400"
+                  : "bg-secondary/50 border-border/50 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {status === "pending" ? "Pendentes" : status === "approved" ? "Aprovados" : "Rejeitados"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : !applications || applications.length === 0 ? (
+        <div className="text-center py-12">
+          <Newspaper className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-40" />
+          <p className="text-muted-foreground">Nenhuma solicitação {filter ? `com status "${filter}"` : ""} encontrada.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {applications.map((app: any) => (
+            <div key={app.id} className="p-4 rounded-xl bg-card border border-border/50">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium text-foreground">{app.displayName}</span>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                      app.status === "approved" ? "bg-green-500/20 text-green-400" :
+                      app.status === "rejected" ? "bg-red-500/20 text-red-400" :
+                      "bg-yellow-500/20 text-yellow-400"
+                    }`}>
+                      {app.status === "approved" ? "APROVADO" : app.status === "rejected" ? "REJEITADO" : "PENDENTE"}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium">Veículo:</span> {app.publication}
+                  </p>
+                  {app.specialty && (
+                    <p className="text-xs text-muted-foreground mt-0.5">Especialidade: {app.specialty}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Usuário: {app.userName || app.username} ({app.userEmail || "sem email"})
+                  </p>
+                  {app.bio && (
+                    <p className="text-xs text-muted-foreground mt-1 italic">"{app.bio}"</p>
+                  )}
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    Enviado em: {new Date(app.createdAt).toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+
+                {app.status === "pending" && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => approveMutation.mutate({ applicationId: app.id })}
+                      disabled={approveMutation.isPending}
+                      className="px-3 py-1.5 text-xs bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
+                      Aprovar
+                    </button>
+                    <button
+                      onClick={() => setRejectId(app.id)}
+                      className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors"
+                    >
+                      <XCircle className="w-3.5 h-3.5 inline mr-1" />
+                      Rejeitar
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {app.adminNotes && (
+                <div className="mt-2 p-2 rounded bg-secondary/50 text-xs text-muted-foreground">
+                  <span className="font-medium">Notas admin:</span> {app.adminNotes}
+                </div>
+              )}
+
+              {/* Reject dialog inline */}
+              {rejectId === app.id && (
+                <div className="mt-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                  <label className="text-xs text-muted-foreground block mb-1">Motivo da rejeição:</label>
+                  <textarea
+                    value={rejectNotes}
+                    onChange={(e) => setRejectNotes(e.target.value)}
+                    rows={2}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground resize-none"
+                    placeholder="Explique o motivo..."
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => {
+                        if (!rejectNotes.trim()) {
+                          toast.error("Informe o motivo da rejeição.");
+                          return;
+                        }
+                        rejectMutation.mutate({ applicationId: app.id, adminNotes: rejectNotes });
+                        setRejectId(null);
+                        setRejectNotes("");
+                      }}
+                      disabled={rejectMutation.isPending}
+                      className="px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      Confirmar Rejeição
+                    </button>
+                    <button
+                      onClick={() => { setRejectId(null); setRejectNotes(""); }}
+                      className="px-3 py-1.5 text-xs bg-secondary text-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

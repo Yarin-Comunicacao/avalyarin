@@ -375,6 +375,16 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                     </Link>
                   </div>
                 )}
+                {user.role === "critic" && (
+                  <div className="px-5 py-2">
+                    <Link href="/painel-critico" onClick={onClose}>
+                      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                        <BadgeCheck className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Crítico</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
                 {(user.role === "business" || user.role === "admin" || user.role === "owner") && (
                   <div className="px-5 py-2">
                     <Link href="/painel-empresarial" onClick={onClose}>

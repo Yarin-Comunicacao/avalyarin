@@ -13,7 +13,7 @@ export const users = mysqlTable("users", {
   username: varchar("username", { length: 64 }).unique(),
   birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
   surveyData: json("surveyData"), // Full survey answers JSON
-  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer", "support"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer", "critic", "support"]).default("user").notNull(),
   verified: boolean("verified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),
@@ -639,3 +639,25 @@ export const integrations = mysqlTable("integrations", {
 });
 export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = typeof integrations.$inferInsert;
+
+// ============================================================
+// Critic Profiles — perfis de críticos gastronômicos verificados
+// ============================================================
+export const criticProfiles = mysqlTable("critic_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  displayName: varchar("displayName", { length: 255 }),
+  bio: text("bio"),
+  publication: varchar("publication", { length: 255 }), // Veículo: "Folha de S.Paulo", "Blog Gastro SP", etc.
+  publicationUrl: varchar("publicationUrl", { length: 512 }),
+  specialty: varchar("specialty", { length: 255 }), // Ex: "Cozinha Japonesa", "Bares de Coquetelaria"
+  verified: boolean("verified").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CriticProfile = typeof criticProfiles.$inferSelect;
+export type InsertCriticProfile = typeof criticProfiles.$inferInsert;

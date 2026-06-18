@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { ADDRESS_REGEX } from "@shared/address-validation";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure, ownerProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure, ownerProcedure, criticProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
@@ -219,6 +219,17 @@ import {
   getSystemHealth,
   getSystemAuditLog,
 } from "./db-owner";
+import {
+  submitCriticApplication,
+  getCriticApplications,
+  approveCriticApplication,
+  rejectCriticApplication,
+  getMyCriticProfile,
+  updateCriticProfile,
+  getCriticPublicProfile,
+  getCriticRatings,
+  hasEstablishmentCriticSeal,
+} from "./db-critic";
 import {
   getSupportAssignments,
   getSupportTickets,
@@ -1973,6 +1984,100 @@ export const appRouter = router({
       const value = await getIntegration("gtm_id");
       return { gtmId: value };
     }),
+  }),
+
+  // ============ CRITIC (Crítico Gastronômico) ============
+  critic: router({
+    // Submit application to become a critic
+    submitApplication: protectedProcedure
+      .input(z.object({
+        displayName: z.string().min(2).max(255),
+        bio: z.string().max(2000).optional(),
+        publication: z.string().min(2).max(255),
+        publicationUrl: z.string().url().max(512).optional(),
+        specialty: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await submitCriticApplication({
+          userId: ctx.user!.id,
+          ...input,
+        });
+      }),
+
+    // Get my critic profile/application status
+    myProfile: protectedProcedure.query(async ({ ctx }) => {
+      return await getMyCriticProfile(ctx.user!.id);
+    }),
+
+    // Update my critic profile (approved critics only)
+    updateProfile: criticProcedure
+      .input(z.object({
+        displayName: z.string().min(2).max(255).optional(),
+        bio: z.string().max(2000).optional(),
+        publication: z.string().min(2).max(255).optional(),
+        publicationUrl: z.string().url().max(512).optional(),
+        specialty: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await updateCriticProfile(ctx.user!.id, input);
+      }),
+
+    // Get my ratings as a critic
+    myRatings: criticProcedure
+      .input(z.object({ limit: z.number().min(1).max(100).default(20) }).optional())
+      .query(async ({ ctx, input }) => {
+        return await getCriticRatings(ctx.user!.id, input?.limit || 20);
+      }),
+
+    // Public: get critic profile by username
+    publicProfile: publicProcedure
+      .input(z.object({ username: z.string() }))
+      .query(async ({ input }) => {
+        return await getCriticPublicProfile(input.username);
+      }),
+
+    // Public: get critic's ratings
+    publicRatings: publicProcedure
+      .input(z.object({ username: z.string(), limit: z.number().min(1).max(100).default(20) }))
+      .query(async ({ input }) => {
+        const profile = await getCriticPublicProfile(input.username);
+        if (!profile) return [];
+        return await getCriticRatings(profile.userId, input.limit);
+      }),
+
+    // Public: check if establishment has critic seal
+    establishmentSeal: publicProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await hasEstablishmentCriticSeal(input.establishmentId);
+      }),
+
+    // Admin: list all applications
+    adminList: adminProcedure
+      .input(z.object({ status: z.enum(["pending", "approved", "rejected"]).optional() }).optional())
+      .query(async ({ input }) => {
+        return await getCriticApplications(input?.status);
+      }),
+
+    // Admin: approve application
+    adminApprove: adminProcedure
+      .input(z.object({
+        applicationId: z.number(),
+        adminNotes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await approveCriticApplication(input.applicationId, ctx.user!.id, input.adminNotes);
+      }),
+
+    // Admin: reject application
+    adminReject: adminProcedure
+      .input(z.object({
+        applicationId: z.number(),
+        adminNotes: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await rejectCriticApplication(input.applicationId, ctx.user!.id, input.adminNotes);
+      }),
   }),
 
   // ============ GROUP EVENTS / CALENDAR ============

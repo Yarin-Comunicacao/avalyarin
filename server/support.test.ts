@@ -52,14 +52,14 @@ describe("Role Visibility Rules", () => {
     });
 
     it("admin can see all roles", () => {
-      const allRoles: AppRole[] = ["user", "influencer", "business", "support", "admin", "owner"];
+      const allRoles: AppRole[] = ["user", "influencer", "critic", "business", "support", "admin", "owner"];
       allRoles.forEach((role) => {
         expect(canSeeRole("admin", role)).toBe(true);
       });
     });
 
     it("owner can see all roles", () => {
-      const allRoles: AppRole[] = ["user", "influencer", "business", "support", "admin", "owner"];
+      const allRoles: AppRole[] = ["user", "influencer", "critic", "business", "support", "admin", "owner"];
       allRoles.forEach((role) => {
         expect(canSeeRole("owner", role)).toBe(true);
       });
@@ -68,18 +68,19 @@ describe("Role Visibility Rules", () => {
 
   describe("getVisibleRoles", () => {
     it("returns correct number of visible roles per role", () => {
-      expect(getVisibleRoles("user")).toHaveLength(3);
-      expect(getVisibleRoles("influencer")).toHaveLength(4);
-      expect(getVisibleRoles("business")).toHaveLength(4);
-      expect(getVisibleRoles("support")).toHaveLength(5);
-      expect(getVisibleRoles("admin")).toHaveLength(6);
-      expect(getVisibleRoles("owner")).toHaveLength(6);
+      expect(getVisibleRoles("user")).toHaveLength(4);
+      expect(getVisibleRoles("influencer")).toHaveLength(5);
+      expect(getVisibleRoles("critic")).toHaveLength(5);
+      expect(getVisibleRoles("business")).toHaveLength(5);
+      expect(getVisibleRoles("support")).toHaveLength(6);
+      expect(getVisibleRoles("admin")).toHaveLength(7);
+      expect(getVisibleRoles("owner")).toHaveLength(7);
     });
   });
 
   describe("ROLE_HIERARCHY", () => {
     it("owner has highest hierarchy", () => {
-      expect(ROLE_HIERARCHY.owner).toBe(6);
+      expect(ROLE_HIERARCHY.owner).toBe(7);
     });
 
     it("user has lowest hierarchy", () => {
@@ -94,7 +95,7 @@ describe("Role Visibility Rules", () => {
 
   describe("ROLE_BOTTOM_NAV", () => {
     it("each role has exactly 5 nav items", () => {
-      const allRoles: AppRole[] = ["user", "influencer", "business", "support", "admin", "owner"];
+      const allRoles: AppRole[] = ["user", "influencer", "critic", "business", "support", "admin", "owner"];
       allRoles.forEach((role) => {
         expect(ROLE_BOTTOM_NAV[role]).toHaveLength(5);
       });
@@ -124,7 +125,7 @@ describe("Role Visibility Rules", () => {
 
   describe("ROLE_COLORS", () => {
     it("all roles have primary, border, and badge colors defined", () => {
-      const allRoles: AppRole[] = ["user", "influencer", "business", "support", "admin", "owner"];
+      const allRoles: AppRole[] = ["user", "influencer", "critic", "business", "support", "admin", "owner"];
       allRoles.forEach((role) => {
         expect(ROLE_COLORS[role]).toHaveProperty("primary");
         expect(ROLE_COLORS[role]).toHaveProperty("border");

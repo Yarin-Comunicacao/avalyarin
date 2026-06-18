@@ -532,3 +532,11 @@
 - [x] Adicionar campo para GTM ID (Google Tag Manager) na aba Integrações
 - [x] Injetar script do GTM no frontend quando o ID estiver configurado
 - [x] Estrutura extensível para futuros tokens/integrações
+
+## Fase 11 — Role Crítico Gastronômico
+- [x] Adicionar role "critic" ao enum de roles no schema
+- [x] Criar tabela critic_profiles (veículo, bio, especialidade, verificado)
+- [x] Criar endpoints tRPC para aplicação/aprovação de crítico (admin aprova)
+- [x] Criar painel do Crítico no frontend (similar ao Influencer, com campo de veículo/blog)
+- [x] Adaptar selo de insígnia de estabelecimento: "Selo Crítico" (crítico avaliou com nota ≥ 8.0)
+- [x] Exibir badge "Crítico Gastronômico" no perfil público e nas avaliações

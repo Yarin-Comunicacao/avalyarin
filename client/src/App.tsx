@@ -52,6 +52,8 @@ const QRScannerPage = lazy(() => import("./pages/QRScannerPage"));
 import InfluencerApplicationPage from "./pages/InfluencerApplicationPage";
 import InfluencerPanel from "./pages/InfluencerPanel";
 import InfluencerProfilePage from "./pages/InfluencerProfilePage";
+// Critic
+import CriticPanel from "./pages/CriticPanel";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
 // Destaques
@@ -175,6 +177,7 @@ function Router() {
       <Route path="/painel-empresarial/config" component={BusinessPanel} />
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
+      <Route path="/painel-critico" component={CriticPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />
       <Route path="/owner" component={OwnerPanel} />
       <Route path="/owner/sistema/testes" component={TestSuitePage} />
