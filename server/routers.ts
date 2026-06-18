@@ -243,6 +243,23 @@ import {
   getAllSupportUsers,
   getSupportAssignmentCounts,
 } from "./db-support";
+import {
+  sendGroupMessage,
+  getGroupMessages,
+  sendSupportMessage,
+  getSupportConversation,
+  getSupportConversationList,
+  markSupportMessagesAsRead,
+  getUserSupportMessages,
+  sendBusinessBroadcast,
+  getBusinessBroadcasts,
+  getUserBroadcastFeed,
+  followBusiness,
+  unfollowBusiness,
+  isFollowingBusiness,
+  getBusinessFollowerCount,
+  getUserFollowedEstablishments,
+} from "./db-chat";
 
 export const appRouter = router({
   system: systemRouter,
@@ -914,6 +931,31 @@ export const appRouter = router({
     availableInfluencers: businessProcedure.query(async () => {
       return await listInfluencers();
     }),
+
+    // Send broadcast to followers
+    sendBroadcast: businessProcedure
+      .input(z.object({ establishmentId: z.number(), content: z.string().min(1).max(500) }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify the business user owns this establishment
+        const myEstabs = await getBusinessEstablishments(ctx.user!.id);
+        const ownsEstab = myEstabs.some((e: any) => e.id === input.establishmentId);
+        if (!ownsEstab) throw new TRPCError({ code: "FORBIDDEN", message: "Voc\u00ea n\u00e3o tem acesso a este estabelecimento." });
+        return await sendBusinessBroadcast(ctx.user!.id, input.establishmentId, input.content);
+      }),
+
+    // Get broadcasts for an establishment
+    broadcasts: businessProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getBusinessBroadcasts(input.establishmentId);
+      }),
+
+    // Get follower count
+    followerCount: publicProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getBusinessFollowerCount(input.establishmentId);
+      }),
    }),
 
   // User profile & username
@@ -1168,6 +1210,30 @@ export const appRouter = router({
       const planType = plan as keyof typeof PLAN_LIMITS;
       return { plan, groupCount, maxGroups: PLAN_LIMITS[planType]?.maxGroups ?? 3 };
     }),
+    // ==================== GROUP CHAT ====================
+    // Send message to group chat (140 chars max)
+    sendMessage: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        content: z.string().min(1).max(140),
+        type: z.enum(["text", "share_rating", "share_establishment", "share_profile"]).default("text"),
+        referenceId: z.number().optional(),
+        referenceSlug: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo" });
+        const msgId = await sendGroupMessage(input.groupId, ctx.user!.id, input.content, input.type, input.referenceId, input.referenceSlug);
+        return { id: msgId };
+      }),
+    // List messages from group chat
+    messages: protectedProcedure
+      .input(z.object({ groupId: z.number(), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        const isMember = await isGroupMember(input.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo" });
+        return await getGroupMessages(input.groupId, input.limit, input.offset);
+      }),
   }),
 
   // ============ NOBILITY BADGES ============
@@ -1300,6 +1366,12 @@ export const appRouter = router({
       .input(z.object({ establishmentId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const saved = await toggleSaveEstablishment(ctx.user!.id, input.establishmentId);
+        // Auto follow/unfollow business broadcasts when saving/unsaving
+        if (saved) {
+          await followBusiness(input.establishmentId, ctx.user!.id);
+        } else {
+          await unfollowBusiness(input.establishmentId, ctx.user!.id);
+        }
         return { saved };
       }),
 
@@ -1359,6 +1431,11 @@ export const appRouter = router({
       }
       const count = await expireOldPosts();
       return { expired: count };
+    }),
+
+    // Get user's broadcast feed (from businesses they follow)
+    broadcastFeed: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserBroadcastFeed(ctx.user!.id);
     }),
   }),
 
@@ -2104,6 +2181,64 @@ export const appRouter = router({
   }),
 
   // ============ GROUP EVENTS / CALENDAR ============
+  chat: router({
+    // Support conversations list
+    supportConversations: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user!.role !== "support") throw new TRPCError({ code: "FORBIDDEN" });
+      return await getSupportConversationList(ctx.user!.id);
+    }),
+    // Support messages with a specific user
+    supportMessages: protectedProcedure
+      .input(z.object({ partnerId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "support") throw new TRPCError({ code: "FORBIDDEN" });
+        return await getSupportConversation(ctx.user!.id, input.partnerId);
+      }),
+    // Support sends message to user
+    sendSupportMessage: protectedProcedure
+      .input(z.object({ recipientId: z.number(), content: z.string().min(1).max(500) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "support") throw new TRPCError({ code: "FORBIDDEN" });
+        return await sendSupportMessage(ctx.user!.id, input.recipientId, input.content);
+      }),
+    // Mark messages as read
+    markRead: protectedProcedure
+      .input(z.object({ senderId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await markSupportMessagesAsRead(ctx.user!.id, input.senderId);
+      }),
+    // Find user by username for starting new chat
+    findUserForChat: protectedProcedure
+      .input(z.object({ username: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "support") throw new TRPCError({ code: "FORBIDDEN" });
+        const { getDb } = await import("./db");
+        const db = await getDb();
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const found = await db!.select({ id: users.id, name: users.name, username: users.username, role: users.role })
+          .from(users).where(eq(users.username, input.username)).limit(1);
+        if (found.length === 0) return null;
+        return found[0];
+      }),
+    // User gets their support messages
+    mySupportMessages: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserSupportMessages(ctx.user!.id);
+    }),
+    // User sends message to support
+    sendToSupport: protectedProcedure
+      .input(z.object({ content: z.string().min(1).max(500) }))
+      .mutation(async ({ ctx, input }) => {
+        // Find the support user assigned to this user (or first support user)
+        const { getDb } = await import("./db");
+        const db = await getDb();
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const supportUsers = await db!.select({ id: users.id }).from(users).where(eq(users.role, "support")).limit(1);
+        if (supportUsers.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "Nenhum suporte disponível" });
+        return await sendSupportMessage(ctx.user!.id, supportUsers[0].id, input.content);
+      }),
+  }),
   events: router({
     create: protectedProcedure
       .input(z.object({

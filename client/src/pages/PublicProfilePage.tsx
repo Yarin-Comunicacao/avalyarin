@@ -3,7 +3,8 @@ import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Star, Calendar, Award } from "lucide-react";
+import { ArrowLeft, Loader2, Star, Calendar, Award, Share2 } from "lucide-react";
+import ShareToGroup from "@/components/ShareToGroup";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getConnectYarinUrl } from "@shared/const";
@@ -129,6 +130,15 @@ export default function PublicProfilePage() {
               INFLUENCER
             </span>
           )}
+
+          {/* Share profile button */}
+          <div className="mt-3">
+            <ShareToGroup
+              type="share_profile"
+              referenceSlug={`perfil/${profile.username}`}
+              label="Compartilhar perfil"
+            />
+          </div>
 
           {/* Connect Yarin link */}
           {connectYarinUrl && (

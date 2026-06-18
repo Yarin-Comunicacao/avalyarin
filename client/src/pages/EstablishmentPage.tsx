@@ -6,6 +6,7 @@ import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed } from "lucide-react";
+import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
@@ -267,24 +268,18 @@ export default function EstablishmentPage() {
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
               </a>
-              <button
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: establishment.name,
-                      text: `Confira ${establishment.name} no AvaLyarin!`,
-                      url: window.location.href,
-                    });
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Link copiado!");
-                  }
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all text-sm font-medium"
-              >
-                <Share2 className="w-4 h-4" />
-                Compartilhar
-              </button>
+              <ShareToGroup
+                type="share_establishment"
+                referenceId={establishment.id}
+                referenceSlug={`estabelecimento/${establishment.slug}`}
+                label="Compartilhar"
+                trigger={
+                  <span className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-all text-sm font-medium">
+                    <Share2 className="w-4 h-4" />
+                    Compartilhar
+                  </span>
+                }
+              />
               <SaveBookmarkButton establishmentId={establishment.id} />
             </div>
           </motion.div>
@@ -863,6 +858,15 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                 {visitDateStr && (
                   <p className="text-[11px] text-muted-foreground mb-2">{visitDateStr}</p>
                 )}
+
+                {/* Share button */}
+                <div className="mt-2">
+                  <ShareToGroup
+                    type="share_rating"
+                    referenceId={review.id}
+                    referenceSlug={`estabelecimento/${review.establishmentSlug || ''}`}
+                  />
+                </div>
 
                 {/* Items consumed */}
                 {review.items && review.items.length > 0 && (

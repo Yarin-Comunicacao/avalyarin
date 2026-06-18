@@ -553,3 +553,35 @@
 - [x] Cada card mostra: nome do avaliador, nota, data, itens avaliados, comentário
 - [x] Itens do cardápio clicáveis levam para a aba Avaliações com filtro por item (filterItemName)
 - [x] Cards de avaliações de críticos exibem estrela azul safira brilhante (glow + badge CRÍTICO)
+
+## Fase 12 — Sistema de Chat e Compartilhamento
+
+### 12.1 — Chat em Grupos
+- [x] Criar tabela group_messages no banco (senderId, groupId, content max 140 chars, type, referenceId, referenceSlug)
+- [x] Criar endpoints tRPC para enviar/listar mensagens do grupo (sendMessage + messages)
+- [x] Criar componente GroupChat no frontend (colapsável dentro da página do grupo)
+- [x] Limite de 140 caracteres por mensagem (texto simples)
+- [x] Roles permitidos: user, influencer, critic (membros do grupo)
+
+### 12.2 — Chat Support 1:1
+- [x] Criar tabela support_messages no banco (senderId, recipientId, content, createdAt, isRead)
+- [x] Criar endpoints tRPC para support enviar/receber mensagens 1:1 (sendSupportMessage, supportMessages, supportConversations, markRead)
+- [x] Frontend: aba Chat no SupportProfile (lista de conversas + thread)
+- [x] Frontend: UserSupportChat para usuários verem mensagens do support
+
+### 12.3 — Lista de Transmissão Business
+- [x] Botão "Salvar" já existe (SaveBookmarkButton) — ao salvar, user entra no canal automaticamente
+- [x] toggleSave atualizado para follow/unfollow business_followers automaticamente
+- [x] Criar tabela business_broadcasts (establishmentId, content max 280 chars, createdAt)
+- [x] Criar tabela business_followers (establishmentId, userId) — quem salvou
+- [x] Endpoints: business.sendBroadcast + business.broadcasts + posts.broadcastFeed
+- [x] Frontend: aba Transmissões no BusinessPanel (enviar + histórico)
+- [x] Frontend: seção "NOVIDADES" na página Meus Locais (feed de broadcasts)
+
+### 12.4 — Compartilhar para Grupos + Web Share API
+- [x] Componente ShareToGroup reutilizável (dropdown com grupos + web share)
+- [x] Botão "Compartilhar" em avaliações (cards no ReviewsSection)
+- [x] Botão "Compartilhar" em estabelecimentos (EstablishmentPage header)
+- [x] Botão "Compartilhar perfil" no PublicProfilePage
+- [x] Mensagem especial no GroupChat (card clicável com ícone por tipo)
+- [x] Web Share API como opção "Compartilhar externamente" (fallback: copiar link)

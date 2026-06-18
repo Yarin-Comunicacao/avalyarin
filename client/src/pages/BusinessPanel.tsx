@@ -8,8 +8,9 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone
 } from "lucide-react";
+import BusinessBroadcast from "@/components/BusinessBroadcast";
 import { getConnectYarinUrl } from "@shared/const";
 
 export default function BusinessPanel() {
@@ -26,7 +27,7 @@ export default function BusinessPanel() {
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar" | "broadcast";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -104,6 +105,7 @@ export default function BusinessPanel() {
               { id: "plan" as const, label: "Plano", labelFull: "Meu Plano", icon: Crown },
               { id: "insights" as const, label: "Insights", labelFull: "Insights", icon: TrendingUp },
               { id: "calendar" as const, label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
+              { id: "broadcast" as const, label: "Transmissões", labelFull: "Lista de Transmissão", icon: Megaphone },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -140,6 +142,7 @@ export default function BusinessPanel() {
         {activeTab === "plan" && <BusinessPlanTab />}
         {activeTab === "insights" && <BusinessInsightsTab />}
         {activeTab === "calendar" && <CalendarioBusinessTab />}
+        {activeTab === "broadcast" && <BroadcastTab />}
       </div>
     </div>
   );
@@ -1714,6 +1717,45 @@ function CalendarioBusinessTab() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+
+function BroadcastTab() {
+  const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!estabs || estabs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Megaphone className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">Você precisa ter um estabelecimento para enviar transmissões.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+        <p className="text-sm text-foreground/80">
+          <strong>Lista de Transmissão:</strong> Envie mensagens para todos que salvaram seu estabelecimento. 
+          Eles recebem suas novidades automaticamente — como um canal de comunicação direto com seus clientes.
+        </p>
+      </div>
+      {estabs.map((estab: any) => (
+        <div key={estab.id} className="p-4 rounded-xl border border-border/50 bg-card">
+          <h4 className="font-display text-sm tracking-wider text-foreground mb-4">{estab.name}</h4>
+          <BusinessBroadcast establishmentId={estab.id} />
+        </div>
+      ))}
     </div>
   );
 }

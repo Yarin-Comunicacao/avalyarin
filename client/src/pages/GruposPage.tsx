@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Users, Plus, Crown, Lock, ArrowLeft, UserPlus, Search,
-  ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays
+  ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays,
+  MessageCircle, Send
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import GroupChat from "@/components/GroupChat";
 
 // ─── Create Group Modal ──────────────────────────────────────────────────────
 
@@ -431,6 +433,11 @@ function GroupDetail({
             </button>
           </Link>
         </div>
+      )}
+
+      {/* Group Chat */}
+      {group.isMember && (
+        <GroupChat groupId={groupId} />
       )}
 
       {/* Feed */}

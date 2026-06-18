@@ -3,7 +3,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
-import { Bookmark, MapPin, Star, Trash2, Loader2 } from "lucide-react";
+import { Bookmark, MapPin, Star, Trash2, Loader2, Megaphone } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
@@ -99,7 +99,41 @@ export default function MeusLocais() {
               ))}
             </div>
           )}
+
+          {/* Feed de Transmissões */}
+          <BroadcastFeed />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BroadcastFeed() {
+  const { data: feed, isLoading } = trpc.posts.broadcastFeed.useQuery();
+
+  if (isLoading) return null;
+  if (!feed || feed.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Megaphone className="w-5 h-5 text-primary" />
+        <h3 className="font-display text-lg tracking-wider text-primary">NOVIDADES</h3>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">Mensagens dos estabelecimentos que voc\u00ea salvou</p>
+      <div className="space-y-2">
+        {feed.map((item: any) => (
+          <div key={item.id} className="p-3 rounded-xl bg-card border border-border/50">
+            <div className="flex items-center gap-2 mb-1">
+              <Megaphone className="w-3.5 h-3.5 text-primary/60" />
+              <span className="text-xs font-medium text-foreground">{item.establishmentName || "Estabelecimento"}</span>
+            </div>
+            <p className="text-sm text-foreground/80 pl-5">{item.content}</p>
+            <span className="text-[10px] text-muted-foreground/50 pl-5 mt-1 block">
+              {new Date(item.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,15 +1,21 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import SupportChat from "@/components/SupportChat";
 
-type TabId = "estabs" | "tickets" | "resolvidos";
+function SupportChatSection() {
+  return <SupportChat />;
+}
+
+type TabId = "estabs" | "tickets" | "resolvidos" | "chat";
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "estabs", label: "Meus Estabs", icon: Store },
   { id: "tickets", label: "Tickets", icon: Ticket },
   { id: "resolvidos", label: "Resolvidos", icon: CheckCircle2 },
+  { id: "chat", label: "Chat", icon: MessageCircle },
 ];
 
 const PRIORITY_COLORS = {
@@ -115,6 +121,7 @@ export default function SupportProfile() {
         {activeTab === "estabs" && <EstabsList assignments={assignments ?? []} />}
         {activeTab === "tickets" && <TicketsList tickets={(tickets ?? []).filter((t: any) => t.status !== "resolved")} />}
         {activeTab === "resolvidos" && <TicketsList tickets={(tickets ?? []).filter((t: any) => t.status === "resolved")} />}
+        {activeTab === "chat" && <SupportChatSection />}
       </div>
     </div>
   );

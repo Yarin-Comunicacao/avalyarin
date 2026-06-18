@@ -661,3 +661,67 @@ export const criticProfiles = mysqlTable("critic_profiles", {
 });
 export type CriticProfile = typeof criticProfiles.$inferSelect;
 export type InsertCriticProfile = typeof criticProfiles.$inferInsert;
+
+// ============================================================
+// Chat — Mensagens de grupo, suporte 1:1, transmissões business
+// ============================================================
+
+/**
+ * Group messages — chat dentro de grupos (limite 140 chars).
+ * Qualquer membro (user, influencer, critic) pode enviar.
+ */
+export const groupMessages = mysqlTable("group_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  senderId: int("senderId").notNull(),
+  content: varchar("content", { length: 140 }).notNull(),
+  // Tipo especial para compartilhamentos (avaliação, estabelecimento, perfil)
+  type: mysqlEnum("type", ["text", "share_rating", "share_establishment", "share_profile"]).default("text").notNull(),
+  referenceId: int("referenceId"), // ID do item compartilhado (ratingId, establishmentId, userId)
+  referenceSlug: varchar("referenceSlug", { length: 255 }), // slug para link direto
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type GroupMessage = typeof groupMessages.$inferSelect;
+export type InsertGroupMessage = typeof groupMessages.$inferInsert;
+
+/**
+ * Support messages — chat 1:1 entre support e clientes.
+ * Support pode enviar para qualquer role; cliente responde no mesmo thread.
+ */
+export const supportMessages = mysqlTable("support_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  content: text("content").notNull(),
+  read: boolean("read").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SupportMessage = typeof supportMessages.$inferSelect;
+export type InsertSupportMessage = typeof supportMessages.$inferInsert;
+
+/**
+ * Business broadcasts — mensagens de transmissão do business para seguidores.
+ * Apenas o business envia; seguidores (quem salvou) apenas leem.
+ */
+export const businessBroadcasts = mysqlTable("business_broadcasts", {
+  id: int("id").autoincrement().primaryKey(),
+  businessUserId: int("businessUserId").notNull(), // userId do dono do business
+  establishmentId: int("establishmentId").notNull(),
+  content: varchar("content", { length: 280 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BusinessBroadcast = typeof businessBroadcasts.$inferSelect;
+export type InsertBusinessBroadcast = typeof businessBroadcasts.$inferInsert;
+
+/**
+ * Business followers — quem salvou o business entra automaticamente no canal.
+ * Read-only para o follower; o business envia broadcasts.
+ */
+export const businessFollowers = mysqlTable("business_followers", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BusinessFollower = typeof businessFollowers.$inferSelect;
+export type InsertBusinessFollower = typeof businessFollowers.$inferInsert;
