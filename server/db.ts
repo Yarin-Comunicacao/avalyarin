@@ -864,11 +864,17 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
     userName: users.name,
     username: users.username,
     userVerified: users.verified,
+    userRole: users.role,
   })
     .from(ratings)
     .innerJoin(users, eq(ratings.userId, users.id))
     .where(eq(ratings.establishmentId, establishmentId))
-    .orderBy(desc(ratings.relevanceScore), desc(ratings.createdAt))
+    .orderBy(
+      // Críticos com nota >= 9 (escala 0-10) aparecem primeiro
+      sql`CASE WHEN ${users.role} = 'critic' AND ${ratings.overallScore} >= 9 THEN 0 ELSE 1 END`,
+      desc(ratings.relevanceScore),
+      desc(ratings.createdAt)
+    )
     .limit(limit)
     .offset(offset);
   

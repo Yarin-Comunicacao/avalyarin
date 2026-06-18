@@ -540,3 +540,10 @@
 - [x] Criar painel do Crítico no frontend (similar ao Influencer, com campo de veículo/blog)
 - [x] Adaptar selo de insígnia de estabelecimento: "Selo Crítico" (crítico avaliou com nota ≥ 8.0)
 - [x] Exibir badge "Crítico Gastronômico" no perfil público e nas avaliações
+
+## Fase 11.1 — Ajustes Painel Crítico (layout + peso avaliações)
+- [x] Refatorar CriticPanel para layout idêntico ao InfluencerPanel (abas: Visão Geral, Calendário, Avaliações, Códigos, Perfil)
+- [x] Estrela azul safira brilhante ao lado da foto do crítico (drop-shadow glow)
+- [x] CriticProfile refatorado com layout idêntico ao InfluencerProfile (tabs, grid, métricas)
+- [x] Avaliações de críticos com nota ≥ 9 aparecem primeiro na lista do estabelecimento (ORDER BY CASE)
+- [x] Corrigido threshold do Selo Crítico de 80 para 8 (escala 0-10)

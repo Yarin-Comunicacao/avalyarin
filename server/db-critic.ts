@@ -253,7 +253,7 @@ export async function getEstablishmentsWithCriticSeal() {
       and(
         eq(users.role, "critic"),
         eq(criticProfiles.verified, true),
-        gte(ratings.overallScore, 80) // score stored as 0-100
+        gte(ratings.overallScore, 8) // score stored as 0-10
       )
     )
     .orderBy(desc(ratings.createdAt));
@@ -284,7 +284,7 @@ export async function hasEstablishmentCriticSeal(establishmentId: number) {
         eq(ratings.establishmentId, establishmentId),
         eq(users.role, "critic"),
         eq(criticProfiles.verified, true),
-        gte(ratings.overallScore, 80) // score stored as 0-100
+        gte(ratings.overallScore, 8) // score stored as 0-10
       )
     )
     .orderBy(desc(ratings.createdAt));

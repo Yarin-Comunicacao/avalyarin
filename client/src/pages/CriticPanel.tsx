@@ -1,9 +1,7 @@
 /**
  * Painel do Crítico Gastronômico — /painel-critico
- * Área exclusiva para críticos aprovados com abas:
- * - Visão Geral (métricas, avaliações recentes)
- * - Minhas Avaliações (histórico completo)
- * - Meu Perfil (editar informações de publicação)
+ * Layout idêntico ao InfluencerPanel com tema azul safira.
+ * Abas: Visão Geral, Calendário, Parcerias, Códigos, Meu Perfil
  */
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -13,12 +11,13 @@ import AppMenu from "@/components/AppMenu";
 import { Redirect, Link } from "wouter";
 import { toast } from "sonner";
 import {
-  Loader2, BarChart3, FileText, UserCircle, Star, MapPin, BadgeCheck,
-  Newspaper, ExternalLink, Pencil, Save, BookOpen
+  Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp,
+  MapPin, BadgeCheck, CalendarDays, Clock, ExternalLink, Pencil, Save,
+  BookOpen, Newspaper, FileText
 } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
 
-type Tab = "overview" | "ratings" | "profile";
+type Tab = "overview" | "calendar" | "ratings" | "promos" | "profile";
 
 export default function CriticPanel() {
   const { user, loading } = useAuth();
@@ -28,7 +27,7 @@ export default function CriticPanel() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
@@ -39,7 +38,9 @@ export default function CriticPanel() {
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: "overview", label: "Visão Geral", icon: BarChart3 },
+    { id: "calendar", label: "Calendário", icon: CalendarDays },
     { id: "ratings", label: "Minhas Avaliações", icon: FileText },
+    { id: "promos", label: "Códigos", icon: Tag },
     { id: "profile", label: "Meu Perfil", icon: UserCircle },
   ];
 
@@ -51,11 +52,17 @@ export default function CriticPanel() {
       <div className="container pt-24 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
-            <Newspaper className="w-6 h-6 text-purple-400" />
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+              <Newspaper className="w-6 h-6 text-white" />
+            </div>
+            {/* Star badge — Azul Safira Brilhante */}
+            <div className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center">
+              <Star className="w-4 h-4 text-blue-500 fill-blue-500" style={{ filter: "drop-shadow(0 0 3px rgba(37, 99, 235, 0.6))" }} />
+            </div>
           </div>
           <div>
-            <h1 className="font-display text-2xl tracking-wider text-purple-400">PAINEL CRÍTICO</h1>
+            <h1 className="font-display text-2xl tracking-wider text-blue-400">PAINEL CRÍTICO</h1>
             <p className="text-sm text-muted-foreground">Olá, {user.name || user.username}!</p>
           </div>
         </div>
@@ -70,7 +77,7 @@ export default function CriticPanel() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? "bg-purple-500/10 text-purple-400 border-b-2 border-purple-400"
+                    ? "bg-blue-500/10 text-blue-400 border-b-2 border-blue-500"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                 }`}
               >
@@ -82,9 +89,11 @@ export default function CriticPanel() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === "overview" && <OverviewTab />}
+        {activeTab === "overview" && <OverviewTab userId={user.id} />}
+        {activeTab === "calendar" && <CalendarTab />}
         {activeTab === "ratings" && <RatingsTab />}
-        {activeTab === "profile" && <ProfileTab username={user.username || ""} />}
+        {activeTab === "promos" && <PromosTab userId={user.id} />}
+        {activeTab === "profile" && <ProfileTab userId={user.id} userName={user.name || user.username || ""} />}
       </div>
     </div>
   );
@@ -93,98 +102,55 @@ export default function CriticPanel() {
 // ============================================================
 // OVERVIEW TAB
 // ============================================================
+function OverviewTab({ userId }: { userId: number }) {
+  const { data: stats, isLoading } = trpc.analytics.myStats.useQuery();
+  const { data: profile } = trpc.critic.myProfile.useQuery();
 
-function OverviewTab() {
-  const { data: profile, isLoading: profileLoading } = trpc.critic.myProfile.useQuery();
-  const { data: ratings, isLoading: ratingsLoading } = trpc.critic.myRatings.useQuery({ limit: 5 });
-
-  if (profileLoading || ratingsLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
       </div>
     );
   }
 
+  const totalRatings = stats?.totalRatings || 0;
+  const avgScore = stats?.avgScore || 0;
+  const locaisVisitados = stats?.establishmentsVisited || 0;
+
   return (
     <div className="space-y-6">
-      {/* Profile Card */}
-      {profile && (
-        <div className="p-5 rounded-xl bg-card border border-border/50">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
-              <Newspaper className="w-7 h-7 text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-foreground">{profile.displayName}</h3>
-                {profile.verified && (
-                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-bold border border-purple-500/30">
-                    VERIFICADO
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <BookOpen className="w-3.5 h-3.5" />
-                {profile.publication}
-              </p>
-              {profile.specialty && (
-                <p className="text-xs text-muted-foreground mt-1">Especialidade: {profile.specialty}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl bg-card border border-border/50 text-center">
-          <span className="font-numbers text-3xl font-bold text-purple-400">{ratings?.length ?? 0}</span>
-          <p className="text-xs text-muted-foreground mt-1">Avaliações Recentes</p>
-        </div>
-        <div className="p-4 rounded-xl bg-card border border-border/50 text-center">
-          <span className="font-numbers text-3xl font-bold text-purple-400">
-            {profile?.verified ? "✓" : "⏳"}
-          </span>
-          <p className="text-xs text-muted-foreground mt-1">Status</p>
-        </div>
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <MetricCard icon={Star} label="Avaliações" value={String(totalRatings)} color="text-blue-400" />
+        <MetricCard icon={TrendingUp} label="Nota Média" value={avgScore.toFixed(1)} color="text-green-400" />
+        <MetricCard icon={MapPin} label="Locais" value={String(locaisVisitados)} color="text-amber-400" />
+        <MetricCard icon={BookOpen} label="Veículo" value={profile?.publication || "—"} color="text-purple-400" isText />
       </div>
 
-      {/* Recent Ratings */}
-      <div>
-        <h3 className="font-display text-lg tracking-wider text-foreground mb-3">AVALIAÇÕES RECENTES</h3>
-        {ratings && ratings.length > 0 ? (
+      {/* Recent Activity */}
+      <div className="bg-card border border-border/30 rounded-xl p-5">
+        <h3 className="font-display text-lg tracking-wider text-blue-400 mb-4">ATIVIDADE RECENTE</h3>
+        {stats?.ratingsByMonth && stats.ratingsByMonth.length > 0 ? (
           <div className="space-y-2">
-            {ratings.map((rating: any) => (
-              <Link key={rating.id} href={`/estabelecimento/${rating.establishmentSlug}`}>
-                <div className="p-3 rounded-lg bg-card border border-border/50 hover:border-purple-500/30 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{rating.establishmentName}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />
-                      <span className="font-numbers text-sm font-bold text-purple-400">
-                        {((rating.overallScore || 0) / 10).toFixed(1)}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {rating.type === "analytic" ? "Avaliação Analítica" : "Avaliação Direta"} •{" "}
-                    {new Date(rating.createdAt).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-              </Link>
+            {stats.ratingsByMonth.slice(0, 6).map((m: any) => (
+              <div key={m.month} className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
+                <span className="text-sm text-foreground">{m.month}</span>
+                <span className="font-numbers text-sm text-blue-400">{m.count} avaliações</span>
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <FileText className="w-10 h-10 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">Nenhuma avaliação ainda.</p>
-            <p className="text-xs mt-1">Comece avaliando estabelecimentos para construir seu portfólio.</p>
-          </div>
+          <p className="text-sm text-muted-foreground">Nenhuma atividade recente.</p>
         )}
+      </div>
+
+      {/* Critic info */}
+      <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <p className="text-sm text-blue-300">
+          <strong>Peso elevado:</strong> Suas avaliações têm peso maior no cálculo da nota dos estabelecimentos.
+          Avaliações com nota ≥ 9 aparecem em destaque no topo.
+        </p>
       </div>
     </div>
   );
@@ -193,14 +159,13 @@ function OverviewTab() {
 // ============================================================
 // RATINGS TAB
 // ============================================================
-
 function RatingsTab() {
   const { data: ratings, isLoading } = trpc.critic.myRatings.useQuery({ limit: 100 });
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
       </div>
     );
   }
@@ -225,7 +190,7 @@ function RatingsTab() {
       <div className="space-y-2">
         {ratings.map((rating: any) => (
           <Link key={rating.id} href={`/estabelecimento/${rating.establishmentSlug}`}>
-            <div className="p-4 rounded-lg bg-card border border-border/50 hover:border-purple-500/30 transition-colors cursor-pointer">
+            <div className="p-4 rounded-lg bg-card border border-border/50 hover:border-blue-500/30 transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-foreground">{rating.establishmentName}</h4>
@@ -234,9 +199,9 @@ function RatingsTab() {
                     {rating.visitDate ? new Date(rating.visitDate).toLocaleDateString("pt-BR") : new Date(rating.createdAt).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
-                  <Star className="w-3.5 h-3.5 text-purple-400 fill-purple-400" />
-                  <span className="font-numbers text-sm font-bold text-purple-400">
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                  <Star className="w-3.5 h-3.5 text-blue-400 fill-blue-400" />
+                  <span className="font-numbers text-sm font-bold text-blue-400">
                     {((rating.overallScore || 0) / 10).toFixed(1)}
                   </span>
                 </div>
@@ -250,10 +215,152 @@ function RatingsTab() {
 }
 
 // ============================================================
+// CALENDAR TAB
+// ============================================================
+function CalendarTab() {
+  const [showUpcoming, setShowUpcoming] = useState(true);
+  const { data: events, isLoading } = trpc.events.myEvents.useQuery({ upcoming: showUpcoming });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Toggle */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowUpcoming(true)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            showUpcoming
+              ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+              : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+          }`}
+        >
+          Próximos
+        </button>
+        <button
+          onClick={() => setShowUpcoming(false)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            !showUpcoming
+              ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+              : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+          }`}
+        >
+          Passados
+        </button>
+      </div>
+
+      {/* Events list */}
+      {!events || events.length === 0 ? (
+        <div className="text-center py-12 bg-secondary/20 rounded-xl border border-border/20">
+          <CalendarDays className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">
+            {showUpcoming ? "Nenhum evento próximo" : "Nenhum evento passado"}
+          </p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Eventos são criados nos calendários dos seus grupos.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {events.map((event: any) => (
+            <Link key={event.id} href={`/evento/${event.id}`}>
+              <div className="p-4 rounded-xl bg-card border border-border/30 hover:border-blue-500/30 transition-all cursor-pointer">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-foreground">{event.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {event.groupName} • {event.establishmentName}
+                    </p>
+                    {event.establishmentNeighborhood && (
+                      <p className="text-xs text-muted-foreground/70 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3" />
+                        {event.establishmentNeighborhood}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-blue-400">
+                      {new Date(event.eventDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-0.5 justify-end">
+                      <Clock className="w-3 h-3" />
+                      {new Date(event.eventDate).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+                {event.maxGuests && (
+                  <div className="mt-2 pt-2 border-t border-border/20">
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      {event.maxGuests} vagas
+                    </p>
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// PROMOS TAB
+// ============================================================
+function PromosTab({ userId }: { userId: number }) {
+  const { data: codes, isLoading } = trpc.promo.myCodes.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (!codes || codes.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">Nenhum código promocional vinculado.</p>
+        <p className="text-xs text-muted-foreground/70 mt-1">Códigos são criados pelos estabelecimentos parceiros.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <h3 className="font-display text-lg tracking-wider text-blue-400 mb-3">MEUS CÓDIGOS</h3>
+      {codes.map((code: any) => (
+        <div key={code.id} className="p-4 rounded-xl bg-card border border-border/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-lg font-bold text-blue-400 tracking-wider">{code.code}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{code.description || code.type}</p>
+            </div>
+            <div className="text-right">
+              <p className="font-numbers text-sm text-foreground">{code.usageCount || 0} usos</p>
+              <p className="text-[11px] text-muted-foreground">{code.active ? "Ativo" : "Inativo"}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================
 // PROFILE TAB
 // ============================================================
-
-function ProfileTab({ username }: { username: string }) {
+function ProfileTab({ userId, userName }: { userId: number; userName: string }) {
+  const { user } = useAuth();
   const { data: profile, isLoading } = trpc.critic.myProfile.useQuery();
   const updateMutation = trpc.critic.updateProfile.useMutation();
   const utils = trpc.useUtils();
@@ -300,25 +407,59 @@ function ProfileTab({ username }: { username: string }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
       </div>
     );
   }
 
   if (!profile) return null;
 
-  const connectYarinUrl = username ? getConnectYarinUrl(username) : null;
+  const connectYarinUrl = user?.username ? getConnectYarinUrl(user.username) : null;
 
   return (
     <div className="space-y-6">
-      {/* Profile Info */}
+      {/* Profile Card */}
+      <div className="bg-card border border-border/30 rounded-xl p-6 text-center">
+        <div className="relative w-20 h-20 mx-auto mb-4">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+            <UserCircle className="w-10 h-10 text-white" />
+          </div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center">
+            <Star className="w-5 h-5 text-blue-500 fill-blue-500" style={{ filter: "drop-shadow(0 0 3px rgba(37, 99, 235, 0.6))" }} />
+          </div>
+        </div>
+        <h3 className="font-display text-xl tracking-wider text-foreground">{profile.displayName || userName}</h3>
+        <div className="flex items-center justify-center gap-1 mt-1">
+          <BadgeCheck className="w-4 h-4 text-blue-400" />
+          <span className="text-xs text-blue-400">Crítico Gastronômico {profile.verified ? "Verificado" : ""}</span>
+        </div>
+        {connectYarinUrl && (
+          <a
+            href={connectYarinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1 text-xs text-blue-400/80 hover:text-blue-400 transition-colors mt-2"
+          >
+            <ExternalLink className="w-3 h-3" />
+            Connect Yarin
+          </a>
+        )}
+        <div className="flex items-center justify-center gap-6 mt-4">
+          <div className="text-center">
+            <p className="font-numbers text-lg font-bold text-foreground">{profile.publication || "—"}</p>
+            <p className="text-[11px] text-muted-foreground">Veículo</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Profile */}
       <div className="p-5 rounded-xl bg-card border border-border/50">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-lg tracking-wider text-foreground">MEU PERFIL</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground">INFORMAÇÕES</h3>
           {!editing ? (
             <button
               onClick={startEditing}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" />
               Editar
@@ -327,7 +468,7 @@ function ProfileTab({ username }: { username: string }) {
             <button
               onClick={handleSave}
               disabled={updateMutation.isPending}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               {updateMutation.isPending ? "Salvando..." : "Salvar"}
@@ -390,10 +531,10 @@ function ProfileTab({ username }: { username: string }) {
         ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <BadgeCheck className="w-4 h-4 text-purple-400" />
+              <BadgeCheck className="w-4 h-4 text-blue-400" />
               <span className="text-sm font-medium text-foreground">{profile.displayName}</span>
               {profile.verified && (
-                <span className="px-1.5 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-[9px] font-bold">
+                <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[9px] font-bold">
                   VERIFICADO
                 </span>
               )}
@@ -402,7 +543,7 @@ function ProfileTab({ username }: { username: string }) {
               <BookOpen className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{profile.publication}</span>
               {profile.publicationUrl && (
-                <a href={profile.publicationUrl} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300">
+                <a href={profile.publicationUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
@@ -416,26 +557,19 @@ function ProfileTab({ username }: { username: string }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Connect Yarin Link */}
-      {connectYarinUrl && (
-        <div className="p-4 rounded-xl bg-card border border-border/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4 text-primary" />
-              <span className="text-sm text-foreground">Connect Yarin</span>
-            </div>
-            <a
-              href={connectYarinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline"
-            >
-              {connectYarinUrl}
-            </a>
-          </div>
-        </div>
-      )}
+// ============================================================
+// METRIC CARD
+// ============================================================
+function MetricCard({ icon: Icon, label, value, color, isText }: { icon: React.ElementType; label: string; value: string; color: string; isText?: boolean }) {
+  return (
+    <div className="bg-card border border-border/30 rounded-xl p-4">
+      <Icon className={`w-5 h-5 ${color} mb-2`} />
+      <p className={`font-numbers ${isText ? "text-sm" : "text-xl"} font-bold text-foreground truncate`}>{value}</p>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
     </div>
   );
 }
