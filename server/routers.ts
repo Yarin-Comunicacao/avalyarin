@@ -260,6 +260,11 @@ import {
   getBusinessFollowerCount,
   getUserFollowedEstablishments,
 } from "./db-chat";
+import {
+  followUser, unfollowUser, isFollowing, isMutualFollow,
+  getFollowers, getFollowing, getFollowCounts, getMutualFollows,
+  sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
+} from "./db-follows";
 
 export const appRouter = router({
   system: systemRouter,
@@ -2343,6 +2348,75 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este estabelecimento." });
         }
         return await getEventsByEstablishment(input.establishmentId, input.upcoming);
+      }),
+  }),
+
+  // ============ SOCIAL (Follows + DMs) ============
+  social: router({
+    follow: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await followUser(ctx.user!.id, input.userId);
+        return { success: true };
+      }),
+    unfollow: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await unfollowUser(ctx.user!.id, input.userId);
+        return { success: true };
+      }),
+    isFollowing: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const following = await isFollowing(ctx.user!.id, input.userId);
+        const mutual = following ? await isMutualFollow(ctx.user!.id, input.userId) : false;
+        return { following, mutual };
+      }),
+    followers: protectedProcedure
+      .input(z.object({ userId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        return await getFollowers(input.userId || ctx.user!.id);
+      }),
+    following: protectedProcedure
+      .input(z.object({ userId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        return await getFollowing(input.userId || ctx.user!.id);
+      }),
+    counts: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await getFollowCounts(input.userId);
+      }),
+    mutuals: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getMutualFollows(ctx.user!.id);
+      }),
+    // DMs
+    dmConversations: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getDMConversations(ctx.user!.id);
+      }),
+    dmMessages: protectedProcedure
+      .input(z.object({ partnerId: z.number(), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ ctx, input }) => {
+        // Only allow DMs between mutual follows
+        const mutual = await isMutualFollow(ctx.user!.id, input.partnerId);
+        if (!mutual) throw new TRPCError({ code: "FORBIDDEN", message: "Chat disponível apenas entre seguidores mútuos." });
+        return await getDirectMessages(ctx.user!.id, input.partnerId, input.limit, input.offset);
+      }),
+    dmSend: protectedProcedure
+      .input(z.object({ recipientId: z.number(), content: z.string().min(1).max(500) }))
+      .mutation(async ({ ctx, input }) => {
+        const mutual = await isMutualFollow(ctx.user!.id, input.recipientId);
+        if (!mutual) throw new TRPCError({ code: "FORBIDDEN", message: "Chat disponível apenas entre seguidores mútuos." });
+        const id = await sendDirectMessage(ctx.user!.id, input.recipientId, input.content);
+        return { id };
+      }),
+    dmMarkRead: protectedProcedure
+      .input(z.object({ senderId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await markDMsAsRead(ctx.user!.id, input.senderId);
+        return { success: true };
       }),
   }),
 });

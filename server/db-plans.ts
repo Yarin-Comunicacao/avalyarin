@@ -12,7 +12,7 @@ import { eq, and, gte, desc, sql } from "drizzle-orm";
 export const PLAN_LIMITS = {
   free: {
     dailyRatings: 3,
-    maxGroups: 3,
+    maxGroups: null, // unlimited - sem limite de grupos
     maxPromoCodes: 1,
     canCreateInfluencerGroup: false,
     hasDouble: false,

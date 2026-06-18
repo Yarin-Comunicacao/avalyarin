@@ -725,3 +725,30 @@ export const businessFollowers = mysqlTable("business_followers", {
 });
 export type BusinessFollower = typeof businessFollowers.$inferSelect;
 export type InsertBusinessFollower = typeof businessFollowers.$inferInsert;
+
+
+/**
+ * User follows — relação de seguir entre usuários.
+ */
+export const userFollows = mysqlTable("user_follows", {
+  id: int("id").autoincrement().primaryKey(),
+  followerId: int("followerId").notNull(),
+  followingId: int("followingId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type UserFollow = typeof userFollows.$inferSelect;
+export type InsertUserFollow = typeof userFollows.$inferInsert;
+
+/**
+ * Direct messages — chat 1:1 entre users que se seguem mutuamente.
+ */
+export const directMessages = mysqlTable("direct_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  content: varchar("content", { length: 500 }).notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DirectMessage = typeof directMessages.$inferSelect;
+export type InsertDirectMessage = typeof directMessages.$inferInsert;

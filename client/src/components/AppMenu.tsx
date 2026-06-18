@@ -8,7 +8,7 @@ import {
   X, User, Crown,
   Star, MapPin, Image, Bookmark, Heart, Users,
   ChevronRight, LogOut, LogIn, Trophy, Palette, Check,
-  Shield, Building2, UserCog, Eye, Bell, BadgeCheck
+  Shield, Building2, UserCog, Eye, Bell, BadgeCheck, MessageSquare
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -83,6 +83,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       items: [
         { id: "meus-grupos", label: "Meus Grupos", href: "/grupos", icon: <Users className="w-4 h-4" /> },
         { id: "grupos-sigo", label: "Grupos que Sigo", href: "/grupos", icon: <Crown className="w-4 h-4" /> },
+        { id: "mensagens", label: "Mensagens Diretas", href: "/mensagens", icon: <MessageSquare className="w-4 h-4" /> },
       ],
     },
     {

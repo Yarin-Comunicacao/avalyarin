@@ -22,8 +22,8 @@ describe("Plans System", () => {
       expect(PLAN_LIMITS.embaixador.dailyRatings).toBeNull();
     });
 
-    it("free plan should limit to 3 groups", () => {
-      expect(PLAN_LIMITS.free.maxGroups).toBe(3);
+    it("free plan should have unlimited groups", () => {
+      expect(PLAN_LIMITS.free.maxGroups).toBeNull();
     });
 
     it("premium plan should have unlimited groups", () => {

@@ -39,12 +39,7 @@ export async function createGroup(data: {
     throw new Error("PLAN_REQUIRED: Grupos de influencer requerem plano premium");
   }
 
-  if (plan === "free") {
-    const userGroupCount = await countUserGroups(data.creatorId);
-    if (userGroupCount >= 3) {
-      throw new Error("PLAN_LIMIT: Limite de 3 grupos atingido no plano gratuito");
-    }
-  }
+  // Sem limite de grupos para nenhum plano (removido na Fase 12.5)
 
   // Generate code for new group
   const groupCode = await generateCode('groups');

@@ -585,3 +585,13 @@
 - [x] Botão "Compartilhar perfil" no PublicProfilePage
 - [x] Mensagem especial no GroupChat (card clicável com ícone por tipo)
 - [x] Web Share API como opção "Compartilhar externamente" (fallback: copiar link)
+
+### 12.5 — Seguir Users + Chat 1:1 Mútuo
+- [x] Criar tabelas user_follows e direct_messages no banco
+- [x] Endpoints tRPC: follow, unfollow, isFollowing, isMutual, followers, following, mutualFollowers
+- [x] Botão "Seguir" no PublicProfilePage (toggle seguir/deixar de seguir + contagem seguidores/seguindo)
+- [x] Chat 1:1 entre users que se seguem mutuamente (botão DM só aparece se mútuo)
+- [x] Página MensagensPage (/mensagens) com lista de conversas + thread
+- [x] Link "Mensagens Diretas" no AppMenu (seção Grupos)
+- [x] Remover limites de grupo para plano gratuito (maxGroups: null)
+- [x] Remover checagem de limite de 3 grupos no db-groups.ts

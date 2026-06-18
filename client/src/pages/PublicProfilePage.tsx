@@ -3,7 +3,8 @@ import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Star, Calendar, Award, Share2 } from "lucide-react";
+import { ArrowLeft, Loader2, Star, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import ShareToGroup from "@/components/ShareToGroup";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -12,6 +13,9 @@ import { getConnectYarinUrl } from "@shared/const";
 export default function PublicProfilePage() {
   const { username } = useParams<{ username: string }>();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { user } = useAuth();
+  const utils = trpc.useUtils();
 
   const { data: profile, isLoading } = trpc.profile.publicByUsername.useQuery(
     { username: username || "" },
@@ -27,6 +31,31 @@ export default function PublicProfilePage() {
     { userId: profile?.id || 0 },
     { enabled: !!profile?.id }
   );
+
+  const isOwnProfile = user?.id === profile?.id;
+
+  const { data: followStatus } = trpc.social.isFollowing.useQuery(
+    { userId: profile?.id || 0 },
+    { enabled: !!profile?.id && !!user && !isOwnProfile }
+  );
+
+  const { data: followCounts } = trpc.social.counts.useQuery(
+    { userId: profile?.id || 0 },
+    { enabled: !!profile?.id }
+  );
+
+  const followMutation = trpc.social.follow.useMutation({
+    onSuccess: () => {
+      utils.social.isFollowing.invalidate({ userId: profile?.id || 0 });
+      utils.social.counts.invalidate({ userId: profile?.id || 0 });
+    },
+  });
+  const unfollowMutation = trpc.social.unfollow.useMutation({
+    onSuccess: () => {
+      utils.social.isFollowing.invalidate({ userId: profile?.id || 0 });
+      utils.social.counts.invalidate({ userId: profile?.id || 0 });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -129,6 +158,49 @@ export default function PublicProfilePage() {
             <span className="mt-2 text-[11px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">
               INFLUENCER
             </span>
+          )}
+
+          {/* Follow counts */}
+          {followCounts && (
+            <div className="flex items-center gap-4 mt-3">
+              <span className="text-xs text-muted-foreground">
+                <strong className="text-foreground">{followCounts.followers}</strong> seguidores
+              </span>
+              <span className="text-xs text-muted-foreground">
+                <strong className="text-foreground">{followCounts.following}</strong> seguindo
+              </span>
+            </div>
+          )}
+
+          {/* Follow + DM buttons */}
+          {user && !isOwnProfile && (
+            <div className="flex items-center gap-2 mt-3">
+              {followStatus?.following ? (
+                <button
+                  onClick={() => unfollowMutation.mutate({ userId: profile.id })}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Seguindo
+                </button>
+              ) : (
+                <button
+                  onClick={() => followMutation.mutate({ userId: profile.id })}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Seguir
+                </button>
+              )}
+              {followStatus?.mutual && (
+                <Link href={`/mensagens/${profile.username}`}>
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-foreground text-xs font-medium hover:bg-secondary/80 transition-colors">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Mensagem
+                  </button>
+                </Link>
+              )}
+            </div>
           )}
 
           {/* Share profile button */}

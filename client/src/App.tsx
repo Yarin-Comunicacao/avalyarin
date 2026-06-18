@@ -56,6 +56,8 @@ import InfluencerProfilePage from "./pages/InfluencerProfilePage";
 import CriticPanel from "./pages/CriticPanel";
 // Public Profile
 import PublicProfilePage from "./pages/PublicProfilePage";
+// Mensagens (DMs)
+import MensagensPage from "./pages/MensagensPage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
 // Destaques
@@ -184,6 +186,8 @@ function Router() {
       <Route path="/owner" component={OwnerPanel} />
       <Route path="/owner/sistema/testes" component={TestSuitePage} />
       <Route path="/owner/sistema" component={SystemPanel} />
+      <Route path="/mensagens/:username" component={MensagensPage} />
+      <Route path="/mensagens" component={MensagensPage} />
       <Route path="/perfil/:username" component={PublicProfilePage} />
       <Route path="/perfil">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/estabs">{() => <RoleBasedProfile />}</Route>
