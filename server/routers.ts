@@ -48,6 +48,7 @@ import {
   generateUsernameSuggestions,
   setUsername,
   getUserProfile,
+  getPublicProfileByUsername,
   updateUserProfile,
   // Create
   createEstablishment,
@@ -416,6 +417,16 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset, input.filterItemName);
+      }),
+
+    publicUserRatings: publicProcedure
+      .input(z.object({
+        userId: z.number(),
+        limit: z.number().min(1).max(50).default(20),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        return await getUserRatings(input.userId, input.limit, input.offset);
       }),
 
     uploadPhoto: protectedProcedure
@@ -994,6 +1005,11 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
       }),
+    publicByUsername: publicProcedure
+      .input(z.object({ username: z.string().min(1) }))
+      .query(async ({ input }) => {
+        return await getPublicProfileByUsername(input.username);
+      }),
   }),
 
   groups: router({
@@ -1203,6 +1219,12 @@ export const appRouter = router({
       return await getSpecialNeighborhoodInsignias(ctx.user!.id, neighborhoodBadges);
     }),
 
+    // Public: get nobility summary for any user (for public profiles)
+    publicSummary: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await getUserNobilitySummary(input.userId);
+      }),
     // Get constants (thresholds, titles, eligible neighborhoods)
     constants: publicProcedure.query(() => {
       return {

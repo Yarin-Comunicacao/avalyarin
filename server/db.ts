@@ -2304,3 +2304,23 @@ export async function deleteIntegration(key: string): Promise<void> {
   if (!db) throw new Error("Database not available");
   await db.delete(integrations).where(eq(integrations.key, key));
 }
+
+// ============ PUBLIC PROFILE BY USERNAME ============
+
+export async function getPublicProfileByUsername(username: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      role: users.role,
+      verified: users.verified,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.username, username))
+    .limit(1);
+  return rows[0] || null;
+}

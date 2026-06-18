@@ -830,11 +830,16 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                     {isCritic && (
                       <StarIcon className="w-4 h-4 text-blue-400 fill-blue-400" style={{ filter: "drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))" }} />
                     )}
-                    <span className="text-sm font-semibold text-foreground">
-                      {review.userName || "Anônimo"}
-                    </span>
-                    {review.username && (
-                      <span className="text-[11px] text-muted-foreground">@{review.username}</span>
+                    {review.username ? (
+                      <Link href={`/perfil/${review.username}`}>
+                        <span className="text-sm font-semibold text-primary hover:text-primary/80 hover:underline transition-colors cursor-pointer">
+                          @{review.username}
+                        </span>
+                      </Link>
+                    ) : (
+                      <span className="text-sm font-semibold text-foreground">
+                        {review.userName || "Anônimo"}
+                      </span>
                     )}
                     {isCritic && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-medium">
