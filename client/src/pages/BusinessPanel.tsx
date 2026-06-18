@@ -195,13 +195,16 @@ function MyEstablishmentsTab() {
       <div className="space-y-4">
         {establishments.map((est: any) => (
           <div key={est.id} className="p-5 rounded-xl bg-card border border-border/50">
-            {/* Nome clicável — leva para a página do estabelecimento */}
-            <Link href={`/estabelecimento/${est.slug}`} className="block group mb-3">
-              <h3 className="font-medium text-foreground group-hover:text-primary transition-colors cursor-pointer">
-                {est.name}
-                <ExternalLink className="w-3.5 h-3.5 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </h3>
-            </Link>
+            {/* Nome clicável + ID visível */}
+            <div className="flex items-center gap-2 mb-3">
+              <Link href={`/estabelecimento/${est.slug}`} className="group">
+                <h3 className="font-medium text-foreground group-hover:text-primary transition-colors cursor-pointer">
+                  {est.name}
+                  <ExternalLink className="w-3.5 h-3.5 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </h3>
+              </Link>
+              <span className="text-[10px] text-muted-foreground/50 font-mono">ID: {est.id}</span>
+            </div>
 
             {/* Informações read-only */}
             <div className="space-y-2">
