@@ -547,3 +547,9 @@
 - [x] CriticProfile refatorado com layout idêntico ao InfluencerProfile (tabs, grid, métricas)
 - [x] Avaliações de críticos com nota ≥ 9 aparecem primeiro na lista do estabelecimento (ORDER BY CASE)
 - [x] Corrigido threshold do Selo Crítico de 80 para 8 (escala 0-10)
+
+## Fase 11.2 — Sub-aba Avaliações no Estabelecimento
+- [x] Criar sub-aba "Avaliações" na EstablishmentPage com cards visuais (toggle Cardápio/Avaliações)
+- [x] Cada card mostra: nome do avaliador, nota, data, itens avaliados, comentário
+- [x] Itens do cardápio clicáveis levam para a aba Avaliações com filtro por item (filterItemName)
+- [x] Cards de avaliações de críticos exibem estrela azul safira brilhante (glow + badge CRÍTICO)

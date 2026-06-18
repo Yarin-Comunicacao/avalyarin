@@ -53,6 +53,8 @@ export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [activeSection, setActiveSection] = useState<"cardapio" | "avaliacoes">("cardapio");
+  const [filterItem, setFilterItem] = useState<string | null>(null);
   const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
 
@@ -152,7 +154,8 @@ export default function EstablishmentPage() {
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/20 transition-colors"
+          onClick={() => { setFilterItem(item.name); setActiveSection("avaliacoes"); }}
+          className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/20 transition-colors cursor-pointer"
         >
           {(item.imageThumbUrl || item.imageUrl) && (
             <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-secondary">
@@ -335,10 +338,47 @@ export default function EstablishmentPage() {
         />
       )}
 
-      {/* Menu */}
+      {/* Main Content Tabs: Cardápio / Avaliações */}
       {menu.length > 0 && (
         <section className="py-6 pb-28">
           <div className="container">
+            {/* Section Toggle */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => { setActiveSection("cardapio"); setFilterItem(null); }}
+                className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
+                  activeSection === "cardapio"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                CARDÁPIO
+              </button>
+              <button
+                onClick={() => setActiveSection("avaliacoes")}
+                className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
+                  activeSection === "avaliacoes"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                AVALIAÇÕES
+              </button>
+            </div>
+
+            {/* Avaliações Section */}
+            {activeSection === "avaliacoes" && (
+              <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
+                <ReviewsSection
+                  establishmentId={establishment.id}
+                  filterItem={filterItem}
+                  onClearFilter={() => setFilterItem(null)}
+                />
+              </div>
+            )}
+
+            {/* Cardápio Section */}
+            {activeSection === "cardapio" && (
             <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
             <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-6">CARDÁPIO</h3>
 
@@ -395,6 +435,7 @@ export default function EstablishmentPage() {
               )}
             </Tabs>
             </div>
+            )}
           </div>
         </section>
       )}
@@ -699,6 +740,165 @@ function CriticSealBadge({ establishmentId }: { establishmentId: number }) {
           </span>
         </div>
       ))}
+    </div>
+  );
+}
+
+
+// ============================================================
+// REVIEWS SECTION — Sub-aba de Avaliações com cards
+// ============================================================
+import { Star as StarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
+  establishmentId: number;
+  filterItem: string | null;
+  onClearFilter: () => void;
+}) {
+  const { data: reviews, isLoading } = trpc.ratings.byEstablishment.useQuery(
+    { establishmentId, limit: 50, offset: 0, filterItemName: filterItem || undefined },
+    { enabled: !!establishmentId }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber">
+          AVALIAÇÕES
+        </h3>
+        {filterItem && (
+          <button
+            onClick={onClearFilter}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-xs text-primary hover:bg-primary/20 transition-colors"
+          >
+            <X className="w-3 h-3" />
+            Filtro: {filterItem}
+          </button>
+        )}
+      </div>
+
+      {(!reviews || reviews.length === 0) ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 rounded-full bg-secondary/50 border border-border/30 flex items-center justify-center mx-auto mb-4">
+            <StarIcon className="w-7 h-7 text-muted-foreground/50" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {filterItem
+              ? `Nenhuma avaliação encontrada para "${filterItem}"`
+              : "Nenhuma avaliação ainda. Seja o primeiro a avaliar!"}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reviews.map((review: any) => {
+            const isCritic = review.userRole === "critic";
+            const visitDateStr = review.visitDate
+              ? format(new Date(review.visitDate), "dd/MM/yyyy", { locale: ptBR })
+              : review.createdAt
+              ? format(new Date(review.createdAt), "dd/MM/yyyy", { locale: ptBR })
+              : "";
+            const itemNames = review.items?.map((i: any) => i.itemName).join(", ") || "";
+
+            return (
+              <div
+                key={review.id}
+                className={`p-4 rounded-xl border transition-all ${
+                  isCritic
+                    ? "bg-[#0a1628]/80 border-blue-500/30 shadow-md shadow-blue-500/5"
+                    : "bg-secondary/50 border-border/30"
+                }`}
+              >
+                {/* Header: user + score */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {isCritic && (
+                      <StarIcon className="w-4 h-4 text-blue-400 fill-blue-400" style={{ filter: "drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))" }} />
+                    )}
+                    <span className="text-sm font-semibold text-foreground">
+                      {review.userName || "Anônimo"}
+                    </span>
+                    {review.username && (
+                      <span className="text-[11px] text-muted-foreground">@{review.username}</span>
+                    )}
+                    {isCritic && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-medium">
+                        CRÍTICO
+                      </span>
+                    )}
+                  </div>
+                  {review.overallScore && (
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
+                      isCritic ? "bg-blue-500/10 border border-blue-500/30" : "bg-primary/10 border border-primary/30"
+                    }`}>
+                      <StarIcon className={`w-3.5 h-3.5 ${isCritic ? "text-blue-400 fill-blue-400" : "text-primary fill-primary"}`} />
+                      <span className={`font-numbers text-sm font-bold ${isCritic ? "text-blue-400" : "text-primary"}`}>
+                        {Number(review.overallScore).toFixed(1)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Date */}
+                {visitDateStr && (
+                  <p className="text-[11px] text-muted-foreground mb-2">{visitDateStr}</p>
+                )}
+
+                {/* Items consumed */}
+                {review.items && review.items.length > 0 && (
+                  <div className="space-y-1.5 mt-2">
+                    {review.items.map((item: any) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between px-3 py-2 rounded-lg bg-background/50 border border-border/20"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground truncate">
+                            {item.quantity && item.quantity > 1 ? `${item.quantity}x ` : ""}
+                            {item.itemName}
+                          </p>
+                          {item.comment && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 italic">
+                              "{item.comment}"
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {item.price && (
+                            <span className="text-[10px] text-muted-foreground">
+                              R$ {Number(item.price).toFixed(2).replace(".", ",")}
+                            </span>
+                          )}
+                          {item.score && (
+                            <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded ${
+                              isCritic ? "bg-blue-500/10" : "bg-primary/10"
+                            }`}>
+                              <span className={`font-numbers text-[11px] font-semibold ${
+                                isCritic ? "text-blue-400" : "text-primary"
+                              }`}>
+                                {Number(item.score).toFixed(1)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

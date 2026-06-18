@@ -851,7 +851,7 @@ export async function getRatingById(ratingId: number, userId: number) {
   };
 }
 
-export async function getEstablishmentRatings(establishmentId: number, limit = 20, offset = 0) {
+export async function getEstablishmentRatings(establishmentId: number, limit = 20, offset = 0, filterItemName?: string) {
   const db = await getDb();
   if (!db) return [];
   const result = await db.select({
@@ -894,6 +894,14 @@ export async function getEstablishmentRatings(establishmentId: number, limit = 2
       return { ...r, items };
     })
   );
+  
+  // If filtering by item name, only return ratings that contain that item
+  if (filterItemName) {
+    const filtered = ratingsWithItems.filter(r =>
+      r.items.some(item => item.itemName.toLowerCase().includes(filterItemName.toLowerCase()))
+    );
+    return filtered;
+  }
   
   return ratingsWithItems;
 }

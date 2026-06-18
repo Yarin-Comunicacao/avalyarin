@@ -412,9 +412,10 @@ export const appRouter = router({
         establishmentId: z.number(),
         limit: z.number().min(1).max(50).default(20),
         offset: z.number().min(0).default(0),
+        filterItemName: z.string().optional(),
       }))
       .query(async ({ input }) => {
-        return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset);
+        return await getEstablishmentRatings(input.establishmentId, input.limit, input.offset, input.filterItemName);
       }),
 
     uploadPhoto: protectedProcedure
