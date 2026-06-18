@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import {
-  Store, ArrowLeft, ClipboardCheck, UtensilsCrossed, Edit,
+  Store, ArrowLeft, ClipboardCheck, UtensilsCrossed,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
   Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone
 } from "lucide-react";
@@ -150,15 +150,10 @@ export default function BusinessPanel() {
 
 function MyEstablishmentsTab() {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
-  const updateMutation = trpc.business.updateEstablishment.useMutation();
-  const utils = trpc.useUtils();
-  const [editing, setEditing] = useState<number | null>(null);
-  const [editData, setEditData] = useState<{
-    name?: string;
-    address?: string;
-    phone?: string;
-    instagram?: string;
-  }>({});
+  const sendToSupport = trpc.chat.sendToSupport.useMutation({
+    onSuccess: () => toast.success("Mensagem enviada ao suporte! Aguarde o retorno."),
+    onError: () => toast.error("Erro ao enviar mensagem ao suporte."),
+  });
 
   if (isLoading) return <div className="text-muted-foreground">Carregando seus estabelecimentos...</div>;
 
@@ -174,16 +169,10 @@ function MyEstablishmentsTab() {
     );
   }
 
-  const handleSave = async (id: number) => {
-    try {
-      await updateMutation.mutateAsync({ establishmentId: id, ...editData });
-      utils.business.myEstablishments.invalidate();
-      setEditing(null);
-      setEditData({});
-      toast.success("Estabelecimento atualizado!");
-    } catch {
-      toast.error("Erro ao atualizar");
-    }
+  const handleRequestChange = (est: any) => {
+    sendToSupport.mutate({
+      content: `Olá, gostaria de solicitar alteração nas informações do estabelecimento "${est.name}" (ID: ${est.id}). Por favor, entrem em contato.`,
+    });
   };
 
   return (
@@ -192,67 +181,51 @@ function MyEstablishmentsTab() {
       <div className="space-y-4">
         {establishments.map((est: any) => (
           <div key={est.id} className="p-5 rounded-xl bg-card border border-border/50">
-            {editing === est.id ? (
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  defaultValue={est.name}
-                  onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Nome"
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
-                />
-                <input
-                  type="text"
-                  defaultValue={est.address || ""}
-                  onChange={(e) => setEditData(prev => ({ ...prev, address: e.target.value }))}
-                  placeholder="Endereço"
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
-                />
-                <input
-                  type="text"
-                  defaultValue={est.phone || ""}
-                  onChange={(e) => setEditData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="Telefone"
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
-                />
-                <input
-                  type="text"
-                  defaultValue={est.instagram || ""}
-                  onChange={(e) => setEditData(prev => ({ ...prev, instagram: e.target.value }))}
-                  placeholder="Instagram"
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleSave(est.id)}
-                    className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                  >
-                    Salvar
-                  </button>
-                  <button
-                    onClick={() => { setEditing(null); setEditData({}); }}
-                    className="px-4 py-2 text-sm border border-border text-muted-foreground rounded-lg hover:text-foreground transition-colors"
-                  >
-                    Cancelar
-                  </button>
+            {/* Nome clicável — leva para a página do estabelecimento */}
+            <Link href={`/estabelecimento/${est.slug}`} className="block group mb-3">
+              <h3 className="font-medium text-foreground group-hover:text-primary transition-colors cursor-pointer">
+                {est.name}
+                <ExternalLink className="w-3.5 h-3.5 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+            </Link>
+
+            {/* Informações read-only */}
+            <div className="space-y-2">
+              {est.address && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Endereço</span>
+                  <span className="text-sm text-muted-foreground">{est.address}</span>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium text-foreground">{est.name}</h3>
-                  <p className="text-sm text-muted-foreground">{est.address}</p>
-                  {est.phone && <p className="text-xs text-muted-foreground mt-1">Tel: {est.phone}</p>}
-                  {est.instagram && <p className="text-xs text-primary mt-1">@{est.instagram}</p>}
+              )}
+              {est.phone && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Telefone</span>
+                  <span className="text-sm text-muted-foreground">{est.phone}</span>
                 </div>
-                <button
-                  onClick={() => { setEditing(est.id); setEditData({}); }}
-                  className="p-2 text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
+              )}
+              {est.instagram && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Instagram</span>
+                  <span className="text-sm text-primary">@{est.instagram}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Aviso de alteração via suporte */}
+            <div className="mt-4 pt-3 border-t border-border/30">
+              <div className="flex items-center gap-2 text-xs text-yellow-400/80">
+                <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>Para alterar nome, endereço, telefone ou @, solicite ao suporte.</span>
               </div>
-            )}
+              <button
+                onClick={() => handleRequestChange(est)}
+                disabled={sendToSupport.isPending}
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors disabled:opacity-50"
+              >
+                <Send className="w-3 h-3" />
+                {sendToSupport.isPending ? "Enviando..." : "Solicitar alteração ao suporte"}
+              </button>
+            </div>
           </div>
         ))}
       </div>

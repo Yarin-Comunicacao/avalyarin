@@ -595,3 +595,9 @@
 - [x] Link "Mensagens Diretas" no AppMenu (seção Grupos)
 - [x] Remover limites de grupo para plano gratuito (maxGroups: null)
 - [x] Remover checagem de limite de 3 grupos no db-groups.ts
+
+### 13 — Ajustes Aba "Meu Bar" no BusinessPanel
+- [x] Tornar bares clicáveis (link para página do estabelecimento via slug)
+- [x] Remover botão de editar do lado DIREITO dos cards de bar
+- [x] Campos nome, endereço, telefone e @ read-only com aviso para solicitar alteração ao suporte
+- [x] Botão "Solicitar alteração ao suporte" envia mensagem automática ao chat de suporte
