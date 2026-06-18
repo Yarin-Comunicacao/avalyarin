@@ -600,4 +600,8 @@
 - [x] Tornar bares clicáveis (link para página do estabelecimento via slug)
 - [x] Remover botão de editar do lado DIREITO dos cards de bar
 - [x] Campos nome, endereço, telefone e @ read-only com aviso para solicitar alteração ao suporte
-- [x] Botão "Solicitar alteração ao suporte" envia mensagem automática ao chat de suporte
+- [x] Botão "Solicitar alteração ao suporte" abre chat inline com suporte (histórico + input)
+- [x] Renomear BottomNav de "Meu Bar" para "Meus Locais"
+- [x] Renomear aba e título de "Meus Estabelecimentos" para "Meus Locais"
+- [x] Renomear estab "Bar Teste Avalyarin" (ID 90003) para "Conta Teste Pinheiros"
+- [x] Suporte (Rosangela, rossegon@gmail.com) já recebe mensagens do Alan automaticamente

@@ -117,9 +117,9 @@ describe("Role Visibility Rules", () => {
       expect(supportNav[2].icon).toBe("Store");
     });
 
-    it("business nav includes Meu Bar", () => {
+    it("business nav includes Meus Locais", () => {
       const labels = ROLE_BOTTOM_NAV.business.map((item) => item.label);
-      expect(labels).toContain("Meu Bar");
+      expect(labels).toContain("Meus Locais");
     });
   });
 

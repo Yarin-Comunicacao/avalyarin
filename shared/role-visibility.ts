@@ -103,7 +103,7 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   business: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "Store", label: "Meu Bar", path: "/painel-empresarial" },
+    { icon: "Store", label: "Meus Locais", path: "/painel-empresarial" },
     { icon: "BarChart3", label: "Insights", path: "/painel-empresarial/insights" },
     { icon: "Bell", label: "Alertas", path: "/painel-empresarial/notificacoes" },
     { icon: "User", label: "Conta", path: "/conta" },

@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { QRCodeCanvas } from "qrcode.react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -95,7 +95,7 @@ export default function BusinessPanel() {
         <div className="container overflow-x-auto scrollbar-hide">
           <div className="flex gap-0 min-w-max">
             {[
-              { id: "establishments" as const, label: "Meus Estab.", labelFull: "Meus Estabelecimentos", icon: Store },
+              { id: "establishments" as const, label: "Meus Locais", labelFull: "Meus Locais", icon: Store },
               { id: "claims" as const, label: "Solicitações", labelFull: "Solicitações", icon: ClipboardCheck },
               { id: "menu" as const, label: "Cardápio", labelFull: "Cardápio", icon: UtensilsCrossed },
               { id: "notifications" as const, label: "Alertas", labelFull: "Notificações", icon: Bell },
@@ -150,10 +150,8 @@ export default function BusinessPanel() {
 
 function MyEstablishmentsTab() {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
-  const sendToSupport = trpc.chat.sendToSupport.useMutation({
-    onSuccess: () => toast.success("Mensagem enviada ao suporte! Aguarde o retorno."),
-    onError: () => toast.error("Erro ao enviar mensagem ao suporte."),
-  });
+  const [showSupportChat, setShowSupportChat] = useState(false);
+  const [supportPreMessage, setSupportPreMessage] = useState("");
 
   if (isLoading) return <div className="text-muted-foreground">Carregando seus estabelecimentos...</div>;
 
@@ -170,14 +168,30 @@ function MyEstablishmentsTab() {
   }
 
   const handleRequestChange = (est: any) => {
-    sendToSupport.mutate({
-      content: `Olá, gostaria de solicitar alteração nas informações do estabelecimento "${est.name}" (ID: ${est.id}). Por favor, entrem em contato.`,
-    });
+    setSupportPreMessage(`Olá, gostaria de solicitar alteração nas informações do estabelecimento "${est.name}" (ID: ${est.id}).`);
+    setShowSupportChat(true);
   };
 
   return (
     <div>
-      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">MEUS ESTABELECIMENTOS</h2>
+      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">MEUS LOCAIS</h2>
+      
+      {/* Chat com suporte (expandível) */}
+      {showSupportChat && (
+        <div className="mb-6 p-4 rounded-xl bg-card border border-teal-500/30">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display text-sm tracking-wider text-teal-400">CHAT COM SUPORTE</h3>
+            <button
+              onClick={() => setShowSupportChat(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+          <InlineSupportChat preMessage={supportPreMessage} />
+        </div>
+      )}
+
       <div className="space-y-4">
         {establishments.map((est: any) => (
           <div key={est.id} className="p-5 rounded-xl bg-card border border-border/50">
@@ -219,15 +233,101 @@ function MyEstablishmentsTab() {
               </div>
               <button
                 onClick={() => handleRequestChange(est)}
-                disabled={sendToSupport.isPending}
-                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors disabled:opacity-50"
+                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
               >
                 <Send className="w-3 h-3" />
-                {sendToSupport.isPending ? "Enviando..." : "Solicitar alteração ao suporte"}
+                Solicitar alteração ao suporte
               </button>
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Componente de chat inline com suporte (usado dentro da aba Meus Locais) */
+function InlineSupportChat({ preMessage }: { preMessage?: string }) {
+  const { user } = useAuth();
+  const [message, setMessage] = useState(preMessage || "");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: messages, refetch } = trpc.chat.mySupportMessages.useQuery(
+    undefined,
+    { refetchInterval: 5000 }
+  );
+  const sendMutation = trpc.chat.sendToSupport.useMutation({
+    onSuccess: () => {
+      setMessage("");
+      refetch();
+      toast.success("Mensagem enviada ao suporte!");
+    },
+    onError: () => toast.error("Erro ao enviar mensagem"),
+  });
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  if (!user) return null;
+
+  const handleSend = () => {
+    const trimmed = message.trim();
+    if (!trimmed) return;
+    sendMutation.mutate({ content: trimmed });
+  };
+
+  return (
+    <div>
+      {/* Messages */}
+      <div className="h-48 overflow-y-auto rounded-xl border border-border/30 bg-background/50 p-3 space-y-2 mb-3">
+        {(!messages || messages.length === 0) ? (
+          <div className="text-center py-6">
+            <p className="text-xs text-muted-foreground">Envie uma mensagem para o suporte</p>
+          </div>
+        ) : (
+          [...messages].reverse().map((msg: any) => {
+            const isMine = msg.senderId === user.id;
+            return (
+              <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
+                  isMine
+                    ? "bg-primary text-primary-foreground rounded-br-sm"
+                    : "bg-teal-500/10 border border-teal-500/20 text-foreground rounded-bl-sm"
+                }`}>
+                  {!isMine && (
+                    <span className="text-[9px] text-teal-500 font-medium block mb-0.5">SUPORTE</span>
+                  )}
+                  <p className="break-words">{msg.content}</p>
+                  <span className={`text-[10px] mt-1 block ${
+                    isMine ? "text-primary-foreground/60" : "text-muted-foreground/60"
+                  }`}>
+                    {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          placeholder="Mensagem para o suporte..."
+          className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+        />
+        <button
+          onClick={handleSend}
+          disabled={!message.trim() || sendMutation.isPending}
+          className="px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80 transition-colors disabled:opacity-50"
+        >
+          <Send className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
