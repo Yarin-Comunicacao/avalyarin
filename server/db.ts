@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2270,6 +2270,128 @@ export async function getEstablishmentPhotos(establishmentId: number, limit = 20
     .limit(limit);
 }
 
+
+// ============================================================
+// PHOTO LIKES & SHARES
+// ============================================================
+
+export async function togglePhotoLike(photoId: number, userId: number): Promise<{ liked: boolean; count: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [existing] = await db.select().from(photoLikes)
+    .where(and(eq(photoLikes.photoId, photoId), eq(photoLikes.userId, userId)));
+  if (existing) {
+    await db.delete(photoLikes).where(eq(photoLikes.id, existing.id));
+  } else {
+    await db.insert(photoLikes).values({ photoId, userId });
+  }
+  const [countRow] = await db.select({ count: sql<number>`COUNT(*)` }).from(photoLikes)
+    .where(eq(photoLikes.photoId, photoId));
+  return { liked: !existing, count: countRow?.count || 0 };
+}
+
+export async function getPhotoLikeStatus(photoId: number, userId?: number): Promise<{ liked: boolean; count: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [countRow] = await db.select({ count: sql<number>`COUNT(*)` }).from(photoLikes)
+    .where(eq(photoLikes.photoId, photoId));
+  let liked = false;
+  if (userId) {
+    const [existing] = await db.select().from(photoLikes)
+      .where(and(eq(photoLikes.photoId, photoId), eq(photoLikes.userId, userId)));
+    liked = !!existing;
+  }
+  return { liked, count: countRow?.count || 0 };
+}
+
+export async function getPhotoLikesBatch(photoIds: number[], userId?: number): Promise<Record<number, { liked: boolean; count: number }>> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  if (photoIds.length === 0) return {};
+  const counts = await db.select({
+    photoId: photoLikes.photoId,
+    count: sql<number>`COUNT(*)`,
+  }).from(photoLikes)
+    .where(inArray(photoLikes.photoId, photoIds))
+    .groupBy(photoLikes.photoId);
+  
+  let userLikes: number[] = [];
+  if (userId) {
+    const rows = await db.select({ photoId: photoLikes.photoId }).from(photoLikes)
+      .where(and(inArray(photoLikes.photoId, photoIds), eq(photoLikes.userId, userId)));
+    userLikes = rows.map(r => r.photoId);
+  }
+  
+  const result: Record<number, { liked: boolean; count: number }> = {};
+  for (const id of photoIds) {
+    const countEntry = counts.find(c => c.photoId === id);
+    result[id] = { liked: userLikes.includes(id), count: countEntry?.count || 0 };
+  }
+  return result;
+}
+
+export async function sharePhotoToGroup(data: { photoId: number; userId: number; groupId: number; comment?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(photoShares).values({
+    photoId: data.photoId,
+    userId: data.userId,
+    groupId: data.groupId,
+    comment: data.comment || null,
+  });
+  return { id: Number(result[0].insertId) };
+}
+
+/** Get user's gallery — all photos from their ratings with context */
+export async function getUserGallery(userId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select({
+    id: ratingPhotos.id,
+    url: ratingPhotos.url,
+    taggedItemIds: ratingPhotos.taggedItemIds,
+    createdAt: ratingPhotos.createdAt,
+    ratingId: ratingPhotos.ratingId,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    overallScore: ratings.overallScore,
+    visitDate: ratings.visitDate,
+  })
+    .from(ratingPhotos)
+    .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
+    .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
+    .where(eq(ratingPhotos.userId, userId))
+    .orderBy(desc(ratingPhotos.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+/** Get any user's public gallery for profile viewing */
+export async function getPublicUserGallery(userId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select({
+    id: ratingPhotos.id,
+    url: ratingPhotos.url,
+    taggedItemIds: ratingPhotos.taggedItemIds,
+    createdAt: ratingPhotos.createdAt,
+    ratingId: ratingPhotos.ratingId,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    overallScore: ratings.overallScore,
+    visitDate: ratings.visitDate,
+    userName: users.name,
+    username: users.username,
+  })
+    .from(ratingPhotos)
+    .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
+    .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
+    .innerJoin(users, eq(ratingPhotos.userId, users.id))
+    .where(eq(ratingPhotos.userId, userId))
+    .orderBy(desc(ratingPhotos.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
 
 // ============================================================
 // INTEGRATIONS HELPERS

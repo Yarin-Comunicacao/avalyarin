@@ -605,3 +605,14 @@
 - [x] Renomear aba e título de "Meus Estabelecimentos" para "Meus Locais"
 - [x] Renomear estab "Bar Teste Avalyarin" (ID 90003) para "Conta Teste Pinheiros"
 - [x] Suporte (Rosangela, rossegon@gmail.com) já recebe mensagens do Alan automaticamente
+
+### 14 — Feed de Fotos (Galeria, Curtir, Compartilhar)
+- [x] Schema: tabela photo_likes (userId, photoId, createdAt)
+- [x] Schema: tabela photo_shares (userId, photoId, groupId, comment, createdAt)
+- [x] Endpoints tRPC: toggleLike, likesBatch, shareToGroup, myGallery, userGallery
+- [x] Componente PhotoGrid (grid 4:5 no perfil)
+- [x] Componente PhotoExpanded (expansão 9:16 com comentário, curtir, compartilhar)
+- [x] Componente SharePhotoModal (bottom sheet para compartilhar para grupos)
+- [x] Integrar galeria funcional na aba Galeria de MinhasAvaliacoes
+- [x] Integrar curtir + compartilhar + expandir na página do estabelecimento (AvalyarinReviews)
+- [x] Integrar no PublicProfilePage (perfil público do user/influencer/critic)

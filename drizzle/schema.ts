@@ -752,3 +752,29 @@ export const directMessages = mysqlTable("direct_messages", {
 });
 export type DirectMessage = typeof directMessages.$inferSelect;
 export type InsertDirectMessage = typeof directMessages.$inferInsert;
+
+// ============================================================
+// Photo Likes — curtidas em fotos de avaliações
+// ============================================================
+export const photoLikes = mysqlTable("photo_likes", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoLike = typeof photoLikes.$inferSelect;
+export type InsertPhotoLike = typeof photoLikes.$inferInsert;
+
+// ============================================================
+// Photo Shares — compartilhamentos de fotos para grupos
+// ============================================================
+export const photoShares = mysqlTable("photo_shares", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  userId: int("userId").notNull(),
+  groupId: int("groupId").notNull(),
+  comment: varchar("comment", { length: 280 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoShare = typeof photoShares.$inferSelect;
+export type InsertPhotoShare = typeof photoShares.$inferInsert;

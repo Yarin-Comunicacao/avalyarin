@@ -1,10 +1,13 @@
 // AvalyarinReviews — Displays clickable Avalyarin reviews with order summary + photo carousel
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { StarRating } from "./StarRating";
-import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
+import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon, Heart, Send } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { toast } from "sonner";
+import PhotoExpanded from "./PhotoExpanded";
 
 interface AvalyarinReviewsProps {
   establishmentId: number;
@@ -13,6 +16,8 @@ interface AvalyarinReviewsProps {
 export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
   const [selectedReview, setSelectedReview] = useState<number | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [expandedPhoto, setExpandedPhoto] = useState<any>(null);
+  const { user } = useAuth();
 
   const { data: reviews, isLoading } = trpc.ratings.byEstablishment.useQuery(
     { establishmentId, limit: 10, offset: 0 },
@@ -99,6 +104,24 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
           );
         })}
       </div>
+
+      {/* Expanded Photo Viewer */}
+      {expandedPhoto && (
+        <PhotoExpanded
+          photo={{
+            id: expandedPhoto.id,
+            url: expandedPhoto.url,
+            establishmentName: expandedPhoto.establishmentName || "",
+            establishmentSlug: expandedPhoto.establishmentSlug || "",
+            overallScore: expandedPhoto.overallScore,
+            visitDate: expandedPhoto.visitDate,
+            userName: expandedPhoto.userName,
+            username: expandedPhoto.username,
+          }}
+          onClose={() => setExpandedPhoto(null)}
+          taggedItemNames={expandedPhoto.taggedNames}
+        />
+      )}
 
       {/* Review detail modal */}
       {selected && (
@@ -195,6 +218,39 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                     })()}
                   </p>
                 )}
+                {/* Like & Share & Expand buttons */}
+                <div className="flex items-center gap-3 mt-2">
+                  <PhotoLikeButton photoId={reviewPhotos[photoIndex].id} />
+                  <button
+                    onClick={() => {
+                      const photo = reviewPhotos[photoIndex];
+                      let taggedNames: string[] = [];
+                      try {
+                        if (photo.taggedItemIds) {
+                          const ids = JSON.parse(photo.taggedItemIds as string);
+                          taggedNames = selected.items
+                            ?.filter((item) => ids.includes(String(item.id)) || ids.includes(item.id))
+                            .map((item) => item.itemName) || [];
+                        }
+                      } catch {}
+                      setExpandedPhoto({
+                        id: photo.id,
+                        url: photo.url,
+                        establishmentName: selected.items?.[0]?.itemName ? "" : "",
+                        establishmentSlug: "",
+                        overallScore: selected.overallScore,
+                        visitDate: selected.visitDate,
+                        taggedItemIds: photo.taggedItemIds,
+                        userName: selected.userName,
+                        username: (selected as any).username,
+                        taggedNames,
+                      });
+                    }}
+                    className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" /> Expandir
+                  </button>
+                </div>
               </div>
             )}
 
@@ -262,5 +318,46 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
         </>
       )}
     </div>
+  );
+}
+
+// ============ PhotoLikeButton — inline like for carousel photos ============
+function PhotoLikeButton({ photoId }: { photoId: number }) {
+  const { user } = useAuth();
+  const [liked, setLiked] = useState(false);
+  const [count, setCount] = useState(0);
+
+  const { data: likesData } = trpc.ratings.likesBatch.useQuery({ photoIds: [photoId] });
+
+  useEffect(() => {
+    if (likesData && likesData[photoId]) {
+      setLiked(likesData[photoId].liked);
+      setCount(likesData[photoId].count);
+    }
+  }, [likesData, photoId]);
+
+  const toggleMutation = trpc.ratings.toggleLike.useMutation({
+    onMutate: () => {
+      setLiked(!liked);
+      setCount(prev => liked ? prev - 1 : prev + 1);
+    },
+    onError: () => {
+      setLiked(liked);
+      setCount(prev => liked ? prev + 1 : prev - 1);
+      toast.error("Erro ao curtir");
+    },
+  });
+
+  return (
+    <button
+      onClick={() => {
+        if (!user) { toast("Fa\u00e7a login para curtir"); return; }
+        toggleMutation.mutate({ photoId });
+      }}
+      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-400 transition-colors"
+    >
+      <Heart className={`w-3.5 h-3.5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
+      {count > 0 && <span>{count}</span>}
+    </button>
   );
 }

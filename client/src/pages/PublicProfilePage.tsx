@@ -3,7 +3,8 @@ import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Star, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Star, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image } from "lucide-react";
+import PhotoGrid from "@/components/PhotoGrid";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ShareToGroup from "@/components/ShareToGroup";
 import { format } from "date-fns";
@@ -251,6 +252,9 @@ export default function PublicProfilePage() {
           </div>
         )}
 
+        {/* Photo Gallery */}
+        {profile?.id && <ProfileGallerySection userId={profile.id} />}
+
         {/* Recent ratings */}
         {ratings && ratings.length > 0 && (
           <div>
@@ -287,6 +291,39 @@ export default function PublicProfilePage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============ Profile Gallery Section ============
+function ProfileGallerySection({ userId }: { userId: number }) {
+  const { data: photos, isLoading } = trpc.ratings.userGallery.useQuery(
+    { userId, limit: 50, offset: 0 },
+    { enabled: !!userId }
+  );
+
+  if (isLoading) return null;
+  if (!photos || photos.length === 0) return null;
+
+  return (
+    <div>
+      <h2 className="font-display text-lg tracking-wider text-primary text-glow-amber mb-3 flex items-center gap-2">
+        <Image className="w-4 h-4" /> GALERIA
+      </h2>
+      <PhotoGrid
+        photos={photos.map((p: any) => ({
+          id: p.id,
+          url: p.url,
+          establishmentName: p.establishmentName,
+          establishmentSlug: p.establishmentSlug,
+          overallScore: p.overallScore,
+          visitDate: p.visitDate,
+          taggedItemIds: p.taggedItemIds,
+          ratingId: p.ratingId,
+          userName: p.userName,
+          username: p.username,
+        }))}
+      />
     </div>
   );
 }

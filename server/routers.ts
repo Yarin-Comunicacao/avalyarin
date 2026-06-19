@@ -491,6 +491,63 @@ export const appRouter = router({
         const { getEstablishmentPhotos } = await import("./db");
         return await getEstablishmentPhotos(input.establishmentId, input.limit);
       }),
+
+    // Gallery — user's own photos
+    myGallery: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        const { getUserGallery } = await import("./db");
+        return await getUserGallery(ctx.user!.id, input.limit, input.offset);
+      }),
+
+    // Gallery — any user's public photos
+    userGallery: publicProcedure
+      .input(z.object({
+        userId: z.number(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        const { getPublicUserGallery } = await import("./db");
+        return await getPublicUserGallery(input.userId, input.limit, input.offset);
+      }),
+
+    // Like / Unlike a photo
+    toggleLike: protectedProcedure
+      .input(z.object({ photoId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { togglePhotoLike } = await import("./db");
+        return await togglePhotoLike(input.photoId, ctx.user!.id);
+      }),
+
+    // Get like status for a batch of photos
+    likesBatch: publicProcedure
+      .input(z.object({ photoIds: z.array(z.number()) }))
+      .query(async ({ ctx, input }) => {
+        const { getPhotoLikesBatch } = await import("./db");
+        const userId = (ctx as any).user?.id;
+        return await getPhotoLikesBatch(input.photoIds, userId);
+      }),
+
+    // Share photo to a group
+    shareToGroup: protectedProcedure
+      .input(z.object({
+        photoId: z.number(),
+        groupId: z.number(),
+        comment: z.string().max(280).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { sharePhotoToGroup } = await import("./db");
+        return await sharePhotoToGroup({
+          photoId: input.photoId,
+          userId: ctx.user!.id,
+          groupId: input.groupId,
+          comment: input.comment,
+        });
+      }),
   }),
 
   // ============ ADMIN PANEL ============

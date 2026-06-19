@@ -18,6 +18,7 @@ import {
   Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
   Loader2, ArrowLeft, Navigation, BarChart3
 } from "lucide-react";
+import PhotoGrid from "@/components/PhotoGrid";
 
 type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats";
 
@@ -275,6 +276,7 @@ export default function MinhasAvaliacoes() {
   }, [myRatings]);
 
   // ============ GALERIA TAB DATA ============
+  const { data: galleryPhotos, isLoading: galleryLoading } = trpc.ratings.myGallery.useQuery({ limit: 50, offset: 0 });
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; caption: string; place: string; date: string } | null>(null);
 
   // Loading state
@@ -644,19 +646,19 @@ export default function MinhasAvaliacoes() {
           {/* ============ GALERIA TAB ============ */}
           {activeTab === "galeria" && (
             <motion.div key="galeria" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <div className="text-center py-20">
-                <Camera className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-                <h3 className="font-display text-xl tracking-wider text-foreground mb-2">GALERIA</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Em breve você poderá ver aqui todas as fotos dos pratos e drinks que avaliou.
-                </p>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20 max-w-md mx-auto">
-                  <Camera className="w-5 h-5 text-primary shrink-0" />
-                  <p className="text-xs text-foreground/80 text-left">
-                    Ao avaliar, envie fotos dos itens consumidos para construir sua galeria pessoal.
-                  </p>
-                </div>
-              </div>
+              <PhotoGrid
+                photos={(galleryPhotos || []).map((p: any) => ({
+                  id: p.id,
+                  url: p.url,
+                  establishmentName: p.establishmentName,
+                  establishmentSlug: p.establishmentSlug,
+                  overallScore: p.overallScore,
+                  visitDate: p.visitDate,
+                  taggedItemIds: p.taggedItemIds,
+                  ratingId: p.ratingId,
+                }))}
+                isLoading={galleryLoading}
+              />
             </motion.div>
           )}
 
