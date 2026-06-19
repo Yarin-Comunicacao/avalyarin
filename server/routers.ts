@@ -600,6 +600,8 @@ export const appRouter = router({
         hours: z.string().optional(),
         active: z.boolean().optional(),
         status: z.enum(['active', 'hidden', 'pending']).optional(),
+        image: z.string().optional(),
+        logo: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
@@ -668,6 +670,7 @@ export const appRouter = router({
         instagram: z.string().min(2, "Instagram é obrigatório"),
         hours: z.string().min(3, "Horário de funcionamento é obrigatório"),
         image: z.string().optional(),
+        logo: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         return await createEstablishment(input);
@@ -916,6 +919,8 @@ export const appRouter = router({
         phone: z.string().optional(),
         instagram: z.string().optional(),
         hours: z.string().optional(),
+        image: z.string().optional(),
+        logo: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const { establishmentId, ...data } = input;

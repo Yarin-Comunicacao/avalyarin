@@ -616,3 +616,12 @@
 - [x] Integrar galeria funcional na aba Galeria de MinhasAvaliacoes
 - [x] Integrar curtir + compartilhar + expandir na página do estabelecimento (AvalyarinReviews)
 - [x] Integrar no PublicProfilePage (perfil público do user/influencer/critic)
+
+### 15 — Ajustes Galeria + Logo + Bug "O" isolado
+- [x] Investigar e remover "O" isolado nos estabs do Alan (era reviewCount===0 renderizado como texto JSX)
+- [x] Logo 1:1 na página do estab: imagem quadrada ao lado esquerdo do nome/endereço/horário/telefone
+- [x] Galeria: quando avaliação não tem foto, mostrar logo do estabelecimento no grid
+- [x] Campo `logo` adicionado ao schema de establishments
+- [x] Endpoints /api/upload-logo (500x500 1:1 WebP) e /api/upload-cover (1200x800 WebP)
+- [x] Upload de logo e capa no painel business (Meus Locais)
+- [x] Campos image e logo aceitos nos endpoints updateEstablishment (admin + business)

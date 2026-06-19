@@ -51,12 +51,27 @@ export default function PhotoGrid({ photos, isLoading, emptyMessage, getComment,
             onClick={() => setSelectedPhoto(photo)}
             className="relative aspect-[4/5] overflow-hidden rounded-sm group"
           >
-            <img
-              src={photo.url}
-              alt={photo.establishmentName}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
+            {photo.url ? (
+              <img
+                src={photo.url}
+                alt={photo.establishmentName}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : photo.establishmentLogo ? (
+              <div className="w-full h-full bg-secondary/50 flex items-center justify-center">
+                <img
+                  src={photo.establishmentLogo}
+                  alt={photo.establishmentName}
+                  className="w-2/3 h-2/3 object-contain"
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-full bg-secondary/50 flex items-center justify-center">
+                <Camera className="w-10 h-10 text-muted-foreground/30" />
+              </div>
+            )}
             {/* Overlay on hover */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end">
               <div className="w-full p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">

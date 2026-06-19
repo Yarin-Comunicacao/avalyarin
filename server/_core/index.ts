@@ -103,6 +103,74 @@ async function startServer() {
     }
   });
 
+  // Establishment logo upload endpoint — converts to WebP (500x500 square, 1:1)
+  app.post("/api/upload-logo", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
+    try {
+      const data = req.body as Buffer;
+      if (!data || data.length === 0) {
+        return res.status(400).json({ error: "No file data provided" });
+      }
+
+      const timestamp = Date.now();
+      const baseName = `logo-${timestamp}`;
+
+      // Generate square logo (500x500, cover to ensure 1:1)
+      const logoBuffer = await sharp(data)
+        .resize(500, 500, { fit: "cover" })
+        .webp({ quality: 85 })
+        .toBuffer();
+
+      // Upload to S3
+      const result = await storagePut(
+        `logos/${baseName}.webp`,
+        logoBuffer,
+        "image/webp"
+      );
+
+      return res.json({
+        url: result.url,
+        key: result.key,
+      });
+    } catch (error: any) {
+      console.error("[Logo Upload] Error:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
+  // Establishment cover image upload endpoint — converts to WebP (1200x800)
+  app.post("/api/upload-cover", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
+    try {
+      const data = req.body as Buffer;
+      if (!data || data.length === 0) {
+        return res.status(400).json({ error: "No file data provided" });
+      }
+
+      const timestamp = Date.now();
+      const baseName = `cover-${timestamp}`;
+
+      // Generate cover image (1200x800 max)
+      const coverBuffer = await sharp(data)
+        .resize(1200, 800, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      // Upload to S3
+      const result = await storagePut(
+        `covers/${baseName}.webp`,
+        coverBuffer,
+        "image/webp"
+      );
+
+      return res.json({
+        url: result.url,
+        key: result.key,
+      });
+    } catch (error: any) {
+      console.error("[Cover Upload] Error:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

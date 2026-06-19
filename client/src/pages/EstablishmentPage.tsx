@@ -208,53 +208,66 @@ export default function EstablishmentPage() {
             transition={{ duration: 0.6 }}
           >
 
-            <h2 className="font-display text-4xl sm:text-5xl tracking-wider text-primary text-glow-amber">
-              {establishment.name.toUpperCase()}
-            </h2>
-            {/* Selo Crítico */}
-            <CriticSealBadge establishmentId={establishment.id} />
-            <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
-              {establishment.address && (
-                <button
-                  onClick={() => setShowAddressSheet(true)}
-                  className="flex items-center gap-1.5 text-left"
-                >
-                  <MapPin className="w-4 h-4 shrink-0 text-primary/60" />
-                  <span className="text-primary hover:text-primary/80 hover:underline transition-colors cursor-pointer">
-                    {establishment.address}
-                  </span>
-                </button>
-              )}
-              {establishment.hours && (
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 shrink-0 text-primary/60" />
-                  <span>{establishment.hours}</span>
+            {/* Layout: Logo 1:1 + Info */}
+            <div className="flex gap-4 items-start">
+              {/* Logo 1:1 */}
+              {establishment.logo && (
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-primary/20 shrink-0 bg-secondary/30">
+                  <img src={establishment.logo} alt={`Logo ${establishment.name}`} className="w-full h-full object-cover" />
                 </div>
               )}
-              {establishment.phone && (
-                <div className="flex items-center gap-1.5">
-                  <Phone className="w-4 h-4 shrink-0 text-primary/60" />
-                  <a
-                    href={`tel:${establishment.phone.replace(/[^\d+]/g, '')}`}
-                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
-                  >
-                    {establishment.phone}
-                  </a>
+
+              {/* Nome + Info */}
+              <div className="flex-1 min-w-0">
+                <h2 className="font-display text-3xl sm:text-5xl tracking-wider text-primary text-glow-amber leading-tight">
+                  {establishment.name.toUpperCase()}
+                </h2>
+                {/* Selo Crítico */}
+                <CriticSealBadge establishmentId={establishment.id} />
+                <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
+                  {establishment.address && (
+                    <button
+                      onClick={() => setShowAddressSheet(true)}
+                      className="flex items-center gap-1.5 text-left"
+                    >
+                      <MapPin className="w-4 h-4 shrink-0 text-primary/60" />
+                      <span className="text-primary hover:text-primary/80 hover:underline transition-colors cursor-pointer">
+                        {establishment.address}
+                      </span>
+                    </button>
+                  )}
+                  {establishment.hours && (
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 shrink-0 text-primary/60" />
+                      <span>{establishment.hours}</span>
+                    </div>
+                  )}
+                  {establishment.phone && (
+                    <div className="flex items-center gap-1.5">
+                      <Phone className="w-4 h-4 shrink-0 text-primary/60" />
+                      <a
+                        href={`tel:${establishment.phone.replace(/[^\d+]/g, '')}`}
+                        className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                      >
+                        {establishment.phone}
+                      </a>
+                    </div>
+                  )}
+                  {establishment.instagram && (
+                    <div className="flex items-center gap-1.5">
+                      <Instagram className="w-4 h-4 shrink-0 text-primary/60" />
+                      <a
+                        href={`https://www.instagram.com/${establishment.instagram.replace(/^@/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                      >
+                        {establishment.instagram}
+                      </a>
+                    </div>
+                  )}
                 </div>
-              )}
-              {establishment.instagram && (
-                <div className="flex items-center gap-1.5">
-                  <Instagram className="w-4 h-4 shrink-0 text-primary/60" />
-                  <a
-                    href={`https://www.instagram.com/${establishment.instagram.replace(/^@/, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 hover:underline transition-colors"
-                  >
-                    {establishment.instagram}
-                  </a>
-                </div>
-              )}
+              </div>
             </div>
 
             {/* Share & Save buttons */}
@@ -293,7 +306,7 @@ export default function EstablishmentPage() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Google Rating */}
-            {(establishment.rating || establishment.reviewCount) && (
+            {!!(establishment.rating || establishment.reviewCount) && (
               <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/30">
                 <h4 className="font-display text-sm tracking-wider text-muted-foreground mb-3">GOOGLE</h4>
                 <GoogleRatingBadge

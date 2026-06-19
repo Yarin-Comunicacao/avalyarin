@@ -59,6 +59,7 @@ export const establishments = mysqlTable("establishments", {
   rating: float("rating"),
   reviewCount: int("reviewCount"),
   image: text("image"),
+  logo: text("logo"),
   hours: varchar("hours", { length: 255 }),
   phone: varchar("phone", { length: 64 }),
   instagram: varchar("instagram", { length: 128 }),

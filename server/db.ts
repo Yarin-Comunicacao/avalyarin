@@ -2354,6 +2354,7 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
     ratingId: ratingPhotos.ratingId,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
+    establishmentLogo: establishments.logo,
     overallScore: ratings.overallScore,
     visitDate: ratings.visitDate,
   })
@@ -2378,6 +2379,7 @@ export async function getPublicUserGallery(userId: number, limit = 50, offset = 
     ratingId: ratingPhotos.ratingId,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
+    establishmentLogo: establishments.logo,
     overallScore: ratings.overallScore,
     visitDate: ratings.visitDate,
     userName: users.name,

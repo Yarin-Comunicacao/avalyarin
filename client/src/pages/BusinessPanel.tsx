@@ -194,56 +194,168 @@ function MyEstablishmentsTab() {
 
       <div className="space-y-4">
         {establishments.map((est: any) => (
-          <div key={est.id} className="p-5 rounded-xl bg-card border border-border/50">
-            {/* Nome clicável + ID visível */}
-            <div className="flex items-center gap-2 mb-3">
-              <Link href={`/estabelecimento/${est.slug}`} className="group">
-                <h3 className="font-medium text-foreground group-hover:text-primary transition-colors cursor-pointer">
-                  {est.name}
-                  <ExternalLink className="w-3.5 h-3.5 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </h3>
-              </Link>
-              <span className="text-[10px] text-muted-foreground/50 font-mono">ID: {est.id}</span>
-            </div>
-
-            {/* Informações read-only */}
-            <div className="space-y-2">
-              {est.address && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Endereço</span>
-                  <span className="text-sm text-muted-foreground">{est.address}</span>
-                </div>
-              )}
-              {est.phone && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Telefone</span>
-                  <span className="text-sm text-muted-foreground">{est.phone}</span>
-                </div>
-              )}
-              {est.instagram && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Instagram</span>
-                  <span className="text-sm text-primary">@{est.instagram}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Aviso de alteração via suporte */}
-            <div className="mt-4 pt-3 border-t border-border/30">
-              <div className="flex items-center gap-2 text-xs text-yellow-400/80">
-                <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>Para alterar nome, endereço, telefone ou @, solicite ao suporte.</span>
-              </div>
-              <button
-                onClick={() => handleRequestChange(est)}
-                className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
-              >
-                <Send className="w-3 h-3" />
-                Solicitar alteração ao suporte
-              </button>
-            </div>
-          </div>
+          <EstablishmentCard key={est.id} est={est} onRequestChange={handleRequestChange} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Card de estabelecimento com upload de logo/capa */
+function EstablishmentCard({ est, onRequestChange }: { est: any; onRequestChange: (est: any) => void }) {
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const utils = trpc.useUtils();
+  const updateMutation = trpc.business.updateEstablishment.useMutation({
+    onSuccess: () => {
+      utils.business.myEstablishments.invalidate();
+      toast.success("Atualizado com sucesso!");
+    },
+    onError: () => toast.error("Erro ao atualizar"),
+  });
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Apenas imagens são aceitas");
+      return;
+    }
+    setLogoUploading(true);
+    try {
+      const buffer = await file.arrayBuffer();
+      const res = await fetch("/api/upload-logo", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: buffer,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      updateMutation.mutate({ establishmentId: est.id, logo: data.url });
+    } catch {
+      toast.error("Erro ao enviar logo");
+    } finally {
+      setLogoUploading(false);
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Apenas imagens são aceitas");
+      return;
+    }
+    setCoverUploading(true);
+    try {
+      const buffer = await file.arrayBuffer();
+      const res = await fetch("/api/upload-cover", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: buffer,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      updateMutation.mutate({ establishmentId: est.id, image: data.url });
+    } catch {
+      toast.error("Erro ao enviar foto de capa");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  return (
+    <div className="p-5 rounded-xl bg-card border border-border/50">
+      {/* Nome clicável + ID visível */}
+      <div className="flex items-center gap-2 mb-4">
+        <Link href={`/estabelecimento/${est.slug}`} className="group">
+          <h3 className="font-medium text-foreground group-hover:text-primary transition-colors cursor-pointer">
+            {est.name}
+            <ExternalLink className="w-3.5 h-3.5 inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </h3>
+        </Link>
+        <span className="text-[10px] text-muted-foreground/50 font-mono">ID: {est.id}</span>
+      </div>
+
+      {/* Logo + Capa uploads */}
+      <div className="flex gap-4 mb-4">
+        {/* Logo 1:1 */}
+        <div className="flex flex-col items-center gap-2">
+          <div
+            onClick={() => logoInputRef.current?.click()}
+            className="w-20 h-20 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50 flex items-center justify-center cursor-pointer overflow-hidden transition-colors bg-secondary/30"
+          >
+            {logoUploading ? (
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            ) : est.logo ? (
+              <img src={est.logo} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <ImageIcon className="w-6 h-6 text-muted-foreground/50" />
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground">Logo (1:1)</span>
+          <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+        </div>
+
+        {/* Capa */}
+        <div className="flex flex-col items-center gap-2 flex-1">
+          <div
+            onClick={() => coverInputRef.current?.click()}
+            className="w-full h-20 rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50 flex items-center justify-center cursor-pointer overflow-hidden transition-colors bg-secondary/30"
+          >
+            {coverUploading ? (
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            ) : est.image ? (
+              <img src={est.image} alt="Capa" className="w-full h-full object-cover" />
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
+                <span className="text-[10px] text-muted-foreground/50">Foto de Capa</span>
+              </div>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground">Capa (destaque)</span>
+          <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+        </div>
+      </div>
+
+      {/* Informações read-only */}
+      <div className="space-y-2">
+        {est.address && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Endereço</span>
+            <span className="text-sm text-muted-foreground">{est.address}</span>
+          </div>
+        )}
+        {est.phone && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Telefone</span>
+            <span className="text-sm text-muted-foreground">{est.phone}</span>
+          </div>
+        )}
+        {est.instagram && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground/60 w-20 shrink-0">Instagram</span>
+            <span className="text-sm text-primary">@{est.instagram}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Aviso de alteração via suporte */}
+      <div className="mt-4 pt-3 border-t border-border/30">
+        <div className="flex items-center gap-2 text-xs text-yellow-400/80">
+          <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+          <span>Para alterar nome, endereço, telefone ou @, solicite ao suporte.</span>
+        </div>
+        <button
+          onClick={() => onRequestChange(est)}
+          className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 rounded-lg hover:bg-yellow-500/20 transition-colors"
+        >
+          <Send className="w-3 h-3" />
+          Solicitar alteração ao suporte
+        </button>
       </div>
     </div>
   );

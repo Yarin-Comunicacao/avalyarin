@@ -10,6 +10,7 @@ export interface PhotoData {
   url: string;
   establishmentName: string;
   establishmentSlug: string;
+  establishmentLogo?: string | null;
   overallScore: number | null;
   visitDate: string | Date | null;
   taggedItemIds?: string | null;
