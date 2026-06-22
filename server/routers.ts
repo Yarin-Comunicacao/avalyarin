@@ -673,6 +673,14 @@ export const appRouter = router({
         logo: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Validar complemento obrigatório para endereços em shoppings/galerias/food halls
+        const MULTI_TENANT_KEYWORDS = /shopping|galeria|food hall|mercado municipal|food park|centro comercial|mall/i;
+        if (MULTI_TENANT_KEYWORDS.test(input.address || '') && (!input.complement || input.complement.trim().length < 2)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Complemento obrigatório para estabelecimentos em shoppings, galerias ou food halls (ex: Loja 42, Piso 2, Box 15)',
+          });
+        }
         return await createEstablishment(input);
       }),
 
@@ -823,6 +831,31 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         return await adminRejectPartnership(input.partnershipId, input.adminNotes);
+      }),
+
+    // ============ DUPLICATE ALERTS ============
+    duplicateAlerts: adminProcedure
+      .input(z.object({ status: z.enum(["pending", "approved", "rejected"]).optional() }))
+      .query(async ({ input }) => {
+        const { listDuplicateAlerts } = await import("./db");
+        return await listDuplicateAlerts(input.status);
+      }),
+
+    duplicateAlertCount: adminProcedure.query(async () => {
+      const { getPendingDuplicateAlertCount } = await import("./db");
+      return await getPendingDuplicateAlertCount();
+    }),
+
+    reviewDuplicate: adminProcedure
+      .input(z.object({
+        alertId: z.number(),
+        decision: z.enum(["approved", "rejected"]),
+        notes: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { reviewDuplicateAlert } = await import("./db");
+        await reviewDuplicateAlert(input.alertId, input.decision, ctx.user!.id, input.notes);
+        return { success: true };
       }),
   }),
 
@@ -2051,6 +2084,38 @@ export const appRouter = router({
       .input(z.object({ establishmentId: z.number() }))
       .query(async ({ ctx, input }) => {
         return await supportHasAccessToEstab(ctx.user!.id, input.establishmentId);
+      }),
+
+    // Flag duplicate establishment
+    flagDuplicate: supportProcedure
+      .input(z.object({
+        existingEstablishmentId: z.number(),
+        newEstablishmentId: z.number(),
+        reason: z.enum(["same_address", "same_phone", "same_address_phone", "manual"]),
+        notes: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createDuplicateAlert } = await import("./db");
+        await createDuplicateAlert({
+          existingEstablishmentId: input.existingEstablishmentId,
+          newEstablishmentId: input.newEstablishmentId,
+          reason: input.reason,
+          flaggedBy: ctx.user!.id,
+          notes: input.notes,
+        });
+        return { success: true };
+      }),
+
+    // Detect duplicates for a given establishment
+    detectDuplicates: supportProcedure
+      .input(z.object({
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        excludeId: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const { detectDuplicates } = await import("./db");
+        return await detectDuplicates(input.phone, input.address, input.excludeId);
       }),
   }),
 

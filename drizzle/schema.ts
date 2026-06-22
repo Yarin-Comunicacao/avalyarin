@@ -779,3 +779,22 @@ export const photoShares = mysqlTable("photo_shares", {
 });
 export type PhotoShare = typeof photoShares.$inferSelect;
 export type InsertPhotoShare = typeof photoShares.$inferInsert;
+
+// ============================================================
+// Duplicate Alerts — alertas de estabelecimentos duplicados
+// ============================================================
+export const duplicateAlerts = mysqlTable("duplicate_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  existingEstablishmentId: int("existingEstablishmentId").notNull(),
+  newEstablishmentId: int("newEstablishmentId").notNull(),
+  reason: varchar("reason", { length: 50 }).notNull(), // same_address, same_phone, same_address_phone, manual
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, approved, rejected
+  flaggedBy: int("flaggedBy").notNull(),
+  reviewedBy: int("reviewedBy"),
+  notes: varchar("notes", { length: 500 }),
+  reviewNotes: varchar("reviewNotes", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+});
+export type DuplicateAlert = typeof duplicateAlerts.$inferSelect;
+export type InsertDuplicateAlert = typeof duplicateAlerts.$inferInsert;

@@ -2448,3 +2448,98 @@ export async function getPublicProfileByUsername(username: string) {
     .limit(1);
   return rows[0] || null;
 }
+
+
+// ============ DUPLICATE ALERTS ============
+import { duplicateAlerts } from "../drizzle/schema";
+
+export async function createDuplicateAlert(data: {
+  existingEstablishmentId: number;
+  newEstablishmentId: number;
+  reason: string;
+  flaggedBy: number;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(duplicateAlerts).values({
+    existingEstablishmentId: data.existingEstablishmentId,
+    newEstablishmentId: data.newEstablishmentId,
+    reason: data.reason,
+    flaggedBy: data.flaggedBy,
+    notes: data.notes || null,
+  });
+}
+
+export async function listDuplicateAlerts(status?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (status) {
+    return db.select().from(duplicateAlerts).where(eq(duplicateAlerts.status, status)).orderBy(duplicateAlerts.createdAt);
+  }
+  return db.select().from(duplicateAlerts).orderBy(duplicateAlerts.createdAt);
+}
+
+export async function getPendingDuplicateAlertCount(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db.select({ count: sql<number>`COUNT(*)` }).from(duplicateAlerts).where(eq(duplicateAlerts.status, "pending"));
+  return rows[0]?.count ?? 0;
+}
+
+export async function reviewDuplicateAlert(alertId: number, decision: "approved" | "rejected", reviewedBy: number, notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(duplicateAlerts).set({
+    status: decision,
+    reviewedBy,
+    reviewNotes: notes || null,
+    reviewedAt: new Date(),
+  }).where(eq(duplicateAlerts.id, alertId));
+
+  // If approved, hide the existing establishment (mark as duplicate/hidden)
+  if (decision === "approved") {
+    const alert = await db.select().from(duplicateAlerts).where(eq(duplicateAlerts.id, alertId)).limit(1);
+    if (alert[0]) {
+      await db.update(establishments).set({ status: "hidden" }).where(eq(establishments.id, alert[0].existingEstablishmentId));
+    }
+  }
+}
+
+export async function detectDuplicates(phone?: string, address?: string, excludeId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  if (!phone && !address) return [];
+
+  const conditions: any[] = [];
+  if (phone) {
+    const cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.length >= 8) {
+      conditions.push(sql`REPLACE(REPLACE(REPLACE(REPLACE(${establishments.phone}, '(', ''), ')', ''), '-', ''), ' ', '') LIKE ${'%' + cleanPhone.slice(-8)}`);
+    }
+  }
+  if (address && address.trim().length > 10) {
+    conditions.push(sql`${establishments.address} = ${address.trim()}`);
+  }
+
+  if (conditions.length === 0) return [];
+
+  const orCondition = conditions.length === 1 ? conditions[0] : sql`(${conditions[0]} OR ${conditions[1]})`;
+  const baseCondition = excludeId
+    ? sql`${orCondition} AND ${establishments.id} != ${excludeId}`
+    : orCondition;
+
+  const rows = await db
+    .select({
+      id: establishments.id,
+      name: establishments.name,
+      address: establishments.address,
+      phone: establishments.phone,
+      neighborhood: establishments.neighborhood,
+    })
+    .from(establishments)
+    .where(baseCondition)
+    .limit(10);
+
+  return rows;
+}

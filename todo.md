@@ -625,3 +625,16 @@
 - [x] Endpoints /api/upload-logo (500x500 1:1 WebP) e /api/upload-cover (1200x800 WebP)
 - [x] Upload de logo e capa no painel business (Meus Locais)
 - [x] Campos image e logo aceitos nos endpoints updateEstablishment (admin + business)
+
+### 16 — Sistema de Detecção de Duplicidade de Estabelecimentos
+- [x] Schema: tabela duplicate_alerts (existingEstablishmentId, newEstablishmentId, reason, status, flaggedBy, reviewedBy, notes, createdAt, reviewedAt)
+- [x] Detecção automática: ao cadastrar estab, verificar mesmo endereço + mesmo telefone no banco (detectDuplicates helper)
+- [x] Endpoint tRPC: listar alertas de duplicidade pendentes (admin.duplicateAlerts)
+- [x] Endpoint tRPC: resolver alerta (admin.reviewDuplicate — aprova/rejeita, desativa antigo se aprovado)
+- [x] Endpoint tRPC: support pode sinalizar duplicidade manualmente (support.flagDuplicate)
+- [x] Endpoint tRPC: support pode detectar duplicatas (support.detectDuplicates)
+- [x] UI Admin: aba "Duplicidade" no AdminPanel com lista de conflitos e botões aprovar/rejeitar
+- [x] UI Support: aba "Duplicidade" no SupportProfile com detecção e sinalização de duplicatas
+- [x] Regra: mesmo endereço + mesmo telefone + nome diferente = forte indício de substituição
+- [x] Regra: complemento obrigatório para estabs em shoppings/galerias/food halls (validação no createEstablishment com regex MULTI_TENANT_KEYWORDS)
+- [x] Testes vitest para galeria, duplicidade e validação de complemento (14 testes)
