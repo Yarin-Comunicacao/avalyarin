@@ -183,13 +183,13 @@ describe("Influencer System", () => {
     });
   });
 
-  describe("getAdminPendingPartnerships", () => {
+  describe("getSupportPendingPartnerships", () => {
     it("should return empty array when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getAdminPendingPartnerships } = await import("./db-influencer");
-      const result = await getAdminPendingPartnerships();
+      const { getSupportPendingPartnerships } = await import("./db-influencer");
+      const result = await getSupportPendingPartnerships();
       expect(result).toEqual([]);
     });
   });

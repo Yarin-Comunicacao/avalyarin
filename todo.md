@@ -638,3 +638,15 @@
 - [x] Regra: mesmo endereço + mesmo telefone + nome diferente = forte indício de substituição
 - [x] Regra: complemento obrigatório para estabs em shoppings/galerias/food halls (validação no createEstablishment com regex MULTI_TENANT_KEYWORDS)
 - [x] Testes vitest para galeria, duplicidade e validação de complemento (14 testes)
+
+### Parceria Business-to-Business + Fluxo Support + Correção Destaques
+- [x] Schema: adicionar campo partnerEstablishmentId e partnershipType (influencer/business) na tabela partnerships
+- [x] Schema: adicionar status pending_support ao enum de partnerships
+- [x] Endpoints: business pode propor parceria a outro business (B2B)
+- [x] Endpoints: support aprova/rejeita parcerias (em vez de admin)
+- [x] UI BusinessPanel: dropdown tipo parceria (Business/Influencer) antes do formulário
+- [x] UI BusinessPanel: formulário condicional — se Influencer mostra lista de influencers, se Business mostra lista de estabelecimentos
+- [x] UI BusinessPanel: mensagem "A revisão dos pedidos pode demorar até 24 horas." no status pending_support
+- [x] Correção destaques: implementar heartbeat/cron para expireOldPosts() automático (a cada hora)
+- [x] Correção destaques: UI de criação de posts no BusinessPanel (aba Destaques com formulário completo)
+- [x] Correção destaques: aplicar durações corretas por tipo ao criar post via UI

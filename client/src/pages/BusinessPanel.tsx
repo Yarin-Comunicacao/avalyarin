@@ -8,7 +8,7 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone, Sparkles, Upload
 } from "lucide-react";
 import BusinessBroadcast from "@/components/BusinessBroadcast";
 import { getConnectYarinUrl } from "@shared/const";
@@ -27,7 +27,7 @@ export default function BusinessPanel() {
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar" | "broadcast";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar" | "destaques" | "broadcast";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -105,6 +105,7 @@ export default function BusinessPanel() {
               { id: "plan" as const, label: "Plano", labelFull: "Meu Plano", icon: Crown },
               { id: "insights" as const, label: "Insights", labelFull: "Insights", icon: TrendingUp },
               { id: "calendar" as const, label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
+              { id: "destaques" as const, label: "Destaques", labelFull: "Destaques", icon: Sparkles },
               { id: "broadcast" as const, label: "Transmissões", labelFull: "Lista de Transmissão", icon: Megaphone },
             ].map(tab => (
               <button
@@ -142,6 +143,7 @@ export default function BusinessPanel() {
         {activeTab === "plan" && <BusinessPlanTab />}
         {activeTab === "insights" && <BusinessInsightsTab />}
         {activeTab === "calendar" && <CalendarioBusinessTab />}
+        {activeTab === "destaques" && <DestaquesTab />}
         {activeTab === "broadcast" && <BroadcastTab />}
       </div>
     </div>
@@ -1265,7 +1267,9 @@ function PartnershipsTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
   const [showPropose, setShowPropose] = useState(false);
+  const [partnershipType, setPartnershipType] = useState<"influencer" | "business">("influencer");
   const [proposeInfluencerId, setProposeInfluencerId] = useState<number | null>(null);
+  const [proposePartnerEstabId, setProposePartnerEstabId] = useState<number | null>(null);
   const [proposeTerms, setProposeTerms] = useState("");
 
   const estabId = selectedEstab || (establishments && establishments.length > 0 ? establishments[0].id : null);
@@ -1274,27 +1278,37 @@ function PartnershipsTab() {
     { establishmentId: estabId! },
     { enabled: !!estabId }
   );
-  const { data: influencers } = trpc.business.availableInfluencers.useQuery(
+    const { data: influencers } = trpc.business.availableInfluencers.useQuery(
     undefined,
-    { enabled: showPropose }
+    { enabled: showPropose && partnershipType === "influencer" }
+  );
+  const { data: availableEstabs } = trpc.business.availableEstablishments.useQuery(
+    { excludeIds: estabId ? [estabId] : [] },
+    { enabled: showPropose && partnershipType === "business" }
   );
   const respondMutation = trpc.business.respondPartnership.useMutation();
   const proposeMutation = trpc.business.proposePartnership.useMutation();
+  const respondB2BMutation = trpc.business.respondToB2BPartnership.useMutation();
   const utils = trpc.useUtils();
   const [notes, setNotes] = useState<Record<number, string>>({});
 
   const handlePropose = async () => {
-    if (!estabId || !proposeInfluencerId) return;
+    if (!estabId) return;
+    if (partnershipType === "influencer" && !proposeInfluencerId) return;
+    if (partnershipType === "business" && !proposePartnerEstabId) return;
     try {
       await proposeMutation.mutateAsync({
+        partnershipType,
         establishmentId: estabId,
-        influencerId: proposeInfluencerId,
+        influencerId: partnershipType === "influencer" ? proposeInfluencerId! : undefined,
+        partnerEstablishmentId: partnershipType === "business" ? proposePartnerEstabId! : undefined,
         terms: proposeTerms || undefined,
       });
       utils.business.partnerships.invalidate();
       toast.success("Proposta de parceria enviada!");
       setShowPropose(false);
       setProposeInfluencerId(null);
+      setProposePartnerEstabId(null);
       setProposeTerms("");
     } catch (e: any) {
       toast.error(e?.message || "Erro ao propor parceria");
@@ -1309,28 +1323,30 @@ function PartnershipsTab() {
         estabNotes: notes[partnershipId] || undefined,
       });
       utils.business.partnerships.invalidate();
-      toast.success(accept ? "Parceria aceita! Aguardando aprovação do admin." : "Parceria recusada.");
+      toast.success(accept ? "Parceria aceita! Aguardando aprovação." : "Parceria recusada.");
     } catch {
       toast.error("Erro ao responder parceria");
     }
   };
 
   const statusLabels: Record<string, string> = {
-    pending_estab: "Aguardando sua resposta",
-    pending_admin: "Aguardando admin",
+    pending_estab: "Aguardando resposta do parceiro",
+    pending_support: "Aguardando Aprovação",
     active: "Ativa",
-    rejected_estab: "Recusada por você",
-    rejected_admin: "Rejeitada pelo admin",
+    rejected_estab: "Recusada pelo parceiro",
+    rejected_support: "Rejeitada pela equipe",
     cancelled: "Cancelada",
     expired: "Expirada",
   };
-
+  const statusDescriptions: Record<string, string> = {
+    pending_support: "A revisão dos pedidos pode demorar até 24 horas.",
+  };
   const statusColors: Record<string, string> = {
     pending_estab: "text-orange-400",
-    pending_admin: "text-blue-400",
+    pending_support: "text-blue-400",
     active: "text-green-400",
     rejected_estab: "text-destructive",
-    rejected_admin: "text-destructive",
+    rejected_support: "text-destructive",
     cancelled: "text-muted-foreground",
     expired: "text-muted-foreground",
   };
@@ -1369,33 +1385,87 @@ function PartnershipsTab() {
         <div className="mb-6 p-5 rounded-xl bg-card border border-primary/30">
           <h3 className="font-display text-lg tracking-wider text-primary mb-4">PROPOR PARCERIA</h3>
           <div className="space-y-3">
+            {/* Dropdown tipo de parceria */}
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Influencer</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Tipo de Parceria</label>
               <select
-                value={proposeInfluencerId || ""}
-                onChange={(e) => setProposeInfluencerId(Number(e.target.value))}
+                value={partnershipType}
+                onChange={(e) => {
+                  setPartnershipType(e.target.value as "influencer" | "business");
+                  setProposeInfluencerId(null);
+                  setProposePartnerEstabId(null);
+                }}
                 className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
               >
-                <option value="">Selecione um influencer...</option>
-                {influencers?.map((inf: any) => (
-                  <option key={inf.id} value={inf.id}>{inf.name || inf.username || `Influencer #${inf.id}`}</option>
-                ))}
+                <option value="influencer">Influencer</option>
+                <option value="business">Business (outro estabelecimento)</option>
               </select>
             </div>
+
+            {/* Seleção do estabelecimento de origem (se tiver mais de um) */}
+            {establishments.length > 1 && (
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Seu Estabelecimento</label>
+                <select
+                  value={estabId || ""}
+                  onChange={(e) => setSelectedEstab(Number(e.target.value))}
+                  className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+                >
+                  {establishments.map((e) => (
+                    <option key={e.id} value={e.id}>{e.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Formulário condicional: Influencer */}
+            {partnershipType === "influencer" && (
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Influencer</label>
+                <select
+                  value={proposeInfluencerId || ""}
+                  onChange={(e) => setProposeInfluencerId(Number(e.target.value))}
+                  className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+                >
+                  <option value="">Selecione um influencer...</option>
+                  {influencers?.map((inf: any) => (
+                    <option key={inf.id} value={inf.id}>{inf.name || inf.username || `Influencer #${inf.id}`}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Formulário condicional: Business (B2B) */}
+            {partnershipType === "business" && (
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Estabelecimento Parceiro</label>
+                <select
+                  value={proposePartnerEstabId || ""}
+                  onChange={(e) => setProposePartnerEstabId(Number(e.target.value))}
+                  className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
+                >
+                  <option value="">Selecione um estabelecimento...</option>
+                  {availableEstabs?.map((e: any) => (
+                    <option key={e.id} value={e.id}>{e.name} — {e.neighborhood}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Termos da parceria (opcional)</label>
               <input
                 type="text"
                 value={proposeTerms}
                 onChange={(e) => setProposeTerms(e.target.value)}
-                placeholder="Ex: 2 avaliações por mês, divulgação no perfil..."
+                placeholder={partnershipType === "influencer" ? "Ex: 2 avaliações por mês, divulgação no perfil..." : "Ex: cross-promotion, evento conjunto, combo compartilhado..."}
                 className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handlePropose}
-                disabled={!proposeInfluencerId || proposeMutation.isPending}
+                disabled={(partnershipType === "influencer" ? !proposeInfluencerId : !proposePartnerEstabId) || proposeMutation.isPending}
                 className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
               >
                 {proposeMutation.isPending ? "Enviando..." : "Enviar Proposta"}
@@ -1417,18 +1487,34 @@ function PartnershipsTab() {
         <p className="text-muted-foreground text-center py-8">Nenhuma parceria encontrada para este estabelecimento.</p>
       ) : (
         <div className="space-y-4">
-          {partnerships?.map((p) => (
+          {partnerships?.map((p: any) => (
             <div key={p.id} className="p-5 rounded-xl bg-card border border-border/50">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-medium text-foreground">{p.influencerName || "Influencer"}</h3>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                      p.partnershipType === "business" ? "bg-blue-500/20 text-blue-400" : "bg-purple-500/20 text-purple-400"
+                    }`}>
+                      {p.partnershipType === "business" ? "B2B" : "Influencer"}
+                    </span>
+                    <h3 className="font-medium text-foreground">
+                      {p.partnershipType === "business" ? (p.partnerEstablishmentName || "Estabelecimento") : (p.influencerName || "Influencer")}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
                     Proposta em {new Date(p.createdAt).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <span className={`text-xs font-medium ${statusColors[p.status]}`}>
-                  {statusLabels[p.status] || p.status}
-                </span>
+                <div className="text-right">
+                  <span className={`text-xs font-medium ${statusColors[p.status]}`}>
+                    {statusLabels[p.status] || p.status}
+                  </span>
+                  {statusDescriptions[p.status] && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {statusDescriptions[p.status]}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {p.terms && (
@@ -1903,6 +1989,274 @@ function CalendarioBusinessTab() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function DestaquesTab() {
+  const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
+  const utils = trpc.useUtils();
+  const createPost = trpc.posts.create.useMutation({
+    onSuccess: () => {
+      toast.success("Destaque criado com sucesso!");
+      setShowForm(false);
+      setTitle("");
+      setDescription("");
+      setImageUrl("");
+      setLinkUrl("");
+      setPostType("brand");
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao criar destaque"),
+  });
+
+  const [showForm, setShowForm] = useState(false);
+  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
+  const [postType, setPostType] = useState<"brand" | "menu_daily" | "promotion" | "event" | "new_item" | "collab">("brand");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const POST_TYPE_LABELS: Record<string, string> = {
+    brand: "Divulgação (30 dias)",
+    menu_daily: "Cardápio do Dia (1 dia)",
+    promotion: "Promoção (7 dias)",
+    event: "Evento (15 dias)",
+    new_item: "Novidade (30 dias)",
+    collab: "Parceria (21 dias)",
+  };
+
+  const POST_TYPE_DURATIONS: Record<string, number> = {
+    brand: 30,
+    menu_daily: 1,
+    promotion: 7,
+    event: 15,
+    new_item: 30,
+    collab: 21,
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem deve ter no máximo 5MB");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData, credentials: "include" });
+      if (!res.ok) throw new Error("Upload falhou");
+      const data = await res.json();
+      setImageUrl(data.url);
+      toast.success("Imagem enviada!");
+    } catch {
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!selectedEstab) {
+      toast.error("Selecione um estabelecimento");
+      return;
+    }
+    if (!title.trim()) {
+      toast.error("Título é obrigatório");
+      return;
+    }
+    if (!imageUrl) {
+      toast.error("Imagem é obrigatória para o destaque");
+      return;
+    }
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + POST_TYPE_DURATIONS[postType] * 24 * 60 * 60 * 1000);
+    createPost.mutate({
+      establishmentId: selectedEstab,
+      type: postType,
+      title: title.trim(),
+      description: description.trim() || undefined,
+      imageUrl,
+      linkUrl: linkUrl.trim() || undefined,
+      startsAt: now,
+      expiresAt,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!estabs || estabs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Sparkles className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">Você precisa ter um estabelecimento para criar destaques.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+        <p className="text-sm text-foreground/80">
+          <strong>Destaques:</strong> Publique conteúdos em formato 9:16 que aparecem na Home do app para todos os usuários.
+          Cada tipo de destaque tem uma duração específica e expira automaticamente.
+        </p>
+      </div>
+
+      {!showForm ? (
+        <button
+          onClick={() => {
+            setShowForm(true);
+            if (estabs.length === 1) setSelectedEstab((estabs[0] as any).id);
+          }}
+          className="w-full p-4 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/60 transition-colors flex items-center justify-center gap-2 text-primary"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="font-medium">Criar Novo Destaque</span>
+        </button>
+      ) : (
+        <div className="p-5 rounded-xl border border-border/50 bg-card space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-display text-sm tracking-wider text-foreground">NOVO DESTAQUE</h4>
+            <button onClick={() => setShowForm(false)} className="text-xs text-muted-foreground hover:text-foreground">
+              Cancelar
+            </button>
+          </div>
+
+          {/* Selecionar estabelecimento */}
+          {estabs.length > 1 && (
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Estabelecimento</label>
+              <select
+                value={selectedEstab || ""}
+                onChange={(e) => setSelectedEstab(Number(e.target.value))}
+                className="w-full p-2.5 rounded-lg bg-secondary border border-border/50 text-sm text-foreground"
+              >
+                <option value="">Selecione...</option>
+                {estabs.map((e: any) => (
+                  <option key={e.id} value={e.id}>{e.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Tipo de destaque */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Tipo de Destaque</label>
+            <select
+              value={postType}
+              onChange={(e) => setPostType(e.target.value as any)}
+              className="w-full p-2.5 rounded-lg bg-secondary border border-border/50 text-sm text-foreground"
+            >
+              {Object.entries(POST_TYPE_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Título */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Título *</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Ex: Happy Hour com 30% OFF"
+              className="w-full p-2.5 rounded-lg bg-secondary border border-border/50 text-sm text-foreground"
+              maxLength={255}
+            />
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Descrição (opcional)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Detalhes adicionais sobre o destaque..."
+              className="w-full p-2.5 rounded-lg bg-secondary border border-border/50 text-sm text-foreground resize-none"
+              rows={3}
+              maxLength={1000}
+            />
+          </div>
+
+          {/* Upload de imagem */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Imagem 9:16 *</label>
+            {imageUrl ? (
+              <div className="relative w-32 h-56 rounded-lg overflow-hidden border border-border/50">
+                <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                <button
+                  onClick={() => setImageUrl("")}
+                  className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500/80 flex items-center justify-center"
+                >
+                  <XCircle className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={imageUploading}
+                className="w-full p-6 rounded-lg border-2 border-dashed border-border/50 hover:border-primary/40 transition-colors flex flex-col items-center gap-2 text-muted-foreground"
+              >
+                {imageUploading ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <Upload className="w-6 h-6" />
+                )}
+                <span className="text-xs">{imageUploading ? "Enviando..." : "Clique para enviar imagem (max 5MB)"}</span>
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </div>
+
+          {/* Link (opcional) */}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Link (opcional)</label>
+            <input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://..."
+              className="w-full p-2.5 rounded-lg bg-secondary border border-border/50 text-sm text-foreground"
+            />
+          </div>
+
+          {/* Info de duração */}
+          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <p className="text-xs text-amber-200">
+              <Clock className="w-3.5 h-3.5 inline mr-1" />
+              Este destaque ficará ativo por <strong>{POST_TYPE_DURATIONS[postType]} {POST_TYPE_DURATIONS[postType] === 1 ? "dia" : "dias"}</strong> após a publicação e expirará automaticamente.
+            </p>
+          </div>
+
+          {/* Botão de enviar */}
+          <button
+            onClick={handleSubmit}
+            disabled={createPost.isPending || !title.trim() || !imageUrl}
+            className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
+            {createPost.isPending ? "Publicando..." : "Publicar Destaque"}
+          </button>
         </div>
       )}
     </div>

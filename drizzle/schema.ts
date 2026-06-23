@@ -495,14 +495,16 @@ export type InsertInfluencerApplication = typeof influencerApplications.$inferIn
 // ============================================================
 export const partnerships = mysqlTable("partnerships", {
   id: int("id").autoincrement().primaryKey(),
-  influencerId: int("influencerId").notNull(), // user id do influencer
-  establishmentId: int("establishmentId").notNull(), // estab parceiro
+  partnershipType: mysqlEnum("partnershipType", ["influencer", "business"]).default("influencer").notNull(), // tipo de parceria
+  influencerId: int("influencerId"), // user id do influencer (NULL se B2B)
+  partnerEstablishmentId: int("partnerEstablishmentId"), // estab parceiro no B2B (NULL se influencer)
+  establishmentId: int("establishmentId").notNull(), // estab que propõe/recebe
   promoCodeId: int("promoCodeId"), // código vinculado à parceria (opcional)
   proposedBy: mysqlEnum("proposedBy", ["influencer", "establishment"]).notNull(),
-  status: mysqlEnum("status", ["pending_estab", "pending_admin", "active", "rejected_estab", "rejected_admin", "cancelled", "expired"]).default("pending_estab").notNull(),
+  status: mysqlEnum("status", ["pending_estab", "pending_support", "active", "rejected_estab", "rejected_support", "cancelled", "expired"]).default("pending_estab").notNull(),
   terms: text("terms"), // termos da parceria (desconto oferecido, condições)
   estabNotes: text("estabNotes"), // notas do estab ao aceitar/rejeitar
-  adminNotes: text("adminNotes"), // notas do admin ao aprovar
+  supportNotes: text("supportNotes"), // notas do support ao aprovar/rejeitar
   startsAt: bigint("startsAt", { mode: "number" }), // início da parceria
   expiresAt: bigint("expiresAt", { mode: "number" }), // fim da parceria (NULL = indefinido)
   createdAt: timestamp("createdAt").defaultNow().notNull(),

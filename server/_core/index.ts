@@ -171,6 +171,19 @@ async function startServer() {
     }
   });
 
+  // Heartbeat: expire old posts
+  app.post("/api/scheduled/expire-posts", async (req, res) => {
+    try {
+      const { expireOldPosts } = await import("../db-posts");
+      const count = await expireOldPosts();
+      console.log(`[Heartbeat] Expired ${count} posts`);
+      res.json({ ok: true, expired: count, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("[Heartbeat] expire-posts error:", error);
+      res.status(500).json({ error: error.message, stack: error.stack, timestamp: new Date().toISOString() });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

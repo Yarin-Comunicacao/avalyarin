@@ -168,11 +168,13 @@ import {
   getMyInfluencerApplication,
   proposePartnership,
   respondToPartnership,
-  adminApprovePartnership,
-  adminRejectPartnership,
+  supportApprovePartnership,
+  supportRejectPartnership,
   getInfluencerPartnerships,
   getEstablishmentPartnerships,
-  getAdminPendingPartnerships,
+  getReceivedB2BPartnerships,
+  listAvailableEstablishmentsForPartnership,
+  getSupportPendingPartnerships,
 } from "./db-influencer";
 import {
   getUserPlanDetails,
@@ -810,28 +812,10 @@ export const appRouter = router({
         return await rejectInfluencerApplication(input.applicationId, input.adminNotes);
       }),
 
-    // Partnerships pending admin approval
+    // Partnerships - admin can still view (delegated to support for approval)
     pendingPartnerships: adminProcedure.query(async () => {
-      return await getAdminPendingPartnerships();
+      return await getSupportPendingPartnerships();
     }),
-
-    approvePartnership: adminProcedure
-      .input(z.object({
-        partnershipId: z.number(),
-        adminNotes: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        return await adminApprovePartnership(input.partnershipId, input.adminNotes);
-      }),
-
-    rejectPartnership: adminProcedure
-      .input(z.object({
-        partnershipId: z.number(),
-        adminNotes: z.string().min(1),
-      }))
-      .mutation(async ({ input }) => {
-        return await adminRejectPartnership(input.partnershipId, input.adminNotes);
-      }),
 
     // ============ DUPLICATE ALERTS ============
     duplicateAlerts: adminProcedure
@@ -1013,13 +997,22 @@ export const appRouter = router({
     // Business proposes partnership to an influencer
     proposePartnership: businessProcedure
       .input(z.object({
+        partnershipType: z.enum(["influencer", "business"]),
         establishmentId: z.number(),
-        influencerId: z.number(),
+        influencerId: z.number().optional(),
+        partnerEstablishmentId: z.number().optional(),
         terms: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        // Verify the business user owns this establishment
+        const myEstabs = await getBusinessEstablishments(ctx.user!.id);
+        const ownsEstab = myEstabs.some((e: any) => e.id === input.establishmentId);
+        if (!ownsEstab) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este estabelecimento." });
+
         const id = await proposePartnership({
+          partnershipType: input.partnershipType,
           influencerId: input.influencerId,
+          partnerEstablishmentId: input.partnerEstablishmentId,
           establishmentId: input.establishmentId,
           terms: input.terms,
           proposedBy: "establishment",
@@ -1031,6 +1024,31 @@ export const appRouter = router({
     availableInfluencers: businessProcedure.query(async () => {
       return await listInfluencers();
     }),
+
+    // List available establishments for B2B partnership
+    availableEstablishments: businessProcedure
+      .input(z.object({ excludeIds: z.array(z.number()).optional() }))
+      .query(async ({ input }) => {
+        return await listAvailableEstablishmentsForPartnership(input.excludeIds ?? []);
+      }),
+
+    // Get received B2B partnership proposals
+    receivedB2BPartnerships: businessProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getReceivedB2BPartnerships(input.establishmentId);
+      }),
+
+    // Respond to a received B2B partnership (accept/reject)
+    respondToB2BPartnership: businessProcedure
+      .input(z.object({
+        partnershipId: z.number(),
+        accept: z.boolean(),
+        estabNotes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await respondToPartnership(input.partnershipId, input.accept, input.estabNotes);
+      }),
 
     // Send broadcast to followers
     sendBroadcast: businessProcedure
@@ -1581,6 +1599,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Apenas influencers podem propor parcerias." });
         }
         const id = await proposePartnership({
+          partnershipType: "influencer",
           influencerId: ctx.user!.id,
           establishmentId: input.establishmentId,
           terms: input.terms,

@@ -254,7 +254,9 @@ export async function getMyInfluencerApplication(userId: number) {
  * Propose a partnership (influencer → estab)
  */
 export async function proposePartnership(data: {
-  influencerId: number;
+  partnershipType: "influencer" | "business";
+  influencerId?: number;
+  partnerEstablishmentId?: number;
   establishmentId: number;
   terms?: string;
   proposedBy: "influencer" | "establishment";
@@ -262,29 +264,64 @@ export async function proposePartnership(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Check if partnership already exists
-  const existing = await db
-    .select()
-    .from(partnerships)
-    .where(
-      and(
-        eq(partnerships.influencerId, data.influencerId),
-        eq(partnerships.establishmentId, data.establishmentId),
-        inArray(partnerships.status, ["pending_estab", "pending_admin", "active"])
-      )
-    )
-    .limit(1);
+  // Validate: influencer type needs influencerId, business type needs partnerEstablishmentId
+  if (data.partnershipType === "influencer" && !data.influencerId) {
+    throw new Error("influencerId é obrigatório para parcerias com influencer.");
+  }
+  if (data.partnershipType === "business" && !data.partnerEstablishmentId) {
+    throw new Error("partnerEstablishmentId é obrigatório para parcerias B2B.");
+  }
 
-  if (existing.length > 0) {
-    throw new Error("Já existe uma parceria ativa ou pendente com este estabelecimento.");
+  // Check if partnership already exists
+  if (data.partnershipType === "influencer") {
+    const existing = await db
+      .select()
+      .from(partnerships)
+      .where(
+        and(
+          eq(partnerships.influencerId, data.influencerId!),
+          eq(partnerships.establishmentId, data.establishmentId),
+          inArray(partnerships.status, ["pending_estab", "pending_support", "active"])
+        )
+      )
+      .limit(1);
+    if (existing.length > 0) {
+      throw new Error("Já existe uma parceria ativa ou pendente com este influencer.");
+    }
+  } else {
+    const existing = await db
+      .select()
+      .from(partnerships)
+      .where(
+        and(
+          eq(partnerships.partnerEstablishmentId, data.partnerEstablishmentId!),
+          eq(partnerships.establishmentId, data.establishmentId),
+          inArray(partnerships.status, ["pending_estab", "pending_support", "active"])
+        )
+      )
+      .limit(1);
+    if (existing.length > 0) {
+      throw new Error("Já existe uma parceria ativa ou pendente com este estabelecimento.");
+    }
+  }
+
+  // Determine initial status
+  let initialStatus: "pending_estab" | "pending_support";
+  if (data.partnershipType === "influencer") {
+    initialStatus = data.proposedBy === "influencer" ? "pending_estab" : "pending_support";
+  } else {
+    // B2B: always goes to pending_estab first (partner estab needs to accept)
+    initialStatus = "pending_estab";
   }
 
   const [result] = await db.insert(partnerships).values({
-    influencerId: data.influencerId,
+    partnershipType: data.partnershipType,
+    influencerId: data.influencerId ?? null,
+    partnerEstablishmentId: data.partnerEstablishmentId ?? null,
     establishmentId: data.establishmentId,
     terms: data.terms ?? null,
     proposedBy: data.proposedBy,
-    status: data.proposedBy === "influencer" ? "pending_estab" : "pending_admin",
+    status: initialStatus,
   });
 
   return result.insertId;
@@ -292,12 +329,13 @@ export async function proposePartnership(data: {
 
 /**
  * Respond to a partnership (estab accepts/rejects)
+ * When accepted, goes to pending_support for review
  */
 export async function respondToPartnership(partnershipId: number, accept: boolean, estabNotes?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const newStatus = accept ? "pending_admin" : "rejected_estab";
+  const newStatus = accept ? "pending_support" : "rejected_estab";
 
   await db
     .update(partnerships)
@@ -311,9 +349,9 @@ export async function respondToPartnership(partnershipId: number, accept: boolea
 }
 
 /**
- * Admin approve partnership
+ * Support approve partnership
  */
-export async function adminApprovePartnership(partnershipId: number, adminNotes?: string) {
+export async function supportApprovePartnership(partnershipId: number, supportNotes?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -321,7 +359,7 @@ export async function adminApprovePartnership(partnershipId: number, adminNotes?
     .update(partnerships)
     .set({
       status: "active",
-      adminNotes: adminNotes || null,
+      supportNotes: supportNotes || null,
       startsAt: Date.now(),
     })
     .where(eq(partnerships.id, partnershipId));
@@ -330,17 +368,17 @@ export async function adminApprovePartnership(partnershipId: number, adminNotes?
 }
 
 /**
- * Admin reject partnership
+ * Support reject partnership
  */
-export async function adminRejectPartnership(partnershipId: number, adminNotes: string) {
+export async function supportRejectPartnership(partnershipId: number, supportNotes: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   await db
     .update(partnerships)
     .set({
-      status: "rejected_admin",
-      adminNotes,
+      status: "rejected_support",
+      supportNotes,
     })
     .where(eq(partnerships.id, partnershipId));
 
@@ -357,12 +395,13 @@ export async function getInfluencerPartnerships(influencerId: number) {
   return await db
     .select({
       id: partnerships.id,
+      partnershipType: partnerships.partnershipType,
       establishmentId: partnerships.establishmentId,
       establishmentName: establishments.name,
       status: partnerships.status,
       terms: partnerships.terms,
       estabNotes: partnerships.estabNotes,
-      adminNotes: partnerships.adminNotes,
+      supportNotes: partnerships.supportNotes,
       startsAt: partnerships.startsAt,
       createdAt: partnerships.createdAt,
     })
@@ -379,11 +418,41 @@ export async function getEstablishmentPartnerships(establishmentId: number) {
   const db = await getDb();
   if (!db) return [];
 
+  const results = await db
+    .select({
+      id: partnerships.id,
+      partnershipType: partnerships.partnershipType,
+      influencerId: partnerships.influencerId,
+      influencerName: users.name,
+      partnerEstablishmentId: partnerships.partnerEstablishmentId,
+      status: partnerships.status,
+      terms: partnerships.terms,
+      proposedBy: partnerships.proposedBy,
+      estabNotes: partnerships.estabNotes,
+      supportNotes: partnerships.supportNotes,
+      createdAt: partnerships.createdAt,
+    })
+    .from(partnerships)
+    .leftJoin(users, eq(partnerships.influencerId, users.id))
+    .where(eq(partnerships.establishmentId, establishmentId))
+    .orderBy(desc(partnerships.createdAt));
+
+  return results;
+}
+
+/**
+ * Get establishment partnerships where this estab is the PARTNER (received B2B proposals)
+ */
+export async function getReceivedB2BPartnerships(establishmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
   return await db
     .select({
       id: partnerships.id,
-      influencerId: partnerships.influencerId,
-      influencerName: users.name,
+      partnershipType: partnerships.partnershipType,
+      establishmentId: partnerships.establishmentId,
+      proposerEstablishmentName: establishments.name,
       status: partnerships.status,
       terms: partnerships.terms,
       proposedBy: partnerships.proposedBy,
@@ -391,23 +460,50 @@ export async function getEstablishmentPartnerships(establishmentId: number) {
       createdAt: partnerships.createdAt,
     })
     .from(partnerships)
-    .leftJoin(users, eq(partnerships.influencerId, users.id))
-    .where(eq(partnerships.establishmentId, establishmentId))
+    .leftJoin(establishments, eq(partnerships.establishmentId, establishments.id))
+    .where(
+      and(
+        eq(partnerships.partnerEstablishmentId, establishmentId),
+        eq(partnerships.partnershipType, "business")
+      )
+    )
     .orderBy(desc(partnerships.createdAt));
 }
 
 /**
- * Get all partnerships pending admin approval
+ * List available establishments for B2B partnership (exclude own)
  */
-export async function getAdminPendingPartnerships() {
+export async function listAvailableEstablishmentsForPartnership(excludeIds: number[], limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { sql: rawSql } = await import("drizzle-orm");
+  return await db
+    .select({
+      id: establishments.id,
+      name: establishments.name,
+      neighborhood: establishments.neighborhood,
+    })
+    .from(establishments)
+    .where(rawSql`${establishments.id} NOT IN (${rawSql.raw(excludeIds.length > 0 ? excludeIds.join(",") : "0")}) AND ${establishments.status} = 'active'`)
+    .orderBy(establishments.name)
+    .limit(limit);
+}
+
+/**
+ * Get all partnerships pending support approval
+ */
+export async function getSupportPendingPartnerships() {
   const db = await getDb();
   if (!db) return [];
 
   return await db
     .select({
       id: partnerships.id,
+      partnershipType: partnerships.partnershipType,
       influencerId: partnerships.influencerId,
       influencerName: users.name,
+      partnerEstablishmentId: partnerships.partnerEstablishmentId,
       establishmentId: partnerships.establishmentId,
       establishmentName: establishments.name,
       status: partnerships.status,
@@ -419,6 +515,6 @@ export async function getAdminPendingPartnerships() {
     .from(partnerships)
     .leftJoin(users, eq(partnerships.influencerId, users.id))
     .leftJoin(establishments, eq(partnerships.establishmentId, establishments.id))
-    .where(eq(partnerships.status, "pending_admin"))
+    .where(eq(partnerships.status, "pending_support"))
     .orderBy(desc(partnerships.createdAt));
 }
