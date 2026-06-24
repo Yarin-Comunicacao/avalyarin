@@ -267,6 +267,14 @@ import {
   getFollowers, getFollowing, getFollowCounts, getMutualFollows,
   sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
 } from "./db-follows";
+import {
+  createEstablishmentEvent,
+  listActiveEvents,
+  listBusinessEvents,
+  cancelEstablishmentEvent,
+  getEstablishmentEvent,
+  EVENT_TYPES,
+} from "./db-events";
 
 export const appRouter = router({
   system: systemRouter,
@@ -335,6 +343,20 @@ export const appRouter = router({
       .input(z.object({ neighborhood: z.string().min(1), limit: z.number().optional() }))
       .query(async ({ input }) => {
         return await getEstablishmentsByNeighborhood(input.neighborhood, input.limit || 50);
+      }),
+
+    // Public: list active events for an establishment
+    activeEvents: publicProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await listActiveEvents(input.establishmentId);
+      }),
+
+    // Public: get single event details
+    getEvent: publicProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ input }) => {
+        return await getEstablishmentEvent(input.eventId);
       }),
   }),
 
@@ -1074,6 +1096,56 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await getBusinessFollowerCount(input.establishmentId);
       }),
+
+    // ===== ESTABLISHMENT EVENTS =====
+    createEvent: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        title: z.string().min(3).max(255),
+        description: z.string().min(200).max(550),
+        coverImageUrl: z.string(),
+        coverImageKey: z.string().optional(),
+        startDate: z.number(),
+        endDate: z.number(),
+        locationType: z.enum(["establishment", "custom"]),
+        customAddress: z.string().optional(),
+        customAddressNumber: z.string().optional(),
+        customNeighborhood: z.string().optional(),
+        customCity: z.string().optional(),
+        entryType: z.enum(["free", "paid"]),
+        paidType: z.enum(["single", "batches"]).optional(),
+        singlePrice: z.number().optional(),
+        hasDoorPrice: z.boolean().optional(),
+        doorPrice: z.number().optional(),
+        eventType: z.string(),
+        batches: z.array(z.object({
+          batchNumber: z.number(),
+          batchName: z.string(),
+          price: z.number(),
+        })).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const myEstabs = await getBusinessEstablishments(ctx.user!.id);
+        const ownsEstab = myEstabs.some((e: any) => e.id === input.establishmentId);
+        if (!ownsEstab) throw new TRPCError({ code: "FORBIDDEN", message: "Voc\u00ea n\u00e3o tem acesso a este estabelecimento." });
+        if (input.endDate <= input.startDate) throw new TRPCError({ code: "BAD_REQUEST", message: "Data de t\u00e9rmino deve ser posterior ao in\u00edcio." });
+        if (input.locationType === "custom" && !input.customAddress) throw new TRPCError({ code: "BAD_REQUEST", message: "Endere\u00e7o customizado \u00e9 obrigat\u00f3rio." });
+        return await createEstablishmentEvent({ ...input, createdById: ctx.user!.id });
+      }),
+
+    listEvents: businessProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await listBusinessEvents(input.establishmentId);
+      }),
+
+    cancelEvent: businessProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await cancelEstablishmentEvent(input.eventId, ctx.user!.id);
+      }),
+
+    getEventTypes: publicProcedure.query(() => EVENT_TYPES),
    }),
 
   // User profile & username

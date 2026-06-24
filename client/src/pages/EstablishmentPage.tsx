@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign } from "lucide-react";
 import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -54,7 +54,7 @@ export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
   const [showClaimForm, setShowClaimForm] = useState(false);
-  const [activeSection, setActiveSection] = useState<"cardapio" | "avaliacoes">("cardapio");
+  const [activeSection, setActiveSection] = useState<"cardapio" | "avaliacoes" | "eventos">("cardapio");
   const [filterItem, setFilterItem] = useState<string | null>(null);
   const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
@@ -346,22 +346,24 @@ export default function EstablishmentPage() {
         />
       )}
 
-      {/* Main Content Tabs: Cardápio / Avaliações */}
-      {menu.length > 0 && (
+      {/* Main Content Tabs: Cardápio / Avaliações / Eventos */}
+      {(menu.length > 0 || true) && (
         <section className="py-6 pb-28">
           <div className="container">
             {/* Section Toggle */}
             <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => { setActiveSection("cardapio"); setFilterItem(null); }}
-                className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
-                  activeSection === "cardapio"
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                CARDÁPIO
-              </button>
+              {menu.length > 0 && (
+                <button
+                  onClick={() => { setActiveSection("cardapio"); setFilterItem(null); }}
+                  className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
+                    activeSection === "cardapio"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                      : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  CARDÁPIO
+                </button>
+              )}
               <button
                 onClick={() => setActiveSection("avaliacoes")}
                 className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
@@ -371,6 +373,16 @@ export default function EstablishmentPage() {
                 }`}
               >
                 AVALIAÇÕES
+              </button>
+              <button
+                onClick={() => setActiveSection("eventos")}
+                className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
+                  activeSection === "eventos"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                EVENTOS
               </button>
             </div>
 
@@ -385,8 +397,13 @@ export default function EstablishmentPage() {
               </div>
             )}
 
+            {/* Eventos Section */}
+            {activeSection === "eventos" && (
+              <EventosSection establishmentId={establishment.id} />
+            )}
+
             {/* Cardápio Section */}
-            {activeSection === "cardapio" && (
+            {activeSection === "cardapio" && menu.length > 0 && (
             <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
             <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-6">CARDÁPIO</h3>
 
@@ -462,20 +479,7 @@ export default function EstablishmentPage() {
         </div>
       )}
 
-      {/* No menu message */}
-      {menu.length === 0 && (
-        <section className="py-16 pb-28">
-          <div className="container flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 rounded-full bg-secondary/50 border border-border/30 flex items-center justify-center mb-5">
-              <UtensilsCrossed className="w-9 h-9 text-muted-foreground/40" />
-            </div>
-            <h3 className="font-display text-xl tracking-wider text-foreground/70 mb-2">CARDÁPIO INDISPONÍVEL</h3>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Este local ainda não possui itens cadastrados em nosso cardápio. Em breve estará disponível!
-            </p>
-          </div>
-        </section>
-      )}
+
 
       {/* Footer */}
       <footer className="py-8 border-t border-border/30">
@@ -927,6 +931,186 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// Eventos Section — aba pública de eventos do estabelecimento
+// ============================================================
+const EVENT_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
+  esporte: { label: "Esporte", icon: "⚽" },
+  show: { label: "Show", icon: "🎤" },
+  festa: { label: "Festa", icon: "🎉" },
+  gastronomia: { label: "Gastronomia", icon: "🍽️" },
+  cultural: { label: "Cultural", icon: "🎭" },
+  stand_up: { label: "Stand-Up", icon: "😂" },
+  quiz: { label: "Quiz / Trivia", icon: "🧠" },
+  degustacao: { label: "Degustação", icon: "🍷" },
+  workshop: { label: "Workshop", icon: "🔧" },
+  karaoke: { label: "Karaokê", icon: "🎵" },
+  dj: { label: "DJ Set", icon: "🎧" },
+  sertanejo: { label: "Sertanejo", icon: "🤠" },
+  pagode: { label: "Pagode", icon: "🥁" },
+  forro: { label: "Forró", icon: "💃" },
+  samba: { label: "Samba", icon: "🎶" },
+  outro: { label: "Outro", icon: "📌" },
+};
+
+function EventosSection({ establishmentId }: { establishmentId: number }) {
+  const { data: events, isLoading } = trpc.establishments.activeEvents.useQuery(
+    { establishmentId },
+    { enabled: !!establishmentId }
+  );
+  const [filterType, setFilterType] = useState<string | null>(null);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-6 shadow-lg shadow-primary/5 text-center">
+        <Ticket className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+        <h4 className="font-display text-lg tracking-wider text-foreground/70 mb-1">NENHUM EVENTO</h4>
+        <p className="text-sm text-muted-foreground">Este estabelecimento não possui eventos ativos no momento.</p>
+      </div>
+    );
+  }
+
+  // Get unique event types for filter
+  const availableTypes = Array.from(new Set(events.map((e: any) => e.eventType)));
+  const filteredEvents = filterType ? events.filter((e: any) => e.eventType === filterType) : events;
+
+  return (
+    <div className="space-y-4">
+      {/* Filter by type */}
+      {availableTypes.length > 1 && (
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setFilterType(null)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              !filterType
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Todos
+          </button>
+          {availableTypes.map((type: string) => {
+            const info = EVENT_TYPE_LABELS[type];
+            return (
+              <button
+                key={type}
+                onClick={() => setFilterType(type)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  filterType === type
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {info?.icon} {info?.label || type}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Event Cards */}
+      {filteredEvents.map((event: any) => {
+        const startDt = new Date(event.startDate);
+        const endDt = new Date(event.endDate);
+        const now = Date.now();
+        const isHappening = event.startDate <= now && event.endDate >= now;
+        const typeInfo = EVENT_TYPE_LABELS[event.eventType];
+
+        return (
+          <div key={event.id} className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 overflow-hidden shadow-lg shadow-primary/5">
+            {/* Cover Image */}
+            {event.coverImageUrl && (
+              <div className="relative">
+                <img src={event.coverImageUrl} alt={event.title} className="w-full h-48 sm:h-56 object-cover" />
+                {isHappening && (
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold animate-pulse">
+                    AO VIVO
+                  </div>
+                )}
+                <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium text-foreground">
+                  {typeInfo?.icon} {typeInfo?.label}
+                </div>
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="p-4 sm:p-5">
+              <h4 className="font-display text-xl tracking-wider text-foreground mb-2">{event.title}</h4>
+              
+              {/* Date & Time */}
+              <div className="flex items-center gap-2 mb-3">
+                <CalendarDays className="w-4 h-4 text-primary shrink-0" />
+                <div className="text-sm text-muted-foreground">
+                  <span className="text-foreground font-medium">
+                    {startDt.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}
+                  </span>
+                  {" · "}
+                  {startDt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  {" — "}
+                  {endDt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  {startDt.toDateString() !== endDt.toDateString() && (
+                    <span> ({endDt.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })})</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Location (if custom) */}
+              {event.locationType === "custom" && event.customAddress && (
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-4 h-4 text-primary shrink-0" />
+                  <span className="text-sm text-muted-foreground">
+                    {event.customAddress}{event.customAddressNumber ? `, ${event.customAddressNumber}` : ""} — {event.customNeighborhood}
+                  </span>
+                </div>
+              )}
+
+              {/* Description */}
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{event.description}</p>
+
+              {/* Entry info */}
+              <div className="flex items-center gap-3 pt-3 border-t border-border/30">
+                {event.entryType === "free" ? (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+                    <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+                    <span className="text-xs font-medium text-green-400">Entrada Gratuita</span>
+                  </div>
+                ) : event.paidType === "single" ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                      <DollarSign className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-xs font-medium text-primary">R$ {event.singlePrice?.toFixed(2)}</span>
+                    </div>
+                    {event.hasDoorPrice && event.doorPrice && (
+                      <span className="text-[10px] text-muted-foreground">Na porta: R$ {event.doorPrice.toFixed(2)}</span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {event.batches?.map((batch: any) => (
+                      <div key={batch.id} className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20">
+                        <span className="text-[10px] text-primary font-medium">{batch.batchName}: R$ {batch.price.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

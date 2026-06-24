@@ -8,10 +8,11 @@ import { getLoginUrl } from "@/const";
 import {
   Store, ArrowLeft, ClipboardCheck, UtensilsCrossed,
   Plus, Trash2, CheckCircle, Clock, XCircle, Send, Building2,
-  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone, Sparkles, Upload
+  Bell, AlertTriangle, Image as ImageIcon, Star, QrCode as QrCodeIcon, Tag, Download, Copy, Crown, Check, Loader2, Zap, TrendingUp, BarChart3, CalendarDays, Users, HelpCircle, ThumbsDown, ExternalLink, Megaphone, Sparkles, Upload, Ticket, MapPin, DollarSign, Music
 } from "lucide-react";
 import BusinessBroadcast from "@/components/BusinessBroadcast";
 import { getConnectYarinUrl } from "@shared/const";
+import { validateAddress, VALID_LOGRADOUROS } from "@shared/address-validation";
 
 export default function BusinessPanel() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -27,7 +28,7 @@ export default function BusinessPanel() {
     return null;
   };
   
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar" | "destaques" | "broadcast";
+  const initialTab = (getTabFromPath() || searchParams.get("tab") || "establishments") as "establishments" | "claims" | "menu" | "notifications" | "qrcode" | "promo" | "partnerships" | "plan" | "insights" | "calendar" | "destaques" | "broadcast" | "eventos";
   const [activeTab, setActiveTab] = useState(initialTab);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -107,6 +108,7 @@ export default function BusinessPanel() {
               { id: "calendar" as const, label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
               { id: "destaques" as const, label: "Destaques", labelFull: "Destaques", icon: Sparkles },
               { id: "broadcast" as const, label: "Transmissões", labelFull: "Lista de Transmissão", icon: Megaphone },
+              { id: "eventos" as const, label: "Eventos", labelFull: "Eventos do Estab.", icon: CalendarDays },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -145,6 +147,7 @@ export default function BusinessPanel() {
         {activeTab === "calendar" && <CalendarioBusinessTab />}
         {activeTab === "destaques" && <DestaquesTab />}
         {activeTab === "broadcast" && <BroadcastTab />}
+        {activeTab === "eventos" && <EventosEstabTab />}
       </div>
     </div>
   );
@@ -2340,6 +2343,717 @@ function BroadcastTab() {
           <BusinessBroadcast establishmentId={estab.id} />
         </div>
       ))}
+    </div>
+  );
+}
+
+
+// ============================================================
+// EVENTOS DO ESTABELECIMENTO TAB
+// ============================================================
+const EVENT_TYPE_OPTIONS = [
+  { value: "esporte", label: "Esporte", icon: "⚽" },
+  { value: "show", label: "Show", icon: "🎤" },
+  { value: "festa", label: "Festa", icon: "🎉" },
+  { value: "gastronomia", label: "Gastronomia", icon: "🍽️" },
+  { value: "cultural", label: "Cultural", icon: "🎭" },
+  { value: "stand_up", label: "Stand-Up", icon: "😂" },
+  { value: "quiz", label: "Quiz / Trivia", icon: "🧠" },
+  { value: "degustacao", label: "Degustação", icon: "🍷" },
+  { value: "workshop", label: "Workshop", icon: "🔧" },
+  { value: "karaoke", label: "Karaokê", icon: "🎵" },
+  { value: "dj", label: "DJ Set", icon: "🎧" },
+  { value: "sertanejo", label: "Sertanejo", icon: "🤠" },
+  { value: "pagode", label: "Pagode", icon: "🥁" },
+  { value: "forro", label: "Forró", icon: "💃" },
+  { value: "samba", label: "Samba", icon: "🎶" },
+  { value: "outro", label: "Outro", icon: "📌" },
+];
+
+function EventosEstabTab() {
+  const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
+  const utils = trpc.useUtils();
+  const createEvent = trpc.business.createEvent.useMutation({
+    onSuccess: () => {
+      toast.success("Evento criado com sucesso!");
+      resetForm();
+      utils.business.listEvents.invalidate();
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao criar evento"),
+  });
+  const cancelEvent = trpc.business.cancelEvent.useMutation({
+    onSuccess: () => {
+      toast.success("Evento cancelado.");
+      utils.business.listEvents.invalidate();
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao cancelar"),
+  });
+
+  const [showForm, setShowForm] = useState(false);
+  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
+  
+  // Form fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [coverImageKey, setCoverImageKey] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [locationType, setLocationType] = useState<"establishment" | "custom">("establishment");
+  const [customAddress, setCustomAddress] = useState("");
+  const [customAddressNumber, setCustomAddressNumber] = useState("");
+  const [customNeighborhood, setCustomNeighborhood] = useState("");
+  const [customCity, setCustomCity] = useState("São Paulo");
+  const [entryType, setEntryType] = useState<"free" | "paid">("free");
+  const [paidType, setPaidType] = useState<"single" | "batches">("single");
+  const [singlePrice, setSinglePrice] = useState("");
+  const [hasDoorPrice, setHasDoorPrice] = useState(false);
+  const [doorPrice, setDoorPrice] = useState("");
+  const [batches, setBatches] = useState<{ batchNumber: number; batchName: string; price: string }[]>([
+    { batchNumber: 1, batchName: "1º Lote", price: "" },
+  ]);
+  const [eventType, setEventType] = useState("");
+  const [addressError, setAddressError] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // List events for selected establishment
+  const { data: eventsList } = trpc.business.listEvents.useQuery(
+    { establishmentId: selectedEstab! },
+    { enabled: !!selectedEstab }
+  );
+
+  const resetForm = () => {
+    setShowForm(false);
+    setTitle("");
+    setDescription("");
+    setCoverImageUrl("");
+    setCoverImageKey("");
+    setStartDate("");
+    setStartTime("");
+    setEndDate("");
+    setEndTime("");
+    setLocationType("establishment");
+    setCustomAddress("");
+    setCustomAddressNumber("");
+    setCustomNeighborhood("");
+    setCustomCity("São Paulo");
+    setEntryType("free");
+    setPaidType("single");
+    setSinglePrice("");
+    setHasDoorPrice(false);
+    setDoorPrice("");
+    setBatches([{ batchNumber: 1, batchName: "1º Lote", price: "" }]);
+    setEventType("");
+    setAddressError("");
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem deve ter no máximo 5MB");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload-cover", { method: "POST", body: formData, credentials: "include" });
+      if (!res.ok) throw new Error("Upload falhou");
+      const data = await res.json();
+      setCoverImageUrl(data.url);
+      setCoverImageKey(data.key || "");
+      toast.success("Imagem de capa enviada!");
+    } catch {
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const addBatch = () => {
+    if (batches.length >= 10) {
+      toast.error("Máximo de 10 lotes");
+      return;
+    }
+    const next = batches.length + 1;
+    setBatches([...batches, { batchNumber: next, batchName: `${next}º Lote`, price: "" }]);
+  };
+
+  const removeBatch = (index: number) => {
+    if (batches.length <= 1) return;
+    const updated = batches.filter((_, i) => i !== index).map((b, i) => ({
+      ...b,
+      batchNumber: i + 1,
+      batchName: `${i + 1}º Lote`,
+    }));
+    setBatches(updated);
+  };
+
+  const handleCustomAddressChange = (val: string) => {
+    setCustomAddress(val);
+    if (val.trim()) {
+      const result = validateAddress(val);
+      setAddressError(result.valid ? "" : (result.error || ""));
+    } else {
+      setAddressError("");
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!selectedEstab) { toast.error("Selecione um estabelecimento"); return; }
+    if (!title.trim()) { toast.error("Título é obrigatório"); return; }
+    if (description.length < 200 || description.length > 550) { toast.error("Descrição deve ter entre 200 e 550 caracteres"); return; }
+    if (!coverImageUrl) { toast.error("Foto de capa é obrigatória"); return; }
+    if (!startDate || !startTime) { toast.error("Data e hora de início são obrigatórios"); return; }
+    if (!endDate || !endTime) { toast.error("Data e hora de término são obrigatórios"); return; }
+    if (!eventType) { toast.error("Selecione o tipo de atração"); return; }
+
+    if (locationType === "custom") {
+      const addrResult = validateAddress(customAddress);
+      if (!addrResult.valid) { toast.error(addrResult.error || "Endereço inválido"); return; }
+      if (!customNeighborhood.trim()) { toast.error("Bairro é obrigatório para local customizado"); return; }
+    }
+
+    const startTs = new Date(`${startDate}T${startTime}`).getTime();
+    const endTs = new Date(`${endDate}T${endTime}`).getTime();
+
+    if (endTs <= startTs) { toast.error("Horário de término deve ser posterior ao início"); return; }
+
+    const payload: any = {
+      establishmentId: selectedEstab,
+      title: title.trim(),
+      description: description.trim(),
+      coverImageUrl,
+      coverImageKey: coverImageKey || undefined,
+      startDate: startTs,
+      endDate: endTs,
+      locationType,
+      entryType,
+      eventType,
+    };
+
+    if (locationType === "custom") {
+      payload.customAddress = customAddress.trim();
+      payload.customAddressNumber = customAddressNumber.trim() || undefined;
+      payload.customNeighborhood = customNeighborhood.trim();
+      payload.customCity = customCity.trim();
+    }
+
+    if (entryType === "paid") {
+      payload.paidType = paidType;
+      if (paidType === "single") {
+        payload.singlePrice = parseFloat(singlePrice);
+        if (isNaN(payload.singlePrice) || payload.singlePrice <= 0) { toast.error("Valor da entrada é obrigatório"); return; }
+        payload.hasDoorPrice = hasDoorPrice;
+        if (hasDoorPrice) {
+          payload.doorPrice = parseFloat(doorPrice);
+          if (isNaN(payload.doorPrice) || payload.doorPrice <= 0) { toast.error("Valor na porta é obrigatório"); return; }
+        }
+      } else {
+        const parsedBatches = batches.map(b => ({
+          batchNumber: b.batchNumber,
+          batchName: b.batchName,
+          price: parseFloat(b.price),
+        }));
+        if (parsedBatches.some(b => isNaN(b.price) || b.price <= 0)) { toast.error("Todos os lotes devem ter valor válido"); return; }
+        payload.batches = parsedBatches;
+      }
+    }
+
+    createEvent.mutate(payload);
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  }
+
+  if (!estabs || estabs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Ticket className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+        <p className="text-muted-foreground text-sm">Você precisa ter um estabelecimento para criar eventos.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Info box */}
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+        <p className="text-sm text-foreground/80">
+          <strong>Eventos do Estabelecimento:</strong> Crie eventos para seu bar ou restaurante — transmissões de jogos, shows, festas, degustações e mais. 
+          Os eventos ficam visíveis na aba "Eventos" da página do seu estabelecimento até o fim do evento.
+        </p>
+      </div>
+
+      {/* Establishment selector */}
+      <div>
+        <label className="text-xs text-muted-foreground mb-1 block">Estabelecimento</label>
+        <select
+          className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+          value={selectedEstab || ""}
+          onChange={e => setSelectedEstab(Number(e.target.value) || null)}
+        >
+          <option value="">Selecione...</option>
+          {estabs.map((e: any) => (
+            <option key={e.id} value={e.id}>{e.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {selectedEstab && (
+        <>
+          {/* Create button */}
+          {!showForm && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Criar Novo Evento
+            </button>
+          )}
+
+          {/* Creation form */}
+          {showForm && (
+            <div className="p-5 rounded-xl border border-primary/30 bg-card space-y-5">
+              <div className="flex items-center justify-between">
+                <h4 className="font-display text-lg tracking-wider text-primary">NOVO EVENTO</h4>
+                <button onClick={resetForm} className="text-xs text-muted-foreground hover:text-foreground">Cancelar</button>
+              </div>
+
+              {/* 1. Cover Image */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Foto de Capa *</label>
+                {coverImageUrl ? (
+                  <div className="relative">
+                    <img src={coverImageUrl} alt="Capa" className="w-full h-48 object-cover rounded-lg" />
+                    <button
+                      onClick={() => { setCoverImageUrl(""); setCoverImageKey(""); }}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-background/80 text-foreground hover:bg-background"
+                    >
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                    className="w-full h-48 rounded-lg border-2 border-dashed border-border/50 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 transition-colors"
+                  >
+                    {imageUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-8 h-8" />}
+                    <span className="text-xs">{imageUploading ? "Enviando..." : "Clique para enviar imagem (max 5MB)"}</span>
+                  </button>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Título do Evento *</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  placeholder="Ex: Transmissão Brasil x Escócia"
+                  className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                  maxLength={255}
+                />
+              </div>
+
+              {/* 2. Start Date/Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Data de Início *</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                    className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Horário de Início *</label>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={e => setStartTime(e.target.value)}
+                    className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* 3. End Date/Time */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Data de Término *</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
+                    className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Horário de Término *</label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={e => setEndTime(e.target.value)}
+                    className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* 4. Description */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">
+                  Descrição * <span className={`${description.length < 200 ? "text-red-400" : description.length > 550 ? "text-red-400" : "text-green-400"}`}>({description.length}/550)</span>
+                </label>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Descreva o evento com detalhes (mínimo 200, máximo 550 caracteres)"
+                  className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm min-h-[100px] resize-none"
+                  maxLength={550}
+                />
+                {description.length > 0 && description.length < 200 && (
+                  <p className="text-xs text-red-400 mt-1">Faltam {200 - description.length} caracteres para o mínimo</p>
+                )}
+              </div>
+
+              {/* Local */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-2 block">Local do Evento</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setLocationType("establishment")}
+                    className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                      locationType === "establishment"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/50 text-muted-foreground hover:border-primary/30"
+                    }`}
+                  >
+                    <Store className="w-4 h-4 mx-auto mb-1" />
+                    No Estabelecimento
+                  </button>
+                  <button
+                    onClick={() => setLocationType("custom")}
+                    className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                      locationType === "custom"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/50 text-muted-foreground hover:border-primary/30"
+                    }`}
+                  >
+                    <MapPin className="w-4 h-4 mx-auto mb-1" />
+                    Outro Local
+                  </button>
+                </div>
+
+                {locationType === "custom" && (
+                  <div className="mt-3 space-y-3 p-3 rounded-lg bg-secondary/50 border border-border/30">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Endereço *</label>
+                      <input
+                        type="text"
+                        value={customAddress}
+                        onChange={e => handleCustomAddressChange(e.target.value)}
+                        placeholder="Ex: Rua Augusta, Avenida Paulista..."
+                        className={`w-full p-2 rounded-lg bg-secondary border text-foreground text-sm ${addressError ? "border-red-400" : "border-border/50"}`}
+                      />
+                      {addressError && <p className="text-xs text-red-400 mt-1">{addressError}</p>}
+                      <p className="text-[10px] text-muted-foreground/60 mt-1">
+                        Deve começar com: {VALID_LOGRADOUROS.slice(0, 6).join(", ")}...
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Número</label>
+                        <input
+                          type="text"
+                          value={customAddressNumber}
+                          onChange={e => setCustomAddressNumber(e.target.value)}
+                          placeholder="123 ou s/n"
+                          className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Bairro *</label>
+                        <input
+                          type="text"
+                          value={customNeighborhood}
+                          onChange={e => setCustomNeighborhood(e.target.value)}
+                          placeholder="Ex: Vila Madalena"
+                          className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Cidade</label>
+                      <input
+                        type="text"
+                        value={customCity}
+                        onChange={e => setCustomCity(e.target.value)}
+                        className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 5. Entry Type */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-2 block">Tipo de Entrada *</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEntryType("free")}
+                    className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                      entryType === "free"
+                        ? "border-green-500 bg-green-500/10 text-green-400"
+                        : "border-border/50 text-muted-foreground hover:border-green-500/30"
+                    }`}
+                  >
+                    <CheckCircle className="w-4 h-4 mx-auto mb-1" />
+                    Entrada Gratuita
+                  </button>
+                  <button
+                    onClick={() => setEntryType("paid")}
+                    className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                      entryType === "paid"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/50 text-muted-foreground hover:border-primary/30"
+                    }`}
+                  >
+                    <DollarSign className="w-4 h-4 mx-auto mb-1" />
+                    Entrada Paga
+                  </button>
+                </div>
+
+                {entryType === "free" && (
+                  <div className="mt-3 p-3 rounded-lg bg-green-500/5 border border-green-500/20 text-center">
+                    <p className="text-sm text-green-400 font-medium">Evento Gratuito</p>
+                  </div>
+                )}
+
+                {entryType === "paid" && (
+                  <div className="mt-3 space-y-3">
+                    {/* Paid type selection */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setPaidType("single")}
+                        className={`flex-1 p-2 rounded-lg border text-xs font-medium transition-all ${
+                          paidType === "single"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border/50 text-muted-foreground hover:border-primary/30"
+                        }`}
+                      >
+                        Pagamento Único
+                      </button>
+                      <button
+                        onClick={() => setPaidType("batches")}
+                        className={`flex-1 p-2 rounded-lg border text-xs font-medium transition-all ${
+                          paidType === "batches"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border/50 text-muted-foreground hover:border-primary/30"
+                        }`}
+                      >
+                        Pagamento por Lotes
+                      </button>
+                    </div>
+
+                    {/* Single price */}
+                    {paidType === "single" && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">Valor da Entrada (R$) *</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={singlePrice}
+                            onChange={e => setSinglePrice(e.target.value)}
+                            placeholder="100.00"
+                            className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="hasDoorPrice"
+                            checked={hasDoorPrice}
+                            onChange={e => setHasDoorPrice(e.target.checked)}
+                            className="rounded border-border/50"
+                          />
+                          <label htmlFor="hasDoorPrice" className="text-xs text-muted-foreground">Valor diferente na porta</label>
+                        </div>
+                        {hasDoorPrice && (
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Valor na Porta (R$) *</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={doorPrice}
+                              onChange={e => setDoorPrice(e.target.value)}
+                              placeholder="150.00"
+                              className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Batches */}
+                    {paidType === "batches" && (
+                      <div className="space-y-3">
+                        {batches.map((batch, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-16 shrink-0">{batch.batchName}</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={batch.price}
+                              onChange={e => {
+                                const updated = [...batches];
+                                updated[index].price = e.target.value;
+                                setBatches(updated);
+                              }}
+                              placeholder="R$ 0,00"
+                              className="flex-1 p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                            />
+                            {batches.length > 1 && (
+                              <button onClick={() => removeBatch(index)} className="text-red-400 hover:text-red-300">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {batches.length < 10 && (
+                          <button
+                            onClick={addBatch}
+                            className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium"
+                          >
+                            <Plus className="w-3 h-3" />
+                            Adicionar Lote
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 6. Event Type / Attraction */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-2 block">Tipo de Atração *</label>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {EVENT_TYPE_OPTIONS.map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setEventType(opt.value)}
+                      className={`p-2 rounded-lg border text-xs font-medium transition-all text-center ${
+                        eventType === opt.value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/50 text-muted-foreground hover:border-primary/30"
+                      }`}
+                    >
+                      <span className="text-lg block mb-0.5">{opt.icon}</span>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit */}
+              <button
+                onClick={handleSubmit}
+                disabled={createEvent.isPending}
+                className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {createEvent.isPending ? "Criando..." : "Criar Evento"}
+              </button>
+            </div>
+          )}
+
+          {/* Events List */}
+          {eventsList && eventsList.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-display text-sm tracking-wider text-foreground">EVENTOS CRIADOS</h4>
+              {eventsList.map((ev: any) => {
+                const now = Date.now();
+                const isActive = ev.status === "active" && ev.endDate >= now;
+                const isPast = ev.endDate < now;
+                const isCancelled = ev.status === "cancelled";
+                const startDt = new Date(ev.startDate);
+                const endDt = new Date(ev.endDate);
+                const typeInfo = EVENT_TYPE_OPTIONS.find(t => t.value === ev.eventType);
+
+                return (
+                  <div key={ev.id} className={`p-4 rounded-xl border ${isActive ? "border-primary/30 bg-card" : "border-border/30 bg-card/50 opacity-70"}`}>
+                    {ev.coverImageUrl && (
+                      <img src={ev.coverImageUrl} alt={ev.title} className="w-full h-32 object-cover rounded-lg mb-3" />
+                    )}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {typeInfo && <span className="text-sm">{typeInfo.icon}</span>}
+                          <h5 className="font-medium text-foreground text-sm">{ev.title}</h5>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-2">{ev.description?.slice(0, 100)}...</p>
+                        <div className="flex flex-wrap gap-2 text-[10px]">
+                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {startDt.toLocaleDateString("pt-BR")} {startDt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                            até {endDt.toLocaleDateString("pt-BR")} {endDt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          {ev.entryType === "free" && (
+                            <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">Gratuito</span>
+                          )}
+                          {ev.entryType === "paid" && ev.paidType === "single" && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">R$ {ev.singlePrice?.toFixed(2)}</span>
+                          )}
+                          {ev.entryType === "paid" && ev.paidType === "batches" && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Lotes ({ev.batches?.length})</span>
+                          )}
+                          {isActive && <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">Ativo</span>}
+                          {isPast && !isCancelled && <span className="px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">Encerrado</span>}
+                          {isCancelled && <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">Cancelado</span>}
+                        </div>
+                      </div>
+                      {isActive && !isCancelled && (
+                        <button
+                          onClick={() => {
+                            if (confirm("Tem certeza que deseja cancelar este evento?")) {
+                              cancelEvent.mutate({ eventId: ev.id });
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-300 text-xs shrink-0"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {eventsList && eventsList.length === 0 && !showForm && (
+            <div className="text-center py-8">
+              <Ticket className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Nenhum evento criado para este estabelecimento.</p>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

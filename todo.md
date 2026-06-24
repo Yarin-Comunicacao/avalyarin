@@ -652,3 +652,20 @@
 - [x] Correção destaques: aplicar durações corretas por tipo ao criar post via UI
 
 - [x] Fix: listagem de parceiros B2B limitada a 50 — implementar busca com filtro e remover limite fixo
+
+## Fase 18 — Aba de Eventos nos Estabelecimentos
+
+- [x] Schema: criar tabela events (establishmentId, coverImage, startDate, endDate, description, entryType, location, eventType)
+- [x] Schema: criar tabela event_batches (eventId, batchNumber, batchName, price)
+- [x] Endpoints tRPC: business.createEvent, business.listEvents, business.cancelEvent
+- [x] Endpoints tRPC: establishments.activeEvents (com filtro de expiração automática)
+- [x] UI BusinessPanel: formulário de criação de evento com todos os campos obrigatórios
+- [x] UI BusinessPanel: foto de capa (upload S3)
+- [x] UI BusinessPanel: horário início/fim do evento
+- [x] UI BusinessPanel: descrição 200-550 caracteres
+- [x] UI BusinessPanel: local (padrão = estab, ou endereço customizado com validação de logradouro)
+- [x] UI BusinessPanel: entrada paga/gratuita com lotes (até 10) e valor na porta
+- [x] UI BusinessPanel: tipo de atração (Esporte, Show, Festa, etc. — 16 opções)
+- [x] UI Estabelecimento: nova aba "Eventos" com cards de eventos ativos
+- [x] UI Estabelecimento: cards expiram automaticamente após endDate + badge AO VIVO + filtro por tipo
+- [x] Testes: cobrir criação e listagem de eventos (22 testes passando)

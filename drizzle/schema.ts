@@ -800,3 +800,59 @@ export const duplicateAlerts = mysqlTable("duplicate_alerts", {
 });
 export type DuplicateAlert = typeof duplicateAlerts.$inferSelect;
 export type InsertDuplicateAlert = typeof duplicateAlerts.$inferInsert;
+
+// ============================================================
+// Establishment Events — eventos criados por business accounts
+// ============================================================
+export const establishmentEvents = mysqlTable("establishment_events", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  createdById: int("createdById").notNull(), // userId do business
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(), // 200-550 chars
+  coverImageUrl: text("coverImageUrl").notNull(), // URL da imagem de capa
+  coverImageKey: varchar("coverImageKey", { length: 512 }), // S3 key
+  // Datas e horários
+  startDate: bigint("startDate", { mode: "number" }).notNull(), // Unix timestamp ms - início do evento
+  endDate: bigint("endDate", { mode: "number" }).notNull(), // Unix timestamp ms - fim do evento
+  // Local
+  locationType: mysqlEnum("locationType", ["establishment", "custom"]).default("establishment").notNull(),
+  customAddress: text("customAddress"), // endereço customizado (se locationType = custom)
+  customAddressNumber: varchar("customAddressNumber", { length: 20 }),
+  customNeighborhood: varchar("customNeighborhood", { length: 128 }),
+  customCity: varchar("customCity", { length: 128 }),
+  // Entrada
+  entryType: mysqlEnum("entryType", ["free", "paid"]).notNull(),
+  paidType: mysqlEnum("paidType", ["single", "batches"]).default("single"), // tipo de pagamento
+  singlePrice: float("singlePrice"), // preço único (se paidType = single)
+  hasDoorPrice: boolean("hasDoorPrice").default(false), // valor diferente na porta
+  doorPrice: float("doorPrice"), // preço na porta
+  // Tipo de atração
+  eventType: mysqlEnum("eventType", [
+    "esporte", "show", "festa", "gastronomia", "cultural",
+    "stand_up", "quiz", "degustacao", "workshop", "karaoke",
+    "dj", "sertanejo", "pagode", "forro", "samba", "outro"
+  ]).notNull(),
+  // Status
+  status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EstablishmentEvent = typeof establishmentEvents.$inferSelect;
+export type InsertEstablishmentEvent = typeof establishmentEvents.$inferInsert;
+
+// ============================================================
+// Event Batches — lotes de pagamento para eventos
+// ============================================================
+export const eventBatches = mysqlTable("event_batches", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  batchNumber: int("batchNumber").notNull(), // 1, 2, 3... até 10
+  batchName: varchar("batchName", { length: 64 }).notNull(), // "1º Lote", "2º Lote"...
+  price: float("price").notNull(), // valor do lote em R$
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EventBatch = typeof eventBatches.$inferSelect;
+export type InsertEventBatch = typeof eventBatches.$inferInsert;
