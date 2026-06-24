@@ -833,6 +833,8 @@ export const establishmentEvents = mysqlTable("establishment_events", {
     "stand_up", "quiz", "degustacao", "workshop", "karaoke",
     "dj", "sertanejo", "pagode", "forro", "samba", "outro"
   ]).notNull(),
+  // Link de ingresso (apenas plano pago)
+  ticketUrl: varchar("ticketUrl", { length: 500 }), // URL para compra de ingresso
   // Status
   status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -851,6 +853,7 @@ export const eventBatches = mysqlTable("event_batches", {
   batchNumber: int("batchNumber").notNull(), // 1, 2, 3... até 10
   batchName: varchar("batchName", { length: 64 }).notNull(), // "1º Lote", "2º Lote"...
   price: float("price").notNull(), // valor do lote em R$
+  expiresAt: bigint("expiresAt", { mode: "number" }), // data de virada do lote (timestamp ms)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

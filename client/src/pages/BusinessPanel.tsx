@@ -2412,10 +2412,11 @@ function EventosEstabTab() {
   const [singlePrice, setSinglePrice] = useState("");
   const [hasDoorPrice, setHasDoorPrice] = useState(false);
   const [doorPrice, setDoorPrice] = useState("");
-  const [batches, setBatches] = useState<{ batchNumber: number; batchName: string; price: string }[]>([
-    { batchNumber: 1, batchName: "1º Lote", price: "" },
+  const [batches, setBatches] = useState<{ batchNumber: number; batchName: string; price: string; expiresAt: string }[]>([
+    { batchNumber: 1, batchName: "1º Lote", price: "", expiresAt: "" },
   ]);
   const [eventType, setEventType] = useState("");
+  const [ticketUrl, setTicketUrl] = useState("");
   const [addressError, setAddressError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -2446,8 +2447,9 @@ function EventosEstabTab() {
     setSinglePrice("");
     setHasDoorPrice(false);
     setDoorPrice("");
-    setBatches([{ batchNumber: 1, batchName: "1º Lote", price: "" }]);
+    setBatches([{ batchNumber: 1, batchName: "1º Lote", price: "", expiresAt: "" }]);
     setEventType("");
+    setTicketUrl("");
     setAddressError("");
   };
 
@@ -2481,7 +2483,7 @@ function EventosEstabTab() {
       return;
     }
     const next = batches.length + 1;
-    setBatches([...batches, { batchNumber: next, batchName: `${next}º Lote`, price: "" }]);
+    setBatches([...batches, { batchNumber: next, batchName: `${next}º Lote`, price: "", expiresAt: "" }]);
   };
 
   const removeBatch = (index: number) => {
@@ -2535,6 +2537,7 @@ function EventosEstabTab() {
       locationType,
       entryType,
       eventType,
+      ticketUrl: ticketUrl.trim() || undefined,
     };
 
     if (locationType === "custom") {
@@ -2559,6 +2562,7 @@ function EventosEstabTab() {
           batchNumber: b.batchNumber,
           batchName: b.batchName,
           price: parseFloat(b.price),
+          expiresAt: b.expiresAt ? new Date(b.expiresAt + "T23:59:59").getTime() : undefined,
         }));
         if (parsedBatches.some(b => isNaN(b.price) || b.price <= 0)) { toast.error("Todos os lotes devem ter valor válido"); return; }
         payload.batches = parsedBatches;
@@ -2912,26 +2916,41 @@ function EventosEstabTab() {
                     {paidType === "batches" && (
                       <div className="space-y-3">
                         {batches.map((batch, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground w-16 shrink-0">{batch.batchName}</span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={batch.price}
-                              onChange={e => {
-                                const updated = [...batches];
-                                updated[index].price = e.target.value;
-                                setBatches(updated);
-                              }}
-                              placeholder="R$ 0,00"
-                              className="flex-1 p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
-                            />
-                            {batches.length > 1 && (
-                              <button onClick={() => removeBatch(index)} className="text-red-400 hover:text-red-300">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
+                          <div key={index} className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground w-16 shrink-0">{batch.batchName}</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={batch.price}
+                                onChange={e => {
+                                  const updated = [...batches];
+                                  updated[index].price = e.target.value;
+                                  setBatches(updated);
+                                }}
+                                placeholder="R$ 0,00"
+                                className="flex-1 p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                              />
+                              {batches.length > 1 && (
+                                <button onClick={() => removeBatch(index)} className="text-red-400 hover:text-red-300">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                            <div className="ml-16 pl-2">
+                              <label className="text-[10px] text-muted-foreground/70">Virada automática em:</label>
+                              <input
+                                type="date"
+                                value={batch.expiresAt}
+                                onChange={e => {
+                                  const updated = [...batches];
+                                  updated[index].expiresAt = e.target.value;
+                                  setBatches(updated);
+                                }}
+                                className="w-full p-1.5 rounded-lg bg-secondary border border-border/50 text-foreground text-xs mt-0.5"
+                              />
+                            </div>
                           </div>
                         ))}
                         {batches.length < 10 && (
@@ -2943,6 +2962,7 @@ function EventosEstabTab() {
                             Adicionar Lote
                           </button>
                         )}
+                        <p className="text-[10px] text-muted-foreground/60 italic">Quando a data de virada chegar, o próximo lote será ativado automaticamente.</p>
                       </div>
                     )}
                   </div>
@@ -2968,6 +2988,19 @@ function EventosEstabTab() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* 7. Ticket URL */}
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Link de Compra de Ingresso (opcional)</label>
+                <input
+                  type="url"
+                  value={ticketUrl}
+                  onChange={e => setTicketUrl(e.target.value)}
+                  placeholder="https://www.sympla.com.br/seu-evento"
+                  className="w-full p-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm"
+                />
+                <p className="text-[10px] text-muted-foreground/60 mt-1">Cole o link do Sympla, Eventbrite ou outro site de venda de ingressos. Os usuários serão direcionados para lá.</p>
               </div>
 
               {/* Submit */}

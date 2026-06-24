@@ -669,3 +669,14 @@
 - [x] UI Estabelecimento: nova aba "Eventos" com cards de eventos ativos
 - [x] UI Estabelecimento: cards expiram automaticamente após endDate + badge AO VIVO + filtro por tipo
 - [x] Testes: cobrir criação e listagem de eventos (22 testes passando)
+
+## Fase 18.1 — Melhorias no Sistema de Eventos
+
+- [x] Campo hiperlink de compra de ingresso no evento (todos os business; insights de cliques = plano pago)
+- [x] Data de virada automática por lote (cada lote tem data limite, próximo lote ativa automaticamente)
+- [x] Schema: adicionar campo ticketUrl ao establishment_events
+- [x] Schema: adicionar campo expiresAt ao event_batches
+- [x] UI BusinessPanel: campo de link de ingresso (disponível para todos os business)
+- [x] UI BusinessPanel: date picker por lote para virada automática
+- [x] UI EstablishmentPage: botão "Comprar Ingresso" no card do evento (se ticketUrl preenchido)
+- [x] UI EstablishmentPage: exibir lote ativo atual baseado na data de virada

@@ -1118,10 +1118,12 @@ export const appRouter = router({
         hasDoorPrice: z.boolean().optional(),
         doorPrice: z.number().optional(),
         eventType: z.string(),
+        ticketUrl: z.string().url().optional(),
         batches: z.array(z.object({
           batchNumber: z.number(),
           batchName: z.string(),
           price: z.number(),
+          expiresAt: z.number().optional(),
         })).optional(),
       }))
       .mutation(async ({ ctx, input }) => {

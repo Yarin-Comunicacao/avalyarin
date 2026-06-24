@@ -49,7 +49,8 @@ export async function createEstablishmentEvent(data: {
   hasDoorPrice?: boolean;
   doorPrice?: number;
   eventType: string;
-  batches?: { batchNumber: number; batchName: string; price: number }[];
+  ticketUrl?: string;
+  batches?: { batchNumber: number; batchName: string; price: number; expiresAt?: number }[];
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -61,6 +62,7 @@ export async function createEstablishmentEvent(data: {
     eventType: eventData.eventType as any,
     paidType: eventData.paidType as any || "single",
     hasDoorPrice: eventData.hasDoorPrice || false,
+    ticketUrl: eventData.ticketUrl || null,
   });
 
   const eventId = result.insertId;
@@ -73,6 +75,7 @@ export async function createEstablishmentEvent(data: {
         batchNumber: b.batchNumber,
         batchName: b.batchName,
         price: b.price,
+        expiresAt: b.expiresAt || null,
       }))
     );
   }

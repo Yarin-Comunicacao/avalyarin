@@ -1099,14 +1099,45 @@ function EventosSection({ establishmentId }: { establishmentId: number }) {
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {event.batches?.map((batch: any) => (
-                      <div key={batch.id} className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20">
-                        <span className="text-[10px] text-primary font-medium">{batch.batchName}: R$ {batch.price.toFixed(2)}</span>
-                      </div>
-                    ))}
+                    {(() => {
+                      const now = Date.now();
+                      const sortedBatches = [...(event.batches || [])].sort((a: any, b: any) => a.batchNumber - b.batchNumber);
+                      // Find active batch: first batch whose expiresAt is in the future, or last batch if all expired
+                      const activeBatchIndex = sortedBatches.findIndex((b: any) => !b.expiresAt || b.expiresAt > now);
+                      const activeIdx = activeBatchIndex >= 0 ? activeBatchIndex : sortedBatches.length - 1;
+                      return sortedBatches.map((batch: any, idx: number) => (
+                        <div key={batch.id} className={`flex items-center gap-1 px-2 py-1 rounded-full border ${
+                          idx === activeIdx
+                            ? "bg-primary/20 border-primary/40 ring-1 ring-primary/30"
+                            : idx < activeIdx
+                              ? "bg-secondary/50 border-border/30 opacity-50 line-through"
+                              : "bg-primary/5 border-primary/10"
+                        }`}>
+                          <span className={`text-[10px] font-medium ${idx === activeIdx ? "text-primary" : "text-muted-foreground"}`}>
+                            {batch.batchName}: R$ {batch.price.toFixed(2)}
+                            {idx === activeIdx && " ← atual"}
+                          </span>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 )}
               </div>
+
+              {/* Ticket URL button */}
+              {event.ticketUrl && (
+                <div className="pt-3 border-t border-border/30">
+                  <a
+                    href={event.ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
+                  >
+                    <Ticket className="w-4 h-4" />
+                    Comprar Ingresso
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         );
