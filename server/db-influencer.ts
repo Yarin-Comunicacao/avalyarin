@@ -472,12 +472,17 @@ export async function getReceivedB2BPartnerships(establishmentId: number) {
 
 /**
  * List available establishments for B2B partnership (exclude own)
+ * Supports search by name and returns all matching results (no arbitrary limit)
  */
-export async function listAvailableEstablishmentsForPartnership(excludeIds: number[], limit = 50) {
+export async function listAvailableEstablishmentsForPartnership(excludeIds: number[], search?: string) {
   const db = await getDb();
   if (!db) return [];
 
   const { sql: rawSql } = await import("drizzle-orm");
+  const excludeClause = excludeIds.length > 0 ? excludeIds.join(",") : "0";
+  const searchClause = search && search.trim().length > 0
+    ? ` AND ${establishments.name.name} LIKE '%${search.trim().replace(/'/g, "''")}%'`
+    : "";
   return await db
     .select({
       id: establishments.id,
@@ -485,9 +490,8 @@ export async function listAvailableEstablishmentsForPartnership(excludeIds: numb
       neighborhood: establishments.neighborhood,
     })
     .from(establishments)
-    .where(rawSql`${establishments.id} NOT IN (${rawSql.raw(excludeIds.length > 0 ? excludeIds.join(",") : "0")}) AND ${establishments.status} = 'active'`)
-    .orderBy(establishments.name)
-    .limit(limit);
+    .where(rawSql`${establishments.id} NOT IN (${rawSql.raw(excludeClause)}) AND ${establishments.status} = 'active'${rawSql.raw(searchClause)}`)
+    .orderBy(establishments.name);
 }
 
 /**

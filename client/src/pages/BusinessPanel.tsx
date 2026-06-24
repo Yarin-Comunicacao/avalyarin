@@ -1282,8 +1282,17 @@ function PartnershipsTab() {
     undefined,
     { enabled: showPropose && partnershipType === "influencer" }
   );
+  const [partnerSearch, setPartnerSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(partnerSearch), 300);
+    return () => clearTimeout(timer);
+  }, [partnerSearch]);
+
   const { data: availableEstabs } = trpc.business.availableEstablishments.useQuery(
-    { excludeIds: estabId ? [estabId] : [] },
+    { excludeIds: estabId ? [estabId] : [], search: debouncedSearch || undefined },
     { enabled: showPropose && partnershipType === "business" }
   );
   const respondMutation = trpc.business.respondPartnership.useMutation();
@@ -1439,16 +1448,49 @@ function PartnershipsTab() {
             {partnershipType === "business" && (
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">Estabelecimento Parceiro</label>
-                <select
-                  value={proposePartnerEstabId || ""}
-                  onChange={(e) => setProposePartnerEstabId(Number(e.target.value))}
-                  className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
-                >
-                  <option value="">Selecione um estabelecimento...</option>
-                  {availableEstabs?.map((e: any) => (
-                    <option key={e.id} value={e.id}>{e.name} — {e.neighborhood}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={partnerSearch}
+                  onChange={(e) => {
+                    setPartnerSearch(e.target.value);
+                    if (!e.target.value) setProposePartnerEstabId(null);
+                  }}
+                  placeholder="Digite o nome do estabelecimento..."
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+                />
+                {partnerSearch.trim().length > 0 && availableEstabs && availableEstabs.length > 0 && !proposePartnerEstabId && (
+                  <div className="mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card">
+                    {availableEstabs.map((e: any) => (
+                      <button
+                        key={e.id}
+                        type="button"
+                        onClick={() => {
+                          setProposePartnerEstabId(e.id);
+                          setPartnerSearch(e.name + (e.neighborhood ? ` — ${e.neighborhood}` : ""));
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-primary/10 transition-colors border-b border-border/30 last:border-b-0"
+                      >
+                        <span className="font-medium">{e.name}</span>
+                        {e.neighborhood && <span className="text-muted-foreground"> — {e.neighborhood}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {partnerSearch.trim().length > 0 && availableEstabs && availableEstabs.length === 0 && !proposePartnerEstabId && (
+                  <p className="text-xs text-muted-foreground mt-1">Nenhum estabelecimento encontrado.</p>
+                )}
+                {proposePartnerEstabId && (
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-xs text-green-400">✓ Selecionado</span>
+                    <button
+                      type="button"
+                      onClick={() => { setProposePartnerEstabId(null); setPartnerSearch(""); }}
+                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                    >
+                      Alterar
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

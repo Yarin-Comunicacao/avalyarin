@@ -650,3 +650,5 @@
 - [x] Correção destaques: implementar heartbeat/cron para expireOldPosts() automático (a cada hora)
 - [x] Correção destaques: UI de criação de posts no BusinessPanel (aba Destaques com formulário completo)
 - [x] Correção destaques: aplicar durações corretas por tipo ao criar post via UI
+
+- [x] Fix: listagem de parceiros B2B limitada a 50 — implementar busca com filtro e remover limite fixo

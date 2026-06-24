@@ -1027,9 +1027,9 @@ export const appRouter = router({
 
     // List available establishments for B2B partnership
     availableEstablishments: businessProcedure
-      .input(z.object({ excludeIds: z.array(z.number()).optional() }))
+      .input(z.object({ excludeIds: z.array(z.number()).optional(), search: z.string().optional() }))
       .query(async ({ input }) => {
-        return await listAvailableEstablishmentsForPartnership(input.excludeIds ?? []);
+        return await listAvailableEstablishmentsForPartnership(input.excludeIds ?? [], input.search);
       }),
 
     // Get received B2B partnership proposals
