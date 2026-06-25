@@ -1,11 +1,11 @@
 // Design: Neon Urbano — Establishment detail page with menu
 // Back arrow navigates to the parent category page
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon } from "lucide-react";
 import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -54,6 +54,7 @@ export default function EstablishmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [showOwnerEdit, setShowOwnerEdit] = useState(false);
   const [activeSection, setActiveSection] = useState<"cardapio" | "avaliacoes" | "eventos">("cardapio");
   const [filterItem, setFilterItem] = useState<string | null>(null);
   const { user } = useAuth();
@@ -189,6 +190,16 @@ export default function EstablishmentPage() {
 
       {/* Hero */}
       <section className="relative pt-28">
+        {/* Owner Edit Button */}
+        {user?.role === 'owner' && (
+          <button
+            onClick={() => setShowOwnerEdit(true)}
+            className="absolute top-32 right-4 z-20 p-2.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary transition-all hover:scale-105"
+            title="Editar estabelecimento"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+        )}
         {establishment.image ? (
           <div className="relative h-64 sm:h-80 overflow-hidden">
             <img
@@ -343,6 +354,14 @@ export default function EstablishmentPage() {
           establishmentId={estData?.id || 0}
           establishmentName={estData?.name || ""}
           onClose={() => setShowClaimForm(false)}
+        />
+      )}
+
+      {/* Owner Edit Modal */}
+      {showOwnerEdit && user?.role === 'owner' && (
+        <OwnerEditModal
+          establishment={establishment}
+          onClose={() => setShowOwnerEdit(false)}
         />
       )}
 
@@ -1142,6 +1161,309 @@ function EventosSection({ establishmentId }: { establishmentId: number }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+
+// Owner Edit Modal — full edit form for owner role
+function OwnerEditModal({ establishment, onClose }: {
+  establishment: any;
+  onClose: () => void;
+}) {
+  const utils = trpc.useUtils();
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const [form, setForm] = useState({
+    name: establishment.name || '',
+    address: establishment.address || '',
+    addressNumber: (establishment as any).addressNumber || '',
+    complement: (establishment as any).complement || '',
+    neighborhood: establishment.neighborhood || '',
+    phone: establishment.phone || '',
+    instagram: establishment.instagram || '',
+    hours: establishment.hours || '',
+    description: (establishment as any).description || '',
+    categoryId: establishment.categoryId || establishment.category?.id || undefined as number | undefined,
+    logo: establishment.logo || '',
+    image: establishment.image || '',
+  });
+
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const { data: categories } = trpc.categories.list.useQuery();
+
+  const updateMutation = trpc.ownerUpdateEstablishment.useMutation({
+    onSuccess: () => {
+      toast.success('Estabelecimento atualizado!');
+      utils.establishments.getWithMenu.invalidate();
+      onClose();
+    },
+    onError: (err) => {
+      toast.error('Erro: ' + err.message);
+    },
+  });
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Máx. 5MB"); return; }
+    if (!file.type.startsWith("image/")) { toast.error("Apenas imagens"); return; }
+    setUploadingLogo(true);
+    try {
+      const buffer = await file.arrayBuffer();
+      const res = await fetch("/api/upload-logo", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: buffer,
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      setForm(f => ({ ...f, logo: url }));
+      toast.success("Logo enviado!");
+    } catch { toast.error("Erro ao enviar logo"); }
+    finally { setUploadingLogo(false); }
+  };
+
+  const handleUploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Máx. 5MB"); return; }
+    if (!file.type.startsWith("image/")) { toast.error("Apenas imagens"); return; }
+    setUploadingCover(true);
+    try {
+      const buffer = await file.arrayBuffer();
+      const res = await fetch("/api/upload-cover", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: buffer,
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      setForm(f => ({ ...f, image: url }));
+      toast.success("Foto de capa enviada!");
+    } catch { toast.error("Erro ao enviar capa"); }
+    finally { setUploadingCover(false); }
+  };
+
+  const handleSave = () => {
+    setSaving(true);
+    updateMutation.mutate({
+      establishmentId: establishment.id,
+      name: form.name || undefined,
+      address: form.address || undefined,
+      addressNumber: form.addressNumber || undefined,
+      complement: form.complement || undefined,
+      neighborhood: form.neighborhood || undefined,
+      phone: form.phone || undefined,
+      instagram: form.instagram || undefined,
+      hours: form.hours || undefined,
+      description: form.description || undefined,
+      categoryId: form.categoryId || undefined,
+      logo: form.logo || undefined,
+      image: form.image || undefined,
+    }, { onSettled: () => setSaving(false) });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-card border border-border/50 rounded-t-2xl sm:rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-display text-lg tracking-wider text-primary">EDITAR ESTABELECIMENTO</h3>
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Cover Image */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Foto de Capa</label>
+            <div className="relative h-32 rounded-lg overflow-hidden border border-border/50 bg-secondary/30">
+              {form.image ? (
+                <img src={form.image} alt="Capa" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  <ImageIcon className="w-8 h-8" />
+                </div>
+              )}
+              <button
+                onClick={() => coverInputRef.current?.click()}
+                disabled={uploadingCover}
+                className="absolute bottom-2 right-2 p-2 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-all"
+              >
+                {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              </button>
+            </div>
+            <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadCover} />
+          </div>
+
+          {/* Logo */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Logo (1:1)</label>
+            <div className="flex items-center gap-3">
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border/50 bg-secondary/30 shrink-0">
+                {form.logo ? (
+                  <img src={form.logo} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                )}
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity"
+                >
+                  {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Upload className="w-4 h-4 text-white" />}
+                </button>
+              </div>
+              <button
+                onClick={() => logoInputRef.current?.click()}
+                disabled={uploadingLogo}
+                className="text-xs text-primary hover:underline"
+              >
+                {uploadingLogo ? "Enviando..." : "Alterar logo"}
+              </button>
+            </div>
+            <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadLogo} />
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Nome</label>
+            <input
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Categoria</label>
+            <select
+              value={form.categoryId || ''}
+              onChange={e => setForm(f => ({ ...f, categoryId: e.target.value ? Number(e.target.value) : undefined }))}
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            >
+              <option value="">Selecione...</option>
+              {categories?.map((cat: any) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Endereço</label>
+            <input
+              value={form.address}
+              onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+              placeholder="Rua, Avenida, Alameda..."
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Número</label>
+              <input
+                value={form.addressNumber}
+                onChange={e => setForm(f => ({ ...f, addressNumber: e.target.value }))}
+                placeholder="123 ou s/n"
+                className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Complemento</label>
+              <input
+                value={form.complement}
+                onChange={e => setForm(f => ({ ...f, complement: e.target.value }))}
+                placeholder="Sala 1, Bloco A..."
+                className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+              />
+            </div>
+          </div>
+
+          {/* Neighborhood */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Bairro</label>
+            <input
+              value={form.neighborhood}
+              onChange={e => setForm(f => ({ ...f, neighborhood: e.target.value }))}
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          {/* Hours */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Horário de Funcionamento</label>
+            <input
+              value={form.hours}
+              onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
+              placeholder="Seg-Sex 11h-23h, Sáb-Dom 11h-01h"
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Telefone</label>
+            <input
+              value={form.phone}
+              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+              placeholder="(11) 99999-9999"
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          {/* Instagram */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Instagram</label>
+            <input
+              value={form.instagram}
+              onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))}
+              placeholder="@seubar"
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Descrição</label>
+            <textarea
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              rows={3}
+              maxLength={500}
+              placeholder="Breve descrição do estabelecimento..."
+              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none"
+            />
+            <span className="text-xs text-muted-foreground">{form.description.length}/500</span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-lg border border-border/50 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {saving ? "Salvando..." : "Salvar Alterações"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

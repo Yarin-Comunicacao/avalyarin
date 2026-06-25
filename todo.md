@@ -680,3 +680,9 @@
 - [x] UI BusinessPanel: date picker por lote para virada automática
 - [x] UI EstablishmentPage: botão "Comprar Ingresso" no card do evento (se ticketUrl preenchido)
 - [x] UI EstablishmentPage: exibir lote ativo atual baseado na data de virada
+
+## Fase 19 — Botão de Edição (Owner) na Página do Estabelecimento
+- [x] Endpoint tRPC: owner.updateEstablishment (editar nome, endereço, bairro, horário, telefone, instagram, categoria, descrição, logo, foto de capa)
+- [x] UI EstablishmentPage: botão lápis visível apenas para role owner
+- [x] UI EstablishmentPage: modal de edição com todos os campos + upload de logo e foto de capa
+- [x] Upload de logo e foto de capa via S3 (storagePut)

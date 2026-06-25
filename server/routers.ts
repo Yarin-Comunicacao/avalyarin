@@ -2253,6 +2253,49 @@ export const appRouter = router({
         return await getSupportAssignments(input.supportUserId);
       }),
   }),
+  // Owner: Edit any establishment directly
+  ownerUpdateEstablishment: ownerProcedure
+    .input(z.object({
+      establishmentId: z.number(),
+      name: z.string().optional(),
+      address: z.string().refine(
+        (val) => !val || ADDRESS_REGEX.test(val.trim()),
+        { message: 'Endereço deve começar com logradouro válido (Rua, Avenida, Alameda, etc.)' }
+      ).optional(),
+      addressNumber: z.string().refine(
+        (val) => {
+          if (!val || val.trim() === '') return true;
+          const t = val.trim().toLowerCase();
+          if (t === 's/n' || t === 'sn') return true;
+          const n = parseInt(t, 10);
+          return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+        },
+        { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+      ).optional(),
+      complement: z.string().max(200).optional(),
+      description: z.string().max(500).optional(),
+      neighborhood: z.string().optional(),
+      phone: z.string().optional(),
+      instagram: z.string().optional(),
+      hours: z.string().optional(),
+      image: z.string().optional(),
+      logo: z.string().optional(),
+      categoryId: z.number().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { establishmentId, ...data } = input;
+      const db = (await import("./db")).getDb();
+      const dbInstance = await db;
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
+      const { establishments } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await dbInstance.update(establishments).set(data).where(eq(establishments.id, establishmentId));
+      // Sync visibility
+      const { syncEstablishmentVisibility } = await import("./db");
+      await syncEstablishmentVisibility(establishmentId);
+      return { success: true };
+    }),
+
   // Owner Panel
   ownerPanel: router({
     stats: ownerProcedure.query(async () => {
