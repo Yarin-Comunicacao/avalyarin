@@ -66,6 +66,7 @@ import DestaquesPage from "./pages/DestaquesPage";
 import ContaPage from "./pages/ContaPage";
 // Owner & System
 import OwnerPanel from "./pages/OwnerPanel";
+import OwnerSurvey from "./pages/OwnerSurvey";
 import SystemPanel from "./pages/SystemPanel";
 import TestSuitePage from "./pages/TestSuitePage";
 // Calendar & Events
@@ -184,6 +185,7 @@ function Router() {
       <Route path="/painel-critico" component={CriticPanel} />
       <Route path="/influencer/:id" component={InfluencerProfilePage} />
       <Route path="/owner" component={OwnerPanel} />
+      <Route path="/owner/survey" component={OwnerSurvey} />
       <Route path="/owner/sistema/testes" component={TestSuitePage} />
       <Route path="/owner/sistema" component={SystemPanel} />
       <Route path="/mensagens/:username" component={MensagensPage} />

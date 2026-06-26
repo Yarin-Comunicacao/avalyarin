@@ -2682,5 +2682,112 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // ============ SURVEY QUESTIONS MANAGEMENT (Owner) ============
+  surveyManagement: router({
+    list: ownerProcedure
+      .input(z.object({ phase: z.enum(["onboarding", "explorer", "connoisseur"]).optional() }).optional())
+      .query(async ({ input }) => {
+        const { getSurveyQuestions } = await import("./db");
+        return await getSurveyQuestions(input?.phase);
+      }),
+    create: ownerProcedure
+      .input(z.object({
+        phase: z.enum(["onboarding", "explorer", "connoisseur"]),
+        questionId: z.string().min(1).max(64),
+        title: z.string().min(1).max(255),
+        subtitle: z.string().optional(),
+        type: z.enum(["single", "multi", "score", "text", "birthdate"]),
+        icon: z.string().max(64).optional(),
+        maxSelect: z.number().min(1).max(20).optional(),
+        lowScoreThreshold: z.number().min(1).max(10).optional(),
+        options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        lowScoreReasons: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        sortOrder: z.number().default(0),
+        active: z.boolean().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        const { createSurveyQuestion } = await import("./db");
+        return await createSurveyQuestion(input);
+      }),
+    update: ownerProcedure
+      .input(z.object({
+        id: z.number(),
+        phase: z.enum(["onboarding", "explorer", "connoisseur"]).optional(),
+        questionId: z.string().min(1).max(64).optional(),
+        title: z.string().min(1).max(255).optional(),
+        subtitle: z.string().optional(),
+        type: z.enum(["single", "multi", "score", "text", "birthdate"]).optional(),
+        icon: z.string().max(64).optional(),
+        maxSelect: z.number().min(1).max(20).optional(),
+        lowScoreThreshold: z.number().min(1).max(10).optional(),
+        options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        lowScoreReasons: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        sortOrder: z.number().optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        const { updateSurveyQuestion } = await import("./db");
+        await updateSurveyQuestion(id, data);
+        return { success: true };
+      }),
+    delete: ownerProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteSurveyQuestion } = await import("./db");
+        await deleteSurveyQuestion(input.id);
+        return { success: true };
+      }),
+    reorder: ownerProcedure
+      .input(z.object({ orderedIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        const { reorderSurveyQuestions } = await import("./db");
+        await reorderSurveyQuestions(input.orderedIds);
+        return { success: true };
+      }),
+    seed: ownerProcedure
+      .mutation(async () => {
+        const { getSurveyQuestions, createSurveyQuestion } = await import("./db");
+        const existing = await getSurveyQuestions();
+        if (existing.length > 0) return { seeded: false, message: "Perguntas já existem" };
+        // Seed onboarding questions
+        const onboardingQuestions = [
+          { phase: "onboarding" as const, questionId: "birthdate", title: "DATA DE NASCIMENTO", subtitle: "Selecione sua data de nascimento", type: "birthdate" as const, icon: "Cake", sortOrder: 0 },
+          { phase: "onboarding" as const, questionId: "region", title: "ONDE VOCÊ MORA", subtitle: "Em qual região de São Paulo você mora?", type: "single" as const, icon: "MapPin", sortOrder: 1, options: [{label:"Zona Norte",value:"zona-norte"},{label:"Zona Sul",value:"zona-sul"},{label:"Zona Leste",value:"zona-leste"},{label:"Zona Oeste",value:"zona-oeste"},{label:"Centro",value:"centro"},{label:"Região Metropolitana de São Paulo (ABC, Guarulhos, Osasco..)",value:"grande-sp"},{label:"Campinas e Região Metropolitana de Campinas",value:"campinas"},{label:"Jundiaí e Região Metropolitana de Jundiaí",value:"jundiai"},{label:"Não moro em São Paulo",value:"fora-sp"}] },
+          { phase: "onboarding" as const, questionId: "frequency", title: "FREQUÊNCIA", subtitle: "Com que frequência você sai para comer ou beber fora?", type: "single" as const, icon: "Clock", sortOrder: 2, options: [{label:"Quase todos os dias",value:"diariamente"},{label:"2 a 3 vezes por semana",value:"2-3x-semana"},{label:"1 vez por semana",value:"1x-semana"},{label:"Quinzenalmente",value:"quinzenal"},{label:"1 vez por mês",value:"mensal"},{label:"Raramente",value:"raramente"}] },
+          { phase: "onboarding" as const, questionId: "spend", title: "GASTO MÉDIO", subtitle: "Quanto você costuma gastar por pessoa quando sai?", type: "single" as const, icon: "DollarSign", sortOrder: 3, options: [{label:"Até R$ 30",value:"ate-30"},{label:"R$ 30 a R$ 60",value:"30-60"},{label:"R$ 60 a R$ 100",value:"60-100"},{label:"R$ 100 a R$ 150",value:"100-150"},{label:"R$ 150 a R$ 250",value:"150-250"},{label:"Acima de R$ 250",value:"250-mais"}] },
+          { phase: "onboarding" as const, questionId: "categories", title: "CATEGORIAS FAVORITAS", subtitle: "Selecione até 5 tipos de lugar que você mais frequenta", type: "multi" as const, icon: "Utensils", maxSelect: 5, sortOrder: 4, options: [{label:"Bar / Boteco",value:"bar-boteco"},{label:"Cervejaria artesanal",value:"cervejaria"},{label:"Coquetelaria / Speakeasy",value:"coquetelaria"},{label:"Pub / Bar musical",value:"pub"},{label:"Restaurante casual",value:"restaurante"},{label:"Hamburgueria",value:"hamburgueria"},{label:"Pizzaria",value:"pizzaria"},{label:"Cafeteria / Brunch",value:"cafeteria"},{label:"Gastrobar / Autoral",value:"gastrobar"},{label:"Balada / Club",value:"balada"}] },
+          { phase: "onboarding" as const, questionId: "priorities", title: "O QUE IMPORTA MAIS", subtitle: "Selecione até 3 fatores mais importantes para você", type: "multi" as const, icon: "Heart", maxSelect: 3, sortOrder: 5, options: [{label:"Qualidade dos drinks / bebidas",value:"drinks"},{label:"Qualidade da comida",value:"comida"},{label:"Ambiente / decoração",value:"ambiente"},{label:"Atendimento",value:"atendimento"},{label:"Preço justo / custo-benefício",value:"preco"},{label:"Localização / proximidade",value:"localizacao"},{label:"Música / entretenimento",value:"musica"},{label:"Variedade do cardápio",value:"variedade"}] },
+          { phase: "onboarding" as const, questionId: "discovery", title: "COMO DESCOBRE LUGARES", subtitle: "Selecione até 3 formas que você mais usa para descobrir novos bares", type: "multi" as const, icon: "Compass", maxSelect: 3, sortOrder: 6, options: [{label:"Indicação de amigos/família",value:"indicacao"},{label:"Instagram / TikTok",value:"redes-sociais"},{label:"Google Maps / Google Search",value:"google"},{label:"Apps de avaliação (TripAdvisor, Yelp)",value:"apps-avaliacao"},{label:"Apps de delivery (iFood, Rappi)",value:"delivery"},{label:"Blogs e sites especializados",value:"blogs"},{label:"Passando na rua / por acaso",value:"acaso"}] },
+        ];
+        // Seed explorer questions
+        const explorerQuestions = [
+          { phase: "explorer" as const, questionId: "companionPreference", title: "COM QUEM VOCÊ SAI", subtitle: "Com quem você mais costuma sair?", type: "single" as const, icon: "Users", sortOrder: 0, options: [{label:"Sozinho(a)",value:"sozinho"},{label:"Com parceiro(a)",value:"parceiro"},{label:"Com amigos (grupo pequeno)",value:"amigos-pequeno"},{label:"Com amigos (grupo grande)",value:"amigos-grande"},{label:"Com família",value:"familia"},{label:"Depende da ocasião",value:"depende"}] },
+          { phase: "explorer" as const, questionId: "bestTime", title: "MELHOR HORÁRIO", subtitle: "Qual horário você mais gosta de sair?", type: "single" as const, icon: "Calendar", sortOrder: 1, options: [{label:"Almoço (11h-14h)",value:"almoco"},{label:"Happy hour (17h-20h)",value:"happy-hour"},{label:"Jantar (20h-23h)",value:"jantar"},{label:"Noite (23h+)",value:"noite"},{label:"Brunch / manhã de fim de semana",value:"brunch"},{label:"Qualquer horário",value:"qualquer"}] },
+          { phase: "explorer" as const, questionId: "waitTolerance", title: "TOLERÂNCIA DE ESPERA", subtitle: "Quanto tempo você aceita esperar por uma mesa?", type: "single" as const, icon: "Clock", sortOrder: 2, options: [{label:"Não espero, vou embora",value:"zero"},{label:"Até 15 minutos",value:"15min"},{label:"Até 30 minutos",value:"30min"},{label:"Até 1 hora",value:"1h"},{label:"Espero o quanto for preciso se o lugar vale",value:"ilimitado"}] },
+          { phase: "explorer" as const, questionId: "dealbreaker", title: "O QUE TE FAZ NÃO VOLTAR", subtitle: "Qual fator te faz nunca mais voltar a um lugar? (Até 2)", type: "multi" as const, icon: "Zap", maxSelect: 2, sortOrder: 3, options: [{label:"Atendimento ruim / grosseria",value:"atendimento-ruim"},{label:"Comida/bebida de baixa qualidade",value:"qualidade-ruim"},{label:"Preço abusivo",value:"preco-abusivo"},{label:"Sujeira / falta de higiene",value:"sujeira"},{label:"Demora absurda",value:"demora"},{label:"Barulho excessivo",value:"barulho"},{label:"Falta de segurança",value:"inseguranca"}] },
+          { phase: "explorer" as const, questionId: "drinkPreference", title: "BEBIDA PREFERIDA", subtitle: "Qual seu tipo de bebida preferida quando sai?", type: "single" as const, icon: "Wine", sortOrder: 4, options: [{label:"Cerveja artesanal",value:"cerveja-artesanal"},{label:"Cerveja comercial",value:"cerveja-comercial"},{label:"Coquetéis clássicos",value:"coqueteis"},{label:"Vinho",value:"vinho"},{label:"Destilados puros",value:"destilados"},{label:"Drinks autorais",value:"drinks-autorais"},{label:"Não-alcoólicos",value:"nao-alcoolicos"},{label:"Depende do lugar",value:"depende"}] },
+          { phase: "explorer" as const, questionId: "worstExperience", title: "PIOR EXPERIÊNCIA", subtitle: "Qual foi a pior experiência que você já teve em um bar/restaurante? (1 a 10)", type: "score" as const, icon: "AlertTriangle", sortOrder: 5, lowScoreThreshold: 6, lowScoreReasons: [{label:"Intoxicação alimentar",value:"intoxicacao"},{label:"Briga / confusão no local",value:"briga"},{label:"Cobrança indevida",value:"cobranca"},{label:"Discriminação / preconceito",value:"discriminacao"},{label:"Roubo / furto",value:"roubo"}] },
+          { phase: "explorer" as const, questionId: "overallSatisfaction", title: "SATISFAÇÃO GERAL", subtitle: "De modo geral, como você avalia suas experiências em bares e restaurantes de SP? (1 a 10)", type: "score" as const, icon: "Star", sortOrder: 6, lowScoreThreshold: 6, lowScoreReasons: [{label:"Preços muito altos",value:"precos-altos"},{label:"Qualidade caiu nos últimos anos",value:"qualidade-caiu"},{label:"Falta de opções no meu bairro",value:"falta-opcoes"},{label:"Atendimento piorou",value:"atendimento-piorou"},{label:"Muita lotação / filas",value:"lotacao"}] },
+          { phase: "explorer" as const, questionId: "priceVsQuality", title: "PREÇO vs QUALIDADE", subtitle: "Você acha que os preços dos bares e restaurantes de SP são justos pela qualidade? (1 a 10)", type: "score" as const, icon: "DollarSign", sortOrder: 7, lowScoreThreshold: 6, lowScoreReasons: [{label:"Porções cada vez menores",value:"porcoes-menores"},{label:"Ingredientes de baixa qualidade pelo preço",value:"ingredientes-ruins"},{label:"Taxa de serviço abusiva",value:"taxa-servico"},{label:"Couvert artístico forçado",value:"couvert"},{label:"Preço de cardápio não bate com a conta",value:"preco-diferente"}] },
+        ];
+        // Seed connoisseur questions
+        const connoisseurQuestions = [
+          { phase: "connoisseur" as const, questionId: "hardestCriterion", title: "CRITÉRIO MAIS DIFÍCIL", subtitle: "Dos critérios de avaliação do AvaLyarin, qual você acha mais difícil de pontuar com precisão?", type: "single" as const, icon: "BarChart3", sortOrder: 0, options: [{label:"Sabor / Qualidade da comida",value:"sabor"},{label:"Apresentação dos pratos",value:"apresentacao"},{label:"Custo-benefício",value:"custo-beneficio"},{label:"Atendimento",value:"atendimento"},{label:"Ambiente / Decoração",value:"ambiente"},{label:"Limpeza / Higiene",value:"limpeza"},{label:"Tempo de espera",value:"tempo-espera"},{label:"Qualidade das bebidas",value:"bebidas"}] },
+          { phase: "connoisseur" as const, questionId: "trustOthers", title: "CONFIANÇA NAS AVALIAÇÕES", subtitle: "Quanto você confia nas avaliações de outros usuários do AvaLyarin? (1 a 10)", type: "score" as const, icon: "Shield", sortOrder: 1, lowScoreThreshold: 6, lowScoreReasons: [{label:"Acho que muitas avaliações são falsas",value:"avaliacoes-falsas"},{label:"As notas não refletem minha experiência",value:"discordancia"},{label:"Poucas avaliações por estabelecimento",value:"poucas-avaliacoes"},{label:"Falta contexto nas avaliações",value:"falta-contexto"},{label:"Não sei se o avaliador realmente foi ao local",value:"credibilidade"}] },
+          { phase: "connoisseur" as const, questionId: "desiredFeature", title: "FUNCIONALIDADE DESEJADA", subtitle: "Qual funcionalidade você mais gostaria de ver no AvaLyarin? (Até 3)", type: "multi" as const, icon: "Lightbulb", maxSelect: 3, sortOrder: 2, options: [{label:"Reserva de mesa diretamente pelo app",value:"reserva"},{label:"Programa de fidelidade com descontos",value:"fidelidade"},{label:"Mapa interativo com filtros avançados",value:"mapa"},{label:"Ranking dos melhores por bairro",value:"ranking-bairro"},{label:"Lista de favoritos compartilhável",value:"lista-favoritos"},{label:"Notificações de promoções e happy hours",value:"notificacoes"},{label:"Avaliações com fotos e vídeos",value:"midia-avaliacoes"},{label:"Recomendações personalizadas por IA",value:"ia-recomendacoes"}] },
+          { phase: "connoisseur" as const, questionId: "establishmentQuality", title: "QUALIDADE DOS ESTABELECIMENTOS", subtitle: "De modo geral, como você avalia a qualidade dos estabelecimentos cadastrados no AvaLyarin? (1 a 10)", type: "score" as const, icon: "Star", sortOrder: 3, lowScoreThreshold: 6, lowScoreReasons: [{label:"Muitos lugares de baixa qualidade",value:"baixa-qualidade"},{label:"Faltam opções premium / sofisticadas",value:"falta-premium"},{label:"Faltam opções acessíveis / populares",value:"falta-acessivel"},{label:"Cardápios desatualizados ou incompletos",value:"cardapio-desatualizado"},{label:"Fotos não representam a realidade",value:"fotos-irreais"}] },
+          { phase: "connoisseur" as const, questionId: "compareApps", title: "COMPARAÇÃO COM OUTROS APPS", subtitle: "Comparado a outros apps de avaliação (Google, TripAdvisor, iFood), como você classifica o AvaLyarin? (1 a 10)", type: "score" as const, icon: "GitCompare", sortOrder: 4, lowScoreThreshold: 6, lowScoreReasons: [{label:"Menos estabelecimentos cadastrados",value:"menos-estabs"},{label:"Interface menos intuitiva",value:"interface"},{label:"Menos avaliações disponíveis",value:"menos-avaliacoes"},{label:"Falta integração com reservas/delivery",value:"falta-integracao"},{label:"Comunidade ainda pequena",value:"comunidade-pequena"}] },
+          { phase: "connoisseur" as const, questionId: "wouldRecommend", title: "RECOMENDARIA?", subtitle: "Você recomendaria o AvaLyarin para amigos? (1 a 10)", type: "score" as const, icon: "Trophy", sortOrder: 5, lowScoreThreshold: 6, lowScoreReasons: [{label:"Ainda faltam funcionalidades essenciais",value:"falta-funcionalidades"},{label:"Poucos lugares na minha região",value:"poucos-lugares"},{label:"Meus amigos não se interessariam",value:"sem-interesse"},{label:"Prefiro manter minhas descobertas privadas",value:"privacidade"},{label:"O app precisa melhorar antes",value:"precisa-melhorar"}] },
+          { phase: "connoisseur" as const, questionId: "improvementSuggestion", title: "SUGESTÃO DE MELHORIA", subtitle: "Se pudesse mudar uma coisa no AvaLyarin, o que seria?", type: "text" as const, icon: "MessageSquare", sortOrder: 6 },
+          { phase: "connoisseur" as const, questionId: "expertiseLevel", title: "SEU NÍVEL DE EXPERTISE", subtitle: "Como você se classifica em termos de conhecimento gastronômico?", type: "single" as const, icon: "Award", sortOrder: 7, options: [{label:"Curioso — gosto de experimentar coisas novas",value:"curioso"},{label:"Entusiasta — pesquiso antes de ir",value:"entusiasta"},{label:"Conhecedor — entendo de técnicas e ingredientes",value:"conhecedor"},{label:"Expert — trabalho ou já trabalhei na área",value:"expert"},{label:"Crítico — avalio profissionalmente",value:"critico"}] },
+        ];
+        for (const q of [...onboardingQuestions, ...explorerQuestions, ...connoisseurQuestions]) {
+          await createSurveyQuestion(q);
+        }
+        return { seeded: true, count: onboardingQuestions.length + explorerQuestions.length + connoisseurQuestions.length };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

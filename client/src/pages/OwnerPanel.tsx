@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import {
   Crown, Users, Store, Star, TrendingUp, DollarSign,
-  Shield, UserCog, Settings, BarChart3, ArrowUpRight, ArrowDownRight
+  Shield, UserCog, Settings, BarChart3, ArrowUpRight, ArrowDownRight, ClipboardList
 } from "lucide-react";
 import { useState } from "react";
 
@@ -196,6 +196,12 @@ export default function OwnerPanel() {
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20 hover:border-green-500/40 transition-colors cursor-pointer">
                     <BarChart3 className="w-5 h-5 text-green-400" />
                     <span className="text-sm text-foreground">Analytics</span>
+                  </div>
+                </Link>
+                <Link href="/owner/survey">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 hover:border-yellow-500/40 transition-colors cursor-pointer">
+                    <ClipboardList className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm text-foreground">Survey</span>
                   </div>
                 </Link>
               </div>

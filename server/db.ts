@@ -1,4 +1,4 @@
-import { eq, like, or, sql, and, inArray, notInArray, desc } from "drizzle-orm";
+import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -2542,4 +2542,47 @@ export async function detectDuplicates(phone?: string, address?: string, exclude
     .limit(10);
 
   return rows;
+}
+
+
+// ============================================================
+// SURVEY QUESTIONS MANAGEMENT (Owner)
+// ============================================================
+
+import { surveyQuestions, type SurveyQuestion, type InsertSurveyQuestion } from "../drizzle/schema";
+
+export async function getSurveyQuestions(phase?: "onboarding" | "explorer" | "connoisseur"): Promise<SurveyQuestion[]> {
+  const db = await getDb();
+  if (!db) return [];
+  if (phase) {
+    return await db.select().from(surveyQuestions).where(eq(surveyQuestions.phase, phase)).orderBy(asc(surveyQuestions.sortOrder));
+  }
+  return await db.select().from(surveyQuestions).orderBy(asc(surveyQuestions.phase), asc(surveyQuestions.sortOrder));
+}
+
+export async function createSurveyQuestion(data: Omit<InsertSurveyQuestion, "id" | "createdAt" | "updatedAt">): Promise<{ id: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(surveyQuestions).values(data);
+  return { id: result[0].insertId };
+}
+
+export async function updateSurveyQuestion(id: number, data: Partial<Omit<InsertSurveyQuestion, "id" | "createdAt" | "updatedAt">>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(surveyQuestions).set(data).where(eq(surveyQuestions.id, id));
+}
+
+export async function deleteSurveyQuestion(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(surveyQuestions).where(eq(surveyQuestions.id, id));
+}
+
+export async function reorderSurveyQuestions(orderedIds: number[]): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db.update(surveyQuestions).set({ sortOrder: i }).where(eq(surveyQuestions.id, orderedIds[i]));
+  }
 }

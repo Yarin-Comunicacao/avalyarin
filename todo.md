@@ -686,3 +686,10 @@
 - [x] UI EstablishmentPage: botão lápis visível apenas para role owner
 - [x] UI EstablishmentPage: modal de edição com todos os campos + upload de logo e foto de capa
 - [x] Upload de logo e foto de capa via S3 (storagePut)
+
+## Fase 20 — Aba Survey no Painel Owner (Gerenciamento de Perguntas)
+- [x] Criar tabela survey_questions no banco de dados para perguntas editáveis
+- [x] Criar backend CRUD (list/create/update/delete/reorder) para survey_questions (ownerProcedure)
+- [x] Criar página OwnerSurvey.tsx com interface para visualizar e editar perguntas
+- [x] Adicionar aba "Survey" no BottomNav do Owner (role-visibility.ts)
+- [x] Registrar rota /owner/survey no App.tsx

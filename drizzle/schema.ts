@@ -859,3 +859,26 @@ export const eventBatches = mysqlTable("event_batches", {
 
 export type EventBatch = typeof eventBatches.$inferSelect;
 export type InsertEventBatch = typeof eventBatches.$inferInsert;
+
+// ============================================================
+// Survey Questions — perguntas editáveis pelo Owner
+// ============================================================
+export const surveyQuestions = mysqlTable("survey_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  phase: mysqlEnum("phase", ["onboarding", "explorer", "connoisseur"]).notNull(), // qual survey
+  questionId: varchar("questionId", { length: 64 }).notNull(), // identificador único da pergunta (ex: "birthdate", "region")
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: text("subtitle"),
+  type: mysqlEnum("type", ["single", "multi", "score", "text", "birthdate"]).notNull(),
+  icon: varchar("icon", { length: 64 }), // nome do ícone lucide-react
+  maxSelect: int("maxSelect"), // para tipo multi
+  lowScoreThreshold: int("lowScoreThreshold"), // para tipo score
+  options: json("options"), // array de { label, value }
+  lowScoreReasons: json("lowScoreReasons"), // array de { label, value } para notas baixas
+  sortOrder: int("sortOrder").notNull().default(0),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SurveyQuestion = typeof surveyQuestions.$inferSelect;
+export type InsertSurveyQuestion = typeof surveyQuestions.$inferInsert;
