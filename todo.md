@@ -703,3 +703,7 @@
 - [x] Atualizar backend para suportar perguntas condicionais (criar/editar com parent + trigger)
 - [x] Implementar drag-and-drop para reordenar opções dentro de cada pergunta
 - [x] Implementar UI para criar/gerenciar perguntas condicionais (sub-perguntas por resposta)
+
+## Fase 23 — Fix BottomNav: Tela deslogado e flash de role
+- [x] BottomNav deslogado: mostrar apenas "Conta" (sem Busca, Scan, Grupos, Avaliações)
+- [x] Fix flash de botões errados: esconder BottomNav enquanto auth.me está carregando para evitar flash de role incorreto
