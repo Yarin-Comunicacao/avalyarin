@@ -697,3 +697,9 @@
 ## Fase 21 — Tela de Login/Cadastro para Usuários Deslogados
 - [x] Criar tela única para usuários deslogados com botões "Cadastre-se" e "Entre"
 - [x] Exibir essa tela quando o usuário não estiver autenticado (em vez da tela vazia)
+
+## Fase 22 — Drag-and-Drop de Opções e Perguntas Condicionais no Survey
+- [x] Adicionar colunas parent_question_id e trigger_option na tabela survey_questions
+- [x] Atualizar backend para suportar perguntas condicionais (criar/editar com parent + trigger)
+- [x] Implementar drag-and-drop para reordenar opções dentro de cada pergunta
+- [x] Implementar UI para criar/gerenciar perguntas condicionais (sub-perguntas por resposta)

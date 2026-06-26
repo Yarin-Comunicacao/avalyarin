@@ -875,6 +875,8 @@ export const surveyQuestions = mysqlTable("survey_questions", {
   lowScoreThreshold: int("lowScoreThreshold"), // para tipo score
   options: json("options"), // array de { label, value }
   lowScoreReasons: json("lowScoreReasons"), // array de { label, value } para notas baixas
+  parentQuestionId: int("parent_question_id"), // ID da pergunta pai (para perguntas condicionais)
+  triggerOption: varchar("trigger_option", { length: 500 }), // valor da opção que ativa esta sub-pergunta
   sortOrder: int("sortOrder").notNull().default(0),
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

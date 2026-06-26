@@ -2703,6 +2703,8 @@ export const appRouter = router({
         lowScoreThreshold: z.number().min(1).max(10).optional(),
         options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
         lowScoreReasons: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        parentQuestionId: z.number().nullable().optional(),
+        triggerOption: z.string().max(500).nullable().optional(),
         sortOrder: z.number().default(0),
         active: z.boolean().default(true),
       }))
@@ -2723,6 +2725,8 @@ export const appRouter = router({
         lowScoreThreshold: z.number().min(1).max(10).optional(),
         options: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
         lowScoreReasons: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+        parentQuestionId: z.number().nullable().optional(),
+        triggerOption: z.string().max(500).nullable().optional(),
         sortOrder: z.number().optional(),
         active: z.boolean().optional(),
       }))

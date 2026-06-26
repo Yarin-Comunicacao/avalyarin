@@ -1,14 +1,31 @@
-// Owner Survey Management — Gerenciar perguntas dos surveys
+// OwnerSurvey — Gerenciar perguntas das pesquisas (com drag-and-drop e perguntas condicionais)
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
   Crown, ClipboardList, Plus, Pencil, Trash2, GripVertical,
-  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Loader2
+  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Loader2, GitBranch
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Phase = "onboarding" | "explorer" | "connoisseur";
 type QuestionType = "single" | "multi" | "score" | "text" | "birthdate";
@@ -30,6 +47,8 @@ interface QuestionData {
   lowScoreThreshold?: number;
   options?: Option[];
   lowScoreReasons?: Option[];
+  parentQuestionId?: number | null;
+  triggerOption?: string | null;
   sortOrder: number;
   active: boolean;
 }
@@ -130,12 +149,13 @@ export default function OwnerSurvey() {
 
   const moveQuestion = (questionId: number, direction: "up" | "down") => {
     if (!questions) return;
-    const idx = questions.findIndex(q => q.id === questionId);
+    const mainQuestions = questions.filter(q => !q.parentQuestionId);
+    const idx = mainQuestions.findIndex(q => q.id === questionId);
     if (idx === -1) return;
     if (direction === "up" && idx === 0) return;
-    if (direction === "down" && idx === questions.length - 1) return;
+    if (direction === "down" && idx === mainQuestions.length - 1) return;
 
-    const newOrder = [...questions.map(q => q.id)];
+    const newOrder = [...mainQuestions.map(q => q.id)];
     const swapIdx = direction === "up" ? idx - 1 : idx + 1;
     [newOrder[idx], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[idx]];
     reorderMutation.mutate({ orderedIds: newOrder });
@@ -154,6 +174,8 @@ export default function OwnerSurvey() {
         lowScoreThreshold: data.lowScoreThreshold || undefined,
         options: data.options && data.options.length > 0 ? data.options : undefined,
         lowScoreReasons: data.lowScoreReasons && data.lowScoreReasons.length > 0 ? data.lowScoreReasons : undefined,
+        parentQuestionId: data.parentQuestionId ?? null,
+        triggerOption: data.triggerOption ?? null,
         sortOrder: data.sortOrder,
         active: data.active,
       });
@@ -170,6 +192,8 @@ export default function OwnerSurvey() {
         lowScoreThreshold: data.lowScoreThreshold || undefined,
         options: data.options && data.options.length > 0 ? data.options : undefined,
         lowScoreReasons: data.lowScoreReasons && data.lowScoreReasons.length > 0 ? data.lowScoreReasons : undefined,
+        parentQuestionId: data.parentQuestionId ?? null,
+        triggerOption: data.triggerOption ?? null,
         sortOrder: data.sortOrder,
         active: data.active,
       });
@@ -189,8 +213,35 @@ export default function OwnerSurvey() {
       active: true,
       options: [],
       lowScoreReasons: [],
+      parentQuestionId: null,
+      triggerOption: null,
     });
   };
+
+  const startCreateChild = (parentId: number, triggerOpt: string) => {
+    setIsCreating(true);
+    setEditingQuestion({
+      phase: activePhase,
+      questionId: "",
+      title: "",
+      subtitle: "",
+      type: "single",
+      icon: "",
+      sortOrder: 0,
+      active: true,
+      options: [],
+      lowScoreReasons: [],
+      parentQuestionId: parentId,
+      triggerOption: triggerOpt,
+    });
+  };
+
+  // Separate main questions from child questions
+  const mainQuestions = questions?.filter(q => !q.parentQuestionId) || [];
+  const childQuestions = questions?.filter(q => !!q.parentQuestionId) || [];
+
+  const getChildrenOf = (parentId: number) =>
+    childQuestions.filter(q => q.parentQuestionId === parentId);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -250,7 +301,7 @@ export default function OwnerSurvey() {
         {!editingQuestion && (
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              {isLoading ? "Carregando..." : `${questions?.length || 0} perguntas`}
+              {isLoading ? "Carregando..." : `${mainQuestions.length} perguntas principais, ${childQuestions.length} condicionais`}
             </p>
             <Button
               size="sm"
@@ -267,6 +318,7 @@ export default function OwnerSurvey() {
         {editingQuestion && (
           <QuestionEditor
             data={editingQuestion}
+            allQuestions={mainQuestions}
             onSave={handleSave}
             onCancel={() => { setEditingQuestion(null); setIsCreating(false); }}
             isSaving={createMutation.isPending || updateMutation.isPending}
@@ -274,120 +326,201 @@ export default function OwnerSurvey() {
         )}
 
         {/* Questions List */}
-        {!editingQuestion && !isLoading && questions && questions.length > 0 && (
+        {!editingQuestion && !isLoading && mainQuestions.length > 0 && (
           <div className="space-y-3">
-            {questions.map((q, idx) => (
-              <div
-                key={q.id}
-                className={`bg-card border rounded-xl p-4 transition-all ${
-                  q.active ? "border-border/50" : "border-red-500/30 opacity-60"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex flex-col items-center gap-1 pt-1">
-                    <button
-                      onClick={() => moveQuestion(q.id, "up")}
-                      disabled={idx === 0 || reorderMutation.isPending}
-                      className="text-muted-foreground hover:text-foreground disabled:opacity-30"
-                    >
-                      <ChevronUp className="w-4 h-4" />
-                    </button>
-                    <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-                    <button
-                      onClick={() => moveQuestion(q.id, "down")}
-                      disabled={idx === questions.length - 1 || reorderMutation.isPending}
-                      className="text-muted-foreground hover:text-foreground disabled:opacity-30"
-                    >
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                  </div>
+            {mainQuestions.map((q, idx) => {
+              const children = getChildrenOf(q.id);
+              return (
+                <div key={q.id}>
+                  <div
+                    className={`bg-card border rounded-xl p-4 transition-all ${
+                      q.active ? "border-border/50" : "border-red-500/30 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col items-center gap-1 pt-1">
+                        <button
+                          onClick={() => moveQuestion(q.id, "up")}
+                          disabled={idx === 0 || reorderMutation.isPending}
+                          className="text-muted-foreground hover:text-foreground disabled:opacity-30"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+                        <button
+                          onClick={() => moveQuestion(q.id, "down")}
+                          disabled={idx === mainQuestions.length - 1 || reorderMutation.isPending}
+                          className="text-muted-foreground hover:text-foreground disabled:opacity-30"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded font-medium">
-                        {TYPE_LABELS[q.type as QuestionType] || q.type}
-                      </span>
-                      {!q.active && (
-                        <span className="text-xs bg-red-500/10 text-red-400 px-2 py-0.5 rounded">
-                          Inativa
-                        </span>
-                      )}
-                      {q.icon && (
-                        <span className="text-xs text-muted-foreground">
-                          📎 {q.icon}
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="font-display text-base tracking-wider text-foreground truncate">
-                      {q.title}
-                    </h4>
-                    {q.subtitle && (
-                      <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
-                        {q.subtitle as string}
-                      </p>
-                    )}
-                    {/* Options preview */}
-                    {(() => {
-                      const opts = q.options as Option[] | null;
-                      if (!opts || !Array.isArray(opts) || opts.length === 0) return null;
-                      return (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {opts.slice(0, 4).map((opt: Option) => (
-                            <span key={opt.value} className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
-                              {opt.label}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded font-medium">
+                            {TYPE_LABELS[q.type as QuestionType] || q.type}
+                          </span>
+                          {!q.active && (
+                            <span className="text-xs bg-red-500/10 text-red-400 px-2 py-0.5 rounded">
+                              Inativa
                             </span>
-                          ))}
-                          {opts.length > 4 && (
-                            <span className="text-xs text-muted-foreground/60">
-                              +{opts.length - 4} mais
+                          )}
+                          {children.length > 0 && (
+                            <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded flex items-center gap-1">
+                              <GitBranch className="w-3 h-3" />
+                              {children.length} condicional(is)
                             </span>
                           )}
                         </div>
-                      );
-                    })()}
-                    {q.maxSelect && (
-                      <p className="text-xs text-muted-foreground/60 mt-1">
-                        Máx. seleção: {q.maxSelect}
-                      </p>
+                        <h4 className="font-display text-base tracking-wider text-foreground truncate">
+                          {q.title}
+                        </h4>
+                        {q.subtitle && (
+                          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
+                            {q.subtitle as string}
+                          </p>
+                        )}
+                        {/* Options preview */}
+                        {(() => {
+                          const opts = q.options as Option[] | null;
+                          if (!opts || !Array.isArray(opts) || opts.length === 0) return null;
+                          return (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {opts.slice(0, 5).map((opt: Option) => (
+                                <span key={opt.value} className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
+                                  {opt.label}
+                                </span>
+                              ))}
+                              {opts.length > 5 && (
+                                <span className="text-xs text-muted-foreground/60">
+                                  +{opts.length - 5} mais
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setEditingQuestion({
+                            id: q.id,
+                            phase: q.phase as Phase,
+                            questionId: q.questionId,
+                            title: q.title,
+                            subtitle: (q.subtitle as string) || "",
+                            type: q.type as QuestionType,
+                            icon: q.icon || "",
+                            maxSelect: q.maxSelect || undefined,
+                            lowScoreThreshold: q.lowScoreThreshold || undefined,
+                            options: (q.options as Option[]) || [],
+                            lowScoreReasons: (q.lowScoreReasons as Option[]) || [],
+                            parentQuestionId: q.parentQuestionId || null,
+                            triggerOption: q.triggerOption || null,
+                            sortOrder: q.sortOrder,
+                            active: q.active,
+                          })}
+                          className="p-2 rounded-lg hover:bg-yellow-500/10 text-muted-foreground hover:text-yellow-500 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Tem certeza que deseja excluir "${q.title}"?`)) {
+                              deleteMutation.mutate({ id: q.id });
+                            }
+                          }}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Add conditional question button */}
+                    {(q.type === "single" || q.type === "multi") && (q.options as Option[])?.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border/30">
+                        <details className="group">
+                          <summary className="text-xs text-blue-400 cursor-pointer hover:text-blue-300 flex items-center gap-1">
+                            <GitBranch className="w-3 h-3" />
+                            Perguntas Condicionais ({children.length})
+                          </summary>
+                          <div className="mt-2 ml-4 space-y-2">
+                            {/* Show existing children */}
+                            {children.map(child => (
+                              <div key={child.id} className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/20 rounded-lg px-3 py-2">
+                                <GitBranch className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-blue-400">
+                                    Se responder: <strong>"{child.triggerOption}"</strong>
+                                  </p>
+                                  <p className="text-sm text-foreground truncate">{child.title}</p>
+                                </div>
+                                <button
+                                  onClick={() => setEditingQuestion({
+                                    id: child.id,
+                                    phase: child.phase as Phase,
+                                    questionId: child.questionId,
+                                    title: child.title,
+                                    subtitle: (child.subtitle as string) || "",
+                                    type: child.type as QuestionType,
+                                    icon: child.icon || "",
+                                    maxSelect: child.maxSelect || undefined,
+                                    lowScoreThreshold: child.lowScoreThreshold || undefined,
+                                    options: (child.options as Option[]) || [],
+                                    lowScoreReasons: (child.lowScoreReasons as Option[]) || [],
+                                    parentQuestionId: child.parentQuestionId || null,
+                                    triggerOption: child.triggerOption || null,
+                                    sortOrder: child.sortOrder,
+                                    active: child.active,
+                                  })}
+                                  className="p-1 text-muted-foreground hover:text-yellow-500"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Excluir sub-pergunta "${child.title}"?`)) {
+                                      deleteMutation.mutate({ id: child.id });
+                                    }
+                                  }}
+                                  className="p-1 text-muted-foreground hover:text-red-400"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                            {/* Add child for each option */}
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {((q.options as Option[]) || []).map(opt => {
+                                const hasChild = children.some(c => c.triggerOption === opt.value);
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    onClick={() => !hasChild && startCreateChild(q.id, opt.value)}
+                                    disabled={hasChild}
+                                    className={`text-xs px-2 py-1 rounded-lg border transition-colors ${
+                                      hasChild
+                                        ? "border-blue-500/30 bg-blue-500/10 text-blue-400 cursor-default"
+                                        : "border-border/50 text-muted-foreground hover:border-blue-500/50 hover:text-blue-400 cursor-pointer"
+                                    }`}
+                                  >
+                                    <Plus className="w-3 h-3 inline mr-0.5" />
+                                    {opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </details>
+                      </div>
                     )}
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setEditingQuestion({
-                        id: q.id,
-                        phase: q.phase as Phase,
-                        questionId: q.questionId,
-                        title: q.title,
-                        subtitle: q.subtitle || "",
-                        type: q.type as QuestionType,
-                        icon: q.icon || "",
-                        maxSelect: q.maxSelect || undefined,
-                        lowScoreThreshold: q.lowScoreThreshold || undefined,
-                        options: (q.options as Option[]) || [],
-                        lowScoreReasons: (q.lowScoreReasons as Option[]) || [],
-                        sortOrder: q.sortOrder,
-                        active: q.active,
-                      })}
-                      className="p-2 rounded-lg hover:bg-yellow-500/10 text-muted-foreground hover:text-yellow-500 transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Tem certeza que deseja excluir "${q.title}"?`)) {
-                          deleteMutation.mutate({ id: q.id });
-                        }
-                      }}
-                      className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -404,16 +537,71 @@ export default function OwnerSurvey() {
 }
 
 // ============================================================
-// QUESTION EDITOR COMPONENT
+// SORTABLE OPTION ITEM (for drag-and-drop)
+// ============================================================
+
+function SortableOptionItem({
+  id,
+  option,
+  index,
+  onRemove,
+}: {
+  id: string;
+  option: Option;
+  index: number;
+  onRemove: (idx: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground/60 hover:text-muted-foreground touch-none"
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
+      <span className="text-xs text-muted-foreground/50 w-5">{index + 1}.</span>
+      <span className="text-sm text-foreground flex-1">{option.label}</span>
+      <span className="text-xs text-muted-foreground">{option.value}</span>
+      <button onClick={() => onRemove(index)} className="text-red-400 hover:text-red-300">
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+// ============================================================
+// QUESTION EDITOR COMPONENT (with drag-and-drop options + conditional fields)
 // ============================================================
 
 function QuestionEditor({
   data,
+  allQuestions,
   onSave,
   onCancel,
   isSaving,
 }: {
   data: QuestionData;
+  allQuestions: any[];
   onSave: (data: QuestionData) => void;
   onCancel: () => void;
   isSaving: boolean;
@@ -424,13 +612,19 @@ function QuestionEditor({
   const [newReasonLabel, setNewReasonLabel] = useState("");
   const [newReasonValue, setNewReasonValue] = useState("");
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
   const updateField = <K extends keyof QuestionData>(key: K, value: QuestionData[K]) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
   const addOption = () => {
-    if (!newOptionLabel.trim() || !newOptionValue.trim()) return;
-    updateField("options", [...(form.options || []), { label: newOptionLabel.trim(), value: newOptionValue.trim() }]);
+    if (!newOptionLabel.trim()) return;
+    const value = newOptionValue.trim() || newOptionLabel.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    updateField("options", [...(form.options || []), { label: newOptionLabel.trim(), value }]);
     setNewOptionLabel("");
     setNewOptionValue("");
   };
@@ -439,9 +633,23 @@ function QuestionEditor({
     updateField("options", (form.options || []).filter((_, i) => i !== idx));
   };
 
+  const handleOptionDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const options = form.options || [];
+    const oldIndex = options.findIndex((_, i) => `opt-${i}` === active.id);
+    const newIndex = options.findIndex((_, i) => `opt-${i}` === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      updateField("options", arrayMove(options, oldIndex, newIndex));
+    }
+  }, [form.options]);
+
   const addReason = () => {
-    if (!newReasonLabel.trim() || !newReasonValue.trim()) return;
-    updateField("lowScoreReasons", [...(form.lowScoreReasons || []), { label: newReasonLabel.trim(), value: newReasonValue.trim() }]);
+    if (!newReasonLabel.trim()) return;
+    const value = newReasonValue.trim() || newReasonLabel.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    updateField("lowScoreReasons", [...(form.lowScoreReasons || []), { label: newReasonLabel.trim(), value }]);
     setNewReasonLabel("");
     setNewReasonValue("");
   };
@@ -450,11 +658,34 @@ function QuestionEditor({
     updateField("lowScoreReasons", (form.lowScoreReasons || []).filter((_, i) => i !== idx));
   };
 
+  const handleReasonDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const reasons = form.lowScoreReasons || [];
+    const oldIndex = reasons.findIndex((_, i) => `reason-${i}` === active.id);
+    const newIndex = reasons.findIndex((_, i) => `reason-${i}` === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      updateField("lowScoreReasons", arrayMove(reasons, oldIndex, newIndex));
+    }
+  }, [form.lowScoreReasons]);
+
+  // Get parent question options for conditional UI
+  const parentQuestion = form.parentQuestionId
+    ? allQuestions.find(q => q.id === form.parentQuestionId)
+    : null;
+
   return (
     <div className="bg-card border border-yellow-500/30 rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display text-lg text-yellow-500">
           {data.id ? "EDITAR PERGUNTA" : "NOVA PERGUNTA"}
+          {form.parentQuestionId && (
+            <span className="text-xs text-blue-400 ml-2 font-normal">
+              (Condicional — ativada por "{form.triggerOption}")
+            </span>
+          )}
         </h3>
         <button onClick={onCancel} className="text-muted-foreground hover:text-foreground">
           <X className="w-5 h-5" />
@@ -462,6 +693,19 @@ function QuestionEditor({
       </div>
 
       <div className="space-y-4">
+        {/* Conditional info banner */}
+        {form.parentQuestionId && (
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 flex items-start gap-2">
+            <GitBranch className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-blue-400 font-medium">Pergunta Condicional</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Esta pergunta aparece apenas quando o usuário responde <strong>"{form.triggerOption}"</strong> na pergunta pai.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Basic Fields */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -562,28 +806,43 @@ function QuestionEditor({
           </button>
         </div>
 
-        {/* Options (for single/multi) */}
+        {/* Options (for single/multi) with DRAG AND DROP */}
         {(form.type === "single" || form.type === "multi") && (
           <div className="border-t border-border/30 pt-4">
-            <h4 className="text-sm font-medium text-foreground mb-2">Opções de Resposta</h4>
+            <h4 className="text-sm font-medium text-foreground mb-1">Opções de Resposta</h4>
+            <p className="text-xs text-muted-foreground mb-3">
+              Arraste as opções para reordenar. A ordem aqui é a ordem exibida ao usuário.
+            </p>
             {form.options && form.options.length > 0 && (
-              <div className="space-y-1.5 mb-3">
-                {form.options.map((opt, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5">
-                    <span className="text-sm text-foreground flex-1">{opt.label}</span>
-                    <span className="text-xs text-muted-foreground">{opt.value}</span>
-                    <button onClick={() => removeOption(idx)} className="text-red-400 hover:text-red-300">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleOptionDragEnd}
+              >
+                <SortableContext
+                  items={form.options.map((_, i) => `opt-${i}`)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-1.5 mb-3">
+                    {form.options.map((opt, idx) => (
+                      <SortableOptionItem
+                        key={`opt-${idx}`}
+                        id={`opt-${idx}`}
+                        option={opt}
+                        index={idx}
+                        onRemove={removeOption}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newOptionLabel}
                 onChange={(e) => setNewOptionLabel(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addOption()}
                 placeholder="Label (ex: Zona Norte)"
                 className="flex-1 bg-secondary border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground"
               />
@@ -591,7 +850,8 @@ function QuestionEditor({
                 type="text"
                 value={newOptionValue}
                 onChange={(e) => setNewOptionValue(e.target.value)}
-                placeholder="Value (ex: zona-norte)"
+                onKeyDown={(e) => e.key === "Enter" && addOption()}
+                placeholder="Value (auto se vazio)"
                 className="flex-1 bg-secondary border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground"
               />
               <Button size="sm" variant="outline" onClick={addOption}>
@@ -601,28 +861,43 @@ function QuestionEditor({
           </div>
         )}
 
-        {/* Low Score Reasons (for score type) */}
+        {/* Low Score Reasons (for score type) with DRAG AND DROP */}
         {form.type === "score" && (
           <div className="border-t border-border/30 pt-4">
-            <h4 className="text-sm font-medium text-foreground mb-2">Motivos para Nota Baixa</h4>
+            <h4 className="text-sm font-medium text-foreground mb-1">Motivos para Nota Baixa</h4>
+            <p className="text-xs text-muted-foreground mb-3">
+              Arraste para reordenar os motivos.
+            </p>
             {form.lowScoreReasons && form.lowScoreReasons.length > 0 && (
-              <div className="space-y-1.5 mb-3">
-                {form.lowScoreReasons.map((reason, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-secondary/50 rounded-lg px-3 py-1.5">
-                    <span className="text-sm text-foreground flex-1">{reason.label}</span>
-                    <span className="text-xs text-muted-foreground">{reason.value}</span>
-                    <button onClick={() => removeReason(idx)} className="text-red-400 hover:text-red-300">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleReasonDragEnd}
+              >
+                <SortableContext
+                  items={form.lowScoreReasons.map((_, i) => `reason-${i}`)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-1.5 mb-3">
+                    {form.lowScoreReasons.map((reason, idx) => (
+                      <SortableOptionItem
+                        key={`reason-${idx}`}
+                        id={`reason-${idx}`}
+                        option={reason}
+                        index={idx}
+                        onRemove={removeReason}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
             <div className="flex gap-2">
               <input
                 type="text"
                 value={newReasonLabel}
                 onChange={(e) => setNewReasonLabel(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addReason()}
                 placeholder="Motivo (ex: Preço abusivo)"
                 className="flex-1 bg-secondary border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground"
               />
@@ -630,7 +905,8 @@ function QuestionEditor({
                 type="text"
                 value={newReasonValue}
                 onChange={(e) => setNewReasonValue(e.target.value)}
-                placeholder="Value (ex: preco-abusivo)"
+                onKeyDown={(e) => e.key === "Enter" && addReason()}
+                placeholder="Value (auto se vazio)"
                 className="flex-1 bg-secondary border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground"
               />
               <Button size="sm" variant="outline" onClick={addReason}>
