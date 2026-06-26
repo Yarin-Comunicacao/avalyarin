@@ -123,8 +123,8 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
     { icon: "Settings", label: "Config", path: "/admin" },
   ],
   owner: [
+    { icon: "Search", label: "Busca", path: "/" },
     { icon: "Crown", label: "Owner", path: "/owner" },
-    { icon: "ClipboardList", label: "Survey", path: "/owner/survey" },
     { icon: "BarChart3", label: "Analytics", path: "/admin/analytics" },
     { icon: "Shield", label: "Admin", path: "/admin" },
     { icon: "Server", label: "Sistema", path: "/owner/sistema" },
