@@ -693,3 +693,7 @@
 - [x] Criar página OwnerSurvey.tsx com interface para visualizar e editar perguntas
 - [x] Adicionar aba "Survey" no BottomNav do Owner (role-visibility.ts)
 - [x] Registrar rota /owner/survey no App.tsx
+
+## Fase 21 — Tela de Login/Cadastro para Usuários Deslogados
+- [x] Criar tela única para usuários deslogados com botões "Cadastre-se" e "Entre"
+- [x] Exibir essa tela quando o usuário não estiver autenticado (em vez da tela vazia)

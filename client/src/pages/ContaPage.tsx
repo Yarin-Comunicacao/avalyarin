@@ -8,9 +8,11 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import {
   User, Mail, Crown, Palette, Image, Bell, Users, Bookmark, Trophy,
-  LogOut, ChevronRight, Edit, Star, MapPin, Heart, Loader2, Check, X, ExternalLink
+  LogOut, ChevronRight, Edit, Star, MapPin, Heart, Loader2, Check, X, ExternalLink,
+  UserPlus, LogIn
 } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
+import { getLoginUrl } from "@/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
 
@@ -37,10 +39,84 @@ export default function ContaPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pt-28 pb-24">
-        <Navbar />
-        <div className="container max-w-md text-center">
-          <p className="text-muted-foreground mb-4">Faça login para acessar sua conta.</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden pb-24">
+        {/* Background images */}
+        <div className="absolute inset-0 flex pointer-events-none">
+          <div className="w-1/2 h-full relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
+              alt="Restaurante durante o dia"
+              className="w-full h-full object-cover"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/60 to-background" />
+            <div className="absolute inset-0 bg-background/30" />
+          </div>
+          <div className="w-1/2 h-full relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
+              alt="Bar ao entardecer"
+              className="w-full h-full object-cover"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-background/60 to-background" />
+            <div className="absolute inset-0 bg-background/30" />
+          </div>
+        </div>
+
+        {/* Center content */}
+        <div className="relative z-10 flex flex-col items-center px-6 py-10 max-w-md w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                alt="AvaLyarin"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="font-display text-2xl tracking-wider text-primary text-glow-amber">AVALYARIN</span>
+          </div>
+
+          {/* Card */}
+          <div className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl p-8 w-full shadow-2xl">
+            <h2 className="font-display text-2xl tracking-wider text-primary text-center mb-2">
+              MINHA CONTA
+            </h2>
+            <p className="text-sm text-muted-foreground text-center mb-8">
+              Entre ou crie sua conta para avaliar bares e restaurantes.
+            </p>
+
+            {/* Register button */}
+            <button
+              onClick={() => {
+                localStorage.setItem("avalyarin_auth_flow", "register");
+                window.location.href = getLoginUrl();
+              }}
+              className="w-full flex items-center justify-center gap-2 font-display tracking-wider text-base py-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors glow-amber mb-4"
+            >
+              <UserPlus className="w-5 h-5" />
+              CADASTRE-SE
+            </button>
+
+            {/* Login button */}
+            <button
+              onClick={() => {
+                localStorage.setItem("avalyarin_auth_flow", "login");
+                localStorage.setItem("avalyarin_survey_completed", "true");
+                window.location.href = getLoginUrl();
+              }}
+              className="w-full flex items-center justify-center gap-2 font-display tracking-wider text-base py-4 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors"
+            >
+              <LogIn className="w-5 h-5" />
+              ENTRE
+            </button>
+          </div>
+
+          {/* Legal text */}
+          <p className="text-[11px] text-muted-foreground/50 text-center mt-6 max-w-xs leading-relaxed">
+            Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.
+          </p>
         </div>
       </div>
     );
