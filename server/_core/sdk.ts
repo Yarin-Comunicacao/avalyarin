@@ -109,6 +109,7 @@ class SDKServer {
     )
       return "microsoft";
     if (set.has("REGISTERED_PLATFORM_GITHUB")) return "github";
+    if (set.has("REGISTERED_PLATFORM_FACEBOOK")) return "facebook";
     const first = Array.from(set)[0];
     return first ? first.toLowerCase() : null;
   }
