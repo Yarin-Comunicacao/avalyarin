@@ -1,15 +1,16 @@
-// Design: AvaLyarin — Explorer Survey (Phase 2)
-// Fullscreen survey with 8 standard questions + 2 personalized questions based on visited places
+// Fullscreen survey with dynamic questions from DB + 2 personalized questions based on visited places
 // Triggered after 5 evaluations
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight, ChevronLeft, Award, Users, Calendar, Clock,
-  Zap, Wine, AlertTriangle, Star, DollarSign, MessageSquare
+  Zap, Wine, AlertTriangle, Star, DollarSign, MessageSquare,
+  Check, Loader2, Heart, Compass, MapPin, Utensils, Shield,
+  Lightbulb, GitCompare, Trophy, BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { categories } from "@/lib/data";
+import { trpc } from "@/lib/trpc";
 
 // ============================================================
 // TYPES
@@ -30,6 +31,30 @@ interface SurveyQuestion {
 interface ExplorerSurveyProps {
   onComplete: (answers: Record<string, string | string[] | number>) => void;
 }
+
+// Icon mapping from string name to React component
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Cake: <Clock className="w-6 h-6" />,
+  MapPin: <MapPin className="w-6 h-6" />,
+  Clock: <Clock className="w-6 h-6" />,
+  DollarSign: <DollarSign className="w-6 h-6" />,
+  Utensils: <Utensils className="w-6 h-6" />,
+  Heart: <Heart className="w-6 h-6" />,
+  Compass: <Compass className="w-6 h-6" />,
+  Star: <Star className="w-6 h-6" />,
+  Zap: <Zap className="w-6 h-6" />,
+  Users: <Users className="w-6 h-6" />,
+  Calendar: <Calendar className="w-6 h-6" />,
+  Wine: <Wine className="w-6 h-6" />,
+  AlertTriangle: <AlertTriangle className="w-6 h-6" />,
+  MessageSquare: <MessageSquare className="w-6 h-6" />,
+  Award: <Award className="w-6 h-6" />,
+  Shield: <Shield className="w-6 h-6" />,
+  Lightbulb: <Lightbulb className="w-6 h-6" />,
+  GitCompare: <GitCompare className="w-6 h-6" />,
+  Trophy: <Trophy className="w-6 h-6" />,
+  BarChart3: <BarChart3 className="w-6 h-6" />,
+};
 
 // ============================================================
 // PERSONALIZED QUESTIONS GENERATOR
@@ -89,7 +114,6 @@ function generatePersonalizedQuestions(completedReviews: { establishmentId: stri
       options: getCategorySpecificOptions(topCatObj.id),
     });
   } else {
-    // Fallback if no category data
     questions.push({
       id: "personal_category",
       icon: <Star className="w-6 h-6" />,
@@ -220,139 +244,6 @@ function getCategorySpecificOptions(categoryId: string): { label: string; value:
 }
 
 // ============================================================
-// STANDARD QUESTIONS (Phase 2)
-// ============================================================
-
-const STANDARD_QUESTIONS: SurveyQuestion[] = [
-  {
-    id: "companion",
-    icon: <Users className="w-6 h-6" />,
-    title: "COM QUEM COSTUMA SAIR",
-    subtitle: "Quando sai para comer ou beber, geralmente está com quem?",
-    type: "single",
-    options: [
-      { label: "Sozinho(a)", value: "sozinho" },
-      { label: "Com parceiro(a) / cônjuge", value: "casal" },
-      { label: "Com amigos", value: "amigos" },
-      { label: "Com família", value: "familia" },
-      { label: "Com colegas de trabalho", value: "trabalho" },
-      { label: "Varia bastante", value: "varia" },
-    ],
-  },
-  {
-    id: "preferredDays",
-    icon: <Calendar className="w-6 h-6" />,
-    title: "DIAS PREFERIDOS",
-    subtitle: "Em quais dias da semana você mais costuma sair?",
-    type: "multi",
-    maxSelect: 6,
-    options: [
-      { label: "Segunda a quinta", value: "semana" },
-      { label: "Sexta-feira", value: "sexta" },
-      { label: "Sábado", value: "sabado" },
-      { label: "Domingo", value: "domingo" },
-      { label: "Feriados", value: "feriados" },
-      { label: "Não tenho preferência", value: "sem-preferencia" },
-    ],
-  },
-  {
-    id: "preferredTime",
-    icon: <Clock className="w-6 h-6" />,
-    title: "HORÁRIO PREFERIDO",
-    subtitle: "Qual horário você mais frequenta bares e restaurantes?",
-    type: "multi",
-    maxSelect: 5,
-    options: [
-      { label: "Almoço (11h-14h)", value: "almoco" },
-      { label: "Tarde / Happy Hour (14h-18h)", value: "happy-hour" },
-      { label: "Jantar (18h-21h)", value: "jantar" },
-      { label: "Noite (21h-00h)", value: "noite" },
-      { label: "Madrugada (após 00h)", value: "madrugada" },
-    ],
-  },
-  {
-    id: "motivation",
-    icon: <Zap className="w-6 h-6" />,
-    title: "MOTIVAÇÃO PARA AVALIAR",
-    subtitle: "O que te motiva a avaliar um estabelecimento no AvaLyarin?",
-    type: "multi",
-    maxSelect: 3,
-    options: [
-      { label: "Ajudar outras pessoas a escolherem melhor", value: "ajudar-outros" },
-      { label: "Registrar minhas experiências gastronômicas", value: "registro-pessoal" },
-      { label: "Reconhecer um lugar que merece destaque", value: "reconhecimento" },
-      { label: "Alertar sobre uma experiência ruim", value: "alerta-negativo" },
-      { label: "Ganhar badges e subir no ranking", value: "gamificacao" },
-      { label: "Contribuir para a comunidade", value: "comunidade" },
-    ],
-  },
-  {
-    id: "preferredDrink",
-    icon: <Wine className="w-6 h-6" />,
-    title: "BEBIDA PREFERIDA",
-    subtitle: "Qual sua bebida preferida quando sai? (Selecione até 3)",
-    type: "multi",
-    maxSelect: 3,
-    options: [
-      { label: "Cerveja artesanal", value: "cerveja-artesanal" },
-      { label: "Cerveja comercial (Brahma, Skol, etc.)", value: "cerveja-comercial" },
-      { label: "Chopp", value: "chopp" },
-      { label: "Drinks / Coquetéis", value: "drinks" },
-      { label: "Vinho", value: "vinho" },
-      { label: "Whisky / Destilados", value: "destilados" },
-      { label: "Refrigerante / Suco", value: "nao-alcoolico" },
-      { label: "Café / Chá", value: "cafe-cha" },
-      { label: "Não bebo álcool", value: "sem-alcool" },
-    ],
-  },
-  {
-    id: "dietaryRestrictions",
-    icon: <AlertTriangle className="w-6 h-6" />,
-    title: "RESTRIÇÕES ALIMENTARES",
-    subtitle: "Você possui alguma restrição ou preferência alimentar?",
-    type: "multi",
-    maxSelect: 8,
-    options: [
-      { label: "Nenhuma", value: "nenhuma" },
-      { label: "Vegetariano(a)", value: "vegetariano" },
-      { label: "Vegano(a)", value: "vegano" },
-      { label: "Sem glúten (celíaco)", value: "sem-gluten" },
-      { label: "Sem lactose", value: "sem-lactose" },
-      { label: "Low carb / Keto", value: "low-carb" },
-      { label: "Alergia a frutos do mar", value: "alergia-frutos-mar" },
-    ],
-  },
-  {
-    id: "appExperience",
-    icon: <Star className="w-6 h-6" />,
-    title: "SUA EXPERIÊNCIA",
-    subtitle: "De 1 a 10, como você avalia sua experiência com o AvaLyarin até agora?",
-    type: "score",
-    lowScoreThreshold: 6,
-    lowScoreReasons: [
-      { label: "Poucos estabelecimentos cadastrados", value: "poucos-locais" },
-      { label: "Difícil de usar / navegação confusa", value: "usabilidade" },
-      { label: "Informações desatualizadas", value: "info-desatualizada" },
-      { label: "Não encontrei o que procurava", value: "nao-encontrou" },
-      { label: "O app é lento ou trava", value: "performance" },
-    ],
-  },
-  {
-    id: "willPay",
-    icon: <DollarSign className="w-6 h-6" />,
-    title: "FUNCIONALIDADES PREMIUM",
-    subtitle: "Você pagaria por funcionalidades premium no AvaLyarin? (Ex: reservas prioritárias, descontos exclusivos, avaliações de sommeliers)",
-    type: "single",
-    options: [
-      { label: "Sim, com certeza", value: "sim-certeza" },
-      { label: "Talvez, dependendo do preço", value: "talvez" },
-      { label: "Provavelmente não", value: "provavelmente-nao" },
-      { label: "Não, prefiro usar gratuitamente", value: "nao" },
-    ],
-  },
-];
-
-// ============================================================
 // COMPONENT
 // ============================================================
 
@@ -367,19 +258,45 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
     }
   }, []);
 
+  // Fetch questions dynamically from the database
+  const { data: dbQuestions, isLoading: questionsLoading } = trpc.survey.questions.useQuery(
+    { phase: "explorer" },
+    { staleTime: 0, refetchOnMount: true }
+  );
+
+  // Map DB questions to usable format
+  const standardQuestions: SurveyQuestion[] = useMemo(() => {
+    if (!dbQuestions || dbQuestions.length === 0) return [];
+    return dbQuestions
+      .filter(q => !q.parentQuestionId)
+      .map(q => ({
+        id: q.questionId,
+        icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
+        title: q.title,
+        subtitle: q.subtitle || "",
+        type: q.type as "single" | "multi" | "score" | "text",
+        maxSelect: q.maxSelect || undefined,
+        options: (q.options as { label: string; value: string }[] | null) || undefined,
+        lowScoreReasons: (q.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
+        lowScoreThreshold: q.lowScoreThreshold || undefined,
+      }));
+  }, [dbQuestions]);
+
   // Generate personalized questions
   const personalizedQuestions = useMemo(
     () => generatePersonalizedQuestions(completedReviews),
     [completedReviews]
   );
 
-  // Combine: 8 standard + 2 personalized (inserted after question 6, before NPS)
+  // Combine: standard + 2 personalized (inserted after question 6, before NPS)
   const allQuestions = useMemo(() => {
-    const standard = [...STANDARD_QUESTIONS];
+    if (standardQuestions.length === 0) return [];
+    const standard = [...standardQuestions];
     // Insert personalized questions after index 5 (after dietary restrictions, before app experience)
-    standard.splice(6, 0, ...personalizedQuestions);
+    const insertIdx = Math.min(6, standard.length);
+    standard.splice(insertIdx, 0, ...personalizedQuestions);
     return standard;
-  }, [personalizedQuestions]);
+  }, [standardQuestions, personalizedQuestions]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
@@ -387,10 +304,11 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
   const [showBadge, setShowBadge] = useState(false);
 
   const question = allQuestions[currentStep];
-  const progress = ((currentStep + 1) / allQuestions.length) * 100;
+  const progress = allQuestions.length > 0 ? ((currentStep + 1) / allQuestions.length) * 100 : 0;
 
-  const currentAnswer = answers[question.id];
+  const currentAnswer = question ? answers[question.id] : undefined;
   const isAnswered = (() => {
+    if (!question) return false;
     if (question.type === "single") return typeof currentAnswer === "string" && currentAnswer !== "";
     if (question.type === "multi") return Array.isArray(currentAnswer) && currentAnswer.length > 0;
     if (question.type === "score") return typeof currentAnswer === "number" && currentAnswer > 0;
@@ -400,7 +318,7 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
 
   // For score questions with low score, check if reasons are provided
   const isLowScoreValid = (() => {
-    if (question.type !== "score") return true;
+    if (!question || question.type !== "score") return true;
     const score = currentAnswer as number;
     if (score > 0 && score <= (question.lowScoreThreshold || 6)) {
       const reasons = lowReasons[question.id] || [];
@@ -410,10 +328,12 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
   })();
 
   const handleSingleSelect = useCallback((value: string) => {
+    if (!question) return;
     setAnswers(prev => ({ ...prev, [question.id]: value }));
-  }, [question.id]);
+  }, [question?.id]);
 
   const handleMultiToggle = useCallback((value: string) => {
+    if (!question) return;
     setAnswers(prev => {
       const current = (prev[question.id] as string[]) || [];
       const maxSelect = question.maxSelect || 99;
@@ -423,13 +343,15 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
       if (current.length >= maxSelect) return prev;
       return { ...prev, [question.id]: [...current, value] };
     });
-  }, [question.id, question.maxSelect]);
+  }, [question?.id, question?.maxSelect]);
 
   const handleScoreSelect = useCallback((value: number) => {
+    if (!question) return;
     setAnswers(prev => ({ ...prev, [question.id]: value }));
-  }, [question.id]);
+  }, [question?.id]);
 
   const toggleLowReason = useCallback((reason: string) => {
+    if (!question) return;
     setLowReasons(prev => {
       const current = prev[question.id] || [];
       if (current.includes(reason)) {
@@ -438,7 +360,7 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
       if (current.length >= 3) return prev;
       return { ...prev, [question.id]: [...current, reason] };
     });
-  }, [question.id]);
+  }, [question?.id]);
 
   const handleNext = () => {
     if (!isAnswered) return;
@@ -468,6 +390,18 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
   const handleSkip = () => {
     onComplete(answers);
   };
+
+  // Loading state
+  if (questionsLoading || allQuestions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Carregando pesquisa...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Badge celebration
   if (showBadge) {

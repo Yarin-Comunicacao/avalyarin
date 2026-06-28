@@ -1173,6 +1173,15 @@ export const appRouter = router({
   // User profile & username
   // Survey data persistence
   survey: router({
+    // Public endpoint: returns active survey questions by phase (dynamic from DB)
+    questions: publicProcedure
+      .input(z.object({ phase: z.enum(["onboarding", "explorer", "connoisseur"]) }))
+      .query(async ({ input }) => {
+        const { getSurveyQuestions } = await import("./db");
+        const all = await getSurveyQuestions(input.phase);
+        // Return only active questions, ordered by sortOrder
+        return all.filter(q => q.active);
+      }),
     save: protectedProcedure
       .input(z.object({
         birthdate: z.string().optional(),

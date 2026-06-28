@@ -1,9 +1,8 @@
-// Design: AvaLyarin — Onboarding Survey
-// Fullscreen survey with 7 questions + location step presented one at a time
+// Fullscreen survey with dynamic questions from DB + location step presented one at a time
 // Progress bar at top, smooth transitions, gamified badge reward
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass, Cake, Navigation, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass, Cake, Navigation, Loader2, Star, Zap, Users, Calendar, Wine, AlertTriangle, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BirthdateRoulette from "@/components/BirthdateRoulette";
 import { trpc } from "@/lib/trpc";
@@ -18,121 +17,25 @@ export interface SurveyAnswer {
   discovery: string[];
 }
 
-const QUESTIONS = [
-  {
-    id: "birthdate",
-    icon: <Cake className="w-6 h-6" />,
-    title: "DATA DE NASCIMENTO",
-    subtitle: "Selecione sua data de nascimento",
-    type: "birthdate" as const,
-  },
-  {
-    id: "region",
-    icon: <MapPin className="w-6 h-6" />,
-    title: "ONDE VOCÊ MORA",
-    subtitle: "Em qual região de São Paulo você mora?",
-    type: "single" as const,
-    options: [
-      { label: "Zona Norte", value: "zona-norte" },
-      { label: "Zona Sul", value: "zona-sul" },
-      { label: "Zona Leste", value: "zona-leste" },
-      { label: "Zona Oeste", value: "zona-oeste" },
-      { label: "Centro", value: "centro" },
-      { label: "Região Metropolitana de São Paulo (ABC, Guarulhos, Osasco..)", value: "grande-sp" },
-      { label: "Campinas e Região Metropolitana de Campinas", value: "campinas" },
-      { label: "Jundiaí e Região Metropolitana de Jundiaí", value: "jundiai" },
-      { label: "Não moro em São Paulo", value: "fora-sp" },
-    ],
-  },
-  {
-    id: "frequency",
-    icon: <Clock className="w-6 h-6" />,
-    title: "FREQUÊNCIA",
-    subtitle: "Com que frequência você sai para comer ou beber fora?",
-    type: "single" as const,
-    options: [
-      { label: "Quase todos os dias", value: "diariamente" },
-      { label: "2 a 3 vezes por semana", value: "2-3x-semana" },
-      { label: "1 vez por semana", value: "1x-semana" },
-      { label: "Quinzenalmente", value: "quinzenal" },
-      { label: "1 vez por mês", value: "mensal" },
-      { label: "Raramente", value: "raramente" },
-    ],
-  },
-  {
-    id: "spend",
-    icon: <DollarSign className="w-6 h-6" />,
-    title: "GASTO MÉDIO",
-    subtitle: "Quanto você costuma gastar por pessoa quando sai?",
-    type: "single" as const,
-    options: [
-      { label: "Até R$ 30", value: "ate-30" },
-      { label: "R$ 30 a R$ 60", value: "30-60" },
-      { label: "R$ 60 a R$ 100", value: "60-100" },
-      { label: "R$ 100 a R$ 150", value: "100-150" },
-      { label: "R$ 150 a R$ 250", value: "150-250" },
-      { label: "Acima de R$ 250", value: "250-mais" },
-    ],
-  },
-  {
-    id: "categories",
-    icon: <Utensils className="w-6 h-6" />,
-    title: "CATEGORIAS FAVORITAS",
-    subtitle: "Selecione até 5 tipos de lugar que você mais frequenta",
-    type: "multi" as const,
-    maxSelect: 5,
-    options: [
-      { label: "Bar / Boteco", value: "bar-boteco" },
-      { label: "Cervejaria artesanal", value: "cervejaria" },
-      { label: "Coquetelaria / Speakeasy", value: "coquetelaria" },
-      { label: "Pub / Bar musical", value: "pub" },
-      { label: "Restaurante casual", value: "restaurante" },
-      { label: "Hamburgueria", value: "hamburgueria" },
-      { label: "Pizzaria", value: "pizzaria" },
-      { label: "Cafeteria / Brunch", value: "cafeteria" },
-      { label: "Gastrobar / Autoral", value: "gastrobar" },
-      { label: "Balada / Club", value: "balada" },
-    ],
-  },
-  {
-    id: "priorities",
-    icon: <Heart className="w-6 h-6" />,
-    title: "O QUE IMPORTA MAIS",
-    subtitle: "Selecione até 3 fatores mais importantes para você",
-    type: "multi" as const,
-    maxSelect: 3,
-    options: [
-      { label: "Qualidade dos drinks / bebidas", value: "drinks" },
-      { label: "Qualidade da comida", value: "comida" },
-      { label: "Ambiente / decoração", value: "ambiente" },
-      { label: "Atendimento", value: "atendimento" },
-      { label: "Preço justo / custo-benefício", value: "preco" },
-      { label: "Localização / proximidade", value: "localizacao" },
-      { label: "Música / entretenimento", value: "musica" },
-      { label: "Variedade do cardápio", value: "variedade" },
-    ],
-  },
-  {
-    id: "discovery",
-    icon: <Compass className="w-6 h-6" />,
-    title: "COMO DESCOBRE LUGARES",
-    subtitle: "Selecione até 3 formas que você mais usa para descobrir novos bares",
-    type: "multi" as const,
-    maxSelect: 3,
-    options: [
-      { label: "Indicação de amigos/família", value: "indicacao" },
-      { label: "Instagram / TikTok", value: "redes-sociais" },
-      { label: "Google Maps / Google Search", value: "google" },
-      { label: "Apps de avaliação (TripAdvisor, Yelp)", value: "apps-avaliacao" },
-      { label: "Apps de delivery (iFood, Rappi)", value: "delivery" },
-      { label: "Blogs e sites especializados", value: "blogs" },
-      { label: "Passando na rua / por acaso", value: "acaso" },
-    ],
-  },
-];
-
-// Total steps = QUESTIONS + 1 (location step)
-const TOTAL_STEPS = QUESTIONS.length + 1;
+// Icon mapping from string name to React component
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Cake: <Cake className="w-6 h-6" />,
+  MapPin: <MapPin className="w-6 h-6" />,
+  Clock: <Clock className="w-6 h-6" />,
+  DollarSign: <DollarSign className="w-6 h-6" />,
+  Utensils: <Utensils className="w-6 h-6" />,
+  Heart: <Heart className="w-6 h-6" />,
+  Compass: <Compass className="w-6 h-6" />,
+  Star: <Star className="w-6 h-6" />,
+  Zap: <Zap className="w-6 h-6" />,
+  Users: <Users className="w-6 h-6" />,
+  Calendar: <Calendar className="w-6 h-6" />,
+  Wine: <Wine className="w-6 h-6" />,
+  AlertTriangle: <AlertTriangle className="w-6 h-6" />,
+  MessageSquare: <MessageSquare className="w-6 h-6" />,
+  Navigation: <Navigation className="w-6 h-6" />,
+  Award: <Award className="w-6 h-6" />,
+};
 
 interface OnboardingSurveyProps {
   onComplete: (answers: SurveyAnswer) => void;
@@ -151,9 +54,34 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
 
   const saveLocationMutation = trpc.profile.saveLocation.useMutation();
 
+  // Fetch questions dynamically from the database
+  const { data: dbQuestions, isLoading: questionsLoading } = trpc.survey.questions.useQuery(
+    { phase: "onboarding" },
+    { staleTime: 0, refetchOnMount: true }
+  );
+
+  // Map DB questions to usable format
+  const QUESTIONS = useMemo(() => {
+    if (!dbQuestions || dbQuestions.length === 0) return [];
+    return dbQuestions
+      .filter(q => !q.parentQuestionId) // exclude conditional sub-questions for now
+      .map(q => ({
+        id: q.questionId,
+        icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
+        title: q.title,
+        subtitle: q.subtitle || "",
+        type: q.type as "single" | "multi" | "birthdate" | "score" | "text",
+        maxSelect: q.maxSelect || undefined,
+        options: (q.options as { label: string; value: string }[] | null) || [],
+      }));
+  }, [dbQuestions]);
+
+  // Total steps = QUESTIONS + 1 (location step)
+  const TOTAL_STEPS = QUESTIONS.length + 1;
+
   const isLocationStep = currentStep === QUESTIONS.length;
   const question = isLocationStep ? null : QUESTIONS[currentStep];
-  const progress = ((currentStep + 1) / TOTAL_STEPS) * 100;
+  const progress = TOTAL_STEPS > 0 ? ((currentStep + 1) / TOTAL_STEPS) * 100 : 0;
 
   const currentAnswer = question ? answers[question.id] : undefined;
   const isAnswered = (() => {
@@ -278,6 +206,18 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     onComplete(surveyAnswers);
   };
 
+  // Loading state while fetching questions from DB
+  if (questionsLoading || QUESTIONS.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Carregando pesquisa...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Badge celebration screen
   if (showBadge) {
     return (
@@ -289,25 +229,25 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           className="text-center px-6"
         >
           <motion.div
-            initial={{ rotate: -20 }}
-            animate={{ rotate: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 10, delay: 0.2 }}
-            className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary/20 border-2 border-primary/40 mb-6 glow-amber"
+            initial={{ rotate: -180, scale: 0 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 150, damping: 12, delay: 0.2 }}
+            className="w-24 h-24 mx-auto rounded-2xl bg-primary/10 border-2 border-primary/40 flex items-center justify-center mb-6"
           >
-            <Award className="w-14 h-14 text-primary" />
+            <Award className="w-12 h-12 text-primary" />
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="font-display text-4xl tracking-wider text-primary text-glow-amber mb-3"
+            transition={{ delay: 0.5 }}
+            className="font-display text-3xl tracking-wider text-primary text-glow-amber mb-2"
           >
-            PRIMEIRO PASSO
+            EXPLORADOR
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
             className="text-muted-foreground text-lg"
           >
             Parabéns! Você desbloqueou filtros personalizados.
@@ -418,15 +358,9 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                             size="lg"
                           >
                             {locationLoading ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                OBTENDO LOCALIZAÇÃO...
-                              </>
+                              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> OBTENDO...</>
                             ) : (
-                              <>
-                                <Navigation className="w-4 h-4 mr-2" />
-                                ATIVAR LOCALIZAÇÃO
-                              </>
+                              <><Navigation className="w-4 h-4 mr-2" /> ATIVAR LOCALIZAÇÃO</>
                             )}
                           </Button>
 
@@ -435,7 +369,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                           )}
 
                           <p className="text-xs text-muted-foreground/50">
-                            Sua localização é usada apenas para melhorar sua experiência no app.
+                            Você pode pular esta etapa e ativar depois.
                           </p>
                         </div>
                       )}

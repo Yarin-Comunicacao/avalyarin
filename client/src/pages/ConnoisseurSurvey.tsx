@@ -1,13 +1,15 @@
-// Design: AvaLyarin — Connoisseur Survey (Phase 3)
-// Fullscreen survey with 8 questions for experienced users
+// Fullscreen survey with dynamic questions from DB for experienced users
 // Triggered after 10 evaluations
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight, ChevronLeft, Award, BarChart3, Shield, Lightbulb,
-  Star, GitCompare, Trophy, MessageSquare, Check
+  Star, GitCompare, Trophy, MessageSquare, Check, Loader2,
+  Clock, DollarSign, Utensils, Heart, Compass, MapPin, Users,
+  Calendar, Wine, AlertTriangle, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
 
 // ============================================================
 // TYPES
@@ -29,147 +31,70 @@ interface ConnoisseurSurveyProps {
   onComplete: (answers: Record<string, string | string[] | number>) => void;
 }
 
-// ============================================================
-// QUESTIONS (Phase 3)
-// ============================================================
-
-const QUESTIONS: SurveyQuestion[] = [
-  {
-    id: "hardestCriterion",
-    icon: <BarChart3 className="w-6 h-6" />,
-    title: "CRITÉRIO MAIS DIFÍCIL",
-    subtitle: "Dos critérios de avaliação do AvaLyarin, qual você acha mais difícil de pontuar com precisão?",
-    type: "single",
-    options: [
-      { label: "Sabor / Qualidade da comida", value: "sabor" },
-      { label: "Apresentação dos pratos", value: "apresentacao" },
-      { label: "Custo-benefício", value: "custo-beneficio" },
-      { label: "Atendimento", value: "atendimento" },
-      { label: "Ambiente / Decoração", value: "ambiente" },
-      { label: "Limpeza / Higiene", value: "limpeza" },
-      { label: "Tempo de espera", value: "tempo-espera" },
-      { label: "Qualidade das bebidas", value: "bebidas" },
-    ],
-  },
-  {
-    id: "trustOthers",
-    icon: <Shield className="w-6 h-6" />,
-    title: "CONFIANÇA NAS AVALIAÇÕES",
-    subtitle: "Quanto você confia nas avaliações de outros usuários do AvaLyarin? (1 a 10)",
-    type: "score",
-    lowScoreThreshold: 6,
-    lowScoreReasons: [
-      { label: "Acho que muitas avaliações são falsas", value: "avaliacoes-falsas" },
-      { label: "As notas não refletem minha experiência", value: "discordancia" },
-      { label: "Poucas avaliações por estabelecimento", value: "poucas-avaliacoes" },
-      { label: "Falta contexto nas avaliações", value: "falta-contexto" },
-      { label: "Não sei se o avaliador realmente foi ao local", value: "credibilidade" },
-    ],
-  },
-  {
-    id: "desiredFeature",
-    icon: <Lightbulb className="w-6 h-6" />,
-    title: "FUNCIONALIDADE DESEJADA",
-    subtitle: "Qual funcionalidade você mais gostaria de ver no AvaLyarin? (Até 3)",
-    type: "multi",
-    maxSelect: 3,
-    options: [
-      { label: "Reserva de mesa diretamente pelo app", value: "reserva" },
-      { label: "Programa de fidelidade com descontos", value: "fidelidade" },
-      { label: "Mapa interativo com filtros avançados", value: "mapa" },
-      { label: "Ranking dos melhores por bairro", value: "ranking-bairro" },
-      { label: "Lista de favoritos compartilhável", value: "lista-favoritos" },
-      { label: "Notificações de promoções e happy hours", value: "notificacoes" },
-      { label: "Avaliações com fotos e vídeos", value: "midia-avaliacoes" },
-      { label: "Recomendações personalizadas por IA", value: "ia-recomendacoes" },
-    ],
-  },
-  {
-    id: "establishmentQuality",
-    icon: <Star className="w-6 h-6" />,
-    title: "QUALIDADE DOS ESTABELECIMENTOS",
-    subtitle: "De modo geral, como você avalia a qualidade dos estabelecimentos cadastrados no AvaLyarin? (1 a 10)",
-    type: "score",
-    lowScoreThreshold: 6,
-    lowScoreReasons: [
-      { label: "Muitos lugares de baixa qualidade", value: "baixa-qualidade" },
-      { label: "Faltam opções premium / sofisticadas", value: "falta-premium" },
-      { label: "Faltam opções acessíveis / populares", value: "falta-acessivel" },
-      { label: "Cardápios desatualizados ou incompletos", value: "cardapio-desatualizado" },
-      { label: "Fotos não representam a realidade", value: "fotos-irreais" },
-    ],
-  },
-  {
-    id: "previousPlatform",
-    icon: <GitCompare className="w-6 h-6" />,
-    title: "ANTES DO AVALYARIN",
-    subtitle: "Antes do AvaLyarin, qual plataforma você mais usava para escolher bares e restaurantes?",
-    type: "single",
-    options: [
-      { label: "Google Maps", value: "google-maps" },
-      { label: "TripAdvisor", value: "tripadvisor" },
-      { label: "iFood (para ver avaliações)", value: "ifood" },
-      { label: "Instagram", value: "instagram" },
-      { label: "Yelp", value: "yelp" },
-      { label: "Indicação boca a boca", value: "boca-a-boca" },
-      { label: "Nenhuma, não pesquisava antes", value: "nenhuma" },
-    ],
-  },
-  {
-    id: "avalyarinBetter",
-    icon: <Trophy className="w-6 h-6" />,
-    title: "O QUE FAZEMOS MELHOR",
-    subtitle: "O que o AvaLyarin faz melhor que outras plataformas de avaliação? (Até 2)",
-    type: "multi",
-    maxSelect: 2,
-    options: [
-      { label: "Avaliação por item consumido (mais precisa)", value: "avaliacao-item" },
-      { label: "Design e experiência de uso", value: "design-ux" },
-      { label: "Variedade de categorias", value: "categorias" },
-      { label: "Informações detalhadas do cardápio", value: "cardapio-detalhado" },
-      { label: "Comunidade de avaliadores", value: "comunidade" },
-      { label: "Ainda não sei dizer", value: "nao-sei" },
-    ],
-  },
-  {
-    id: "nps",
-    icon: <Star className="w-6 h-6" />,
-    title: "RECOMENDAÇÃO",
-    subtitle: "De 1 a 10, qual a probabilidade de você recomendar o AvaLyarin para um amigo?",
-    type: "score",
-    lowScoreThreshold: 6,
-    lowScoreReasons: [
-      { label: "O app ainda precisa de mais conteúdo", value: "pouco-conteudo" },
-      { label: "Meus amigos já usam outras plataformas", value: "concorrencia" },
-      { label: "Não vejo vantagem em recomendar", value: "sem-vantagem" },
-      { label: "O app tem problemas técnicos", value: "problemas-tecnicos" },
-      { label: "Prefiro manter minhas descobertas para mim", value: "exclusividade" },
-    ],
-  },
-  {
-    id: "openFeedback",
-    icon: <MessageSquare className="w-6 h-6" />,
-    title: "FEEDBACK ABERTO",
-    subtitle: "Se pudesse mudar uma coisa no AvaLyarin, o que seria?",
-    type: "text",
-  },
-];
+// Icon mapping from string name to React component
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Cake: <Clock className="w-6 h-6" />,
+  MapPin: <MapPin className="w-6 h-6" />,
+  Clock: <Clock className="w-6 h-6" />,
+  DollarSign: <DollarSign className="w-6 h-6" />,
+  Utensils: <Utensils className="w-6 h-6" />,
+  Heart: <Heart className="w-6 h-6" />,
+  Compass: <Compass className="w-6 h-6" />,
+  Star: <Star className="w-6 h-6" />,
+  Zap: <Zap className="w-6 h-6" />,
+  Users: <Users className="w-6 h-6" />,
+  Calendar: <Calendar className="w-6 h-6" />,
+  Wine: <Wine className="w-6 h-6" />,
+  AlertTriangle: <AlertTriangle className="w-6 h-6" />,
+  MessageSquare: <MessageSquare className="w-6 h-6" />,
+  Award: <Award className="w-6 h-6" />,
+  Shield: <Shield className="w-6 h-6" />,
+  Lightbulb: <Lightbulb className="w-6 h-6" />,
+  GitCompare: <GitCompare className="w-6 h-6" />,
+  Trophy: <Trophy className="w-6 h-6" />,
+  BarChart3: <BarChart3 className="w-6 h-6" />,
+};
 
 // ============================================================
 // COMPONENT
 // ============================================================
 
 export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps) {
+  // Fetch questions dynamically from the database
+  const { data: dbQuestions, isLoading: questionsLoading } = trpc.survey.questions.useQuery(
+    { phase: "connoisseur" },
+    { staleTime: 0, refetchOnMount: true }
+  );
+
+  // Map DB questions to usable format
+  const QUESTIONS: SurveyQuestion[] = useMemo(() => {
+    if (!dbQuestions || dbQuestions.length === 0) return [];
+    return dbQuestions
+      .filter(q => !q.parentQuestionId)
+      .map(q => ({
+        id: q.questionId,
+        icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
+        title: q.title,
+        subtitle: q.subtitle || "",
+        type: q.type as "single" | "multi" | "score" | "text",
+        maxSelect: q.maxSelect || undefined,
+        options: (q.options as { label: string; value: string }[] | null) || undefined,
+        lowScoreReasons: (q.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
+        lowScoreThreshold: q.lowScoreThreshold || undefined,
+      }));
+  }, [dbQuestions]);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [lowReasons, setLowReasons] = useState<Record<string, string[]>>({});
   const [showBadge, setShowBadge] = useState(false);
 
   const question = QUESTIONS[currentStep];
-  const progress = ((currentStep + 1) / QUESTIONS.length) * 100;
+  const progress = QUESTIONS.length > 0 ? ((currentStep + 1) / QUESTIONS.length) * 100 : 0;
 
-  const currentAnswer = answers[question.id];
+  const currentAnswer = question ? answers[question.id] : undefined;
   const isAnswered = (() => {
+    if (!question) return false;
     if (question.type === "single") return typeof currentAnswer === "string" && currentAnswer !== "";
     if (question.type === "multi") return Array.isArray(currentAnswer) && currentAnswer.length > 0;
     if (question.type === "score") return typeof currentAnswer === "number" && currentAnswer > 0;
@@ -178,7 +103,7 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   })();
 
   const isLowScoreValid = (() => {
-    if (question.type !== "score") return true;
+    if (!question || question.type !== "score") return true;
     const score = currentAnswer as number;
     if (score > 0 && score <= (question.lowScoreThreshold || 6)) {
       const reasons = lowReasons[question.id] || [];
@@ -188,10 +113,12 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   })();
 
   const handleSingleSelect = useCallback((value: string) => {
+    if (!question) return;
     setAnswers(prev => ({ ...prev, [question.id]: value }));
-  }, [question.id]);
+  }, [question?.id]);
 
   const handleMultiToggle = useCallback((value: string) => {
+    if (!question) return;
     setAnswers(prev => {
       const current = (prev[question.id] as string[]) || [];
       const maxSelect = question.maxSelect || 99;
@@ -201,13 +128,15 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
       if (current.length >= maxSelect) return prev;
       return { ...prev, [question.id]: [...current, value] };
     });
-  }, [question.id, question.maxSelect]);
+  }, [question?.id, question?.maxSelect]);
 
   const handleScoreSelect = useCallback((value: number) => {
+    if (!question) return;
     setAnswers(prev => ({ ...prev, [question.id]: value }));
-  }, [question.id]);
+  }, [question?.id]);
 
   const toggleLowReason = useCallback((reason: string) => {
+    if (!question) return;
     setLowReasons(prev => {
       const current = prev[question.id] || [];
       if (current.includes(reason)) {
@@ -216,7 +145,7 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
       if (current.length >= 3) return prev;
       return { ...prev, [question.id]: [...current, reason] };
     });
-  }, [question.id]);
+  }, [question?.id]);
 
   const handleNext = () => {
     if (!isAnswered) return;
@@ -244,6 +173,18 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   const handleSkip = () => {
     onComplete(answers);
   };
+
+  // Loading state
+  if (questionsLoading || QUESTIONS.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Carregando pesquisa...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Badge celebration
   if (showBadge) {

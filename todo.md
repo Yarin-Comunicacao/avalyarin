@@ -753,3 +753,11 @@
 - [x] Tornar lápis clicável no Cardápio para expandir edição do item (EditItemForm inline)
 - [x] Notificação como sub-aba dentro de Cardápio com contagem exata de erros por item (não por conta)
 - [x] QR Code como botão em cada card de estab em Meus Locais (popup com info)
+
+## Fase 33 — Survey dinâmica (refletir alterações do Owner imediatamente)
+- [x] Investigar por que alterações na survey (ex: gasto médio) não refletem para novos usuários
+- [x] Fazer perguntas da survey serem carregadas dinamicamente do banco (não hardcoded no frontend)
+- [x] OnboardingSurvey refatorado: carrega perguntas via trpc.survey.questions (phase=onboarding)
+- [x] ExplorerSurvey refatorado: carrega perguntas via trpc.survey.questions (phase=explorer)
+- [x] ConnoisseurSurvey refatorado: carrega perguntas via trpc.survey.questions (phase=connoisseur)
+- [x] Endpoint público survey.questions criado (publicProcedure, filtra por phase e active=true)
