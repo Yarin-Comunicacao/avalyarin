@@ -442,24 +442,78 @@ export default function OwnerSurvey() {
                     </div>
 
                     {/* Add conditional question button */}
-                    {(q.type === "single" || q.type === "multi") && (q.options as Option[])?.length > 0 && (
+                    {(q.type === "single" || q.type === "multi") && (q.options as Option[])?.length > 0 && children.length === 0 && (
                       <div className="mt-3 pt-3 border-t border-border/30">
-                        <details className="group">
-                          <summary className="text-xs text-blue-400 cursor-pointer hover:text-blue-300 flex items-center gap-1">
-                            <GitBranch className="w-3 h-3" />
-                            Perguntas Condicionais ({children.length})
-                          </summary>
-                          <div className="mt-2 ml-4 space-y-2">
-                            {/* Show existing children */}
-                            {children.map(child => (
-                              <div key={child.id} className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/20 rounded-lg px-3 py-2">
-                                <GitBranch className="w-3 h-3 text-blue-400 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs text-blue-400">
-                                    Se responder: <strong>"{child.triggerOption}"</strong>
-                                  </p>
-                                  <p className="text-sm text-foreground truncate">{child.title}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <span className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
+                            <GitBranch className="w-3 h-3" /> Adicionar condicional:
+                          </span>
+                          {((q.options as Option[]) || []).map(opt => (
+                            <button
+                              key={opt.value}
+                              onClick={() => startCreateChild(q.id, opt.value)}
+                              className="text-xs px-2 py-1 rounded-lg border border-border/50 text-muted-foreground hover:border-blue-500/50 hover:text-blue-400 cursor-pointer transition-colors"
+                            >
+                              <Plus className="w-3 h-3 inline mr-0.5" />
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Conditional children rendered directly below parent with left indent */}
+                  {children.length > 0 && (
+                    <div className="ml-6 mt-2 space-y-2 border-l-2 border-blue-500/30 pl-4">
+                      {children.map(child => {
+                        const childOpts = child.options as Option[] | null;
+                        // Find the trigger label from parent options
+                        const parentOpts = q.options as Option[] | null;
+                        const triggerLabel = parentOpts?.find(o => o.value === child.triggerOption)?.label || child.triggerOption;
+                        return (
+                          <div key={child.id} className={`bg-blue-500/5 border rounded-xl p-4 transition-all ${
+                            child.active ? "border-blue-500/30" : "border-red-500/30 opacity-60"
+                          }`}>
+                            <div className="flex items-start gap-3">
+                              <div className="pt-1">
+                                <GitBranch className="w-4 h-4 text-blue-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-medium">
+                                    Condicional
+                                  </span>
+                                  <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded font-medium">
+                                    {TYPE_LABELS[child.type as QuestionType] || child.type}
+                                  </span>
+                                  {!child.active && (
+                                    <span className="text-xs bg-red-500/10 text-red-400 px-2 py-0.5 rounded">Inativa</span>
+                                  )}
                                 </div>
+                                <p className="text-xs text-blue-400 mb-1">
+                                  Aparece quando responder: <strong>"{triggerLabel}"</strong>
+                                </p>
+                                <h4 className="font-display text-base tracking-wider text-foreground truncate">
+                                  {child.title}
+                                </h4>
+                                {child.subtitle && (
+                                  <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{child.subtitle as string}</p>
+                                )}
+                                {childOpts && childOpts.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {childOpts.slice(0, 4).map((opt: Option) => (
+                                      <span key={opt.value} className="text-xs bg-secondary px-2 py-0.5 rounded text-muted-foreground">
+                                        {opt.label}
+                                      </span>
+                                    ))}
+                                    {childOpts.length > 4 && (
+                                      <span className="text-xs text-muted-foreground/60">+{childOpts.length - 4} mais</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => setEditingQuestion({
                                     id: child.id,
@@ -478,9 +532,9 @@ export default function OwnerSurvey() {
                                     sortOrder: child.sortOrder,
                                     active: child.active,
                                   })}
-                                  className="p-1 text-muted-foreground hover:text-yellow-500"
+                                  className="p-2 rounded-lg hover:bg-yellow-500/10 text-muted-foreground hover:text-yellow-500 transition-colors"
                                 >
-                                  <Pencil className="w-3.5 h-3.5" />
+                                  <Pencil className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => {
@@ -488,38 +542,34 @@ export default function OwnerSurvey() {
                                       deleteMutation.mutate({ id: child.id });
                                     }
                                   }}
-                                  className="p-1 text-muted-foreground hover:text-red-400"
+                                  className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
-                            ))}
-                            {/* Add child for each option */}
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {((q.options as Option[]) || []).map(opt => {
-                                const hasChild = children.some(c => c.triggerOption === opt.value);
-                                return (
-                                  <button
-                                    key={opt.value}
-                                    onClick={() => !hasChild && startCreateChild(q.id, opt.value)}
-                                    disabled={hasChild}
-                                    className={`text-xs px-2 py-1 rounded-lg border transition-colors ${
-                                      hasChild
-                                        ? "border-blue-500/30 bg-blue-500/10 text-blue-400 cursor-default"
-                                        : "border-border/50 text-muted-foreground hover:border-blue-500/50 hover:text-blue-400 cursor-pointer"
-                                    }`}
-                                  >
-                                    <Plus className="w-3 h-3 inline mr-0.5" />
-                                    {opt.label}
-                                  </button>
-                                );
-                              })}
                             </div>
                           </div>
-                        </details>
+                        );
+                      })}
+                      {/* Button to add more conditionals */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {((q.options as Option[]) || []).map(opt => {
+                          const hasChild = children.some(c => c.triggerOption === opt.value);
+                          if (hasChild) return null;
+                          return (
+                            <button
+                              key={opt.value}
+                              onClick={() => startCreateChild(q.id, opt.value)}
+                              className="text-xs px-2 py-1 rounded-lg border border-border/50 text-muted-foreground hover:border-blue-500/50 hover:text-blue-400 cursor-pointer transition-colors"
+                            >
+                              <Plus className="w-3 h-3 inline mr-0.5" />
+                              Condicional: {opt.label}
+                            </button>
+                          );
+                        })}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
