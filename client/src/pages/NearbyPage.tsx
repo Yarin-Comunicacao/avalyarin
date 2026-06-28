@@ -39,11 +39,9 @@ export default function NearbyPage() {
       <div className="container pt-28 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/">
-            <button className="w-9 h-9 rounded-lg bg-card border border-border/50 flex items-center justify-center hover:border-primary/40 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-foreground" />
-            </button>
-          </Link>
+          <button onClick={() => window.history.back()} className="w-9 h-9 rounded-lg bg-card border border-border/50 flex items-center justify-center hover:border-primary/40 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-foreground" />
+          </button>
           <div className="flex-1">
             <h1 className="font-display text-2xl tracking-wider text-primary text-glow-amber">
               PERTO DE VOCÊ

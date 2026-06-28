@@ -150,7 +150,7 @@ export default function QRScannerPage() {
       {/* Header */}
       <div className="relative z-10 flex items-center gap-3 p-4 bg-black/80 backdrop-blur-sm">
         <button
-          onClick={() => { stopScanner(); navigate("/"); }}
+          onClick={() => { stopScanner(); window.history.back(); }}
           className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
         >
           <ArrowLeft className="w-5 h-5 text-white" />

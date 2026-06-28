@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import AdminEstablishments from "@/components/AdminEstablishments";
 import BrandbookTab from "@/components/BrandbookTab";
 import { useState, useEffect, useMemo } from "react";
-import { Link, useSearch, useLocation } from "wouter";
+import { useSearch, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
@@ -60,9 +60,7 @@ export default function AdminPanel() {
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
           <p className="text-muted-foreground">Você não tem permissão para acessar esta página.</p>
-          <Link href="/">
-            <span className="text-primary hover:underline mt-4 inline-block">Voltar ao início</span>
-          </Link>
+          <button onClick={() => window.history.back()} className="text-primary hover:underline mt-4 inline-block">Voltar</button>
         </div>
       </div>
     );

@@ -93,7 +93,7 @@ export default function EventoDetalhe() {
       <div className="container pt-28 pb-24">
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1 as any)}
+          onClick={() => window.history.back()}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Voltar

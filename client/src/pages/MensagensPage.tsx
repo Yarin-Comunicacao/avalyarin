@@ -167,11 +167,9 @@ function DirectChat({ partnerUsername }: { partnerUsername: string }) {
       <div className="container pt-20 pb-4 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/mensagens">
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          </Link>
+          <button onClick={() => window.history.back()} className="text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <Link href={`/perfil/${partnerUsername}`}>
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">

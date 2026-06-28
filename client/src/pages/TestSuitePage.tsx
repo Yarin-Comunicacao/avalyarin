@@ -90,12 +90,10 @@ export default function TestSuitePage() {
       {/* Header */}
       <div className="bg-gradient-to-b from-green-900/30 to-background border-b border-border/30">
         <div className="container px-4 pt-6 pb-4">
-          <Link href="/owner/sistema">
-            <span className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
-              <ArrowLeft className="w-4 h-4" />
-              Voltar ao Sistema
-            </span>
-          </Link>
+          <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            Voltar ao Sistema
+          </button>
           <div className="flex items-center gap-3 mt-2">
             <div className="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center">
               <TestTube className="w-5 h-5 text-green-400" />

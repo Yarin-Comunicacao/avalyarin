@@ -722,3 +722,7 @@
 - [x] Renomear botão "Conta" para "Perfil" no BottomNav para roles user, influencer e critic
 - [x] Redesenhar a página de Perfil como coleção de fotos das avaliações (grid estilo Instagram/mockup)
 - [x] Manter funcionalidades de conta (editar perfil, tema, logout) acessíveis via ícone de configurações (link para /conta)
+
+## Fase 27 — Navegação: logo não clicável + setas de voltar com history.back()
+- [x] Remover link clicável do logo "Y Avalyarin" no Navbar
+- [x] Substituir todas as setas de voltar por window.history.back() em todas as páginas/roles

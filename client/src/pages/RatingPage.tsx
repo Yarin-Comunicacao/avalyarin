@@ -431,7 +431,6 @@ export default function RatingPage() {
     lng: estData.lng || 0,
   } : null;
 
-  const backHref = estData?.category ? `/categoria/${estData.category.slug}` : "/#categorias";
   const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
 
   // Check QR scan status for this establishment (determines source: presencial/hibrido/remoto)
@@ -1079,7 +1078,7 @@ export default function RatingPage() {
   if (user && !profileData.isLoading && !isQualified) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar onMenuOpen={() => setMenuOpen(true)} />
         <div className="pt-28 pb-24 container max-w-md">
           <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
@@ -1115,7 +1114,7 @@ export default function RatingPage() {
   return (
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar onMenuOpen={() => setMenuOpen(true)} />
       <div className="pt-36 pb-24">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}

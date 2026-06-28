@@ -399,7 +399,7 @@ export default function CalendarioGrupo() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate("/grupos")}
+              onClick={() => window.history.back()}
               className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />

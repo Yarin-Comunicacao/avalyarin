@@ -144,11 +144,7 @@ export default function AdminEstabDetail() {
   );
 
   const handleBack = () => {
-    if (fromCategoryId) {
-      navigate(`/admin?tab=establishments&category=${fromCategoryId}`);
-    } else {
-      navigate("/admin?tab=establishments");
-    }
+    window.history.back();
   };
 
   if (authLoading || isLoading) {
@@ -165,7 +161,7 @@ export default function AdminEstabDetail() {
         <div className="text-center">
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
-          <Link href="/admin"><span className="text-primary hover:underline">Voltar ao Admin</span></Link>
+          <button onClick={() => window.history.back()} className="text-primary hover:underline">Voltar ao Admin</button>
         </div>
       </div>
     );

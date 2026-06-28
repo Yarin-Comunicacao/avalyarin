@@ -79,7 +79,6 @@ export default function EstablishmentPage() {
 
   const establishment = estData;
   const menu = establishment.menu || [];
-  const backHref = establishment.category ? `/categoria/${establishment.category.slug}` : "/#categorias";
 
   // Categorize menu items (case-insensitive, supports singular/plural and compound names)
   const cat = (m: { category?: string | null }) => (m.category || "").toLowerCase();
@@ -186,7 +185,7 @@ export default function EstablishmentPage() {
   return (
     <div className="min-h-screen">
       <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar backHref={backHref} onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar onMenuOpen={() => setMenuOpen(true)} />
 
       {/* Hero */}
       <section className="relative pt-28">

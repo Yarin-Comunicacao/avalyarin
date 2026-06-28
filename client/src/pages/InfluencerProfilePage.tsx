@@ -67,7 +67,7 @@ export default function InfluencerProfilePage() {
         <Navbar onMenuOpen={() => setMenuOpen(true)} />
         <div className="container pt-24 text-center">
           <p className="text-muted-foreground">Influencer não encontrado.</p>
-          <Link href="/" className="text-primary text-sm mt-2 inline-block">Voltar ao início</Link>
+          <button onClick={() => window.history.back()} className="text-primary text-sm mt-2 inline-block">Voltar</button>
         </div>
       </div>
     );

@@ -133,7 +133,7 @@ export default function QRScanPage() {
           <QrCode className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">Estabelecimento não encontrado</h1>
           <p className="text-muted-foreground">O QR Code pode estar desatualizado ou o estabelecimento foi removido.</p>
-          <Button className="mt-6" onClick={() => navigate("/")}>Voltar ao início</Button>
+          <Button className="mt-6" onClick={() => window.history.back()}>Voltar</Button>
         </div>
       </div>
     );
