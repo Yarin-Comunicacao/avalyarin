@@ -264,22 +264,48 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
     { staleTime: 0, refetchOnMount: true }
   );
 
-  // Map DB questions to usable format
-  const standardQuestions: SurveyQuestion[] = useMemo(() => {
+  // Map DB questions to usable format (including conditional children)
+  const allDbQuestions = useMemo(() => {
     if (!dbQuestions || dbQuestions.length === 0) return [];
-    return dbQuestions
-      .filter(q => !q.parentQuestionId)
-      .map(q => ({
+    const mainQuestions = dbQuestions.filter(q => !q.parentQuestionId);
+    const childQuestions = dbQuestions.filter(q => !!q.parentQuestionId);
+
+    const result: Array<SurveyQuestion & { dbId?: number; parentQuestionId?: number | null; triggerOption?: string | null }> = [];
+    for (const q of mainQuestions) {
+      result.push({
         id: q.questionId,
+        dbId: q.id,
         icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
         title: q.title,
-        subtitle: q.subtitle || "",
-        type: q.type as "single" | "multi" | "score" | "text",
+        subtitle: (q.subtitle as string) || "",
+        type: q.type as any,
         maxSelect: q.maxSelect || undefined,
         options: (q.options as { label: string; value: string }[] | null) || undefined,
         lowScoreReasons: (q.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
         lowScoreThreshold: q.lowScoreThreshold || undefined,
-      }));
+        parentQuestionId: null,
+        triggerOption: null,
+      });
+      // Insert children right after parent
+      const children = childQuestions.filter(c => c.parentQuestionId === q.id);
+      for (const child of children) {
+        result.push({
+          id: child.questionId,
+          dbId: child.id,
+          icon: ICON_MAP[child.icon || "Star"] || <Star className="w-6 h-6" />,
+          title: child.title,
+          subtitle: (child.subtitle as string) || "",
+          type: child.type as any,
+          maxSelect: child.maxSelect || undefined,
+          options: (child.options as { label: string; value: string }[] | null) || undefined,
+          lowScoreReasons: (child.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
+          lowScoreThreshold: child.lowScoreThreshold || undefined,
+          parentQuestionId: child.parentQuestionId,
+          triggerOption: child.triggerOption,
+        });
+      }
+    }
+    return result;
   }, [dbQuestions]);
 
   // Generate personalized questions
@@ -289,18 +315,44 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
   );
 
   // Combine: standard + 2 personalized (inserted after question 6, before NPS)
-  const allQuestions = useMemo(() => {
-    if (standardQuestions.length === 0) return [];
-    const standard = [...standardQuestions];
-    // Insert personalized questions after index 5 (after dietary restrictions, before app experience)
-    const insertIdx = Math.min(6, standard.length);
-    standard.splice(insertIdx, 0, ...personalizedQuestions);
-    return standard;
-  }, [standardQuestions, personalizedQuestions]);
+  const allQuestionsWithPersonalized = useMemo(() => {
+    const mainOnly = allDbQuestions.filter(q => !q.parentQuestionId);
+    if (mainOnly.length === 0) return allDbQuestions;
+    // Find insert point among main questions
+    const insertIdx = Math.min(6, mainOnly.length);
+    const insertAfterDbId = mainOnly[insertIdx - 1]?.dbId;
+    // Find position in full list (after that main question and its children)
+    let insertPos = allDbQuestions.length;
+    if (insertAfterDbId) {
+      const idx = allDbQuestions.findIndex(q => q.dbId === insertAfterDbId);
+      if (idx !== -1) {
+        // Skip past any children of that question
+        let pos = idx + 1;
+        while (pos < allDbQuestions.length && allDbQuestions[pos].parentQuestionId === insertAfterDbId) pos++;
+        insertPos = pos;
+      }
+    }
+    const result = [...allDbQuestions];
+    result.splice(insertPos, 0, ...personalizedQuestions.map(p => ({ ...p, dbId: undefined, parentQuestionId: null, triggerOption: null })));
+    return result;
+  }, [allDbQuestions, personalizedQuestions]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [lowReasons, setLowReasons] = useState<Record<string, string[]>>({});
+
+  // Filter visible questions based on conditional logic
+  const allQuestions = useMemo(() => {
+    return allQuestionsWithPersonalized.filter(q => {
+      if (!q.parentQuestionId || !q.triggerOption) return true;
+      const parent = allQuestionsWithPersonalized.find(p => p.dbId === q.parentQuestionId);
+      if (!parent) return false;
+      const parentAnswer = answers[parent.id];
+      if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+      if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
+      return false;
+    });
+  }, [allQuestionsWithPersonalized, answers]);
   const [showBadge, setShowBadge] = useState(false);
 
   const question = allQuestions[currentStep];

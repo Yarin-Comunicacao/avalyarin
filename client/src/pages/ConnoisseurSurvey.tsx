@@ -66,28 +66,66 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
     { staleTime: 0, refetchOnMount: true }
   );
 
-  // Map DB questions to usable format
-  const QUESTIONS: SurveyQuestion[] = useMemo(() => {
+  // Map DB questions to usable format (including conditional children)
+  const ALL_QUESTIONS = useMemo(() => {
     if (!dbQuestions || dbQuestions.length === 0) return [];
-    return dbQuestions
-      .filter(q => !q.parentQuestionId)
-      .map(q => ({
+    const mainQuestions = dbQuestions.filter(q => !q.parentQuestionId);
+    const childQuestions = dbQuestions.filter(q => !!q.parentQuestionId);
+
+    const result: Array<SurveyQuestion & { dbId?: number; parentQuestionId?: number | null; triggerOption?: string | null }> = [];
+    for (const q of mainQuestions) {
+      result.push({
         id: q.questionId,
+        dbId: q.id,
         icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
         title: q.title,
-        subtitle: q.subtitle || "",
-        type: q.type as "single" | "multi" | "score" | "text",
+        subtitle: (q.subtitle as string) || "",
+        type: q.type as any,
         maxSelect: q.maxSelect || undefined,
         options: (q.options as { label: string; value: string }[] | null) || undefined,
         lowScoreReasons: (q.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
         lowScoreThreshold: q.lowScoreThreshold || undefined,
-      }));
+        parentQuestionId: null,
+        triggerOption: null,
+      });
+      const children = childQuestions.filter(c => c.parentQuestionId === q.id);
+      for (const child of children) {
+        result.push({
+          id: child.questionId,
+          dbId: child.id,
+          icon: ICON_MAP[child.icon || "Star"] || <Star className="w-6 h-6" />,
+          title: child.title,
+          subtitle: (child.subtitle as string) || "",
+          type: child.type as any,
+          maxSelect: child.maxSelect || undefined,
+          options: (child.options as { label: string; value: string }[] | null) || undefined,
+          lowScoreReasons: (child.lowScoreReasons as { label: string; value: string }[] | null) || undefined,
+          lowScoreThreshold: child.lowScoreThreshold || undefined,
+          parentQuestionId: child.parentQuestionId,
+          triggerOption: child.triggerOption,
+        });
+      }
+    }
+    return result;
   }, [dbQuestions]);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [lowReasons, setLowReasons] = useState<Record<string, string[]>>({});
   const [showBadge, setShowBadge] = useState(false);
+
+  // Filter visible questions based on conditional logic
+  const QUESTIONS = useMemo(() => {
+    return ALL_QUESTIONS.filter(q => {
+      if (!q.parentQuestionId || !q.triggerOption) return true;
+      const parent = ALL_QUESTIONS.find(p => p.dbId === q.parentQuestionId);
+      if (!parent) return false;
+      const parentAnswer = answers[parent.id];
+      if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+      if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
+      return false;
+    });
+  }, [ALL_QUESTIONS, answers]);
 
   const question = QUESTIONS[currentStep];
   const progress = QUESTIONS.length > 0 ? ((currentStep + 1) / QUESTIONS.length) * 100 : 0;

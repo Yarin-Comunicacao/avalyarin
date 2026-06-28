@@ -60,27 +60,81 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     { staleTime: 0, refetchOnMount: true }
   );
 
-  // Map DB questions to usable format
+  // Map DB questions to usable format, including conditional sub-questions
   const QUESTIONS = useMemo(() => {
     if (!dbQuestions || dbQuestions.length === 0) return [];
-    return dbQuestions
-      .filter(q => !q.parentQuestionId) // exclude conditional sub-questions for now
-      .map(q => ({
+
+    const mainQuestions = dbQuestions.filter(q => !q.parentQuestionId);
+    const childQuestions = dbQuestions.filter(q => !!q.parentQuestionId);
+
+    // Build the ordered list: main question, then any triggered children
+    const result: Array<{
+      id: string;
+      dbId: number;
+      icon: React.ReactNode;
+      title: string;
+      subtitle: string;
+      type: "single" | "multi" | "birthdate" | "score" | "text";
+      maxSelect?: number;
+      options: { label: string; value: string }[];
+      parentQuestionId?: number | null;
+      triggerOption?: string | null;
+    }> = [];
+
+    for (const q of mainQuestions) {
+      result.push({
         id: q.questionId,
+        dbId: q.id,
         icon: ICON_MAP[q.icon || "Star"] || <Star className="w-6 h-6" />,
         title: q.title,
-        subtitle: q.subtitle || "",
-        type: q.type as "single" | "multi" | "birthdate" | "score" | "text",
+        subtitle: (q.subtitle as string) || "",
+        type: q.type as any,
         maxSelect: q.maxSelect || undefined,
         options: (q.options as { label: string; value: string }[] | null) || [],
-      }));
+        parentQuestionId: null,
+        triggerOption: null,
+      });
+      // Insert children right after their parent
+      const children = childQuestions.filter(c => c.parentQuestionId === q.id);
+      for (const child of children) {
+        result.push({
+          id: child.questionId,
+          dbId: child.id,
+          icon: ICON_MAP[child.icon || "Star"] || <Star className="w-6 h-6" />,
+          title: child.title,
+          subtitle: (child.subtitle as string) || "",
+          type: child.type as any,
+          maxSelect: child.maxSelect || undefined,
+          options: (child.options as { label: string; value: string }[] | null) || [],
+          parentQuestionId: child.parentQuestionId,
+          triggerOption: child.triggerOption,
+        });
+      }
+    }
+    return result;
   }, [dbQuestions]);
 
-  // Total steps = QUESTIONS + 1 (location step)
-  const TOTAL_STEPS = QUESTIONS.length + 1;
+  // Filter visible questions based on conditional logic (answers determine which children show)
+  const VISIBLE_QUESTIONS = useMemo(() => {
+    return QUESTIONS.filter(q => {
+      // Main questions always visible
+      if (!q.parentQuestionId || !q.triggerOption) return true;
+      // Find parent question's ID (questionId string) by dbId
+      const parent = QUESTIONS.find(p => p.dbId === q.parentQuestionId);
+      if (!parent) return false;
+      // Check if user's answer to parent matches the trigger
+      const parentAnswer = answers[parent.id];
+      if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+      if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
+      return false;
+    });
+  }, [QUESTIONS, answers]);
 
-  const isLocationStep = currentStep === QUESTIONS.length;
-  const question = isLocationStep ? null : QUESTIONS[currentStep];
+  // Total steps = VISIBLE_QUESTIONS + 1 (location step)
+  const TOTAL_STEPS = VISIBLE_QUESTIONS.length + 1;
+
+  const isLocationStep = currentStep >= VISIBLE_QUESTIONS.length;
+  const question = isLocationStep ? null : VISIBLE_QUESTIONS[currentStep];
   const progress = TOTAL_STEPS > 0 ? ((currentStep + 1) / TOTAL_STEPS) * 100 : 0;
 
   const currentAnswer = question ? answers[question.id] : undefined;
@@ -184,7 +238,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       return;
     }
     if (!isAnswered) return;
-    if (currentStep < QUESTIONS.length) {
+    if (currentStep < VISIBLE_QUESTIONS.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -207,7 +261,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
   };
 
   // Loading state while fetching questions from DB
-  if (questionsLoading || QUESTIONS.length === 0) {
+  if (questionsLoading || VISIBLE_QUESTIONS.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -478,7 +532,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
               ) : (
                 <>PULAR <ChevronRight className="w-4 h-4 ml-1" /></>
               )
-            ) : currentStep < QUESTIONS.length - 1 ? (
+            ) : currentStep < VISIBLE_QUESTIONS.length - 1 ? (
               <>PRÓXIMA <ChevronRight className="w-4 h-4 ml-1" /></>
             ) : (
               <>PRÓXIMA <ChevronRight className="w-4 h-4 ml-1" /></>

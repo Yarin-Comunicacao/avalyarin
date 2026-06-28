@@ -806,6 +806,74 @@ function QuestionEditor({
           </button>
         </div>
 
+        {/* Conditional Question Config */}
+        <div className="border-t border-border/30 pt-4">
+          <h4 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2">
+            <GitBranch className="w-4 h-4 text-blue-400" />
+            Pergunta Condicional (opcional)
+          </h4>
+          <p className="text-xs text-muted-foreground mb-3">
+            Se quiser que esta pergunta apareça apenas quando o usuário responder uma opção específica de outra pergunta, selecione abaixo.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Pergunta Pai</label>
+              <select
+                value={form.parentQuestionId ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value ? Number(e.target.value) : null;
+                  updateField("parentQuestionId", val);
+                  // Reset trigger when parent changes
+                  if (!val) updateField("triggerOption", null);
+                }}
+                className="w-full bg-secondary border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground"
+              >
+                <option value="">Nenhuma (pergunta independente)</option>
+                {allQuestions
+                  .filter(q => q.id !== form.id) // can't be parent of itself
+                  .map(q => (
+                    <option key={q.id} value={q.id}>
+                      {q.title} ({q.questionId})
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Ativada quando responder</label>
+              <select
+                value={form.triggerOption ?? ""}
+                onChange={(e) => updateField("triggerOption", e.target.value || null)}
+                disabled={!form.parentQuestionId}
+                className="w-full bg-secondary border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground disabled:opacity-50"
+              >
+                <option value="">Selecione a opção...</option>
+                {(() => {
+                  const parent = allQuestions.find(q => q.id === form.parentQuestionId);
+                  const parentOpts = parent?.options as Option[] | null;
+                  if (!parentOpts || !Array.isArray(parentOpts)) return null;
+                  return parentOpts.map((opt: Option) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ));
+                })()}
+              </select>
+            </div>
+          </div>
+          {form.parentQuestionId && form.triggerOption && (
+            <div className="mt-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2">
+              <p className="text-xs text-blue-400">
+                Esta pergunta aparecerá apenas quando o usuário responder <strong>"{(() => {
+                  const parent = allQuestions.find(q => q.id === form.parentQuestionId);
+                  const parentOpts = parent?.options as Option[] | null;
+                  const opt = parentOpts?.find(o => o.value === form.triggerOption);
+                  return opt?.label || form.triggerOption;
+                })()}"</strong> na pergunta <strong>"{allQuestions.find(q => q.id === form.parentQuestionId)?.title || ''}"</strong>
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Options (for single/multi) with DRAG AND DROP */}
         {(form.type === "single" || form.type === "multi") && (
           <div className="border-t border-border/30 pt-4">

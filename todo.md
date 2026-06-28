@@ -761,3 +761,8 @@
 - [x] ExplorerSurvey refatorado: carrega perguntas via trpc.survey.questions (phase=explorer)
 - [x] ConnoisseurSurvey refatorado: carrega perguntas via trpc.survey.questions (phase=connoisseur)
 - [x] Endpoint público survey.questions criado (publicProcedure, filtra por phase e active=true)
+
+## Fase 34 — Perguntas condicionais na survey
+- [x] Dropdown no OwnerSurvey para selecionar pergunta pai (parentQuestionId) ao criar/editar pergunta
+- [x] Dropdown de opção trigger (triggerOption) populado com as opções da pergunta pai selecionada
+- [x] Frontend: consumir perguntas condicionais nos surveys (mostrar sub-pergunta quando resposta da pai = triggerOption)
