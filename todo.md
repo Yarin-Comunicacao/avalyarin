@@ -717,3 +717,8 @@
 - [x] Migrar IDs de establishments para faixa 30M-59.9M
 - [x] Atualizar todas as foreign keys em todas as tabelas referenciando users e establishments
 - [x] Verificar integridade do banco após migração
+
+## Fase 26 — Perfil: renomear Conta → Perfil e redesenhar como grid de fotos
+- [x] Renomear botão "Conta" para "Perfil" no BottomNav para roles user, influencer e critic
+- [x] Redesenhar a página de Perfil como coleção de fotos das avaliações (grid estilo Instagram/mockup)
+- [x] Manter funcionalidades de conta (editar perfil, tema, logout) acessíveis via ícone de configurações (link para /conta)
