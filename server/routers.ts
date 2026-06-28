@@ -1198,6 +1198,21 @@ export const appRouter = router({
     get: protectedProcedure.query(async ({ ctx }) => {
       return await getUserSurveyData(ctx.user!.id);
     }),
+    // Public: list all establishments for 'establishment' type questions
+    allEstablishments: publicProcedure.query(async () => {
+      const { getDb } = await import("./db");
+      const { establishments } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      const results = await db!.select({
+        id: establishments.id,
+        name: establishments.name,
+        slug: establishments.slug,
+        neighborhood: establishments.neighborhood,
+        categoryId: establishments.categoryId,
+      }).from(establishments).where(eq(establishments.status, "active"));
+      return results;
+    }),
   }),
 
   // Age verification
@@ -2783,7 +2798,7 @@ export const appRouter = router({
         questionId: z.string().min(1).max(64),
         title: z.string().min(1).max(255),
         subtitle: z.string().optional(),
-        type: z.enum(["single", "multi", "score", "text", "birthdate"]),
+        type: z.enum(["single", "multi", "score", "text", "birthdate", "establishment"]),
         icon: z.string().max(64).optional(),
         maxSelect: z.number().min(1).max(20).optional(),
         lowScoreThreshold: z.number().min(1).max(10).optional(),
@@ -2805,7 +2820,7 @@ export const appRouter = router({
         questionId: z.string().min(1).max(64).optional(),
         title: z.string().min(1).max(255).optional(),
         subtitle: z.string().optional(),
-        type: z.enum(["single", "multi", "score", "text", "birthdate"]).optional(),
+        type: z.enum(["single", "multi", "score", "text", "birthdate", "establishment"]).optional(),
         icon: z.string().max(64).optional(),
         maxSelect: z.number().min(1).max(20).optional(),
         lowScoreThreshold: z.number().min(1).max(10).optional(),

@@ -264,6 +264,7 @@ function App() {
   }, [gtmData?.gtmId]);
 
   const saveSurveyMutation = trpc.survey.save.useMutation();
+  const submitClaimMutation = trpc.business.submitClaim.useMutation();
   const handleSurveyComplete = useCallback((answers: any) => {
     localStorage.setItem("avalyarin_survey_completed", "true");
     localStorage.setItem("avalyarin_survey_answers", JSON.stringify(answers));
@@ -273,7 +274,19 @@ function App() {
     try {
       saveSurveyMutation.mutate(answers);
     } catch { /* silent - localStorage is primary for now */ }
-  }, [saveSurveyMutation]);
+    // If user selected an establishment (business flow), auto-create a claim request
+    if (answers.selectedEstablishmentId) {
+      try {
+        submitClaimMutation.mutate({
+          establishmentId: Number(answers.selectedEstablishmentId),
+          businessName: "Solicitação via Onboarding",
+          contactPhone: "-",
+          contactEmail: "-",
+          proofDescription: "Solicitação automática criada durante o cadastro (survey onboarding). Usuário se identificou como dono/gerente deste estabelecimento.",
+        });
+      } catch { /* silent */ }
+    }
+  }, [saveSurveyMutation, submitClaimMutation]);
 
   const handlePhase2Complete = useCallback((answers: Record<string, string | string[] | number>) => {
     localStorage.setItem("avalyarin_survey_phase2_completed", "true");

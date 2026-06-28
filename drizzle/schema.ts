@@ -870,7 +870,7 @@ export const surveyQuestions = mysqlTable("survey_questions", {
   questionId: varchar("questionId", { length: 64 }).notNull(), // identificador único da pergunta (ex: "birthdate", "region")
   title: varchar("title", { length: 255 }).notNull(),
   subtitle: text("subtitle"),
-  type: mysqlEnum("type", ["single", "multi", "score", "text", "birthdate"]).notNull(),
+  type: mysqlEnum("type", ["single", "multi", "score", "text", "birthdate", "establishment"]).notNull(),
   icon: varchar("icon", { length: 64 }), // nome do ícone lucide-react
   maxSelect: int("maxSelect"), // para tipo multi
   lowScoreThreshold: int("lowScoreThreshold"), // para tipo score

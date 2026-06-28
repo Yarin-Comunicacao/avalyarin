@@ -2,7 +2,8 @@
 // Progress bar at top, smooth transitions, gamified badge reward
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass, Cake, Navigation, Loader2, Star, Zap, Users, Calendar, Wine, AlertTriangle, MessageSquare } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Award, MapPin, Clock, DollarSign, Utensils, Heart, Compass, Cake, Navigation, Loader2, Star, Zap, Users, Calendar, Wine, AlertTriangle, MessageSquare, Search, Store } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import BirthdateRoulette from "@/components/BirthdateRoulette";
 import { trpc } from "@/lib/trpc";
@@ -15,6 +16,7 @@ export interface SurveyAnswer {
   categories: string[];
   priorities: string[];
   discovery: string[];
+  selectedEstablishmentId?: string; // ID do estab selecionado (para fluxo business)
 }
 
 // Icon mapping from string name to React component
@@ -35,6 +37,8 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   MessageSquare: <MessageSquare className="w-6 h-6" />,
   Navigation: <Navigation className="w-6 h-6" />,
   Award: <Award className="w-6 h-6" />,
+  Store: <Store className="w-6 h-6" />,
+  Search: <Search className="w-6 h-6" />,
 };
 
 interface OnboardingSurveyProps {
@@ -51,8 +55,14 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
   const [locationGranted, setLocationGranted] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [estabSearch, setEstabSearch] = useState("");
 
   const saveLocationMutation = trpc.profile.saveLocation.useMutation();
+
+  // Fetch all establishments for 'establishment' type questions
+  const { data: allEstablishments } = trpc.survey.allEstablishments.useQuery(undefined, {
+    staleTime: 60_000,
+  });
 
   // Fetch questions dynamically from the database
   const { data: dbQuestions, isLoading: questionsLoading } = trpc.survey.questions.useQuery(
@@ -74,7 +84,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       icon: React.ReactNode;
       title: string;
       subtitle: string;
-      type: "single" | "multi" | "birthdate" | "score" | "text";
+      type: "single" | "multi" | "birthdate" | "score" | "text" | "establishment";
       maxSelect?: number;
       options: { label: string; value: string }[];
       parentQuestionId?: number | null;
@@ -144,7 +154,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     if (question.type === "birthdate") {
       return typeof currentAnswer === "string" && currentAnswer !== "" && birthdateValid;
     }
-    if (question.type === "single") {
+    if (question.type === "single" || question.type === "establishment") {
       return typeof currentAnswer === "string" && currentAnswer !== "";
     }
     return Array.isArray(currentAnswer) && currentAnswer.length > 0;
@@ -218,6 +228,9 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
   const finishSurvey = useCallback(() => {
     setShowBadge(true);
     setTimeout(() => {
+      // Find any answer to an 'establishment' type question
+      const estabQuestion = VISIBLE_QUESTIONS.find(q => q.type === "establishment");
+      const estabId = estabQuestion ? (answers[estabQuestion.id] as string) : undefined;
       const surveyAnswers: SurveyAnswer = {
         birthdate: (answers.birthdate as string) || "",
         region: (answers.region as string) || "",
@@ -226,10 +239,11 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
         categories: (answers.categories as string[]) || [],
         priorities: (answers.priorities as string[]) || [],
         discovery: (answers.discovery as string[]) || [],
+        selectedEstablishmentId: estabId || undefined,
       };
       onComplete(surveyAnswers);
     }, 2500);
-  }, [answers, onComplete]);
+  }, [answers, onComplete, VISIBLE_QUESTIONS]);
 
   const handleNext = () => {
     if (isLocationStep) {
@@ -248,6 +262,8 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
   };
 
   const handleSkip = () => {
+    const estabQuestion = VISIBLE_QUESTIONS.find(q => q.type === "establishment");
+    const estabId = estabQuestion ? (answers[estabQuestion.id] as string) : undefined;
     const surveyAnswers: SurveyAnswer = {
       birthdate: (answers.birthdate as string) || "",
       region: (answers.region as string) || "",
@@ -256,6 +272,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       categories: (answers.categories as string[]) || [],
       priorities: (answers.priorities as string[]) || [],
       discovery: (answers.discovery as string[]) || [],
+      selectedEstablishmentId: estabId || undefined,
     };
     onComplete(surveyAnswers);
   };
@@ -446,13 +463,73 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                     </div>
                   </div>
 
-                  {/* Content: birthdate roulette or options */}
+                  {/* Content: birthdate roulette, establishment picker, or options */}
                   {question!.type === "birthdate" ? (
                     <BirthdateRoulette
                       value={answers.birthdate as string | undefined}
                       onChange={handleBirthdateChange}
                       minAge={18}
                     />
+                  ) : question!.type === "establishment" ? (
+                    /* ═══════ ESTABLISHMENT PICKER ═══════ */
+                    <div className="space-y-3">
+                      {/* Search input */}
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Buscar estabelecimento..."
+                          value={estabSearch}
+                          onChange={(e) => setEstabSearch(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                      {/* Establishments list */}
+                      <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1">
+                        {(allEstablishments || []).filter(e =>
+                          !estabSearch || e.name.toLowerCase().includes(estabSearch.toLowerCase()) ||
+                          (e.neighborhood || "").toLowerCase().includes(estabSearch.toLowerCase())
+                        ).map((estab) => {
+                          const isSelected = currentAnswer === String(estab.id);
+                          return (
+                            <button
+                              key={estab.id}
+                              onClick={() => handleSingleSelect(String(estab.id))}
+                              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                                isSelected
+                                  ? "border-primary/60 bg-primary/10 shadow-sm"
+                                  : "border-border/30 bg-card hover:border-border/60 hover:bg-card/80"
+                              }`}
+                            >
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected ? "border-primary" : "border-muted-foreground/40"
+                              }`}>
+                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                              </div>
+                              <div className="min-w-0">
+                                <span className={`text-sm font-medium block truncate ${
+                                  isSelected ? "text-foreground" : "text-muted-foreground"
+                                }`}>
+                                  {estab.name}
+                                </span>
+                                {estab.neighborhood && (
+                                  <span className="text-xs text-muted-foreground/60 block truncate">
+                                    {estab.neighborhood}
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                        {(allEstablishments || []).filter(e =>
+                          !estabSearch || e.name.toLowerCase().includes(estabSearch.toLowerCase()) ||
+                          (e.neighborhood || "").toLowerCase().includes(estabSearch.toLowerCase())
+                        ).length === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            Nenhum estabelecimento encontrado
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   ) : (
                     <>
                       {/* Options */}

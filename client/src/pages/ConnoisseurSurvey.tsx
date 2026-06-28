@@ -6,9 +6,10 @@ import {
   ChevronRight, ChevronLeft, Award, BarChart3, Shield, Lightbulb,
   Star, GitCompare, Trophy, MessageSquare, Check, Loader2,
   Clock, DollarSign, Utensils, Heart, Compass, MapPin, Users,
-  Calendar, Wine, AlertTriangle, Zap
+  Calendar, Wine, AlertTriangle, Zap, Search, Store
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 
 // ============================================================
@@ -20,7 +21,7 @@ interface SurveyQuestion {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  type: "single" | "multi" | "score" | "text";
+  type: "single" | "multi" | "score" | "text" | "establishment";
   maxSelect?: number;
   options?: { label: string; value: string }[];
   lowScoreReasons?: { label: string; value: string }[];
@@ -53,6 +54,8 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   GitCompare: <GitCompare className="w-6 h-6" />,
   Trophy: <Trophy className="w-6 h-6" />,
   BarChart3: <BarChart3 className="w-6 h-6" />,
+  Store: <Store className="w-6 h-6" />,
+  Search: <Search className="w-6 h-6" />,
 };
 
 // ============================================================
@@ -113,6 +116,10 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [lowReasons, setLowReasons] = useState<Record<string, string[]>>({});
   const [showBadge, setShowBadge] = useState(false);
+  const [estabSearch, setEstabSearch] = useState("");
+
+  // Fetch all establishments for 'establishment' type questions
+  const { data: allEstablishments } = trpc.survey.allEstablishments.useQuery(undefined, { staleTime: 60_000 });
 
   // Filter visible questions based on conditional logic
   const QUESTIONS = useMemo(() => {
@@ -133,7 +140,7 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   const currentAnswer = question ? answers[question.id] : undefined;
   const isAnswered = (() => {
     if (!question) return false;
-    if (question.type === "single") return typeof currentAnswer === "string" && currentAnswer !== "";
+    if (question.type === "single" || question.type === "establishment") return typeof currentAnswer === "string" && currentAnswer !== "";
     if (question.type === "multi") return Array.isArray(currentAnswer) && currentAnswer.length > 0;
     if (question.type === "score") return typeof currentAnswer === "number" && currentAnswer > 0;
     if (question.type === "text") return typeof currentAnswer === "string" && currentAnswer.trim().length > 0;
@@ -338,6 +345,57 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
 
               {/* Options */}
               <div className="space-y-2 ml-[52px]">
+                {question.type === "establishment" && (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar estabelecimento..."
+                        value={estabSearch}
+                        onChange={(e) => setEstabSearch(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <div className="max-h-[280px] overflow-y-auto space-y-2 pr-1">
+                      {(allEstablishments || []).filter(e =>
+                        !estabSearch || e.name.toLowerCase().includes(estabSearch.toLowerCase()) ||
+                        (e.neighborhood || "").toLowerCase().includes(estabSearch.toLowerCase())
+                      ).map((estab) => {
+                        const isSelected = currentAnswer === String(estab.id);
+                        return (
+                          <button
+                            key={estab.id}
+                            onClick={() => handleSingleSelect(String(estab.id))}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                              isSelected ? "border-primary/60 bg-primary/10" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                            }`}
+                          >
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                              isSelected ? "border-primary bg-primary" : "border-muted-foreground/40"
+                            }`}>
+                              {isSelected && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
+                            </div>
+                            <div className="min-w-0">
+                              <span className={`text-sm font-medium block truncate ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>
+                                {estab.name}
+                              </span>
+                              {estab.neighborhood && (
+                                <span className="text-xs text-muted-foreground/60 block truncate">{estab.neighborhood}</span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                      {(allEstablishments || []).filter(e =>
+                        !estabSearch || e.name.toLowerCase().includes(estabSearch.toLowerCase()) ||
+                        (e.neighborhood || "").toLowerCase().includes(estabSearch.toLowerCase())
+                      ).length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">Nenhum estabelecimento encontrado</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {question.type === "single" && question.options?.map((opt) => (
                   <button
                     key={opt.value}

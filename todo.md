@@ -766,3 +766,10 @@
 - [x] Dropdown no OwnerSurvey para selecionar pergunta pai (parentQuestionId) ao criar/editar pergunta
 - [x] Dropdown de opção trigger (triggerOption) populado com as opções da pergunta pai selecionada
 - [x] Frontend: consumir perguntas condicionais nos surveys (mostrar sub-pergunta quando resposta da pai = triggerOption)
+
+## Fase 35 — Tipo de pergunta "Estabelecimento" na survey + Dropdown de ícones
+- [x] Adicionar tipo 'establishment' no enum de tipos de pergunta (schema + OwnerSurvey)
+- [x] Criar endpoint público para listar todos os estabelecimentos (para uso na survey)
+- [x] Renderizar tipo 'establishment' no frontend dos surveys (lista com busca/filtro)
+- [x] Vincular resposta do tipo establishment à criação de solicitação business no onComplete do onboarding
+- [x] Substituir campo de texto livre de ícone por dropdown com busca (Lucide icons + emojis)

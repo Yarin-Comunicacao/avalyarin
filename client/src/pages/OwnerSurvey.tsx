@@ -9,6 +9,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Loader2, GitBranch
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import IconPicker from "@/components/IconPicker";
 import {
   DndContext,
   closestCenter,
@@ -28,7 +29,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 type Phase = "onboarding" | "explorer" | "connoisseur";
-type QuestionType = "single" | "multi" | "score" | "text" | "birthdate";
+type QuestionType = "single" | "multi" | "score" | "text" | "birthdate" | "establishment";
 
 interface Option {
   label: string;
@@ -65,6 +66,7 @@ const TYPE_LABELS: Record<QuestionType, string> = {
   score: "Nota (1-10)",
   text: "Texto Livre",
   birthdate: "Data de Nascimento",
+  establishment: "Estabelecimento",
 };
 
 export default function OwnerSurvey() {
@@ -719,13 +721,9 @@ function QuestionEditor({
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Ícone (Lucide)</label>
-            <input
-              type="text"
+            <IconPicker
               value={form.icon}
-              onChange={(e) => updateField("icon", e.target.value)}
-              placeholder="ex: MapPin, Clock, Heart"
-              className="w-full bg-secondary border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground"
+              onChange={(val) => updateField("icon", val)}
             />
           </div>
         </div>
