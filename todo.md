@@ -726,3 +726,7 @@
 ## Fase 27 — Navegação: logo não clicável + setas de voltar com history.back()
 - [x] Remover link clicável do logo "Y Avalyarin" no Navbar
 - [x] Substituir todas as setas de voltar por window.history.back() em todas as páginas/roles
+
+## Fase 28 — Remover Grupos da ContaPage + Bug Lista de Salvos
+- [x] Remover item "Grupos" da ContaPage para roles user, influencer e critic (já está no BottomNav)
+- [x] Corrigir bug: Lista de Salvos não mostrava bares salvos (causa: query SQL referenciava colunas inexistentes e.googleRating e e.googleRatingsTotal — corrigido para e.rating e e.reviewCount)

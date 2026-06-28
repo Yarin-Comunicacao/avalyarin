@@ -391,8 +391,8 @@ export async function getSavedEstablishmentsWithDetails(userId: number): Promise
       e.slug,
       e.neighborhood,
       e.image as imageUrl,
-      e.googleRating,
-      e.googleRatingsTotal,
+      e.rating as googleRating,
+      e.reviewCount as googleRatingsTotal,
       c.name as categoryName,
       c.slug as categorySlug,
       s.createdAt as savedAt

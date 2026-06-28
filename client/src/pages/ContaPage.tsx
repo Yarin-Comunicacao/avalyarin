@@ -1,5 +1,5 @@
 // ContaPage — Hub de conta do usuário (substitui o menu lateral para user/influencer/business/support)
-// Agrupa: Editar Perfil, Meus Dados, Planos, Tema, Fundo, Notificações, Grupos, Salvos, Insígnias, Logout
+// Agrupa: Editar Perfil, Meus Dados, Planos, Tema, Fundo, Notificações, Salvos, Insígnias, Logout
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -7,7 +7,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import {
-  User, Mail, Crown, Palette, Image, Bell, Users, Bookmark, Trophy,
+  User, Mail, Crown, Palette, Image, Bell, Bookmark, Trophy,
   LogOut, ChevronRight, Edit, Star, MapPin, Heart, Loader2, Check, X, ExternalLink,
   UserPlus, LogIn
 } from "lucide-react";
@@ -263,16 +263,6 @@ export default function ContaPage() {
             </div>
           </Link>
 
-          {/* Grupos */}
-          <Link href="/grupos">
-            <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-card/80 transition-colors cursor-pointer group">
-              <div className="w-9 h-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                <Users className="w-4.5 h-4.5 text-indigo-400" />
-              </div>
-              <span className="flex-1 text-sm text-foreground group-hover:text-primary transition-colors">Grupos</span>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </Link>
 
           {/* Lista de Salvos */}
           <Link href="/salvos/locais">
