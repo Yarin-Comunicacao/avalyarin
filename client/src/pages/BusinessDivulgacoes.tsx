@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
 import {
-  Tag, Building2, Megaphone, CalendarDays
+  Tag, Building2, Megaphone, CalendarDays, Sparkles
 } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 
@@ -11,11 +11,13 @@ import {
   PartnershipsTab,
   BroadcastTab,
   EventosEstabTab,
+  DestaquesTab,
 } from "./BusinessPanelTabs";
 
-type TabId = "codigos" | "parcerias" | "transmissao" | "eventos";
+type TabId = "codigos" | "parcerias" | "transmissao" | "eventos" | "destaques";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
+  { id: "destaques", label: "Destaques", labelFull: "Destaques", icon: Sparkles },
   { id: "codigos", label: "Códigos", labelFull: "Códigos Promocionais", icon: Tag },
   { id: "parcerias", label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
   { id: "transmissao", label: "Transmissão", labelFull: "Lista de Transmissão", icon: Megaphone },
@@ -76,6 +78,7 @@ export default function BusinessDivulgacoes() {
 
       {/* Content */}
       <div className="container py-6">
+        {activeTab === "destaques" && <DestaquesTab />}
         {activeTab === "codigos" && <PromoCodesTab />}
         {activeTab === "parcerias" && <PartnershipsTab />}
         {activeTab === "transmissao" && <BroadcastTab />}

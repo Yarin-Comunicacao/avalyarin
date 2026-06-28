@@ -34,6 +34,7 @@ import {
   getBusinessNotifications,
   businessUpdateEstablishment,
   businessAddMenuItem,
+  businessUpdateMenuItem,
   businessDeleteMenuItem,
   getBusinessRatingNotifications,
   markBusinessNotificationRead,
@@ -981,6 +982,21 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const { establishmentId, ...data } = input;
         return await businessAddMenuItem(ctx.user!.id, establishmentId, data);
+      }),
+
+    updateMenuItem: businessProcedure
+      .input(z.object({
+        menuItemId: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        price: z.number().optional(),
+        category: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageKey: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { menuItemId, ...data } = input;
+        return await businessUpdateMenuItem(ctx.user!.id, menuItemId, data);
       }),
 
     deleteMenuItem: businessProcedure

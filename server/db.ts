@@ -1228,6 +1228,47 @@ export async function businessDeleteMenuItem(userId: number, menuItemId: number)
 }
 
 
+export async function businessUpdateMenuItem(userId: number, menuItemId: number, data: {
+  name?: string;
+  description?: string;
+  price?: number;
+  category?: string;
+  imageUrl?: string;
+  imageKey?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Get the menu item to verify ownership
+  const [item] = await db.select().from(menuItems).where(eq(menuItems.id, menuItemId));
+  if (!item) return null;
+  
+  // Verify ownership
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, item.establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  
+  if (!claim) return null;
+  
+  const updateData: any = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.price !== undefined) updateData.price = String(data.price);
+  if (data.category !== undefined) updateData.category = data.category;
+  if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
+  if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
+  
+  if (Object.keys(updateData).length > 0) {
+    await db.update(menuItems).set(updateData).where(eq(menuItems.id, menuItemId));
+  }
+  
+  return { success: true };
+}
+
 // ============================================================
 // BUSINESS NOTIFICATIONS
 // ============================================================

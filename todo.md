@@ -745,3 +745,11 @@
 
 ## Fase 31 — Bug: chat do support não separa conversas por estab
 - [x] Corrigir: mensagens de diferentes estabs aparecem juntas no chat do support (reescrito SupportChat para listar conversas por establishmentId)
+
+## Fase 32 — Reorganizar abas Business e corrigir funcionalidades
+- [x] Reordenar abas Meus Locais: Meus Locais - Cardápio - Chat - Solicitações - Meu Plano
+- [x] Remover aba QR Code e Notificações das tabs (QR vai para card, Notificação vira sub-aba de Cardápio)
+- [x] Mover aba Destaques para Divulgação
+- [x] Tornar lápis clicável no Cardápio para expandir edição do item (EditItemForm inline)
+- [x] Notificação como sub-aba dentro de Cardápio com contagem exata de erros por item (não por conta)
+- [x] QR Code como botão em cada card de estab em Meus Locais (popup com info)

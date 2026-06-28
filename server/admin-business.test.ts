@@ -180,3 +180,68 @@ describe("business.addMenuItem", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("business.updateMenuItem", () => {
+  it("rejects unauthenticated users", async () => {
+    const caller = appRouter.createCaller(createUnauthContext());
+    await expect(
+      caller.business.updateMenuItem({
+        menuItemId: 1,
+        name: "Updated Name",
+      })
+    ).rejects.toThrow();
+  });
+
+  it("rejects regular users", async () => {
+    const caller = appRouter.createCaller(createContext("user"));
+    await expect(
+      caller.business.updateMenuItem({
+        menuItemId: 1,
+        name: "Updated Name",
+      })
+    ).rejects.toThrow();
+  });
+
+  it("validates menuItemId is required", async () => {
+    const caller = appRouter.createCaller(createContext("business"));
+    await expect(
+      // @ts-expect-error - testing missing required field
+      caller.business.updateMenuItem({
+        name: "Updated Name",
+      })
+    ).rejects.toThrow();
+  });
+
+  it("allows business users with valid input", async () => {
+    const caller = appRouter.createCaller(createContext("business"));
+    // This will fail at DB level (item not found) but validates input schema passes
+    try {
+      await caller.business.updateMenuItem({
+        menuItemId: 999999,
+        name: "Updated Name",
+        price: 25.50,
+      });
+    } catch (e: any) {
+      // Expected: DB error (item not found or not owned), NOT a validation error
+      expect(e.code).not.toBe("BAD_REQUEST");
+    }
+  });
+});
+
+describe("business.notifications", () => {
+  it("rejects unauthenticated users", async () => {
+    const caller = appRouter.createCaller(createUnauthContext());
+    await expect(caller.business.notifications()).rejects.toThrow();
+  });
+
+  it("rejects regular users", async () => {
+    const caller = appRouter.createCaller(createContext("user"));
+    await expect(caller.business.notifications()).rejects.toThrow();
+  });
+
+  it("allows business users and returns array", async () => {
+    const caller = appRouter.createCaller(createContext("business"));
+    const result = await caller.business.notifications();
+    expect(Array.isArray(result)).toBe(true);
+  });
+});

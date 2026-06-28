@@ -153,7 +153,7 @@ export default function BusinessPanel() {
   );
 }
 
-export function MyEstablishmentsTab() {
+export function MyEstablishmentsTab({ qrButton }: { qrButton?: (est: any) => React.ReactNode } = {}) {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
   const [showSupportChat, setShowSupportChat] = useState(false);
   const [supportPreMessage, setSupportPreMessage] = useState("");
@@ -199,7 +199,7 @@ export function MyEstablishmentsTab() {
 
       <div className="space-y-4">
         {establishments.map((est: any) => (
-          <EstablishmentCard key={est.id} est={est} onRequestChange={handleRequestChange} />
+          <EstablishmentCard key={est.id} est={est} onRequestChange={handleRequestChange} qrButton={qrButton} />
         ))}
       </div>
     </div>
@@ -207,7 +207,7 @@ export function MyEstablishmentsTab() {
 }
 
 /** Card de estabelecimento com upload de logo/capa */
-function EstablishmentCard({ est, onRequestChange }: { est: any; onRequestChange: (est: any) => void }) {
+function EstablishmentCard({ est, onRequestChange, qrButton }: { est: any; onRequestChange: (est: any) => void; qrButton?: (est: any) => React.ReactNode }) {
   const [logoUploading, setLogoUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -348,8 +348,13 @@ function EstablishmentCard({ est, onRequestChange }: { est: any; onRequestChange
         )}
       </div>
 
-      {/* Aviso de alteração via suporte */}
+      {/* QR Code + Aviso de alteração via suporte */}
       <div className="mt-4 pt-3 border-t border-border/30">
+        {qrButton && (
+          <div className="mb-3">
+            {qrButton(est)}
+          </div>
+        )}
         <div className="flex items-center gap-2 text-xs text-yellow-400/80">
           <HelpCircle className="w-3.5 h-3.5 shrink-0" />
           <span>Para alterar nome, endereço, telefone ou @, solicite ao suporte.</span>
@@ -660,6 +665,113 @@ export function MyClaimsTab() {
   );
 }
 
+// ===== Edit Item Form (inline expansion) =====
+function EditItemForm({ item, establishmentId, onClose, onSaved }: {
+  item: any;
+  establishmentId: number;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState(item.name || "");
+  const [description, setDescription] = useState(item.description || "");
+  const [price, setPrice] = useState(item.price ? String(Number(item.price)) : "");
+  const [category, setCategory] = useState(item.category || "");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const updateMutation = trpc.business.updateMenuItem.useMutation();
+
+  const handleSave = async () => {
+    try {
+      let imageUrl: string | undefined;
+      let imageKey: string | undefined;
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const res = await fetch("/api/upload", { method: "POST", body: formData, credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          imageUrl = data.url;
+          imageKey = data.key;
+        }
+      }
+
+      await updateMutation.mutateAsync({
+        menuItemId: item.id,
+        name: name || undefined,
+        description: description || undefined,
+        price: price ? parseFloat(price) : undefined,
+        category: category || undefined,
+        imageUrl,
+        imageKey,
+      });
+      toast.success("Item atualizado!");
+      onSaved();
+    } catch {
+      toast.error("Erro ao atualizar item");
+    }
+  };
+
+  return (
+    <div className="mt-2 p-4 rounded-lg bg-card border border-primary/30 space-y-3">
+      <h4 className="text-sm font-medium text-foreground">Editar: {item.name}</h4>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nome"
+          className="px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+        />
+        <input
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Categoria"
+          className="px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+        />
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Descrição"
+          className="px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+        />
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Preço (R$)"
+          className="px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+        />
+      </div>
+      <div>
+        <label className="text-xs text-muted-foreground block mb-1">Foto do item</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          className="text-sm text-foreground file:mr-2 file:px-3 file:py-1 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:text-xs"
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleSave}
+          disabled={updateMutation.isPending}
+          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+        >
+          {updateMutation.isPending ? "Salvando..." : "Salvar"}
+        </button>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function MenuManagementTab() {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
@@ -809,43 +921,57 @@ export function MenuManagementTab() {
               {estData.menu.map((item: any) => {
                 const hasPendency = !item.imageUrl;
                 return (
-                  <div key={item.id} className={`p-3 rounded-lg bg-card flex items-center justify-between ${
-                    hasPendency
-                      ? "border-2 border-red-500/50 bg-red-500/5"
-                      : "border border-border/50"
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      {hasPendency && (
-                        <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                          <ImageIcon className="w-4 h-4 text-red-400" />
-                        </div>
-                      )}
-                      <div>
-                        <p className={`text-sm font-medium ${hasPendency ? "text-red-400" : "text-foreground"}`}>{item.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {item.category && <span className="capitalize">{item.category}</span>}
-                          {item.price && <span>R$ {Number(item.price).toFixed(2)}</span>}
-                          {hasPendency && <span className="text-red-400 font-medium">• Sem foto</span>}
+                  <div key={item.id} className="space-y-0">
+                    <div className={`p-3 rounded-lg bg-card flex items-center justify-between ${
+                      hasPendency
+                        ? "border-2 border-red-500/50 bg-red-500/5"
+                        : "border border-border/50"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        {hasPendency && (
+                          <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                            <ImageIcon className="w-4 h-4 text-red-400" />
+                          </div>
+                        )}
+                        <div>
+                          <p className={`text-sm font-medium ${hasPendency ? "text-red-400" : "text-foreground"}`}>{item.name}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {item.category && <span className="capitalize">{item.category}</span>}
+                            {item.price && <span>R$ {Number(item.price).toFixed(2)}</span>}
+                            {hasPendency && <span className="text-red-400 font-medium">• Sem foto</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {hasPendency && (
+                      <div className="flex items-center gap-1">
+                        {hasPendency && (
+                          <button
+                            onClick={() => setEditingItem(editingItem === item.id ? null : item.id)}
+                            className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                            title="Editar item — adicionar foto"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                          </button>
+                        )}
                         <button
-                          onClick={() => setEditingItem(item.id)}
-                          className="p-2 text-red-400 hover:text-red-300 transition-colors"
-                          title="Editar item — adicionar foto"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      )}
-                      <button
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      </div>
                     </div>
+                    {editingItem === item.id && (
+                      <EditItemForm
+                        item={item}
+                        establishmentId={selectedEst!}
+                        onClose={() => setEditingItem(null)}
+                        onSaved={() => {
+                          setEditingItem(null);
+                          const slug = establishments?.find((e: any) => e.id === selectedEst)?.slug;
+                          if (slug) utils.establishments.getWithMenu.invalidate({ slug });
+                        }}
+                      />
+                    )}
                   </div>
                 );
               })}
