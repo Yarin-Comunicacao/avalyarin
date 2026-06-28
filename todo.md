@@ -742,3 +742,6 @@
 
 ## Fase 30 — Setas de navegação nas abas
 - [x] Implementar setas esquerda/direita nas abas quando não couberem na tela (BusinessLocais, BusinessInsights, BusinessDivulgacoes)
+
+## Fase 31 — Bug: chat do support não separa conversas por estab
+- [x] Corrigir: mensagens de diferentes estabs aparecem juntas no chat do support (reescrito SupportChat para listar conversas por establishmentId)

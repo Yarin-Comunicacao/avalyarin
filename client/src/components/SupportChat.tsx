@@ -3,78 +3,43 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MessageCircle, Send, ArrowLeft, User, Loader2 } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, User, Loader2, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * SupportChat — usado pelo role "support" para conversar 1:1 com clientes.
- * Exibe lista de conversas e permite abrir/enviar mensagens.
+ * Agora exibe lista de conversas SEPARADAS POR ESTABLISHMENT.
  */
 export default function SupportChat() {
   const { user } = useAuth();
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedEstabId, setSelectedEstabId] = useState<number | null>(null);
 
   if (!user) return null;
 
   return (
     <div>
-      {selectedUserId ? (
-        <ChatThread
+      {selectedEstabId ? (
+        <EstabChatThread
           supportUserId={user.id}
-          partnerId={selectedUserId}
-          onBack={() => setSelectedUserId(null)}
+          establishmentId={selectedEstabId}
+          onBack={() => setSelectedEstabId(null)}
         />
       ) : (
-        <ConversationList
+        <EstabConversationList
           supportUserId={user.id}
-          onSelect={(id) => setSelectedUserId(id)}
+          onSelect={(estabId) => setSelectedEstabId(estabId)}
         />
       )}
     </div>
   );
 }
 
-function ConversationList({ supportUserId, onSelect }: { supportUserId: number; onSelect: (id: number) => void }) {
-  const { data: conversations, isLoading } = trpc.chat.supportConversations.useQuery();
-  const [newChatUsername, setNewChatUsername] = useState("");
-  const searchMutation = trpc.chat.findUserForChat.useMutation({
-    onSuccess: (data) => {
-      if (data?.id) {
-        onSelect(data.id);
-      } else {
-        toast.error("Usuário não encontrado");
-      }
-    },
-    onError: () => toast.error("Usuário não encontrado"),
-  });
+function EstabConversationList({ supportUserId, onSelect }: { supportUserId: number; onSelect: (estabId: number) => void }) {
+  const { data: conversations, isLoading } = trpc.chat.supportEstabConversations.useQuery();
 
   return (
     <div>
-      {/* New chat */}
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={newChatUsername}
-          onChange={(e) => setNewChatUsername(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && newChatUsername.trim()) {
-              searchMutation.mutate({ username: newChatUsername.trim() });
-            }
-          }}
-          placeholder="Iniciar chat com @username..."
-          className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-teal-500/50"
-        />
-        <Button
-          size="sm"
-          onClick={() => {
-            if (newChatUsername.trim()) searchMutation.mutate({ username: newChatUsername.trim() });
-          }}
-          disabled={!newChatUsername.trim() || searchMutation.isPending}
-          className="bg-teal-500 hover:bg-teal-600"
-        >
-          <MessageCircle className="w-4 h-4" />
-        </Button>
-      </div>
+      <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">CONVERSAS POR ESTABELECIMENTO</h3>
 
       {/* Conversations list */}
       {isLoading ? (
@@ -85,31 +50,32 @@ function ConversationList({ supportUserId, onSelect }: { supportUserId: number; 
         <div className="text-center py-8">
           <MessageCircle className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">Nenhuma conversa ainda</p>
-          <p className="text-xs text-muted-foreground/60 mt-1">Use o campo acima para iniciar um chat</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">Quando um business iniciar um chat sobre um estabelecimento, aparecerá aqui</p>
         </div>
       ) : (
         <div className="space-y-2">
           {conversations.map((conv: any) => (
             <button
-              key={conv.partnerId}
-              onClick={() => onSelect(conv.partnerId)}
+              key={conv.establishmentId}
+              onClick={() => onSelect(conv.establishmentId)}
               className="w-full p-3 rounded-lg bg-card border border-border/50 hover:border-teal-500/30 transition-all flex items-center gap-3 text-left"
             >
               <div className="w-10 h-10 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-teal-500">
-                  {(conv.partnerName || "?")[0]?.toUpperCase()}
-                </span>
+                <Store className="w-5 h-5 text-teal-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-foreground truncate">
-                    @{conv.partnerUsername || "anon"}
+                    {conv.estabName || `Estab #${conv.establishmentId}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="text-[10px] text-muted-foreground/60">
+                    por @{conv.partnerUsername || "anon"}
                   </span>
                   <span className={cn(
-                    "text-[9px] px-1.5 py-0.5 rounded font-medium",
+                    "text-[9px] px-1 py-0.5 rounded font-medium",
                     conv.partnerRole === "business" ? "bg-amber-500/20 text-amber-300" :
-                    conv.partnerRole === "influencer" ? "bg-yellow-500/20 text-yellow-300" :
-                    conv.partnerRole === "critic" ? "bg-blue-500/20 text-blue-300" :
                     "bg-muted text-muted-foreground"
                   )}>
                     {conv.partnerRole?.toUpperCase() || "USER"}
@@ -132,15 +98,15 @@ function ConversationList({ supportUserId, onSelect }: { supportUserId: number; 
   );
 }
 
-function ChatThread({ supportUserId, partnerId, onBack }: { supportUserId: number; partnerId: number; onBack: () => void }) {
+function EstabChatThread({ supportUserId, establishmentId, onBack }: { supportUserId: number; establishmentId: number; onBack: () => void }) {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { data: messages, refetch } = trpc.chat.supportMessages.useQuery(
-    { partnerId },
+  const { data: messages, refetch } = trpc.chat.estabMessages.useQuery(
+    { establishmentId },
     { refetchInterval: 3000 }
   );
-  const markReadMutation = trpc.chat.markRead.useMutation();
-  const sendMutation = trpc.chat.sendSupportMessage.useMutation({
+  const markReadMutation = trpc.chat.markEstabRead.useMutation();
+  const sendMutation = trpc.chat.sendEstabMessage.useMutation({
     onSuccess: () => {
       setMessage("");
       refetch();
@@ -150,7 +116,7 @@ function ChatThread({ supportUserId, partnerId, onBack }: { supportUserId: numbe
 
   useEffect(() => {
     if (messages && messages.length > 0) {
-      markReadMutation.mutate({ senderId: partnerId });
+      markReadMutation.mutate({ establishmentId });
     }
   }, [messages]);
 
@@ -158,10 +124,13 @@ function ChatThread({ supportUserId, partnerId, onBack }: { supportUserId: numbe
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Find the business user (recipient) from messages
+  const recipientId = messages?.find((m: any) => m.senderId !== supportUserId)?.senderId;
+
   const handleSend = () => {
     const trimmed = message.trim();
-    if (!trimmed) return;
-    sendMutation.mutate({ recipientId: partnerId, content: trimmed });
+    if (!trimmed || !recipientId) return;
+    sendMutation.mutate({ establishmentId, content: trimmed });
   };
 
   return (
@@ -211,13 +180,14 @@ function ChatThread({ supportUserId, partnerId, onBack }: { supportUserId: numbe
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Digite sua mensagem..."
-          className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-teal-500/50"
+          placeholder={recipientId ? "Digite sua mensagem..." : "Aguardando mensagem do business..."}
+          disabled={!recipientId}
+          className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-teal-500/50 disabled:opacity-50"
         />
         <Button
           size="sm"
           onClick={handleSend}
-          disabled={!message.trim() || sendMutation.isPending}
+          disabled={!message.trim() || sendMutation.isPending || !recipientId}
           className="bg-teal-500 hover:bg-teal-600"
         >
           <Send className="w-4 h-4" />

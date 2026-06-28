@@ -199,6 +199,36 @@ export async function markEstabMessagesAsRead(recipientId: number, establishment
     );
 }
 
+export async function getSupportEstabConversationList(supportUserId: number) {
+  const db = (await getDb())!;
+  const conversations = await db.execute(sql`
+    SELECT DISTINCT 
+      sm.establishmentId,
+      (SELECT e.name FROM establishments e WHERE e.id = sm.establishmentId) as estabName,
+      (SELECT e.slug FROM establishments e WHERE e.id = sm.establishmentId) as estabSlug,
+      CASE 
+        WHEN sm.senderId = ${supportUserId} THEN sm.recipientId 
+        ELSE sm.senderId 
+      END as partnerId,
+      (SELECT u.name FROM users u WHERE u.id = CASE WHEN sm.senderId = ${supportUserId} THEN sm.recipientId ELSE sm.senderId END) as partnerName,
+      (SELECT u.username FROM users u WHERE u.id = CASE WHEN sm.senderId = ${supportUserId} THEN sm.recipientId ELSE sm.senderId END) as partnerUsername,
+      (SELECT u.role FROM users u WHERE u.id = CASE WHEN sm.senderId = ${supportUserId} THEN sm.recipientId ELSE sm.senderId END) as partnerRole,
+      (SELECT sm2.content FROM support_messages sm2 WHERE sm2.establishmentId = sm.establishmentId ORDER BY sm2.createdAt DESC LIMIT 1) as lastMessage,
+      (SELECT sm3.createdAt FROM support_messages sm3 WHERE sm3.establishmentId = sm.establishmentId ORDER BY sm3.createdAt DESC LIMIT 1) as lastMessageAt,
+      (SELECT COUNT(*) FROM support_messages sm4 WHERE 
+        sm4.establishmentId = sm.establishmentId
+        AND sm4.senderId != ${supportUserId} 
+        AND sm4.recipientId = ${supportUserId}
+        AND sm4.\`read\` = FALSE
+      ) as unreadCount
+    FROM support_messages sm
+    WHERE sm.establishmentId IS NOT NULL
+      AND (sm.senderId = ${supportUserId} OR sm.recipientId = ${supportUserId})
+    ORDER BY lastMessageAt DESC
+  `);
+  return (conversations as any)[0] || [];
+}
+
 // ==================== BUSINESS BROADCASTS ====================
 
 export async function sendBusinessBroadcast(businessUserId: number, establishmentId: number, content: string) {

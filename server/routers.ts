@@ -256,6 +256,7 @@ import {
   sendEstabSupportMessage,
   getEstabSupportMessages,
   markEstabMessagesAsRead,
+  getSupportEstabConversationList,
   sendBusinessBroadcast,
   getBusinessBroadcasts,
   getUserBroadcastFeed,
@@ -2453,10 +2454,15 @@ export const appRouter = router({
 
   // ============ GROUP EVENTS / CALENDAR ============
   chat: router({
-    // Support conversations list
+    // Support conversations list (legacy - by user)
     supportConversations: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user!.role !== "support") throw new TRPCError({ code: "FORBIDDEN" });
       return await getSupportConversationList(ctx.user!.id);
+    }),
+    // Support conversations list by establishment
+    supportEstabConversations: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user!.role !== "support" && ctx.user!.role !== "admin" && ctx.user!.role !== "owner") throw new TRPCError({ code: "FORBIDDEN" });
+      return await getSupportEstabConversationList(ctx.user!.id);
     }),
     // Support messages with a specific user
     supportMessages: protectedProcedure
