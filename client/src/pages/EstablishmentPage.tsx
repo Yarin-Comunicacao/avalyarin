@@ -484,7 +484,7 @@ export default function EstablishmentPage() {
       )}
 
       {/* Fixed CTA at bottom — hidden for business accounts */}
-      {menu.length > 0 && user?.role !== "business" && (
+      {user?.role !== "business" && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4">
           <div className="container">
             <Link href={`/avaliar/${establishment.slug}`}>

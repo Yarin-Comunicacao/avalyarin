@@ -177,6 +177,15 @@ export default function QRScanPage() {
         <div className="flex flex-col gap-3">
           <Button
             size="lg"
+            className="w-full font-display tracking-wider bg-primary text-primary-foreground"
+            onClick={() => navigate(`/avaliar/${estab.slug}`)}
+          >
+            <Star className="w-5 h-5 mr-2" />
+            AVALIAR VISITA
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
             className="w-full font-display tracking-wider"
             onClick={handleGoToMenu}
           >
