@@ -318,8 +318,12 @@ function App() {
     );
   }
 
-  // 2) Show auth choice (Cadastre-se / Já Tenho Cadastro)
-  if (!authChoiceMade) {
+  // Detect public routes that should bypass auth choice & survey gates
+  const [currentPath] = useLocation();
+  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
+
+  // 2) Show auth choice (Cadastre-se / Já Tenho Cadastro) — skip for public routes
+  if (!authChoiceMade && !isPublicRoute) {
     return (
       <ErrorBoundary>
         <ThemeProvider defaultTheme="escuro">
@@ -336,8 +340,8 @@ function App() {
     );
   }
 
-  // 3) Show onboarding survey if not completed yet (new users from "Cadastre-se")
-  if (!surveyCompleted) {
+  // 3) Show onboarding survey if not completed yet (new users from "Cadastre-se") — skip for public routes
+  if (!surveyCompleted && !isPublicRoute) {
     return (
       <ErrorBoundary>
         <ThemeProvider defaultTheme="escuro">

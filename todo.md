@@ -773,3 +773,9 @@
 - [x] Renderizar tipo 'establishment' no frontend dos surveys (lista com busca/filtro)
 - [x] Vincular resposta do tipo establishment à criação de solicitação business no onComplete do onboarding
 - [x] Substituir campo de texto livre de ícone por dropdown com busca (Lucide icons + emojis)
+
+## Fase 36 — Botão Avaliar acessível sem login
+- [x] Bypass de Auth Choice e Survey para rotas públicas (/e/, /estabelecimento/, /avaliar/)
+- [x] Botão AVALIAR VISITA na QRScanPage (rota /e/:slug) usando slug correto
+- [x] Botão fixo AVALIAR ESTE ESTABELECIMENTO na EstablishmentPage sem exigir menu cadastrado
+- [x] Age Gate mantido para todas as rotas (exigência legal sobre bebidas alcoólicas)
