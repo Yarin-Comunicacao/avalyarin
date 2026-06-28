@@ -384,10 +384,6 @@ function InlineSupportChat({ preMessage }: { preMessage?: string }) {
     onError: () => toast.error("Erro ao enviar mensagem"),
   });
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   if (!user) return null;
 
   const handleSend = () => {

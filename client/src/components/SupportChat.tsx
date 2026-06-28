@@ -120,10 +120,6 @@ function EstabChatThread({ supportUserId, establishmentId, onBack }: { supportUs
     }
   }, [messages]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   // Find the business user (recipient) from messages
   const recipientId = messages?.find((m: any) => m.senderId !== supportUserId)?.senderId;
 
@@ -216,10 +212,6 @@ export function UserSupportChat() {
     },
     onError: () => toast.error("Erro ao enviar mensagem"),
   });
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   if (!user) return null;
 

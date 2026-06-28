@@ -61,9 +61,7 @@ function EstabChatTab() {
     }
   }, [selectedEstab, messages]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+
 
   if (isLoading) return <div className="text-muted-foreground">Carregando...</div>;
 
