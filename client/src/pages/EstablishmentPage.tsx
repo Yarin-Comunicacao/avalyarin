@@ -57,7 +57,7 @@ export default function EstablishmentPage() {
   const [showOwnerEdit, setShowOwnerEdit] = useState(false);
   const [activeSection, setActiveSection] = useState<"cardapio" | "avaliacoes" | "eventos">("cardapio");
   const [filterItem, setFilterItem] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { id } = useParams<{ id: string }>();
 
   const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
@@ -485,7 +485,7 @@ export default function EstablishmentPage() {
 
       {/* Fixed CTA at bottom — hidden for business accounts */}
       {user?.role !== "business" && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4">
+        <div className={`fixed left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4 ${isAuthenticated ? 'bottom-16' : 'bottom-0'}`}>
           <div className="container">
             <Link href={`/avaliar/${establishment.slug}`}>
               <Button size="lg" className="w-full font-display text-lg tracking-wider glow-amber">

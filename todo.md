@@ -779,3 +779,7 @@
 - [x] Botão AVALIAR VISITA na QRScanPage (rota /e/:slug) usando slug correto
 - [x] Botão fixo AVALIAR ESTE ESTABELECIMENTO na EstablishmentPage sem exigir menu cadastrado
 - [x] Age Gate mantido para todas as rotas (exigência legal sobre bebidas alcoólicas)
+
+## Fase 37 — Bugs: Botão Avaliar + Crash RatingPage
+- [x] Fix: Botão fixo AVALIAR não aparece na EstablishmentPage quando logado (bottom-16 para ficar acima do BottomNav)
+- [x] Fix: Erro de crash na RatingPage ao clicar avaliar após QR scan (hooks condicionais movidos antes dos early returns)

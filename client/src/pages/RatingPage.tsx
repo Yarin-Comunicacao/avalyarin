@@ -1041,6 +1041,10 @@ export default function RatingPage() {
     );
   };
 
+  // Qualification check hooks - MUST be before any early returns (React hooks rules)
+  const profileData = trpc.profile.get.useQuery(undefined, { enabled: !!user });
+  const surveyInfo = trpc.survey.get.useQuery(undefined, { enabled: !!user });
+
   if (estLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -1055,10 +1059,6 @@ export default function RatingPage() {
   if (user?.role === "business") {
     return <Redirect to="/painel-empresarial" />;
   }
-
-  // Qualification check: must have name (Nome e Sobrenome), username, and be 18+
-  const profileData = trpc.profile.get.useQuery(undefined, { enabled: !!user });
-  const surveyInfo = trpc.survey.get.useQuery(undefined, { enabled: !!user });
   
   const hasName = !!profileData.data?.name && profileData.data.name.trim().split(/\s+/).length >= 2;
   const hasUsername = !!profileData.data?.username;
