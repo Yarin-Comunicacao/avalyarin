@@ -80,7 +80,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
             EXPERIMENTE E AVALIE
           </h2>
           <p className="text-sm text-muted-foreground text-center mb-8">
-            O sistema de avaliação de bares e restaurantes mais completo de São Paulo.
+            A rede social de avaliações de bares e restaurantes de São Paulo.
           </p>
 
           {/* Register button */}

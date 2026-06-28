@@ -184,7 +184,7 @@ export default function CategoryPage() {
       <footer className="py-8 border-t border-border/30 mt-8">
         <div className="container text-center">
           <p className="text-xs text-muted-foreground">
-            AvaLyarin — Sistema de Avaliação Dinâmico
+            Avalyarin — Rede Social de Avaliações de São Paulo
           </p>
         </div>
       </footer>

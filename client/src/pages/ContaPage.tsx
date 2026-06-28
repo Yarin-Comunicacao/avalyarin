@@ -84,7 +84,7 @@ export default function ContaPage() {
               MINHA CONTA
             </h2>
             <p className="text-sm text-muted-foreground text-center mb-8">
-              Entre ou crie sua conta para avaliar bares e restaurantes.
+              Entre ou crie sua conta para fazer parte da rede social de avaliações de São Paulo.
             </p>
 
             {/* Register button */}

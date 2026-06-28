@@ -135,7 +135,7 @@ export default function Home() {
               EXPERIMENTE E AVALIE
             </h2>
             <p className="text-lg sm:text-xl text-foreground/80 max-w-xl leading-relaxed">
-              O sistema de avaliação de bares e restaurantes mais completo de São Paulo.
+              A rede social de avaliações de bares e restaurantes de São Paulo.
             </p>
           </motion.div>
         </div>
@@ -346,7 +346,7 @@ export default function Home() {
             <span className="font-display text-sm tracking-wider text-primary">AVALYARIN</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Sistema de Avaliação Dinâmico para Bares e Restaurantes — Pinheiros & Vila Madalena, SP
+            Rede Social de Avaliações de São Paulo
           </p>
         </div>
       </footer>

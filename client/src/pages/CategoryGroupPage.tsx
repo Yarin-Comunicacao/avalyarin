@@ -170,7 +170,7 @@ export default function CategoryGroupPage() {
             <span className="font-display text-sm tracking-wider text-primary">AVALYARIN</span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Sistema de Avaliação Dinâmico para Bares e Restaurantes — São Paulo, SP
+            Rede Social de Avaliações de São Paulo
           </p>
         </div>
       </footer>

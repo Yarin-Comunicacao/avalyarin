@@ -707,3 +707,13 @@
 ## Fase 23 — Fix BottomNav: Tela deslogado e flash de role
 - [x] BottomNav deslogado: mostrar apenas "Conta" (sem Busca, Scan, Grupos, Avaliações)
 - [x] Fix flash de botões errados: esconder BottomNav enquanto auth.me está carregando para evitar flash de role incorreto
+
+## Fase 24 — Mudar frase do app
+- [x] Alterar "Sistema de Avaliação Dinâmico para Bares e Restaurantes — Pinheiros & Vila Madalena, SP" para "Rede Social de Avaliações de São Paulo"
+
+## Fase 25 — Migração de IDs (nova estrutura de faixas)
+- [x] Backup completo do banco antes da migração
+- [x] Migrar IDs de users conforme faixas: owners 1-29, admins 30-99, support 1000-99999, business 1M-29.9M, users+inf+crit 60M+
+- [x] Migrar IDs de establishments para faixa 30M-59.9M
+- [x] Atualizar todas as foreign keys em todas as tabelas referenciando users e establishments
+- [x] Verificar integridade do banco após migração
