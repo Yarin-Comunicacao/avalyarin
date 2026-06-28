@@ -253,6 +253,9 @@ import {
   getSupportConversationList,
   markSupportMessagesAsRead,
   getUserSupportMessages,
+  sendEstabSupportMessage,
+  getEstabSupportMessages,
+  markEstabMessagesAsRead,
   sendBusinessBroadcast,
   getBusinessBroadcasts,
   getUserBroadcastFeed,
@@ -2505,6 +2508,58 @@ export const appRouter = router({
         const supportUsers = await db!.select({ id: users.id }).from(users).where(eq(users.role, "support")).limit(1);
         if (supportUsers.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "Nenhum suporte disponível" });
         return await sendSupportMessage(ctx.user!.id, supportUsers[0].id, input.content);
+      }),
+    // ===== CHAT POR ESTABELECIMENTO (Business <-> Support) =====
+    estabMessages: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "business" && ctx.user!.role !== "support" && ctx.user!.role !== "admin" && ctx.user!.role !== "owner")
+          throw new TRPCError({ code: "FORBIDDEN" });
+        return await getEstabSupportMessages(input.establishmentId);
+      }),
+    sendEstabMessage: protectedProcedure
+      .input(z.object({ establishmentId: z.number(), content: z.string().min(1).max(500) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "business" && ctx.user!.role !== "support" && ctx.user!.role !== "admin" && ctx.user!.role !== "owner")
+          throw new TRPCError({ code: "FORBIDDEN" });
+        // Find the support user assigned to this establishment
+        const { getDb } = await import("./db");
+        const db = await getDb();
+        const { users, supportAssignments } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        let recipientId: number;
+        if (ctx.user!.role === "business") {
+          // Business sends to support assigned to this estab
+          const assigned = await db!.select({ userId: supportAssignments.supportUserId })
+            .from(supportAssignments)
+            .where(eq(supportAssignments.establishmentId, input.establishmentId))
+            .limit(1);
+          if (assigned.length === 0) {
+            // Fallback: first support user
+            const supportUsers = await db!.select({ id: users.id }).from(users).where(eq(users.role, "support")).limit(1);
+            if (supportUsers.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "Nenhum suporte disponível" });
+            recipientId = supportUsers[0].id;
+          } else {
+            recipientId = assigned[0].userId;
+          }
+        } else {
+          // Support/admin/owner sends — find the business owner of this estab
+          const { businessClaims } = await import("../drizzle/schema");
+          const { and: andOp } = await import("drizzle-orm");
+          const claim = await db!.select({ userId: businessClaims.userId })
+            .from(businessClaims)
+            .where(andOp(eq(businessClaims.establishmentId, input.establishmentId), eq(businessClaims.status, "approved")))
+            .limit(1);
+          if (claim.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "Nenhum dono encontrado para este estabelecimento" });
+          recipientId = claim[0].userId;
+        }
+        return await sendEstabSupportMessage(ctx.user!.id, recipientId, input.establishmentId, input.content);
+      }),
+    markEstabRead: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await markEstabMessagesAsRead(ctx.user!.id, input.establishmentId);
+        return { success: true };
       }),
   }),
   events: router({

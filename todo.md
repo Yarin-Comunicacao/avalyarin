@@ -738,4 +738,4 @@
 - [x] Mover notificações de pendências (fotos faltantes) para aba Cardápio com itens em vermelho + ícone lápis
 - [x] Insights (3 abas): Meu Plano, Insights, Calendário de Eventos
 - [x] Divulgações (4 abas): Códigos Promocionais, Parcerias, Lista de Transmissão, Eventos do Estab
-- [ ] Adicionar aba Chat em Meus Locais (conversa por estab com support)
+- [x] Adicionar aba Chat em Meus Locais (conversa por estab com support, usando establishmentId como thread key)

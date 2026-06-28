@@ -152,6 +152,53 @@ export async function getUserSupportMessages(userId: number, limit = 50, offset 
   return messages;
 }
 
+// ==================== ESTABLISHMENT-SCOPED SUPPORT CHAT ====================
+
+export async function sendEstabSupportMessage(senderId: number, recipientId: number, establishmentId: number, content: string) {
+  const db = (await getDb())!;
+  const [result] = await db.insert(supportMessages).values({
+    senderId,
+    recipientId,
+    establishmentId,
+    content,
+  });
+  return result.insertId;
+}
+
+export async function getEstabSupportMessages(establishmentId: number, limit = 50, offset = 0) {
+  const db = (await getDb())!;
+  const messages = await db
+    .select({
+      id: supportMessages.id,
+      senderId: supportMessages.senderId,
+      recipientId: supportMessages.recipientId,
+      establishmentId: supportMessages.establishmentId,
+      content: supportMessages.content,
+      read: supportMessages.read,
+      createdAt: supportMessages.createdAt,
+    })
+    .from(supportMessages)
+    .where(eq(supportMessages.establishmentId, establishmentId))
+    .orderBy(desc(supportMessages.createdAt))
+    .limit(limit)
+    .offset(offset);
+  return messages;
+}
+
+export async function markEstabMessagesAsRead(recipientId: number, establishmentId: number) {
+  const db = (await getDb())!;
+  await db
+    .update(supportMessages)
+    .set({ read: true })
+    .where(
+      and(
+        eq(supportMessages.recipientId, recipientId),
+        eq(supportMessages.establishmentId, establishmentId),
+        eq(supportMessages.read, false)
+      )
+    );
+}
+
 // ==================== BUSINESS BROADCASTS ====================
 
 export async function sendBusinessBroadcast(businessUserId: number, establishmentId: number, content: string) {

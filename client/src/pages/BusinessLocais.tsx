@@ -1,15 +1,14 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { getLoginUrl } from "@/const";
 import {
   Store, ClipboardCheck, UtensilsCrossed, Bell, QrCode as QrCodeIcon,
-  Crown, Sparkles, Building2, MessageCircle
+  Crown, Sparkles, Building2, MessageCircle, Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
 
-// Lazy import the tab components from BusinessPanel
-// We'll import them directly since they're in the same codebase
+// Import tab components from BusinessPanel
 import {
   MyEstablishmentsTab,
   MyClaimsTab,
@@ -20,7 +19,7 @@ import {
   DestaquesTab,
 } from "./BusinessPanelTabs";
 
-type TabId = "locais" | "solicitacoes" | "cardapio" | "notificacoes" | "qrcode" | "plano" | "destaques";
+type TabId = "locais" | "solicitacoes" | "cardapio" | "notificacoes" | "qrcode" | "plano" | "destaques" | "chat";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "locais", label: "Locais", labelFull: "Meus Locais", icon: Store },
@@ -30,7 +29,180 @@ const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementTy
   { id: "qrcode", label: "QR Code", labelFull: "QR Code", icon: QrCodeIcon },
   { id: "plano", label: "Plano", labelFull: "Meu Plano", icon: Crown },
   { id: "destaques", label: "Destaques", labelFull: "Destaques", icon: Sparkles },
+  { id: "chat", label: "Chat", labelFull: "Chat", icon: MessageCircle },
 ];
+
+// ===== Chat por Estabelecimento =====
+function EstabChatTab() {
+  const { user } = useAuth();
+  const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
+  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
+  const [message, setMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { data: messages, refetch: refetchMessages } = trpc.chat.estabMessages.useQuery(
+    { establishmentId: selectedEstab! },
+    { enabled: !!selectedEstab, refetchInterval: 5000 }
+  );
+
+  const sendMutation = trpc.chat.sendEstabMessage.useMutation({
+    onSuccess: () => {
+      setMessage("");
+      refetchMessages();
+    },
+  });
+
+  const markReadMutation = trpc.chat.markEstabRead.useMutation();
+
+  useEffect(() => {
+    if (selectedEstab) {
+      markReadMutation.mutate({ establishmentId: selectedEstab });
+    }
+  }, [selectedEstab, messages]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  if (isLoading) return <div className="text-muted-foreground">Carregando...</div>;
+
+  if (!establishments || establishments.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="font-display text-xl text-foreground mb-2">SEM ESTABELECIMENTOS</h3>
+        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+          Você precisa ter um estabelecimento aprovado para usar o chat com o suporte.
+        </p>
+      </div>
+    );
+  }
+
+  const handleSend = () => {
+    if (!message.trim() || !selectedEstab) return;
+    sendMutation.mutate({ establishmentId: selectedEstab, content: message.trim() });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  // Sort messages chronologically (oldest first)
+  const sortedMessages = messages ? [...messages].reverse() : [];
+
+  return (
+    <div>
+      <h2 className="font-display text-2xl tracking-wider text-foreground mb-4">CHAT COM SUPORTE</h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        Converse com o suporte sobre cada estabelecimento separadamente.
+      </p>
+
+      {/* Seleção de Estabelecimento */}
+      <div className="mb-4">
+        <label className="text-sm text-muted-foreground block mb-1">Selecione o Estabelecimento</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {establishments.map((est: any) => (
+            <button
+              key={est.id}
+              onClick={() => setSelectedEstab(est.id)}
+              className={cn(
+                "flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                selectedEstab === est.id
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border/50 bg-card hover:border-primary/30 text-foreground"
+              )}
+            >
+              <Store className="w-5 h-5 shrink-0" />
+              <span className="text-sm font-medium truncate">{est.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      {selectedEstab && (
+        <div className="mt-6 rounded-xl border border-border/50 bg-card overflow-hidden">
+          {/* Chat Header */}
+          <div className="px-4 py-3 border-b border-border/30 bg-card/80">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                {establishments.find((e: any) => e.id === selectedEstab)?.name}
+              </span>
+              <span className="text-xs text-muted-foreground ml-auto">
+                Chat com Suporte
+              </span>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="h-80 overflow-y-auto p-4 space-y-3">
+            {sortedMessages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <MessageCircle className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma mensagem ainda. Inicie uma conversa sobre este estabelecimento.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              sortedMessages.map((msg: any) => {
+                const isMine = msg.senderId === user?.id;
+                return (
+                  <div key={msg.id} className={cn("flex", isMine ? "justify-end" : "justify-start")}>
+                    <div
+                      className={cn(
+                        "max-w-[75%] px-3 py-2 rounded-xl text-sm",
+                        isMine
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : "bg-secondary text-foreground rounded-bl-sm"
+                      )}
+                    >
+                      <p className="break-words">{msg.content}</p>
+                      <p className={cn(
+                        "text-[10px] mt-1",
+                        isMine ? "text-primary-foreground/60" : "text-muted-foreground"
+                      )}>
+                        {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="px-4 py-3 border-t border-border/30 bg-card/80">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Digite sua mensagem..."
+                className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
+                maxLength={500}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!message.trim() || sendMutation.isPending}
+                className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function BusinessLocais() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -122,6 +294,7 @@ export default function BusinessLocais() {
         {activeTab === "qrcode" && <QRCodeTab />}
         {activeTab === "plano" && <BusinessPlanTab />}
         {activeTab === "destaques" && <DestaquesTab />}
+        {activeTab === "chat" && <EstabChatTab />}
       </div>
     </div>
   );

@@ -695,6 +695,7 @@ export const supportMessages = mysqlTable("support_messages", {
   id: int("id").autoincrement().primaryKey(),
   senderId: int("senderId").notNull(),
   recipientId: int("recipientId").notNull(),
+  establishmentId: int("establishmentId"), // Thread key: conversa separada por estab (null = conversa geral)
   content: text("content").notNull(),
   read: boolean("read").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
