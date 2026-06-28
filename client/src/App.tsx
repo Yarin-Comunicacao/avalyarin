@@ -42,6 +42,9 @@ import SearchResults from "./pages/SearchResults";
 import AdminPanel from "./pages/AdminPanel";
 import AdminEstabDetail from "./pages/AdminEstabDetail";
 import BusinessPanel from "./pages/BusinessPanel";
+import BusinessLocais from "./pages/BusinessLocais";
+import BusinessInsights from "./pages/BusinessInsights";
+import BusinessDivulgacoes from "./pages/BusinessDivulgacoes";
 // Rankings
 import MeuRanking from "./pages/MeuRanking";
 // QR Scan
@@ -180,6 +183,9 @@ function Router() {
       <Route path="/painel-empresarial/notificacoes" component={BusinessPanel} />
       <Route path="/painel-empresarial/calendario" component={BusinessPanel} />
       <Route path="/painel-empresarial/config" component={BusinessPanel} />
+      <Route path="/business/locais" component={BusinessLocais} />
+      <Route path="/business/insights" component={BusinessInsights} />
+      <Route path="/business/divulgacoes" component={BusinessDivulgacoes} />
       <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
       <Route path="/painel-influencer" component={InfluencerPanel} />
       <Route path="/painel-critico" component={CriticPanel} />

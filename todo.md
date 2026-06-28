@@ -730,3 +730,12 @@
 ## Fase 28 — Remover Grupos da ContaPage + Bug Lista de Salvos
 - [x] Remover item "Grupos" da ContaPage para roles user, influencer e critic (já está no BottomNav)
 - [x] Corrigir bug: Lista de Salvos não mostrava bares salvos (causa: query SQL referenciava colunas inexistentes e.googleRating e e.googleRatingsTotal — corrigido para e.rating e e.reviewCount)
+
+## Fase 29 — Reestruturar painel Business (BottomNav + abas)
+- [x] Renomear "Alertas" para "Divulgação" no BottomNav do Business
+- [x] Separar rotas: /business/locais, /business/insights, /business/divulgacoes
+- [x] Meus Locais (7 abas): Meus Locais, Solicitações, Cardápio, Notificações, QR Code, Meu Plano, Destaques
+- [x] Mover notificações de pendências (fotos faltantes) para aba Cardápio com itens em vermelho + ícone lápis
+- [x] Insights (3 abas): Meu Plano, Insights, Calendário de Eventos
+- [x] Divulgações (4 abas): Códigos Promocionais, Parcerias, Lista de Transmissão, Eventos do Estab
+- [ ] Adicionar aba Chat em Meus Locais (conversa por estab com support)

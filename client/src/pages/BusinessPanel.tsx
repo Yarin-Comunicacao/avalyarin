@@ -153,7 +153,7 @@ export default function BusinessPanel() {
   );
 }
 
-function MyEstablishmentsTab() {
+export function MyEstablishmentsTab() {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
   const [showSupportChat, setShowSupportChat] = useState(false);
   const [supportPreMessage, setSupportPreMessage] = useState("");
@@ -453,7 +453,7 @@ function InlineSupportChat({ preMessage }: { preMessage?: string }) {
   );
 }
 
-function MyClaimsTab() {
+export function MyClaimsTab() {
   const { data: claims, isLoading } = trpc.business.myClaims.useQuery();
   const submitMutation = trpc.business.submitClaim.useMutation();
   const utils = trpc.useUtils();
@@ -664,17 +664,19 @@ function MyClaimsTab() {
   );
 }
 
-function MenuManagementTab() {
+export function MenuManagementTab() {
   const { data: establishments, isLoading } = trpc.business.myEstablishments.useQuery();
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
   const { data: estData } = trpc.establishments.getWithMenu.useQuery(
     { slug: establishments?.find((e: any) => e.id === selectedEst)?.slug || "" },
     { enabled: !!selectedEst && !!establishments }
   );
+  const { data: notifications } = trpc.business.notifications.useQuery();
   const addItemMutation = trpc.business.addMenuItem.useMutation();
   const deleteItemMutation = trpc.business.deleteMenuItem.useMutation();
   const utils = trpc.useUtils();
   const [newItem, setNewItem] = useState({ name: "", description: "", price: "", category: "" });
+  const [editingItem, setEditingItem] = useState<number | null>(null);
 
   if (isLoading) return <div className="text-muted-foreground">Carregando...</div>;
 
@@ -789,29 +791,68 @@ function MenuManagementTab() {
             </button>
           </div>
 
+          {/* Pendências — itens sem foto */}
+          {notifications && notifications.filter(n => n.severity === 'warning').length > 0 && selectedEst && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/5 border border-red-500/30">
+              <h3 className="flex items-center gap-2 text-sm font-medium text-red-400 mb-3">
+                <AlertTriangle className="w-4 h-4" />
+                Itens com pendências ({notifications.filter(n => n.severity === 'warning').length})
+              </h3>
+              <p className="text-xs text-muted-foreground mb-2">
+                Adicione fotos para melhorar a visibilidade do seu estabelecimento.
+              </p>
+            </div>
+          )}
+
           {/* Current menu items */}
           {estData?.menu && estData.menu.length > 0 ? (
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground mb-3">
                 {estData.menu.length} itens no cardápio
               </p>
-              {estData.menu.map((item: any) => (
-                <div key={item.id} className="p-3 rounded-lg bg-card border border-border/50 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{item.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {item.category && <span className="capitalize">{item.category}</span>}
-                      {item.price && <span>R$ {Number(item.price).toFixed(2)}</span>}
+              {estData.menu.map((item: any) => {
+                const hasPendency = !item.imageUrl;
+                return (
+                  <div key={item.id} className={`p-3 rounded-lg bg-card flex items-center justify-between ${
+                    hasPendency
+                      ? "border-2 border-red-500/50 bg-red-500/5"
+                      : "border border-border/50"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      {hasPendency && (
+                        <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                          <ImageIcon className="w-4 h-4 text-red-400" />
+                        </div>
+                      )}
+                      <div>
+                        <p className={`text-sm font-medium ${hasPendency ? "text-red-400" : "text-foreground"}`}>{item.name}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {item.category && <span className="capitalize">{item.category}</span>}
+                          {item.price && <span>R$ {Number(item.price).toFixed(2)}</span>}
+                          {hasPendency && <span className="text-red-400 font-medium">• Sem foto</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {hasPendency && (
+                        <button
+                          onClick={() => setEditingItem(item.id)}
+                          className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                          title="Editar item — adicionar foto"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-muted-foreground text-sm text-center py-4">
@@ -824,7 +865,7 @@ function MenuManagementTab() {
   );
 }
 
-function NotificationsTab() {
+export function NotificationsTab() {
   const { data: notifications, isLoading } = trpc.business.notifications.useQuery();
   const { data: ratingNotifs, isLoading: ratingLoading } = trpc.business.ratingNotifications.useQuery();
   const markRead = trpc.business.markNotificationRead.useMutation({
@@ -942,7 +983,7 @@ function NotificationsTab() {
 // ============================================================
 // QR CODE TAB
 // ============================================================
-function QRCodeTab() {
+export function QRCodeTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
 
@@ -1047,7 +1088,7 @@ function QRCodeTab() {
 // ============================================================
 // PROMO CODES TAB
 // ============================================================
-function PromoCodesTab() {
+export function PromoCodesTab() {
   const { data: myCodes, refetch } = trpc.promo.myCodes.useQuery();
   const createMutation = trpc.promo.create.useMutation({
     onSuccess: () => {
@@ -1266,7 +1307,7 @@ function PromoCodesTab() {
   );
 }
 
-function PartnershipsTab() {
+export function PartnershipsTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
   const [showPropose, setShowPropose] = useState(false);
@@ -1608,7 +1649,7 @@ function PartnershipsTab() {
 }
 
 
-function BusinessPlanTab() {
+export function BusinessPlanTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
 
@@ -1730,7 +1771,7 @@ function BusinessPlanTab() {
   );
 }
 
-function BusinessInsightsTab() {
+export function BusinessInsightsTab() {
   const { data: establishments, isLoading: loadingEstabs } = trpc.business.myEstablishments.useQuery();
   const [selectedEstId, setSelectedEstId] = useState<number | null>(null);
 
@@ -1892,7 +1933,7 @@ function BusinessInsightsTab() {
 // CALENDÁRIO BUSINESS TAB — Eventos agendados nos estabelecimentos
 // ============================================================
 
-function CalendarioBusinessTab() {
+export function CalendarioBusinessTab() {
   const { data: establishments, isLoading: loadingEstabs } = trpc.business.myEstablishments.useQuery();
   const [selectedEstabId, setSelectedEstabId] = useState<number | null>(null);
   const [showPast, setShowPast] = useState(false);
@@ -2041,7 +2082,7 @@ function CalendarioBusinessTab() {
 }
 
 
-function DestaquesTab() {
+export function DestaquesTab() {
   const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
   const utils = trpc.useUtils();
   const createPost = trpc.posts.create.useMutation({
@@ -2309,7 +2350,7 @@ function DestaquesTab() {
 }
 
 
-function BroadcastTab() {
+export function BroadcastTab() {
   const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
 
   if (isLoading) {
@@ -2370,7 +2411,7 @@ const EVENT_TYPE_OPTIONS = [
   { value: "outro", label: "Outro", icon: "📌" },
 ];
 
-function EventosEstabTab() {
+export function EventosEstabTab() {
   const { data: estabs, isLoading } = trpc.business.myEstablishments.useQuery();
   const utils = trpc.useUtils();
   const createEvent = trpc.business.createEvent.useMutation({
