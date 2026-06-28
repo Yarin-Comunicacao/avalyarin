@@ -739,3 +739,6 @@
 - [x] Insights (3 abas): Meu Plano, Insights, Calendário de Eventos
 - [x] Divulgações (4 abas): Códigos Promocionais, Parcerias, Lista de Transmissão, Eventos do Estab
 - [x] Adicionar aba Chat em Meus Locais (conversa por estab com support, usando establishmentId como thread key)
+
+## Fase 30 — Setas de navegação nas abas
+- [x] Implementar setas esquerda/direita nas abas quando não couberem na tela (BusinessLocais, BusinessInsights, BusinessDivulgacoes)

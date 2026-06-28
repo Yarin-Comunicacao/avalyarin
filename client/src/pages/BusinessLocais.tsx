@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
+import { ScrollableTabs } from "@/components/ScrollableTabs";
 
 // Import tab components from BusinessPanel
 import {
@@ -253,37 +254,14 @@ export default function BusinessLocais() {
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-border/30">
-        <div className="container overflow-x-auto scrollbar-hide">
-          <div className="flex gap-0 min-w-max">
-            {TABS.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0",
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="sm:hidden">{tab.label}</span>
-                  <span className="hidden sm:inline">{tab.labelFull}</span>
-                  {tab.id === "notificacoes" && notifications && notifications.length > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] font-bold">
-                      {notifications.length}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <ScrollableTabs
+        tabs={TABS.map(tab => ({
+          ...tab,
+          badge: tab.id === "notificacoes" ? (notifications?.length || 0) : undefined,
+        }))}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id as TabId)}
+      />
 
       {/* Content */}
       <div className="container py-6">

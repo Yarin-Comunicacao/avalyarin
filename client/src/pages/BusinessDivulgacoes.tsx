@@ -4,7 +4,7 @@ import { getLoginUrl } from "@/const";
 import {
   Tag, Building2, Megaphone, CalendarDays
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ScrollableTabs } from "@/components/ScrollableTabs";
 
 import {
   PromoCodesTab,
@@ -68,32 +68,11 @@ export default function BusinessDivulgacoes() {
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-border/30">
-        <div className="container overflow-x-auto scrollbar-hide">
-          <div className="flex gap-0 min-w-max">
-            {TABS.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0",
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="sm:hidden">{tab.label}</span>
-                  <span className="hidden sm:inline">{tab.labelFull}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <ScrollableTabs
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id as TabId)}
+      />
 
       {/* Content */}
       <div className="container py-6">
