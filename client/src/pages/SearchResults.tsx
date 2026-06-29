@@ -1,5 +1,6 @@
 // Design: AvaLyarin — Full search results page
 // Supports: ?q=query, ?bairro=neighborhood, ?tipo=post_type
+// Uses smartSearch (LLM) for natural language queries, standard search for short queries
 import { useState, useMemo } from "react";
 import { Link, useSearch } from "wouter";
 import { Search, MapPin, UtensilsCrossed, Star, Loader2, Calendar, Tag, Megaphone, Sparkles, Handshake } from "lucide-react";
@@ -16,6 +17,17 @@ const typeLabels: Record<string, { label: string; icon: any; description: string
   collab: { label: "Parceria", icon: Handshake, description: "Parcerias e collabs" },
 };
 
+/**
+ * Determine if a query needs AI interpretation (natural language)
+ */
+function needsAiInterpretation(query: string): boolean {
+  const words = query.trim().split(/\s+/);
+  if (words.length >= 3) return true;
+  const nlIndicators = ["de", "do", "da", "com", "para", "perto", "um", "uma", "que", "no", "na", "ao"];
+  if (words.some(w => nlIndicators.includes(w.toLowerCase()))) return true;
+  return false;
+}
+
 export default function SearchResults() {
   const searchString = useSearch();
   const params = useMemo(() => new URLSearchParams(searchString), [searchString]);
@@ -24,10 +36,19 @@ export default function SearchResults() {
   const tipo = params.get("tipo") || "";
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Standard text search
+  // Determine if we should use AI search
+  const useAi = useMemo(() => needsAiInterpretation(query), [query]);
+
+  // Standard text search (for short queries)
   const { data: searchResults, isLoading: isSearchLoading } = trpc.establishments.search.useQuery(
     { query },
-    { enabled: query.length >= 1 && !bairro && !tipo }
+    { enabled: query.length >= 1 && !bairro && !tipo && !useAi }
+  );
+
+  // Smart search (LLM-powered, for natural language queries)
+  const { data: smartResults, isLoading: isSmartLoading } = trpc.establishments.smartSearch.useQuery(
+    { query },
+    { enabled: query.length >= 1 && !bairro && !tipo && useAi }
   );
 
   // Search by neighborhood
@@ -42,14 +63,19 @@ export default function SearchResults() {
     { enabled: tipo.length >= 1 }
   );
 
-  const isLoading = isSearchLoading || isNeighborhoodLoading || isTypeLoading;
+  const isLoading = isSearchLoading || isSmartLoading || isNeighborhoodLoading || isTypeLoading;
 
-  // Determine what to show
-  const establishments = searchResults?.establishments || [];
-  const menuItemsByName = searchResults?.menuItemsByName || [];
-  const menuItemsByDescription = searchResults?.menuItemsByDescription || [];
-  const items = [...menuItemsByName, ...menuItemsByDescription];
+  // Determine what to show based on search type
+  const establishments = useAi
+    ? (smartResults?.establishments || [])
+    : (searchResults?.establishments || []);
+  const menuItemsByName = useAi ? [] : (searchResults?.menuItemsByName || []);
+  const menuItemsByDescription = useAi ? [] : (searchResults?.menuItemsByDescription || []);
+  const smartMenuItems = useAi ? (smartResults?.menuItems || []) : [];
+  const items = useAi ? smartMenuItems : [...menuItemsByName, ...menuItemsByDescription];
   const totalResults = establishments.length + items.length;
+  const isAiPowered = useAi && smartResults?.isAiPowered;
+  const aiInterpretation = useAi && smartResults?.interpretation;
 
   // Page title based on filter
   const pageTitle = bairro
@@ -97,12 +123,32 @@ export default function SearchResults() {
           <h2 className="font-display text-2xl sm:text-3xl tracking-wider text-primary text-glow-amber break-words">
             {pageTitle}
           </h2>
+
+          {/* AI Interpretation Banner */}
+          {isAiPowered && aiInterpretation && !isLoading && (
+            <div className="mt-4 flex items-start gap-3 p-3 rounded-xl bg-violet-500/5 border border-violet-500/20">
+              <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+              </div>
+              <div>
+                <p className="text-xs text-violet-300/70 font-medium mb-0.5">Busca inteligente</p>
+                <p className="text-sm text-violet-200/90 italic">
+                  {aiInterpretation}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            {useAi && (
+              <p className="text-sm text-muted-foreground">
+                IA interpretando sua busca...
+              </p>
+            )}
           </div>
         )}
 
@@ -233,8 +279,8 @@ export default function SearchResults() {
           </>
         )}
 
-        {/* ===== STANDARD SEARCH RESULTS ===== */}
-        {query && !bairro && !tipo && !isSearchLoading && (
+        {/* ===== STANDARD + SMART SEARCH RESULTS ===== */}
+        {query && !bairro && !tipo && !isLoading && (
           <>
             {/* No results */}
             {totalResults === 0 && (
@@ -242,7 +288,9 @@ export default function SearchResults() {
                 <Search className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
                 <h3 className="text-xl font-medium text-foreground mb-2">Nenhum resultado encontrado</h3>
                 <p className="text-muted-foreground">
-                  Tente buscar por outro nome de bar, prato ou drink.
+                  {useAi
+                    ? "A IA não encontrou resultados para sua busca. Tente reformular."
+                    : "Tente buscar por outro nome de bar, prato ou drink."}
                 </p>
               </div>
             )}
@@ -258,9 +306,15 @@ export default function SearchResults() {
                   <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
                     {establishments.length}
                   </span>
+                  {isAiPowered && (
+                    <span className="text-[10px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      IA
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {establishments.map((est) => (
+                  {establishments.map((est: any) => (
                     <Link key={est.id} href={`/estabelecimento/${est.slug}`}>
                       <div className="group rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 transition-all cursor-pointer">
                         {est.image ? (
@@ -293,7 +347,7 @@ export default function SearchResults() {
                             {est.name}
                           </h4>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {est.categoryName} {est.neighborhood ? `• ${est.neighborhood}` : ""}
+                            {est.categoryName || ""} {est.neighborhood ? `• ${est.neighborhood}` : ""}
                           </p>
                         </div>
                       </div>
@@ -314,12 +368,18 @@ export default function SearchResults() {
                   <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
                     {items.length}
                   </span>
+                  {isAiPowered && (
+                    <span className="text-[10px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      IA
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  {items.map((item, i) => {
-                    const isDescMatch = i >= menuItemsByName.length;
+                  {items.map((item: any, i: number) => {
+                    const isDescMatch = !useAi && i >= menuItemsByName.length;
                     return (
-                      <Link key={`${item.establishmentSlug}-${item.name}-${i}`} href={`/estabelecimento/${item.establishmentSlug}`}>
+                      <Link key={`${item.establishmentSlug || item.id}-${item.name}-${i}`} href={`/estabelecimento/${item.establishmentSlug}`}>
                         <div className="flex items-center gap-4 p-4 rounded-xl border border-border/50 hover:border-primary/30 transition-all cursor-pointer group">
                           <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                             <UtensilsCrossed className="w-5 h-5 text-primary" />
@@ -336,7 +396,7 @@ export default function SearchResults() {
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              {item.establishmentName} • {item.categoryName}
+                              {item.establishmentName} {item.category ? `• ${item.category}` : (item.categoryName ? `• ${item.categoryName}` : "")}
                             </p>
                             {item.description && isDescMatch && (
                               <p className="text-xs text-muted-foreground/70 mt-0.5 italic line-clamp-2">
@@ -344,9 +404,11 @@ export default function SearchResults() {
                               </p>
                             )}
                           </div>
-                          <span className="text-sm font-bold text-primary flex-shrink-0">
-                            R$ {Number(item.price).toFixed(2)}
-                          </span>
+                          {item.price && (
+                            <span className="text-sm font-bold text-primary flex-shrink-0">
+                              R$ {Number(item.price).toFixed(2)}
+                            </span>
+                          )}
                         </div>
                       </Link>
                     );

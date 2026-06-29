@@ -783,3 +783,12 @@
 ## Fase 37 — Bugs: Botão Avaliar + Crash RatingPage
 - [x] Fix: Botão fixo AVALIAR não aparece na EstablishmentPage quando logado (bottom-16 para ficar acima do BottomNav)
 - [x] Fix: Erro de crash na RatingPage ao clicar avaliar após QR scan (hooks condicionais movidos antes dos early returns)
+
+## Fase 38 — Busca Inteligente com LLM
+- [x] Investigar dados disponíveis (estabs, cardápios, características) para alimentar a busca
+- [x] Criar endpoint backend de busca inteligente com LLM (interpreta linguagem natural + busca no banco)
+- [x] Implementar UI de busca: barra expande com até 5 sugestões (prioridade: nome estab > nome item > descrição item), última opção "Todos os resultados"
+- [x] Integrar LLM para interpretar queries ambíguas (ex: "rolê com cadeiras de praia", "chopp brahma perto de mim")
+- [x] SearchBar.tsx: usa smartSearch para queries de linguagem natural (3+ palavras ou preposições PT-BR)
+- [x] SearchResults.tsx: mostra badge "IA" + texto de interpretação quando smartSearch é usado
+- [x] 0 erros TypeScript, 435 testes passando

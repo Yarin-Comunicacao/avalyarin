@@ -5,6 +5,7 @@ import { protectedProcedure, publicProcedure, router, adminProcedure, businessPr
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
 import { z } from "zod";
+import { smartSearch } from "./smart-search";
 import {
   getAllCategories,
   getCategoriesWithCounts,
@@ -342,6 +343,12 @@ export const appRouter = router({
       .input(z.object({ query: z.string().min(1) }))
       .query(async ({ input }) => {
         return await searchAll(input.query);
+      }),
+
+    smartSearch: publicProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ input }) => {
+        return await smartSearch(input.query);
       }),
 
     byNeighborhood: publicProcedure
