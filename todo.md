@@ -792,3 +792,12 @@
 - [x] SearchBar.tsx: usa smartSearch para queries de linguagem natural (3+ palavras ou preposições PT-BR)
 - [x] SearchResults.tsx: mostra badge "IA" + texto de interpretação quando smartSearch é usado
 - [x] 0 erros TypeScript, 435 testes passando
+
+## Fase 39 — Campo "O que faltou para o 10?" (notas 7-9)
+- [x] Adicionar coluna `what_missed_for_ten` (TEXT) + `low_score_reasons` (JSON) na tabela rating_items
+- [x] Atualizar backend: salvar campos no endpoint de avaliação (ratings.save)
+- [x] Frontend: exibir caixa de texto "O que faltou para o 10?" quando nota é 7-9
+- [x] Manter sistema atual de motivos pré-definidos para notas 1-6
+- [x] Nota 10: nenhum campo adicional (satisfação plena)
+- [ ] LLM processa respostas para extrair padrões e alimentar Insights/Ações (futuro)
+- [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint

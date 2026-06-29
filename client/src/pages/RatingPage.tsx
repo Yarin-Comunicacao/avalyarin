@@ -60,6 +60,7 @@ interface DirectRating {
   taste: number;
   lowReasons: string[];
   lowComment: string;
+  whatMissedForTen: string;
 }
 
 interface AnalyticItemRating {
@@ -84,6 +85,7 @@ interface BevDirectRating {
   taste: number;
   lowReasons: string[];
   lowComment: string;
+  whatMissedForTen: string;
 }
 
 // ============================================================
@@ -560,12 +562,12 @@ export default function RatingPage() {
     }
     // Direct ratings for all items
     setDirectRatings(
-      selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "" }))
+      selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "" }))
     );
     // Beverage direct ratings for analytic beverages-only flow
     const bevItems = menuItems.filter((m) => selectedItems.includes(m.id) && isBeverageItem(m));
     setBevDirectRatings(
-      bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "" }))
+      bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "" }))
     );
     // Analytic item ratings for ratable items (food + drinks, not beer/chopp)
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
@@ -957,7 +959,7 @@ export default function RatingPage() {
 
   // Helper to render a direct-style rating card (used in both Direct mode and Analytic beverages-only)
   const renderDirectStyleCard = (
-    rating: { itemId: string; serves: number; recommend: boolean | null; taste: number; lowReasons: string[]; lowComment: string },
+    rating: { itemId: string; serves: number; recommend: boolean | null; taste: number; lowReasons: string[]; lowComment: string; whatMissedForTen: string },
     idx: number,
     total: number,
     updateField: (idx: number, field: string, value: any) => void,
@@ -1034,6 +1036,29 @@ export default function RatingPage() {
                 onCommentChange={(c) => updateField(idx, "lowComment", c)}
                 showError={validationAttempted}
               />
+            )}
+            {rating.taste >= 7 && rating.taste <= 9 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4"
+              >
+                <label className="text-sm font-medium text-primary flex items-center gap-2 mb-2">
+                  <Star className="w-4 h-4" /> O que faltou para o 10?
+                </label>
+                <textarea
+                  value={rating.whatMissedForTen}
+                  onChange={(e) => updateField(idx, "whatMissedForTen", e.target.value)}
+                  placeholder="Ex: Poderia ser mais gelado, porção maior, atendimento mais rápido..."
+                  maxLength={200}
+                  className="w-full px-4 py-3 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
+                  rows={2}
+                />
+                <p className="text-xs text-muted-foreground/50 mt-1 text-right">
+                  {rating.whatMissedForTen.length}/200
+                </p>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -2208,13 +2233,17 @@ export default function RatingPage() {
                             const dr = directRatings.find(r => r.itemId === m.id);
                             const bevDr = bevDirectRatings.find(r => r.itemId === m.id);
                             const comment = itemComments.find(c => c.itemId === m.id)?.comment || "";
+                            const score = dr?.taste || bevDr?.taste || finalScore;
+                            const rating = dr || bevDr;
                             return {
                               menuItemId: parseInt(m.id) || undefined,
                               itemName: m.name,
-                              score: dr?.taste || bevDr?.taste || finalScore,
+                              score,
                               comment: comment || undefined,
                               quantity: dr?.serves || bevDr?.serves || undefined,
                               price: m.price > 0 ? m.price : undefined,
+                              lowScoreReasons: score >= 1 && score <= 6 && rating?.lowReasons?.length ? rating.lowReasons : undefined,
+                              whatMissedForTen: score >= 7 && score <= 9 && rating?.whatMissedForTen?.trim() ? rating.whatMissedForTen.trim() : undefined,
                             };
                           }),
                         });

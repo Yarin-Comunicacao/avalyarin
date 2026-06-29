@@ -394,6 +394,8 @@ export const appRouter = router({
           comment: z.string().optional(),
           quantity: z.number().optional(),
           price: z.number().optional(),
+          lowScoreReasons: z.array(z.string()).optional(), // Selected reasons when score 1-6
+          whatMissedForTen: z.string().optional(), // Free text when score 7-9
         })),
       }))
       .mutation(async ({ ctx, input }) => {

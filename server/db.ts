@@ -713,6 +713,8 @@ export async function saveRating(userId: number, data: {
     comment?: string;
     quantity?: number;
     price?: number;
+    lowScoreReasons?: string[];
+    whatMissedForTen?: string;
   }>;
 }) {
   const db = await getDb();
@@ -753,6 +755,8 @@ export async function saveRating(userId: number, data: {
         comment: item.comment ?? null,
         quantity: item.quantity ?? 1,
         price: item.price ?? null,
+        lowScoreReasons: item.lowScoreReasons ?? null,
+        whatMissedForTen: item.whatMissedForTen ?? null,
       }))
     );
   }

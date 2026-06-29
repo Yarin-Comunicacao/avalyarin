@@ -139,6 +139,8 @@ export const ratingItems = mysqlTable("rating_items", {
   comment: text("comment"),
   quantity: int("quantity").default(1),
   price: float("price"),
+  lowScoreReasons: json("lowScoreReasons"), // Array of selected reasons when score 1-6
+  whatMissedForTen: text("whatMissedForTen"), // Free text: "O que faltou para o 10?" when score 7-9
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
