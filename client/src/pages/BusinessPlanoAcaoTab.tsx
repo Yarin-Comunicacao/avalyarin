@@ -25,15 +25,18 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string; bgColor: s
   low: { label: "Baixa", color: "text-emerald-400", bgColor: "bg-emerald-500/10 border-emerald-500/20" },
 };
 
-export default function BusinessPlanoAcaoTab() {
+interface BusinessPlanoAcaoTabProps {
+  establishmentId?: number | null;
+}
+
+export default function BusinessPlanoAcaoTab({ establishmentId }: BusinessPlanoAcaoTabProps) {
   const { user } = useAuth();
 
-  // Get user's establishments
+  // Use shared establishmentId from parent, fallback to fetching own
   const { data: estabs } = trpc.business.myEstablishments.useQuery(undefined, {
-    enabled: !!user,
+    enabled: !!user && !establishmentId,
   });
-  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
-  const estabId = selectedEstab || estabs?.[0]?.id;
+  const estabId = establishmentId || estabs?.[0]?.id;
 
   const { data: actionsData, isLoading } = trpc.analytics.businessActions.useQuery(
     { establishmentId: estabId! },
@@ -51,7 +54,7 @@ export default function BusinessPlanoAcaoTab() {
   const pendingActions = actions.filter((a: any) => a.status === "pending");
   const completedActions = actions.filter((a: any) => a.status === "completed");
 
-  if (!estabs || estabs.length === 0) {
+  if (!estabId) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Nenhum estabelecimento vinculado.</p>
@@ -61,24 +64,6 @@ export default function BusinessPlanoAcaoTab() {
 
   return (
     <div className="space-y-6">
-      {/* Establishment selector */}
-      {estabs.length > 1 && (
-        <Select
-          value={String(estabId)}
-          onValueChange={(v) => setSelectedEstab(Number(v))}
-        >
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Estabelecimento" />
-          </SelectTrigger>
-          <SelectContent>
-            {estabs.map((e: any) => (
-              <SelectItem key={e.id} value={String(e.id)}>
-                {e.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
 
       {/* Plan banner for free users */}
       {!isPremium && (

@@ -1771,11 +1771,17 @@ export function PartnershipsTab() {
 }
 
 
-export function BusinessPlanTab() {
-  const { data: establishments } = trpc.business.myEstablishments.useQuery();
+interface BusinessPlanTabProps {
+  establishmentId?: number | null;
+}
+
+export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
+  const { data: establishments } = trpc.business.myEstablishments.useQuery(undefined, {
+    enabled: !establishmentId,
+  });
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
 
-  const estId = selectedEst || (establishments && establishments.length > 0 ? establishments[0].id : null);
+  const estId = establishmentId || selectedEst || (establishments && establishments.length > 0 ? establishments[0].id : null);
   const { data: planDetails, refetch } = trpc.plans.businessPlan.useQuery(
     { establishmentId: estId! },
     { enabled: !!estId }
@@ -1802,21 +1808,7 @@ export function BusinessPlanTab() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Select establishment */}
-      {establishments.length > 1 && (
-        <div className="mb-6">
-          <label className="text-sm text-muted-foreground block mb-2">Estabelecimento</label>
-          <select
-            className="w-full p-3 rounded-lg bg-card border border-border/50 text-foreground"
-            value={estId || ""}
-            onChange={(e) => setSelectedEst(Number(e.target.value))}
-          >
-            {establishments.map((est: any) => (
-              <option key={est.id} value={est.id}>{est.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
+      {/* Establishment selector removed — controlled by parent */}
 
       {/* Current plan */}
       <div className="p-6 rounded-xl bg-card border border-border/50 mb-6">
@@ -1831,7 +1823,7 @@ export function BusinessPlanTab() {
               {currentPlan === "premium" ? "PREMIUM" : "BÁSICO"}
             </h3>
             <p className="text-xs text-muted-foreground">
-              {currentPlan === "premium" ? "R$ 29,90/mês" : "Grátis"}
+              {currentPlan === "premium" ? "R$ 97,00/mês" : "Grátis"}
             </p>
           </div>
           {currentPlan === "premium" && (
@@ -1857,14 +1849,14 @@ export function BusinessPlanTab() {
           <div className={`p-4 rounded-lg border ${currentPlan === "premium" ? "border-primary/30 bg-primary/5" : "border-border/30"}`}>
             <h4 className="font-display text-sm tracking-wider text-primary mb-3">PREMIUM</h4>
             <ul className="space-y-2">
-              {["Códigos promo ilimitados", "Analytics e métricas", "Destaque no app", "Tudo do Básico"].map((f, i) => (
+              {["Dashboard completo com gráficos", "20 insights de desempenho", "Plano de Ação com IA", "Detecção de outliers", "Códigos promo ilimitados", "Destaque no app", "Tudo do Básico"].map((f, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs">
                   <Check className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
                   <span className="text-foreground/70">{f}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 font-numbers text-lg font-bold text-primary">R$ 29,90<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
+            <p className="mt-3 font-numbers text-lg font-bold text-primary">R$ 97<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
           </div>
         </div>
       </div>

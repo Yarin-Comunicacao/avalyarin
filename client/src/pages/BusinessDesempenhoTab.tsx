@@ -52,16 +52,19 @@ const THEME_MAP: Record<string, { ids: number[]; label: string; icon: React.Elem
   },
 };
 
-export default function BusinessDesempenhoTab() {
+interface BusinessDesempenhoTabProps {
+  establishmentId?: number | null;
+}
+
+export default function BusinessDesempenhoTab({ establishmentId }: BusinessDesempenhoTabProps) {
   const { user } = useAuth();
   const [expandedTheme, setExpandedTheme] = useState<string | null>("publico");
 
-  // Get user's establishments
+  // Use shared establishmentId from parent, fallback to fetching own
   const { data: estabs } = trpc.business.myEstablishments.useQuery(undefined, {
-    enabled: !!user,
+    enabled: !!user && !establishmentId,
   });
-  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
-  const estabId = selectedEstab || estabs?.[0]?.id;
+  const estabId = establishmentId || estabs?.[0]?.id;
 
   const { data: fullInsights, isLoading } = trpc.analytics.fullInsights.useQuery(
     { establishmentId: estabId! },
@@ -72,7 +75,7 @@ export default function BusinessDesempenhoTab() {
   const insights = fullInsights?.insights || [];
   const isPremium = plan === "premium";
 
-  if (!estabs || estabs.length === 0) {
+  if (!estabId) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Nenhum estabelecimento vinculado.</p>
@@ -82,24 +85,6 @@ export default function BusinessDesempenhoTab() {
 
   return (
     <div className="space-y-6">
-      {/* Establishment selector */}
-      {estabs.length > 1 && (
-        <Select
-          value={String(estabId)}
-          onValueChange={(v) => setSelectedEstab(Number(v))}
-        >
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Estabelecimento" />
-          </SelectTrigger>
-          <SelectContent>
-            {estabs.map((e: any) => (
-              <SelectItem key={e.id} value={String(e.id)}>
-                {e.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
 
       {/* Plan banner for free users */}
       {!isPremium && (

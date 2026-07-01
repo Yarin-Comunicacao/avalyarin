@@ -1,33 +1,51 @@
 /**
- * Business Insights — Reestruturado em 4 abas:
- * 1. Dashboard (gráficos + linha temporal com outliers)
- * 2. Desempenho (20 insights por tema: Público, Produto, Experiência, Competição, Marketing)
- * 3. Plano de Ação (sugestões IA + outliers detectados)
- * 4. Meu Plano (assinatura e upgrade)
+ * Business Insights — 4 abas:
+ * 1. Meu Plano (assinatura e upgrade)
+ * 2. Dashboard (gráficos + linha temporal com outliers)
+ * 3. Desempenho (20 insights por tema: Público, Produto, Experiência, Competição, Marketing)
+ * 4. Plano de Ação (sugestões IA + outliers detectados)
+ *
+ * Dropdown de estabelecimento fica ACIMA das abas — navegação entre abas mantém o estab selecionado.
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
-import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown, Store } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import BusinessDashboardTab from "./BusinessDashboardTab";
 import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
 import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
 import { BusinessPlanTab } from "./BusinessPanel";
 
-type TabId = "dashboard" | "desempenho" | "plano-acao" | "meu-plano";
+type TabId = "meu-plano" | "dashboard" | "desempenho" | "plano-acao";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
+  { id: "meu-plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
   { id: "dashboard", label: "Dashboard", labelFull: "Dashboard", icon: LayoutDashboard },
   { id: "desempenho", label: "Desempenho", labelFull: "Desempenho", icon: TrendingUp },
   { id: "plano-acao", label: "Plano de Ação", labelFull: "Plano de Ação", icon: Lightbulb },
-  { id: "meu-plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
 ];
 
 export default function BusinessInsights() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [activeTab, setActiveTab] = useState<TabId>("meu-plano");
+  const [selectedEstabId, setSelectedEstabId] = useState<number | null>(null);
+
+  // Fetch establishments at this level so all tabs share the same selection
+  const { data: establishments } = trpc.business.myEstablishments.useQuery(undefined, {
+    enabled: !!user,
+  });
+
+  const estabId = selectedEstabId || establishments?.[0]?.id || null;
 
   if (loading) {
     return (
@@ -70,6 +88,34 @@ export default function BusinessInsights() {
         </div>
       </header>
 
+      {/* Establishment Selector — ABOVE tabs */}
+      {establishments && establishments.length > 0 && (
+        <div className="container pt-4 pb-2">
+          <div className="flex items-center gap-2">
+            <Store className="w-4 h-4 text-muted-foreground shrink-0" />
+            {establishments.length === 1 ? (
+              <span className="text-sm font-medium text-foreground">{establishments[0].name}</span>
+            ) : (
+              <Select
+                value={String(estabId)}
+                onValueChange={(v) => setSelectedEstabId(Number(v))}
+              >
+                <SelectTrigger className="w-full max-w-[280px] h-9 text-sm">
+                  <SelectValue placeholder="Selecione o estabelecimento" />
+                </SelectTrigger>
+                <SelectContent>
+                  {establishments.map((e: any) => (
+                    <SelectItem key={e.id} value={String(e.id)}>
+                      {e.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <ScrollableTabs
         tabs={TABS}
@@ -79,10 +125,10 @@ export default function BusinessInsights() {
 
       {/* Content */}
       <div className="container py-6">
-        {activeTab === "dashboard" && <BusinessDashboardTab />}
-        {activeTab === "desempenho" && <BusinessDesempenhoTab />}
-        {activeTab === "plano-acao" && <BusinessPlanoAcaoTab />}
-        {activeTab === "meu-plano" && <BusinessPlanTab />}
+        {activeTab === "meu-plano" && <BusinessPlanTab establishmentId={estabId} />}
+        {activeTab === "dashboard" && <BusinessDashboardTab establishmentId={estabId} />}
+        {activeTab === "desempenho" && <BusinessDesempenhoTab establishmentId={estabId} />}
+        {activeTab === "plano-acao" && <BusinessPlanoAcaoTab establishmentId={estabId} />}
       </div>
     </div>
   );

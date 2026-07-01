@@ -30,23 +30,26 @@ const CHART_COLORS = [
   "#f59e0b", "#3b82f6", "#10b981", "#8b5cf6", "#ef4444", "#06b6d4", "#ec4899", "#84cc16"
 ];
 
-export default function BusinessDashboardTab() {
+interface BusinessDashboardTabProps {
+  establishmentId?: number | null;
+}
+
+export default function BusinessDashboardTab({ establishmentId }: BusinessDashboardTabProps) {
   const { user } = useAuth();
   const [period, setPeriod] = useState("30");
 
-  // Get user's establishments
+  // Use shared establishmentId from parent, fallback to fetching own
   const { data: estabs } = trpc.business.myEstablishments.useQuery(undefined, {
-    enabled: !!user,
+    enabled: !!user && !establishmentId,
   });
-  const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
-  const estabId = selectedEstab || estabs?.[0]?.id;
+  const estabId = establishmentId || estabs?.[0]?.id;
 
   const { data: dashboard, isLoading } = trpc.analytics.dashboardData.useQuery(
     { establishmentId: estabId!, periodDays: Number(period) },
     { enabled: !!estabId }
   );
 
-  if (!estabs || estabs.length === 0) {
+  if (!estabId) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Nenhum estabelecimento vinculado.</p>
@@ -56,25 +59,8 @@ export default function BusinessDashboardTab() {
 
   return (
     <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {estabs.length > 1 && (
-          <Select
-            value={String(estabId)}
-            onValueChange={(v) => setSelectedEstab(Number(v))}
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Estabelecimento" />
-            </SelectTrigger>
-            <SelectContent>
-              {estabs.map((e: any) => (
-                <SelectItem key={e.id} value={String(e.id)}>
-                  {e.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+      {/* Period selector */}
+      <div className="flex gap-3">
         <Select value={period} onValueChange={setPeriod}>
           <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue />

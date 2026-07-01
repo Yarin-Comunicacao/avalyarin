@@ -829,3 +829,14 @@
 - [x] Frontend: Plano de Ação com sugestões IA + outliers detectados + "faltou para o 10"
 - [x] Blur/paywall para plano Free (R$97/mês para desbloquear)
 - [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
+
+## Ajustes Insights Business — Dropdown + Abas + Props (01/07/2026)
+- [x] Mover dropdown de estabelecimento para ACIMA das abas (compartilhado entre todas)
+- [x] Reordenar abas: "Meu Plano" como PRIMEIRA aba (da esquerda para direita)
+- [x] Refatorar BusinessDashboardTab para aceitar prop establishmentId (remover seletor local)
+- [x] Refatorar BusinessDesempenhoTab para aceitar prop establishmentId (remover seletor local)
+- [x] Refatorar BusinessPlanoAcaoTab para aceitar prop establishmentId (remover seletor local)
+- [x] Refatorar BusinessPlanTab para aceitar prop establishmentId (remover seletor local)
+- [x] Atualizar preço do plano Premium para R$97/mês em BusinessPlanTab
+- [x] Atualizar features do Premium: Dashboard completo, 20 insights, Plano de Ação com IA, Detecção de outliers
+- [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
