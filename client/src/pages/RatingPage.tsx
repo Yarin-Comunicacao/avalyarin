@@ -47,10 +47,16 @@ interface SpendData {
   servicePercent: "none" | "10" | "13";
   couvertEnabled: boolean;
   couvertValue: string;
+  couvertSeparate: boolean;
   valetEnabled: boolean;
   valetValue: string;
+  valetSeparate: boolean;
   parkingEnabled: boolean;
   parkingValue: string;
+  parkingSeparate: boolean;
+  divergentEnabled: boolean;
+  divergentValue: string;
+  divergentPhoto: string | null;
 }
 
 interface DirectRating {
@@ -454,10 +460,16 @@ export default function RatingPage() {
     servicePercent: "none",
     couvertEnabled: false,
     couvertValue: "",
+    couvertSeparate: false,
     valetEnabled: false,
     valetValue: "",
+    valetSeparate: false,
     parkingEnabled: false,
     parkingValue: "",
+    parkingSeparate: false,
+    divergentEnabled: false,
+    divergentValue: "",
+    divergentPhoto: null,
   });
   const [directRatings, setDirectRatings] = useState<DirectRating[]>([]);
   const [currentDirectIdx, setCurrentDirectIdx] = useState(0);
@@ -810,6 +822,48 @@ export default function RatingPage() {
         return true;
       });
     });
+  };
+
+  // Find first incomplete subcriterion ID for analytic item
+  const findFirstIncompleteAnalyticSub = (rating: AnalyticItemRating): string | null => {
+    const item = menuItems.find((m) => m.id === rating.itemId);
+    const itemType = item ? getItemType(item) : "outro";
+    const isBev = itemType === "cerveja" || itemType === "drink" || itemType === "destilado" || itemType === "bebida";
+    const saborSubs = ["c1_1", "c1_2", "c1_3", "c1_4"];
+    const apresSubs = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
+    const requiredSubs = [...saborSubs, ...apresSubs];
+    for (const subId of requiredSubs) {
+      const score = rating.subScores[subId] || 0;
+      if (score <= 0) return subId;
+      if (!hasValidLowReasons(score, rating.lowReasons[subId] || [], rating.lowComments[subId] || "")) return subId;
+    }
+    return null;
+  };
+
+  // Find first incomplete global subcriterion
+  const findFirstIncompleteGlobalSub = (): string | null => {
+    for (const r of analyticGlobalRatings) {
+      const criterion = globalCriteria.find((c) => c.id === r.criterionId);
+      if (!criterion) continue;
+      for (const sub of criterion.subcriteria) {
+        const score = r.subScores[sub.id] || 0;
+        if (score <= 0) return sub.id;
+        if (!hasValidLowReasons(score, r.lowReasons[sub.id] || [], r.lowComments[sub.id] || "")) return sub.id;
+      }
+    }
+    return null;
+  };
+
+  // Scroll to first incomplete field by data-sub-id attribute
+  const scrollToIncompleteField = (subId: string) => {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-sub-id="${subId}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-red-500/60", "rounded-lg");
+        setTimeout(() => el.classList.remove("ring-2", "ring-red-500/60", "rounded-lg"), 2500);
+      }
+    }, 100);
   };
 
   // ============================================================
@@ -1563,7 +1617,7 @@ export default function RatingPage() {
                         <h5 className="text-base font-semibold text-foreground mb-4">Sabor e Execução</h5>
                         <div className="space-y-5">
                           {c1.subcriteria.map((sub) => (
-                            <div key={sub.id} className="pl-3 border-l-2 border-primary/20">
+                            <div key={sub.id} data-sub-id={sub.id} className="pl-3 border-l-2 border-primary/20">
                               <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
                               <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
                               <ScoreButtons
@@ -1623,7 +1677,7 @@ export default function RatingPage() {
                             <h5 className="text-base font-semibold text-foreground mb-4">{sectionTitle}</h5>
                             <div className="space-y-5">
                               {subsToShow.map((sub) => (
-                                <div key={sub.id} className="pl-3 border-l-2 border-accent/20">
+                                <div key={sub.id} data-sub-id={sub.id} className="pl-3 border-l-2 border-accent/20">
                                   <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
                                   <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
                                   <ScoreButtons
@@ -1697,6 +1751,9 @@ export default function RatingPage() {
                       if (ratableSelectedItems.length > 0 && analyticItemRatings[currentAnalyticItemIdx]) {
                         if (!isAnalyticItemComplete(analyticItemRatings[currentAnalyticItemIdx])) {
                           setValidationAttempted(true);
+                          const incompleteSub = findFirstIncompleteAnalyticSub(analyticItemRatings[currentAnalyticItemIdx]);
+                          if (incompleteSub) scrollToIncompleteField(incompleteSub);
+                          toast.error("Preencha todos os campos antes de avançar");
                           return;
                         }
                       }
@@ -1743,7 +1800,7 @@ export default function RatingPage() {
 
                         <div className="space-y-5">
                           {criterion.subcriteria.map((sub) => (
-                            <div key={sub.id} className="pl-3 border-l-2 border-primary/20">
+                            <div key={sub.id} data-sub-id={sub.id} className="pl-3 border-l-2 border-primary/20">
                               <p className="text-sm font-medium text-foreground mb-1">{sub.name}</p>
                               <p className="text-xs text-muted-foreground mb-2">{sub.description}</p>
                               <ScoreButtons
@@ -1804,6 +1861,9 @@ export default function RatingPage() {
                     onClick={() => {
                       if (!areAllGlobalCriteriaComplete()) {
                         setValidationAttempted(true);
+                        const incompleteSub = findFirstIncompleteGlobalSub();
+                        if (incompleteSub) scrollToIncompleteField(incompleteSub);
+                        toast.error("Preencha todos os campos antes de avançar");
                         return;
                       }
                       setValidationAttempted(false);
@@ -1825,9 +1885,9 @@ export default function RatingPage() {
               const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + item.price, 0);
               const serviceAmount = spendData.servicePercent === "10" ? itemsSubtotal * 0.10
                 : spendData.servicePercent === "13" ? itemsSubtotal * 0.13 : 0;
-              const couvertAmount = spendData.couvertEnabled ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
-              const valetAmount = spendData.valetEnabled ? parseFloat(spendData.valetValue.replace(",", ".")) || 0 : 0;
-              const parkingAmount = spendData.parkingEnabled ? parseFloat(spendData.parkingValue.replace(",", ".")) || 0 : 0;
+              const couvertAmount = (spendData.couvertEnabled && !spendData.couvertSeparate) ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
+              const valetAmount = (spendData.valetEnabled && !spendData.valetSeparate) ? parseFloat(spendData.valetValue.replace(",", ".")) || 0 : 0;
+              const parkingAmount = (spendData.parkingEnabled && !spendData.parkingSeparate) ? parseFloat(spendData.parkingValue.replace(",", ".")) || 0 : 0;
               const totalSpend = itemsSubtotal + serviceAmount + couvertAmount + valetAmount + parkingAmount;
 
               return (
@@ -1861,7 +1921,7 @@ export default function RatingPage() {
                                 : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                             }`}
                           >
-                            {opt === "none" ? "Sem" : `${opt}%`}
+                            {opt === "none" ? "Não Cobrado" : `${opt}%`}
                           </button>
                         ))}
                       </div>
@@ -1888,16 +1948,29 @@ export default function RatingPage() {
                         <span className="text-sm font-medium text-foreground">Couvert artístico</span>
                       </button>
                       {spendData.couvertEnabled && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">R$</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="0,00"
-                            value={spendData.couvertValue}
-                            onChange={(e) => setSpendData(prev => ({ ...prev, couvertValue: e.target.value }))}
-                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
-                          />
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">R$</span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              value={spendData.couvertValue}
+                              onChange={(e) => setSpendData(prev => ({ ...prev, couvertValue: e.target.value }))}
+                              className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                            />
+                          </div>
+                          <button
+                            onClick={() => setSpendData(prev => ({ ...prev, couvertSeparate: !prev.couvertSeparate }))}
+                            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                              spendData.couvertSeparate ? "bg-accent border-accent" : "border-muted-foreground/40"
+                            }`}>
+                              {spendData.couvertSeparate && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                            Cobrado Separadamente
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1918,16 +1991,29 @@ export default function RatingPage() {
                         <span className="text-sm font-medium text-foreground">Valet</span>
                       </button>
                       {spendData.valetEnabled && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">R$</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="0,00"
-                            value={spendData.valetValue}
-                            onChange={(e) => setSpendData(prev => ({ ...prev, valetValue: e.target.value }))}
-                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
-                          />
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">R$</span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              value={spendData.valetValue}
+                              onChange={(e) => setSpendData(prev => ({ ...prev, valetValue: e.target.value }))}
+                              className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                            />
+                          </div>
+                          <button
+                            onClick={() => setSpendData(prev => ({ ...prev, valetSeparate: !prev.valetSeparate }))}
+                            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                              spendData.valetSeparate ? "bg-accent border-accent" : "border-muted-foreground/40"
+                            }`}>
+                              {spendData.valetSeparate && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                            Cobrado Separadamente
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1948,26 +2034,167 @@ export default function RatingPage() {
                         <span className="text-sm font-medium text-foreground">Estacionamento</span>
                       </button>
                       {spendData.parkingEnabled && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">R$</span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="0,00"
-                            value={spendData.parkingValue}
-                            onChange={(e) => setSpendData(prev => ({ ...prev, parkingValue: e.target.value }))}
-                            className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
-                          />
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">R$</span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              value={spendData.parkingValue}
+                              onChange={(e) => setSpendData(prev => ({ ...prev, parkingValue: e.target.value }))}
+                              className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40"
+                            />
+                          </div>
+                          <button
+                            onClick={() => setSpendData(prev => ({ ...prev, parkingSeparate: !prev.parkingSeparate }))}
+                            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                              spendData.parkingSeparate ? "bg-accent border-accent" : "border-muted-foreground/40"
+                            }`}>
+                              {spendData.parkingSeparate && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                            Cobrado Separadamente
+                          </button>
                         </div>
                       )}
                     </div>
 
-                    {/* Total */}
-                    <div className="flex items-center justify-between pt-4 border-t border-primary/30">
-                      <span className="font-display text-lg tracking-wider text-primary">TOTAL</span>
-                      <span className="font-numbers text-2xl text-primary font-bold text-glow-amber">
-                        R$ {totalSpend.toFixed(2).replace(".", ",")}
-                      </span>
+                    {/* Total — Notinha */}
+                    <div className="pt-4 border-t border-primary/30">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Receipt className="w-4 h-4 text-primary" />
+                        <span className="font-display text-lg tracking-wider text-primary">TOTAL</span>
+                      </div>
+                      <div className="p-4 rounded-lg bg-background/50 border border-border/30 space-y-1.5">
+                        {selectedMenuItems.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground truncate max-w-[60%]">{item.name}</span>
+                            <span className="font-numbers text-foreground">R$ {item.price.toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        ))}
+                        {spendData.servicePercent !== "none" && (
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-border/20">
+                            <span className="text-muted-foreground">Taxa de serviço ({spendData.servicePercent}%)</span>
+                            <span className="font-numbers text-foreground">R$ {serviceAmount.toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        )}
+                        {spendData.couvertEnabled && !spendData.couvertSeparate && couvertAmount > 0 && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Couvert artístico</span>
+                            <span className="font-numbers text-foreground">R$ {couvertAmount.toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        )}
+                        {spendData.valetEnabled && !spendData.valetSeparate && valetAmount > 0 && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Valet</span>
+                            <span className="font-numbers text-foreground">R$ {valetAmount.toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        )}
+                        {spendData.parkingEnabled && !spendData.parkingSeparate && parkingAmount > 0 && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Estacionamento</span>
+                            <span className="font-numbers text-foreground">R$ {parkingAmount.toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between pt-2 border-t border-primary/30">
+                          <span className="text-sm font-bold text-foreground">Total</span>
+                          <span className="font-numbers text-xl text-primary font-bold text-glow-amber">
+                            R$ {totalSpend.toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Cobrados separadamente - resumo */}
+                      {(spendData.couvertSeparate || spendData.valetSeparate || spendData.parkingSeparate) && (
+                        <div className="mt-2 p-3 rounded-lg bg-accent/5 border border-accent/20">
+                          <p className="text-[10px] text-accent font-medium mb-1">Cobrados separadamente:</p>
+                          <div className="space-y-0.5">
+                            {spendData.couvertSeparate && spendData.couvertEnabled && (
+                              <p className="text-[10px] text-muted-foreground">Couvert: R$ {spendData.couvertValue || "0,00"}</p>
+                            )}
+                            {spendData.valetSeparate && spendData.valetEnabled && (
+                              <p className="text-[10px] text-muted-foreground">Valet: R$ {spendData.valetValue || "0,00"}</p>
+                            )}
+                            {spendData.parkingSeparate && spendData.parkingEnabled && (
+                              <p className="text-[10px] text-muted-foreground">Estacionamento: R$ {spendData.parkingValue || "0,00"}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Valor divergente */}
+                    <div className="pt-3">
+                      <button
+                        onClick={() => setSpendData(prev => ({ ...prev, divergentEnabled: !prev.divergentEnabled }))}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                          spendData.divergentEnabled ? "border-red-500/60 bg-red-500/5" : "border-border/30 bg-secondary/30 hover:border-border/60"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                          spendData.divergentEnabled ? "bg-red-500 border-red-500" : "border-muted-foreground/40"
+                        }`}>
+                          {spendData.divergentEnabled && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-foreground">Valor divergente</span>
+                          <p className="text-[10px] text-muted-foreground">Marque se o valor real é diferente do calculado</p>
+                        </div>
+                      </button>
+                      {spendData.divergentEnabled && (
+                        <div className="mt-3 space-y-3 pl-2 border-l-2 border-red-500/30">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">Valor correto: R$</span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              value={spendData.divergentValue}
+                              onChange={(e) => setSpendData(prev => ({ ...prev, divergentValue: e.target.value }))}
+                              className="flex-1 px-3 py-2 rounded-lg bg-secondary/50 border border-red-500/30 text-sm text-foreground font-numbers placeholder:text-muted-foreground/50 focus:outline-none focus:border-red-500/60"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground flex items-center gap-1.5 mb-2">
+                              <Camera className="w-3.5 h-3.5" /> Foto da nota (opcional)
+                            </label>
+                            {spendData.divergentPhoto ? (
+                              <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-border/50">
+                                <img src={spendData.divergentPhoto} alt="Nota" className="w-full h-full object-cover" />
+                                <button
+                                  onClick={() => setSpendData(prev => ({ ...prev, divergentPhoto: null }))}
+                                  className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500/80 rounded-full flex items-center justify-center"
+                                >
+                                  <X className="w-3 h-3 text-white" />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="w-20 h-20 rounded-lg border-2 border-dashed border-red-500/30 flex flex-col items-center justify-center cursor-pointer hover:border-red-500/60 transition-colors">
+                                <Camera className="w-5 h-5 text-red-500/60" />
+                                <span className="text-[9px] text-red-500/60 mt-0.5">Nota</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
+                                    };
+                                    reader.readAsDataURL(file);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

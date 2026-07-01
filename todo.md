@@ -863,3 +863,11 @@
 - [x] Modo Analítico: adicionar campo "O que faltou para o 10?" nos subcritérios quando nota 7-9
 - [x] Admin > Código > Backup: corrigir download para baixar arquivo automaticamente (não abrir nova aba)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Melhorias — Validação analítica + Resumo da Conta (01/07/2026)
+- [x] Analítico: scroll automático para campo não preenchido quando validação falha
+- [x] Resumo da Conta: trocar "Sem" por "Não Cobrado" na taxa de serviço
+- [x] Resumo da Conta: adicionar checkbox "Cobrado Separadamente" em Couvert, Valet e Estacionamento
+- [x] Resumo da Conta: redesenhar Total como notinha com itens, preços e taxa de serviço
+- [x] Resumo da Conta: adicionar checkbox "Valor divergente" abaixo do total com campo de valor correto e foto da nota
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
