@@ -156,6 +156,7 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
                 points={dashboard.timeline.points}
                 outliers={dashboard.timeline.outliers}
                 mean={dashboard.timeline.mean}
+                periodDays={Number(period)}
               />
             ) : (
               <EmptyChart message="Sem dados no período" />
@@ -310,63 +311,216 @@ function BarChart({ data, labelKey, valueKey }: { data: any[]; labelKey: string;
 
 // ─── Timeline Chart (SVG-based) ─────────────────────────────────────────────
 
+const MONTHS_PT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+/**
+ * Gera labels do eixo X com base no período:
+ * - 7d: dd/mm para cada dia (7 labels)
+ * - 14d: dd/mm para cada dia (14 labels)
+ * - 21d: dd/mm pulando para ter ~15 labels
+ * - 30d: dd/mm pulando a cada 2 dias (~15 labels)
+ * - 60d: dd/mm pulando a cada 4 dias (~15 labels)
+ * - 180d: dd/mm com intervalos de ~12 dias (~15 labels)
+ * - 365d: meses (Jan, Fev, Mar...)
+ */
+function getXAxisLabels(points: Array<{ date: string }>, periodDays: number): Array<{ index: number; label: string }> {
+  if (points.length === 0) return [];
+
+  if (periodDays === 365) {
+    // Mostrar meses
+    const monthsSeen = new Map<string, number>();
+    points.forEach((p, i) => {
+      const d = new Date(p.date + "T12:00:00");
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (!monthsSeen.has(key)) {
+        monthsSeen.set(key, i);
+      }
+    });
+    return Array.from(monthsSeen.entries()).map(([key, idx]) => {
+      const month = parseInt(key.split("-")[1]);
+      return { index: idx, label: MONTHS_PT[month] };
+    });
+  }
+
+  // Para períodos <= 180 dias, calcular o step para ter no máximo 15 labels
+  const maxLabels = 15;
+  let step: number;
+
+  if (periodDays <= 14) {
+    step = 1; // Mostrar todos os dias
+  } else if (periodDays === 21) {
+    // Pular alguns para ter ~15
+    step = Math.ceil(points.length / maxLabels);
+  } else if (periodDays === 30) {
+    // Pular a cada 2 dias
+    step = 2;
+  } else if (periodDays === 60) {
+    // Pular a cada 4 dias
+    step = 4;
+  } else {
+    // 180 dias: intervalos de ~12 dias
+    step = Math.ceil(points.length / maxLabels);
+  }
+
+  const labels: Array<{ index: number; label: string }> = [];
+  for (let i = 0; i < points.length; i += step) {
+    const d = new Date(points[i].date + "T12:00:00");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    labels.push({ index: i, label: `${dd}/${mm}` });
+  }
+
+  // Garantir que não ultrapasse 15 labels
+  if (labels.length > maxLabels) {
+    const filtered: Array<{ index: number; label: string }> = [];
+    const newStep = Math.ceil(labels.length / maxLabels);
+    for (let i = 0; i < labels.length; i += newStep) {
+      filtered.push(labels[i]);
+    }
+    return filtered;
+  }
+
+  return labels;
+}
+
 function TimelineChart({
   points,
   outliers,
   mean,
+  periodDays,
 }: {
   points: Array<{ date: string; score: number; count: number }>;
   outliers: Array<{ date: string; score: number; possibleCauses: string[] }>;
   mean: number;
+  periodDays: number;
 }) {
-  const width = 100;
-  const height = 40;
-  const padding = 2;
-  const minScore = Math.min(...points.map(p => p.score), mean - 1);
-  const maxScore = Math.max(...points.map(p => p.score), 10);
-  const range = maxScore - minScore || 1;
+  // Chart dimensions
+  const svgWidth = 600;
+  const svgHeight = 220;
+  const marginLeft = 36;
+  const marginRight = 12;
+  const marginTop = 12;
+  const marginBottom = 36;
+  const chartWidth = svgWidth - marginLeft - marginRight;
+  const chartHeight = svgHeight - marginTop - marginBottom;
 
-  const getX = (i: number) => padding + (i / (points.length - 1 || 1)) * (width - padding * 2);
-  const getY = (score: number) => height - padding - ((score - minScore) / range) * (height - padding * 2);
+  // Y axis: fixed 0-10 scale, grid lines at 2, 4, 6, 8, 10
+  const yMin = 0;
+  const yMax = 10;
+  const yTicks = [2, 4, 6, 8, 10];
+
+  const getX = (i: number) => marginLeft + (i / (points.length - 1 || 1)) * chartWidth;
+  const getY = (score: number) => marginTop + chartHeight - ((score - yMin) / (yMax - yMin)) * chartHeight;
 
   // Build path
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(p.score)}`).join(" ");
+  const pathD = points.map((p, i) => {
+    const clampedScore = Math.max(yMin, Math.min(yMax, p.score));
+    return `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(clampedScore)}`;
+  }).join(" ");
 
   // Mean line Y
-  const meanY = getY(mean);
+  const meanY = getY(Math.max(yMin, Math.min(yMax, mean)));
 
   // Outlier dates set
   const outlierDates = new Set(outliers.map(o => o.date));
 
+  // X axis labels
+  const xLabels = getXAxisLabels(points, periodDays);
+
   return (
     <div className="space-y-2">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-32" preserveAspectRatio="none">
+      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-48" preserveAspectRatio="xMidYMid meet">
+        {/* Y axis grid lines and labels */}
+        {yTicks.map((tick) => {
+          const y = getY(tick);
+          return (
+            <g key={tick}>
+              <line
+                x1={marginLeft}
+                y1={y}
+                x2={svgWidth - marginRight}
+                y2={y}
+                stroke="#374151"
+                strokeWidth="0.5"
+                strokeDasharray="4 3"
+              />
+              <text
+                x={marginLeft - 8}
+                y={y + 3.5}
+                textAnchor="end"
+                className="fill-gray-500"
+                fontSize="10"
+              >
+                {tick}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* X axis line */}
+        <line
+          x1={marginLeft}
+          y1={marginTop + chartHeight}
+          x2={svgWidth - marginRight}
+          y2={marginTop + chartHeight}
+          stroke="#374151"
+          strokeWidth="0.5"
+        />
+
+        {/* Y axis line */}
+        <line
+          x1={marginLeft}
+          y1={marginTop}
+          x2={marginLeft}
+          y2={marginTop + chartHeight}
+          stroke="#374151"
+          strokeWidth="0.5"
+        />
+
+        {/* X axis labels */}
+        {xLabels.map(({ index, label }) => {
+          const x = getX(index);
+          return (
+            <text
+              key={`x-${index}`}
+              x={x}
+              y={marginTop + chartHeight + 16}
+              textAnchor="middle"
+              className="fill-gray-500"
+              fontSize="9"
+            >
+              {label}
+            </text>
+          );
+        })}
+
         {/* Mean line */}
         <line
-          x1={padding}
+          x1={marginLeft}
           y1={meanY}
-          x2={width - padding}
+          x2={svgWidth - marginRight}
           y2={meanY}
           stroke="#6b7280"
-          strokeWidth="0.3"
-          strokeDasharray="1 1"
+          strokeWidth="1"
+          strokeDasharray="6 4"
         />
 
         {/* Line path */}
-        <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
         {/* Points */}
         {points.map((p, i) => {
           const isOutlier = outlierDates.has(p.date);
+          const clampedScore = Math.max(yMin, Math.min(yMax, p.score));
           return (
             <circle
               key={i}
               cx={getX(i)}
-              cy={getY(p.score)}
-              r={isOutlier ? 1.2 : 0.5}
+              cy={getY(clampedScore)}
+              r={isOutlier ? 5 : 3}
               fill={isOutlier ? "#ef4444" : "#f59e0b"}
-              stroke={isOutlier ? "#ef4444" : "none"}
-              strokeWidth="0.3"
+              stroke={isOutlier ? "#fca5a5" : "#fbbf24"}
+              strokeWidth="1"
             />
           );
         })}
@@ -380,7 +534,7 @@ function TimelineChart({
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-0.5 bg-gray-500 rounded border-dashed" />
-          <span>Média ({mean})</span>
+          <span>Média ({mean.toFixed(1)})</span>
         </div>
         {outliers.length > 0 && (
           <div className="flex items-center gap-1">

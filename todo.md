@@ -840,3 +840,15 @@
 - [x] Atualizar preço do plano Premium para R$97/mês em BusinessPlanTab
 - [x] Atualizar features do Premium: Dashboard completo, 20 insights, Plano de Ação com IA, Detecção de outliers
 - [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
+
+## Ajuste Gráfico Linha Temporal — Eixos X e Y (01/07/2026)
+- [x] Eixo Y: mostrar linhas de grade com valores pares (2, 4, 6, 8, 10)
+- [x] Eixo X: máximo 15 labels de dias no período (regras por período)
+- [x] 7 dias: dd/mm para cada dia (7 labels)
+- [x] 14 dias: dd/mm para cada dia (14 labels)
+- [x] 21 dias: dd/mm pulando alguns dias (15 labels)
+- [x] 30 dias: dd/mm pulando a cada 2 dias (15 labels), até 30 pontos no gráfico
+- [x] 60 dias: dd/mm pulando a cada 4 dias (15 labels)
+- [x] 180 dias: dd/mm com intervalos de 8-9 dias (15 labels)
+- [x] 365 dias: eixo X em meses (Jan, Fev, Mar...)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
