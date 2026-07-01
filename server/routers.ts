@@ -197,6 +197,12 @@ import {
   getUserStats,
 } from "./db-analytics";
 import {
+  getFullBusinessInsights,
+  getHealthScore,
+  getInsightsByTier,
+  getBusinessActions,
+} from "./db-business-insights";
+import {
   registerQrScan,
   getLatestQrScan,
   classifyRatingSource,
@@ -2071,6 +2077,48 @@ export const appRouter = router({
           }
         }
         return await getBusinessInsights(input.establishmentId);
+      }),
+
+    // Full business insights (new: health score + 20 insights + actions)
+    fullInsights: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getFullBusinessInsights(ctx.user!.id, input.establishmentId);
+      }),
+
+    // Health Score only
+    healthScore: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getHealthScore(input.establishmentId);
+      }),
+
+    // Business actions (AI-generated)
+    businessActions: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getBusinessActions(input.establishmentId);
       }),
 
     // User personal stats

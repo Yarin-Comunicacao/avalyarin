@@ -801,3 +801,14 @@
 - [x] Nota 10: nenhum campo adicional (satisfação plena)
 - [ ] LLM processa respostas para extrair padrões e alimentar Insights/Ações (futuro)
 - [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
+
+## Fase 40 — Nova Estrutura de Insights Business (5 sub-abas + 20 insights + Ações IA)
+- [x] Reestruturar BusinessInsights.tsx: 5 sub-abas (Plano, Painel, Insights, Ações, Calendário)
+- [x] Backend: endpoint healthScore (nota média 40% + taxa retorno 20% + tendência 20% + sentimento 20%)
+- [x] Backend: endpoint insightsByTier (20 insights calculados com dados reais do banco)
+- [x] Backend: endpoint businessActions (ações geradas por LLM com base nos dados + "faltou para o 10")
+- [x] Frontend: sub-aba Painel (Health Score, 3 alertas prioritários, sparkline tendência, próxima ação)
+- [x] Frontend: sub-aba Insights (20 cards por Tier, blur para Free, desbloqueado para Pro)
+- [x] Frontend: sub-aba Ações (cards com prioridade, impacto, passo a passo, botão concluir)
+- [x] Lógica de blur/paywall baseada no campo businessPlan do usuário
+- [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint

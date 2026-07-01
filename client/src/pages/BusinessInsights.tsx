@@ -2,27 +2,31 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
 import {
-  TrendingUp, Crown, CalendarDays, Building2, BarChart3
+  TrendingUp, Crown, CalendarDays, BarChart3, Activity, Zap
 } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 
 import {
   BusinessPlanTab,
-  BusinessInsightsTab,
   CalendarioBusinessTab,
 } from "./BusinessPanelTabs";
+import BusinessPainelTab from "./BusinessPainelTab";
+import BusinessInsightsNewTab from "./BusinessInsightsNewTab";
+import BusinessActionsTab from "./BusinessActionsTab";
 
-type TabId = "plano" | "insights" | "calendario";
+type TabId = "plano" | "painel" | "insights" | "acoes" | "calendario";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "plano", label: "Plano", labelFull: "Meu Plano", icon: Crown },
-  { id: "insights", label: "Insights", labelFull: "Insights", icon: TrendingUp },
+  { id: "painel", label: "Painel", labelFull: "Diagnóstico Rápido", icon: Activity },
+  { id: "insights", label: "Insights", labelFull: "20 Insights", icon: TrendingUp },
+  { id: "acoes", label: "Ações", labelFull: "Ações Sugeridas", icon: Zap },
   { id: "calendario", label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
 ];
 
 export default function BusinessInsights() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("plano");
+  const [activeTab, setActiveTab] = useState<TabId>("painel");
 
   if (loading) {
     return (
@@ -75,7 +79,9 @@ export default function BusinessInsights() {
       {/* Content */}
       <div className="container py-6">
         {activeTab === "plano" && <BusinessPlanTab />}
-        {activeTab === "insights" && <BusinessInsightsTab />}
+        {activeTab === "painel" && <BusinessPainelTab />}
+        {activeTab === "insights" && <BusinessInsightsNewTab />}
+        {activeTab === "acoes" && <BusinessActionsTab />}
         {activeTab === "calendario" && <CalendarioBusinessTab />}
       </div>
     </div>
