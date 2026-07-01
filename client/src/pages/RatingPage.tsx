@@ -1019,6 +1019,56 @@ export default function RatingPage() {
           </div>
         </div>
 
+        {/* Photo per item */}
+        <div className="mb-6">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
+            <Camera className="w-4 h-4 text-primary" /> Foto do item
+          </label>
+          {(() => {
+            const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
+            return (
+              <div className="flex gap-2 flex-wrap">
+                {itemPhotos.map((photo) => (
+                  <div key={photo.id} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border/50">
+                    <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
+                      className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full flex items-center justify-center"
+                    >
+                      <X className="w-2.5 h-2.5 text-white" />
+                    </button>
+                  </div>
+                ))}
+                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                  <Camera className="w-4 h-4 text-primary/60" />
+                  <span className="text-[8px] text-primary/60 mt-0.5">Foto</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const newPhoto: PhotoWithTags = {
+                          id: `photo_${Date.now()}`,
+                          dataUrl: ev.target?.result as string,
+                          taggedItemIds: [rating.itemId],
+                        };
+                        setPhotos(prev => [...prev, newPhoto]);
+                      };
+                      reader.readAsDataURL(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+            );
+          })()}
+        </div>
+
         {/* Taste */}
         <div>
           <ScoreButtons
@@ -1435,6 +1485,56 @@ export default function RatingPage() {
                       </p>
                       <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
+                      {/* Photo per item */}
+                      <div className="mb-6">
+                        <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
+                          <Camera className="w-4 h-4 text-primary" /> Foto do item
+                        </label>
+                        {(() => {
+                          const itemPhotos = photos.filter(p => p.taggedItemIds.includes(itemRating.itemId));
+                          return (
+                            <div className="flex gap-2 flex-wrap">
+                              {itemPhotos.map((photo) => (
+                                <div key={photo.id} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border/50">
+                                  <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                                  <button
+                                    onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
+                                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full flex items-center justify-center"
+                                  >
+                                    <X className="w-2.5 h-2.5 text-white" />
+                                  </button>
+                                </div>
+                              ))}
+                              <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                                <Camera className="w-4 h-4 text-primary/60" />
+                                <span className="text-[8px] text-primary/60 mt-0.5">Foto</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      const newPhoto: PhotoWithTags = {
+                                        id: `photo_${Date.now()}`,
+                                        dataUrl: ev.target?.result as string,
+                                        taggedItemIds: [itemRating.itemId],
+                                      };
+                                      setPhotos(prev => [...prev, newPhoto]);
+                                    };
+                                    reader.readAsDataURL(file);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
                       {/* Sabor e Execução subcriteria */}
                       <div className="mb-8">
                         <h5 className="text-base font-semibold text-foreground mb-4">Sabor e Execução</h5>
@@ -1815,7 +1915,7 @@ export default function RatingPage() {
                 {/* Qualification criteria info */}
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mb-6">
                   <p className="text-xs text-primary/80 leading-relaxed">
-                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Adicione comentários nos itens (mín. 20 caracteres), fotos marcando os itens, e a foto da notinha para bonificação extra.
+                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Adicione comentários nos itens (mín. 20 caracteres) e a foto da notinha para bonificação extra. As fotos dos itens já foram adicionadas durante a avaliação.
                   </p>
                 </div>
 
@@ -1852,130 +1952,30 @@ export default function RatingPage() {
                   </div>
                 </div>
 
-                {/* Photos Section */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Image className="w-4 h-4 text-primary" />
-                    <h4 className="font-display text-lg tracking-wider text-foreground">FOTOS DOS ITENS</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">Tire fotos e marque quais itens aparecem em cada uma.</p>
-
-                  {/* Photo grid */}
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {photos.map((photo) => (
-                      <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-border/50 group">
-                        <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <button
-                            onClick={() => setPhotoTaggingId(photo.id)}
-                            className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded"
-                          >
-                            Editar tags
-                          </button>
-                        </div>
-                        <button
-                          onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
-                          className="absolute top-1 right-1 w-5 h-5 bg-red-500/80 rounded-full flex items-center justify-center"
-                        >
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                        {photo.taggedItemIds.length > 0 && (
-                          <div className="absolute bottom-1 left-1 bg-green-500/80 text-white text-[9px] px-1.5 py-0.5 rounded">
-                            {photo.taggedItemIds.length} {photo.taggedItemIds.length === 1 ? 'item' : 'itens'}
+                {/* Photos summary - show thumbnails of photos already added per item */}
+                {photos.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Image className="w-4 h-4 text-primary" />
+                      <h4 className="font-display text-lg tracking-wider text-foreground">FOTOS ADICIONADAS</h4>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {photos.map((photo) => {
+                        const taggedNames = selectedMenuItems.filter(m => photo.taggedItemIds.includes(m.id)).map(m => m.name);
+                        return (
+                          <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-border/50">
+                            <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                            {taggedNames.length > 0 && (
+                              <div className="absolute bottom-0.5 left-0.5 bg-green-500/80 text-white text-[8px] px-1 py-0.5 rounded max-w-full truncate">
+                                {taggedNames[0]}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {/* Add photo button */}
-                    <label className="aspect-square rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
-                      <Camera className="w-6 h-6 text-primary/60 mb-1" />
-                      <span className="text-[10px] text-primary/60">Adicionar</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = (ev) => {
-                            const newPhoto: PhotoWithTags = {
-                              id: `photo_${Date.now()}`,
-                              dataUrl: ev.target?.result as string,
-                              taggedItemIds: [],
-                            };
-                            setPhotos(prev => [...prev, newPhoto]);
-                            setPhotoTaggingId(newPhoto.id);
-                          };
-                          reader.readAsDataURL(file);
-                          e.target.value = '';
-                        }}
-                      />
-                    </label>
+                        );
+                      })}
+                    </div>
                   </div>
-
-                  {/* Photo tagging modal */}
-                  {photoTaggingId && (() => {
-                    const photo = photos.find(p => p.id === photoTaggingId);
-                    if (!photo) return null;
-                    return (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 rounded-xl bg-card border border-primary/30 mb-3"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h5 className="text-sm font-semibold text-foreground">Quais itens estão nesta foto?</h5>
-                          <button onClick={() => setPhotoTaggingId(null)} className="text-muted-foreground hover:text-foreground">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="flex gap-2 mb-3">
-                          <img src={photo.dataUrl} alt="" className="w-16 h-16 rounded-lg object-cover border border-border/30" />
-                          <div className="flex-1">
-                            <p className="text-xs text-muted-foreground">Selecione os itens que aparecem nesta foto:</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedMenuItems.map((item) => {
-                            const isTagged = photo.taggedItemIds.includes(item.id);
-                            return (
-                              <button
-                                key={item.id}
-                                onClick={() => {
-                                  setPhotos(prev => prev.map(p => {
-                                    if (p.id !== photoTaggingId) return p;
-                                    const newTags = isTagged
-                                      ? p.taggedItemIds.filter(id => id !== item.id)
-                                      : [...p.taggedItemIds, item.id];
-                                    return { ...p, taggedItemIds: newTags };
-                                  }));
-                                }}
-                                className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                                  isTagged
-                                    ? "bg-primary/20 text-primary border border-primary/40"
-                                    : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-border/60"
-                                }`}
-                              >
-                                {isTagged && <Check className="w-3 h-3 inline mr-1" />}
-                                {item.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => setPhotoTaggingId(null)}
-                          className="mt-3 font-display tracking-wider text-xs"
-                        >
-                          CONFIRMAR
-                        </Button>
-                      </motion.div>
-                    );
-                  })()}
-                </div>
+                )}
 
                 {/* Receipt Photo Section */}
                 <div className="mb-6">

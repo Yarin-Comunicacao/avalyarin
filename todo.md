@@ -852,3 +852,9 @@
 - [x] 180 dias: dd/mm com intervalos de 8-9 dias (15 labels)
 - [x] 365 dias: eixo X em meses (Jan, Fev, Mar...)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Ajuste — Upload de foto por item na avaliação (01/07/2026)
+- [x] Mover upload de foto do final da avaliação para dentro de cada item avaliado
+- [x] Cada item deve ter seu próprio botão de câmera/galeria para anexar foto
+- [x] Manter compatibilidade com o backend (salvar foto vinculada ao rating_item)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
