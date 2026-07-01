@@ -67,6 +67,7 @@ interface DirectRating {
   lowReasons: string[];
   lowComment: string;
   whatMissedForTen: string;
+  comment: string;
 }
 
 interface AnalyticItemRating {
@@ -75,6 +76,7 @@ interface AnalyticItemRating {
   lowReasons: Record<string, string[]>;
   lowComments: Record<string, string>;
   highComments: Record<string, string>;
+  comment: string;
 }
 
 interface AnalyticGlobalRating {
@@ -94,6 +96,7 @@ interface BevDirectRating {
   lowReasons: string[];
   lowComment: string;
   whatMissedForTen: string;
+  comment: string;
 }
 
 // ============================================================
@@ -284,7 +287,7 @@ const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
 
 function isRatableItem(item: MenuItem): boolean {
   const cat = normalizeCategory(item.category || "");
-  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria"].includes(cat);
+  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria", "cerveja", "chopp", "destilado", "bebida", "café"].includes(cat);
 }
 
 // ============================================================
@@ -577,12 +580,12 @@ export default function RatingPage() {
     }
     // Direct ratings for all items
     setDirectRatings(
-      selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "" }))
+      selectedItems.map((id) => ({ itemId: id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "", comment: "" }))
     );
     // Beverage direct ratings for analytic beverages-only flow
     const bevItems = menuItems.filter((m) => selectedItems.includes(m.id) && isBeverageItem(m));
     setBevDirectRatings(
-      bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "" }))
+      bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "", comment: "" }))
     );
     // Analytic item ratings for ratable items (food + drinks, not beer/chopp)
     const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
@@ -607,6 +610,7 @@ export default function RatingPage() {
           ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, ""])),
           ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, ""])),
         },
+        comment: "",
       }))
     );
     setCurrentAnalyticItemIdx(0);
@@ -625,14 +629,9 @@ export default function RatingPage() {
       setStep("rating");
     } else {
       // Analytic mode
-      if (onlyBeverages) {
-        // Beverages-only: go to direct-style step first
-        setCurrentBevDirectIdx(0);
-        setStep("analyticBevDirect");
-      } else {
-        setCurrentAnalyticItemIdx(0);
-        setStep("analyticItems");
-      }
+      // All items (food + beverages) now go through analyticItems with adapted subcriteria
+      setCurrentAnalyticItemIdx(0);
+      setStep("analyticItems");
     }
   };
 
@@ -878,12 +877,7 @@ export default function RatingPage() {
     } else {
       // Analytic mode: escala 0-100 (soma dos pesos) + bônus, normalizada para 0-10
       let base = 0;
-      if (onlyBeverages) {
-        // Beverages-only: use bevDirectRatings for Sabor score
-        const avgTaste = bevDirectRatings.reduce((s, r) => s + r.taste, 0) / (bevDirectRatings.length || 1);
-        const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
-        base = (avgTaste / 10) * c1.weight;
-      } else {
+      {
         const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
         let avgSabor = 0;
         if (analyticItemRatings.length > 0) {
@@ -893,13 +887,7 @@ export default function RatingPage() {
           });
           avgSabor = itemAvgs.reduce((a, b) => a + b, 0) / itemAvgs.length;
         }
-        // In mixed mode, include beverage direct ratings in the Sabor average
-        if (bevDirectRatings.length > 0) {
-          const bevAvgTaste = bevDirectRatings.reduce((s, r) => s + r.taste, 0) / bevDirectRatings.length;
-          // Weighted average: food items from analytic + beverage items from direct
-          const totalItems = analyticItemRatings.length + bevDirectRatings.length;
-          avgSabor = ((avgSabor * analyticItemRatings.length) + (bevAvgTaste * bevDirectRatings.length)) / totalItems;
-        }
+
         const c1Score = (avgSabor / 10) * c1.weight;
 
         const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
@@ -908,7 +896,7 @@ export default function RatingPage() {
           const itemAvgs = analyticItemRatings.map((ir) => {
             const item = menuItems.find((m) => m.id === ir.itemId);
             const iType = item ? getItemType(item) : "outro";
-            const isBev = iType === "cerveja" || iType === "drink";
+            const isBev = iType === "cerveja" || iType === "drink" || iType === "destilado" || iType === "bebida";
             const relevantIds = isBev ? ["c2_4", "c2_5", "c2_6"] : ["c2_1", "c2_2", "c2_3"];
             const subs = relevantIds.map((sid) => ir.subScores[sid] || 0);
             return subs.reduce((a, b) => a + b, 0) / subs.length;
@@ -1007,22 +995,7 @@ export default function RatingPage() {
         { step: "result", label: "Resultado" },
       ];
     }
-    // Analytic mode
-    if (onlyBeverages) {
-      return [
-        { step: "analyticBevDirect", label: "Avaliação" },
-        { step: "analyticGlobal", label: "Critérios Gerais" },
-        { step: "result", label: "Resultado" },
-      ];
-    }
-    if (hasMixedBeverages) {
-      return [
-        { step: "analyticItems", label: "Sabor e Apresentação" },
-        { step: "analyticBevDirect", label: "Avaliação de Bebidas" },
-        { step: "analyticGlobal", label: "Critérios Gerais" },
-        { step: "result", label: "Resultado" },
-      ];
-    }
+    // Analytic mode: all items (food + beverages) go through analyticItems with adapted subcriteria
     return [
       { step: "analyticItems", label: "Sabor e Apresentação" },
       { step: "analyticGlobal", label: "Critérios Gerais" },
@@ -1036,7 +1009,7 @@ export default function RatingPage() {
 
   // Helper to render a direct-style rating card (used in both Direct mode and Analytic beverages-only)
   const renderDirectStyleCard = (
-    rating: { itemId: string; serves: number; recommend: boolean | null; taste: number; lowReasons: string[]; lowComment: string; whatMissedForTen: string },
+    rating: { itemId: string; serves: number; recommend: boolean | null; taste: number; lowReasons: string[]; lowComment: string; whatMissedForTen: string; comment: string },
     idx: number,
     total: number,
     updateField: (idx: number, field: string, value: any) => void,
@@ -1188,6 +1161,24 @@ export default function RatingPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* Inline comment per item */}
+        <div className="mt-6">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+          </label>
+          <textarea
+            value={rating.comment}
+            onChange={(e) => updateField(idx, "comment", e.target.value.slice(0, 200))}
+            placeholder='Ex: "Melhor milkshake de Pinheiros!" (mín. 20 caracteres para qualificar)'
+            maxLength={200}
+            className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+            rows={2}
+          />
+          <p className={`text-[10px] mt-1 text-right ${rating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
+            {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
+          </p>
         </div>
       </div>
     );
@@ -1522,6 +1513,7 @@ export default function RatingPage() {
                         setCurrentBevDirectIdx(currentBevDirectIdx + 1);
                       } else {
                         setStep("analyticGlobal");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }
                     }}
                     className="font-display tracking-wider glow-amber"
@@ -1725,13 +1717,38 @@ export default function RatingPage() {
                           </div>
                         );
                       })()}
+
+                      {/* Inline comment per item */}
+                      <div className="mt-6">
+                        <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+                        </label>
+                        <textarea
+                          value={itemRating.comment}
+                          onChange={(e) => {
+                            const val = e.target.value.slice(0, 200);
+                            setAnalyticItemRatings(prev => {
+                              const next = [...prev];
+                              next[currentAnalyticItemIdx] = { ...next[currentAnalyticItemIdx], comment: val };
+                              return next;
+                            });
+                          }}
+                          placeholder='Ex: "Melhor milkshake de Pinheiros!" (mín. 20 caracteres para qualificar)'
+                          maxLength={200}
+                          className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+                          rows={2}
+                        />
+                        <p className={`text-[10px] mt-1 text-right ${itemRating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
+                          {itemRating.comment.length}/200 {itemRating.comment.length >= 20 && '\u2713'}
+                        </p>
+                      </div>
                     </div>
                   );
                 })()}
 
                 {ratableSelectedItems.length === 0 && (
                   <div className="p-8 rounded-xl bg-card border border-border/50 text-center">
-                    <p className="text-muted-foreground">Você selecionou apenas cervejas/chopps. Sabor e Apresentação são avaliados nos critérios gerais.</p>
+                    <p className="text-muted-foreground">Nenhum item selecionado para avaliar Sabor e Apresentação.</p>
                   </div>
                 )}
 
@@ -1760,12 +1777,9 @@ export default function RatingPage() {
                       setValidationAttempted(false);
                       if (ratableSelectedItems.length > 0 && currentAnalyticItemIdx < ratableSelectedItems.length - 1) {
                         setCurrentAnalyticItemIdx(currentAnalyticItemIdx + 1);
-                      } else if (hasMixedBeverages) {
-                        // Mixed mode: go to beverage direct ratings after food items
-                        setCurrentBevDirectIdx(0);
-                        setStep("analyticBevDirect");
                       } else {
                         setStep("analyticGlobal");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }
                     }}
                     className="font-display tracking-wider glow-amber"
@@ -1851,9 +1865,8 @@ export default function RatingPage() {
                 </div>
                 <div className="flex justify-between mt-6">
                   <Button variant="outline" onClick={() => {
-                    if (onlyBeverages) setStep("analyticBevDirect");
-                    else if (hasMixedBeverages) setStep("analyticBevDirect");
-                    else setStep("analyticItems");
+                    setStep("analyticItems");
+                    if (ratableSelectedItems.length > 0) setCurrentAnalyticItemIdx(ratableSelectedItems.length - 1);
                   }} className="font-display tracking-wider">
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                   </Button>
@@ -2207,10 +2220,6 @@ export default function RatingPage() {
                       <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
                     </Button>
                     <Button onClick={() => {
-                      // Initialize item comments if not already done
-                      if (itemComments.length === 0) {
-                        setItemComments(selectedMenuItems.map(m => ({ itemId: m.id, comment: "" })));
-                      }
                       setStep("qualify");
                     }} className="font-display tracking-wider glow-amber">
                       QUALIFICAR <ChevronRight className="w-4 h-4 ml-1" />
@@ -2234,67 +2243,49 @@ export default function RatingPage() {
                 {/* Qualification criteria info */}
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mb-6">
                   <p className="text-xs text-primary/80 leading-relaxed">
-                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Adicione comentários nos itens (mín. 20 caracteres) e a foto da notinha para bonificação extra. As fotos dos itens já foram adicionadas durante a avaliação.
+                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Comentários e fotos já foram adicionados durante a avaliação. Adicione a foto da notinha para bonificação extra.
                   </p>
                 </div>
 
-                {/* Item Comments Section */}
+                {/* Item summary with photo + comment in @avalyarin style */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
                     <MessageSquare className="w-4 h-4 text-primary" />
-                    <h4 className="font-display text-lg tracking-wider text-foreground">COMENTÁRIOS POR ITEM</h4>
+                    <h4 className="font-display text-lg tracking-wider text-foreground">RESUMO DOS ITENS</h4>
                   </div>
                   <div className="space-y-3">
-                    {itemComments.map((ic) => {
-                      const item = menuItems.find(m => m.id === ic.itemId);
-                      if (!item) return null;
+                    {selectedMenuItems.map((item) => {
+                      const itemPhotos = photos.filter(p => p.taggedItemIds.includes(item.id));
+                      const dr = directRatings.find(r => r.itemId === item.id);
+                      const ar = analyticItemRatings.find(r => r.itemId === item.id);
+                      const comment = dr?.comment || ar?.comment || "";
                       return (
-                        <div key={ic.itemId} className="p-4 rounded-xl bg-card border border-border/50">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-semibold text-foreground">{item.name}</span>
-                            <span className={`text-[10px] font-numbers ${ic.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
-                              {ic.comment.length}/200 {ic.comment.length >= 20 && '✓'}
-                            </span>
+                        <div key={item.id} className="p-4 rounded-xl bg-card border border-border/50">
+                          <div className="flex gap-3">
+                            {itemPhotos.length > 0 && (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden border border-border/50 flex-shrink-0">
+                                <img src={itemPhotos[0].dataUrl} alt="" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm font-semibold text-foreground truncate">{item.name}</span>
+                                {comment.length >= 20 && <span className="text-[10px] text-green-400">✓</span>}
+                              </div>
+                              {comment ? (
+                                <p className="text-xs text-primary/80 italic">
+                                  <span className="font-semibold text-primary">@avalyarin:</span> “{comment}”
+                                </p>
+                              ) : (
+                                <p className="text-xs text-muted-foreground/50 italic">Sem comentário</p>
+                              )}
+                            </div>
                           </div>
-                          <textarea
-                            value={ic.comment}
-                            onChange={(e) => {
-                              const val = e.target.value.slice(0, 200);
-                              setItemComments(prev => prev.map(c => c.itemId === ic.itemId ? { ...c, comment: val } : c));
-                            }}
-                            placeholder="Como foi esse item? (mín. 20 caracteres para qualificar)"
-                            className="w-full p-3 rounded-lg bg-secondary/50 border border-border/30 text-sm text-foreground placeholder:text-muted-foreground/50 resize-none h-20 focus:outline-none focus:border-primary/40"
-                          />
                         </div>
                       );
                     })}
                   </div>
                 </div>
-
-                {/* Photos summary - show thumbnails of photos already added per item */}
-                {photos.length > 0 && (
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Image className="w-4 h-4 text-primary" />
-                      <h4 className="font-display text-lg tracking-wider text-foreground">FOTOS ADICIONADAS</h4>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {photos.map((photo) => {
-                        const taggedNames = selectedMenuItems.filter(m => photo.taggedItemIds.includes(m.id)).map(m => m.name);
-                        return (
-                          <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-border/50">
-                            <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
-                            {taggedNames.length > 0 && (
-                              <div className="absolute bottom-0.5 left-0.5 bg-green-500/80 text-white text-[8px] px-1 py-0.5 rounded max-w-full truncate">
-                                {taggedNames[0]}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
 
                 {/* Receipt Photo Section */}
                 <div className="mb-6">
@@ -2341,7 +2332,12 @@ export default function RatingPage() {
 
                 {/* Qualification summary */}
                 {(() => {
-                  const commentsOk = itemComments.filter(c => c.comment.length >= 20).length;
+                  const commentsOk = selectedMenuItems.filter(item => {
+                    const dr = directRatings.find(r => r.itemId === item.id);
+                    const ar = analyticItemRatings.find(r => r.itemId === item.id);
+                    const comment = dr?.comment || ar?.comment || "";
+                    return comment.length >= 20;
+                  }).length;
                   const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
                   const hasReceipt = !!receiptPhoto;
                   const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
@@ -2462,10 +2458,10 @@ export default function RatingPage() {
                         </span>
                       ))}
                     </div>
-                    {(mode === "direto" || (mode === "analitico" && (onlyBeverages || hasMixedBeverages))) && (
+                    {mode === "direto" && (
                       <div className="mt-4 pt-3 border-t border-border/20">
                         <div className="flex flex-wrap gap-3">
-                          {(mode === "direto" ? directRatings : bevDirectRatings).map((r) => {
+                          {directRatings.map((r) => {
                             const item = menuItems.find((m) => m.id === r.itemId);
                             return (
                               <div key={r.itemId} className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -2499,7 +2495,12 @@ export default function RatingPage() {
                       }
 
                       // Determine qualification status
-                      const commentsOk = itemComments.filter(c => c.comment.length >= 20).length;
+                      const commentsOk = selectedMenuItems.filter(item => {
+                        const dr = directRatings.find(r => r.itemId === item.id);
+                        const ar = analyticItemRatings.find(r => r.itemId === item.id);
+                        const comment = dr?.comment || ar?.comment || "";
+                        return comment.length >= 20;
+                      }).length;
                       const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
                       const hasReceipt = !!receiptPhoto;
                       const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
@@ -2551,7 +2552,8 @@ export default function RatingPage() {
                           items: selectedMenuItems.map(m => {
                             const dr = directRatings.find(r => r.itemId === m.id);
                             const bevDr = bevDirectRatings.find(r => r.itemId === m.id);
-                            const comment = itemComments.find(c => c.itemId === m.id)?.comment || "";
+                            const ar = analyticItemRatings.find(r => r.itemId === m.id);
+                            const comment = dr?.comment || ar?.comment || bevDr?.comment || "";
                             const score = dr?.taste || bevDr?.taste || finalScore;
                             const rating = dr || bevDr;
                             return {
@@ -2600,7 +2602,11 @@ export default function RatingPage() {
                           isQualified,
                           hasReceipt,
                           points,
-                          comments: itemComments.filter(c => c.comment.length > 0),
+                          comments: selectedMenuItems.map(item => {
+                            const dr = directRatings.find(r => r.itemId === item.id);
+                            const ar = analyticItemRatings.find(r => r.itemId === item.id);
+                            return { itemId: item.id, comment: dr?.comment || ar?.comment || "" };
+                          }).filter(c => c.comment.length > 0),
                           photoCount: photos.length,
                           taggedPhotos: photos.filter(p => p.taggedItemIds.length > 0).length,
                         };

@@ -871,3 +871,11 @@
 - [x] Resumo da Conta: redesenhar Total como notinha com itens, preços e taxa de serviço
 - [x] Resumo da Conta: adicionar checkbox "Valor divergente" abaixo do total com campo de valor correto e foto da nota
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Melhorias — Avaliação Analítica + BottomNav Owner (01/07/2026)
+- [x] Analítico: incluir subcritérios de Apresentação adaptados para bebidas
+- [x] Analítico: scroll automático ao topo ao mudar para Critérios Gerais
+- [x] Qualificar: mover comentário para inline (dentro de cada item) + estilo @avalyarin no resumo
+- [x] Owner: BottomNav expandido com roles (Busca, User, Critic, Influencer, Business, Support, Admin, Owner)
+- [x] Owner: Sub-menu acima do BottomNav que muda conforme a role selecionada
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint

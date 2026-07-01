@@ -124,9 +124,12 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   owner: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "Crown", label: "Owner", path: "/owner" },
-    { icon: "BarChart3", label: "Analytics", path: "/admin/analytics" },
+    { icon: "User", label: "User", path: "/perfil" },
+    { icon: "Star", label: "Critic", path: "/painel-critico" },
+    { icon: "Megaphone", label: "Influencer", path: "/influencer" },
+    { icon: "Store", label: "Business", path: "/business/locais" },
+    { icon: "MessageCircle", label: "Support", path: "/suporte/tickets" },
     { icon: "Shield", label: "Admin", path: "/admin" },
-    { icon: "Server", label: "Sistema", path: "/owner/sistema" },
+    { icon: "Crown", label: "Owner", path: "/owner" },
   ],
 };

@@ -94,10 +94,10 @@ describe("Role Visibility Rules", () => {
   });
 
   describe("ROLE_BOTTOM_NAV", () => {
-    it("each role has exactly 5 nav items", () => {
+    it("each role has at least 5 nav items", () => {
       const allRoles: AppRole[] = ["user", "influencer", "critic", "business", "support", "admin", "owner"];
       allRoles.forEach((role) => {
-        expect(ROLE_BOTTOM_NAV[role]).toHaveLength(5);
+        expect(ROLE_BOTTOM_NAV[role].length).toBeGreaterThanOrEqual(5);
       });
     });
 
