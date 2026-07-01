@@ -1,25 +1,28 @@
 /**
- * Business Insights — Reestruturado em 3 abas:
+ * Business Insights — Reestruturado em 4 abas:
  * 1. Dashboard (gráficos + linha temporal com outliers)
  * 2. Desempenho (20 insights por tema: Público, Produto, Experiência, Competição, Marketing)
  * 3. Plano de Ação (sugestões IA + outliers detectados)
+ * 4. Meu Plano (assinatura e upgrade)
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
-import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3 } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 
 import BusinessDashboardTab from "./BusinessDashboardTab";
 import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
 import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
+import { BusinessPlanTab } from "./BusinessPanel";
 
-type TabId = "dashboard" | "desempenho" | "plano-acao";
+type TabId = "dashboard" | "desempenho" | "plano-acao" | "meu-plano";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Dashboard", labelFull: "Dashboard", icon: LayoutDashboard },
   { id: "desempenho", label: "Desempenho", labelFull: "Desempenho", icon: TrendingUp },
   { id: "plano-acao", label: "Plano de Ação", labelFull: "Plano de Ação", icon: Lightbulb },
+  { id: "meu-plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
 ];
 
 export default function BusinessInsights() {
@@ -79,6 +82,7 @@ export default function BusinessInsights() {
         {activeTab === "dashboard" && <BusinessDashboardTab />}
         {activeTab === "desempenho" && <BusinessDesempenhoTab />}
         {activeTab === "plano-acao" && <BusinessPlanoAcaoTab />}
+        {activeTab === "meu-plano" && <BusinessPlanTab />}
       </div>
     </div>
   );
