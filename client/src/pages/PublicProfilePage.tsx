@@ -322,6 +322,7 @@ function ProfileGallerySection({ userId }: { userId: number }) {
           ratingId: p.ratingId,
           userName: p.userName,
           username: p.username,
+          itemComments: p.itemComments || [],
         }))}
       />
     </div>

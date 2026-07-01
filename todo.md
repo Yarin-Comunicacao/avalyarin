@@ -914,3 +914,10 @@
 - [x] Galeria expandida: exibir comentário do item junto à foto
 - [x] Comentário do item obrigatório durante a avaliação (não pode avançar sem preencher)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Correções — Performance imagens, galeria agrupada, resumo avaliações (01/07/2026)
+- [ ] Investigar e corrigir performance de carregamento de imagens no perfil
+- [ ] Galeria do perfil: corrigir agrupamento por visita (fotos da mesma avaliação juntas)
+- [ ] Aba Avaliações: ao clicar, mostrar resumo com notas por bloco (não redirecionar ao estab)
+- [ ] Apenas o nome do estab deve ser clicável (leva ao local)
+- [ ] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint

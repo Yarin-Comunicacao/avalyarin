@@ -171,6 +171,11 @@ export default function MinhasAvaliacoes() {
     { limit: 100, offset: 0 },
     { enabled: !!user }
   );
+  const [expandedRatingId, setExpandedRatingId] = useState<number | null>(null);
+  const { data: expandedRatingDetail, isLoading: loadingDetail } = trpc.ratings.getById.useQuery(
+    { id: expandedRatingId! },
+    { enabled: !!expandedRatingId }
+  );
 
   // ============ RANKING TAB DATA ============
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -364,8 +369,8 @@ export default function MinhasAvaliacoes() {
                       <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-3">Últimas visitas</p>
                       <div className="grid grid-cols-3 gap-3">
                         {myRatings.slice(0, 3).map((review) => (
-                          <Link key={review.id} href={`/estabelecimento/${review.establishmentSlug}`}>
-                            <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border/30 hover:border-primary/40 transition-colors group cursor-pointer bg-card">
+                          <div key={review.id} onClick={() => setExpandedRatingId(expandedRatingId === review.id ? null : review.id)} className="cursor-pointer">
+                            <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border/30 hover:border-primary/40 transition-colors group bg-card">
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <Star className="w-8 h-8 text-primary/20" />
                               </div>
@@ -380,7 +385,7 @@ export default function MinhasAvaliacoes() {
                                 </div>
                               </div>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -391,8 +396,11 @@ export default function MinhasAvaliacoes() {
                     <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-3">Todas as avaliações</p>
                     <div className="space-y-2">
                       {myRatings.map((review) => (
-                        <Link key={review.id} href={`/estabelecimento/${review.establishmentSlug}`}>
-                          <div className="flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all cursor-pointer group">
+                        <div key={review.id}>
+                          <div
+                            onClick={() => setExpandedRatingId(expandedRatingId === review.id ? null : review.id)}
+                            className="flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all cursor-pointer group"
+                          >
                             <div className="w-14 h-14 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                               <Star className="w-6 h-6 text-primary" />
                             </div>
@@ -416,10 +424,94 @@ export default function MinhasAvaliacoes() {
                                   {review.overallScore ? Number(review.overallScore).toFixed(1) : "—"}
                                 </span>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <ChevronRight className={`w-4 h-4 text-muted-foreground group-hover:text-primary transition-all ${expandedRatingId === review.id ? "rotate-90" : ""}`} />
                             </div>
                           </div>
-                        </Link>
+
+                          {/* Expanded Rating Detail */}
+                          <AnimatePresence>
+                            {expandedRatingId === review.id && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-2 p-4 rounded-xl bg-card/50 border border-border/30 space-y-4">
+                                  {/* Establishment Link */}
+                                  <Link href={`/estabelecimento/${review.establishmentSlug}`}>
+                                    <p className="text-sm font-medium text-primary hover:underline cursor-pointer flex items-center gap-1">
+                                      <MapPin className="w-3.5 h-3.5" />
+                                      {review.establishmentName}
+                                      <ArrowRight className="w-3 h-3" />
+                                    </p>
+                                  </Link>
+
+                                  {loadingDetail ? (
+                                    <div className="flex items-center justify-center py-6">
+                                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                                    </div>
+                                  ) : expandedRatingDetail ? (
+                                    <>
+                                      {/* Items Summary */}
+                                      {expandedRatingDetail.items && expandedRatingDetail.items.length > 0 && (
+                                        <div>
+                                          <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-2">Itens Avaliados</p>
+                                          <div className="space-y-1.5">
+                                            {expandedRatingDetail.items.map((item: any) => (
+                                              <div key={item.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background/50 border border-border/20">
+                                                <span className="text-sm text-foreground truncate flex-1">{item.itemName}</span>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                  <Star className="w-3 h-3 text-primary fill-primary" />
+                                                  <span className="font-numbers text-sm font-bold text-primary">{Number(item.score).toFixed(1)}</span>
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Criteria Scores */}
+                                      {expandedRatingDetail.criteriaScores && (
+                                        <div>
+                                          <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-2">Critérios Gerais</p>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            {Object.entries(expandedRatingDetail.criteriaScores as Record<string, number>).map(([key, score]) => {
+                                              const criterionNames: Record<string, string> = {
+                                                c1: "Sabor e Execução", c2: "Apresentação", c3: "Atendimento",
+                                                c4: "Ambiente e Infra", c5: "Custo-Benefício", c6: "Consistência",
+                                                c7: "Originalidade", c8: "Carta de Bebidas", c9: "Variedade", c10: "Harmonização",
+                                              };
+                                              const name = criterionNames[key] || key;
+                                              return (
+                                                <div key={key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background/50 border border-border/20">
+                                                  <span className="text-xs text-muted-foreground truncate flex-1">{name}</span>
+                                                  <span className="font-numbers text-sm font-bold text-primary ml-2">{typeof score === "number" ? score.toFixed(1) : "—"}</span>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Cost */}
+                                      {expandedRatingDetail.totalCost && (
+                                        <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+                                          <span className="text-xs text-muted-foreground">Total da Conta</span>
+                                          <span className="font-numbers text-sm font-bold text-foreground">
+                                            R$ {Number(expandedRatingDetail.totalCost).toFixed(2).replace(".", ",")}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <p className="text-xs text-muted-foreground text-center py-4">Não foi possível carregar os detalhes.</p>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       ))}
                     </div>
                   </div>

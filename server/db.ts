@@ -2440,7 +2440,7 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
 export async function getPublicUserGallery(userId: number, limit = 50, offset = 0) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.select({
+  const photos = await db.select({
     id: ratingPhotos.id,
     url: ratingPhotos.url,
     taggedItemIds: ratingPhotos.taggedItemIds,
@@ -2462,6 +2462,28 @@ export async function getPublicUserGallery(userId: number, limit = 50, offset = 
     .orderBy(desc(ratingPhotos.createdAt))
     .limit(limit)
     .offset(offset);
+
+  // Fetch item comments for each photo's tagged items
+  const ratingIds = Array.from(new Set(photos.map(p => p.ratingId)));
+  let itemComments: Record<number, { itemName: string; comment: string | null }[]> = {};
+  if (ratingIds.length > 0) {
+    const items = await db.select({
+      ratingId: ratingItems.ratingId,
+      itemName: ratingItems.itemName,
+      comment: ratingItems.comment,
+    })
+      .from(ratingItems)
+      .where(inArray(ratingItems.ratingId, ratingIds));
+    for (const item of items) {
+      if (!itemComments[item.ratingId]) itemComments[item.ratingId] = [];
+      itemComments[item.ratingId].push({ itemName: item.itemName, comment: item.comment });
+    }
+  }
+
+  return photos.map(p => ({
+    ...p,
+    itemComments: itemComments[p.ratingId] || [],
+  }));
 }
 
 // ============================================================
