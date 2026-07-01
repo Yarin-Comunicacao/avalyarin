@@ -903,3 +903,14 @@
 - [x] Fim do intervalo à esquerda (mais recente à esquerda, mais antigo à direita) — CORREÇÃO: mais recente à direita
 - [x] Intervalo de 1 dia: ponto centralizado
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Correções — Data da visita e scroll entre itens (01/07/2026)
+- [x] Exibir data da visita declarada (visitDate) ao invés de createdAt nas avaliações
+- [x] Scroll ao topo ao avançar de um item para o próximo durante a avaliação
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Correções — Galeria carrossel + comentário obrigatório (01/07/2026)
+- [x] Galeria do Perfil: agrupar fotos da mesma avaliação como carrossel com setas
+- [x] Galeria expandida: exibir comentário do item junto à foto
+- [x] Comentário do item obrigatório durante a avaliação (não pode avançar sem preencher)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint

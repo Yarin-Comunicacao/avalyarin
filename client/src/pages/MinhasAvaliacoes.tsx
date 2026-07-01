@@ -11,6 +11,7 @@ import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MapView } from "@/components/Map";
+import PhotoExpanded from "@/components/PhotoExpanded";
 import {
   Star, MapPin, Calendar, ChevronRight, Trophy, Crown, Medal,
   ArrowRight, GripVertical, Save, Compass, Image, Camera, X,
@@ -400,7 +401,7 @@ export default function MinhasAvaliacoes() {
                               <div className="flex items-center gap-3 mt-1">
                                 <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
-                                  {review.createdAt ? new Date(review.createdAt).toLocaleDateString("pt-BR") : "—"}
+                                  {review.visitDate ? new Date(review.visitDate).toLocaleDateString("pt-BR") : review.createdAt ? new Date(review.createdAt).toLocaleDateString("pt-BR") : "—"}
                                 </span>
                                 <span className="text-[10px] text-muted-foreground">
                                   {review.type === "analytic" ? "Analítico" : "Direto"}
@@ -660,8 +661,31 @@ export default function MinhasAvaliacoes() {
                   visitDate: p.visitDate,
                   taggedItemIds: p.taggedItemIds,
                   ratingId: p.ratingId,
+                  itemComments: p.itemComments || [],
                   sortDate: p.createdAt || p.visitDate,
                 }));
+
+                // Group photos by ratingId for carousel
+                const photosByRating: Record<number, typeof photoEntries> = {};
+                for (const p of photoEntries) {
+                  if (p.ratingId) {
+                    if (!photosByRating[p.ratingId]) photosByRating[p.ratingId] = [];
+                    photosByRating[p.ratingId].push(p);
+                  }
+                }
+
+                // Create grouped entries: one entry per rating (first photo as cover)
+                const groupedPhotoEntries: any[] = [];
+                const seenRatingIds = new Set<number>();
+                for (const p of photoEntries) {
+                  if (p.ratingId && seenRatingIds.has(p.ratingId)) continue;
+                  if (p.ratingId) seenRatingIds.add(p.ratingId);
+                  groupedPhotoEntries.push({
+                    ...p,
+                    carouselPhotos: p.ratingId ? photosByRating[p.ratingId] : [p],
+                    photoCount: p.ratingId ? (photosByRating[p.ratingId]?.length || 1) : 1,
+                  });
+                }
 
                 // Find ratings that have NO photos in gallery
                 const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
@@ -680,7 +704,7 @@ export default function MinhasAvaliacoes() {
                   sortDate: r.visitDate || r.createdAt,
                 }));
 
-                const allEntries = [...photoEntries, ...ratingsWithoutPhotos].sort(
+                const allEntries = [...groupedPhotoEntries, ...ratingsWithoutPhotos].sort(
                   (a, b) => new Date(b.sortDate || 0).getTime() - new Date(a.sortDate || 0).getTime()
                 );
 
@@ -695,62 +719,104 @@ export default function MinhasAvaliacoes() {
                 }
 
                 return (
-                  <div className="flex flex-col gap-2">
-                    {allEntries.map((entry: any) => {
-                      if (entry.type === "photo") {
-                        return (
-                          <Link key={`photo-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
-                            <div className="relative h-24 rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group flex items-center">
-                              <img src={entry.url} alt={entry.establishmentName} className="w-24 h-full object-cover shrink-0" />
-                              <div className="flex-1 px-4 py-2">
-                                <p className="text-sm font-medium text-foreground truncate">{entry.establishmentName}</p>
-                                {entry.overallScore && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <Star className="w-3.5 h-3.5 text-primary fill-primary" />
-                                    <span className="text-sm text-foreground font-numbers font-semibold">{Number(entry.overallScore).toFixed(1)}</span>
-                                  </div>
-                                )}
-                                <p className="text-[11px] text-muted-foreground mt-1">
-                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : ""}
-                                </p>
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                      {allEntries.map((entry: any) => {
+                        if (entry.type === "photo") {
+                          return (
+                            <button
+                              key={`photo-${entry.id}`}
+                              onClick={() => setSelectedPhoto({
+                                url: entry.url,
+                                caption: entry.establishmentName,
+                                place: entry.establishmentSlug,
+                                date: entry.visitDate || "",
+                                _full: entry,
+                              } as any)}
+                              className="relative aspect-[4/5] overflow-hidden rounded-sm group"
+                            >
+                              <img src={entry.url} alt={entry.establishmentName} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                              {/* Multi-photo indicator */}
+                              {entry.photoCount > 1 && (
+                                <div className="absolute top-2 right-2 bg-black/60 rounded-md px-1.5 py-0.5 flex items-center gap-1">
+                                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" /></svg>
+                                  <span className="text-white text-[10px] font-medium">{entry.photoCount}</span>
+                                </div>
+                              )}
+                              {/* Overlay */}
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end">
+                                <div className="w-full p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <p className="text-white text-xs font-medium truncate">{entry.establishmentName}</p>
+                                  {entry.overallScore && (
+                                    <p className="text-primary text-[10px]">★ {Number(entry.overallScore).toFixed(1)}</p>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </Link>
-                        );
-                      } else {
-                        // Rating without photo — horizontal card with circle logo
-                        const score = entry.overallScore || 0;
-                        return (
-                          <Link key={`rating-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
-                            <div className="relative h-24 rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group flex items-center">
-                              {/* Circle with logo */}
-                              <div className="w-24 h-full shrink-0 flex items-center justify-center bg-secondary/30">
-                                <div className="w-14 h-14 rounded-full border-2 border-primary/30 overflow-hidden flex items-center justify-center bg-background">
+                            </button>
+                          );
+                        } else {
+                          // Rating without photo — card in grid
+                          const score = entry.overallScore || 0;
+                          return (
+                            <Link key={`rating-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
+                              <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group flex flex-col items-center justify-center p-3">
+                                <div className="w-14 h-14 rounded-full border-2 border-primary/30 overflow-hidden flex items-center justify-center bg-background mb-2">
                                   {entry.establishmentLogo ? (
                                     <img src={entry.establishmentLogo} alt={entry.establishmentName} className="w-full h-full object-cover" />
                                   ) : (
                                     <span className="text-lg font-display text-primary/60">{entry.establishmentName?.charAt(0) || "?"}</span>
                                   )}
                                 </div>
-                              </div>
-                              {/* Info */}
-                              <div className="flex-1 px-4 py-2">
-                                <p className="text-sm font-medium text-foreground truncate">{entry.establishmentName}</p>
-                                <div className="flex items-center gap-1 mt-1">
-                                  <Star className="w-3.5 h-3.5 text-primary fill-primary" />
-                                  <span className="text-sm text-foreground font-numbers font-semibold">{score > 0 ? score.toFixed(1) : "—"}</span>
-                                </div>
-                                <p className="text-[11px] text-muted-foreground mt-1">
-                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : ""}
-                                  {entry.mode ? ` · ${entry.mode === "direto" ? "Direto" : "Analítico"}` : ""}
+                                <p className="text-xs font-medium text-foreground text-center truncate w-full">{entry.establishmentName}</p>
+                                {score > 0 && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <Star className="w-3 h-3 text-primary fill-primary" />
+                                    <span className="text-xs text-foreground font-numbers">{score.toFixed(1)}</span>
+                                  </div>
+                                )}
+                                <p className="text-[10px] text-muted-foreground mt-1">
+                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : ""}
                                 </p>
                               </div>
-                            </div>
-                          </Link>
-                        );
-                      }
-                    })}
-                  </div>
+                            </Link>
+                          );
+                        }
+                      })}
+                    </div>
+
+                    {/* Expanded Photo Viewer with Carousel */}
+                    {selectedPhoto && (selectedPhoto as any)._full && (
+                      <PhotoExpanded
+                        photo={{
+                          id: (selectedPhoto as any)._full.id,
+                          url: (selectedPhoto as any)._full.url,
+                          establishmentName: (selectedPhoto as any)._full.establishmentName,
+                          establishmentSlug: (selectedPhoto as any)._full.establishmentSlug,
+                          overallScore: (selectedPhoto as any)._full.overallScore,
+                          visitDate: (selectedPhoto as any)._full.visitDate,
+                          taggedItemIds: (selectedPhoto as any)._full.taggedItemIds,
+                          ratingId: (selectedPhoto as any)._full.ratingId,
+                          itemComments: (selectedPhoto as any)._full.itemComments,
+                          userName: user?.name || null,
+                          username: user?.username || null,
+                        }}
+                        onClose={() => setSelectedPhoto(null)}
+                        carouselPhotos={((selectedPhoto as any)._full.carouselPhotos || []).map((cp: any) => ({
+                          id: cp.id,
+                          url: cp.url,
+                          establishmentName: cp.establishmentName,
+                          establishmentSlug: cp.establishmentSlug,
+                          overallScore: cp.overallScore,
+                          visitDate: cp.visitDate,
+                          taggedItemIds: cp.taggedItemIds,
+                          ratingId: cp.ratingId,
+                          itemComments: cp.itemComments,
+                          userName: user?.name || null,
+                          username: user?.username || null,
+                        }))}
+                      />
+                    )}
+                  </>
                 );
               })()}
             </motion.div>

@@ -794,12 +794,14 @@ export default function RatingPage() {
   const isDirectItemComplete = (rating: DirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
+    if (!rating.comment || rating.comment.trim().length === 0) return false;
     return true;
   };
 
   const isBevDirectItemComplete = (rating: BevDirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
+    if (!rating.comment || rating.comment.trim().length === 0) return false;
     return true;
   };
 
@@ -815,6 +817,7 @@ export default function RatingPage() {
       if (score <= 0) return false;
       if (!hasValidLowReasons(score, rating.lowReasons[subId] || [], rating.lowComments[subId] || "")) return false;
     }
+    if (!rating.comment || rating.comment.trim().length === 0) return false;
     return true;
   };
 
@@ -1473,8 +1476,10 @@ export default function RatingPage() {
                       setValidationAttempted(false);
                       if (currentDirectIdx < directRatings.length - 1) {
                         setCurrentDirectIdx(currentDirectIdx + 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       } else {
                         setStep("spend");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }
                     }}
                     className="font-display tracking-wider glow-amber"
@@ -1520,6 +1525,7 @@ export default function RatingPage() {
                       setValidationAttempted(false);
                       if (currentBevDirectIdx < bevDirectRatings.length - 1) {
                         setCurrentBevDirectIdx(currentBevDirectIdx + 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       } else {
                         setStep("analyticGlobal");
                         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1787,6 +1793,7 @@ export default function RatingPage() {
                       setValidationAttempted(false);
                       if (ratableSelectedItems.length > 0 && currentAnalyticItemIdx < ratableSelectedItems.length - 1) {
                         setCurrentAnalyticItemIdx(currentAnalyticItemIdx + 1);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       } else {
                         setStep("analyticGlobal");
                         window.scrollTo({ top: 0, behavior: "smooth" });

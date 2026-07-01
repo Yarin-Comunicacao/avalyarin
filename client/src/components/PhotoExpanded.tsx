@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
-import { Heart, Send, Bookmark, ArrowLeft, X, Loader2, Users } from "lucide-react";
+import { Heart, Send, Bookmark, ArrowLeft, X, Loader2, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface PhotoData {
@@ -17,6 +17,7 @@ export interface PhotoData {
   userName?: string | null;
   username?: string | null;
   ratingId?: number;
+  itemComments?: { itemName: string; comment: string | null }[];
 }
 
 interface PhotoExpandedProps {
@@ -26,34 +27,48 @@ interface PhotoExpandedProps {
   taggedItemNames?: string[];
   /** Comment text from the rating items */
   comment?: string;
+  /** All photos from the same rating (carousel) */
+  carouselPhotos?: PhotoData[];
+  /** Callback when navigating carousel */
+  onNavigate?: (photo: PhotoData) => void;
 }
 
-export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment }: PhotoExpandedProps) {
+export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment, carouselPhotos, onNavigate }: PhotoExpandedProps) {
   const { user } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
   const [likeLoaded, setLikeLoaded] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  // Determine carousel index
+  useEffect(() => {
+    if (carouselPhotos && carouselPhotos.length > 0) {
+      const idx = carouselPhotos.findIndex(p => p.id === photo.id);
+      if (idx >= 0) setCurrentIdx(idx);
+    }
+  }, [photo.id, carouselPhotos]);
+
+  const hasCarousel = carouselPhotos && carouselPhotos.length > 1;
+  const currentPhoto = hasCarousel ? carouselPhotos[currentIdx] : photo;
 
   // Fetch like status
-  const { data: likesData } = trpc.ratings.likesBatch.useQuery({ photoIds: [photo.id] });
+  const { data: likesData } = trpc.ratings.likesBatch.useQuery({ photoIds: [currentPhoto.id] });
 
   useEffect(() => {
-    if (likesData && likesData[photo.id]) {
-      setLiked(likesData[photo.id].liked);
-      setLikeCount(likesData[photo.id].count);
+    if (likesData && likesData[currentPhoto.id]) {
+      setLiked(likesData[currentPhoto.id].liked);
+      setLikeCount(likesData[currentPhoto.id].count);
       setLikeLoaded(true);
     }
-  }, [likesData, photo.id]);
+  }, [likesData, currentPhoto.id]);
 
   const toggleLikeMutation = trpc.ratings.toggleLike.useMutation({
     onMutate: () => {
-      // Optimistic update
       setLiked(!liked);
       setLikeCount(prev => liked ? prev - 1 : prev + 1);
     },
     onError: () => {
-      // Rollback
       setLiked(liked);
       setLikeCount(prev => liked ? prev + 1 : prev - 1);
       toast.error("Erro ao curtir");
@@ -65,7 +80,23 @@ export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment
       toast("Faça login para curtir");
       return;
     }
-    toggleLikeMutation.mutate({ photoId: photo.id });
+    toggleLikeMutation.mutate({ photoId: currentPhoto.id });
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasCarousel && currentIdx > 0) {
+      setCurrentIdx(currentIdx - 1);
+      if (onNavigate) onNavigate(carouselPhotos![currentIdx - 1]);
+    }
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasCarousel && currentIdx < carouselPhotos!.length - 1) {
+      setCurrentIdx(currentIdx + 1);
+      if (onNavigate) onNavigate(carouselPhotos![currentIdx + 1]);
+    }
   };
 
   const formatDate = (date: string | Date | null) => {
@@ -73,6 +104,28 @@ export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment
     const d = new Date(date);
     return d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
   };
+
+  // Get comment for current photo's tagged item
+  const getCurrentComment = (): string | undefined => {
+    if (comment) return comment;
+    if (currentPhoto.itemComments && currentPhoto.itemComments.length > 0) {
+      // Find the first item with a comment
+      const withComment = currentPhoto.itemComments.find(ic => ic.comment && ic.comment.trim().length > 0);
+      return withComment?.comment || undefined;
+    }
+    return undefined;
+  };
+
+  const getCurrentItemName = (): string | undefined => {
+    if (currentPhoto.itemComments && currentPhoto.itemComments.length > 0) {
+      const withComment = currentPhoto.itemComments.find(ic => ic.comment && ic.comment.trim().length > 0);
+      return withComment?.itemName || currentPhoto.itemComments[0]?.itemName || undefined;
+    }
+    return taggedItemNames?.[0] || undefined;
+  };
+
+  const displayComment = getCurrentComment();
+  const displayItemName = getCurrentItemName();
 
   return (
     <AnimatePresence>
@@ -96,15 +149,46 @@ export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment
               <span className="text-white text-sm font-medium">{photo.username || photo.userName}</span>
             </div>
           )}
+          {/* Carousel indicator */}
+          {hasCarousel && (
+            <div className="ml-auto flex items-center gap-1.5">
+              {carouselPhotos!.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIdx ? "bg-primary" : "bg-white/40"}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Photo */}
-        <div className="flex-1 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+        {/* Photo with carousel navigation */}
+        <div className="flex-1 flex items-center justify-center relative" onClick={(e) => e.stopPropagation()}>
+          {/* Left arrow */}
+          {hasCarousel && currentIdx > 0 && (
+            <button
+              onClick={handlePrev}
+              className="absolute left-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+          )}
+
           <img
-            src={photo.url}
-            alt={photo.establishmentName}
+            src={currentPhoto.url}
+            alt={currentPhoto.establishmentName}
             className="w-full h-full object-contain"
           />
+
+          {/* Right arrow */}
+          {hasCarousel && currentIdx < carouselPhotos!.length - 1 && (
+            <button
+              onClick={handleNext}
+              className="absolute right-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+          )}
         </div>
 
         {/* Right side actions */}
@@ -124,24 +208,38 @@ export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment
         {/* Bottom info panel */}
         <div className="absolute bottom-0 left-0 right-0 z-10 p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent" onClick={(e) => e.stopPropagation()}>
           <div className="max-w-lg">
-            <h3 className="font-display text-lg tracking-wider text-primary font-bold">{photo.establishmentName}</h3>
+            <h3 className="font-display text-lg tracking-wider text-primary font-bold">{currentPhoto.establishmentName}</h3>
             <div className="flex items-center gap-2 mt-1">
-              {photo.overallScore && (
-                <span className="text-primary font-bold text-sm">★ {photo.overallScore.toFixed(1)}</span>
+              {currentPhoto.overallScore && (
+                <span className="text-primary font-bold text-sm">★ {Number(currentPhoto.overallScore).toFixed(1)}</span>
               )}
-              {photo.visitDate && (
+              {currentPhoto.visitDate && (
                 <>
                   <span className="text-white/40">·</span>
-                  <span className="text-white/60 text-xs">{formatDate(photo.visitDate)}</span>
+                  <span className="text-white/60 text-xs">{formatDate(currentPhoto.visitDate)}</span>
                 </>
               )}
             </div>
+            {/* Tagged items */}
             {taggedItemNames && taggedItemNames.length > 0 && (
               <p className="text-white/50 text-xs mt-1">🏷 {taggedItemNames.join(", ")}</p>
             )}
-            {comment && (
+            {/* Item comment in @avalyarin style */}
+            {displayComment && (
               <div className="mt-2 border-t border-white/10 pt-2">
-                <p className="text-white/80 text-sm italic leading-relaxed">"{comment}"</p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  <span className="text-primary font-medium">@avalyarin</span>
+                  {displayItemName && <span className="text-white/50 text-xs ml-1">sobre {displayItemName}</span>}
+                  <span className="block mt-0.5 italic">"{displayComment}"</span>
+                </p>
+              </div>
+            )}
+            {/* Carousel info: items in this rating */}
+            {hasCarousel && currentPhoto.itemComments && currentPhoto.itemComments.length > 0 && (
+              <div className="mt-2 flex items-center gap-1 text-white/40 text-xs">
+                <span>{carouselPhotos!.length} fotos nesta avaliação</span>
+                <span>·</span>
+                <span>Use as setas para ver todos os pedidos</span>
               </div>
             )}
           </div>
@@ -150,7 +248,7 @@ export default function PhotoExpanded({ photo, onClose, taggedItemNames, comment
         {/* Share Modal */}
         {showShareModal && (
           <SharePhotoModal
-            photoId={photo.id}
+            photoId={currentPhoto.id}
             onClose={() => setShowShareModal(false)}
           />
         )}
