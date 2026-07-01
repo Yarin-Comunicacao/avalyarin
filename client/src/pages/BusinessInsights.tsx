@@ -1,32 +1,30 @@
+/**
+ * Business Insights — Reestruturado em 3 abas:
+ * 1. Dashboard (gráficos + linha temporal com outliers)
+ * 2. Desempenho (20 insights por tema: Público, Produto, Experiência, Competição, Marketing)
+ * 3. Plano de Ação (sugestões IA + outliers detectados)
+ */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
 import { getLoginUrl } from "@/const";
-import {
-  TrendingUp, Crown, CalendarDays, BarChart3, Activity, Zap
-} from "lucide-react";
+import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3 } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 
-import {
-  BusinessPlanTab,
-  CalendarioBusinessTab,
-} from "./BusinessPanelTabs";
-import BusinessPainelTab from "./BusinessPainelTab";
-import BusinessInsightsNewTab from "./BusinessInsightsNewTab";
-import BusinessActionsTab from "./BusinessActionsTab";
+import BusinessDashboardTab from "./BusinessDashboardTab";
+import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
+import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
 
-type TabId = "plano" | "painel" | "insights" | "acoes" | "calendario";
+type TabId = "dashboard" | "desempenho" | "plano-acao";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
-  { id: "plano", label: "Plano", labelFull: "Meu Plano", icon: Crown },
-  { id: "painel", label: "Painel", labelFull: "Diagnóstico Rápido", icon: Activity },
-  { id: "insights", label: "Insights", labelFull: "20 Insights", icon: TrendingUp },
-  { id: "acoes", label: "Ações", labelFull: "Ações Sugeridas", icon: Zap },
-  { id: "calendario", label: "Calendário", labelFull: "Calendário de Eventos", icon: CalendarDays },
+  { id: "dashboard", label: "Dashboard", labelFull: "Dashboard", icon: LayoutDashboard },
+  { id: "desempenho", label: "Desempenho", labelFull: "Desempenho", icon: TrendingUp },
+  { id: "plano-acao", label: "Plano de Ação", labelFull: "Plano de Ação", icon: Lightbulb },
 ];
 
 export default function BusinessInsights() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("painel");
+  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
 
   if (loading) {
     return (
@@ -78,11 +76,9 @@ export default function BusinessInsights() {
 
       {/* Content */}
       <div className="container py-6">
-        {activeTab === "plano" && <BusinessPlanTab />}
-        {activeTab === "painel" && <BusinessPainelTab />}
-        {activeTab === "insights" && <BusinessInsightsNewTab />}
-        {activeTab === "acoes" && <BusinessActionsTab />}
-        {activeTab === "calendario" && <CalendarioBusinessTab />}
+        {activeTab === "dashboard" && <BusinessDashboardTab />}
+        {activeTab === "desempenho" && <BusinessDesempenhoTab />}
+        {activeTab === "plano-acao" && <BusinessPlanoAcaoTab />}
       </div>
     </div>
   );

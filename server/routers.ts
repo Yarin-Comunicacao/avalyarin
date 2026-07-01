@@ -202,6 +202,7 @@ import {
   getInsightsByTier,
   getBusinessActions,
 } from "./db-business-insights";
+import { getDashboardData } from "./db-dashboard";
 import {
   registerQrScan,
   getLatestQrScan,
@@ -2119,6 +2120,20 @@ export const appRouter = router({
           }
         }
         return await getBusinessActions(input.establishmentId);
+      }),
+
+    // Dashboard data (charts + timeline + outliers)
+    dashboardData: protectedProcedure
+      .input(z.object({ establishmentId: z.number(), periodDays: z.number().min(7).max(365).default(30) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getDashboardData(input.establishmentId, input.periodDays);
       }),
 
     // User personal stats

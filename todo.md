@@ -818,3 +818,14 @@
 - [x] 1.2: Botões das abas em Avaliações — adicionado shrink-0 + scroll horizontal com padding adequado
 - [x] 1.3: Remover setas "Voltar" da página Avaliações — substituído por ícone Star
 - [x] 1.4: Galeria do Perfil — agora mostra todas as avaliações (com ou sem foto) como cards visuais
+
+## Fase 41 — Reestruturação Insights Business (3 abas: Dashboard, Desempenho, Plano de Ação)
+- [x] Reestruturar BusinessInsights.tsx: 3 abas (Dashboard, Desempenho, Plano de Ação)
+- [x] Backend: endpoint dashboardData (pizza idade, barra itens vendidos, pizza regiões, barra horários, linha temporal com outliers)
+- [x] Backend: endpoint desempenho por tema (Público, Produto, Experiência, Competição, Marketing)
+- [x] Frontend: Dashboard com dropdown período (7/14/21/30/60/180/365d) + 5 gráficos
+- [x] Frontend: Gráfico linha temporal com detecção de outliers (2x desvio padrão abaixo da média)
+- [x] Frontend: Desempenho com 5 temas contendo os 20 insights (sem nomenclatura Tier)
+- [x] Frontend: Plano de Ação com sugestões IA + outliers detectados + "faltou para o 10"
+- [x] Blur/paywall para plano Free (R$97/mês para desbloquear)
+- [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
