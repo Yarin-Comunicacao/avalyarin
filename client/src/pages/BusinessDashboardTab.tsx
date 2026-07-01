@@ -2,7 +2,7 @@
  * Dashboard Tab — 4 gráficos (2 pizza + 2 barra) + linha temporal com outliers
  * Dropdown: 7, 14, 21, 30, 60, 180, 365 dias
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
-  Users, ShoppingBag, MapPin, Clock, AlertTriangle, TrendingUp, TrendingDown, Loader2
+  Users, ShoppingBag, MapPin, Clock, AlertTriangle, TrendingUp, TrendingDown, Loader2, CalendarRange, X
 } from "lucide-react";
 
 const PERIODS = [
@@ -37,6 +38,21 @@ interface BusinessDashboardTabProps {
 export default function BusinessDashboardTab({ establishmentId }: BusinessDashboardTabProps) {
   const { user } = useAuth();
   const [period, setPeriod] = useState("30");
+  const [useCustomRange, setUseCustomRange] = useState(false);
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+  const [showRangePicker, setShowRangePicker] = useState(false);
+
+  // Calculate periodDays from custom range or dropdown
+  const effectivePeriodDays = useMemo(() => {
+    if (useCustomRange && rangeStart && rangeEnd) {
+      const start = new Date(rangeStart);
+      const end = new Date(rangeEnd);
+      const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      return Math.max(1, diff);
+    }
+    return Number(period);
+  }, [useCustomRange, rangeStart, rangeEnd, period]);
 
   // Use shared establishmentId from parent, fallback to fetching own
   const { data: estabs } = trpc.business.myEstablishments.useQuery(undefined, {
@@ -45,7 +61,7 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
   const estabId = establishmentId || estabs?.[0]?.id;
 
   const { data: dashboard, isLoading } = trpc.analytics.dashboardData.useQuery(
-    { establishmentId: estabId!, periodDays: Number(period) },
+    { establishmentId: estabId!, periodDays: effectivePeriodDays },
     { enabled: !!estabId }
   );
 
@@ -60,10 +76,17 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
   return (
     <div className="space-y-6">
       {/* Period selector */}
-      <div className="flex gap-3">
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-full sm:w-[140px]">
-            <SelectValue />
+      <div className="flex flex-wrap items-center gap-3">
+        <Select
+          value={useCustomRange ? "" : period}
+          onValueChange={(v) => {
+            setPeriod(v);
+            setUseCustomRange(false);
+            setShowRangePicker(false);
+          }}
+        >
+          <SelectTrigger className={`w-full sm:w-[140px] ${useCustomRange ? 'opacity-50' : ''}`}>
+            <SelectValue placeholder="Período" />
           </SelectTrigger>
           <SelectContent>
             {PERIODS.map((p) => (
@@ -73,7 +96,86 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
             ))}
           </SelectContent>
         </Select>
+
+        <Button
+          variant={useCustomRange ? "default" : "outline"}
+          size="sm"
+          onClick={() => setShowRangePicker(!showRangePicker)}
+          className="gap-1.5"
+        >
+          <CalendarRange className="w-4 h-4" />
+          {useCustomRange && rangeStart && rangeEnd
+            ? `${new Date(rangeStart + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} - ${new Date(rangeEnd + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`
+            : "Intervalo"
+          }
+        </Button>
+
+        {useCustomRange && (
+          <button
+            onClick={() => {
+              setUseCustomRange(false);
+              setShowRangePicker(false);
+              setRangeStart("");
+              setRangeEnd("");
+            }}
+            className="p-1 rounded-full hover:bg-secondary text-muted-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
+
+      {/* Custom range picker */}
+      {showRangePicker && (
+        <div className="p-4 rounded-xl bg-card border border-border/50 space-y-4">
+          <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+            <CalendarRange className="w-4 h-4 text-primary" /> Selecione o intervalo
+          </h4>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground mb-1 block">Data início</label>
+              <input
+                type="date"
+                value={rangeStart}
+                max={rangeEnd || new Date().toISOString().split('T')[0]}
+                onChange={(e) => setRangeStart(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm focus:outline-none focus:border-primary/50"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground mb-1 block">Data fim</label>
+              <input
+                type="date"
+                value={rangeEnd}
+                min={rangeStart}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => setRangeEnd(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-secondary border border-border/50 text-foreground text-sm focus:outline-none focus:border-primary/50"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowRangePicker(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              disabled={!rangeStart || !rangeEnd || rangeStart > rangeEnd}
+              onClick={() => {
+                setUseCustomRange(true);
+                setShowRangePicker(false);
+              }}
+              className="glow-amber"
+            >
+              Aplicar
+            </Button>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
@@ -156,7 +258,7 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
                 points={dashboard.timeline.points}
                 outliers={dashboard.timeline.outliers}
                 mean={dashboard.timeline.mean}
-                periodDays={Number(period)}
+                periodDays={effectivePeriodDays}
               />
             ) : (
               <EmptyChart message="Sem dados no período" />

@@ -885,3 +885,9 @@
 - [x] Placeholder dinâmico: "Ex: Melhor {{item}} de {{bairro}}!" com nome real do item e bairro
 - [x] Aplicar tanto no modo Direto quanto no Analítico
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Melhoria — Intervalo personalizado no Insights (01/07/2026)
+- [x] Adicionar botão "Intervalo" ao lado do dropdown de dias no Insights Business
+- [x] Ao clicar em Intervalo, abrir mini calendário com data de início e data de fim
+- [x] Usar o intervalo personalizado para filtrar dados do dashboard e desempenho
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
