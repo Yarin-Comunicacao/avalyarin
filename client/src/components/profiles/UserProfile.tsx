@@ -22,6 +22,12 @@ export default function UserProfile() {
     { enabled: !!user }
   );
 
+  // All ratings (to show those without photos as logo cards)
+  const { data: myRatings } = trpc.ratings.myRatings.useQuery(
+    { limit: 100, offset: 0 },
+    { enabled: !!user }
+  );
+
   const totalRatings = stats?.totalRatings ?? 0;
   const uniqueEstabs = stats?.establishmentsVisited ?? 0;
 
@@ -113,21 +119,45 @@ export default function UserProfile() {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
           </div>
-        ) : (
-          <PhotoGrid
-            photos={(galleryPhotos || []).map((p: any) => ({
-              id: p.id,
-              url: p.url,
-              establishmentName: p.establishmentName,
-              establishmentSlug: p.establishmentSlug,
-              overallScore: p.overallScore,
-              visitDate: p.visitDate,
-              taggedItemIds: p.taggedItemIds,
-              ratingId: p.ratingId,
-            }))}
-            emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
-          />
-        )}
+        ) : (() => {
+          // Combine photos + ratings without photos (shown as logo cards)
+          const photoEntries = (galleryPhotos || []).map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            establishmentName: p.establishmentName,
+            establishmentSlug: p.establishmentSlug,
+            establishmentLogo: p.establishmentLogo || null,
+            overallScore: p.overallScore ? Number(p.overallScore) : null,
+            visitDate: p.visitDate,
+            taggedItemIds: p.taggedItemIds,
+            ratingId: p.ratingId,
+          }));
+
+          // Find ratings that have NO photos
+          const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
+          const ratingsWithoutPhotos = (myRatings || []).filter(
+            (r: any) => !ratingIdsWithPhotos.has(r.id)
+          ).map((r: any) => ({
+            id: r.id + 100000, // offset to avoid key collision
+            url: "", // no photo URL — PhotoGrid will show logo fallback
+            establishmentName: r.establishmentName,
+            establishmentSlug: r.establishmentSlug,
+            establishmentLogo: r.establishmentLogo || null,
+            overallScore: r.overallScore ? Number(r.overallScore) : null,
+            visitDate: r.visitDate || r.createdAt,
+            taggedItemIds: null,
+            ratingId: r.id,
+          }));
+
+          const allPhotos = [...photoEntries, ...ratingsWithoutPhotos];
+
+          return (
+            <PhotoGrid
+              photos={allPhotos}
+              emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
+            />
+          );
+        })()}
       </div>
     </div>
   );
