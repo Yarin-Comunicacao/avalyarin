@@ -1070,7 +1070,7 @@ export default function RatingPage() {
         </div>
 
         {/* Photo per item */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
             <Camera className="w-4 h-4 text-primary" /> Foto do item
           </label>
@@ -1119,6 +1119,24 @@ export default function RatingPage() {
           })()}
         </div>
 
+        {/* Inline comment per item - right below photo */}
+        <div className="mb-6">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+          </label>
+          <textarea
+            value={rating.comment}
+            onChange={(e) => updateField(idx, "comment", e.target.value.slice(0, 200))}
+            placeholder={`Ex: Melhor ${item?.name || 'item'} de ${establishment?.neighborhood || 'São Paulo'}!`}
+            maxLength={200}
+            className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+            rows={2}
+          />
+          <p className={`text-[10px] mt-1 text-right ${rating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
+            {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
+          </p>
+        </div>
+
         {/* Taste */}
         <div>
           <ScoreButtons
@@ -1163,23 +1181,6 @@ export default function RatingPage() {
           </AnimatePresence>
         </div>
 
-        {/* Inline comment per item */}
-        <div className="mt-6">
-          <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
-          </label>
-          <textarea
-            value={rating.comment}
-            onChange={(e) => updateField(idx, "comment", e.target.value.slice(0, 200))}
-            placeholder='Ex: "Melhor milkshake de Pinheiros!" (mín. 20 caracteres para qualificar)'
-            maxLength={200}
-            className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
-            rows={2}
-          />
-          <p className={`text-[10px] mt-1 text-right ${rating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
-            {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
-          </p>
-        </div>
       </div>
     );
   };
@@ -1604,6 +1605,31 @@ export default function RatingPage() {
                         })()}
                       </div>
 
+                      {/* Inline comment per item - right below photo */}
+                      <div className="mb-6">
+                        <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+                        </label>
+                        <textarea
+                          value={itemRating.comment}
+                          onChange={(e) => {
+                            const val = e.target.value.slice(0, 200);
+                            setAnalyticItemRatings(prev => {
+                              const next = [...prev];
+                              next[currentAnalyticItemIdx] = { ...next[currentAnalyticItemIdx], comment: val };
+                              return next;
+                            });
+                          }}
+                          placeholder={`Ex: Melhor ${item?.name || 'item'} de ${establishment?.neighborhood || 'São Paulo'}!`}
+                          maxLength={200}
+                          className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+                          rows={2}
+                        />
+                        <p className={`text-[10px] mt-1 text-right ${itemRating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
+                          {itemRating.comment.length}/200 {itemRating.comment.length >= 20 && '\u2713'}
+                        </p>
+                      </div>
+
                       {/* Sabor e Execução subcriteria */}
                       <div className="mb-8">
                         <h5 className="text-base font-semibold text-foreground mb-4">Sabor e Execução</h5>
@@ -1718,30 +1744,6 @@ export default function RatingPage() {
                         );
                       })()}
 
-                      {/* Inline comment per item */}
-                      <div className="mt-6">
-                        <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
-                        </label>
-                        <textarea
-                          value={itemRating.comment}
-                          onChange={(e) => {
-                            const val = e.target.value.slice(0, 200);
-                            setAnalyticItemRatings(prev => {
-                              const next = [...prev];
-                              next[currentAnalyticItemIdx] = { ...next[currentAnalyticItemIdx], comment: val };
-                              return next;
-                            });
-                          }}
-                          placeholder='Ex: "Melhor milkshake de Pinheiros!" (mín. 20 caracteres para qualificar)'
-                          maxLength={200}
-                          className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
-                          rows={2}
-                        />
-                        <p className={`text-[10px] mt-1 text-right ${itemRating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
-                          {itemRating.comment.length}/200 {itemRating.comment.length >= 20 && '\u2713'}
-                        </p>
-                      </div>
                     </div>
                   );
                 })()}

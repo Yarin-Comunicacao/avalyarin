@@ -879,3 +879,9 @@
 - [x] Owner: BottomNav expandido com roles (Busca, User, Critic, Influencer, Business, Support, Admin, Owner)
 - [x] Owner: Sub-menu acima do BottomNav que muda conforme a role selecionada
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Ajuste — Comentário abaixo da foto + placeholder dinâmico (01/07/2026)
+- [x] Mover campo "Comentário sobre o item" para logo abaixo da foto (antes da nota de sabor)
+- [x] Placeholder dinâmico: "Ex: Melhor {{item}} de {{bairro}}!" com nome real do item e bairro
+- [x] Aplicar tanto no modo Direto quanto no Analítico
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
