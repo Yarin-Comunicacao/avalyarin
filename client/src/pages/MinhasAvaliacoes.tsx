@@ -16,7 +16,7 @@ import {
   ArrowRight, GripVertical, Save, Compass, Image, Camera, X,
   Coffee, Beer, UtensilsCrossed, ChefHat, Sparkles, Cake,
   Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
-  Loader2, ArrowLeft, Navigation, BarChart3
+  Loader2, Navigation, BarChart3
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 
@@ -308,9 +308,9 @@ export default function MinhasAvaliacoes() {
       <div className="container pt-28 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
+          <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <Star className="w-6 h-6 text-primary" />
+          </div>
           <div>
             <h1 className="font-display text-2xl tracking-wider text-primary">MINHAS AVALIAÇÕES</h1>
             <p className="text-sm text-muted-foreground">
@@ -320,12 +320,12 @@ export default function MinhasAvaliacoes() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
                 activeTab === tab.id
                   ? "bg-primary/20 border border-primary/40 text-primary"
                   : "bg-secondary/30 border border-border/30 text-muted-foreground hover:bg-secondary/50"
@@ -644,8 +644,14 @@ export default function MinhasAvaliacoes() {
           {/* ============ GALERIA TAB ============ */}
           {activeTab === "galeria" && (
             <motion.div key="galeria" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <PhotoGrid
-                photos={(galleryPhotos || []).map((p: any) => ({
+              {galleryLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
+                </div>
+              ) : (() => {
+                // Combine photos + ratings without photos into a unified gallery
+                const photoEntries = (galleryPhotos || []).map((p: any) => ({
+                  type: "photo" as const,
                   id: p.id,
                   url: p.url,
                   establishmentName: p.establishmentName,
@@ -654,9 +660,89 @@ export default function MinhasAvaliacoes() {
                   visitDate: p.visitDate,
                   taggedItemIds: p.taggedItemIds,
                   ratingId: p.ratingId,
-                }))}
-                isLoading={galleryLoading}
-              />
+                  sortDate: p.createdAt || p.visitDate,
+                }));
+
+                // Find ratings that have NO photos in gallery
+                const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
+                const ratingsWithoutPhotos = (myRatings || []).filter(
+                  (r: any) => !ratingIdsWithPhotos.has(r.id)
+                ).map((r: any) => ({
+                  type: "rating_card" as const,
+                  id: r.id,
+                  establishmentName: r.establishmentName,
+                  establishmentSlug: r.establishmentSlug,
+                  overallScore: r.overallScore ? Number(r.overallScore) : null,
+                  visitDate: r.visitDate,
+                  mode: r.mode,
+                  categoryName: r.categoryName,
+                  sortDate: r.visitDate || r.createdAt,
+                }));
+
+                const allEntries = [...photoEntries, ...ratingsWithoutPhotos].sort(
+                  (a, b) => new Date(b.sortDate || 0).getTime() - new Date(a.sortDate || 0).getTime()
+                );
+
+                if (allEntries.length === 0) {
+                  return (
+                    <div className="text-center py-20">
+                      <Camera className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+                      <h3 className="font-display text-xl tracking-wider text-foreground mb-2">GALERIA</h3>
+                      <p className="text-sm text-muted-foreground">Faça avaliações para construir sua galeria!</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                    {allEntries.map((entry: any) => {
+                      if (entry.type === "photo") {
+                        return (
+                          <Link key={`photo-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
+                            <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group">
+                              <img src={entry.url} alt={entry.establishmentName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                              <div className="absolute bottom-2 left-2 right-2">
+                                <p className="text-white text-xs font-medium truncate">{entry.establishmentName}</p>
+                                {entry.overallScore && (
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <Star className="w-3 h-3 text-primary fill-primary" />
+                                    <span className="text-[10px] text-white/80 font-numbers">{Number(entry.overallScore).toFixed(1)}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      } else {
+                        // Rating without photo — visual card
+                        const score = entry.overallScore || 0;
+                        const scoreColor = score >= 8.5 ? "text-green-400" : score >= 7.0 ? "text-yellow-400" : score >= 5.0 ? "text-orange-400" : "text-red-400";
+                        return (
+                          <Link key={`rating-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
+                            <div className="relative aspect-[4/5] rounded-lg overflow-hidden border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group" style={{ background: "linear-gradient(160deg, #0a0a0a 0%, #1a1207 40%, #0a0a0a 100%)" }}>
+                              <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
+                                <div className={`font-numbers text-3xl font-bold ${scoreColor}`}>
+                                  {score > 0 ? score.toFixed(1) : "—"}
+                                </div>
+                                <span className="text-[10px] text-white/40 mt-1">/10</span>
+                                <Star className="w-5 h-5 text-primary/30 mt-2" />
+                              </div>
+                              <div className="absolute bottom-2 left-2 right-2">
+                                <p className="text-white text-xs font-medium truncate">{entry.establishmentName}</p>
+                                <p className="text-[10px] text-white/50">
+                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : ""}
+                                  {entry.mode ? ` · ${entry.mode === "direto" ? "Direto" : "Analítico"}` : ""}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      }
+                    })}
+                  </div>
+                );
+              })()}
             </motion.div>
           )}
 

@@ -812,3 +812,9 @@
 - [x] Frontend: sub-aba Ações (cards com prioridade, impacto, passo a passo, botão concluir)
 - [x] Lógica de blur/paywall baseada no campo businessPlan do usuário
 - [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
+
+## Bugfix — Ajustes reportados (01/07/2026)
+- [x] 1.1: Erro ao gerar imagem no botão "Compartilhar" — reescrito com Canvas API nativa (sem html2canvas)
+- [x] 1.2: Botões das abas em Avaliações — adicionado shrink-0 + scroll horizontal com padding adequado
+- [x] 1.3: Remover setas "Voltar" da página Avaliações — substituído por ícone Star
+- [x] 1.4: Galeria do Perfil — agora mostra todas as avaliações (com ou sem foto) como cards visuais
