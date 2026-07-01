@@ -1057,15 +1057,29 @@ function CodeBackupTab() {
                   </p>
                 </div>
               </div>
-              <a
-                href={backup.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(backup.url);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `backup-${backup.id}.md`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    toast.success("Download iniciado!");
+                  } catch {
+                    toast.error("Erro ao baixar backup");
+                  }
+                }}
                 className="flex items-center gap-2 px-4 py-2 border border-primary/30 text-primary rounded-lg text-sm font-medium hover:bg-primary/10 transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Baixar
-              </a>
+              </button>
             </div>
           ))}
         </div>

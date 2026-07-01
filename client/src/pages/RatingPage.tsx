@@ -68,6 +68,7 @@ interface AnalyticItemRating {
   subScores: Record<string, number>;
   lowReasons: Record<string, string[]>;
   lowComments: Record<string, string>;
+  highComments: Record<string, string>;
 }
 
 interface AnalyticGlobalRating {
@@ -75,6 +76,7 @@ interface AnalyticGlobalRating {
   subScores: Record<string, number>;
   lowReasons: Record<string, string[]>;
   lowComments: Record<string, string>;
+  highComments: Record<string, string>;
 }
 
 // Beverage direct rating for analytic beverages-only flow
@@ -514,6 +516,7 @@ export default function RatingPage() {
       subScores: Object.fromEntries(c.subcriteria.map((s) => [s.id, 0])),
       lowReasons: Object.fromEntries(c.subcriteria.map((s) => [s.id, []])),
       lowComments: Object.fromEntries(c.subcriteria.map((s) => [s.id, ""])),
+      highComments: Object.fromEntries(c.subcriteria.map((s) => [s.id, ""])),
     }));
   };
 
@@ -585,6 +588,10 @@ export default function RatingPage() {
           ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, []])),
         },
         lowComments: {
+          ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, ""])),
+          ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, ""])),
+        },
+        highComments: {
           ...Object.fromEntries(c1.subcriteria.map((s) => [s.id, ""])),
           ...Object.fromEntries(c2.subcriteria.map((s) => [s.id, ""])),
         },
@@ -697,6 +704,14 @@ export default function RatingPage() {
     });
   };
 
+  const updateAnalyticItemHighComment = (idx: number, subId: string, comment: string) => {
+    setAnalyticItemRatings((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], highComments: { ...next[idx].highComments, [subId]: comment } };
+      return next;
+    });
+  };
+
   // Analytic global helpers
   const updateGlobalSubScore = (criterionId: string, subId: string, value: number) => {
     setAnalyticGlobalRatings((prev) =>
@@ -733,7 +748,15 @@ export default function RatingPage() {
     );
   };
 
-
+  const updateGlobalHighComment = (criterionId: string, subId: string, comment: string) => {
+    setAnalyticGlobalRatings((prev) =>
+      prev.map((r) =>
+        r.criterionId === criterionId
+          ? { ...r, highComments: { ...r.highComments, [subId]: comment } }
+          : r
+      )
+    );
+  };
 
   // ============================================================
   // VALIDATION: all fields mandatory, low-score reasons 1-3 required
@@ -1558,6 +1581,29 @@ export default function RatingPage() {
                                     showError={validationAttempted}
                                   />
                                 )}
+                                {(itemRating.subScores[sub.id] || 0) >= 7 && (itemRating.subScores[sub.id] || 0) <= 9 && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="mt-3"
+                                  >
+                                    <label className="text-xs font-medium text-primary flex items-center gap-1.5 mb-1.5">
+                                      <Star className="w-3.5 h-3.5" /> O que faltou para o 10?
+                                    </label>
+                                    <textarea
+                                      value={itemRating.highComments[sub.id] || ""}
+                                      onChange={(e) => updateAnalyticItemHighComment(currentAnalyticItemIdx, sub.id, e.target.value.slice(0, 200))}
+                                      placeholder="Ex: Poderia ser mais saboroso, tempero mais equilibrado..."
+                                      maxLength={200}
+                                      className="w-full px-3 py-2 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
+                                      rows={2}
+                                    />
+                                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 text-right">
+                                      {(itemRating.highComments[sub.id] || "").length}/200
+                                    </p>
+                                  </motion.div>
+                                )}
                               </AnimatePresence>
                             </div>
                           ))}
@@ -1594,6 +1640,29 @@ export default function RatingPage() {
                                         onCommentChange={(c) => updateAnalyticItemLowComment(currentAnalyticItemIdx, sub.id, c)}
                                         showError={validationAttempted}
                                       />
+                                    )}
+                                    {(itemRating.subScores[sub.id] || 0) >= 7 && (itemRating.subScores[sub.id] || 0) <= 9 && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="mt-3"
+                                      >
+                                        <label className="text-xs font-medium text-primary flex items-center gap-1.5 mb-1.5">
+                                          <Star className="w-3.5 h-3.5" /> O que faltou para o 10?
+                                        </label>
+                                        <textarea
+                                          value={itemRating.highComments[sub.id] || ""}
+                                          onChange={(e) => updateAnalyticItemHighComment(currentAnalyticItemIdx, sub.id, e.target.value.slice(0, 200))}
+                                          placeholder="Ex: Apresentação poderia ser mais caprichada..."
+                                          maxLength={200}
+                                          className="w-full px-3 py-2 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
+                                          rows={2}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground/50 mt-0.5 text-right">
+                                          {(itemRating.highComments[sub.id] || "").length}/200
+                                        </p>
+                                      </motion.div>
                                     )}
                                   </AnimatePresence>
                                 </div>
@@ -1691,6 +1760,29 @@ export default function RatingPage() {
                                     onCommentChange={(c) => updateGlobalLowComment(criterion.id, sub.id, c)}
                                     showError={validationAttempted}
                                   />
+                                )}
+                                {(gRating.subScores[sub.id] || 0) >= 7 && (gRating.subScores[sub.id] || 0) <= 9 && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="mt-3"
+                                  >
+                                    <label className="text-xs font-medium text-primary flex items-center gap-1.5 mb-1.5">
+                                      <Star className="w-3.5 h-3.5" /> O que faltou para o 10?
+                                    </label>
+                                    <textarea
+                                      value={gRating.highComments[sub.id] || ""}
+                                      onChange={(e) => updateGlobalHighComment(criterion.id, sub.id, e.target.value.slice(0, 200))}
+                                      placeholder="Ex: Poderia melhorar nesse aspecto..."
+                                      maxLength={200}
+                                      className="w-full px-3 py-2 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
+                                      rows={2}
+                                    />
+                                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 text-right">
+                                      {(gRating.highComments[sub.id] || "").length}/200
+                                    </p>
+                                  </motion.div>
                                 )}
                               </AnimatePresence>
                             </div>

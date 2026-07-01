@@ -858,3 +858,8 @@
 - [x] Cada item deve ter seu próprio botão de câmera/galeria para anexar foto
 - [x] Manter compatibilidade com o backend (salvar foto vinculada ao rating_item)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Correções — Analítico "faltou para o 10" + Backup download (01/07/2026)
+- [x] Modo Analítico: adicionar campo "O que faltou para o 10?" nos subcritérios quando nota 7-9
+- [x] Admin > Código > Backup: corrigir download para baixar arquivo automaticamente (não abrir nova aba)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
