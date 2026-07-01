@@ -672,6 +672,7 @@ export default function MinhasAvaliacoes() {
                   id: r.id,
                   establishmentName: r.establishmentName,
                   establishmentSlug: r.establishmentSlug,
+                  establishmentLogo: r.establishmentLogo || null,
                   overallScore: r.overallScore ? Number(r.overallScore) : null,
                   visitDate: r.visitDate,
                   mode: r.mode,
@@ -694,44 +695,53 @@ export default function MinhasAvaliacoes() {
                 }
 
                 return (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                  <div className="flex flex-col gap-2">
                     {allEntries.map((entry: any) => {
                       if (entry.type === "photo") {
                         return (
                           <Link key={`photo-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
-                            <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group">
-                              <img src={entry.url} alt={entry.establishmentName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                              <div className="absolute bottom-2 left-2 right-2">
-                                <p className="text-white text-xs font-medium truncate">{entry.establishmentName}</p>
+                            <div className="relative h-24 rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group flex items-center">
+                              <img src={entry.url} alt={entry.establishmentName} className="w-24 h-full object-cover shrink-0" />
+                              <div className="flex-1 px-4 py-2">
+                                <p className="text-sm font-medium text-foreground truncate">{entry.establishmentName}</p>
                                 {entry.overallScore && (
-                                  <div className="flex items-center gap-1 mt-0.5">
-                                    <Star className="w-3 h-3 text-primary fill-primary" />
-                                    <span className="text-[10px] text-white/80 font-numbers">{Number(entry.overallScore).toFixed(1)}</span>
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                                    <span className="text-sm text-foreground font-numbers font-semibold">{Number(entry.overallScore).toFixed(1)}</span>
                                   </div>
                                 )}
+                                <p className="text-[11px] text-muted-foreground mt-1">
+                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : ""}
+                                </p>
                               </div>
                             </div>
                           </Link>
                         );
                       } else {
-                        // Rating without photo — visual card
+                        // Rating without photo — horizontal card with circle logo
                         const score = entry.overallScore || 0;
-                        const scoreColor = score >= 8.5 ? "text-green-400" : score >= 7.0 ? "text-yellow-400" : score >= 5.0 ? "text-orange-400" : "text-red-400";
                         return (
                           <Link key={`rating-${entry.id}`} href={`/estabelecimento/${entry.establishmentSlug}`}>
-                            <div className="relative aspect-[4/5] rounded-lg overflow-hidden border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group" style={{ background: "linear-gradient(160deg, #0a0a0a 0%, #1a1207 40%, #0a0a0a 100%)" }}>
-                              <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
-                                <div className={`font-numbers text-3xl font-bold ${scoreColor}`}>
-                                  {score > 0 ? score.toFixed(1) : "—"}
+                            <div className="relative h-24 rounded-xl overflow-hidden bg-card border border-border/30 hover:border-primary/30 transition-colors cursor-pointer group flex items-center">
+                              {/* Circle with logo */}
+                              <div className="w-24 h-full shrink-0 flex items-center justify-center bg-secondary/30">
+                                <div className="w-14 h-14 rounded-full border-2 border-primary/30 overflow-hidden flex items-center justify-center bg-background">
+                                  {entry.establishmentLogo ? (
+                                    <img src={entry.establishmentLogo} alt={entry.establishmentName} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <span className="text-lg font-display text-primary/60">{entry.establishmentName?.charAt(0) || "?"}</span>
+                                  )}
                                 </div>
-                                <span className="text-[10px] text-white/40 mt-1">/10</span>
-                                <Star className="w-5 h-5 text-primary/30 mt-2" />
                               </div>
-                              <div className="absolute bottom-2 left-2 right-2">
-                                <p className="text-white text-xs font-medium truncate">{entry.establishmentName}</p>
-                                <p className="text-[10px] text-white/50">
-                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : ""}
+                              {/* Info */}
+                              <div className="flex-1 px-4 py-2">
+                                <p className="text-sm font-medium text-foreground truncate">{entry.establishmentName}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                                  <span className="text-sm text-foreground font-numbers font-semibold">{score > 0 ? score.toFixed(1) : "—"}</span>
+                                </div>
+                                <p className="text-[11px] text-muted-foreground mt-1">
+                                  {entry.visitDate ? new Date(entry.visitDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : ""}
                                   {entry.mode ? ` · ${entry.mode === "direto" ? "Direto" : "Analítico"}` : ""}
                                 </p>
                               </div>

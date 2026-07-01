@@ -806,8 +806,10 @@ export async function getUserRatings(userId: number, limit = 50, offset = 0) {
     overallScore: ratings.overallScore,
     totalCost: ratings.totalCost,
     createdAt: ratings.createdAt,
+    visitDate: ratings.visitDate,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
+    establishmentLogo: establishments.logo,
     categoryName: categories.name,
   })
     .from(ratings)
