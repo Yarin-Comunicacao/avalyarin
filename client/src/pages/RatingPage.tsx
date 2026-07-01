@@ -503,6 +503,13 @@ export default function RatingPage() {
 
   const showHarmonizacao = hasFood && hasBeverage;
 
+  // Check if user has previous ratings at this establishment (for Consistência)
+  const { data: userRatingCountData } = trpc.ratings.userRatingCount.useQuery(
+    { establishmentId: estData?.id ?? 0 },
+    { enabled: !!estData?.id && !!user }
+  );
+  const showConsistencia = (userRatingCountData?.count ?? 0) >= 1;
+
   // Categories where "Originalidade" (c7) criterion applies
   const ORIGINALIDADE_CATEGORIES = [
     "gastrobar", "coquetelaria", "autoral-contemporaneo", "autoral",
@@ -512,15 +519,16 @@ export default function RatingPage() {
     ? ORIGINALIDADE_CATEGORIES.includes(parentCategory.id)
     : false;
 
-  // Global criteria: exclude c1, c2, conditionally c7 (Originalidade) and c10
+  // Global criteria: exclude c1, c2, conditionally c6 (Consistência), c7 (Originalidade) and c10
   const globalCriteria = useMemo(() => {
     return PUB_CRITERIA.filter((c) => {
       if (c.id === "c1" || c.id === "c2") return false;
+      if (c.id === "c6" && !showConsistencia) return false;
       if (c.id === "c7" && !showOriginalidade) return false;
       if (c.id === "c10" && !showHarmonizacao) return false;
       return true;
     });
-  }, [showHarmonizacao, showOriginalidade]);
+  }, [showHarmonizacao, showOriginalidade, showConsistencia]);
 
   const [analyticGlobalRatings, setAnalyticGlobalRatings] = useState<AnalyticGlobalRating[]>([]);
 

@@ -475,6 +475,20 @@ export const appRouter = router({
         return await getRatingById(input.id, ctx.user!.id);
       }),
 
+    userRatingCount: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const { getDb } = await import("./db");
+        const { ratings } = await import("../drizzle/schema");
+        const { eq, and, sql } = await import("drizzle-orm");
+        const db = await getDb();
+        const result = await db!.select({ count: sql<number>`count(*)` })
+          .from(ratings)
+          .where(and(eq(ratings.userId, userId), eq(ratings.establishmentId, input.establishmentId)));
+        return { count: Number(result[0]?.count || 0) };
+      }),
+
     byEstablishment: publicProcedure
       .input(z.object({
         establishmentId: z.number(),

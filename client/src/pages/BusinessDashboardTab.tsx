@@ -253,16 +253,14 @@ export default function BusinessDashboardTab({ establishmentId }: BusinessDashbo
             icon={<TrendingUp className="w-4 h-4 text-primary" />}
             full
           >
-            {dashboard.timeline.points.length > 0 ? (
-              <TimelineChart
-                points={dashboard.timeline.points}
-                outliers={dashboard.timeline.outliers}
-                mean={dashboard.timeline.mean}
-                periodDays={effectivePeriodDays}
-              />
-            ) : (
-              <EmptyChart message="Sem dados no período" />
-            )}
+            <TimelineChart
+              points={dashboard.timeline.points}
+              outliers={dashboard.timeline.outliers}
+              mean={dashboard.timeline.mean}
+              periodDays={effectivePeriodDays}
+              rangeStart={useCustomRange ? rangeStart : undefined}
+              rangeEnd={useCustomRange ? rangeEnd : undefined}
+            />
           </ChartCard>
 
           {/* Outliers Alert */}
@@ -490,12 +488,53 @@ function TimelineChart({
   outliers,
   mean,
   periodDays,
+  rangeStart,
+  rangeEnd,
 }: {
   points: Array<{ date: string; score: number; count: number }>;
   outliers: Array<{ date: string; score: number; possibleCauses: string[] }>;
   mean: number;
   periodDays: number;
+  rangeStart?: string;
+  rangeEnd?: string;
 }) {
+  // ─── Densify: generate all days in the interval ─────────────────────────
+  const allDays = useMemo(() => {
+    // Determine interval start and end
+    let startDate: Date;
+    let endDate: Date;
+    if (rangeStart && rangeEnd) {
+      startDate = new Date(rangeStart + "T12:00:00");
+      endDate = new Date(rangeEnd + "T12:00:00");
+    } else {
+      endDate = new Date();
+      endDate.setHours(12, 0, 0, 0);
+      startDate = new Date(endDate.getTime() - (periodDays - 1) * 24 * 60 * 60 * 1000);
+    }
+
+    // Build a map of existing data by date string
+    const dataMap = new Map<string, { score: number; count: number }>();
+    for (const p of points) {
+      dataMap.set(p.date, { score: p.score, count: p.count });
+    }
+
+    // Generate all days from startDate to endDate (inclusive)
+    const days: Array<{ date: string; score: number | null; count: number }> = [];
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const dateStr = current.toISOString().split("T")[0];
+      const existing = dataMap.get(dateStr);
+      days.push({
+        date: dateStr,
+        score: existing ? existing.score : null,
+        count: existing ? existing.count : 0,
+      });
+      current.setDate(current.getDate() + 1);
+    }
+
+    return days;
+  }, [points, periodDays, rangeStart, rangeEnd]);
+
   // Chart dimensions
   const svgWidth = 600;
   const svgHeight = 220;
@@ -511,13 +550,22 @@ function TimelineChart({
   const yMax = 10;
   const yTicks = [2, 4, 6, 8, 10];
 
-  const getX = (i: number) => marginLeft + (i / (points.length - 1 || 1)) * chartWidth;
+  // For single day: center the point
+  const isSingleDay = allDays.length === 1;
+  const getX = (i: number) => {
+    if (isSingleDay) return marginLeft + chartWidth / 2;
+    return marginLeft + (i / (allDays.length - 1)) * chartWidth;
+  };
   const getY = (score: number) => marginTop + chartHeight - ((score - yMin) / (yMax - yMin)) * chartHeight;
 
-  // Build path
-  const pathD = points.map((p, i) => {
-    const clampedScore = Math.max(yMin, Math.min(yMax, p.score));
-    return `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(clampedScore)}`;
+  // Build path connecting only days with data
+  const daysWithData = allDays
+    .map((d, i) => ({ ...d, idx: i }))
+    .filter(d => d.score !== null);
+
+  const pathD = daysWithData.map((d, i) => {
+    const clampedScore = Math.max(yMin, Math.min(yMax, d.score!));
+    return `${i === 0 ? "M" : "L"} ${getX(d.idx)} ${getY(clampedScore)}`;
   }).join(" ");
 
   // Mean line Y
@@ -526,8 +574,8 @@ function TimelineChart({
   // Outlier dates set
   const outlierDates = new Set(outliers.map(o => o.date));
 
-  // X axis labels
-  const xLabels = getXAxisLabels(points, periodDays);
+  // X axis labels (based on all days in interval)
+  const xLabels = getXAxisLabels(allDays, periodDays);
 
   return (
     <div className="space-y-2">
@@ -610,14 +658,14 @@ function TimelineChart({
         {/* Line path */}
         <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* Points */}
-        {points.map((p, i) => {
-          const isOutlier = outlierDates.has(p.date);
-          const clampedScore = Math.max(yMin, Math.min(yMax, p.score));
+        {/* Points (only days with data) */}
+        {daysWithData.map((d) => {
+          const isOutlier = outlierDates.has(d.date);
+          const clampedScore = Math.max(yMin, Math.min(yMax, d.score!));
           return (
             <circle
-              key={i}
-              cx={getX(i)}
+              key={d.date}
+              cx={getX(d.idx)}
               cy={getY(clampedScore)}
               r={isOutlier ? 5 : 3}
               fill={isOutlier ? "#ef4444" : "#f59e0b"}

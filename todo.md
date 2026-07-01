@@ -891,3 +891,15 @@
 - [x] Ao clicar em Intervalo, abrir mini calendário com data de início e data de fim
 - [x] Usar o intervalo personalizado para filtrar dados do dashboard e desempenho
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Ajuste — Consistência só aparece com avaliação anterior (01/07/2026)
+- [x] Subcritério "Consistência" só deve aparecer se o usuário já avaliou o estabelecimento antes
+- [x] Verificar se existe query de histórico do usuário no estab ou criar uma
+- [x] Filtrar Consistência nos critérios globais (analítico) e no modo direto se aplicável
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Ajuste — Linha Temporal mostra todos os dias do intervalo (01/07/2026)
+- [x] Gráfico deve mostrar todos os dias do intervalo no eixo X (mesmo sem avaliações)
+- [x] Fim do intervalo à esquerda (mais recente à esquerda, mais antigo à direita) — CORREÇÃO: mais recente à direita
+- [x] Intervalo de 1 dia: ponto centralizado
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
