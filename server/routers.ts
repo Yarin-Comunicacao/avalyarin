@@ -79,6 +79,7 @@ import {
   setIntegration,
   getAllIntegrations,
   deleteIntegration,
+  getAllEstablishmentsForMap,
 } from "./db";
 import {
   createGroup,
@@ -345,6 +346,11 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getNearbyEstablishments(input.lat, input.lng, input.radiusKm, input.limit);
+      }),
+
+    mapEstablishments: publicProcedure
+      .query(async () => {
+        return await getAllEstablishmentsForMap();
       }),
     
     search: publicProcedure

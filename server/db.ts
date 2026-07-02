@@ -2704,3 +2704,59 @@ export async function reorderSurveyQuestions(orderedIds: number[]): Promise<void
     await db.update(surveyQuestions).set({ sortOrder: i }).where(eq(surveyQuestions.id, orderedIds[i]));
   }
 }
+
+
+/**
+ * Get all active establishments with coordinates for the map view
+ */
+export async function getAllEstablishmentsForMap() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select({
+    id: establishments.id,
+    name: establishments.name,
+    slug: establishments.slug,
+    lat: establishments.lat,
+    lng: establishments.lng,
+    address: establishments.address,
+    addressNumber: establishments.addressNumber,
+    neighborhood: establishments.neighborhood,
+    rating: establishments.rating,
+    reviewCount: establishments.reviewCount,
+    image: establishments.image,
+    categoryId: establishments.categoryId,
+  })
+    .from(establishments)
+    .where(and(
+      eq(establishments.status, 'active'),
+      sql`${establishments.lat} IS NOT NULL`,
+      sql`${establishments.lng} IS NOT NULL`
+    ));
+
+  // Get category names for each establishment via N:N
+  const estIds = result.map(e => e.id);
+  if (estIds.length === 0) return [];
+
+  const catRows = await db.select({
+    establishmentId: establishmentCategories.establishmentId,
+    categoryName: categories.name,
+    categorySlug: categories.slug,
+  })
+    .from(establishmentCategories)
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+    .where(inArray(establishmentCategories.establishmentId, estIds));
+
+  const catMap: Record<number, { name: string; slug: string }> = {};
+  for (const row of catRows) {
+    if (!catMap[row.establishmentId]) {
+      catMap[row.establishmentId] = { name: row.categoryName, slug: row.categorySlug };
+    }
+  }
+
+  return result.map(est => ({
+    ...est,
+    categoryName: catMap[est.id]?.name || "Outros",
+    categorySlug: catMap[est.id]?.slug || "outros",
+  }));
+}

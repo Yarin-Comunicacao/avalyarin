@@ -63,6 +63,8 @@ import PublicProfilePage from "./pages/PublicProfilePage";
 import MensagensPage from "./pages/MensagensPage";
 // Nearby
 import NearbyPage from "./pages/NearbyPage";
+// Mapa
+import MapaPage from "./pages/MapaPage";
 // Destaques
 import DestaquesPage from "./pages/DestaquesPage";
 // Conta Hub
@@ -167,6 +169,8 @@ function Router() {
       <Route path="/e/:slug" component={QRScanPage} />
       {/* Nearby */}
       <Route path="/perto-de-mim" component={NearbyPage} />
+      {/* Mapa */}
+      <Route path="/mapa" component={MapaPage} />
       {/* Destaques */}
       <Route path="/destaques" component={DestaquesPage} />
       {/* Admin & Business */}

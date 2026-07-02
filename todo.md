@@ -933,3 +933,10 @@
 - [x] Integrar TimeRoulette na tela de seleção de data da visita (RatingPage)
 - [x] Combinar hora/minuto selecionados com a data da visita no visitDate enviado ao backend
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
+
+## Promoção de Usuário + Aba Mapa (02/07/2026)
+- [x] Promover alan_1927@hotmail.com para role=owner no banco
+- [x] Criar endpoint tRPC para listar estabelecimentos com coordenadas (lat/lng)
+- [x] Criar página MapaPage com Google Maps mostrando todos os estabelecimentos como markers
+- [x] Integrar aba Mapa na navegação bottom (ícone de mapa)
+- [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
