@@ -927,3 +927,9 @@
 - [x] Frontend: exibir aviso ao usuário quando tentar avaliar estab que já foi avaliado na mesma data
 - [x] Testes vitest para validação de duplicata (8 testes passando)
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
+
+## Roleta de Horário na Data da Visita
+- [x] Criar componente TimeRoulette (roleta estilo survey: horas 0-23 à esquerda, minutos 0-55 de 5 em 5 à direita)
+- [x] Integrar TimeRoulette na tela de seleção de data da visita (RatingPage)
+- [x] Combinar hora/minuto selecionados com a data da visita no visitDate enviado ao backend
+- [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint

@@ -23,6 +23,7 @@ import ShareStoryCard from "@/components/ShareStoryCard";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ptBR } from "react-day-picker/locale";
+import TimeRoulette from "@/components/TimeRoulette";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
@@ -459,6 +460,7 @@ export default function RatingPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [mode, setMode] = useState<RatingMode>("direto");
   const [visitDate, setVisitDate] = useState<Date | undefined>(undefined);
+  const [visitTime, setVisitTime] = useState<{ hours: number; minutes: number }>({ hours: new Date().getHours(), minutes: Math.round(new Date().getMinutes() / 5) * 5 });
   const [spendData, setSpendData] = useState<SpendData>({
     servicePercent: "none",
     couvertEnabled: false,
@@ -1353,6 +1355,7 @@ export default function RatingPage() {
                   </div>
                 </div>
                 <div className="p-6 rounded-xl bg-card border border-border/50">
+                  {/* Date picker */}
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
@@ -1380,6 +1383,14 @@ export default function RatingPage() {
                       />
                     </PopoverContent>
                   </Popover>
+
+                  {/* Time roulette picker */}
+                  <div className="mt-5 pt-5 border-t border-border/30">
+                    <TimeRoulette
+                      value={visitTime}
+                      onChange={setVisitTime}
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-between mt-6">
                   <Button variant="outline" onClick={() => setStep("items")} className="font-display tracking-wider">
@@ -2553,7 +2564,7 @@ export default function RatingPage() {
                         const saveResult = await saveRatingMutation.mutateAsync({
                           establishmentId: estData!.id,
                           type: mode === "direto" ? "direct" : "analytic",
-                          visitDate: visitDate ? visitDate.toISOString() : undefined,
+                          visitDate: visitDate ? new Date(visitDate.getFullYear(), visitDate.getMonth(), visitDate.getDate(), visitTime.hours, visitTime.minutes).toISOString() : undefined,
                           overallScore: finalScore,
                           subtotal: itemsSubtotal > 0 ? itemsSubtotal : undefined,
                           servicePercent: serviceAmount > 0 ? (spendData.servicePercent === "10" ? 10 : 13) : undefined,
@@ -2613,7 +2624,7 @@ export default function RatingPage() {
                           categoryId: parentCategory?.id || "",
                           score: finalScore,
                           mode: mode,
-                          date: visitDate ? visitDate.toISOString() : new Date().toISOString(),
+                          date: visitDate ? new Date(visitDate.getFullYear(), visitDate.getMonth(), visitDate.getDate(), visitTime.hours, visitTime.minutes).toISOString() : new Date().toISOString(),
                           savedAt: new Date().toISOString(),
                           items: selectedMenuItems.map(m => m.name),
                           isQualified,
@@ -2666,7 +2677,7 @@ export default function RatingPage() {
                           score: finalScore,
                           items: selectedMenuItems.map(m => m.name),
                           mode,
-                          date: visitDate ? visitDate.toISOString() : undefined,
+                          date: visitDate ? new Date(visitDate.getFullYear(), visitDate.getMonth(), visitDate.getDate(), visitTime.hours, visitTime.minutes).toISOString() : undefined,
                         });
                         setShowShareCard(true);
                       } catch (e: any) {
