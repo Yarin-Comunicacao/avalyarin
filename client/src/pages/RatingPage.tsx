@@ -2672,7 +2672,13 @@ export default function RatingPage() {
                       } catch (e: any) {
                         console.error("Failed to save review", e);
                         const isLimitError = e?.message?.includes("Limite diário");
-                        if (isLimitError) {
+                        const isDuplicateError = e?.message?.includes("já avaliou este estabelecimento nesta data");
+                        if (isDuplicateError) {
+                          toast.error("Avaliação duplicada!", {
+                            description: "Você já avaliou este estabelecimento nesta data. Selecione outra data de visita ou edite a avaliação existente.",
+                            duration: 8000,
+                          });
+                        } else if (isLimitError) {
                           toast.error("Limite diário atingido!", {
                             description: "Faça upgrade do seu plano para avaliar mais.",
                             action: {

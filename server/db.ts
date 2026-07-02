@@ -691,6 +691,33 @@ export async function getEstablishmentsByNeighborhood(neighborhood: string, limi
 // RATINGS
 // ============================================================
 
+/**
+ * Check if user already has a rating for the same establishment on the same visit date.
+ * Returns the existing rating if found, null otherwise.
+ */
+export async function checkDuplicateRating(userId: number, establishmentId: number, visitDate: string | undefined): Promise<{ id: number; visitDate: Date | null } | null> {
+  if (!visitDate) return null; // No visit date = cannot check for duplicates
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const visitDateObj = new Date(visitDate);
+  // Compare only the date part (ignore time)
+  const startOfDay = new Date(visitDateObj.getFullYear(), visitDateObj.getMonth(), visitDateObj.getDate());
+  const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+  
+  const existing = await db.select({ id: ratings.id, visitDate: ratings.visitDate })
+    .from(ratings)
+    .where(and(
+      eq(ratings.userId, userId),
+      eq(ratings.establishmentId, establishmentId),
+      sql`${ratings.visitDate} >= ${startOfDay}`,
+      sql`${ratings.visitDate} < ${endOfDay}`,
+    ))
+    .limit(1);
+  
+  return existing.length > 0 ? existing[0] : null;
+}
+
 
 export async function saveRating(userId: number, data: {
   establishmentId: number;

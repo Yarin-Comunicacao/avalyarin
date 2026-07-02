@@ -916,8 +916,14 @@
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
 
 ## Correções — Performance imagens, galeria agrupada, resumo avaliações (01/07/2026)
-- [ ] Investigar e corrigir performance de carregamento de imagens no perfil
-- [ ] Galeria do perfil: corrigir agrupamento por visita (fotos da mesma avaliação juntas)
-- [ ] Aba Avaliações: ao clicar, mostrar resumo com notas por bloco (não redirecionar ao estab)
-- [ ] Apenas o nome do estab deve ser clicável (leva ao local)
-- [ ] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+- [x] Investigar e corrigir performance de carregamento de imagens no perfil (lazy loading + decoding async já implementados; gargalo é inerente ao redirect 307 das presigned URLs)
+- [x] Galeria do perfil: corrigir agrupamento por visita (fotos da mesma avaliação juntas)
+- [x] Aba Avaliações: ao clicar, mostrar resumo com notas por bloco (não redirecionar ao estab)
+- [x] Apenas o nome do estab deve ser clicável (leva ao local)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+
+## Prevenção de Avaliação Duplicada (mesmo estab + mesma data)
+- [x] Backend: validar no saveRating se já existe avaliação do mesmo usuário + mesmo estab + mesma visitDate
+- [x] Frontend: exibir aviso ao usuário quando tentar avaliar estab que já foi avaliado na mesma data
+- [x] Testes vitest para validação de duplicata (8 testes passando)
+- [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint

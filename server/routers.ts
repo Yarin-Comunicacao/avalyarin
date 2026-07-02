@@ -17,6 +17,7 @@ import {
   searchAll,
   getEstablishmentsByNeighborhood,
   saveRating,
+  checkDuplicateRating,
   getUserRatings,
   getRatingById,
   getEstablishmentRatings,
@@ -429,6 +430,14 @@ export const appRouter = router({
               message: `Limite diário de avaliações atingido (${PLAN_LIMITS[rateCheck.plan].dailyRatings}/dia). Faça upgrade do seu plano para avaliar mais!`,
             });
           }
+        }
+        // Check for duplicate rating (same user + same establishment + same visit date)
+        const duplicate = await checkDuplicateRating(userId, input.establishmentId, input.visitDate);
+        if (duplicate) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Você já avaliou este estabelecimento nesta data. Cada visita pode ter apenas uma avaliação.",
+          });
         }
         const result = await saveRating(userId, { ...input, source });
         // Check verified status after saving (non-blocking)
