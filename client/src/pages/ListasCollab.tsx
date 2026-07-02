@@ -2,7 +2,6 @@
 // Collaborative lists of places with friends
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { toast } from "@/components/ui/sonner";
 import { Users, Plus, MapPin, User, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +46,6 @@ const mockLists: CollabList[] = [
 ];
 
 export default function ListasCollab() {
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNewList = () => {
     toast("Funcionalidade em breve", {
@@ -57,8 +55,7 @@ export default function ListasCollab() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center justify-between mb-8">

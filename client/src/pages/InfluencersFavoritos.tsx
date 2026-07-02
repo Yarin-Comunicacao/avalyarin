@@ -2,7 +2,6 @@
 // List of favorite influencers with their visits and orders
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
 import { Heart, MapPin, Calendar, ChevronRight, ChevronDown } from "lucide-react";
 
@@ -58,13 +57,11 @@ const mockInfluencers: Influencer[] = [
 ];
 
 export default function InfluencersFavoritos() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3 mb-8">

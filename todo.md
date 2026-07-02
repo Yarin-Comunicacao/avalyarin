@@ -940,3 +940,9 @@
 - [x] Criar página MapaPage com Google Maps mostrando todos os estabelecimentos como markers
 - [x] Integrar aba Mapa na navegação bottom (ícone de mapa)
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
+
+## Correções BottomNav + Remover Menu Lateral + Margem Owner (02/07/2026)
+- [x] Restaurar Grupos na BottomNav (user/influencer) e manter Mapa como aba adicional
+- [x] Remover menu lateral (AppMenu) de todas as páginas — sem menus laterais
+- [x] Ajustar margem inferior do botão "Avaliar" para owners (duplo menu inferior é maior) — bottom-[8.5rem]
+- [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint

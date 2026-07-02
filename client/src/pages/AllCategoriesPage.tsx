@@ -1,7 +1,6 @@
 // AllCategoriesPage — shows all categories organized by group
 import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice, Heart } from "lucide-react";
@@ -50,7 +49,6 @@ const fadeUp = {
 };
 
 export default function AllCategoriesPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { data: categoriesData, isLoading } = trpc.categories.list.useQuery();
 
   const groupedCategories = useMemo(() => {
@@ -66,8 +64,7 @@ export default function AllCategoriesPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {/* Header */}
       <section className="pt-28 pb-24">

@@ -1,6 +1,5 @@
 // Insígnias — Sistema de progressão Barão → Rei
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
@@ -139,7 +138,6 @@ function EmptyState({ type }: { type: TabType }) {
 }
 
 export default function BadgesPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("categorias");
   const { user, loading: authLoading } = useAuth();
 
@@ -180,8 +178,7 @@ export default function BadgesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Header */}

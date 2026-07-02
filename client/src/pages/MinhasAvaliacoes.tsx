@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, Redirect } from "wouter";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -162,7 +161,6 @@ function UserStatsSection() {
 
 export default function MinhasAvaliacoes() {
   const params = useParams<{ tab?: string }>();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "avaliacoes");
   const { user, loading: authLoading } = useAuth();
 
@@ -308,8 +306,7 @@ export default function MinhasAvaliacoes() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Header */}

@@ -2,7 +2,6 @@
 // Login with Facebook, Instagram, Google
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { toast } from "@/components/ui/sonner";
 import { Link2, Check } from "lucide-react";
 
@@ -15,7 +14,6 @@ interface ConnectedAccount {
 }
 
 export default function ContasConectadas() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [accounts, setAccounts] = useState<ConnectedAccount[]>([
     { id: "google", name: "Google", icon: "G", color: "bg-red-500/10 text-red-400 border-red-500/30", connected: false },
     { id: "facebook", name: "Facebook", icon: "f", color: "bg-blue-500/10 text-blue-400 border-blue-500/30", connected: false },
@@ -37,8 +35,7 @@ export default function ContasConectadas() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-lg">
           <div className="flex items-center gap-3 mb-8">

@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { toast } from "sonner";
 import {
   User, Mail, Phone, Shield, Calendar, MapPin, DollarSign, Cake,
@@ -35,7 +34,6 @@ const SPEND_LABELS: Record<string, string> = {
 };
 
 export default function MeusDados() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuth();
   const [showBirthdateEdit, setShowBirthdateEdit] = useState(false);
   const [newBirthdate, setNewBirthdate] = useState("");
@@ -163,8 +161,7 @@ export default function MeusDados() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-lg">
           <div className="flex items-center gap-3 mb-8">

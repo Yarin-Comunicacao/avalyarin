@@ -1,7 +1,6 @@
 // Notificações — Badges alcançados, Pesquisas de Preferência, Atualizações de Grupos
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Link, useParams, Redirect } from "wouter";
@@ -215,7 +214,6 @@ function GroupNotificationsTab() {
 export default function NotificacoesPage() {
   const { user, loading: authLoading } = useAuth();
   const params = useParams<{ tab?: string }>();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "badges");
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string[]>>({});
 
@@ -292,8 +290,7 @@ export default function NotificacoesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Header */}

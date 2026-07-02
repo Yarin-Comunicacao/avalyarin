@@ -8,7 +8,6 @@ import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -21,7 +20,6 @@ export default function QRScanPage() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
 
-  const [menuOpen, setMenuOpen] = useState(false);
   const [showPromoDialog, setShowPromoDialog] = useState(true);
   const [promoInput, setPromoInput] = useState("");
   const [validating, setValidating] = useState(false);
@@ -127,8 +125,7 @@ export default function QRScanPage() {
   if (!estab) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+        <Navbar  />
         <div className="container pt-28 text-center">
           <QrCode className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">Estabelecimento não encontrado</h1>
@@ -141,8 +138,7 @@ export default function QRScanPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Welcome header */}

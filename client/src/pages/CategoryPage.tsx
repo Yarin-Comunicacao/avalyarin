@@ -1,7 +1,6 @@
 // Design: Neon Urbano — Category page listing establishments
 import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Star, ArrowRight, Loader2 } from "lucide-react";
@@ -10,7 +9,6 @@ import { getCategoryCover } from "@/lib/categoryCoverImages";
 import NeighborhoodFilter from "@/components/NeighborhoodFilter";
 
 export default function CategoryPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   
@@ -47,8 +45,7 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {/* Category Hero */}
       <section className="relative pt-28 pb-24 overflow-hidden">

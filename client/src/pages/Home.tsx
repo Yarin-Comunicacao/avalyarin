@@ -4,7 +4,6 @@
 // 3. Veja todas as Categorias (GIF)
 
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { NearbyEstablishments } from "@/components/NearbyEstablishments";
 import { PostsCarousel } from "@/components/PostsCarousel";
 import { SavedPostsCarousel } from "@/components/SavedPostsCarousel";
@@ -74,7 +73,6 @@ const fadeIn = {
 };
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { data: categoriesData, isLoading } = trpc.categories.list.useQuery();
   const { user } = useAuth();
   const { data: surveyData } = trpc.survey.get.useQuery(undefined, {
@@ -120,8 +118,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {/* Hero Section — text only, background comes from body::before */}
       <section className="relative pt-32 pb-24">

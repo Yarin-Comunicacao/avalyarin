@@ -1,7 +1,6 @@
 // Design: AvaLyarin — Meus Locais (Saved Places) page — uses real data from backend
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
 import { Bookmark, MapPin, Star, Trash2, Loader2, Megaphone } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
@@ -9,7 +8,6 @@ import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
 
 export default function MeusLocais() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const utils = trpc.useUtils();
 
   // Get saved establishments with full details
@@ -29,8 +27,7 @@ export default function MeusLocais() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3 mb-8">

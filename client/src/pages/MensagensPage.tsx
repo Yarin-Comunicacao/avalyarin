@@ -3,14 +3,12 @@ import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { ArrowLeft, Loader2, Send, MessageCircle, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function MensagensPage() {
   const { username } = useParams<{ username: string }>();
-  const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuth();
 
   if (!username) {
@@ -22,14 +20,12 @@ export default function MensagensPage() {
 
 // ============ CONVERSATIONS LIST ============
 function ConversationsList() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { data: conversations, isLoading } = trpc.social.dmConversations.useQuery();
   const { data: mutuals } = trpc.social.mutuals.useQuery();
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-20 pb-12">
         <button
@@ -117,7 +113,6 @@ function ConversationsList() {
 
 // ============ DIRECT CHAT ============
 function DirectChat({ partnerUsername }: { partnerUsername: string }) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -161,8 +156,7 @@ function DirectChat({ partnerUsername }: { partnerUsername: string }) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-20 pb-4 flex-1 flex flex-col">
         {/* Header */}

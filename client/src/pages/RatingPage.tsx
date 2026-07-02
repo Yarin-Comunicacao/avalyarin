@@ -6,7 +6,6 @@
 // 4. Beverages-only in Analytic → Direct-style first step (serves, recommend, taste), then General Criteria
 // 5. Harmonização (c10) only shown if user has both food AND beverage items; excluded from score otherwise
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { PUB_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
 import { trpc } from "@/lib/trpc";
@@ -453,7 +452,6 @@ export default function RatingPage() {
     { enabled: !!estData?.id && !!user }
   );
 
-  const [menuOpen, setMenuOpen] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
   const [savedReviewData, setSavedReviewData] = useState<{ score: number; items: string[]; mode: string; date?: string } | null>(null);
   const [step, setStep] = useState<Step>("items");
@@ -1235,7 +1233,7 @@ export default function RatingPage() {
   if (user && !profileData.isLoading && !isQualified) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="pt-28 pb-24 container max-w-md">
           <div className="bg-card border border-border/50 rounded-xl p-6 text-center">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
@@ -1270,8 +1268,7 @@ export default function RatingPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-36 pb-24">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}

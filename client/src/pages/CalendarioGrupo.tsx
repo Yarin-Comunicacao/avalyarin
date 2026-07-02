@@ -3,7 +3,6 @@ import { useParams, Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -349,7 +348,6 @@ export default function CalendarioGrupo() {
   const groupId = parseInt(params.id || "0");
   const [, navigate] = useLocation();
   const { user, loading: authLoading } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -391,8 +389,7 @@ export default function CalendarioGrupo() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Header */}

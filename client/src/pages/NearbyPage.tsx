@@ -6,10 +6,8 @@ import { useGeolocation, formatDistance } from "@/hooks/useGeolocation";
 import { trpc } from "@/lib/trpc";
 import { CategoryIcon, getCategoryColor } from "@/lib/categoryIcons";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 
 export default function NearbyPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { latitude, longitude, loading, error, permissionDenied, requestLocation } = useGeolocation();
   const [radiusKm, setRadiusKm] = useState(3);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -33,8 +31,7 @@ export default function NearbyPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Header */}

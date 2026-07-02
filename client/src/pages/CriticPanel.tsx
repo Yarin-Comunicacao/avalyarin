@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Redirect, Link } from "wouter";
 import { toast } from "sonner";
 import {
@@ -21,7 +20,6 @@ type Tab = "overview" | "calendar" | "ratings" | "promos" | "profile";
 
 export default function CriticPanel() {
   const { user, loading } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   if (loading) {
@@ -46,8 +44,7 @@ export default function CriticPanel() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-24 pb-24">
         {/* Header */}

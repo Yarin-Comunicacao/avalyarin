@@ -10,7 +10,6 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Redirect, Link } from "wouter";
 import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
@@ -20,7 +19,6 @@ type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
 
 export default function InfluencerPanel() {
   const { user, loading } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   if (loading) {
@@ -45,8 +43,7 @@ export default function InfluencerPanel() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-24 pb-24">
         {/* Header */}

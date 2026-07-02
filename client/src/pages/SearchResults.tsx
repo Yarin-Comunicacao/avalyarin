@@ -5,7 +5,6 @@ import { useState, useMemo } from "react";
 import { Link, useSearch } from "wouter";
 import { Search, MapPin, UtensilsCrossed, Star, Loader2, Calendar, Tag, Megaphone, Sparkles, Handshake } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { trpc } from "@/lib/trpc";
 
 const typeLabels: Record<string, { label: string; icon: any; description: string }> = {
@@ -34,7 +33,6 @@ export default function SearchResults() {
   const query = params.get("q") || "";
   const bairro = params.get("bairro") || "";
   const tipo = params.get("tipo") || "";
-  const [menuOpen, setMenuOpen] = useState(false);
 
   // Determine if we should use AI search
   const useAi = useMemo(() => needsAiInterpretation(query), [query]);
@@ -94,8 +92,7 @@ export default function SearchResults() {
   if (!query && !bairro && !tipo) {
     return (
       <div className="min-h-screen">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="pt-28 container text-center">
           <Search className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <p className="text-muted-foreground">Digite algo para buscar</p>
@@ -106,8 +103,7 @@ export default function SearchResults() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="pt-28 pb-24 container">
         {/* Header */}

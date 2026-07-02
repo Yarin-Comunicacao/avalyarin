@@ -2,18 +2,15 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { PostsCarousel } from "@/components/PostsCarousel";
 import { SavedPostsCarousel } from "@/components/SavedPostsCarousel";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
 import { Megaphone } from "lucide-react";
 
 export default function DestaquesPage() {
   const { user, isAuthenticated } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-6">
         <div className="flex items-center gap-3 mb-6">

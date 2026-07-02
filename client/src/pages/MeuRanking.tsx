@@ -1,6 +1,5 @@
 // Meu Ranking — Personal top 10 / top 3 per category with discovery banner
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -31,7 +30,6 @@ interface RankedItem {
 }
 
 export default function MeuRanking() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [rankedItems, setRankedItems] = useState<RankedItem[]>([]);
@@ -165,8 +163,7 @@ export default function MeuRanking() {
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container py-20 text-center">
           <Trophy className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="font-display text-3xl tracking-wider text-primary text-glow-amber mb-4">MEU RANKING</h2>
@@ -183,8 +180,7 @@ export default function MeuRanking() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container py-8">
         {/* Header */}

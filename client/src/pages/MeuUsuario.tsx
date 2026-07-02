@@ -3,7 +3,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { toast } from "sonner";
 import {
   UserCog, Check, X, AlertCircle, Loader2, MapPin, Link2,
@@ -132,7 +131,6 @@ function ProgressionCard() {
 
 export default function MeuUsuario() {
   const { user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   // Username state
   const [usernameInput, setUsernameInput] = useState("");
@@ -269,8 +267,7 @@ export default function MeuUsuario() {
   if (!user) {
     return (
       <div className="min-h-screen">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="pt-28 container text-center">
           <p className="text-muted-foreground">Faça login para acessar seu perfil.</p>
         </div>
@@ -280,8 +277,7 @@ export default function MeuUsuario() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="pt-28 pb-24 container max-w-2xl">
         {/* Header */}

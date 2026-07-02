@@ -2,7 +2,6 @@
 // Photos taken by the user of dishes and drinks
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Image, Camera, X } from "lucide-react";
 
 interface GalleryPhoto {
@@ -23,13 +22,11 @@ const mockPhotos: GalleryPhoto[] = [
 ];
 
 export default function Galeria() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3 mb-6">

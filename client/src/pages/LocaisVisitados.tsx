@@ -2,7 +2,6 @@
 // Mini map with pins of visited locations + list below
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
 import { MapPin, Star, Navigation } from "lucide-react";
 import { MapView } from "@/components/Map";
@@ -26,7 +25,6 @@ const mockVisited: VisitedPlace[] = [
 ];
 
 export default function LocaisVisitados() {
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleMapReady = (map: google.maps.Map) => {
     // Add markers for each visited place
@@ -57,8 +55,7 @@ export default function LocaisVisitados() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3 mb-6">

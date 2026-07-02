@@ -1,7 +1,6 @@
 // CategoryGroupPage — shows categories within a specific group
 import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice, Heart } from "lucide-react";
@@ -54,7 +53,6 @@ const fadeUp = {
 };
 
 export default function CategoryGroupPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const { id } = useParams<{ id: string }>();
   const { data: categoriesData, isLoading } = trpc.categories.list.useQuery();
 
@@ -79,8 +77,7 @@ export default function CategoryGroupPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {/* Hero with group image */}
       <section className="relative h-[40vh] min-h-[280px] flex items-end overflow-hidden">

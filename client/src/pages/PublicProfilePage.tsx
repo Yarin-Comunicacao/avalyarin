@@ -1,7 +1,6 @@
 import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { useState } from "react";
 import { ArrowLeft, Loader2, Star, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
@@ -13,7 +12,6 @@ import { getConnectYarinUrl } from "@shared/const";
 
 export default function PublicProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const { user } = useAuth();
   const utils = trpc.useUtils();
@@ -69,8 +67,7 @@ export default function PublicProfilePage() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container pt-24 text-center">
           <h1 className="font-display text-2xl tracking-wider text-foreground mb-2">PERFIL NÃO ENCONTRADO</h1>
           <p className="text-sm text-muted-foreground">O usuário @{username} não existe.</p>
@@ -105,8 +102,7 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-20 pb-12">
         {/* Back button */}

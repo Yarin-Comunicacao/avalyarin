@@ -2,13 +2,11 @@
 // User ID, @username (default by order, paid to customize, Instagram priority)
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { Settings, AtSign, Hash, Instagram, Crown, Lock } from "lucide-react";
 
 export default function Cadastro() {
-  const [menuOpen, setMenuOpen] = useState(false);
 
   // Mock user data
   const userId = "AVL-000001";
@@ -28,8 +26,7 @@ export default function Cadastro() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-lg">
           <div className="flex items-center gap-3 mb-8">

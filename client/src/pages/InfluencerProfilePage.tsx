@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { useRoute } from "wouter";
 import { Loader2, BadgeCheck, UserPlus, UserMinus, Star, MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
@@ -19,7 +18,6 @@ export default function InfluencerProfilePage() {
   const [, params] = useRoute("/influencer/:id");
   const influencerId = params?.id ? parseInt(params.id) : 0;
   const { user } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const { data: profile, isLoading } = trpc.influencerProfile.get.useQuery(
     { influencerId },
@@ -63,8 +61,7 @@ export default function InfluencerProfilePage() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container pt-24 text-center">
           <p className="text-muted-foreground">Influencer não encontrado.</p>
           <button onClick={() => window.history.back()} className="text-primary text-sm mt-2 inline-block">Voltar</button>
@@ -78,8 +75,7 @@ export default function InfluencerProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-24 pb-24 max-w-lg mx-auto">
         {/* Back button */}

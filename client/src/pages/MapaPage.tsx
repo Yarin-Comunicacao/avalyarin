@@ -4,7 +4,6 @@ import { trpc } from "@/lib/trpc";
 import { Loader2, MapPin, Star, Navigation } from "lucide-react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 
 // Pinheiros / Vila Madalena center
 const SP_CENTER = { lat: -23.5613, lng: -46.6917 };
@@ -26,7 +25,6 @@ function getMarkerColor(categorySlug: string): string {
 export default function MapaPage() {
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedEst, setSelectedEst] = useState<{
     id: number;
     name: string;
@@ -98,8 +96,7 @@ export default function MapaPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="relative w-full" style={{ height: "calc(100vh - 64px - 64px)" }}>
         {isLoading && (

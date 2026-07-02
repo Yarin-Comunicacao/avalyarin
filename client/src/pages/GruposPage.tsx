@@ -3,7 +3,6 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -580,7 +579,6 @@ function DiscoverSection() {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function GruposPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"meus" | "sigo">("meus");
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
@@ -608,8 +606,7 @@ export default function GruposPage() {
   if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-background">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container py-20 text-center">
           <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h2 className="font-display text-2xl tracking-wider text-foreground mb-2">GRUPOS</h2>
@@ -628,8 +625,7 @@ export default function GruposPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {showCreate && planInfo && (
         <CreateGroupModal onClose={() => setShowCreate(false)} planInfo={planInfo} />

@@ -2,7 +2,6 @@
 // Back arrow navigates to the parent category page
 import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon } from "lucide-react";
@@ -51,7 +50,6 @@ function SaveBookmarkButton({ establishmentId }: { establishmentId: number }) {
 }
 
 export default function EstablishmentPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [showAddressSheet, setShowAddressSheet] = useState(false);
   const [showClaimForm, setShowClaimForm] = useState(false);
   const [showOwnerEdit, setShowOwnerEdit] = useState(false);
@@ -184,8 +182,7 @@ export default function EstablishmentPage() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       {/* Hero */}
       <section className="relative pt-28">
@@ -485,7 +482,7 @@ export default function EstablishmentPage() {
 
       {/* Fixed CTA at bottom — hidden for business accounts */}
       {user?.role !== "business" && (
-        <div className={`fixed left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4 ${isAuthenticated ? 'bottom-16' : 'bottom-0'}`}>
+        <div className={`fixed left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4 ${!isAuthenticated ? 'bottom-0' : user?.role === 'owner' ? 'bottom-[8.5rem]' : 'bottom-16'}`}>
           <div className="container">
             <Link href={`/avaliar/${establishment.slug}`}>
               <Button size="lg" className="w-full font-display text-lg tracking-wider glow-amber">

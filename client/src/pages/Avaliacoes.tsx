@@ -2,7 +2,6 @@
 // Shows mini gallery of last 3 visits, then full list ordered by visit date (newest first)
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Link } from "wouter";
 import { Star, MapPin, Calendar, ChevronRight } from "lucide-react";
 
@@ -26,14 +25,12 @@ const mockReviews: ReviewEntry[] = [
 ];
 
 export default function Avaliacoes() {
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const lastThree = mockReviews.slice(0, 3);
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-2xl">
           <div className="flex items-center gap-3 mb-8">

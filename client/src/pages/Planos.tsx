@@ -1,7 +1,6 @@
 // Design: AvaLyarin — Planos page with real backend integration
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { toast } from "@/components/ui/sonner";
 import { Crown, Check, Star, Zap, Shield, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Planos() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [upgradeDialog, setUpgradeDialog] = useState<{ plan: string; name: string; price: number } | null>(null);
   const { user, isAuthenticated } = useAuth();
 
@@ -86,8 +84,7 @@ export default function Planos() {
 
   return (
     <div className="min-h-screen">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
       <div className="pt-28 pb-24">
         <div className="container max-w-3xl">
           <div className="flex items-center gap-3 mb-4">

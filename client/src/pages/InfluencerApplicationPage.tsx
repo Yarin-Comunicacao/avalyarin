@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ import {
 export default function InfluencerApplicationPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [motivation, setMotivation] = useState("");
   const [socialMedia, setSocialMedia] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -97,8 +95,7 @@ export default function InfluencerApplicationPage() {
   if (!loadingApp && existingApp) {
     return (
       <div className="min-h-screen bg-background">
-        <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container pt-28 pb-24 max-w-2xl">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">
             <ArrowLeft className="w-4 h-4" /> Voltar
@@ -153,8 +150,7 @@ export default function InfluencerApplicationPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24 max-w-3xl">
         <button onClick={() => window.history.back()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6">

@@ -1,14 +1,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ROLE_COLORS, ROLE_LABELS, type AppRole } from "@shared/role-visibility";
-import { Camera, Bell, Menu, Star, BadgeCheck, Crown, Shield, Headphones } from "lucide-react";
+import { Camera, Bell, Star, BadgeCheck, Crown, Shield, Headphones } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProfileHeaderProps {
-  onMenuOpen?: () => void;
   notificationCount?: number;
 }
 
-export default function ProfileHeader({ onMenuOpen, notificationCount = 0 }: ProfileHeaderProps) {
+export default function ProfileHeader({ notificationCount = 0 }: ProfileHeaderProps) {
   const { user } = useAuth();
   const role: AppRole = (user?.role as AppRole) || "user";
   const colors = ROLE_COLORS[role];
@@ -26,10 +25,8 @@ export default function ProfileHeader({ onMenuOpen, notificationCount = 0 }: Pro
   return (
     <header className="sticky top-0 z-40 bg-background border-b border-border/30">
       <div className="flex items-center justify-between px-4 h-14">
-        {/* Left: Menu */}
-        <button onClick={onMenuOpen} className="p-2 -ml-2">
-          <Menu className="w-5 h-5 text-foreground" />
-        </button>
+        {/* Left: spacer */}
+        <div className="w-9" />
 
         {/* Center: Username + role icon */}
         <div className="flex items-center gap-1.5">

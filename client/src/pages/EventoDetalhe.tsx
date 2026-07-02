@@ -3,7 +3,6 @@ import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import Navbar from "@/components/Navbar";
-import AppMenu from "@/components/AppMenu";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -16,7 +15,6 @@ export default function EventoDetalhe() {
   const eventId = parseInt(params.id || "0");
   const [, navigate] = useLocation();
   const { user, loading: authLoading } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -56,7 +54,7 @@ export default function EventoDetalhe() {
   if (!event) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar onMenuOpen={() => setMenuOpen(true)} />
+        <Navbar  />
         <div className="container pt-28 pb-24 text-center">
           <p className="text-muted-foreground">Evento não encontrado</p>
           <Button variant="outline" onClick={() => navigate("/grupos")} className="mt-4">
@@ -87,8 +85,7 @@ export default function EventoDetalhe() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navbar onMenuOpen={() => setMenuOpen(true)} />
+      <Navbar  />
 
       <div className="container pt-28 pb-24">
         {/* Back Button */}
