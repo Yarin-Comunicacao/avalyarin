@@ -959,3 +959,15 @@
 - [x] Config: 1 aba (Integrações)
 - [x] Código e Brandbook devem existir somente para Owner (não Admin) — movidos para OwnerPanel
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
+
+## Planilha Morumbi Shopping + Cadastro de Estabelecimentos
+- [x] Pesquisar dados dos 42 estabs (endereço, complemento, site, telefone, horário)
+- [x] Verificar Instagram de cada estab para cardápio atualizado
+- [x] Montar planilha consolidada (Nome, Endereço, Complemento, Site, Telefone, Horário, Instagram, Cardápio, Categoria)
+- [x] Adicionar ao app os 30 estabs com todas as informações completas (inseridos no banco)
+
+## Dividir categoria Restaurante em Churrascaria + Casual Dining (03/07/2026)
+- [x] Criar novas categorias Casa de Carnes (70003) e Casual Dining (70004) no banco
+- [x] Redistribuir: Casa de Carnes (Barbacoa, Brasa Charrua, Corrientes, Esplanada, Fogo de Chão, Pobre Juan), Casual Dining (Coco Bambu, Outback, TGI Fridays), Daje Roma → Cozinha Internacional
+- [x] Desativar categoria Restaurante (60002) — 0 estabs restantes
+- [x] Atualizar frontend (Home, AllCategoriesPage, CategoryGroupPage) para exibir casa-de-carnes e casual-dining no grupo Gastronomia

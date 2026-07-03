@@ -14,7 +14,7 @@ const categoryGroups = [
     title: "Gastronomia",
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "restaurante"],
+    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining"],
   },
   {
     id: "bares-vida-noturna",
