@@ -3,14 +3,14 @@ import { useLocation, Link } from "wouter";
 import { useState } from "react";
 import {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
-  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine, ClipboardList, Newspaper, MapPin
+  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine, ClipboardList, Newspaper, MapPin, Briefcase, ShieldCheck
 } from "lucide-react";
 import { ROLE_BOTTOM_NAV, ROLE_COLORS, type AppRole } from "@shared/role-visibility";
 import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
-  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine, ClipboardList, Newspaper, MapPin,
+  Ticket, MessageCircle, Shield, Crown, Server, Star, Bell, ScanLine, ClipboardList, Newspaper, MapPin, Briefcase, ShieldCheck,
 };
 
 // When user is not authenticated, show only "Conta"

@@ -118,9 +118,9 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   admin: [
     { icon: "Search", label: "Busca", path: "/" },
     { icon: "Users", label: "Equipe", path: "/admin/equipe" },
-    { icon: "Star", label: "Influencers", path: "/admin/influencers" },
-    { icon: "Store", label: "Estabs", path: "/admin/estabs" },
-    { icon: "Settings", label: "Config", path: "/admin" },
+    { icon: "Briefcase", label: "Negócio", path: "/admin/negocio" },
+    { icon: "ShieldCheck", label: "Permissões", path: "/admin/permissoes" },
+    { icon: "Settings", label: "Config", path: "/admin/config" },
   ],
   owner: [
     { icon: "Search", label: "Busca", path: "/" },

@@ -182,6 +182,8 @@ function Router() {
       <Route path="/admin/equipe" component={AdminPanel} />
       <Route path="/admin/influencers" component={AdminPanel} />
       <Route path="/admin/estabs" component={AdminPanel} />
+      <Route path="/admin/negocio" component={AdminPanel} />
+      <Route path="/admin/permissoes" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       <Route path="/painel-empresarial/insights" component={BusinessPanel} />
       <Route path="/painel-empresarial/notificacoes" component={BusinessPanel} />

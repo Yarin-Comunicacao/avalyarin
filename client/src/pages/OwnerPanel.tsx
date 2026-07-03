@@ -9,7 +9,7 @@ import { useState } from "react";
 
 export default function OwnerPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "growth" | "financials" | "roles">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "growth" | "financials" | "roles" | "code" | "brandbook">("overview");
 
   const { data: stats, isLoading: statsLoading } = trpc.ownerPanel.stats.useQuery();
   const { data: growth, isLoading: growthLoading } = trpc.ownerPanel.growth.useQuery();
@@ -43,6 +43,8 @@ export default function OwnerPanel() {
     { id: "growth" as const, label: "Crescimento", icon: TrendingUp },
     { id: "financials" as const, label: "Financeiro", icon: DollarSign },
     { id: "roles" as const, label: "Gestão de Roles", icon: UserCog },
+    { id: "code" as const, label: "Código", icon: Settings },
+    { id: "brandbook" as const, label: "Brandbook", icon: ClipboardList },
   ];
 
   const growthPercentage = stats
@@ -360,6 +362,46 @@ export default function OwnerPanel() {
             </div>
           </div>
         )}
+
+        {/* Código Tab - Owner only */}
+        {activeTab === "code" && <CodeBackupOwnerTab />}
+
+        {/* Brandbook Tab - Owner only */}
+        {activeTab === "brandbook" && <BrandbookOwnerTab />}
+      </div>
+    </div>
+  );
+}
+
+function CodeBackupOwnerTab() {
+  return (
+    <div>
+      <h2 className="font-display text-xl text-foreground mb-4">Backup de Código</h2>
+      <div className="p-6 rounded-xl bg-card border border-border/50">
+        <p className="text-muted-foreground text-sm">Acesse o painel Admin para gerenciar backups de código.</p>
+        <Link href="/admin/config">
+          <span className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer mt-3">
+            <Settings className="w-4 h-4" />
+            Ir para Config Admin
+          </span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function BrandbookOwnerTab() {
+  return (
+    <div>
+      <h2 className="font-display text-xl text-foreground mb-4">Brandbook</h2>
+      <div className="p-6 rounded-xl bg-card border border-border/50">
+        <p className="text-muted-foreground text-sm">Guia visual da marca Avalyarin — cores, tipografia, logotipos e aplicações.</p>
+        <Link href="/admin/config">
+          <span className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer mt-3">
+            <ClipboardList className="w-4 h-4" />
+            Acessar Brandbook completo
+          </span>
+        </Link>
       </div>
     </div>
   );

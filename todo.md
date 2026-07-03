@@ -950,3 +950,12 @@
 ## Pendências Futuras (aguardando)
 - [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
 - [ ] Adicionar mapa de navegação de páginas ao Manual Técnico Operacional (aguardando envio do arquivo)
+
+## Reestruturação BottomNav Admin (03/07/2026)
+- [x] BottomNav Admin: 5 ícones — Busca, Equipe, Negócio, Permissões, Config
+- [x] Equipe: 5 abas (User, Critic, Influencer, Business, Support) — lista pessoas por role
+- [x] Negócio: 4 abas (Dashboard, Estabelecimentos, Promoções, Planos)
+- [x] Permissões: 3 abas (Solicitações, Verificação, Insights)
+- [x] Config: 1 aba (Integrações)
+- [x] Código e Brandbook devem existir somente para Owner (não Admin) — movidos para OwnerPanel
+- [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint

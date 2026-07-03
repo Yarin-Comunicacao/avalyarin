@@ -19,29 +19,35 @@ export default function AdminPanel() {
   // Parse URL params to restore tab/category state
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
   
-  // Map sub-routes to tabs
-  const getTabFromPath = (): string | null => {
+  // Determine active section from path
+  const getSectionFromPath = (): "equipe" | "negocio" | "permissoes" | "config" => {
     const path = window.location.pathname;
-    if (path === "/admin/usuarios") return "users";
-    if (path === "/admin/analytics") return "insights";
-    if (path === "/admin/config") return "dashboard";
-    if (path === "/admin/equipe") return "users";
-    if (path === "/admin/influencers") return "claims";
-    if (path === "/admin/estabs") return "establishments";
-    return null;
+    if (path.startsWith("/admin/equipe")) return "equipe";
+    if (path.startsWith("/admin/negocio")) return "negocio";
+    if (path.startsWith("/admin/permissoes")) return "permissoes";
+    if (path.startsWith("/admin/config")) return "config";
+    // Legacy routes mapping
+    if (path === "/admin/usuarios") return "equipe";
+    if (path === "/admin/influencers") return "permissoes";
+    if (path === "/admin/estabs") return "negocio";
+    if (path === "/admin/analytics") return "negocio";
+    return "equipe";
   };
-  
-  const initialTab = (getTabFromPath() || searchParams.get("tab") || "dashboard") as "dashboard" | "users" | "claims" | "establishments" | "age-verification" | "code-backup" | "brandbook" | "promos" | "insights" | "critics" | "integrations";
+
+  const [activeSection, setActiveSection] = useState(getSectionFromPath());
   const initialCategory = searchParams.get("category") || undefined;
 
-  const [activeTab, setActiveTab] = useState(initialTab);
+  // Sub-tab state per section
+  const [equipeTab, setEquipeTab] = useState<"user" | "critic" | "influencer" | "business" | "support">("user");
+  const [negocioTab, setNegocioTab] = useState<"dashboard" | "establishments" | "promos" | "planos">("dashboard");
+  const [permissoesTab, setPermissoesTab] = useState<"claims" | "age-verification" | "insights">("claims");
+  const [configTab, setConfigTab] = useState<"integrations">("integrations");
 
-  // Sync tab from URL when navigating back or sub-route changes
+  // Sync section from URL when navigating
   useEffect(() => {
-    const pathTab = getTabFromPath();
-    const urlTab = pathTab || searchParams.get("tab");
-    if (urlTab && urlTab !== activeTab) {
-      setActiveTab(urlTab as typeof activeTab);
+    const section = getSectionFromPath();
+    if (section !== activeSection) {
+      setActiveSection(section);
     }
   }, [searchString, window.location.pathname]);
 
@@ -87,51 +93,100 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Section Tabs */}
       <div className="border-b border-border/30 overflow-x-auto scrollbar-hide">
-        <div className="flex gap-1 px-4 sm:px-6 lg:px-8 lg:max-w-[1280px] lg:mx-auto" style={{ minWidth: 'max-content' }}>
-          {[
-            { id: "dashboard" as const, label: "Dashboard", icon: BarChart3 },
-            { id: "users" as const, label: "Usuários", icon: Users },
-            { id: "claims" as const, label: "Solicitações", icon: ClipboardCheck },
-            { id: "establishments" as const, label: "Estabelecimentos", icon: Store },
-            { id: "age-verification" as const, label: "Verificação", icon: FileCheck },
-            { id: "code-backup" as const, label: "Código", icon: Code },
-            { id: "brandbook" as const, label: "Brandbook", icon: BookOpen },
-            { id: "promos" as const, label: "Códigos", icon: TagIcon },
-            { id: "insights" as const, label: "Insights", icon: TrendingUp },
-            { id: "critics" as const, label: "Cr\u00edticos", icon: Newspaper },
-            { id: "integrations" as const, label: "Integrações", icon: Plug },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
-                activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex gap-1 px-4 sm:px-6 lg:px-8 lg:max-w-[1280px] lg:mx-auto">
+          {activeSection === "equipe" && (
+            <>
+              {(["user", "critic", "influencer", "business", "support"] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setEquipeTab(tab)}
+                  className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                    equipeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {{ user: "User", critic: "Critic", influencer: "Influencer", business: "Business", support: "Support" }[tab]}
+                </button>
+              ))}
+            </>
+          )}
+          {activeSection === "negocio" && (
+            <>
+              {(["dashboard", "establishments", "promos", "planos"] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setNegocioTab(tab)}
+                  className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                    negocioTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {{ dashboard: "Dashboard", establishments: "Estabelecimentos", promos: "Promoções", planos: "Planos" }[tab]}
+                </button>
+              ))}
+            </>
+          )}
+          {activeSection === "permissoes" && (
+            <>
+              {(["claims", "age-verification", "insights"] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setPermissoesTab(tab)}
+                  className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                    permissoesTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {{ claims: "Solicitações", "age-verification": "Verificação", insights: "Insights" }[tab]}
+                </button>
+              ))}
+            </>
+          )}
+          {activeSection === "config" && (
+            <>
+              {(["integrations"] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setConfigTab(tab)}
+                  className={`flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
+                    configTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {{ integrations: "Integrações" }[tab]}
+                </button>
+              ))}
+              {/* Owner-only tabs */}
+              {user?.role === "owner" && (
+                <>
+                  <button
+                    onClick={() => setConfigTab("integrations")}
+                    className="flex items-center gap-1.5 px-3 py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground whitespace-nowrap shrink-0"
+                  >
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="container py-6">
-        {activeTab === "dashboard" && <DashboardTab />}
-        {activeTab === "users" && <UsersTab />}
-        {activeTab === "claims" && <ClaimsTab />}
-        {activeTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} />}
-        {activeTab === "age-verification" && <AgeVerificationTab />}
-        {activeTab === "code-backup" && <CodeBackupTab />}
-        {activeTab === "brandbook" && <BrandbookTab />}
-        {activeTab === "promos" && <PromoCodesAdminTab />}
-        {activeTab === "insights" && <InsightsTab />}
-        {activeTab === "critics" && <CriticsTab />}
-        {activeTab === "integrations" && <IntegrationsTab />}
+        {/* Equipe section */}
+        {activeSection === "equipe" && <UsersTab filterRole={equipeTab} />}
+
+        {/* Negócio section */}
+        {activeSection === "negocio" && negocioTab === "dashboard" && <DashboardTab />}
+        {activeSection === "negocio" && negocioTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} />}
+        {activeSection === "negocio" && negocioTab === "promos" && <PromoCodesAdminTab />}
+        {activeSection === "negocio" && negocioTab === "planos" && <PlanosTab />}
+
+        {/* Permissões section */}
+        {activeSection === "permissoes" && permissoesTab === "claims" && <ClaimsTab />}
+        {activeSection === "permissoes" && permissoesTab === "age-verification" && <AgeVerificationTab />}
+        {activeSection === "permissoes" && permissoesTab === "insights" && <InsightsTab />}
+
+        {/* Config section */}
+        {activeSection === "config" && configTab === "integrations" && <IntegrationsTab />}
       </div>
     </div>
   );
@@ -172,8 +227,14 @@ function DashboardTab() {
   );
 }
 
-function UsersTab() {
+function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer" | "business" | "support" }) {
   const { data: users, isLoading } = trpc.admin.users.useQuery({});
+  // Map "critic" to actual role name if needed (critics are stored as "user" with critic flag or separate role)
+  const filteredUsers = users?.filter(u => {
+    if (!filterRole) return true;
+    if (filterRole === "critic") return u.role === "critic" || (u as any).isCritic;
+    return u.role === filterRole;
+  });
   const updateRole = trpc.admin.updateUserRole.useMutation();
   const utils = trpc.useUtils();
 
@@ -211,7 +272,7 @@ function UsersTab() {
     <div>
       <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">USUÁRIOS</h2>
       <div className="space-y-3">
-        {users?.map(u => (
+        {(filteredUsers || []).map(u => (
           <div key={u.id} className="p-4 rounded-xl bg-card border border-border/50 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
@@ -1717,6 +1778,20 @@ function CriticsTab() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+
+function PlanosTab() {
+  return (
+    <div>
+      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">PLANOS</h2>
+      <div className="p-8 rounded-xl bg-card border border-border/50 text-center">
+        <TagIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Gerenciamento de planos de assinatura.</p>
+        <p className="text-xs text-muted-foreground/60 mt-2">Em breve: configuração de planos Free, Premium e Pro.</p>
+      </div>
     </div>
   );
 }
