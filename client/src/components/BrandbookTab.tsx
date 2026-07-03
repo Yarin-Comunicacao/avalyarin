@@ -157,7 +157,7 @@ function RoadmapSection({ onNavigate }: { onNavigate: (s: BrandbookSection) => v
           {phases.map(p => (
             <button
               key={p.id}
-              onClick={() => onNavigate(p.id)}
+              onClick={() => { onNavigate(p.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
               className="text-left p-4 bg-card border border-border/50 rounded-xl hover:border-primary hover:-translate-y-0.5 transition-all"
             >
               <span className="font-mono text-2xl font-bold text-primary/30">{p.num}</span>
