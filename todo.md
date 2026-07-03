@@ -946,3 +946,7 @@
 - [x] Remover menu lateral (AppMenu) de todas as páginas — sem menus laterais
 - [x] Ajustar margem inferior do botão "Avaliar" para owners (duplo menu inferior é maior) — bottom-[8.5rem]
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
+
+## Pendências Futuras (aguardando)
+- [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
+- [ ] Adicionar mapa de navegação de páginas ao Manual Técnico Operacional (aguardando envio do arquivo)

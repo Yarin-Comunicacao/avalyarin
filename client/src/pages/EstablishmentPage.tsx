@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon, ScanLine } from "lucide-react";
 import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -301,6 +301,12 @@ export default function EstablishmentPage() {
                 }
               />
               <SaveBookmarkButton establishmentId={establishment.id} />
+              <Link href={`/e/${establishment.slug}`}>
+                <span className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary transition-all text-sm font-medium">
+                  <ScanLine className="w-4 h-4" />
+                  Scan
+                </span>
+              </Link>
             </div>
           </motion.div>
         </div>
