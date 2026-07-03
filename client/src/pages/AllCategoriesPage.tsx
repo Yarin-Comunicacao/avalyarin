@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice, Heart } from "lucide-react";
+import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
 
@@ -14,7 +14,7 @@ const categoryGroups = [
     title: "Gastronomia",
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining"],
+    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "saudavel", "vegetariano"],
   },
   {
     id: "bares-vida-noturna",
@@ -30,13 +30,7 @@ const categoryGroups = [
     icon: CakeSlice,
     categorySlugs: ["cafeteria", "padaria", "confeitaria"],
   },
-  {
-    id: "saudavel-natural",
-    title: "Saudável & Natural",
-    subtitle: "Alimentação saudável e natural",
-    icon: Heart,
-    categorySlugs: ["vegan", "acai", "saudavel", "vegetariano"],
-  },
+
 ];
 
 const fadeUp = {

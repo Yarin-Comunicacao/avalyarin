@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice, Heart } from "lucide-react";
+import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
 
@@ -15,7 +15,7 @@ const categoryGroups = [
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
     image: "/manus-storage/group-gastronomia_6a589f64.jpg",
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining"],
+    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "saudavel", "vegetariano"],
   },
   {
     id: "bares-vida-noturna",
@@ -33,14 +33,7 @@ const categoryGroups = [
     image: "/manus-storage/group-cafe-doces_648b4dd3.jpg",
     categorySlugs: ["cafeteria", "padaria", "confeitaria"],
   },
-  {
-    id: "saudavel-natural",
-    title: "Saudável & Natural",
-    subtitle: "Alimentação saudável e natural",
-    icon: Heart,
-    image: "/manus-storage/group-saudavel-natural_543a7c03.jpg",
-    categorySlugs: ["vegan", "acai", "saudavel", "vegetariano"],
-  },
+
 ];
 
 const fadeUp = {
