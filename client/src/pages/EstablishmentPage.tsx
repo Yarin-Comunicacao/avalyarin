@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import { Link, useParams, Redirect } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon, ScanLine } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon, ScanLine, Leaf, Sprout, WheatOff } from "lucide-react";
 import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -226,9 +226,12 @@ export default function EstablishmentPage() {
 
               {/* Nome + Info */}
               <div className="flex-1 min-w-0">
-                <h2 className="font-display text-3xl sm:text-5xl tracking-wider text-primary text-glow-amber leading-tight">
-                  {establishment.name.toUpperCase()}
-                </h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="font-display text-3xl sm:text-5xl tracking-wider text-primary text-glow-amber leading-tight">
+                    {establishment.name.toUpperCase()}
+                  </h2>
+                  <EstablishmentBadges establishmentId={establishment.id} />
+                </div>
                 {/* Selo Crítico */}
                 <CriticSealBadge establishmentId={establishment.id} />
                 <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
@@ -754,6 +757,44 @@ function ClaimFormModal({ establishmentId, establishmentName, onClose }: {
   );
 }
 
+
+// ============================================================
+// ESTABLISHMENT BADGES — Selos Visuais (Vegetariano, Vegano, Sem Glúten)
+// ============================================================
+const BADGE_CONFIG = {
+  vegetariano: { icon: Leaf, label: "Vegetariano", color: "text-green-500", bg: "bg-green-500/10", border: "border-green-500/30" },
+  vegano: { icon: Sprout, label: "Vegano", color: "text-emerald-600", bg: "bg-emerald-600/10", border: "border-emerald-600/30" },
+  sem_gluten: { icon: WheatOff, label: "Sem Glúten", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+};
+
+function EstablishmentBadges({ establishmentId }: { establishmentId: number }) {
+  const { data: badges, isLoading } = trpc.establishments.getBadges.useQuery(
+    { establishmentId },
+    { enabled: !!establishmentId }
+  );
+
+  if (isLoading || !badges || badges.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {badges.map((badge) => {
+        const config = BADGE_CONFIG[badge.badgeType as keyof typeof BADGE_CONFIG];
+        if (!config) return null;
+        const Icon = config.icon;
+        return (
+          <div
+            key={badge.id}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${config.bg} border ${config.border}`}
+            title={config.label}
+          >
+            <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+            <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ============================================================
 // CRITIC SEAL BADGE — Selo Crítico Gastronômico

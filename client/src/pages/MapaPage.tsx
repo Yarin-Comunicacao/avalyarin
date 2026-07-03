@@ -14,7 +14,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   "bares-tradicionais": "#ef4444",
   "gastronomia": "#10b981",
   "cafes-e-doces": "#8b5cf6",
-  "saudavel": "#22c55e",
+  "natural": "#22c55e",
+  "veg-vegan": "#22c55e",
+  "vegetariano": "#22c55e",
   "baladas": "#ec4899",
 };
 

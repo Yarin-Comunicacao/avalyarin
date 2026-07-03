@@ -971,3 +971,12 @@
 - [x] Redistribuir: Casa de Carnes (Barbacoa, Brasa Charrua, Corrientes, Esplanada, Fogo de Chão, Pobre Juan), Casual Dining (Coco Bambu, Outback, TGI Fridays), Daje Roma → Cozinha Internacional
 - [x] Desativar categoria Restaurante (60002) — 0 estabs restantes
 - [x] Atualizar frontend (Home, AllCategoriesPage, CategoryGroupPage) para exibir casa-de-carnes e casual-dining no grupo Gastronomia
+
+## Renomear categorias + Sistema de Selos (03/07/2026)
+- [x] Renomear Saudável (ID 15) para Natural no banco
+- [x] Renomear Vegan (ID 70001) para Veg + Vegan no banco
+- [x] Criar tabela establishment_badges no schema (vegetariano, vegano, sem_gluten)
+- [x] Migrar schema com pnpm db:push
+- [x] Criar endpoints tRPC para gerenciar selos (admin atribuir/remover)
+- [x] Exibir selos ao lado do nome do estab no frontend (Leaf, Sprout, WheatOff)
+- [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint

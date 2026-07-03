@@ -80,6 +80,10 @@ import {
   getAllIntegrations,
   deleteIntegration,
   getAllEstablishmentsForMap,
+  getEstablishmentBadges,
+  getBadgesForEstablishments,
+  addEstablishmentBadge,
+  removeEstablishmentBadge,
 } from "./db";
 import {
   createGroup,
@@ -383,6 +387,40 @@ export const appRouter = router({
       .input(z.object({ eventId: z.number() }))
       .query(async ({ input }) => {
         return await getEstablishmentEvent(input.eventId);
+      }),
+
+    // Public: get badges for an establishment
+    getBadges: publicProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getEstablishmentBadges(input.establishmentId);
+      }),
+
+    // Public: get badges for multiple establishments (batch)
+    getBadgesBatch: publicProcedure
+      .input(z.object({ establishmentIds: z.array(z.number()) }))
+      .query(async ({ input }) => {
+        return await getBadgesForEstablishments(input.establishmentIds);
+      }),
+
+    // Admin/Owner: add badge to establishment
+    addBadge: adminProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        badgeType: z.enum(["vegetariano", "vegano", "sem_gluten"]),
+      }))
+      .mutation(async ({ input }) => {
+        return await addEstablishmentBadge(input.establishmentId, input.badgeType);
+      }),
+
+    // Admin/Owner: remove badge from establishment
+    removeBadge: adminProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        badgeType: z.enum(["vegetariano", "vegano", "sem_gluten"]),
+      }))
+      .mutation(async ({ input }) => {
+        return await removeEstablishmentBadge(input.establishmentId, input.badgeType);
       }),
   }),
 

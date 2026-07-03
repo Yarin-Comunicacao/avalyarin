@@ -513,7 +513,7 @@ export default function RatingPage() {
   // Categories where "Originalidade" (c7) criterion applies
   const ORIGINALIDADE_CATEGORIES = [
     "gastrobar", "coquetelaria", "autoral-contemporaneo", "autoral",
-    "boteco-moderno", "confeitaria", "vegan", "vegetariano",
+    "boteco-moderno", "confeitaria", "veg-vegan", "vegetariano",
   ];
   const showOriginalidade = parentCategory
     ? ORIGINALIDADE_CATEGORIES.includes(parentCategory.id)

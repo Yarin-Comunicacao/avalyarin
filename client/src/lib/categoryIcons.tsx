@@ -33,10 +33,11 @@ const categoryIconMap: Record<string, React.ElementType> = {
   "padaria": Croissant,                   // Croissant — padaria
   "confeitaria": Cake,                    // Bolo — confeitaria
 
-  // SAUDÁVEL & BEM-ESTAR
-  "vegan": Leaf,                          // Folha — vegan
+  // GASTRONOMIA (saudáveis)
+  "veg-vegan": Leaf,                      // Folha — veg + vegan
   "acai": IceCream,                       // Sorvete/açaí bowl
-  "saudavel": Salad,                      // Salada — saudável
+  "natural": Salad,                       // Salada — natural
+  "vegetariano": Leaf,                    // Folha — vegetariano
 };
 
 // Cores de destaque por grupo
@@ -63,10 +64,11 @@ const categoryColorMap: Record<string, string> = {
   "padaria": "text-orange-400",
   "confeitaria": "text-orange-400",
 
-  // SAUDÁVEL & BEM-ESTAR — tom verde
-  "vegan": "text-emerald-400",
+  // GASTRONOMIA (saudáveis) — tom verde
+  "veg-vegan": "text-emerald-400",
   "acai": "text-emerald-400",
-  "saudavel": "text-emerald-400",
+  "natural": "text-emerald-400",
+  "vegetariano": "text-emerald-400",
 };
 
 /**

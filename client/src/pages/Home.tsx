@@ -26,7 +26,7 @@ const categoryGroups = [
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
     image: "/manus-storage/group-gastronomia_6a589f64.jpg",
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "saudavel", "vegetariano"],
+    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "veg-vegan", "acai", "natural", "vegetariano"],
   },
   {
     id: "bares-vida-noturna",

@@ -887,3 +887,15 @@ export const surveyQuestions = mysqlTable("survey_questions", {
 });
 export type SurveyQuestion = typeof surveyQuestions.$inferSelect;
 export type InsertSurveyQuestion = typeof surveyQuestions.$inferInsert;
+
+// ============================================================
+// Establishment Badges — selos visuais (Vegetariano, Vegano, Sem Glúten)
+// ============================================================
+export const establishmentBadges = mysqlTable("establishment_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  badgeType: mysqlEnum("badgeType", ["vegetariano", "vegano", "sem_gluten"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EstablishmentBadge = typeof establishmentBadges.$inferSelect;
+export type InsertEstablishmentBadge = typeof establishmentBadges.$inferInsert;

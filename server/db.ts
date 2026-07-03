@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2759,4 +2759,57 @@ export async function getAllEstablishmentsForMap() {
     categoryName: catMap[est.id]?.name || "Outros",
     categorySlug: catMap[est.id]?.slug || "outros",
   }));
+}
+
+
+// ============================================================
+// ESTABLISHMENT BADGES (selos visuais)
+// ============================================================
+
+/**
+ * Get all badges for a specific establishment
+ */
+export async function getEstablishmentBadges(establishmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(establishmentBadges).where(eq(establishmentBadges.establishmentId, establishmentId));
+}
+
+/**
+ * Get badges for multiple establishments at once (batch)
+ */
+export async function getBadgesForEstablishments(establishmentIds: number[]) {
+  const db = await getDb();
+  if (!db || establishmentIds.length === 0) return [];
+  return db.select().from(establishmentBadges).where(inArray(establishmentBadges.establishmentId, establishmentIds));
+}
+
+/**
+ * Add a badge to an establishment (admin/owner only)
+ */
+export async function addEstablishmentBadge(establishmentId: number, badgeType: "vegetariano" | "vegano" | "sem_gluten") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Check if badge already exists
+  const existing = await db.select().from(establishmentBadges)
+    .where(and(
+      eq(establishmentBadges.establishmentId, establishmentId),
+      eq(establishmentBadges.badgeType, badgeType)
+    ));
+  if (existing.length > 0) return existing[0];
+  const [result] = await db.insert(establishmentBadges).values({ establishmentId, badgeType });
+  return { id: result.insertId, establishmentId, badgeType };
+}
+
+/**
+ * Remove a badge from an establishment (admin/owner only)
+ */
+export async function removeEstablishmentBadge(establishmentId: number, badgeType: "vegetariano" | "vegano" | "sem_gluten") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(establishmentBadges).where(and(
+    eq(establishmentBadges.establishmentId, establishmentId),
+    eq(establishmentBadges.badgeType, badgeType)
+  ));
+  return { success: true };
 }
