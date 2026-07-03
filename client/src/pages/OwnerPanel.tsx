@@ -3,9 +3,12 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import {
   Crown, Users, Store, Star, TrendingUp, DollarSign,
-  Shield, UserCog, Settings, BarChart3, ArrowUpRight, ArrowDownRight, ClipboardList
+  Shield, UserCog, Settings, BarChart3, ArrowUpRight, ArrowDownRight, ClipboardList,
+  Code, FileCode, RefreshCw, Download
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import BrandbookTab from "@/components/BrandbookTab";
 
 export default function OwnerPanel() {
   const { user, loading } = useAuth();
@@ -367,42 +370,123 @@ export default function OwnerPanel() {
         {activeTab === "code" && <CodeBackupOwnerTab />}
 
         {/* Brandbook Tab - Owner only */}
-        {activeTab === "brandbook" && <BrandbookOwnerTab />}
+        {activeTab === "brandbook" && <BrandbookTab />}
       </div>
     </div>
   );
 }
 
 function CodeBackupOwnerTab() {
-  return (
-    <div>
-      <h2 className="font-display text-xl text-foreground mb-4">Backup de Código</h2>
-      <div className="p-6 rounded-xl bg-card border border-border/50">
-        <p className="text-muted-foreground text-sm">Acesse o painel Admin para gerenciar backups de código.</p>
-        <Link href="/admin/config">
-          <span className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer mt-3">
-            <Settings className="w-4 h-4" />
-            Ir para Config Admin
-          </span>
-        </Link>
-      </div>
-    </div>
-  );
-}
+  const { data: backups, isLoading, refetch } = trpc.admin.getCodeBackups.useQuery();
+  const generateMutation = trpc.admin.generateCodeBackup.useMutation({
+    onSuccess: () => {
+      toast.success("Backup gerado com sucesso!");
+      refetch();
+    },
+    onError: (err) => toast.error(`Erro ao gerar backup: ${err.message}`),
+  });
 
-function BrandbookOwnerTab() {
   return (
-    <div>
-      <h2 className="font-display text-xl text-foreground mb-4">Brandbook</h2>
-      <div className="p-6 rounded-xl bg-card border border-border/50">
-        <p className="text-muted-foreground text-sm">Guia visual da marca Avalyarin — cores, tipografia, logotipos e aplicações.</p>
-        <Link href="/admin/config">
-          <span className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer mt-3">
-            <ClipboardList className="w-4 h-4" />
-            Acessar Brandbook completo
-          </span>
-        </Link>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-2xl tracking-wider text-foreground">CÓDIGO FONTE</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Backup completo do código do aplicativo para recuperação
+          </p>
+        </div>
+        <button
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          {generateMutation.isPending ? (
+            <>
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              Gerando...
+            </>
+          ) : (
+            <>
+              <FileCode className="w-4 h-4" />
+              Gerar Novo Backup
+            </>
+          )}
+        </button>
       </div>
+
+      {/* Info card */}
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+        <div className="flex items-start gap-3">
+          <Code className="w-5 h-5 text-primary mt-0.5" />
+          <div>
+            <h3 className="font-medium text-foreground text-sm">Como funciona</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Ao clicar em "Gerar Novo Backup", o sistema coleta todos os arquivos de código fonte do aplicativo
+              (TypeScript, CSS, configurações) e gera um documento Markdown estruturado com o conteúdo completo.
+              Este arquivo pode ser usado para recuperação total do projeto em caso de perda de dados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Backups list */}
+      {isLoading ? (
+        <div className="text-muted-foreground text-center py-8">Carregando backups...</div>
+      ) : !backups || backups.length === 0 ? (
+        <div className="text-center py-12">
+          <FileCode className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+          <p className="text-muted-foreground">Nenhum backup gerado ainda.</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Clique em "Gerar Novo Backup" para criar o primeiro.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <h3 className="font-display text-lg tracking-wider text-foreground">BACKUPS DISPONÍVEIS</h3>
+          {backups.map((backup) => (
+            <div
+              key={backup.id}
+              className="p-4 rounded-xl bg-card border border-border/50 flex flex-col sm:flex-row sm:items-center gap-3 justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <FileCode className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">{backup.id}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(backup.createdAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+                    {" \u2022 "}{backup.fileCount} arquivos{" \u2022 "}{backup.sizeKB} KB
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(backup.url);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `backup-${backup.id}.md`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    toast.success("Download iniciado!");
+                  } catch {
+                    toast.error("Erro ao baixar backup");
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 border border-primary/30 text-primary rounded-lg text-sm font-medium hover:bg-primary/10 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Baixar
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
