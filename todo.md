@@ -980,3 +980,4 @@
 - [x] Criar endpoints tRPC para gerenciar selos (admin atribuir/remover)
 - [x] Exibir selos ao lado do nome do estab no frontend (Leaf, Sprout, WheatOff)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
+- [x] Baixar fotos de fachada dos 30 estabs do Morumbi Shopping e associar como capa no banco
