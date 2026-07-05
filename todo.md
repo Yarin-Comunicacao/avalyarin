@@ -981,3 +981,9 @@
 - [x] Exibir selos ao lado do nome do estab no frontend (Leaf, Sprout, WheatOff)
 - [x] Verificar TypeScript (0 erros), rodar testes e salvar checkpoint
 - [x] Baixar fotos de fachada dos 30 estabs do Morumbi Shopping e associar como capa no banco
+- [ ] Pesquisar restaurantes do Shopping Eldorado SP (site oficial + dados cadastrais)
+- [ ] Coletar links de cardápio de cada restaurante do Eldorado em planilha
+- [ ] Cadastrar estabelecimentos e cardápios do Eldorado no banco de dados
+- [ ] Baixar fotos de fachada do Eldorado e associar no banco
+- [ ] Gerar arquivos para o Drive (pasta por estabelecimento do Eldorado)
+- [x] Cadastrar AJ Padaria no app com dados completos (Google Maps, Instagram, cardápio)
