@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import type { AppRole } from "@shared/role-visibility";
 import UserProfile from "./UserProfile";
-import InfluencerProfile from "./InfluencerProfile";
+import SpecialistProfile from "./SpecialistProfile";
 import BusinessProfile from "./BusinessProfile";
 import SupportProfile from "./SupportProfile";
 import AdminProfile from "./AdminProfile";
@@ -25,8 +25,8 @@ export default function RoleBasedProfile() {
   const role: AppRole = (user?.role as AppRole) || "user";
 
   switch (role) {
-    case "influencer":
-      return <InfluencerProfile />;
+    case "specialist":
+      return <SpecialistProfile />;
     case "business":
       return <BusinessProfile />;
     case "support":

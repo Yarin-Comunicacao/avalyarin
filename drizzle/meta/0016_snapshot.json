@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "58cf07e2-d4ca-44b0-9cdb-b64f8616f6d5",
-  "prevId": "76e2ff17-2650-45ba-bc36-8a234762fc70",
+  "id": "c144ba57-b506-495c-ad20-ea4cc847da9b",
+  "prevId": "58cf07e2-d4ca-44b0-9cdb-b64f8616f6d5",
   "tables": {
     "age_verification_requests": {
       "name": "age_verification_requests",
@@ -2014,7 +2014,7 @@
         },
         "type": {
           "name": "type",
-          "type": "enum('private','influencer')",
+          "type": "enum('private','specialist')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -2077,148 +2077,6 @@
           ]
         }
       },
-      "checkConstraint": {}
-    },
-    "specialist_applications": {
-      "name": "specialist_applications",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "selectedRatingIds": {
-          "name": "selectedRatingIds",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "totalRatings": {
-          "name": "totalRatings",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "qualifiedRatings": {
-          "name": "qualifiedRatings",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "motivation": {
-          "name": "motivation",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "socialMedia": {
-          "name": "socialMedia",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "enum('pending','approved','rejected')",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'pending'"
-        },
-        "adminNotes": {
-          "name": "adminNotes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reviewedAt": {
-          "name": "reviewedAt",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "influencer_applications_id": {
-          "name": "influencer_applications_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "specialist_follows": {
-      "name": "specialist_follows",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "specialistId": {
-          "name": "specialistId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "influencer_follows_id": {
-          "name": "influencer_follows_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
       "checkConstraint": {}
     },
     "integrations": {
@@ -2472,11 +2330,11 @@
         },
         "partnershipType": {
           "name": "partnershipType",
-          "type": "enum('influencer','business')",
+          "type": "enum('specialist','business')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'influencer'"
+          "default": "'specialist'"
         },
         "specialistId": {
           "name": "specialistId",
@@ -2508,7 +2366,7 @@
         },
         "proposedBy": {
           "name": "proposedBy",
-          "type": "enum('influencer','establishment')",
+          "type": "enum('specialist','establishment')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -2800,7 +2658,7 @@
         },
         "creatorType": {
           "name": "creatorType",
-          "type": "enum('influencer','business')",
+          "type": "enum('specialist','business')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -3291,6 +3149,148 @@
           ]
         }
       },
+      "checkConstraint": {}
+    },
+    "specialist_applications": {
+      "name": "specialist_applications",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "selectedRatingIds": {
+          "name": "selectedRatingIds",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totalRatings": {
+          "name": "totalRatings",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qualifiedRatings": {
+          "name": "qualifiedRatings",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "motivation": {
+          "name": "motivation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "socialMedia": {
+          "name": "socialMedia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('pending','approved','rejected')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "adminNotes": {
+          "name": "adminNotes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reviewedAt": {
+          "name": "reviewedAt",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "specialist_applications_id": {
+          "name": "specialist_applications_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "specialist_follows": {
+      "name": "specialist_follows",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "specialistId": {
+          "name": "specialistId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "specialist_follows_id": {
+          "name": "specialist_follows_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     },
     "subscriptions": {
@@ -4074,7 +4074,7 @@
         },
         "role": {
           "name": "role",
-          "type": "enum('user','admin','owner','business','influencer','critic','support')",
+          "type": "enum('user','admin','owner','business','specialist','critic','support')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,

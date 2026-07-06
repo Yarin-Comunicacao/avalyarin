@@ -100,7 +100,7 @@ import {
   shareRatingToGroup,
   getGroupFeed,
   searchUsersByUsername,
-  discoverInfluencerGroups,
+  discoverSpecialistGroups,
   isGroupMember,
   removeMemberFromGroup,
   getUserPlanOrDefault,
@@ -168,22 +168,22 @@ import {
   reorderMenuCategories,
 } from "./db-admin-estab";
 import {
-  getRatingsForInfluencerApplication,
-  submitInfluencerApplication,
-  getInfluencerApplications,
-  approveInfluencerApplication,
-  rejectInfluencerApplication,
-  getMyInfluencerApplication,
+  getRatingsForSpecialistApplication,
+  submitSpecialistApplication,
+  getSpecialistApplications,
+  approveSpecialistApplication,
+  rejectSpecialistApplication,
+  getMySpecialistApplication,
   proposePartnership,
   respondToPartnership,
   supportApprovePartnership,
   supportRejectPartnership,
-  getInfluencerPartnerships,
+  getSpecialistPartnerships,
   getEstablishmentPartnerships,
   getReceivedB2BPartnerships,
   listAvailableEstablishmentsForPartnership,
   getSupportPendingPartnerships,
-} from "./db-influencer";
+} from "./db-specialist";
 import {
   getUserPlanDetails,
   canUserRate,
@@ -220,16 +220,16 @@ import {
   isNearEstablishment,
 } from "./db-qr";
 import {
-  followInfluencer,
-  unfollowInfluencer,
-  isFollowingInfluencer,
+  followSpecialist,
+  unfollowSpecialist,
+  isFollowingSpecialist,
   getFollowerCount,
-  getFollowedInfluencers,
-  getInfluencerProfile,
-  getInfluencerRatings,
-  getInfluencerFeed,
-  listInfluencers,
-} from "./db-influencer-follow";
+  getFollowedSpecialists,
+  getSpecialistProfile,
+  getSpecialistRatings,
+  getSpecialistFeed,
+  listSpecialists,
+} from "./db-specialist-follow";
 import {
   getOwnerStats,
   getOwnerGrowth,
@@ -458,15 +458,15 @@ export const appRouter = router({
         }
         // Determine rating source (presencial/hibrido/remoto)
         const source = await determineRatingSource(userId, input.establishmentId);
-        // Influencers can only rate via QR (presencial or hibrido)
-        if (ctx.user!.role === "influencer" && source === "remoto") {
+        // Specialists can only rate via QR (presencial or hibrido)
+        if (ctx.user!.role === "specialist" && source === "remoto") {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "Influencers só podem avaliar presencialmente. Escaneie o QR Code do estabelecimento antes de avaliar.",
+            message: "Specialists só podem avaliar presencialmente. Escaneie o QR Code do estabelecimento antes de avaliar.",
           });
         }
-        // Check daily rating limit based on plan (influencers are unlimited)
-        if (ctx.user!.role !== "influencer") {
+        // Check daily rating limit based on plan (specialists are unlimited)
+        if (ctx.user!.role !== "specialist") {
           const rateCheck = await canUserRate(userId);
           if (!rateCheck.allowed) {
             throw new TRPCError({
@@ -680,7 +680,7 @@ export const appRouter = router({
     updateUserRole: adminProcedure
       .input(z.object({
         userId: z.number(),
-        role: z.enum(["user", "influencer", "business", "support", "admin", "owner"]),
+        role: z.enum(["user", "specialist", "business", "support", "admin", "owner"]),
       }))
       .mutation(async ({ input }) => {
         return await updateUserRole(input.userId, input.role);
@@ -897,29 +897,29 @@ export const appRouter = router({
         return await reorderMenuCategories(input.establishmentId, input.orderedNames);
       }),
 
-    // Influencer applications
-    influencerApplications: adminProcedure
+    // Specialist applications
+    specialistApplications: adminProcedure
       .input(z.object({ status: z.string().optional() }).optional())
       .query(async ({ input }) => {
-        return await getInfluencerApplications(input?.status);
+        return await getSpecialistApplications(input?.status);
       }),
 
-    approveInfluencer: adminProcedure
+    approveSpecialist: adminProcedure
       .input(z.object({
         applicationId: z.number(),
         adminNotes: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        return await approveInfluencerApplication(input.applicationId, input.adminNotes);
+        return await approveSpecialistApplication(input.applicationId, input.adminNotes);
       }),
 
-    rejectInfluencer: adminProcedure
+    rejectSpecialist: adminProcedure
       .input(z.object({
         applicationId: z.number(),
         adminNotes: z.string().min(1),
       }))
       .mutation(async ({ input }) => {
-        return await rejectInfluencerApplication(input.applicationId, input.adminNotes);
+        return await rejectSpecialistApplication(input.applicationId, input.adminNotes);
       }),
 
     // Partnerships - admin can still view (delegated to support for approval)
@@ -1119,12 +1119,12 @@ export const appRouter = router({
         return await respondToPartnership(input.partnershipId, input.accept, input.estabNotes);
       }),
 
-    // Business proposes partnership to an influencer
+    // Business proposes partnership to an specialist
     proposePartnership: businessProcedure
       .input(z.object({
-        partnershipType: z.enum(["influencer", "business"]),
+        partnershipType: z.enum(["specialist", "business"]),
         establishmentId: z.number(),
-        influencerId: z.number().optional(),
+        specialistId: z.number().optional(),
         partnerEstablishmentId: z.number().optional(),
         terms: z.string().optional(),
       }))
@@ -1136,7 +1136,7 @@ export const appRouter = router({
 
         const id = await proposePartnership({
           partnershipType: input.partnershipType,
-          influencerId: input.influencerId,
+          specialistId: input.specialistId,
           partnerEstablishmentId: input.partnerEstablishmentId,
           establishmentId: input.establishmentId,
           terms: input.terms,
@@ -1145,9 +1145,9 @@ export const appRouter = router({
         return { id };
       }),
 
-    // List available influencers for partnership proposals
-    availableInfluencers: businessProcedure.query(async () => {
-      return await listInfluencers();
+    // List available specialists for partnership proposals
+    availableSpecialists: businessProcedure.query(async () => {
+      return await listSpecialists();
     }),
 
     // List available establishments for B2B partnership
@@ -1374,19 +1374,19 @@ export const appRouter = router({
   }),
 
   groups: router({
-    // Get user's own groups (private + influencer they created)
+    // Get user's own groups (private + specialist they created)
     myGroups: protectedProcedure.query(async ({ ctx }) => {
       return await getMyGroups(ctx.user!.id);
     }),
 
-    // Get influencer groups user follows
+    // Get specialist groups user follows
     followedGroups: protectedProcedure.query(async ({ ctx }) => {
       return await getFollowedGroups(ctx.user!.id);
     }),
 
-    // Discover influencer groups
+    // Discover specialist groups
     discover: protectedProcedure.query(async ({ ctx }) => {
-      return await discoverInfluencerGroups(ctx.user!.id);
+      return await discoverSpecialistGroups(ctx.user!.id);
     }),
 
     // Get group details
@@ -1414,7 +1414,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(2).max(255),
         description: z.string().max(500).optional(),
-        type: z.enum(["private", "influencer"]),
+        type: z.enum(["private", "specialist"]),
       }))
       .mutation(async ({ ctx, input }) => {
         return await createGroup({
@@ -1478,17 +1478,17 @@ export const appRouter = router({
         return await respondToInvite(input.inviteId, ctx.user!.id, input.accept);
       }),
 
-    // Follow influencer group
+    // Follow specialist group
     follow: protectedProcedure
       .input(z.object({ groupId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const group = await getGroupById(input.groupId);
-        if (!group || group.type !== "influencer") throw new Error("Grupo inválido");
+        if (!group || group.type !== "specialist") throw new Error("Grupo inválido");
         await followGroup(input.groupId, ctx.user!.id);
         return { success: true };
       }),
 
-    // Unfollow influencer group
+    // Unfollow specialist group
     unfollow: protectedProcedure
       .input(z.object({ groupId: z.number() }))
       .mutation(async ({ ctx, input }) => {
@@ -1759,15 +1759,15 @@ export const appRouter = router({
   }),
 
   // ============================================================
-  // Influencer
+  // Specialist
   // ============================================================
-  influencer: router({
+  specialist: router({
     // Get my ratings for application (last 365 days with qualification status)
     myRatings: protectedProcedure.query(async ({ ctx }) => {
-      return await getRatingsForInfluencerApplication(ctx.user!.id);
+      return await getRatingsForSpecialistApplication(ctx.user!.id);
     }),
 
-    // Submit influencer application
+    // Submit specialist application
     submitApplication: protectedProcedure
       .input(z.object({
         selectedRatingIds: z.array(z.number()).min(50),
@@ -1777,7 +1777,7 @@ export const appRouter = router({
         socialMedia: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const id = await submitInfluencerApplication({
+        const id = await submitSpecialistApplication({
           userId: ctx.user!.id,
           ...input,
         });
@@ -1786,35 +1786,35 @@ export const appRouter = router({
 
     // Get my application status
     myApplication: protectedProcedure.query(async ({ ctx }) => {
-      return await getMyInfluencerApplication(ctx.user!.id);
+      return await getMySpecialistApplication(ctx.user!.id);
     }),
 
-    // Propose a partnership (influencer only)
+    // Propose a partnership (specialist only)
     proposePartnership: protectedProcedure
       .input(z.object({
         establishmentId: z.number(),
         terms: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (ctx.user!.role !== "influencer") {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas influencers podem propor parcerias." });
+        if (ctx.user!.role !== "specialist") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Apenas specialists podem propor parcerias." });
         }
         const id = await proposePartnership({
-          partnershipType: "influencer",
-          influencerId: ctx.user!.id,
+          partnershipType: "specialist",
+          specialistId: ctx.user!.id,
           establishmentId: input.establishmentId,
           terms: input.terms,
-          proposedBy: "influencer",
+          proposedBy: "specialist",
         });
         return { id };
       }),
 
-    // Get my partnerships (influencer)
+    // Get my partnerships (specialist)
     myPartnerships: protectedProcedure.query(async ({ ctx }) => {
-      if (ctx.user!.role !== "influencer") {
+      if (ctx.user!.role !== "specialist") {
         return [];
       }
-      return await getInfluencerPartnerships(ctx.user!.id);
+      return await getSpecialistPartnerships(ctx.user!.id);
     }),
   }),
 
@@ -1867,7 +1867,7 @@ export const appRouter = router({
         return { id };
       }),
 
-    // Create a new promo code (business or influencer)
+    // Create a new promo code (business or specialist)
     create: protectedProcedure
       .input(z.object({
         code: z.string().min(3).max(20).regex(/^[A-Z0-9]+$/i, "Código deve conter apenas letras e números"),
@@ -1883,7 +1883,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         if (!['business', 'admin', 'owner'].includes(ctx.user!.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas contas empresariais ou influencers podem criar códigos.' });
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas contas empresariais ou specialists podem criar códigos.' });
         }
         // Check promo code limit based on plan
         const userPlan = await getUserPlanDetails(ctx.user!.id);
@@ -1903,11 +1903,11 @@ export const appRouter = router({
         if (taken) {
           throw new TRPCError({ code: 'CONFLICT', message: 'Este código já está em uso.' });
         }
-        const creatorType = ctx.user!.role === 'business' ? 'business' : 'influencer';
+        const creatorType = ctx.user!.role === 'business' ? 'business' : 'specialist';
         const id = await createPromoCode({
           ...input,
           creatorId: ctx.user!.id,
-          creatorType: creatorType as "business" | "influencer",
+          creatorType: creatorType as "business" | "specialist",
         });
         return { id };
       }),
@@ -2008,7 +2008,7 @@ export const appRouter = router({
             features: [
               "5 avaliações por dia",
               "Grupos ilimitados",
-              "Criar grupo de influencer",
+              "Criar grupo de specialist",
               "\"Double\" na primeira visita",
               "Selo Conhecedor no perfil",
               "Filtros avançados de busca",
@@ -2247,60 +2247,60 @@ export const appRouter = router({
   }),
 
   // ============================================================
-  // Influencer Follow & Public Profiles
+  // Specialist Follow & Public Profiles
   // ============================================================
-  influencerProfile: router({
-    // Get influencer public profile
+  specialistProfile: router({
+    // Get specialist public profile
     get: publicProcedure
-      .input(z.object({ influencerId: z.number() }))
+      .input(z.object({ specialistId: z.number() }))
       .query(async ({ input }) => {
-        return await getInfluencerProfile(input.influencerId);
+        return await getSpecialistProfile(input.specialistId);
       }),
 
-    // Get influencer's recent ratings
+    // Get specialist's recent ratings
     ratings: publicProcedure
-      .input(z.object({ influencerId: z.number(), limit: z.number().max(50).default(20) }))
+      .input(z.object({ specialistId: z.number(), limit: z.number().max(50).default(20) }))
       .query(async ({ input }) => {
-        return await getInfluencerRatings(input.influencerId, input.limit);
+        return await getSpecialistRatings(input.specialistId, input.limit);
       }),
 
-    // List all influencers (discovery)
+    // List all specialists (discovery)
     list: publicProcedure.query(async () => {
-      return await listInfluencers();
+      return await listSpecialists();
     }),
 
-    // Follow an influencer
+    // Follow an specialist
     follow: protectedProcedure
-      .input(z.object({ influencerId: z.number() }))
+      .input(z.object({ specialistId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        if (ctx.user!.id === input.influencerId) {
+        if (ctx.user!.id === input.specialistId) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Voc\u00ea n\u00e3o pode seguir a si mesmo." });
         }
-        return await followInfluencer(ctx.user!.id, input.influencerId);
+        return await followSpecialist(ctx.user!.id, input.specialistId);
       }),
 
-    // Unfollow an influencer
+    // Unfollow an specialist
     unfollow: protectedProcedure
-      .input(z.object({ influencerId: z.number() }))
+      .input(z.object({ specialistId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        return await unfollowInfluencer(ctx.user!.id, input.influencerId);
+        return await unfollowSpecialist(ctx.user!.id, input.specialistId);
       }),
 
     // Check if following
     isFollowing: protectedProcedure
-      .input(z.object({ influencerId: z.number() }))
+      .input(z.object({ specialistId: z.number() }))
       .query(async ({ ctx, input }) => {
-        return await isFollowingInfluencer(ctx.user!.id, input.influencerId);
+        return await isFollowingSpecialist(ctx.user!.id, input.specialistId);
       }),
 
-    // Get followed influencers list
+    // Get followed specialists list
     following: protectedProcedure.query(async ({ ctx }) => {
-      return await getFollowedInfluencers(ctx.user!.id);
+      return await getFollowedSpecialists(ctx.user!.id);
     }),
 
-    // Get feed from followed influencers
+    // Get feed from followed specialists
     feed: protectedProcedure.query(async ({ ctx }) => {
-      return await getInfluencerFeed(ctx.user!.id);
+      return await getSpecialistFeed(ctx.user!.id);
     }),
   }),
 

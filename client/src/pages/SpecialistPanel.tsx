@@ -1,6 +1,6 @@
 /**
- * Painel do Influencer — /painel-influencer
- * Área exclusiva para influencers aprovados com abas:
+ * Painel do Especialista — /painel-especialista
+ * Área exclusiva para especialistas aprovados com abas:
  * - Visão Geral (métricas, seguidores, avaliações recentes)
  * - Parcerias (propostas, ativas, histórico)
  * - Códigos Promo (códigos associados)
@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
 
-export default function InfluencerPanel() {
+export default function SpecialistPanel() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
@@ -29,7 +29,7 @@ export default function InfluencerPanel() {
     );
   }
 
-  if (!user || user.role !== "influencer") {
+  if (!user || user.role !== "specialist") {
     return <Redirect to="/" />;
   }
 
@@ -91,7 +91,7 @@ export default function InfluencerPanel() {
 
 function OverviewTab({ userId }: { userId: number }) {
   const { data: stats, isLoading } = trpc.analytics.myStats.useQuery();
-  const { data: profile } = trpc.influencerProfile.get.useQuery({ influencerId: userId });
+  const { data: profile } = trpc.specialistProfile.get.useQuery({ specialistId: userId });
 
   if (isLoading) {
     return (
@@ -136,7 +136,7 @@ function OverviewTab({ userId }: { userId: number }) {
       {/* Reminder: Only QR ratings */}
       <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
         <p className="text-sm text-amber-300">
-          <strong>Lembrete:</strong> Como influencer, suas avaliações devem ser feitas presencialmente via QR Code no estabelecimento.
+          <strong>Lembrete:</strong> Como especialista, suas avaliações devem ser feitas presencialmente via QR Code no estabelecimento.
         </p>
       </div>
     </div>
@@ -144,7 +144,7 @@ function OverviewTab({ userId }: { userId: number }) {
 }
 
 function PartnershipsTab({ userId }: { userId: number }) {
-  const { data: partnerships, isLoading } = trpc.influencer.myPartnerships.useQuery();
+  const { data: partnerships, isLoading } = trpc.specialist.myPartnerships.useQuery();
 
   if (isLoading) {
     return (
@@ -275,7 +275,7 @@ function PromosTab({ userId }: { userId: number }) {
 }
 
 function ProfileTab({ userId, userName }: { userId: number; userName: string }) {
-  const { data: profile, isLoading } = trpc.influencerProfile.get.useQuery({ influencerId: userId });
+  const { data: profile, isLoading } = trpc.specialistProfile.get.useQuery({ specialistId: userId });
 
   if (isLoading) {
     return (
@@ -294,7 +294,7 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
         <h3 className="font-display text-xl tracking-wider text-foreground">{userName}</h3>
         <div className="flex items-center justify-center gap-1 mt-1">
           <BadgeCheck className="w-4 h-4 text-blue-400" />
-          <span className="text-xs text-blue-400">Influencer Verificado</span>
+          <span className="text-xs text-blue-400">Especialista Verificado</span>
         </div>
         {profile?.username && (
           <a

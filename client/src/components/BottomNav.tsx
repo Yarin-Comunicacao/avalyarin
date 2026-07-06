@@ -25,7 +25,7 @@ const OWNER_ROLE_SUBMENUS: Record<string, { icon: string; label: string; path: s
   ],
   User: ROLE_BOTTOM_NAV.user,
   Critic: ROLE_BOTTOM_NAV.critic,
-  Influencer: ROLE_BOTTOM_NAV.influencer,
+  Especialista: ROLE_BOTTOM_NAV.specialist,
   Business: ROLE_BOTTOM_NAV.business,
   Support: ROLE_BOTTOM_NAV.support,
   Admin: ROLE_BOTTOM_NAV.admin,

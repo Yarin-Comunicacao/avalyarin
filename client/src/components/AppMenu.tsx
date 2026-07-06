@@ -103,7 +103,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
       icon: <Bookmark className="w-5 h-5" />,
       items: [
         { id: "meus-locais", label: "Meus Locais", href: "/salvos/locais", icon: <Bookmark className="w-4 h-4" /> },
-        { id: "influencers", label: "Influencers Favoritos", href: "/salvos/influencers", icon: <Heart className="w-4 h-4" /> },
+        { id: "especialistas", label: "Especialistas Favoritos", href: "/salvos/especialistas", icon: <Heart className="w-4 h-4" /> },
         { id: "collab", label: "Listas Collab", href: "/salvos/collab", icon: <Users className="w-4 h-4" /> },
       ],
     },
@@ -365,13 +365,13 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                   </div>
                 )}
 
-                {/* Business & Influencer Links */}
-                {user.role === "influencer" && (
+                {/* Business & Especialista Links */}
+                {user.role === "specialist" && (
                   <div className="px-5 py-2">
-                    <Link href="/painel-influencer" onClick={onClose}>
+                    <Link href="/painel-especialista" onClick={onClose}>
                       <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
                         <BadgeCheck className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Influencer</span>
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Painel Especialista</span>
                       </div>
                     </Link>
                   </div>

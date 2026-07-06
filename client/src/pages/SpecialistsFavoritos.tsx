@@ -1,27 +1,27 @@
-// Design: AvaLyarin — Influencers Favoritos page
-// List of favorite influencers with their visits and orders
+// Design: AvaLyarin — Especialistas Favoritos page
+// List of favorite especialistas with their visits and orders
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Link } from "wouter";
 import { Heart, MapPin, Calendar, ChevronRight, ChevronDown } from "lucide-react";
 
-interface InfluencerVisit {
+interface EspecialistaVisit {
   place: string;
   placeId: string;
   date: string;
   ordered: string[];
 }
 
-interface Influencer {
+interface Especialista {
   id: string;
   name: string;
   username: string;
   avatar: string;
   followers: string;
-  visits: InfluencerVisit[];
+  visits: EspecialistaVisit[];
 }
 
-const mockInfluencers: Influencer[] = [
+const mockEspecialistas: Especialista[] = [
   {
     id: "1",
     name: "Maria Gastro",
@@ -56,7 +56,7 @@ const mockInfluencers: Influencer[] = [
   },
 ];
 
-export default function InfluencersFavoritos() {
+export default function SpecialistsFavoritos() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
@@ -70,14 +70,14 @@ export default function InfluencersFavoritos() {
             </div>
             <div>
               <h2 className="font-display text-2xl tracking-wider text-primary">INFLUENCERS FAVORITOS</h2>
-              <p className="text-sm text-muted-foreground">{mockInfluencers.length} influenciadores seguidos</p>
+              <p className="text-sm text-muted-foreground">{mockEspecialistas.length} influenciadores seguidos</p>
             </div>
           </div>
 
           <div className="space-y-3">
-            {mockInfluencers.map((inf) => (
+            {mockEspecialistas.map((inf) => (
               <div key={inf.id} className="rounded-xl bg-card border border-border/50 overflow-hidden">
-                {/* Influencer Header */}
+                {/* Especialista Header */}
                 <button
                   onClick={() => setExpandedId(prev => prev === inf.id ? null : inf.id)}
                   className="w-full flex items-center gap-4 p-4 hover:bg-secondary/30 transition-colors"

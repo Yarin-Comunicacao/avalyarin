@@ -51,17 +51,17 @@ describe("Fase 5 — QR Scan & Source", () => {
   });
 });
 
-describe("Fase 5 — Influencer Profile & Follow", () => {
-  it("influencerProfile.list returns array", async () => {
+describe("Fase 5 — Specialist Profile & Follow", () => {
+  it("specialistProfile.list returns array", async () => {
     const c = caller(mockCtx());
-    const result = await c.influencerProfile.list();
+    const result = await c.specialistProfile.list();
     expect(Array.isArray(result)).toBe(true);
   });
 
-  it("influencerProfile.get requires valid influencerId", async () => {
+  it("specialistProfile.get requires valid specialistId", async () => {
     const c = caller(mockCtx());
     try {
-      const result = await c.influencerProfile.get({ influencerId: 999999 });
+      const result = await c.specialistProfile.get({ specialistId: 999999 });
       // May return null or throw
       expect(result).toBeDefined();
     } catch (e: any) {
@@ -69,17 +69,17 @@ describe("Fase 5 — Influencer Profile & Follow", () => {
     }
   });
 
-  it("influencerProfile.follow prevents self-follow", async () => {
+  it("specialistProfile.follow prevents self-follow", async () => {
     const c = caller(mockCtx({ id: 500 }));
     await expect(
-      c.influencerProfile.follow({ influencerId: 500 })
+      c.specialistProfile.follow({ specialistId: 500 })
     ).rejects.toThrow("Você não pode seguir a si mesmo");
   });
 
-  it("influencerProfile.isFollowing returns boolean", async () => {
+  it("specialistProfile.isFollowing returns boolean", async () => {
     const c = caller(mockCtx());
     try {
-      const result = await c.influencerProfile.isFollowing({ influencerId: 1 });
+      const result = await c.specialistProfile.isFollowing({ specialistId: 1 });
       expect(typeof result).toBe("boolean");
     } catch (e: any) {
       // DB error acceptable
@@ -87,25 +87,25 @@ describe("Fase 5 — Influencer Profile & Follow", () => {
     }
   });
 
-  it("influencerProfile.ratings returns array", async () => {
+  it("specialistProfile.ratings returns array", async () => {
     const c = caller(mockCtx());
     try {
-      const result = await c.influencerProfile.ratings({ influencerId: 1, limit: 5 });
+      const result = await c.specialistProfile.ratings({ specialistId: 1, limit: 5 });
       expect(Array.isArray(result)).toBe(true);
     } catch (e: any) {
       expect(e.code).not.toBe("BAD_REQUEST");
     }
   });
 
-  it("influencerProfile.feed requires auth", async () => {
+  it("specialistProfile.feed requires auth", async () => {
     const c = caller({ user: null } as any);
-    await expect(c.influencerProfile.feed()).rejects.toThrow();
+    await expect(c.specialistProfile.feed()).rejects.toThrow();
   });
 
-  it("influencerProfile.following returns array", async () => {
+  it("specialistProfile.following returns array", async () => {
     const c = caller(mockCtx());
     try {
-      const result = await c.influencerProfile.following();
+      const result = await c.specialistProfile.following();
       expect(Array.isArray(result)).toBe(true);
     } catch (e: any) {
       expect(e.code).not.toBe("BAD_REQUEST");
@@ -117,19 +117,19 @@ describe("Fase 5 — Business Propose Partnership", () => {
   it("business.proposePartnership requires business role", async () => {
     const c = caller(mockCtx({ role: "user" }));
     await expect(
-      c.business.proposePartnership({ establishmentId: 1, influencerId: 2 })
+      c.business.proposePartnership({ establishmentId: 1, specialistId: 2 })
     ).rejects.toThrow();
   });
 
-  it("business.availableInfluencers requires business role", async () => {
+  it("business.availableSpecialists requires business role", async () => {
     const c = caller(mockCtx({ role: "user" }));
-    await expect(c.business.availableInfluencers()).rejects.toThrow();
+    await expect(c.business.availableSpecialists()).rejects.toThrow();
   });
 
-  it("business.availableInfluencers returns array for business users", async () => {
+  it("business.availableSpecialists returns array for business users", async () => {
     const c = caller(mockCtx({ role: "business" }));
     try {
-      const result = await c.business.availableInfluencers();
+      const result = await c.business.availableSpecialists();
       expect(Array.isArray(result)).toBe(true);
     } catch (e: any) {
       // DB error acceptable
@@ -138,9 +138,9 @@ describe("Fase 5 — Business Propose Partnership", () => {
   });
 });
 
-describe("Fase 5 — Influencer Rating Restriction", () => {
-  it("influencer cannot rate without QR scan (remote blocked)", async () => {
-    const c = caller(mockCtx({ id: 501, role: "influencer" }));
+describe("Fase 5 — Specialist Rating Restriction", () => {
+  it("specialist cannot rate without QR scan (remote blocked)", async () => {
+    const c = caller(mockCtx({ id: 501, role: "specialist" }));
     try {
       await c.ratings.save({
         establishmentId: 1,
@@ -149,8 +149,8 @@ describe("Fase 5 — Influencer Rating Restriction", () => {
         items: [{ itemName: "Test", score: 8 }],
       });
     } catch (e: any) {
-      // Should throw FORBIDDEN because influencer has no QR scan
-      expect(e.message).toContain("Influencers só podem avaliar");
+      // Should throw FORBIDDEN because specialist has no QR scan
+      expect(e.message).toContain("Specialists só podem avaliar");
     }
   });
 });

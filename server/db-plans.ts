@@ -14,7 +14,7 @@ export const PLAN_LIMITS = {
     dailyRatings: 3,
     maxGroups: null, // unlimited - sem limite de grupos
     maxPromoCodes: 1,
-    canCreateInfluencerGroup: false,
+    canCreateSpecialistGroup: false,
     hasDouble: false,
     hasPartnerDiscounts: false,
     hasHighlight: false,
@@ -26,7 +26,7 @@ export const PLAN_LIMITS = {
     dailyRatings: 5,
     maxGroups: null, // unlimited
     maxPromoCodes: 5,
-    canCreateInfluencerGroup: true,
+    canCreateSpecialistGroup: true,
     hasDouble: true, // "Double" na primeira visita
     hasPartnerDiscounts: false,
     hasHighlight: false,
@@ -38,7 +38,7 @@ export const PLAN_LIMITS = {
     dailyRatings: null, // unlimited
     maxGroups: null, // unlimited
     maxPromoCodes: null, // unlimited
-    canCreateInfluencerGroup: true,
+    canCreateSpecialistGroup: true,
     hasDouble: true,
     hasPartnerDiscounts: true,
     hasHighlight: true,

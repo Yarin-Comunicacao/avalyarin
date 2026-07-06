@@ -1,67 +1,67 @@
 /**
- * Influencer Follow System
+ * Specialist Follow System
  * 
- * Users can follow influencers to see their ratings in their feed.
- * Influencers have a public profile page similar to establishments.
+ * Users can follow specialists to see their ratings in their feed.
+ * Specialists have a public profile page similar to establishments.
  */
 
 import { getDb } from "./db";
-import { influencerFollows, users, ratings, establishments, ratingItems } from "../drizzle/schema";
+import { specialistFollows, users, ratings, establishments, ratingItems } from "../drizzle/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 /**
- * Follow an influencer
+ * Follow an specialist
  */
-export async function followInfluencer(userId: number, influencerId: number) {
+export async function followSpecialist(userId: number, specialistId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   // Check if already following
   const [existing] = await db
     .select()
-    .from(influencerFollows)
+    .from(specialistFollows)
     .where(
       and(
-        eq(influencerFollows.userId, userId),
-        eq(influencerFollows.influencerId, influencerId)
+        eq(specialistFollows.userId, userId),
+        eq(specialistFollows.specialistId, specialistId)
       )
     )
     .limit(1);
 
   if (existing) return { alreadyFollowing: true };
 
-  // Verify the target is actually an influencer
+  // Verify the target is actually an specialist
   const [target] = await db
     .select({ role: users.role })
     .from(users)
-    .where(eq(users.id, influencerId))
+    .where(eq(users.id, specialistId))
     .limit(1);
 
-  if (!target || target.role !== "influencer") {
-    throw new Error("Usuário não é um influencer.");
+  if (!target || target.role !== "specialist") {
+    throw new Error("Usuário não é um specialist.");
   }
 
-  await db.insert(influencerFollows).values({
+  await db.insert(specialistFollows).values({
     userId,
-    influencerId,
+    specialistId,
   });
 
   return { success: true };
 }
 
 /**
- * Unfollow an influencer
+ * Unfollow an specialist
  */
-export async function unfollowInfluencer(userId: number, influencerId: number) {
+export async function unfollowSpecialist(userId: number, specialistId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   await db
-    .delete(influencerFollows)
+    .delete(specialistFollows)
     .where(
       and(
-        eq(influencerFollows.userId, userId),
-        eq(influencerFollows.influencerId, influencerId)
+        eq(specialistFollows.userId, userId),
+        eq(specialistFollows.specialistId, specialistId)
       )
     );
 
@@ -69,19 +69,19 @@ export async function unfollowInfluencer(userId: number, influencerId: number) {
 }
 
 /**
- * Check if a user is following an influencer
+ * Check if a user is following an specialist
  */
-export async function isFollowingInfluencer(userId: number, influencerId: number): Promise<boolean> {
+export async function isFollowingSpecialist(userId: number, specialistId: number): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
 
   const [existing] = await db
-    .select({ id: influencerFollows.id })
-    .from(influencerFollows)
+    .select({ id: specialistFollows.id })
+    .from(specialistFollows)
     .where(
       and(
-        eq(influencerFollows.userId, userId),
-        eq(influencerFollows.influencerId, influencerId)
+        eq(specialistFollows.userId, userId),
+        eq(specialistFollows.specialistId, specialistId)
       )
     )
     .limit(1);
@@ -90,24 +90,24 @@ export async function isFollowingInfluencer(userId: number, influencerId: number
 }
 
 /**
- * Get follower count for an influencer
+ * Get follower count for an specialist
  */
-export async function getFollowerCount(influencerId: number): Promise<number> {
+export async function getFollowerCount(specialistId: number): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
 
   const [result] = await db
     .select({ count: sql<number>`COUNT(*)` })
-    .from(influencerFollows)
-    .where(eq(influencerFollows.influencerId, influencerId));
+    .from(specialistFollows)
+    .where(eq(specialistFollows.specialistId, specialistId));
 
   return result?.count ?? 0;
 }
 
 /**
- * Get list of influencers a user follows
+ * Get list of specialists a user follows
  */
-export async function getFollowedInfluencers(userId: number) {
+export async function getFollowedSpecialists(userId: number) {
   const db = await getDb();
   if (!db) return [];
 
@@ -117,22 +117,22 @@ export async function getFollowedInfluencers(userId: number) {
       name: users.name,
       username: users.username,
       verified: users.verified,
-      followedAt: influencerFollows.createdAt,
+      followedAt: specialistFollows.createdAt,
     })
-    .from(influencerFollows)
-    .innerJoin(users, eq(influencerFollows.influencerId, users.id))
-    .where(eq(influencerFollows.userId, userId))
-    .orderBy(desc(influencerFollows.createdAt));
+    .from(specialistFollows)
+    .innerJoin(users, eq(specialistFollows.specialistId, users.id))
+    .where(eq(specialistFollows.userId, userId))
+    .orderBy(desc(specialistFollows.createdAt));
 }
 
 /**
- * Get influencer public profile data
+ * Get specialist public profile data
  */
-export async function getInfluencerProfile(influencerId: number) {
+export async function getSpecialistProfile(specialistId: number) {
   const db = await getDb();
   if (!db) return null;
 
-  const [influencer] = await db
+  const [specialist] = await db
     .select({
       id: users.id,
       name: users.name,
@@ -143,13 +143,13 @@ export async function getInfluencerProfile(influencerId: number) {
     .from(users)
     .where(
       and(
-        eq(users.id, influencerId),
-        eq(users.role, "influencer")
+        eq(users.id, specialistId),
+        eq(users.role, "specialist")
       )
     )
     .limit(1);
 
-  if (!influencer) return null;
+  if (!specialist) return null;
 
   // Get stats
   const [stats] = await db
@@ -159,13 +159,13 @@ export async function getInfluencerProfile(influencerId: number) {
       uniqueEstabs: sql<number>`COUNT(DISTINCT ${ratings.establishmentId})`,
     })
     .from(ratings)
-    .where(eq(ratings.userId, influencerId));
+    .where(eq(ratings.userId, specialistId));
 
   // Get follower count
-  const followerCount = await getFollowerCount(influencerId);
+  const followerCount = await getFollowerCount(specialistId);
 
   return {
-    ...influencer,
+    ...specialist,
     stats: {
       totalRatings: stats?.totalRatings ?? 0,
       avgScore: stats?.avgScore ? Math.round(stats.avgScore * 10) / 10 : 0,
@@ -176,9 +176,9 @@ export async function getInfluencerProfile(influencerId: number) {
 }
 
 /**
- * Get recent ratings from an influencer (for their public profile)
+ * Get recent ratings from an specialist (for their public profile)
  */
-export async function getInfluencerRatings(influencerId: number, limit = 20) {
+export async function getSpecialistRatings(specialistId: number, limit = 20) {
   const db = await getDb();
   if (!db) return [];
 
@@ -196,7 +196,7 @@ export async function getInfluencerRatings(influencerId: number, limit = 20) {
     })
     .from(ratings)
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
-    .where(eq(ratings.userId, influencerId))
+    .where(eq(ratings.userId, specialistId))
     .orderBy(desc(ratings.createdAt))
     .limit(limit);
 
@@ -204,23 +204,23 @@ export async function getInfluencerRatings(influencerId: number, limit = 20) {
 }
 
 /**
- * Get feed of ratings from followed influencers
+ * Get feed of ratings from followed specialists
  */
-export async function getInfluencerFeed(userId: number, limit = 30) {
+export async function getSpecialistFeed(userId: number, limit = 30) {
   const db = await getDb();
   if (!db) return [];
 
-  // Get list of followed influencer IDs
+  // Get list of followed specialist IDs
   const followed = await db
-    .select({ influencerId: influencerFollows.influencerId })
-    .from(influencerFollows)
-    .where(eq(influencerFollows.userId, userId));
+    .select({ specialistId: specialistFollows.specialistId })
+    .from(specialistFollows)
+    .where(eq(specialistFollows.userId, userId));
 
   if (followed.length === 0) return [];
 
-  const influencerIds = followed.map(f => f.influencerId);
+  const specialistIds = followed.map(f => f.specialistId);
 
-  // Get recent ratings from followed influencers
+  // Get recent ratings from followed specialists
   const feedRatings = await db
     .select({
       id: ratings.id,
@@ -241,7 +241,7 @@ export async function getInfluencerFeed(userId: number, limit = 30) {
     .from(ratings)
     .innerJoin(users, eq(ratings.userId, users.id))
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
-    .where(inArray(ratings.userId, influencerIds))
+    .where(inArray(ratings.userId, specialistIds))
     .orderBy(desc(ratings.createdAt))
     .limit(limit);
 
@@ -249,13 +249,13 @@ export async function getInfluencerFeed(userId: number, limit = 30) {
 }
 
 /**
- * Get all influencers (for discovery/listing)
+ * Get all specialists (for discovery/listing)
  */
-export async function listInfluencers(limit = 50) {
+export async function listSpecialists(limit = 50) {
   const db = await getDb();
   if (!db) return [];
 
-  const influencers = await db
+  const specialists = await db
     .select({
       id: users.id,
       name: users.name,
@@ -264,13 +264,13 @@ export async function listInfluencers(limit = 50) {
       createdAt: users.createdAt,
     })
     .from(users)
-    .where(eq(users.role, "influencer"))
+    .where(eq(users.role, "specialist"))
     .orderBy(desc(users.createdAt))
     .limit(limit);
 
   // Get stats for each
   const results = await Promise.all(
-    influencers.map(async (inf) => {
+    specialists.map(async (inf) => {
       const [stats] = await db
         .select({
           totalRatings: sql<number>`COUNT(*)`,

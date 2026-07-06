@@ -28,7 +28,7 @@ export default function AdminPanel() {
     if (path.startsWith("/admin/config")) return "config";
     // Legacy routes mapping
     if (path === "/admin/usuarios") return "equipe";
-    if (path === "/admin/influencers") return "permissoes";
+    if (path === "/admin/especialistas") return "permissoes";
     if (path === "/admin/estabs") return "negocio";
     if (path === "/admin/analytics") return "negocio";
     return "equipe";
@@ -38,7 +38,7 @@ export default function AdminPanel() {
   const initialCategory = searchParams.get("category") || undefined;
 
   // Sub-tab state per section
-  const [equipeTab, setEquipeTab] = useState<"user" | "critic" | "influencer" | "business" | "support">("user");
+  const [equipeTab, setEquipeTab] = useState<"user" | "critic" | "specialist" | "business" | "support">("user");
   const [negocioTab, setNegocioTab] = useState<"dashboard" | "establishments" | "promos" | "planos">("dashboard");
   const [permissoesTab, setPermissoesTab] = useState<"claims" | "age-verification" | "insights">("claims");
   const [configTab, setConfigTab] = useState<"integrations">("integrations");
@@ -98,7 +98,7 @@ export default function AdminPanel() {
         <div className="flex gap-1 px-4 sm:px-6 lg:px-8 lg:max-w-[1280px] lg:mx-auto">
           {activeSection === "equipe" && (
             <>
-              {(["user", "critic", "influencer", "business", "support"] as const).map(tab => (
+              {(["user", "critic", "specialist", "business", "support"] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setEquipeTab(tab)}
@@ -106,7 +106,7 @@ export default function AdminPanel() {
                     equipeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {{ user: "User", critic: "Critic", influencer: "Influencer", business: "Business", support: "Support" }[tab]}
+                  {{ user: "User", critic: "Critic", specialist: "Especialista", business: "Business", support: "Support" }[tab]}
                 </button>
               ))}
             </>
@@ -227,7 +227,7 @@ function DashboardTab() {
   );
 }
 
-function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer" | "business" | "support" }) {
+function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "specialist" | "business" | "support" }) {
   const { data: users, isLoading } = trpc.admin.users.useQuery({});
   // Map "critic" to actual role name if needed (critics are stored as "user" with critic flag or separate role)
   const filteredUsers = users?.filter(u => {
@@ -245,7 +245,7 @@ function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer
     admin: "Admin",
     support: "Support",
     business: "Business",
-    influencer: "Influencer",
+    specialist: "Especialista",
     user: "User",
   };
 
@@ -254,11 +254,11 @@ function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer
     admin: "bg-red-500/20 text-red-400",
     support: "bg-teal-500/20 text-teal-400",
     business: "bg-orange-500/20 text-orange-400",
-    influencer: "bg-yellow-400/20 text-yellow-300",
+    specialist: "bg-yellow-400/20 text-yellow-300",
     user: "bg-muted text-muted-foreground",
   };
 
-  const handleRoleChange = async (userId: number, role: "user" | "admin" | "owner" | "business" | "influencer" | "support") => {
+  const handleRoleChange = async (userId: number, role: "user" | "admin" | "owner" | "business" | "specialist" | "support") => {
     try {
       await updateRole.mutateAsync({ userId, role });
       utils.admin.users.invalidate();
@@ -295,7 +295,7 @@ function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer
                 className="text-xs bg-background border border-border rounded px-2 py-1 text-foreground"
               >
                 <option value="user">User</option>
-                <option value="influencer">Influencer</option>
+                <option value="specialist">Especialista</option>
                 <option value="business">Business</option>
                 <option value="support">Support</option>
                 <option value="admin">Admin</option>
@@ -310,7 +310,7 @@ function UsersTab({ filterRole }: { filterRole?: "user" | "critic" | "influencer
 }
 
 function ClaimsTab() {
-  const [subTab, setSubTab] = useState<"establishments" | "influencers">("establishments");
+  const [subTab, setSubTab] = useState<"establishments" | "specialists">("establishments");
 
   return (
     <div>
@@ -328,20 +328,20 @@ function ClaimsTab() {
             Estabelecimentos
           </button>
           <button
-            onClick={() => setSubTab("influencers")}
+            onClick={() => setSubTab("specialists")}
             className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-              subTab === "influencers"
+              subTab === "specialists"
                 ? "border-primary text-primary bg-primary/10"
                 : "border-border text-muted-foreground hover:text-foreground"
             }`}
           >
-            Influencers
+            Especialistas
           </button>
         </div>
       </div>
 
       {subTab === "establishments" && <EstablishmentClaimsSubTab />}
-      {subTab === "influencers" && <InfluencerApplicationsSubTab />}
+      {subTab === "specialists" && <SpecialistApplicationsSubTab />}
     </div>
   );
 }
@@ -471,21 +471,21 @@ function EstablishmentClaimsSubTab() {
   );
 }
 
-function InfluencerApplicationsSubTab() {
+function SpecialistApplicationsSubTab() {
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | undefined>(undefined);
-  const { data: applications, isLoading } = trpc.admin.influencerApplications.useQuery({ status: filter });
-  const approveMutation = trpc.admin.approveInfluencer.useMutation();
-  const rejectMutation = trpc.admin.rejectInfluencer.useMutation();
+  const { data: applications, isLoading } = trpc.admin.specialistApplications.useQuery({ status: filter });
+  const approveMutation = trpc.admin.approveSpecialist.useMutation();
+  const rejectMutation = trpc.admin.rejectSpecialist.useMutation();
   const utils = trpc.useUtils();
   const [notes, setNotes] = useState<Record<number, string>>({});
 
-  if (isLoading) return <div className="text-muted-foreground">Carregando solicitações de influencer...</div>;
+  if (isLoading) return <div className="text-muted-foreground">Carregando solicitações de especialista...</div>;
 
   const handleApprove = async (applicationId: number) => {
     try {
       await approveMutation.mutateAsync({ applicationId, adminNotes: notes[applicationId] });
-      utils.admin.influencerApplications.invalidate();
-      toast.success("Influencer aprovado!");
+      utils.admin.specialistApplications.invalidate();
+      toast.success("Especialista aprovado!");
     } catch {
       toast.error("Erro ao aprovar");
     }
@@ -499,7 +499,7 @@ function InfluencerApplicationsSubTab() {
     }
     try {
       await rejectMutation.mutateAsync({ applicationId, adminNotes: note });
-      utils.admin.influencerApplications.invalidate();
+      utils.admin.specialistApplications.invalidate();
       toast.success("Solicitação rejeitada");
     } catch {
       toast.error("Erro ao rejeitar");
@@ -536,7 +536,7 @@ function InfluencerApplicationsSubTab() {
       </div>
 
       {applications?.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">Nenhuma solicitação de influencer encontrada.</p>
+        <p className="text-muted-foreground text-center py-8">Nenhuma solicitação de especialista encontrada.</p>
       ) : (
         <div className="space-y-4">
           {applications?.map(app => (

@@ -15,7 +15,7 @@ export async function createPromoCode(data: {
   value?: number;
   description?: string;
   creatorId: number;
-  creatorType: "influencer" | "business";
+  creatorType: "specialist" | "business";
   establishmentId?: number;
   startsAt?: number;
   expiresAt?: number;

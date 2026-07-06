@@ -14,7 +14,7 @@ export default function ProfileHeader({ notificationCount = 0 }: ProfileHeaderPr
 
   const getRoleIcon = () => {
     switch (role) {
-      case "influencer": return <Star className="w-4 h-4 text-yellow-500" />;
+      case "specialist": return <Star className="w-4 h-4 text-yellow-500" />;
       case "support": return <Headphones className="w-4 h-4 text-teal-500" />;
       case "admin": return <Shield className="w-4 h-4 text-red-500" />;
       case "owner": return <Crown className="w-4 h-4 text-yellow-500" />;

@@ -13,7 +13,7 @@ export const users = mysqlTable("users", {
   username: varchar("username", { length: 64 }).unique(),
   birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
   surveyData: json("surveyData"), // Full survey answers JSON
-  role: mysqlEnum("role", ["user", "admin", "owner", "business", "influencer", "critic", "support"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "owner", "business", "specialist", "critic", "support"]).default("user").notNull(),
   verified: boolean("verified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),
@@ -270,14 +270,14 @@ export type InsertBusinessSubscription = typeof businessSubscriptions.$inferInse
 /**
  * Groups table — two types:
  * - "private": user shares ratings with chosen members (Meus Grupos)
- * - "influencer": creator publishes reviews/notes, followers can view (Grupos que Sigo)
+ * - "specialist": creator publishes reviews/notes, followers can view (Grupos que Sigo)
  */
 export const groups = mysqlTable("groups", {
   id: int("id").autoincrement().primaryKey(),
   code: varchar("code", { length: 12 }).unique(), // Visual ID: gr000001-gr999999
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  type: mysqlEnum("type", ["private", "influencer"]).notNull(),
+  type: mysqlEnum("type", ["private", "specialist"]).notNull(),
   creatorId: int("creatorId").notNull(),
   image: text("image"),
   memberCount: int("memberCount").default(0).notNull(),
@@ -291,7 +291,7 @@ export type InsertGroup = typeof groups.$inferInsert;
 /**
  * Group members table — tracks membership in groups.
  * For private groups: role is "member" or "admin" (creator)
- * For influencer groups: role is "creator" or "follower"
+ * For specialist groups: role is "creator" or "follower"
  */
 export const groupMembers = mysqlTable("group_members", {
   id: int("id").autoincrement().primaryKey(),
@@ -324,7 +324,7 @@ export type InsertGroupInvite = typeof groupInvites.$inferInsert;
 /**
  * Group shared ratings — links a rating to a group so members can see it.
  * For private groups: any member can share their rating.
- * For influencer groups: only the creator shares ratings (as "posts").
+ * For specialist groups: only the creator shares ratings (as "posts").
  */
 export const groupSharedRatings = mysqlTable("group_shared_ratings", {
   id: int("id").autoincrement().primaryKey(),
@@ -432,7 +432,7 @@ export type InsertBusinessNotification = typeof businessNotifications.$inferInse
 
 
 // ============================================================
-// Promo Codes — códigos promocionais criados por estabs ou influencers
+// Promo Codes — códigos promocionais criados por estabs ou specialists
 // ============================================================
 export const promoCodes = mysqlTable("promo_codes", {
   id: int("id").autoincrement().primaryKey(),
@@ -441,7 +441,7 @@ export const promoCodes = mysqlTable("promo_codes", {
   value: float("value"), // valor do desconto (% ou R$), null para buy_one_get_one
   description: text("description"), // descrição visível ao usuário
   creatorId: int("creatorId").notNull(), // user id do criador
-  creatorType: mysqlEnum("creatorType", ["influencer", "business"]).notNull(),
+  creatorType: mysqlEnum("creatorType", ["specialist", "business"]).notNull(),
   establishmentId: int("establishmentId"), // estab vinculado (NULL = qualquer parceiro)
   startsAt: bigint("startsAt", { mode: "number" }), // início validade (timestamp ms)
   expiresAt: bigint("expiresAt", { mode: "number" }), // fim validade (NULL = permanente, requer plano pago)
@@ -473,9 +473,9 @@ export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
 export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;
 
 // ============================================================
-// Influencer Applications — solicitações para virar influencer
+// Specialist Applications — solicitações para virar specialist
 // ============================================================
-export const influencerApplications = mysqlTable("influencer_applications", {
+export const specialistApplications = mysqlTable("specialist_applications", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(), // quem está solicitando
   selectedRatingIds: json("selectedRatingIds").notNull(), // array de IDs de ratings selecionadas
@@ -489,20 +489,20 @@ export const influencerApplications = mysqlTable("influencer_applications", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export type InfluencerApplication = typeof influencerApplications.$inferSelect;
-export type InsertInfluencerApplication = typeof influencerApplications.$inferInsert;
+export type SpecialistApplication = typeof specialistApplications.$inferSelect;
+export type InsertSpecialistApplication = typeof specialistApplications.$inferInsert;
 
 // ============================================================
-// Partnerships — parcerias entre influencers e estabelecimentos
+// Partnerships — parcerias entre specialists e estabelecimentos
 // ============================================================
 export const partnerships = mysqlTable("partnerships", {
   id: int("id").autoincrement().primaryKey(),
-  partnershipType: mysqlEnum("partnershipType", ["influencer", "business"]).default("influencer").notNull(), // tipo de parceria
-  influencerId: int("influencerId"), // user id do influencer (NULL se B2B)
-  partnerEstablishmentId: int("partnerEstablishmentId"), // estab parceiro no B2B (NULL se influencer)
+  partnershipType: mysqlEnum("partnershipType", ["specialist", "business"]).default("specialist").notNull(), // tipo de parceria
+  specialistId: int("specialistId"), // user id do specialist (NULL se B2B)
+  partnerEstablishmentId: int("partnerEstablishmentId"), // estab parceiro no B2B (NULL se specialist)
   establishmentId: int("establishmentId").notNull(), // estab que propõe/recebe
   promoCodeId: int("promoCodeId"), // código vinculado à parceria (opcional)
-  proposedBy: mysqlEnum("proposedBy", ["influencer", "establishment"]).notNull(),
+  proposedBy: mysqlEnum("proposedBy", ["specialist", "establishment"]).notNull(),
   status: mysqlEnum("status", ["pending_estab", "pending_support", "active", "rejected_estab", "rejected_support", "cancelled", "expired"]).default("pending_estab").notNull(),
   terms: text("terms"), // termos da parceria (desconto oferecido, condições)
   estabNotes: text("estabNotes"), // notas do estab ao aceitar/rejeitar
@@ -534,17 +534,17 @@ export type QrScan = typeof qrScans.$inferSelect;
 export type InsertQrScan = typeof qrScans.$inferInsert;
 
 // ============================================================
-// Influencer Follows — usuários seguindo influencers
+// Specialist Follows — usuários seguindo specialists
 // ============================================================
-export const influencerFollows = mysqlTable("influencer_follows", {
+export const specialistFollows = mysqlTable("specialist_follows", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(), // quem segue
-  influencerId: int("influencerId").notNull(), // influencer seguido
+  specialistId: int("specialistId").notNull(), // specialist seguido
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export type InfluencerFollow = typeof influencerFollows.$inferSelect;
-export type InsertInfluencerFollow = typeof influencerFollows.$inferInsert;
+export type SpecialistFollow = typeof specialistFollows.$inferSelect;
+export type InsertSpecialistFollow = typeof specialistFollows.$inferInsert;
 
 // ============================================================
 // Support Assignments — vincula estabs à carteira de um suporte
@@ -673,7 +673,7 @@ export type InsertCriticProfile = typeof criticProfiles.$inferInsert;
 
 /**
  * Group messages — chat dentro de grupos (limite 140 chars).
- * Qualquer membro (user, influencer, critic) pode enviar.
+ * Qualquer membro (user, specialist, critic) pode enviar.
  */
 export const groupMessages = mysqlTable("group_messages", {
   id: int("id").autoincrement().primaryKey(),

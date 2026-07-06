@@ -25,7 +25,7 @@ export async function getUserPlanOrDefault(userId: number) {
 export async function createGroup(data: {
   name: string;
   description?: string;
-  type: "private" | "influencer";
+  type: "private" | "specialist";
   creatorId: number;
   image?: string;
 }) {
@@ -35,8 +35,8 @@ export async function createGroup(data: {
   // Check plan limits
   const plan = await getUserPlanOrDefault(data.creatorId);
   
-  if (data.type === "influencer" && plan !== "premium" && plan !== "embaixador") {
-    throw new Error("PLAN_REQUIRED: Grupos de influencer requerem plano premium");
+  if (data.type === "specialist" && plan !== "premium" && plan !== "embaixador") {
+    throw new Error("PLAN_REQUIRED: Grupos de specialist requerem plano premium");
   }
 
   // Sem limite de grupos para nenhum plano (removido na Fase 12.5)
@@ -80,7 +80,7 @@ export async function getMyGroups(userId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  // Groups where user is a member (private groups they belong to + influencer groups they created)
+  // Groups where user is a member (private groups they belong to + specialist groups they created)
   const rows = await db
     .select({
       id: groups.id,
@@ -100,7 +100,7 @@ export async function getMyGroups(userId: number) {
         eq(groupMembers.userId, userId),
         or(
           eq(groups.type, "private"),
-          and(eq(groups.type, "influencer"), eq(groups.creatorId, userId))
+          and(eq(groups.type, "specialist"), eq(groups.creatorId, userId))
         )
       )
     )
@@ -113,7 +113,7 @@ export async function getFollowedGroups(userId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  // Influencer groups where user is a follower (not creator)
+  // Specialist groups where user is a follower (not creator)
   const rows = await db
     .select({
       id: groups.id,
@@ -133,7 +133,7 @@ export async function getFollowedGroups(userId: number) {
     .where(
       and(
         eq(groupMembers.userId, userId),
-        eq(groups.type, "influencer"),
+        eq(groups.type, "specialist"),
         sql`${groups.creatorId} != ${userId}`
       )
     )
@@ -288,7 +288,7 @@ export async function respondToInvite(inviteId: number, userId: number, accept: 
   return { accepted: accept };
 }
 
-// ─── Follow/Unfollow (Influencer Groups) ─────────────────────────────────────
+// ─── Follow/Unfollow (Specialist Groups) ─────────────────────────────────────
 
 export async function followGroup(groupId: number, userId: number) {
   const db = await getDb();
@@ -339,10 +339,10 @@ export async function shareRatingToGroup(groupId: number, ratingId: number, shar
   if (!rating) throw new Error("NOT_FOUND: Avaliação não encontrada");
   if (rating.userId !== sharedById) throw new Error("FORBIDDEN: Você só pode compartilhar suas próprias avaliações");
 
-  // For influencer groups, only the creator can share
+  // For specialist groups, only the creator can share
   const [group] = await db.select().from(groups).where(eq(groups.id, groupId)).limit(1);
-  if (group && group.type === "influencer" && group.creatorId !== sharedById) {
-    throw new Error("FORBIDDEN: Apenas o criador pode publicar neste grupo de influencer");
+  if (group && group.type === "specialist" && group.creatorId !== sharedById) {
+    throw new Error("FORBIDDEN: Apenas o criador pode publicar neste grupo de specialist");
   }
 
   const [result] = await db.insert(groupSharedRatings).values({
@@ -409,13 +409,13 @@ export async function searchUsersByUsername(query: string, excludeUserId?: numbe
     .limit(10);
 }
 
-// ─── Discover Influencer Groups ──────────────────────────────────────────────
+// ─── Discover Specialist Groups ──────────────────────────────────────────────
 
-export async function discoverInfluencerGroups(userId: number, limit = 20) {
+export async function discoverSpecialistGroups(userId: number, limit = 20) {
   const db = await getDb();
   if (!db) return [];
 
-  // Get influencer groups that the user is NOT already following
+  // Get specialist groups that the user is NOT already following
   const rows = await db
     .select({
       id: groups.id,
@@ -431,7 +431,7 @@ export async function discoverInfluencerGroups(userId: number, limit = 20) {
     .innerJoin(users, eq(groups.creatorId, users.id))
     .where(
       and(
-        eq(groups.type, "influencer"),
+        eq(groups.type, "specialist"),
         sql`${groups.id} NOT IN (SELECT group_id FROM group_members WHERE user_id = ${userId})`
       )
     )

@@ -984,7 +984,7 @@ export async function getAllUsers(limit = 50, offset = 0) {
     .offset(offset);
 }
 
-export async function updateUserRole(userId: number, role: "user" | "influencer" | "business" | "support" | "admin" | "owner") {
+export async function updateUserRole(userId: number, role: "user" | "specialist" | "business" | "support" | "admin" | "owner") {
   const db = await getDb();
   if (!db) return null;
   

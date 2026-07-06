@@ -1,4 +1,4 @@
-// ContaPage — Hub de conta do usuário (substitui o menu lateral para user/influencer/business/support)
+// ContaPage — Hub de conta do usuário (substitui o menu lateral para user/especialista/business/support)
 // Agrupa: Editar Perfil, Meus Dados, Planos, Tema, Fundo, Notificações, Salvos, Insígnias, Logout
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";

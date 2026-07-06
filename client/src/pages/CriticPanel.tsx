@@ -1,6 +1,6 @@
 /**
  * Painel do Crítico Gastronômico — /painel-critico
- * Layout idêntico ao InfluencerPanel com tema azul safira.
+ * Layout idêntico ao SpecialistPanel com tema azul safira.
  * Abas: Visão Geral, Calendário, Parcerias, Códigos, Meu Perfil
  */
 import { useState } from "react";

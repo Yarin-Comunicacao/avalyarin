@@ -402,7 +402,7 @@ export default function SystemPanel() {
                             user.role === "owner" ? "bg-yellow-500/10 text-yellow-500" :
                             user.role === "support" ? "bg-teal-500/10 text-teal-400" :
                             user.role === "business" ? "bg-orange-500/10 text-orange-400" :
-                            user.role === "influencer" ? "bg-yellow-400/10 text-yellow-400" :
+                            user.role === "specialist" ? "bg-yellow-400/10 text-yellow-400" :
                             "bg-gray-500/10 text-gray-400"
                           }`}>
                             {user.role}

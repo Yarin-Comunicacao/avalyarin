@@ -82,7 +82,7 @@ export default function PublicProfilePage() {
   }
 
   const isCritic = profile.role === "critic";
-  const isInfluencer = profile.role === "influencer";
+  const isEspecialista = profile.role === "specialist";
   const connectYarinUrl = profile.username ? getConnectYarinUrl(profile.username) : null;
 
   // Extract badges from nobility summary
@@ -120,7 +120,7 @@ export default function PublicProfilePage() {
             <div className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold ${
               isCritic
                 ? "bg-blue-500/10 border-2 border-blue-400 text-blue-400"
-                : isInfluencer
+                : isEspecialista
                 ? "bg-amber-500/10 border-2 border-amber-400 text-amber-400"
                 : "bg-primary/10 border-2 border-primary text-primary"
             }`}>
@@ -132,7 +132,7 @@ export default function PublicProfilePage() {
                 style={{ filter: "drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))" }}
               />
             )}
-            {isInfluencer && (
+            {isEspecialista && (
               <Star
                 className="absolute -top-1 -right-1 w-5 h-5 text-amber-400 fill-amber-400"
                 style={{ filter: "drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))" }}
@@ -151,7 +151,7 @@ export default function PublicProfilePage() {
               CRÍTICO GASTRONÔMICO
             </span>
           )}
-          {isInfluencer && (
+          {isEspecialista && (
             <span className="mt-2 text-[11px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">
               INFLUENCER
             </span>

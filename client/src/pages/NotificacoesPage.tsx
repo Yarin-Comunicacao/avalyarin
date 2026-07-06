@@ -158,7 +158,7 @@ function GroupNotificationsTab() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      {invite.groupType === "influencer" ? (
+                      {invite.groupType === "specialist" ? (
                         <Crown className="w-4 h-4 text-primary" />
                       ) : (
                         <Users className="w-4 h-4 text-primary" />

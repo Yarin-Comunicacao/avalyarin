@@ -1433,8 +1433,8 @@ export function PartnershipsTab() {
   const { data: establishments } = trpc.business.myEstablishments.useQuery();
   const [selectedEstab, setSelectedEstab] = useState<number | null>(null);
   const [showPropose, setShowPropose] = useState(false);
-  const [partnershipType, setPartnershipType] = useState<"influencer" | "business">("influencer");
-  const [proposeInfluencerId, setProposeInfluencerId] = useState<number | null>(null);
+  const [partnershipType, setPartnershipType] = useState<"specialist" | "business">("specialist");
+  const [proposeEspecialistaId, setProposeEspecialistaId] = useState<number | null>(null);
   const [proposePartnerEstabId, setProposePartnerEstabId] = useState<number | null>(null);
   const [proposeTerms, setProposeTerms] = useState("");
 
@@ -1444,9 +1444,9 @@ export function PartnershipsTab() {
     { establishmentId: estabId! },
     { enabled: !!estabId }
   );
-    const { data: influencers } = trpc.business.availableInfluencers.useQuery(
+    const { data: specialists } = trpc.business.availableSpecialists.useQuery(
     undefined,
-    { enabled: showPropose && partnershipType === "influencer" }
+    { enabled: showPropose && partnershipType === "specialist" }
   );
   const [partnerSearch, setPartnerSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -1469,20 +1469,20 @@ export function PartnershipsTab() {
 
   const handlePropose = async () => {
     if (!estabId) return;
-    if (partnershipType === "influencer" && !proposeInfluencerId) return;
+    if (partnershipType === "specialist" && !proposeEspecialistaId) return;
     if (partnershipType === "business" && !proposePartnerEstabId) return;
     try {
       await proposeMutation.mutateAsync({
         partnershipType,
         establishmentId: estabId,
-        influencerId: partnershipType === "influencer" ? proposeInfluencerId! : undefined,
+        specialistId: partnershipType === "specialist" ? proposeEspecialistaId! : undefined,
         partnerEstablishmentId: partnershipType === "business" ? proposePartnerEstabId! : undefined,
         terms: proposeTerms || undefined,
       });
       utils.business.partnerships.invalidate();
       toast.success("Proposta de parceria enviada!");
       setShowPropose(false);
-      setProposeInfluencerId(null);
+      setProposeEspecialistaId(null);
       setProposePartnerEstabId(null);
       setProposeTerms("");
     } catch (e: any) {
@@ -1566,13 +1566,13 @@ export function PartnershipsTab() {
               <select
                 value={partnershipType}
                 onChange={(e) => {
-                  setPartnershipType(e.target.value as "influencer" | "business");
-                  setProposeInfluencerId(null);
+                  setPartnershipType(e.target.value as "specialist" | "business");
+                  setProposeEspecialistaId(null);
                   setProposePartnerEstabId(null);
                 }}
                 className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
               >
-                <option value="influencer">Influencer</option>
+                <option value="specialist">Especialista</option>
                 <option value="business">Business (outro estabelecimento)</option>
               </select>
             </div>
@@ -1593,18 +1593,18 @@ export function PartnershipsTab() {
               </div>
             )}
 
-            {/* Formulário condicional: Influencer */}
-            {partnershipType === "influencer" && (
+            {/* Formulário condicional: Especialista */}
+            {partnershipType === "specialist" && (
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Influencer</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Especialista</label>
                 <select
-                  value={proposeInfluencerId || ""}
-                  onChange={(e) => setProposeInfluencerId(Number(e.target.value))}
+                  value={proposeEspecialistaId || ""}
+                  onChange={(e) => setProposeEspecialistaId(Number(e.target.value))}
                   className="w-full text-sm bg-background border border-border rounded-lg px-3 py-2 text-foreground"
                 >
-                  <option value="">Selecione um influencer...</option>
-                  {influencers?.map((inf: any) => (
-                    <option key={inf.id} value={inf.id}>{inf.name || inf.username || `Influencer #${inf.id}`}</option>
+                  <option value="">Selecione um especialista...</option>
+                  {specialists?.map((inf: any) => (
+                    <option key={inf.id} value={inf.id}>{inf.name || inf.username || `Especialista #${inf.id}`}</option>
                   ))}
                 </select>
               </div>
@@ -1666,14 +1666,14 @@ export function PartnershipsTab() {
                 type="text"
                 value={proposeTerms}
                 onChange={(e) => setProposeTerms(e.target.value)}
-                placeholder={partnershipType === "influencer" ? "Ex: 2 avaliações por mês, divulgação no perfil..." : "Ex: cross-promotion, evento conjunto, combo compartilhado..."}
+                placeholder={partnershipType === "specialist" ? "Ex: 2 avaliações por mês, divulgação no perfil..." : "Ex: cross-promotion, evento conjunto, combo compartilhado..."}
                 className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={handlePropose}
-                disabled={(partnershipType === "influencer" ? !proposeInfluencerId : !proposePartnerEstabId) || proposeMutation.isPending}
+                disabled={(partnershipType === "specialist" ? !proposeEspecialistaId : !proposePartnerEstabId) || proposeMutation.isPending}
                 className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
               >
                 {proposeMutation.isPending ? "Enviando..." : "Enviar Proposta"}
@@ -1703,10 +1703,10 @@ export function PartnershipsTab() {
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                       p.partnershipType === "business" ? "bg-blue-500/20 text-blue-400" : "bg-purple-500/20 text-purple-400"
                     }`}>
-                      {p.partnershipType === "business" ? "B2B" : "Influencer"}
+                      {p.partnershipType === "business" ? "B2B" : "Especialista"}
                     </span>
                     <h3 className="font-medium text-foreground">
-                      {p.partnershipType === "business" ? (p.partnerEstablishmentName || "Estabelecimento") : (p.influencerName || "Influencer")}
+                      {p.partnershipType === "business" ? (p.partnerEstablishmentName || "Estabelecimento") : (p.especialistaName || "Especialista")}
                     </h3>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">

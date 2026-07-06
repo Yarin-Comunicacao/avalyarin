@@ -209,7 +209,7 @@ export default function QRScanPage() {
               Tem código promocional?
             </DialogTitle>
             <DialogDescription className="text-center">
-              Se você recebeu um código de desconto de um influencer ou do próprio estabelecimento, insira abaixo.
+              Se você recebeu um código de desconto de um especialista ou do próprio estabelecimento, insira abaixo.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">

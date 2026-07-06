@@ -34,12 +34,12 @@ describe("Plans System", () => {
       expect(PLAN_LIMITS.embaixador.maxGroups).toBeNull();
     });
 
-    it("free plan should not allow influencer groups", () => {
-      expect(PLAN_LIMITS.free.canCreateInfluencerGroup).toBe(false);
+    it("free plan should not allow specialist groups", () => {
+      expect(PLAN_LIMITS.free.canCreateSpecialistGroup).toBe(false);
     });
 
-    it("premium plan should allow influencer groups", () => {
-      expect(PLAN_LIMITS.premium.canCreateInfluencerGroup).toBe(true);
+    it("premium plan should allow specialist groups", () => {
+      expect(PLAN_LIMITS.premium.canCreateSpecialistGroup).toBe(true);
     });
 
     it("free plan should have 1 promo code limit", () => {

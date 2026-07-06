@@ -5,7 +5,7 @@ import { Camera, Settings, Share2, Star, Loader2 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
-export default function InfluencerProfile() {
+export default function SpecialistProfile() {
   const { user } = useAuth();
 
   // Profile data
@@ -15,7 +15,7 @@ export default function InfluencerProfile() {
     { userId: user?.id ?? 0 },
     { enabled: !!user }
   );
-  const { data: partnerships } = trpc.influencer.myPartnerships.useQuery(undefined, { enabled: !!user });
+  const { data: partnerships } = trpc.specialist.myPartnerships.useQuery(undefined, { enabled: !!user });
 
   // Gallery photos from user's ratings
   const { data: galleryPhotos, isLoading: galleryLoading } = trpc.ratings.myGallery.useQuery(
@@ -29,7 +29,7 @@ export default function InfluencerProfile() {
 
   return (
     <div className="pb-20">
-      {/* Profile Header — Gold influencer style */}
+      {/* Profile Header — Gold especialista style */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">
           {/* Avatar with gold border + star */}
@@ -72,7 +72,7 @@ export default function InfluencerProfile() {
         <div className="mt-3">
           <div className="flex items-center gap-2">
             <h2 className="font-semibold text-base text-foreground">
-              {profile?.name || user?.name || "Influencer"}
+              {profile?.name || user?.name || "Especialista"}
             </h2>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">
               INFLUENCER
@@ -94,7 +94,7 @@ export default function InfluencerProfile() {
               Editar perfil
             </button>
           </Link>
-          <Link href="/painel-influencer" className="flex-1">
+          <Link href="/painel-especialista" className="flex-1">
             <button className="w-full py-2 px-4 rounded-lg bg-amber-500/10 text-amber-400 text-sm font-medium border border-amber-500/30 flex items-center justify-center gap-1.5">
               Painel
             </button>
@@ -141,7 +141,7 @@ export default function InfluencerProfile() {
               taggedItemIds: p.taggedItemIds,
               ratingId: p.ratingId,
             }))}
-            emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil de influencer!"
+            emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil de especialista!"
           />
         )}
       </div>

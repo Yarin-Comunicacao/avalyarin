@@ -6,7 +6,7 @@ describe("Groups - Schema Validation", () => {
   const createGroupSchema = z.object({
     name: z.string().min(2).max(255),
     description: z.string().max(500).optional(),
-    type: z.enum(["private", "influencer"]),
+    type: z.enum(["private", "specialist"]),
   });
 
   it("should accept valid private group creation", () => {
@@ -18,10 +18,10 @@ describe("Groups - Schema Validation", () => {
     expect(result.success).toBe(true);
   });
 
-  it("should accept valid influencer group creation", () => {
+  it("should accept valid specialist group creation", () => {
     const result = createGroupSchema.safeParse({
       name: "Chef Reviews",
-      type: "influencer",
+      type: "specialist",
     });
     expect(result.success).toBe(true);
   });
@@ -128,7 +128,7 @@ describe("Groups - Plan Limit Logic", () => {
   const FREE_GROUP_LIMIT = 3;
 
   function canCreateGroup(plan: string, type: string, currentGroupCount: number): { allowed: boolean; reason?: string } {
-    if (type === "influencer" && plan !== "premium") {
+    if (type === "specialist" && plan !== "premium") {
       return { allowed: false, reason: "PLAN_REQUIRED" };
     }
     if (plan === "free" && currentGroupCount >= FREE_GROUP_LIMIT) {
@@ -154,14 +154,14 @@ describe("Groups - Plan Limit Logic", () => {
     expect(result.reason).toBe("PLAN_LIMIT");
   });
 
-  it("should block free user from creating influencer group", () => {
-    const result = canCreateGroup("free", "influencer", 0);
+  it("should block free user from creating specialist group", () => {
+    const result = canCreateGroup("free", "specialist", 0);
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe("PLAN_REQUIRED");
   });
 
-  it("should allow premium user to create influencer group", () => {
-    const result = canCreateGroup("premium", "influencer", 0);
+  it("should allow premium user to create specialist group", () => {
+    const result = canCreateGroup("premium", "specialist", 0);
     expect(result.allowed).toBe(true);
   });
 
@@ -170,8 +170,8 @@ describe("Groups - Plan Limit Logic", () => {
     expect(result.allowed).toBe(true);
   });
 
-  it("should allow premium user to create influencer group even with many groups", () => {
-    const result = canCreateGroup("premium", "influencer", 50);
+  it("should allow premium user to create specialist group even with many groups", () => {
+    const result = canCreateGroup("premium", "specialist", 50);
     expect(result.allowed).toBe(true);
   });
 });
@@ -188,8 +188,8 @@ describe("Groups - Share Rating Logic", () => {
     if (userId !== ratingOwnerId) {
       return { allowed: false, reason: "NOT_OWNER" };
     }
-    // In influencer groups, only the creator can share
-    if (groupType === "influencer" && userId !== creatorId) {
+    // In specialist groups, only the creator can share
+    if (groupType === "specialist" && userId !== creatorId) {
       return { allowed: false, reason: "CREATOR_ONLY" };
     }
     return { allowed: true };
@@ -206,13 +206,13 @@ describe("Groups - Share Rating Logic", () => {
     expect(result.reason).toBe("NOT_OWNER");
   });
 
-  it("should allow creator to share in influencer group", () => {
-    const result = canShareRating("influencer", 1, 1, 1);
+  it("should allow creator to share in specialist group", () => {
+    const result = canShareRating("specialist", 1, 1, 1);
     expect(result.allowed).toBe(true);
   });
 
-  it("should block non-creator from sharing in influencer group", () => {
-    const result = canShareRating("influencer", 2, 1, 2);
+  it("should block non-creator from sharing in specialist group", () => {
+    const result = canShareRating("specialist", 2, 1, 2);
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe("CREATOR_ONLY");
   });

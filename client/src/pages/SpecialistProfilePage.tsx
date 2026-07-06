@@ -1,7 +1,7 @@
 /**
- * Página Pública do Influencer — /influencer/:id
+ * Página Pública do Especialista — /especialista/:id
  * Exibe perfil público, avaliações recentes, e botão de seguir.
- * Similar à página de estabelecimento, mas para influencers.
+ * Similar à página de estabelecimento, mas para especialistas.
  */
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -14,35 +14,35 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export default function InfluencerProfilePage() {
-  const [, params] = useRoute("/influencer/:id");
-  const influencerId = params?.id ? parseInt(params.id) : 0;
+export default function SpecialistProfilePage() {
+  const [, params] = useRoute("/especialista/:id");
+  const specialistId = params?.id ? parseInt(params.id) : 0;
   const { user } = useAuth();
 
-  const { data: profile, isLoading } = trpc.influencerProfile.get.useQuery(
-    { influencerId },
-    { enabled: influencerId > 0 }
+  const { data: profile, isLoading } = trpc.specialistProfile.get.useQuery(
+    { specialistId },
+    { enabled: specialistId > 0 }
   );
 
-  const { data: isFollowing, refetch: refetchFollow } = trpc.influencerProfile.isFollowing.useQuery(
-    { influencerId },
-    { enabled: influencerId > 0 && !!user }
+  const { data: isFollowing, refetch: refetchFollow } = trpc.specialistProfile.isFollowing.useQuery(
+    { specialistId },
+    { enabled: specialistId > 0 && !!user }
   );
 
-  const { data: feed, isLoading: feedLoading } = trpc.influencerProfile.ratings.useQuery(
-    { influencerId, limit: 20 },
-    { enabled: influencerId > 0 }
+  const { data: feed, isLoading: feedLoading } = trpc.specialistProfile.ratings.useQuery(
+    { specialistId, limit: 20 },
+    { enabled: specialistId > 0 }
   );
 
-  const followMutation = trpc.influencerProfile.follow.useMutation({
+  const followMutation = trpc.specialistProfile.follow.useMutation({
     onSuccess: () => {
       refetchFollow();
-      toast.success("Agora você segue este influencer!");
+      toast.success("Agora você segue este especialista!");
     },
     onError: () => toast.error("Erro ao seguir"),
   });
 
-  const unfollowMutation = trpc.influencerProfile.unfollow.useMutation({
+  const unfollowMutation = trpc.specialistProfile.unfollow.useMutation({
     onSuccess: () => {
       refetchFollow();
       toast("Você deixou de seguir");
@@ -63,14 +63,14 @@ export default function InfluencerProfilePage() {
       <div className="min-h-screen bg-background">
         <Navbar  />
         <div className="container pt-24 text-center">
-          <p className="text-muted-foreground">Influencer não encontrado.</p>
+          <p className="text-muted-foreground">Especialista não encontrado.</p>
           <button onClick={() => window.history.back()} className="text-primary text-sm mt-2 inline-block">Voltar</button>
         </div>
       </div>
     );
   }
 
-  const isOwnProfile = user?.id === influencerId;
+  const isOwnProfile = user?.id === specialistId;
   const canFollow = user && !isOwnProfile && user.role !== "business";
 
   return (
@@ -99,7 +99,7 @@ export default function InfluencerProfilePage() {
           )}
           <div className="flex items-center justify-center gap-1 mt-2">
             <BadgeCheck className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-blue-400">Influencer Verificado</span>
+            <span className="text-xs text-blue-400">Especialista Verificado</span>
           </div>
 
           {/* Stats */}
@@ -123,7 +123,7 @@ export default function InfluencerProfilePage() {
             <div className="mt-5">
               {isFollowing ? (
                 <button
-                  onClick={() => unfollowMutation.mutate({ influencerId })}
+                  onClick={() => unfollowMutation.mutate({ specialistId })}
                   disabled={unfollowMutation.isPending}
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-border/50 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all"
                 >
@@ -132,7 +132,7 @@ export default function InfluencerProfilePage() {
                 </button>
               ) : (
                 <button
-                  onClick={() => followMutation.mutate({ influencerId })}
+                  onClick={() => followMutation.mutate({ specialistId })}
                   disabled={followMutation.isPending}
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all"
                 >

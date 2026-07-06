@@ -7,8 +7,8 @@ vi.mock("./db", () => ({
 
 // Mock schema
 vi.mock("../drizzle/schema", () => ({
-  influencerApplications: { id: "id", userId: "userId", status: "status", selectedRatingIds: "selectedRatingIds", totalRatings: "totalRatings", qualifiedRatings: "qualifiedRatings", motivation: "motivation", socialMedia: "socialMedia", adminNotes: "adminNotes", reviewedAt: "reviewedAt", createdAt: "createdAt" },
-  partnerships: { id: "id", influencerId: "influencerId", establishmentId: "establishmentId", status: "status", terms: "terms", proposedBy: "proposedBy", estabNotes: "estabNotes", adminNotes: "adminNotes", startsAt: "startsAt", createdAt: "createdAt", expiresAt: "expiresAt", updatedAt: "updatedAt", promoCodeId: "promoCodeId" },
+  specialistApplications: { id: "id", userId: "userId", status: "status", selectedRatingIds: "selectedRatingIds", totalRatings: "totalRatings", qualifiedRatings: "qualifiedRatings", motivation: "motivation", socialMedia: "socialMedia", adminNotes: "adminNotes", reviewedAt: "reviewedAt", createdAt: "createdAt" },
+  partnerships: { id: "id", specialistId: "specialistId", establishmentId: "establishmentId", status: "status", terms: "terms", proposedBy: "proposedBy", estabNotes: "estabNotes", adminNotes: "adminNotes", startsAt: "startsAt", createdAt: "createdAt", expiresAt: "expiresAt", updatedAt: "updatedAt", promoCodeId: "promoCodeId" },
   users: { id: "id", name: "name", email: "email", role: "role" },
   ratings: { id: "id", userId: "userId", establishmentId: "establishmentId", visitDate: "visitDate", overallScore: "overallScore", type: "type", createdAt: "createdAt" },
   ratingItems: { ratingId: "ratingId", comment: "comment" },
@@ -23,14 +23,14 @@ vi.mock("drizzle-orm", () => ({
   inArray: vi.fn((...args: unknown[]) => ({ type: "inArray", args })),
 }));
 
-describe("Influencer System", () => {
-  describe("getRatingsForInfluencerApplication", () => {
+describe("Specialist System", () => {
+  describe("getRatingsForSpecialistApplication", () => {
     it("should return empty array when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getRatingsForInfluencerApplication } = await import("./db-influencer");
-      const result = await getRatingsForInfluencerApplication(1);
+      const { getRatingsForSpecialistApplication } = await import("./db-specialist");
+      const result = await getRatingsForSpecialistApplication(1);
       expect(result).toEqual([]);
     });
 
@@ -45,20 +45,20 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
 
-      const { getRatingsForInfluencerApplication } = await import("./db-influencer");
-      const result = await getRatingsForInfluencerApplication(1);
+      const { getRatingsForSpecialistApplication } = await import("./db-specialist");
+      const result = await getRatingsForSpecialistApplication(1);
       expect(result).toEqual([]);
     });
   });
 
-  describe("submitInfluencerApplication", () => {
+  describe("submitSpecialistApplication", () => {
     it("should throw when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { submitInfluencerApplication } = await import("./db-influencer");
+      const { submitSpecialistApplication } = await import("./db-specialist");
       await expect(
-        submitInfluencerApplication({
+        submitSpecialistApplication({
           userId: 1,
           selectedRatingIds: Array.from({ length: 50 }, (_, i) => i + 1),
           totalRatings: 60,
@@ -79,9 +79,9 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
 
-      const { submitInfluencerApplication } = await import("./db-influencer");
+      const { submitSpecialistApplication } = await import("./db-specialist");
       await expect(
-        submitInfluencerApplication({
+        submitSpecialistApplication({
           userId: 1,
           selectedRatingIds: Array.from({ length: 50 }, (_, i) => i + 1),
           totalRatings: 60,
@@ -91,24 +91,24 @@ describe("Influencer System", () => {
     });
   });
 
-  describe("getMyInfluencerApplication", () => {
+  describe("getMySpecialistApplication", () => {
     it("should return null when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getMyInfluencerApplication } = await import("./db-influencer");
-      const result = await getMyInfluencerApplication(1);
+      const { getMySpecialistApplication } = await import("./db-specialist");
+      const result = await getMySpecialistApplication(1);
       expect(result).toBeNull();
     });
   });
 
-  describe("getInfluencerApplications (admin)", () => {
+  describe("getSpecialistApplications (admin)", () => {
     it("should return empty array when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getInfluencerApplications } = await import("./db-influencer");
-      const result = await getInfluencerApplications();
+      const { getSpecialistApplications } = await import("./db-specialist");
+      const result = await getSpecialistApplications();
       expect(result).toEqual([]);
     });
   });
@@ -118,12 +118,12 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { proposePartnership } = await import("./db-influencer");
+      const { proposePartnership } = await import("./db-specialist");
       await expect(
         proposePartnership({
-          influencerId: 1,
+          specialistId: 1,
           establishmentId: 1,
-          proposedBy: "influencer",
+          proposedBy: "specialist",
         })
       ).rejects.toThrow("Database not available");
     });
@@ -140,12 +140,12 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(mockDb);
 
-      const { proposePartnership } = await import("./db-influencer");
+      const { proposePartnership } = await import("./db-specialist");
       await expect(
         proposePartnership({
-          influencerId: 1,
+          specialistId: 1,
           establishmentId: 1,
-          proposedBy: "influencer",
+          proposedBy: "specialist",
         })
       ).rejects.toThrow("Já existe uma parceria ativa ou pendente com este estabelecimento.");
     });
@@ -156,18 +156,18 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { respondToPartnership } = await import("./db-influencer");
+      const { respondToPartnership } = await import("./db-specialist");
       await expect(respondToPartnership(1, true)).rejects.toThrow("Database not available");
     });
   });
 
-  describe("getInfluencerPartnerships", () => {
+  describe("getSpecialistPartnerships", () => {
     it("should return empty array when db is not available", async () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getInfluencerPartnerships } = await import("./db-influencer");
-      const result = await getInfluencerPartnerships(1);
+      const { getSpecialistPartnerships } = await import("./db-specialist");
+      const result = await getSpecialistPartnerships(1);
       expect(result).toEqual([]);
     });
   });
@@ -177,7 +177,7 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getEstablishmentPartnerships } = await import("./db-influencer");
+      const { getEstablishmentPartnerships } = await import("./db-specialist");
       const result = await getEstablishmentPartnerships(1);
       expect(result).toEqual([]);
     });
@@ -188,7 +188,7 @@ describe("Influencer System", () => {
       const { getDb } = await import("./db");
       (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      const { getSupportPendingPartnerships } = await import("./db-influencer");
+      const { getSupportPendingPartnerships } = await import("./db-specialist");
       const result = await getSupportPendingPartnerships();
       expect(result).toEqual([]);
     });

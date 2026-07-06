@@ -12,7 +12,7 @@ import {
   Loader2, ArrowLeft, Sparkles, Info
 } from "lucide-react";
 
-export default function InfluencerApplicationPage() {
+export default function SpecialistApplicationPage() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [motivation, setMotivation] = useState("");
@@ -20,11 +20,11 @@ export default function InfluencerApplicationPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   // Fetch my ratings for application
-  const { data: ratingsData, isLoading: loadingRatings } = trpc.influencer.myRatings.useQuery();
+  const { data: ratingsData, isLoading: loadingRatings } = trpc.specialist.myRatings.useQuery();
   // Fetch my existing application
-  const { data: existingApp, isLoading: loadingApp } = trpc.influencer.myApplication.useQuery();
+  const { data: existingApp, isLoading: loadingApp } = trpc.specialist.myApplication.useQuery();
 
-  const submitMutation = trpc.influencer.submitApplication.useMutation({
+  const submitMutation = trpc.specialist.submitApplication.useMutation({
     onSuccess: () => {
       toast.success("Solicitação enviada com sucesso! Aguarde a análise do admin.");
       navigate("/conta");
@@ -104,7 +104,7 @@ export default function InfluencerApplicationPage() {
           <div className="bg-card border border-border rounded-xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <Sparkles className="w-6 h-6 text-primary" />
-              <h1 className="font-display text-2xl tracking-wider text-foreground">Solicitação de Influencer</h1>
+              <h1 className="font-display text-2xl tracking-wider text-foreground">Solicitação de Especialista</h1>
             </div>
 
             {existingApp.status === "pending" && (
@@ -126,7 +126,7 @@ export default function InfluencerApplicationPage() {
                   <span className="font-semibold text-green-500">Aprovado!</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Parabéns! Você já é um influencer Avalyarin.
+                  Parabéns! Você já é um especialista Avalyarin.
                 </p>
               </div>
             )}
@@ -161,10 +161,10 @@ export default function InfluencerApplicationPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <Sparkles className="w-7 h-7 text-primary" />
-            <h1 className="font-display text-3xl tracking-wider text-foreground">Seja um Influencer</h1>
+            <h1 className="font-display text-3xl tracking-wider text-foreground">Seja um Especialista</h1>
           </div>
           <p className="text-muted-foreground">
-            Para se tornar um influencer Avalyarin, você precisa ter pelo menos <strong className="text-foreground">50 avaliações qualificadas</strong> de
+            Para se tornar um especialista Avalyarin, você precisa ter pelo menos <strong className="text-foreground">50 avaliações qualificadas</strong> de
             estabelecimentos <strong className="text-foreground">diferentes</strong> nos últimos 365 dias.
           </p>
         </div>
@@ -310,7 +310,7 @@ export default function InfluencerApplicationPage() {
                 <Textarea
                   value={motivation}
                   onChange={(e) => setMotivation(e.target.value)}
-                  placeholder="Por que você quer ser um influencer Avalyarin?"
+                  placeholder="Por que você quer ser um especialista Avalyarin?"
                   className="resize-none"
                   rows={3}
                 />

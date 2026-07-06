@@ -28,7 +28,7 @@ import Planos from "./pages/Planos";
 import MinhasAvaliacoes from "./pages/MinhasAvaliacoes";
 // Saved pages
 import MeusLocais from "./pages/MeusLocais";
-import InfluencersFavoritos from "./pages/InfluencersFavoritos";
+import SpecialistsFavoritos from "./pages/SpecialistsFavoritos";
 import ListasCollab from "./pages/ListasCollab";
 // Badges
 import BadgesPage from "./pages/BadgesPage";
@@ -51,10 +51,10 @@ import MeuRanking from "./pages/MeuRanking";
 import QRScanPage from "./pages/QRScanPage";
 // QR Scanner (camera-based, lazy loaded)
 const QRScannerPage = lazy(() => import("./pages/QRScannerPage"));
-// Influencer
-import InfluencerApplicationPage from "./pages/InfluencerApplicationPage";
-import InfluencerPanel from "./pages/InfluencerPanel";
-import InfluencerProfilePage from "./pages/InfluencerProfilePage";
+// Especialista
+import SpecialistApplicationPage from "./pages/SpecialistApplicationPage";
+import SpecialistPanel from "./pages/SpecialistPanel";
+import SpecialistProfilePage from "./pages/SpecialistProfilePage";
 // Critic
 import CriticPanel from "./pages/CriticPanel";
 // Public Profile
@@ -149,7 +149,7 @@ function Router() {
       <Route path="/galeria">{() => { window.location.replace("/minhas-avaliacoes/galeria"); return null; }}</Route>
       {/* Saved */}
       <Route path="/salvos/locais" component={MeusLocais} />
-      <Route path="/salvos/influencers" component={InfluencersFavoritos} />
+      <Route path="/salvos/especialistas" component={SpecialistsFavoritos} />
       <Route path="/salvos/collab" component={ListasCollab} />
       {/* Insígnias */}
       <Route path="/insignias" component={BadgesPage} />
@@ -180,7 +180,7 @@ function Router() {
       <Route path="/admin/analytics" component={AdminPanel} />
       <Route path="/admin/config" component={AdminPanel} />
       <Route path="/admin/equipe" component={AdminPanel} />
-      <Route path="/admin/influencers" component={AdminPanel} />
+      <Route path="/admin/especialistas" component={AdminPanel} />
       <Route path="/admin/estabs" component={AdminPanel} />
       <Route path="/admin/negocio" component={AdminPanel} />
       <Route path="/admin/permissoes" component={AdminPanel} />
@@ -192,10 +192,10 @@ function Router() {
       <Route path="/business/locais" component={BusinessLocais} />
       <Route path="/business/insights" component={BusinessInsights} />
       <Route path="/business/divulgacoes" component={BusinessDivulgacoes} />
-      <Route path="/influencer/solicitar" component={InfluencerApplicationPage} />
-      <Route path="/painel-influencer" component={InfluencerPanel} />
+      <Route path="/especialista/solicitar" component={SpecialistApplicationPage} />
+      <Route path="/painel-especialista" component={SpecialistPanel} />
       <Route path="/painel-critico" component={CriticPanel} />
-      <Route path="/influencer/:id" component={InfluencerProfilePage} />
+      <Route path="/especialista/:id" component={SpecialistProfilePage} />
       <Route path="/owner" component={OwnerPanel} />
       <Route path="/owner/survey" component={OwnerSurvey} />
       <Route path="/owner/sistema/testes" component={TestSuitePage} />

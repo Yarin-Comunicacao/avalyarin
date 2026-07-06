@@ -24,7 +24,7 @@ function CreateGroupModal({
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<"private" | "influencer">("private");
+  const [type, setType] = useState<"private" | "specialist">("private");
   const utils = trpc.useUtils();
 
   const createMutation = trpc.groups.create.useMutation({
@@ -36,7 +36,7 @@ function CreateGroupModal({
     },
     onError: (err) => {
       if (err.message.includes("PLAN_REQUIRED")) {
-        toast.error("Grupos de influencer requerem plano premium");
+        toast.error("Grupos de especialista requerem plano premium");
       } else if (err.message.includes("PLAN_LIMIT")) {
         toast.error("Limite de grupos atingido no plano gratuito. Faça upgrade!");
       } else {
@@ -74,9 +74,9 @@ function CreateGroupModal({
               <div className="text-xs text-muted-foreground">Compartilhe avaliações com amigos</div>
             </button>
             <button
-              onClick={() => setType("influencer")}
+              onClick={() => setType("specialist")}
               className={`p-3 rounded-lg border text-left transition-all relative ${
-                type === "influencer"
+                type === "specialist"
                   ? "border-primary bg-primary/10 text-foreground"
                   : "border-border/50 text-muted-foreground hover:border-border"
               } ${planInfo.plan === "free" ? "opacity-60" : ""}`}
@@ -87,17 +87,17 @@ function CreateGroupModal({
                 </div>
               )}
               <Crown className="w-5 h-5 mb-1" />
-              <div className="text-sm font-medium">Influencer</div>
+              <div className="text-sm font-medium">Especialista</div>
               <div className="text-xs text-muted-foreground">Publique para seguidores</div>
             </button>
           </div>
         </div>
 
-        {type === "influencer" && planInfo.plan === "free" && (
+        {type === "specialist" && planInfo.plan === "free" && (
           <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
             <p className="text-sm text-primary">
               <Crown className="w-4 h-4 inline mr-1" />
-              Grupos de influencer requerem plano premium.
+              Grupos de especialista requerem plano premium.
             </p>
             <Link href="/conta/planos">
               <span className="text-xs text-primary underline mt-1 inline-block">Ver planos</span>
@@ -146,7 +146,7 @@ function CreateGroupModal({
             !name.trim() ||
             name.length < 2 ||
             createMutation.isPending ||
-            (type === "influencer" && planInfo.plan === "free") ||
+            (type === "specialist" && planInfo.plan === "free") ||
             (atLimit && type === "private")
           }
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
@@ -313,7 +313,7 @@ function GroupDetail({
   }
 
   const isCreator = user?.id === group.creatorId;
-  const isInfluencer = group.type === "influencer";
+  const isEspecialista = group.type === "specialist";
 
   return (
     <div>
@@ -330,7 +330,7 @@ function GroupDetail({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-display text-2xl tracking-wider text-foreground">{group.name}</h2>
-              {isInfluencer && <Crown className="w-5 h-5 text-primary" />}
+              {isEspecialista && <Crown className="w-5 h-5 text-primary" />}
             </div>
             {group.description && (
               <p className="text-sm text-muted-foreground mt-1">{group.description}</p>
@@ -340,7 +340,7 @@ function GroupDetail({
             </p>
           </div>
           <div className="flex gap-2">
-            {isCreator && !isInfluencer && (
+            {isCreator && !isEspecialista && (
               <Button
                 size="sm"
                 variant="outline"
@@ -364,7 +364,7 @@ function GroupDetail({
                 <Trash2 className="w-4 h-4" />
               </Button>
             )}
-            {!isCreator && isInfluencer && (
+            {!isCreator && isEspecialista && (
               <Button
                 size="sm"
                 variant="outline"
@@ -406,7 +406,7 @@ function GroupDetail({
       )}
 
       {/* Calendar Button */}
-      {!isInfluencer && group.isMember && (
+      {!isEspecialista && group.isMember && (
         <div className="mb-6">
           <Link href={`/grupo/${groupId}/calendario`}>
             <button className="w-full p-4 rounded-xl bg-primary/10 border border-primary/30 hover:border-primary/60 transition-all flex items-center justify-between group cursor-pointer">
@@ -442,13 +442,13 @@ function GroupDetail({
       {/* Feed */}
       <div>
         <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">
-          {isInfluencer ? "PUBLICAÇÕES" : "AVALIAÇÕES COMPARTILHADAS"}
+          {isEspecialista ? "PUBLICAÇÕES" : "AVALIAÇÕES COMPARTILHADAS"}
         </h3>
         {(!feed || feed.length === 0) ? (
           <div className="text-center py-10 bg-background/50 rounded-xl border border-border/30">
             <Star className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">
-              {isInfluencer
+              {isEspecialista
                 ? "Nenhuma publicação ainda"
                 : "Nenhuma avaliação compartilhada ainda"}
             </p>
@@ -504,7 +504,7 @@ function GroupDetail({
   );
 }
 
-// ─── Discover Influencer Groups ──────────────────────────────────────────────
+// ─── Discover Especialista Groups ──────────────────────────────────────────────
 
 function DiscoverSection() {
   const { data: groups, isLoading } = trpc.groups.discover.useQuery();
@@ -713,7 +713,7 @@ export default function GruposPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              {g.type === "influencer" ? (
+                              {g.type === "specialist" ? (
                                 <Crown className="w-4 h-4 text-primary flex-shrink-0" />
                               ) : (
                                 <Users className="w-4 h-4 text-primary flex-shrink-0" />
@@ -748,7 +748,7 @@ export default function GruposPage() {
                     <Crown className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                     <p className="text-muted-foreground mb-1">Nenhum grupo seguido</p>
                     <p className="text-xs text-muted-foreground/60">
-                      Siga influencers para ver suas avaliações e recomendações
+                      Siga especialistas para ver suas avaliações e recomendações
                     </p>
                   </div>
                 ) : (

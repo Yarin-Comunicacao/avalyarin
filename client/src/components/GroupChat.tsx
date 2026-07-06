@@ -67,7 +67,7 @@ export default function GroupChat({ groupId }: { groupId: number }) {
                       {msg.senderRole === "critic" && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-medium">CRÍTICO</span>
                       )}
-                      {msg.senderRole === "influencer" && (
+                      {msg.senderRole === "specialist" && (
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-300 font-medium">INFLUENCER</span>
                       )}
                       <span className="text-[10px] text-muted-foreground/60">

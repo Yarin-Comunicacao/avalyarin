@@ -209,7 +209,7 @@ function EstrategiaSection() {
             <tr className="border-b border-border/30"><td className="p-3 text-muted-foreground">TripAdvisor</td><td className="p-3 text-muted-foreground">Turismo + viajantes</td><td className="p-3 text-muted-foreground">Pouco relevante para local</td></tr>
             <tr className="border-b border-border/30"><td className="p-3 text-muted-foreground">iFood</td><td className="p-3 text-muted-foreground">Delivery + praticidade</td><td className="p-3 text-muted-foreground">Não avalia experiência presencial</td></tr>
             <tr className="border-b border-border/30"><td className="p-3 text-muted-foreground">Get In</td><td className="p-3 text-muted-foreground">Reservas + descoberta</td><td className="p-3 text-muted-foreground">Sem sistema de avaliação profundo</td></tr>
-            <tr className="border-b border-border/30"><td className="p-3 text-muted-foreground">Influencers</td><td className="p-3 text-muted-foreground">Entretenimento + opinião</td><td className="p-3 text-muted-foreground">Subjetivo, pago, sem método</td></tr>
+            <tr className="border-b border-border/30"><td className="p-3 text-muted-foreground">Especialistas</td><td className="p-3 text-muted-foreground">Entretenimento + opinião</td><td className="p-3 text-muted-foreground">Subjetivo, pago, sem método</td></tr>
             <tr><td className="p-3 font-semibold text-primary">Avalyarin</td><td className="p-3 font-semibold text-primary">Rede social + método + memórias</td><td className="p-3 font-semibold text-primary">A construir</td></tr>
           </tbody>
         </table>
@@ -347,7 +347,7 @@ function VerbalSection() {
             { term: "Modo Analítico", def: "Avaliação detalhada por dimensão" },
             { term: "Insígnias", def: "Sistema de progressão (não \"badges\")" },
             { term: "Categorias", def: "Tipos de estabelecimento" },
-            { term: "Grupos", def: "Comunidades de amigos/influencers" },
+            { term: "Grupos", def: "Comunidades de amigos/especialistas" },
             { term: "Eventos", def: "Jantares, aniversários, jogos organizados pelo grupo" },
           ].map(n => (
             <div key={n.term} className="p-3 bg-card border border-border/50 rounded-lg">
@@ -542,7 +542,7 @@ function AplicacoesSection() {
             { title: "Selo \"Avaliado pela Avalyarin\"", desc: "Adesivo para vitrine de estabelecimentos parceiros com QR code para o perfil" },
             { title: "Cartão de Visita", desc: "Design premium com QR code para download do app" },
             { title: "Kit Evento", desc: "Materiais para eventos presenciais: banners, porta-copos, cardápios especiais" },
-            { title: "Merchandise", desc: "Camisetas, bonés e acessórios para embaixadores e influencers parceiros" },
+            { title: "Merchandise", desc: "Camisetas, bonés e acessórios para embaixadores e especialistas parceiros" },
           ].map(m => (
             <div key={m.title} className="p-4 bg-card border border-border/50 rounded-xl">
               <h4 className="text-sm font-semibold">{m.title}</h4>
@@ -559,7 +559,7 @@ function AplicacoesSection() {
           <li>• Logo Avalyarin sempre com área de proteção respeitada</li>
           <li>• Nunca alterar cores ou proporções do logo em co-branding</li>
           <li>• Em parcerias com estabelecimentos, usar template "Selo Avalyarin"</li>
-          <li>• Em collabs com influencers, fornecer kit de assets padronizado</li>
+          <li>• Em collabs com especialistas, fornecer kit de assets padronizado</li>
           <li>• Aprovação prévia obrigatória para qualquer material com a marca</li>
         </ul>
       </ContentBlock>
@@ -577,7 +577,7 @@ function GovernancaSection() {
       <ContentBlock number="5.1" title="Regras de Uso">
         <div className="grid grid-cols-2 gap-4">
           {[
-            { title: "Quem pode usar", desc: "Equipe interna, parceiros aprovados e influencers com contrato ativo. Uso externo requer aprovação." },
+            { title: "Quem pode usar", desc: "Equipe interna, parceiros aprovados e especialistas com contrato ativo. Uso externo requer aprovação." },
             { title: "Processo de Aprovação", desc: "Todo material com a marca passa por revisão antes de publicação. Prazo: 48h úteis." },
             { title: "Versionamento", desc: "Brandbook versionado (v1.0, v1.1...). Toda atualização é comunicada e documentada." },
             { title: "Violações", desc: "Uso indevido da marca deve ser reportado. Parceiros em violação perdem direito de uso." },

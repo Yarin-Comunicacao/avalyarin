@@ -326,7 +326,7 @@ export default function OwnerPanel() {
                 {stats?.roleDistribution.map((item) => {
                   const roleColors: Record<string, string> = {
                     user: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-                    influencer: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
+                    especialista: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
                     business: "text-orange-400 bg-orange-400/10 border-orange-400/20",
                     support: "text-teal-400 bg-teal-400/10 border-teal-400/20",
                     admin: "text-red-400 bg-red-400/10 border-red-400/20",
@@ -334,7 +334,7 @@ export default function OwnerPanel() {
                   };
                   const roleLabels: Record<string, string> = {
                     user: "Usuário",
-                    influencer: "Influencer",
+                    especialista: "Especialista",
                     business: "Empresarial",
                     support: "Suporte",
                     admin: "Administrador",

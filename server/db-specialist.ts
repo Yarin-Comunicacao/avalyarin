@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import {
-  influencerApplications,
+  specialistApplications,
   partnerships,
   users,
   ratings,
@@ -27,7 +27,7 @@ interface RatingWithQualification {
  * Get user's ratings from the last 365 days with qualification status.
  * A rating is "qualified" if ALL its ratingItems have `comment` filled (min 20 chars).
  */
-export async function getRatingsForInfluencerApplication(userId: number): Promise<RatingWithQualification[]> {
+export async function getRatingsForSpecialistApplication(userId: number): Promise<RatingWithQualification[]> {
   const db = await getDb();
   if (!db) return [];
 
@@ -99,9 +99,9 @@ export async function getRatingsForInfluencerApplication(userId: number): Promis
 }
 
 /**
- * Submit an influencer application
+ * Submit an specialist application
  */
-export async function submitInfluencerApplication(data: {
+export async function submitSpecialistApplication(data: {
   userId: number;
   selectedRatingIds: number[];
   totalRatings: number;
@@ -115,11 +115,11 @@ export async function submitInfluencerApplication(data: {
   // Check if user already has a pending application
   const existing = await db
     .select()
-    .from(influencerApplications)
+    .from(specialistApplications)
     .where(
       and(
-        eq(influencerApplications.userId, data.userId),
-        eq(influencerApplications.status, "pending")
+        eq(specialistApplications.userId, data.userId),
+        eq(specialistApplications.status, "pending")
       )
     )
     .limit(1);
@@ -128,7 +128,7 @@ export async function submitInfluencerApplication(data: {
     throw new Error("Você já tem uma solicitação pendente.");
   }
 
-  const [result] = await db.insert(influencerApplications).values({
+  const [result] = await db.insert(specialistApplications).values({
     userId: data.userId,
     selectedRatingIds: data.selectedRatingIds,
     totalRatings: data.totalRatings,
@@ -141,51 +141,51 @@ export async function submitInfluencerApplication(data: {
 }
 
 /**
- * Get all influencer applications (admin)
+ * Get all specialist applications (admin)
  */
-export async function getInfluencerApplications(status?: string) {
+export async function getSpecialistApplications(status?: string) {
   const db = await getDb();
   if (!db) return [];
 
   const conditions = status
-    ? eq(influencerApplications.status, status as "pending" | "approved" | "rejected")
+    ? eq(specialistApplications.status, status as "pending" | "approved" | "rejected")
     : undefined;
 
   const apps = await db
     .select({
-      id: influencerApplications.id,
-      userId: influencerApplications.userId,
+      id: specialistApplications.id,
+      userId: specialistApplications.userId,
       userName: users.name,
       userEmail: users.email,
-      selectedRatingIds: influencerApplications.selectedRatingIds,
-      totalRatings: influencerApplications.totalRatings,
-      qualifiedRatings: influencerApplications.qualifiedRatings,
-      motivation: influencerApplications.motivation,
-      socialMedia: influencerApplications.socialMedia,
-      status: influencerApplications.status,
-      adminNotes: influencerApplications.adminNotes,
-      createdAt: influencerApplications.createdAt,
+      selectedRatingIds: specialistApplications.selectedRatingIds,
+      totalRatings: specialistApplications.totalRatings,
+      qualifiedRatings: specialistApplications.qualifiedRatings,
+      motivation: specialistApplications.motivation,
+      socialMedia: specialistApplications.socialMedia,
+      status: specialistApplications.status,
+      adminNotes: specialistApplications.adminNotes,
+      createdAt: specialistApplications.createdAt,
     })
-    .from(influencerApplications)
-    .leftJoin(users, eq(influencerApplications.userId, users.id))
+    .from(specialistApplications)
+    .leftJoin(users, eq(specialistApplications.userId, users.id))
     .where(conditions)
-    .orderBy(desc(influencerApplications.createdAt));
+    .orderBy(desc(specialistApplications.createdAt));
 
   return apps;
 }
 
 /**
- * Approve an influencer application (admin)
+ * Approve an specialist application (admin)
  */
-export async function approveInfluencerApplication(applicationId: number, adminNotes?: string) {
+export async function approveSpecialistApplication(applicationId: number, adminNotes?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   // Get the application
   const [app] = await db
     .select()
-    .from(influencerApplications)
-    .where(eq(influencerApplications.id, applicationId))
+    .from(specialistApplications)
+    .where(eq(specialistApplications.id, applicationId))
     .limit(1);
 
   if (!app) throw new Error("Solicitação não encontrada");
@@ -193,38 +193,38 @@ export async function approveInfluencerApplication(applicationId: number, adminN
 
   // Update application status
   await db
-    .update(influencerApplications)
+    .update(specialistApplications)
     .set({
       status: "approved",
       adminNotes: adminNotes || null,
       reviewedAt: Date.now(),
     })
-    .where(eq(influencerApplications.id, applicationId));
+    .where(eq(specialistApplications.id, applicationId));
 
-  // Update user role to influencer
+  // Update user role to specialist
   await db
     .update(users)
-    .set({ role: "influencer" })
+    .set({ role: "specialist" })
     .where(eq(users.id, app.userId));
 
   return { success: true };
 }
 
 /**
- * Reject an influencer application (admin)
+ * Reject an specialist application (admin)
  */
-export async function rejectInfluencerApplication(applicationId: number, adminNotes: string) {
+export async function rejectSpecialistApplication(applicationId: number, adminNotes: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   await db
-    .update(influencerApplications)
+    .update(specialistApplications)
     .set({
       status: "rejected",
       adminNotes,
       reviewedAt: Date.now(),
     })
-    .where(eq(influencerApplications.id, applicationId));
+    .where(eq(specialistApplications.id, applicationId));
 
   return { success: true };
 }
@@ -232,15 +232,15 @@ export async function rejectInfluencerApplication(applicationId: number, adminNo
 /**
  * Get user's application status
  */
-export async function getMyInfluencerApplication(userId: number) {
+export async function getMySpecialistApplication(userId: number) {
   const db = await getDb();
   if (!db) return null;
 
   const [app] = await db
     .select()
-    .from(influencerApplications)
-    .where(eq(influencerApplications.userId, userId))
-    .orderBy(desc(influencerApplications.createdAt))
+    .from(specialistApplications)
+    .where(eq(specialistApplications.userId, userId))
+    .orderBy(desc(specialistApplications.createdAt))
     .limit(1);
 
   return app || null;
@@ -251,42 +251,42 @@ export async function getMyInfluencerApplication(userId: number) {
 // ============================================================
 
 /**
- * Propose a partnership (influencer → estab)
+ * Propose a partnership (specialist → estab)
  */
 export async function proposePartnership(data: {
-  partnershipType: "influencer" | "business";
-  influencerId?: number;
+  partnershipType: "specialist" | "business";
+  specialistId?: number;
   partnerEstablishmentId?: number;
   establishmentId: number;
   terms?: string;
-  proposedBy: "influencer" | "establishment";
+  proposedBy: "specialist" | "establishment";
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Validate: influencer type needs influencerId, business type needs partnerEstablishmentId
-  if (data.partnershipType === "influencer" && !data.influencerId) {
-    throw new Error("influencerId é obrigatório para parcerias com influencer.");
+  // Validate: specialist type needs specialistId, business type needs partnerEstablishmentId
+  if (data.partnershipType === "specialist" && !data.specialistId) {
+    throw new Error("specialistId é obrigatório para parcerias com specialist.");
   }
   if (data.partnershipType === "business" && !data.partnerEstablishmentId) {
     throw new Error("partnerEstablishmentId é obrigatório para parcerias B2B.");
   }
 
   // Check if partnership already exists
-  if (data.partnershipType === "influencer") {
+  if (data.partnershipType === "specialist") {
     const existing = await db
       .select()
       .from(partnerships)
       .where(
         and(
-          eq(partnerships.influencerId, data.influencerId!),
+          eq(partnerships.specialistId, data.specialistId!),
           eq(partnerships.establishmentId, data.establishmentId),
           inArray(partnerships.status, ["pending_estab", "pending_support", "active"])
         )
       )
       .limit(1);
     if (existing.length > 0) {
-      throw new Error("Já existe uma parceria ativa ou pendente com este influencer.");
+      throw new Error("Já existe uma parceria ativa ou pendente com este specialist.");
     }
   } else {
     const existing = await db
@@ -307,8 +307,8 @@ export async function proposePartnership(data: {
 
   // Determine initial status
   let initialStatus: "pending_estab" | "pending_support";
-  if (data.partnershipType === "influencer") {
-    initialStatus = data.proposedBy === "influencer" ? "pending_estab" : "pending_support";
+  if (data.partnershipType === "specialist") {
+    initialStatus = data.proposedBy === "specialist" ? "pending_estab" : "pending_support";
   } else {
     // B2B: always goes to pending_estab first (partner estab needs to accept)
     initialStatus = "pending_estab";
@@ -316,7 +316,7 @@ export async function proposePartnership(data: {
 
   const [result] = await db.insert(partnerships).values({
     partnershipType: data.partnershipType,
-    influencerId: data.influencerId ?? null,
+    specialistId: data.specialistId ?? null,
     partnerEstablishmentId: data.partnerEstablishmentId ?? null,
     establishmentId: data.establishmentId,
     terms: data.terms ?? null,
@@ -386,9 +386,9 @@ export async function supportRejectPartnership(partnershipId: number, supportNot
 }
 
 /**
- * Get partnerships for an influencer
+ * Get partnerships for an specialist
  */
-export async function getInfluencerPartnerships(influencerId: number) {
+export async function getSpecialistPartnerships(specialistId: number) {
   const db = await getDb();
   if (!db) return [];
 
@@ -407,7 +407,7 @@ export async function getInfluencerPartnerships(influencerId: number) {
     })
     .from(partnerships)
     .leftJoin(establishments, eq(partnerships.establishmentId, establishments.id))
-    .where(eq(partnerships.influencerId, influencerId))
+    .where(eq(partnerships.specialistId, specialistId))
     .orderBy(desc(partnerships.createdAt));
 }
 
@@ -422,8 +422,8 @@ export async function getEstablishmentPartnerships(establishmentId: number) {
     .select({
       id: partnerships.id,
       partnershipType: partnerships.partnershipType,
-      influencerId: partnerships.influencerId,
-      influencerName: users.name,
+      specialistId: partnerships.specialistId,
+      specialistName: users.name,
       partnerEstablishmentId: partnerships.partnerEstablishmentId,
       status: partnerships.status,
       terms: partnerships.terms,
@@ -433,7 +433,7 @@ export async function getEstablishmentPartnerships(establishmentId: number) {
       createdAt: partnerships.createdAt,
     })
     .from(partnerships)
-    .leftJoin(users, eq(partnerships.influencerId, users.id))
+    .leftJoin(users, eq(partnerships.specialistId, users.id))
     .where(eq(partnerships.establishmentId, establishmentId))
     .orderBy(desc(partnerships.createdAt));
 
@@ -505,8 +505,8 @@ export async function getSupportPendingPartnerships() {
     .select({
       id: partnerships.id,
       partnershipType: partnerships.partnershipType,
-      influencerId: partnerships.influencerId,
-      influencerName: users.name,
+      specialistId: partnerships.specialistId,
+      specialistName: users.name,
       partnerEstablishmentId: partnerships.partnerEstablishmentId,
       establishmentId: partnerships.establishmentId,
       establishmentName: establishments.name,
@@ -517,7 +517,7 @@ export async function getSupportPendingPartnerships() {
       createdAt: partnerships.createdAt,
     })
     .from(partnerships)
-    .leftJoin(users, eq(partnerships.influencerId, users.id))
+    .leftJoin(users, eq(partnerships.specialistId, users.id))
     .leftJoin(establishments, eq(partnerships.establishmentId, establishments.id))
     .where(eq(partnerships.status, "pending_support"))
     .orderBy(desc(partnerships.createdAt));

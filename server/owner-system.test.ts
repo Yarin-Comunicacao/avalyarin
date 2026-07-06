@@ -44,10 +44,10 @@ interface SystemHealth {
 
 describe("Owner Panel - Data Structures", () => {
   it("should have correct role distribution keys", () => {
-    const validRoles = ["user", "influencer", "business", "support", "admin", "owner"];
+    const validRoles = ["user", "specialist", "business", "support", "admin", "owner"];
     const mockDistribution: Record<string, number> = {
       user: 100,
-      influencer: 5,
+      specialist: 5,
       business: 20,
       support: 3,
       admin: 2,
@@ -62,7 +62,7 @@ describe("Owner Panel - Data Structures", () => {
   it("should calculate total users from role distribution", () => {
     const distribution = {
       user: 100,
-      influencer: 5,
+      specialist: 5,
       business: 20,
       support: 3,
       admin: 2,
@@ -201,7 +201,7 @@ describe("Owner Panel - Access Control", () => {
     expect(checkOwnerAccess("admin")).toBe(false);
     expect(checkOwnerAccess("support")).toBe(false);
     expect(checkOwnerAccess("business")).toBe(false);
-    expect(checkOwnerAccess("influencer")).toBe(false);
+    expect(checkOwnerAccess("specialist")).toBe(false);
     expect(checkOwnerAccess("user")).toBe(false);
   });
 
@@ -249,7 +249,7 @@ describe("System Panel - Audit Log", () => {
     expect(entry.id).toBeGreaterThan(0);
     expect(entry.name).toBeTruthy();
     expect(entry.email).toContain("@");
-    expect(["user", "influencer", "business", "support", "admin", "owner"]).toContain(entry.role);
+    expect(["user", "specialist", "business", "support", "admin", "owner"]).toContain(entry.role);
   });
 
   it("should limit audit log entries", () => {
