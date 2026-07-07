@@ -1,14 +1,15 @@
 /**
- * Business Insights — 4 abas:
- * 1. Meu Plano (assinatura e upgrade)
- * 2. Dashboard (gráficos + linha temporal com outliers)
- * 3. Desempenho (20 insights por tema: Público, Produto, Experiência, Competição, Marketing)
- * 4. Plano de Ação (sugestões IA + outliers detectados)
+ * Business Insights — URL-based tabs for analytics tracking:
+ * /business/insights → redirects to /business/insights/plano
+ * /business/insights/plano → Meu Plano (assinatura e upgrade)
+ * /business/insights/dashboard → Dashboard (gráficos + linha temporal)
+ * /business/insights/desempenho → Desempenho (20 insights por tema)
+ * /business/insights/plano-acao → Plano de Ação (sugestões IA)
  *
  * Dropdown de estabelecimento fica ACIMA das abas — navegação entre abas mantém o estab selecionado.
  */
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown, Store } from "lucide-react";
@@ -20,16 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLocation, useRoute } from "wouter";
 
 import BusinessDashboardTab from "./BusinessDashboardTab";
 import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
 import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
 import { BusinessPlanTab } from "./BusinessPanel";
 
-type TabId = "meu-plano" | "dashboard" | "desempenho" | "plano-acao";
+type TabId = "plano" | "dashboard" | "desempenho" | "plano-acao";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
-  { id: "meu-plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
+  { id: "plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
   { id: "dashboard", label: "Dashboard", labelFull: "Dashboard", icon: LayoutDashboard },
   { id: "desempenho", label: "Desempenho", labelFull: "Desempenho", icon: TrendingUp },
   { id: "plano-acao", label: "Plano de Ação", labelFull: "Plano de Ação", icon: Lightbulb },
@@ -37,8 +39,26 @@ const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementTy
 
 export default function BusinessInsights() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("meu-plano");
   const [selectedEstabId, setSelectedEstabId] = useState<number | null>(null);
+  const [location, navigate] = useLocation();
+
+  // Extract active tab from URL path
+  const getActiveTab = (): TabId => {
+    if (location.includes("/business/insights/dashboard")) return "dashboard";
+    if (location.includes("/business/insights/desempenho")) return "desempenho";
+    if (location.includes("/business/insights/plano-acao")) return "plano-acao";
+    if (location.includes("/business/insights/plano")) return "plano";
+    return "plano"; // default
+  };
+
+  const activeTab = getActiveTab();
+
+  // Redirect /business/insights to /business/insights/plano
+  useEffect(() => {
+    if (location === "/business/insights") {
+      navigate("/business/insights/plano", { replace: true });
+    }
+  }, [location, navigate]);
 
   // Fetch establishments at this level so all tabs share the same selection
   const { data: establishments } = trpc.business.myEstablishments.useQuery(undefined, {
@@ -74,6 +94,10 @@ export default function BusinessInsights() {
       </div>
     );
   }
+
+  const handleTabChange = (tabId: string) => {
+    navigate(`/business/insights/${tabId}`);
+  };
 
   return (
     <div className="min-h-screen pb-24">
@@ -116,16 +140,16 @@ export default function BusinessInsights() {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* Tabs — clicking navigates to URL */}
       <ScrollableTabs
         tabs={TABS}
         activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id as TabId)}
+        onTabChange={handleTabChange}
       />
 
       {/* Content */}
       <div className="container py-6">
-        {activeTab === "meu-plano" && <BusinessPlanTab establishmentId={estabId} />}
+        {activeTab === "plano" && <BusinessPlanTab establishmentId={estabId} />}
         {activeTab === "dashboard" && <BusinessDashboardTab establishmentId={estabId} />}
         {activeTab === "desempenho" && <BusinessDesempenhoTab establishmentId={estabId} />}
         {activeTab === "plano-acao" && <BusinessPlanoAcaoTab establishmentId={estabId} />}

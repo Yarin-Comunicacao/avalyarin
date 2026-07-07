@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import {
   Store, ClipboardCheck, UtensilsCrossed,
@@ -355,7 +356,25 @@ function EstabChatTab() {
 
 export default function BusinessLocais() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("locais");
+  const [location, navigate] = useLocation();
+
+  // Extract active tab from URL path
+  const getActiveTab = (): TabId => {
+    if (location.includes("/business/locais/cardapio")) return "cardapio";
+    if (location.includes("/business/locais/chat")) return "chat";
+    if (location.includes("/business/locais/solicitacoes")) return "solicitacoes";
+    if (location.includes("/business/locais/plano")) return "plano";
+    return "locais"; // default
+  };
+
+  const activeTab = getActiveTab();
+
+  // Redirect bare /business/locais to /business/locais/locais (keep same URL, just default tab)
+  useEffect(() => {
+    if (location === "/business/locais") {
+      // Don't redirect - /business/locais IS the "locais" tab
+    }
+  }, [location]);
   const { data: notifications } = trpc.business.notifications.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -417,7 +436,10 @@ export default function BusinessLocais() {
           badge: tab.id === "cardapio" ? (cardapioBadge > 0 ? cardapioBadge : undefined) : undefined,
         }))}
         activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id as TabId)}
+        onTabChange={(id) => {
+          if (id === "locais") navigate("/business/locais");
+          else navigate(`/business/locais/${id}`);
+        }}
       />
 
       {/* Content */}

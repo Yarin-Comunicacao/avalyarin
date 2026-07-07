@@ -1,11 +1,16 @@
-// Design: AvaLyarin — Planos page with real backend integration
+/**
+ * Planos Profissionais — /critic/planos e /specialist/planos
+ * Página para críticos e especialistas verem e assinarem o plano profissional (R$19,90/mês).
+ * Acessível via: Perfil > Editar Perfil > Planos
+ */
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/sonner";
-import { Crown, Check, Star, Zap, Loader2 } from "lucide-react";
+import { Crown, Check, Loader2, ArrowLeft, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Link, useLocation } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -15,19 +20,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export default function Planos() {
+export default function ProfessionalPlanos() {
   const [upgradeDialog, setUpgradeDialog] = useState<{ plan: string; name: string; price: number } | null>(null);
   const { user, isAuthenticated } = useAuth();
+  const [location] = useLocation();
 
-  const { data: planOptions } = trpc.plans.options.useQuery();
+  const isCritic = location.includes("/critic/");
+  const roleLabel = isCritic ? "Crítico" : "Especialista";
+  const backPath = isCritic ? "/painel-critico/perfil" : "/painel-especialista/perfil";
+
   const { data: myPlan, refetch: refetchPlan } = trpc.plans.myPlan.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
   const upgradeMutation = trpc.plans.upgrade.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Plano ativado!", {
-        description: `Seu plano foi atualizado com sucesso. Válido até ${new Date(data.expiresAt!).toLocaleDateString("pt-BR")}.`,
+        description: `Seu plano profissional foi atualizado com sucesso.`,
       });
       refetchPlan();
       setUpgradeDialog(null);
@@ -51,22 +60,15 @@ export default function Planos() {
 
   const currentPlan = myPlan?.plan ?? "free";
 
-  const planIcons: Record<string, React.ReactNode> = {
-    free: <Star className="w-6 h-6" />,
-    premium: <Zap className="w-6 h-6" />,
-  };
-
   const handleSelectPlan = (planId: string, planName: string, price: number) => {
     if (planId === currentPlan) {
       toast("Você já está neste plano!");
       return;
     }
     if (planId === "free") {
-      // Downgrade
       cancelMutation.mutate();
       return;
     }
-    // Show upgrade dialog
     setUpgradeDialog({ plan: planId, name: planName, price });
   };
 
@@ -75,40 +77,75 @@ export default function Planos() {
     upgradeMutation.mutate({ plan: upgradeDialog.plan as "premium" | "embaixador" });
   };
 
-  const userPlans = planOptions?.user ?? [
-    { id: "free", name: "Explorador", price: 0, period: "", features: ["10 avaliações por dia", "Grupos ilimitados", "Perfil básico", "Salvar locais favoritos", "Ver avaliações da comunidade"] },
-    { id: "premium", name: "Conhecedor", price: 9.9, period: "/mês", popular: true, features: ["Tudo do Explorador", "Selo Conhecedor no perfil", "Promoções Double em parceiros", "Descontos exclusivos"] },
+  const plans = [
+    {
+      id: "free",
+      name: "Gratuito",
+      price: 0,
+      period: "",
+      features: [
+        "Perfil profissional básico",
+        "Avaliações com destaque padrão",
+        "Acesso ao painel de métricas",
+      ],
+    },
+    {
+      id: "premium",
+      name: "Profissional",
+      price: 19.9,
+      period: "/mês",
+      popular: true,
+      features: [
+        "Tudo do plano gratuito",
+        "Avaliações ilimitadas",
+        "Destaque premium nas avaliações",
+        "Parcerias com estabelecimentos",
+        "Códigos promocionais exclusivos",
+        "Convites para inaugurações",
+        "Suporte prioritário",
+      ],
+    },
   ];
 
   return (
     <div className="min-h-screen">
-      <Navbar  />
+      <Navbar />
       <div className="pt-28 pb-24">
-        <div className="container max-w-3xl">
+        <div className="container max-w-2xl">
+          {/* Back link */}
+          <Link href={backPath}>
+            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar ao perfil
+            </span>
+          </Link>
+
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-              <Crown className="w-6 h-6 text-primary" />
+            <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${
+              isCritic 
+                ? "bg-blue-500/10 border-blue-500/30" 
+                : "bg-primary/10 border-primary/30"
+            }`}>
+              <Crown className={`w-6 h-6 ${isCritic ? "text-blue-500" : "text-primary"}`} />
             </div>
             <div>
-              <h2 className="font-display text-2xl tracking-wider text-primary">PLANOS</h2>
-              <p className="text-sm text-muted-foreground">Escolha o plano ideal para você</p>
+              <h2 className={`font-display text-2xl tracking-wider ${isCritic ? "text-blue-400" : "text-primary"}`}>
+                PLANO {roleLabel.toUpperCase()}
+              </h2>
+              <p className="text-sm text-muted-foreground">Eleve sua atuação profissional</p>
             </div>
           </div>
 
           {/* Current plan indicator */}
           {isAuthenticated && myPlan && (
-            <div className="mb-8 p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className={`mb-8 p-4 rounded-xl border ${
+              isCritic ? "bg-blue-500/5 border-blue-500/20" : "bg-primary/5 border-primary/20"
+            }`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Seu plano atual</p>
-                  <p className="font-display text-lg tracking-wider text-primary">
-                    {currentPlan === "free" ? "EXPLORADOR" : currentPlan === "premium" ? "CONHECEDOR" : "EMBAIXADOR"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Avaliações hoje</p>
-                  <p className="font-numbers text-lg font-bold text-foreground">
-                    {myPlan.ratingsToday !== null ? `${myPlan.ratingsToday} restantes` : "Ilimitadas"}
+                  <p className={`font-display text-lg tracking-wider ${isCritic ? "text-blue-400" : "text-primary"}`}>
+                    {currentPlan === "free" ? "GRATUITO" : "PROFISSIONAL"}
                   </p>
                 </div>
               </div>
@@ -134,23 +171,30 @@ export default function Planos() {
           )}
 
           <div className="grid gap-4 md:grid-cols-2">
-            {userPlans.map((plan) => {
+            {plans.map((plan) => {
               const isCurrent = plan.id === currentPlan;
               const isPopular = "popular" in plan && plan.popular;
+              const accentColor = isCritic ? "blue-500" : "primary";
               return (
                 <div
                   key={plan.id}
                   className={`relative p-5 rounded-2xl border transition-all ${
                     isPopular
-                      ? "border-primary/40 bg-primary/5 shadow-lg shadow-primary/5"
+                      ? isCritic
+                        ? "border-blue-500/40 bg-blue-500/5 shadow-lg shadow-blue-500/5"
+                        : "border-primary/40 bg-primary/5 shadow-lg shadow-primary/5"
                       : isCurrent
-                      ? "border-primary/60 bg-card ring-2 ring-primary/20"
+                      ? isCritic
+                        ? "border-blue-500/60 bg-card ring-2 ring-blue-500/20"
+                        : "border-primary/60 bg-card ring-2 ring-primary/20"
                       : "border-border/30 bg-card/50"
                   }`}
                 >
                   {isPopular && !isCurrent && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-display tracking-wider">
-                      POPULAR
+                    <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-white text-[10px] font-display tracking-wider ${
+                      isCritic ? "bg-blue-500" : "bg-primary"
+                    }`}>
+                      RECOMENDADO
                     </div>
                   )}
                   {isCurrent && (
@@ -160,9 +204,11 @@ export default function Planos() {
                   )}
 
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${
-                    isCurrent ? "bg-primary/20 text-primary" : isPopular ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+                    isPopular || isCurrent
+                      ? isCritic ? "bg-blue-500/20 text-blue-500" : "bg-primary/20 text-primary"
+                      : "bg-secondary text-muted-foreground"
                   }`}>
-                    {planIcons[plan.id] || <Star className="w-6 h-6" />}
+                    {isPopular ? <Zap className="w-6 h-6" /> : <Star className="w-6 h-6" />}
                   </div>
 
                   <h3 className="font-display text-lg tracking-wider text-foreground">{plan.name.toUpperCase()}</h3>
@@ -176,7 +222,11 @@ export default function Planos() {
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
-                        <Check className={`w-4 h-4 mt-0.5 shrink-0 ${isCurrent || isPopular ? "text-primary" : "text-muted-foreground"}`} />
+                        <Check className={`w-4 h-4 mt-0.5 shrink-0 ${
+                          isCurrent || isPopular
+                            ? isCritic ? "text-blue-500" : "text-primary"
+                            : "text-muted-foreground"
+                        }`} />
                         <span className="text-foreground/80">{feature}</span>
                       </li>
                     ))}
@@ -185,7 +235,11 @@ export default function Planos() {
                   <Button
                     onClick={() => handleSelectPlan(plan.id, plan.name, plan.price)}
                     variant={isCurrent ? "outline" : isPopular ? "default" : "outline"}
-                    className={`w-full font-display tracking-wider ${isPopular && !isCurrent ? "glow-amber" : ""}`}
+                    className={`w-full font-display tracking-wider ${
+                      isPopular && !isCurrent
+                        ? isCritic ? "bg-blue-500 hover:bg-blue-600 text-white" : "glow-amber"
+                        : ""
+                    }`}
                     disabled={isCurrent || upgradeMutation.isPending}
                   >
                     {isCurrent ? "PLANO ATUAL" : plan.price === 0 ? "VOLTAR AO GRÁTIS" : "ESCOLHER PLANO"}
@@ -195,7 +249,13 @@ export default function Planos() {
             })}
           </div>
 
-
+          {/* Info */}
+          <div className="mt-8 p-4 rounded-xl bg-card/50 border border-border/30">
+            <p className="text-xs text-muted-foreground text-center">
+              Nesta versão beta, o upgrade é concedido automaticamente sem cobrança real.
+              O sistema de pagamento será integrado em breve.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -214,12 +274,6 @@ export default function Planos() {
               O pagamento será processado e seu plano será ativado imediatamente.
               Você pode cancelar a qualquer momento.
             </p>
-            <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-xs text-muted-foreground">
-                Nesta versão beta, o upgrade é concedido automaticamente sem cobrança real.
-                O sistema de pagamento será integrado em breve.
-              </p>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUpgradeDialog(null)}>

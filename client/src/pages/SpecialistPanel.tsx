@@ -6,11 +6,11 @@
  * - Códigos Promo (códigos associados)
  * - Meu Perfil Público (preview do que os seguidores veem)
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import { Redirect, Link } from "wouter";
+import { Redirect, Link, useLocation } from "wouter";
 import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
 import { toast } from "sonner";
@@ -19,7 +19,23 @@ type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
 
 export default function SpecialistPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [location, navigate] = useLocation();
+
+  const getActiveTab = (): Tab => {
+    if (location.includes("/painel-especialista/calendario")) return "calendar";
+    if (location.includes("/painel-especialista/parcerias")) return "partnerships";
+    if (location.includes("/painel-especialista/codigos")) return "promos";
+    if (location.includes("/painel-especialista/perfil")) return "profile";
+    return "overview";
+  };
+
+  const activeTab = getActiveTab();
+
+  useEffect(() => {
+    if (location === "/painel-especialista") {
+      // Default tab, no redirect needed
+    }
+  }, [location]);
 
   if (loading) {
     return (
@@ -64,7 +80,19 @@ export default function SpecialistPanel() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === "overview") navigate("/painel-especialista");
+                  else {
+                    const slugMap: Record<Tab, string> = {
+                      overview: "",
+                      calendar: "calendario",
+                      partnerships: "parcerias",
+                      promos: "codigos",
+                      profile: "perfil",
+                    };
+                    navigate(`/painel-especialista/${slugMap[tab.id]}`);
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
                   activeTab === tab.id
                     ? "bg-primary/10 text-primary border-b-2 border-primary"

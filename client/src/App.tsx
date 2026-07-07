@@ -70,6 +70,9 @@ import MapaPage from "./pages/MapaPage";
 import DestaquesPage from "./pages/DestaquesPage";
 // Conta Hub
 import ContaPage from "./pages/ContaPage";
+// Planos por role
+import BusinessPlanos from "./pages/BusinessPlanos";
+import ProfessionalPlanos from "./pages/ProfessionalPlanos";
 // Owner & System
 import OwnerPanel from "./pages/OwnerPanel";
 import OwnerSurvey from "./pages/OwnerSurvey";
@@ -191,13 +194,42 @@ function Router() {
       <Route path="/painel-empresarial/calendario" component={BusinessPanel} />
       <Route path="/painel-empresarial/config" component={BusinessPanel} />
       <Route path="/business/locais" component={BusinessLocais} />
+      <Route path="/business/locais/cardapio" component={BusinessLocais} />
+      <Route path="/business/locais/chat" component={BusinessLocais} />
+      <Route path="/business/locais/solicitacoes" component={BusinessLocais} />
+      <Route path="/business/locais/plano" component={BusinessLocais} />
       <Route path="/business/insights" component={BusinessInsights} />
+      <Route path="/business/insights/plano" component={BusinessInsights} />
+      <Route path="/business/insights/dashboard" component={BusinessInsights} />
+      <Route path="/business/insights/desempenho" component={BusinessInsights} />
+      <Route path="/business/insights/plano-acao" component={BusinessInsights} />
       <Route path="/business/divulgacoes" component={BusinessDivulgacoes} />
+      <Route path="/business/divulgacoes/destaques" component={BusinessDivulgacoes} />
+      <Route path="/business/divulgacoes/codigos" component={BusinessDivulgacoes} />
+      <Route path="/business/divulgacoes/parcerias" component={BusinessDivulgacoes} />
+      <Route path="/business/divulgacoes/transmissao" component={BusinessDivulgacoes} />
+      <Route path="/business/divulgacoes/eventos" component={BusinessDivulgacoes} />
+      <Route path="/business/plano" component={BusinessPlanos} />
       <Route path="/especialista/solicitar" component={SpecialistApplicationPage} />
       <Route path="/painel-especialista" component={SpecialistPanel} />
+      <Route path="/painel-especialista/calendario" component={SpecialistPanel} />
+      <Route path="/painel-especialista/parcerias" component={SpecialistPanel} />
+      <Route path="/painel-especialista/codigos" component={SpecialistPanel} />
+      <Route path="/painel-especialista/perfil" component={SpecialistPanel} />
+      <Route path="/specialist/planos" component={ProfessionalPlanos} />
+      <Route path="/critic/planos" component={ProfessionalPlanos} />
       <Route path="/painel-critico" component={CriticPanel} />
+      <Route path="/painel-critico/calendario" component={CriticPanel} />
+      <Route path="/painel-critico/avaliacoes" component={CriticPanel} />
+      <Route path="/painel-critico/codigos" component={CriticPanel} />
+      <Route path="/painel-critico/perfil" component={CriticPanel} />
       <Route path="/especialista/:id" component={SpecialistProfilePage} />
       <Route path="/owner" component={OwnerPanel} />
+      <Route path="/owner/crescimento" component={OwnerPanel} />
+      <Route path="/owner/financeiro" component={OwnerPanel} />
+      <Route path="/owner/roles" component={OwnerPanel} />
+      <Route path="/owner/codigo" component={OwnerPanel} />
+      <Route path="/owner/brandbook" component={OwnerPanel} />
       <Route path="/owner/survey" component={OwnerSurvey} />
       <Route path="/owner/sistema/testes" component={TestSuitePage} />
       <Route path="/owner/sistema" component={SystemPanel} />

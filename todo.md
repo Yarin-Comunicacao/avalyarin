@@ -988,4 +988,10 @@
 - [ ] Gerar arquivos para o Drive (pasta por estabelecimento do Eldorado)
 - [x] Cadastrar AJ Padaria no app com dados completos (Google Maps, Instagram, cardápio)
 - [x] Renomear toda nomenclatura 'influencer' para 'Especialista' (specialist no código) - schema, routers, frontend, banco
-- [ ] Owner deve ter acesso à visão de perfil de user ao clicar no ícone User no BottomNav (mesma experiência que um user normal)
+- [x] Owner deve ter acesso à visão de perfil de user ao clicar no ícone User no BottomNav (mesma experiência que um user normal)
+- [x] URLs separadas para cada aba do painel Business (/business/insights/plano, /business/insights/dashboard, /business/insights/desempenho, /business/insights/plano-acao, /business/divulgacoes/*, /business/locais/*)
+- [x] URLs separadas para cada aba dos painéis Critic (/painel-critico/*), Specialist (/painel-especialista/*), Owner (/painel-owner/*)
+- [x] Criar página /business/plano exclusiva para planos empresariais (BusinessPlanos.tsx)
+- [x] Criar página /critic/planos com apenas plano R$19,90 (ProfessionalPlanos.tsx)
+- [x] Criar página /specialist/planos com apenas plano R$19,90 (ProfessionalPlanos.tsx)
+- [x] Atualizar /conta/planos: removida seção empresarial, removido plano Embaixador, Free=10 avaliações/dia + grupos ilimitados

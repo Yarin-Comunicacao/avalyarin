@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Crown, Users, Store, Star, TrendingUp, DollarSign,
   Shield, UserCog, Settings, BarChart3, ArrowUpRight, ArrowDownRight, ClipboardList,
@@ -10,9 +10,22 @@ import { useState } from "react";
 import { toast } from "sonner";
 import BrandbookTab from "@/components/BrandbookTab";
 
+type OwnerTab = "overview" | "growth" | "financials" | "roles" | "code" | "brandbook";
+
 export default function OwnerPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "growth" | "financials" | "roles" | "code" | "brandbook">("overview");
+  const [location, navigate] = useLocation();
+
+  const getActiveTab = (): OwnerTab => {
+    if (location.includes("/owner/crescimento")) return "growth";
+    if (location.includes("/owner/financeiro")) return "financials";
+    if (location.includes("/owner/roles")) return "roles";
+    if (location.includes("/owner/codigo")) return "code";
+    if (location.includes("/owner/brandbook")) return "brandbook";
+    return "overview";
+  };
+
+  const activeTab = getActiveTab();
 
   const { data: stats, isLoading: statsLoading } = trpc.ownerPanel.stats.useQuery();
   const { data: growth, isLoading: growthLoading } = trpc.ownerPanel.growth.useQuery();
@@ -81,7 +94,17 @@ export default function OwnerPanel() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  const slugMap: Record<OwnerTab, string> = {
+                    overview: "/owner",
+                    growth: "/owner/crescimento",
+                    financials: "/owner/financeiro",
+                    roles: "/owner/roles",
+                    code: "/owner/codigo",
+                    brandbook: "/owner/brandbook",
+                  };
+                  navigate(slugMap[tab.id]);
+                }}
                 className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? "border-yellow-500 text-yellow-500"

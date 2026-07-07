@@ -1,10 +1,20 @@
+/**
+ * Business Divulgações — URL-based tabs for analytics tracking:
+ * /business/divulgacoes → redirects to /business/divulgacoes/destaques
+ * /business/divulgacoes/destaques → Destaques
+ * /business/divulgacoes/codigos → Códigos Promocionais
+ * /business/divulgacoes/parcerias → Parcerias
+ * /business/divulgacoes/transmissao → Lista de Transmissão
+ * /business/divulgacoes/eventos → Eventos do Estab.
+ */
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useState } from "react";
+import { useEffect } from "react";
 import { getLoginUrl } from "@/const";
 import {
   Tag, Building2, Megaphone, CalendarDays, Sparkles
 } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
+import { useLocation } from "wouter";
 
 import {
   PromoCodesTab,
@@ -14,7 +24,7 @@ import {
   DestaquesTab,
 } from "./BusinessPanelTabs";
 
-type TabId = "codigos" | "parcerias" | "transmissao" | "eventos" | "destaques";
+type TabId = "destaques" | "codigos" | "parcerias" | "transmissao" | "eventos";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "destaques", label: "Destaques", labelFull: "Destaques", icon: Sparkles },
@@ -26,7 +36,26 @@ const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementTy
 
 export default function BusinessDivulgacoes() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabId>("codigos");
+  const [location, navigate] = useLocation();
+
+  // Extract active tab from URL path
+  const getActiveTab = (): TabId => {
+    if (location.includes("/business/divulgacoes/codigos")) return "codigos";
+    if (location.includes("/business/divulgacoes/parcerias")) return "parcerias";
+    if (location.includes("/business/divulgacoes/transmissao")) return "transmissao";
+    if (location.includes("/business/divulgacoes/eventos")) return "eventos";
+    if (location.includes("/business/divulgacoes/destaques")) return "destaques";
+    return "destaques"; // default
+  };
+
+  const activeTab = getActiveTab();
+
+  // Redirect /business/divulgacoes to /business/divulgacoes/destaques
+  useEffect(() => {
+    if (location === "/business/divulgacoes") {
+      navigate("/business/divulgacoes/destaques", { replace: true });
+    }
+  }, [location, navigate]);
 
   if (loading) {
     return (
@@ -56,6 +85,10 @@ export default function BusinessDivulgacoes() {
     );
   }
 
+  const handleTabChange = (tabId: string) => {
+    navigate(`/business/divulgacoes/${tabId}`);
+  };
+
   return (
     <div className="min-h-screen pb-24">
       {/* Header */}
@@ -69,11 +102,11 @@ export default function BusinessDivulgacoes() {
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Tabs — clicking navigates to URL */}
       <ScrollableTabs
         tabs={TABS}
         activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id as TabId)}
+        onTabChange={handleTabChange}
       />
 
       {/* Content */}

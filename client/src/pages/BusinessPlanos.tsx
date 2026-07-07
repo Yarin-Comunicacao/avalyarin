@@ -1,11 +1,16 @@
-// Design: AvaLyarin — Planos page with real backend integration
+/**
+ * Planos Empresariais — /business/plano
+ * Página exclusiva para business ver e assinar planos empresariais.
+ * Acessível via: Painel Business > Locais > Plano
+ */
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/sonner";
-import { Crown, Check, Star, Zap, Loader2 } from "lucide-react";
+import { Crown, Check, Loader2, Building2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export default function Planos() {
+export default function BusinessPlanos() {
   const [upgradeDialog, setUpgradeDialog] = useState<{ plan: string; name: string; price: number } | null>(null);
   const { user, isAuthenticated } = useAuth();
 
@@ -27,7 +32,7 @@ export default function Planos() {
   const upgradeMutation = trpc.plans.upgrade.useMutation({
     onSuccess: (data) => {
       toast.success("Plano ativado!", {
-        description: `Seu plano foi atualizado com sucesso. Válido até ${new Date(data.expiresAt!).toLocaleDateString("pt-BR")}.`,
+        description: `Seu plano empresarial foi atualizado com sucesso.`,
       });
       refetchPlan();
       setUpgradeDialog(null);
@@ -51,22 +56,15 @@ export default function Planos() {
 
   const currentPlan = myPlan?.plan ?? "free";
 
-  const planIcons: Record<string, React.ReactNode> = {
-    free: <Star className="w-6 h-6" />,
-    premium: <Zap className="w-6 h-6" />,
-  };
-
   const handleSelectPlan = (planId: string, planName: string, price: number) => {
     if (planId === currentPlan) {
       toast("Você já está neste plano!");
       return;
     }
     if (planId === "free") {
-      // Downgrade
       cancelMutation.mutate();
       return;
     }
-    // Show upgrade dialog
     setUpgradeDialog({ plan: planId, name: planName, price });
   };
 
@@ -75,23 +73,31 @@ export default function Planos() {
     upgradeMutation.mutate({ plan: upgradeDialog.plan as "premium" | "embaixador" });
   };
 
-  const userPlans = planOptions?.user ?? [
-    { id: "free", name: "Explorador", price: 0, period: "", features: ["10 avaliações por dia", "Grupos ilimitados", "Perfil básico", "Salvar locais favoritos", "Ver avaliações da comunidade"] },
-    { id: "premium", name: "Conhecedor", price: 9.9, period: "/mês", popular: true, features: ["Tudo do Explorador", "Selo Conhecedor no perfil", "Promoções Double em parceiros", "Descontos exclusivos"] },
+  const businessPlans = planOptions?.business ?? [
+    { id: "free", name: "Básico", price: 0, period: "", features: ["Perfil do estabelecimento", "Receber avaliações", "Visualizar métricas básicas"] },
+    { id: "premium", name: "Profissional", price: 49.9, period: "/mês", features: ["Tudo do Básico", "Promoções e destaques", "Suporte prioritário", "Dashboard avançado", "Códigos promocionais ilimitados", "Parcerias com especialistas"] },
   ];
 
   return (
     <div className="min-h-screen">
-      <Navbar  />
+      <Navbar />
       <div className="pt-28 pb-24">
         <div className="container max-w-3xl">
+          {/* Back link */}
+          <Link href="/business/locais/plano">
+            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar ao painel
+            </span>
+          </Link>
+
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-              <Crown className="w-6 h-6 text-primary" />
+              <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h2 className="font-display text-2xl tracking-wider text-primary">PLANOS</h2>
-              <p className="text-sm text-muted-foreground">Escolha o plano ideal para você</p>
+              <h2 className="font-display text-2xl tracking-wider text-primary">PLANOS EMPRESARIAIS</h2>
+              <p className="text-sm text-muted-foreground">Para estabelecimentos parceiros</p>
             </div>
           </div>
 
@@ -102,13 +108,7 @@ export default function Planos() {
                 <div>
                   <p className="text-sm text-muted-foreground">Seu plano atual</p>
                   <p className="font-display text-lg tracking-wider text-primary">
-                    {currentPlan === "free" ? "EXPLORADOR" : currentPlan === "premium" ? "CONHECEDOR" : "EMBAIXADOR"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Avaliações hoje</p>
-                  <p className="font-numbers text-lg font-bold text-foreground">
-                    {myPlan.ratingsToday !== null ? `${myPlan.ratingsToday} restantes` : "Ilimitadas"}
+                    {currentPlan === "free" ? "BÁSICO" : "PROFISSIONAL"}
                   </p>
                 </div>
               </div>
@@ -134,23 +134,23 @@ export default function Planos() {
           )}
 
           <div className="grid gap-4 md:grid-cols-2">
-            {userPlans.map((plan) => {
+            {businessPlans.map((plan) => {
               const isCurrent = plan.id === currentPlan;
-              const isPopular = "popular" in plan && plan.popular;
+              const isPremium = plan.id === "premium";
               return (
                 <div
                   key={plan.id}
                   className={`relative p-5 rounded-2xl border transition-all ${
-                    isPopular
+                    isPremium
                       ? "border-primary/40 bg-primary/5 shadow-lg shadow-primary/5"
                       : isCurrent
                       ? "border-primary/60 bg-card ring-2 ring-primary/20"
                       : "border-border/30 bg-card/50"
                   }`}
                 >
-                  {isPopular && !isCurrent && (
+                  {isPremium && !isCurrent && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-display tracking-wider">
-                      POPULAR
+                      RECOMENDADO
                     </div>
                   )}
                   {isCurrent && (
@@ -160,9 +160,9 @@ export default function Planos() {
                   )}
 
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${
-                    isCurrent ? "bg-primary/20 text-primary" : isPopular ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+                    isCurrent ? "bg-primary/20 text-primary" : isPremium ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
                   }`}>
-                    {planIcons[plan.id] || <Star className="w-6 h-6" />}
+                    {isPremium ? <Crown className="w-6 h-6" /> : <Building2 className="w-6 h-6" />}
                   </div>
 
                   <h3 className="font-display text-lg tracking-wider text-foreground">{plan.name.toUpperCase()}</h3>
@@ -176,7 +176,7 @@ export default function Planos() {
                   <ul className="space-y-2 mb-6">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
-                        <Check className={`w-4 h-4 mt-0.5 shrink-0 ${isCurrent || isPopular ? "text-primary" : "text-muted-foreground"}`} />
+                        <Check className={`w-4 h-4 mt-0.5 shrink-0 ${isCurrent || isPremium ? "text-primary" : "text-muted-foreground"}`} />
                         <span className="text-foreground/80">{feature}</span>
                       </li>
                     ))}
@@ -184,8 +184,8 @@ export default function Planos() {
 
                   <Button
                     onClick={() => handleSelectPlan(plan.id, plan.name, plan.price)}
-                    variant={isCurrent ? "outline" : isPopular ? "default" : "outline"}
-                    className={`w-full font-display tracking-wider ${isPopular && !isCurrent ? "glow-amber" : ""}`}
+                    variant={isCurrent ? "outline" : isPremium ? "default" : "outline"}
+                    className={`w-full font-display tracking-wider ${isPremium && !isCurrent ? "glow-amber" : ""}`}
                     disabled={isCurrent || upgradeMutation.isPending}
                   >
                     {isCurrent ? "PLANO ATUAL" : plan.price === 0 ? "VOLTAR AO GRÁTIS" : "ESCOLHER PLANO"}
@@ -195,7 +195,13 @@ export default function Planos() {
             })}
           </div>
 
-
+          {/* Info */}
+          <div className="mt-8 p-4 rounded-xl bg-card/50 border border-border/30">
+            <p className="text-xs text-muted-foreground text-center">
+              Nesta versão beta, o upgrade é concedido automaticamente sem cobrança real.
+              O sistema de pagamento será integrado em breve.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -214,12 +220,6 @@ export default function Planos() {
               O pagamento será processado e seu plano será ativado imediatamente.
               Você pode cancelar a qualquer momento.
             </p>
-            <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-              <p className="text-xs text-muted-foreground">
-                Nesta versão beta, o upgrade é concedido automaticamente sem cobrança real.
-                O sistema de pagamento será integrado em breve.
-              </p>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUpgradeDialog(null)}>

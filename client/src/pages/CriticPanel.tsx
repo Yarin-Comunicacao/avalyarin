@@ -3,11 +3,11 @@
  * Layout idêntico ao SpecialistPanel com tema azul safira.
  * Abas: Visão Geral, Calendário, Parcerias, Códigos, Meu Perfil
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
-import { Redirect, Link } from "wouter";
+import { Redirect, Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp,
@@ -20,7 +20,17 @@ type Tab = "overview" | "calendar" | "ratings" | "promos" | "profile";
 
 export default function CriticPanel() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [location, navigate] = useLocation();
+
+  const getActiveTab = (): Tab => {
+    if (location.includes("/painel-critico/calendario")) return "calendar";
+    if (location.includes("/painel-critico/avaliacoes")) return "ratings";
+    if (location.includes("/painel-critico/codigos")) return "promos";
+    if (location.includes("/painel-critico/perfil")) return "profile";
+    return "overview";
+  };
+
+  const activeTab = getActiveTab();
 
   if (loading) {
     return (
@@ -71,7 +81,19 @@ export default function CriticPanel() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  if (tab.id === "overview") navigate("/painel-critico");
+                  else {
+                    const slugMap: Record<Tab, string> = {
+                      overview: "",
+                      calendar: "calendario",
+                      ratings: "avaliacoes",
+                      promos: "codigos",
+                      profile: "perfil",
+                    };
+                    navigate(`/painel-critico/${slugMap[tab.id]}`);
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
                   activeTab === tab.id
                     ? "bg-blue-500/10 text-blue-400 border-b-2 border-blue-500"
