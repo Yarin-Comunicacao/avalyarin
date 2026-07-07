@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
   Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp,
   MapPin, BadgeCheck, CalendarDays, Clock, ExternalLink, Pencil, Save,
-  BookOpen, Newspaper, FileText
+  BookOpen, Newspaper, FileText, Crown
 } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
 
@@ -576,6 +576,24 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
           </div>
         )}
       </div>
+
+      {/* Link para Planos */}
+      <Link href="/critic/planos">
+        <div className="p-5 rounded-xl bg-card border border-blue-500/30 hover:border-blue-500/60 transition-all cursor-pointer group">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                <Crown className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="font-display text-sm tracking-wider text-foreground">MEU PLANO</h4>
+                <p className="text-xs text-muted-foreground">Gerencie sua assinatura profissional</p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </div>
+      </Link>
     </div>
   );
 }

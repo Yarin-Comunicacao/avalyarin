@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLocation, useRoute } from "wouter";
+import { useLocation, useRoute, Link } from "wouter";
 
 import BusinessDashboardTab from "./BusinessDashboardTab";
 import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
@@ -149,7 +149,27 @@ export default function BusinessInsights() {
 
       {/* Content */}
       <div className="container py-6">
-        {activeTab === "plano" && <BusinessPlanTab establishmentId={estabId} />}
+        {activeTab === "plano" && (
+          <div className="space-y-6">
+            <BusinessPlanTab establishmentId={estabId} />
+            <Link href="/business/plano">
+              <div className="p-5 rounded-xl bg-card border border-primary/30 hover:border-primary/60 transition-all cursor-pointer group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Crown className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-display text-sm tracking-wider text-foreground">VER TODOS OS PLANOS</h4>
+                      <p className="text-xs text-muted-foreground">Compare planos empresariais e faça upgrade</p>
+                    </div>
+                  </div>
+                  <span className="text-primary text-sm">→</span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
         {activeTab === "dashboard" && <BusinessDashboardTab establishmentId={estabId} />}
         {activeTab === "desempenho" && <BusinessDesempenhoTab establishmentId={estabId} />}
         {activeTab === "plano-acao" && <BusinessPlanoAcaoTab establishmentId={estabId} />}

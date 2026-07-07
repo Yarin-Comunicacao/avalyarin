@@ -10,12 +10,12 @@ describe("Plans System", () => {
       expect(Object.keys(PLAN_LIMITS)).toEqual(["free", "premium", "embaixador"]);
     });
 
-    it("free plan should have 3 daily ratings limit", () => {
-      expect(PLAN_LIMITS.free.dailyRatings).toBe(3);
+    it("free plan should have 10 daily ratings limit", () => {
+      expect(PLAN_LIMITS.free.dailyRatings).toBe(10);
     });
 
-    it("premium plan should have 5 daily ratings limit", () => {
-      expect(PLAN_LIMITS.premium.dailyRatings).toBe(5);
+    it("premium plan should have unlimited daily ratings", () => {
+      expect(PLAN_LIMITS.premium.dailyRatings).toBeNull();
     });
 
     it("embaixador plan should have unlimited daily ratings", () => {

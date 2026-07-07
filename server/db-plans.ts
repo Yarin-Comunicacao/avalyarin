@@ -11,7 +11,7 @@ import { eq, and, gte, desc, sql } from "drizzle-orm";
 
 export const PLAN_LIMITS = {
   free: {
-    dailyRatings: 3,
+    dailyRatings: 10,
     maxGroups: null, // unlimited - sem limite de grupos
     maxPromoCodes: 1,
     canCreateSpecialistGroup: false,
@@ -23,12 +23,12 @@ export const PLAN_LIMITS = {
     price: 0,
   },
   premium: {
-    dailyRatings: 5,
+    dailyRatings: null, // unlimited - Conhecedor
     maxGroups: null, // unlimited
     maxPromoCodes: 5,
     canCreateSpecialistGroup: true,
-    hasDouble: true, // "Double" na primeira visita
-    hasPartnerDiscounts: false,
+    hasDouble: true, // "Double" na primeira visita em parceiros
+    hasPartnerDiscounts: true,
     hasHighlight: false,
     hasPrioritySupport: false,
     hasExclusiveEvents: false,

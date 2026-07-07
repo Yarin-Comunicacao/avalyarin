@@ -995,3 +995,12 @@
 - [x] Criar página /critic/planos com apenas plano R$19,90 (ProfessionalPlanos.tsx)
 - [x] Criar página /specialist/planos com apenas plano R$19,90 (ProfessionalPlanos.tsx)
 - [x] Atualizar /conta/planos: removida seção empresarial, removido plano Embaixador, Free=10 avaliações/dia + grupos ilimitados
+
+## Ajustes de Planos e Navegação (07/07/2026)
+- [x] Backend db-plans.ts: atualizar limite free de 3→10 avaliações/dia
+- [x] Backend db-plans.ts: premium (Conhecedor) agora tem avaliações ilimitadas (null)
+- [x] Adicionar link "Meu Plano" no CriticPanel (aba Perfil) → /critic/planos
+- [x] Adicionar link "Meu Plano" no SpecialistPanel (aba Perfil) → /specialist/planos
+- [x] Adicionar link "Ver Todos os Planos" no BusinessInsights (aba Meu Plano) → /business/plano
+- [x] Atualizar testes vitest para refletir novos limites (free=10, premium=null)
+- [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)

@@ -11,7 +11,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import { Redirect, Link, useLocation } from "wouter";
-import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink } from "lucide-react";
+import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink, Crown } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
 import { toast } from "sonner";
 
@@ -356,6 +356,24 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
           Este é o preview do seu perfil público. Os usuários que te seguirem verão suas avaliações no feed e receberão notificações de novas publicações.
         </p>
       </div>
+
+      {/* Link para Planos */}
+      <Link href="/specialist/planos">
+        <div className="p-5 rounded-xl bg-card border border-primary/30 hover:border-primary/60 transition-all cursor-pointer group">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <Crown className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-display text-sm tracking-wider text-foreground">MEU PLANO</h4>
+                <p className="text-xs text-muted-foreground">Gerencie sua assinatura profissional</p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </div>
+      </Link>
     </div>
   );
 }
