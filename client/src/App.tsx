@@ -219,6 +219,10 @@ function Router() {
 // ============================================================
 
 function App() {
+  // Location hook — MUST be called before any conditional returns (Rules of Hooks)
+  const [currentPath] = useLocation();
+  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
+
   // Age Gate
   const [ageConfirmed, setAgeConfirmed] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_age_confirmed") === "true";
@@ -324,9 +328,7 @@ function App() {
     );
   }
 
-  // Detect public routes that should bypass auth choice & survey gates
-  const [currentPath] = useLocation();
-  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
+  // Public route detection is done above (before any early returns)
 
   // 2) Show auth choice (Cadastre-se / Já Tenho Cadastro) — skip for public routes
   if (!authChoiceMade && !isPublicRoute) {
