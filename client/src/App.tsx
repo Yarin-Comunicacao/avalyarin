@@ -215,14 +215,10 @@ function Router() {
 }
 
 // ============================================================
-// APP
+// APP — Gate wrapper (no hooks from wouter here)
 // ============================================================
 
 function App() {
-  // Location hook — MUST be called before any conditional returns (Rules of Hooks)
-  const [currentPath] = useLocation();
-  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
-
   // Age Gate
   const [ageConfirmed, setAgeConfirmed] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_age_confirmed") === "true";
@@ -230,7 +226,6 @@ function App() {
 
   // Auth Choice — shown after age gate, before onboarding/home
   const [authChoiceMade, setAuthChoiceMade] = useState<boolean>(() => {
-    // If user already completed survey OR chose "login" flow, skip this screen
     const flow = localStorage.getItem("avalyarin_auth_flow");
     const surveyDone = localStorage.getItem("avalyarin_survey_completed") === "true";
     return flow !== null || surveyDone;
@@ -252,21 +247,18 @@ function App() {
 
   // GTM injection — loads GTM script dynamically from DB config
   const { data: gtmData } = trpc.integrations.getGtmId.useQuery(undefined, {
-    staleTime: 1000 * 60 * 60, // cache 1 hour
+    staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
   });
   useEffect(() => {
     if (!gtmData?.gtmId) return;
     const gtmId = gtmData.gtmId.trim();
     if (!gtmId || !/^GTM-[A-Z0-9]+$/i.test(gtmId)) return;
-    // Avoid duplicate injection
     if (document.getElementById("gtm-script")) return;
-    // Inject GTM head script
     const script = document.createElement("script");
     script.id = "gtm-script";
     script.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`;
     document.head.appendChild(script);
-    // Inject GTM noscript iframe
     const noscript = document.createElement("noscript");
     noscript.id = "gtm-noscript";
     noscript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
@@ -280,11 +272,9 @@ function App() {
     localStorage.setItem("avalyarin_survey_answers", JSON.stringify(answers));
     setSurveyCompleted(true);
     setShowHowItWorks(true);
-    // Also persist to DB if user is authenticated
     try {
       saveSurveyMutation.mutate(answers);
-    } catch { /* silent - localStorage is primary for now */ }
-    // If user selected an establishment (business flow), auto-create a claim request
+    } catch { /* silent */ }
     if (answers.selectedEstablishmentId) {
       try {
         submitClaimMutation.mutate({
@@ -302,10 +292,6 @@ function App() {
     localStorage.setItem("avalyarin_survey_phase2_completed", "true");
     localStorage.setItem("avalyarin_survey_phase2_answers", JSON.stringify(answers));
     setShowPhase2(false);
-    // Check if phase 3 is now due
-    if (isSurveyPhase3Due()) {
-      // Don't show immediately, let user use the app first
-    }
   }, []);
 
   const handlePhase3Complete = useCallback((answers: Record<string, string | string[] | number>) => {
@@ -328,32 +314,52 @@ function App() {
     );
   }
 
-  // Public route detection is done above (before any early returns)
-
-  // 2) Show auth choice (Cadastre-se / Já Tenho Cadastro) — skip for public routes
-  if (!authChoiceMade && !isPublicRoute) {
+  // 2) Show auth choice — skip for public routes (detected inside AppContent)
+  if (!authChoiceMade) {
     return (
       <ErrorBoundary>
         <ThemeProvider defaultTheme="escuro">
-          <AuthChoice onChoose={(type) => {
-            setAuthChoiceMade(true);
-            // "login" flow marks survey as completed so user goes straight to home
-            // "register" flow keeps survey pending so user sees onboarding after OAuth
-            if (type === "login") {
-              setSurveyCompleted(true);
-            }
-          }} />
+          <AppGateWithRouteCheck
+            gate="authChoice"
+            onPass={() => {}}
+            renderGate={() => (
+              <AuthChoice onChoose={(type) => {
+                setAuthChoiceMade(true);
+                if (type === "login") {
+                  setSurveyCompleted(true);
+                }
+              }} />
+            )}
+            renderContent={() => (
+              <AppContent
+                showHowItWorks={showHowItWorks}
+                setShowHowItWorks={setShowHowItWorks}
+              />
+            )}
+          />
         </ThemeProvider>
       </ErrorBoundary>
     );
   }
 
-  // 3) Show onboarding survey if not completed yet (new users from "Cadastre-se") — skip for public routes
-  if (!surveyCompleted && !isPublicRoute) {
+  // 3) Show onboarding survey if not completed
+  if (!surveyCompleted) {
     return (
       <ErrorBoundary>
         <ThemeProvider defaultTheme="escuro">
-          <OnboardingSurvey onComplete={handleSurveyComplete} />
+          <AppGateWithRouteCheck
+            gate="survey"
+            onPass={() => {}}
+            renderGate={() => (
+              <OnboardingSurvey onComplete={handleSurveyComplete} />
+            )}
+            renderContent={() => (
+              <AppContent
+                showHowItWorks={showHowItWorks}
+                setShowHowItWorks={setShowHowItWorks}
+              />
+            )}
+          />
         </ThemeProvider>
       </ErrorBoundary>
     );
@@ -384,17 +390,60 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="escuro">
-        <BackgroundProvider>
-          <TooltipProvider>
-            <Toaster />
-            <PWAInstallPrompt />
-            <HowItWorksDialog open={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
-            <Router />
-            <BottomNav />
-          </TooltipProvider>
-        </BackgroundProvider>
+        <AppContent
+          showHowItWorks={showHowItWorks}
+          setShowHowItWorks={setShowHowItWorks}
+        />
       </ThemeProvider>
     </ErrorBoundary>
+  );
+}
+
+// ============================================================
+// AppGateWithRouteCheck — uses useLocation safely (always called)
+// Renders gate content OR main content based on public route detection
+// ============================================================
+function AppGateWithRouteCheck({
+  gate,
+  onPass,
+  renderGate,
+  renderContent,
+}: {
+  gate: string;
+  onPass: () => void;
+  renderGate: () => React.ReactNode;
+  renderContent: () => React.ReactNode;
+}) {
+  const [currentPath] = useLocation();
+  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
+
+  if (isPublicRoute) {
+    return <>{renderContent()}</>;
+  }
+
+  return <>{renderGate()}</>;
+}
+
+// ============================================================
+// AppContent — the main app shell with routing (uses useLocation safely)
+// ============================================================
+function AppContent({
+  showHowItWorks,
+  setShowHowItWorks,
+}: {
+  showHowItWorks: boolean;
+  setShowHowItWorks: (v: boolean) => void;
+}) {
+  return (
+    <BackgroundProvider>
+      <TooltipProvider>
+        <Toaster />
+        <PWAInstallPrompt />
+        <HowItWorksDialog open={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
+        <Router />
+        <BottomNav />
+      </TooltipProvider>
+    </BackgroundProvider>
   );
 }
 

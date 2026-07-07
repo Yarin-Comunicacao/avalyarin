@@ -33,10 +33,6 @@ export function PostsCarousel() {
   const progressRef = useRef<NodeJS.Timeout | null>(null);
   const [, navigate] = useLocation();
 
-  // No posts available or error — don't render section
-  if (isError) return null;
-  if (!isLoading && (!posts || posts.length === 0)) return null;
-
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const scrollAmount = 200;
@@ -118,6 +114,10 @@ export function PostsCarousel() {
       clearInterval(progressInterval);
     };
   }, [expandedIndex]);
+
+  // Early returns AFTER all hooks (Rules of Hooks compliance)
+  if (isError) return null;
+  if (!isLoading && (!posts || posts.length === 0)) return null;
 
   const expandedPostData = posts && expandedIndex !== null ? posts[expandedIndex] : null;
   const canGoLeft = expandedIndex !== null && expandedIndex > 0;
