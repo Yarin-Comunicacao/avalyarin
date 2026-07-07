@@ -988,3 +988,4 @@
 - [ ] Gerar arquivos para o Drive (pasta por estabelecimento do Eldorado)
 - [x] Cadastrar AJ Padaria no app com dados completos (Google Maps, Instagram, cardápio)
 - [x] Renomear toda nomenclatura 'influencer' para 'Especialista' (specialist no código) - schema, routers, frontend, banco
+- [ ] Owner deve ter acesso à visão de perfil de user ao clicar no ícone User no BottomNav (mesma experiência que um user normal)

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { ROLE_BOTTOM_NAV, ROLE_COLORS, type AppRole } from "@shared/role-visibility";
 import { cn } from "@/lib/utils";
+import { useOwnerView } from "@/contexts/OwnerViewContext";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
@@ -37,10 +38,22 @@ const OWNER_ROLE_SUBMENUS: Record<string, { icon: string; label: string; path: s
   ],
 };
 
+// Map BottomNav label to AppRole
+const LABEL_TO_ROLE: Record<string, AppRole> = {
+  User: "user",
+  Critic: "critic",
+  Especialista: "specialist",
+  Business: "business",
+  Support: "support",
+  Admin: "admin",
+  Owner: "owner",
+};
+
 export default function BottomNav() {
   const { user, loading, isAuthenticated } = useAuth();
   const [location] = useLocation();
   const [activeOwnerRole, setActiveOwnerRole] = useState<string | null>(null);
+  const { setViewingAs } = useOwnerView();
 
   // While auth is loading, hide the BottomNav entirely to prevent flash of wrong role
   if (loading) {
@@ -161,9 +174,12 @@ export default function BottomNav() {
                     if (item.label === "Busca") {
                       // Busca navigates directly
                       setActiveOwnerRole(null);
+                      setViewingAs(null);
                       window.location.href = item.path;
                     } else {
-                      setActiveOwnerRole(isSelected ? null : item.label);
+                      const newRole = isSelected ? null : item.label;
+                      setActiveOwnerRole(newRole);
+                      setViewingAs(newRole ? (LABEL_TO_ROLE[newRole] || null) : null);
                     }
                   }}
                   className="flex flex-col items-center gap-0.5 px-2 py-1 cursor-pointer"

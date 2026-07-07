@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import type { AppRole } from "@shared/role-visibility";
+import { useOwnerView } from "@/contexts/OwnerViewContext";
 import UserProfile from "./UserProfile";
 import SpecialistProfile from "./SpecialistProfile";
 import BusinessProfile from "./BusinessProfile";
@@ -9,10 +10,13 @@ import OwnerProfile from "./OwnerProfile";
 import CriticProfile from "./CriticProfile";
 
 /**
- * Renders the appropriate profile component based on the user's role
+ * Renders the appropriate profile component based on the user's role.
+ * When an owner is "viewing as" another role via the BottomNav role-switcher,
+ * it renders the profile for that role instead of the OwnerProfile.
  */
 export default function RoleBasedProfile() {
   const { user, loading } = useAuth();
+  const { viewingAs } = useOwnerView();
 
   if (loading) {
     return (
@@ -22,9 +26,15 @@ export default function RoleBasedProfile() {
     );
   }
 
-  const role: AppRole = (user?.role as AppRole) || "user";
+  const actualRole: AppRole = (user?.role as AppRole) || "user";
+  // If owner is viewing as another role, use that role for profile selection
+  const effectiveRole = (actualRole === "owner" && viewingAs && viewingAs !== "owner")
+    ? viewingAs
+    : actualRole;
 
-  switch (role) {
+  switch (effectiveRole) {
+    case "user":
+      return <UserProfile />;
     case "specialist":
       return <SpecialistProfile />;
     case "business":

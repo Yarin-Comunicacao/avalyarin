@@ -9,6 +9,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { BackgroundProvider } from "./contexts/BackgroundContext";
+import { OwnerViewProvider } from "./contexts/OwnerViewContext";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
 import CategoryGroupPage from "./pages/CategoryGroupPage";
@@ -435,15 +436,17 @@ function AppContent({
   setShowHowItWorks: (v: boolean) => void;
 }) {
   return (
-    <BackgroundProvider>
-      <TooltipProvider>
-        <Toaster />
-        <PWAInstallPrompt />
-        <HowItWorksDialog open={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
-        <Router />
-        <BottomNav />
-      </TooltipProvider>
-    </BackgroundProvider>
+    <OwnerViewProvider>
+      <BackgroundProvider>
+        <TooltipProvider>
+          <Toaster />
+          <PWAInstallPrompt />
+          <HowItWorksDialog open={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
+          <Router />
+          <BottomNav />
+        </TooltipProvider>
+      </BackgroundProvider>
+    </OwnerViewProvider>
   );
 }
 
