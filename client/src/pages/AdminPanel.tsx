@@ -8,8 +8,17 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink, Newspaper
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink, Newspaper, Loader2
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function AdminPanel() {
   const { user, loading } = useAuth();
@@ -40,7 +49,7 @@ export default function AdminPanel() {
   // Sub-tab state per section
   const [equipeTab, setEquipeTab] = useState<"user" | "critic" | "specialist" | "business" | "support">("user");
   const [negocioTab, setNegocioTab] = useState<"dashboard" | "establishments" | "promos" | "planos">("dashboard");
-  const [permissoesTab, setPermissoesTab] = useState<"claims" | "age-verification" | "insights">("claims");
+  const [permissoesTab, setPermissoesTab] = useState<"claims" | "age-verification" | "insights" | "role-requests">("claims");
   const [configTab, setConfigTab] = useState<"integrations">("integrations");
 
   // Sync section from URL when navigating
@@ -128,7 +137,7 @@ export default function AdminPanel() {
           )}
           {activeSection === "permissoes" && (
             <>
-              {(["claims", "age-verification", "insights"] as const).map(tab => (
+              {(["claims", "age-verification", "role-requests", "insights"] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setPermissoesTab(tab)}
@@ -136,7 +145,7 @@ export default function AdminPanel() {
                     permissoesTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {{ claims: "Solicitações", "age-verification": "Verificação", insights: "Insights" }[tab]}
+                  {{ claims: "Solicitações", "age-verification": "Verificação", "role-requests": "Perfis", insights: "Insights" }[tab]}
                 </button>
               ))}
             </>
@@ -183,6 +192,7 @@ export default function AdminPanel() {
         {/* Permissões section */}
         {activeSection === "permissoes" && permissoesTab === "claims" && <ClaimsTab />}
         {activeSection === "permissoes" && permissoesTab === "age-verification" && <AgeVerificationTab />}
+        {activeSection === "permissoes" && permissoesTab === "role-requests" && <RoleRequestsTab />}
         {activeSection === "permissoes" && permissoesTab === "insights" && <InsightsTab />}
 
         {/* Config section */}
@@ -1792,6 +1802,257 @@ function PlanosTab() {
         <p className="text-muted-foreground">Gerenciamento de planos de assinatura.</p>
         <p className="text-xs text-muted-foreground/60 mt-2">Em breve: configuração de planos Free, Premium e Pro.</p>
       </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// ROLE REQUESTS TAB — Solicitações para virar Critic/Specialist
+// ============================================================
+function RoleRequestsTab() {
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | undefined>("pending");
+  const [reviewDialog, setReviewDialog] = useState<{
+    id: number;
+    action: "approved" | "rejected";
+    userName: string;
+    requestedRole: string;
+  } | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
+  const utils = trpc.useUtils();
+
+  const { data: requests, isLoading } = trpc.roleRequests.list.useQuery({ status: filter });
+  const { data: pendingCount } = trpc.roleRequests.pendingCount.useQuery();
+
+  const reviewMutation = trpc.roleRequests.review.useMutation({
+    onSuccess: (result) => {
+      toast.success(
+        result.newRole
+          ? `Perfil aprovado! Usuário promovido para ${result.newRole}.`
+          : "Solicitação rejeitada."
+      );
+      utils.roleRequests.list.invalidate();
+      utils.roleRequests.pendingCount.invalidate();
+      setReviewDialog(null);
+      setReviewNote("");
+    },
+    onError: (err) => {
+      toast.error("Erro ao processar", { description: err.message });
+    },
+  });
+
+  const handleReview = () => {
+    if (!reviewDialog) return;
+    reviewMutation.mutate({
+      requestId: reviewDialog.id,
+      action: reviewDialog.action,
+      reviewNote: reviewNote || undefined,
+    });
+  };
+
+  const roleLabels: Record<string, string> = {
+    critic: "Crítico",
+    specialist: "Especialista",
+  };
+
+  const statusLabels: Record<string, { label: string; color: string }> = {
+    pending: { label: "Pendente", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30" },
+    approved: { label: "Aprovado", color: "text-green-400 bg-green-500/10 border-green-500/30" },
+    rejected: { label: "Rejeitado", color: "text-red-400 bg-red-500/10 border-red-500/30" },
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-display text-xl tracking-wider text-primary">SOLICITAÇÕES DE PERFIL</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Gerencie solicitações de usuários para se tornarem Críticos ou Especialistas
+          </p>
+        </div>
+        {pendingCount && pendingCount.count > 0 && (
+          <span className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-sm font-medium">
+            {pendingCount.count} pendente{pendingCount.count > 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
+      {/* Filter */}
+      <div className="flex gap-2">
+        {([
+          { value: "pending", label: "Pendentes" },
+          { value: "approved", label: "Aprovados" },
+          { value: "rejected", label: "Rejeitados" },
+          { value: undefined, label: "Todos" },
+        ] as const).map((f) => (
+          <button
+            key={f.label}
+            onClick={() => setFilter(f.value as any)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              filter === f.value
+                ? "bg-primary/20 text-primary border border-primary/30"
+                : "bg-card border border-border/30 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      ) : requests?.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>Nenhuma solicitação {filter === "pending" ? "pendente" : filter === "approved" ? "aprovada" : filter === "rejected" ? "rejeitada" : ""}.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {requests?.map((req) => {
+            const status = statusLabels[req.status] || statusLabels.pending;
+            return (
+              <div key={req.id} className="p-4 rounded-xl bg-card border border-border/30">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-foreground">{req.userName || "Usuário"}</span>
+                      {req.userUsername && (
+                        <span className="text-xs text-muted-foreground">@{req.userUsername}</span>
+                      )}
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                      <span>Quer ser: <strong className="text-foreground">{roleLabels[req.requestedRole] || req.requestedRole}</strong></span>
+                      <span>•</span>
+                      <span>Role atual: {req.userRole || "user"}</span>
+                      <span>•</span>
+                      <span>{new Date(req.createdAt).toLocaleDateString("pt-BR")}</span>
+                    </div>
+
+                    {/* Message */}
+                    <div className="mt-2 p-3 rounded-lg bg-background border border-border/30">
+                      <p className="text-sm text-foreground/90 whitespace-pre-wrap">{req.message}</p>
+                    </div>
+
+                    {/* Extra fields */}
+                    {req.experience && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-0.5">Experiência:</p>
+                        <p className="text-sm text-foreground/80 whitespace-pre-wrap">{req.experience}</p>
+                      </div>
+                    )}
+                    {req.portfolio && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-0.5">Portfólio:</p>
+                        <p className="text-sm text-foreground/80 whitespace-pre-wrap">{req.portfolio}</p>
+                      </div>
+                    )}
+                    {req.specialties && (
+                      <div className="mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-0.5">Especialidades:</p>
+                        <p className="text-sm text-foreground/80 whitespace-pre-wrap">{req.specialties}</p>
+                      </div>
+                    )}
+
+                    {/* Review note */}
+                    {req.reviewNote && (
+                      <div className="mt-2 p-2 rounded-lg bg-primary/5 border border-primary/20">
+                        <p className="text-xs text-muted-foreground">Nota do revisor:</p>
+                        <p className="text-sm text-foreground/80">{req.reviewNote}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  {req.status === "pending" && (
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        onClick={() => setReviewDialog({
+                          id: req.id,
+                          action: "approved",
+                          userName: req.userName || "Usuário",
+                          requestedRole: req.requestedRole,
+                        })}
+                        className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                      >
+                        Aprovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setReviewDialog({
+                          id: req.id,
+                          action: "rejected",
+                          userName: req.userName || "Usuário",
+                          requestedRole: req.requestedRole,
+                        })}
+                        className="text-red-400 border-red-500/30 hover:bg-red-500/10 text-xs"
+                      >
+                        Rejeitar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Review Dialog */}
+      <Dialog open={!!reviewDialog} onOpenChange={() => { setReviewDialog(null); setReviewNote(""); }}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display tracking-wider">
+              {reviewDialog?.action === "approved" ? "APROVAR SOLICITAÇÃO" : "REJEITAR SOLICITAÇÃO"}
+            </DialogTitle>
+            <DialogDescription>
+              {reviewDialog?.action === "approved"
+                ? `Ao aprovar, ${reviewDialog?.userName} será promovido(a) para ${roleLabels[reviewDialog?.requestedRole || ""] || reviewDialog?.requestedRole}.`
+                : `Rejeitar a solicitação de ${reviewDialog?.userName} para se tornar ${roleLabels[reviewDialog?.requestedRole || ""] || reviewDialog?.requestedRole}.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium text-foreground mb-1 block">
+              Nota (opcional)
+            </label>
+            <textarea
+              value={reviewNote}
+              onChange={(e) => setReviewNote(e.target.value)}
+              placeholder={reviewDialog?.action === "approved"
+                ? "Ex: Bem-vindo ao time de profissionais!"
+                : "Ex: Precisamos de mais informações sobre sua experiência..."}
+              className="w-full min-h-[80px] p-3 rounded-xl bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              maxLength={500}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setReviewDialog(null); setReviewNote(""); }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleReview}
+              disabled={reviewMutation.isPending}
+              className={reviewDialog?.action === "approved"
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-red-600 hover:bg-red-700 text-white"}
+            >
+              {reviewMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Processando...</>
+              ) : reviewDialog?.action === "approved" ? (
+                "CONFIRMAR APROVAÇÃO"
+              ) : (
+                "CONFIRMAR REJEIÇÃO"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

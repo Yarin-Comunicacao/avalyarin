@@ -4,6 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { protectedProcedure, publicProcedure, router, adminProcedure, businessProcedure, supportProcedure, ownerProcedure, criticProcedure } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { systemRouter } from "./_core/systemRouter";
+import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 import { smartSearch } from "./smart-search";
 import {
@@ -85,6 +86,10 @@ import {
   addEstablishmentBadge,
   removeEstablishmentBadge,
   getMenuItemProfessionalStars,
+  submitRoleRequest,
+  listRoleRequests,
+  reviewRoleRequest,
+  getUserRoleRequests,
 } from "./db";
 import {
   createGroup,
@@ -3040,6 +3045,87 @@ export const appRouter = router({
         }
         return { seeded: true, count: onboardingQuestions.length + explorerQuestions.length + connoisseurQuestions.length };
       }),
+  }),
+
+  // ============================================================
+  // ROLE REQUESTS — Solicitações para virar Critic ou Specialist
+  // ============================================================
+  roleRequests: router({
+    // Usuário submete solicitação
+    submit: protectedProcedure
+      .input(z.object({
+        requestedRole: z.enum(["critic", "specialist"]),
+        message: z.string().min(10, "Descreva brevemente por que deseja este perfil (mín. 10 caracteres)").max(1000),
+        experience: z.string().max(2000).optional(),
+        portfolio: z.string().max(1000).optional(),
+        specialties: z.string().max(1000).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Não permitir se já é o role solicitado
+        if (ctx.user.role === input.requestedRole) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Você já possui este perfil." });
+        }
+        try {
+          const result = await submitRoleRequest({
+            userId: ctx.user.id,
+            requestedRole: input.requestedRole,
+            message: input.message,
+            experience: input.experience,
+            portfolio: input.portfolio,
+            specialties: input.specialties,
+          });
+          // Notificar admin sobre nova solicitação
+          const roleLabel = input.requestedRole === "critic" ? "Crítico" : "Especialista";
+          notifyOwner({
+            title: `Nova solicitação de perfil: ${roleLabel}`,
+            content: `${ctx.user.name || "Usuário"} solicitou se tornar ${roleLabel}.\nMotivação: ${input.message.substring(0, 200)}${input.message.length > 200 ? "..." : ""}`,
+          }).catch(() => {}); // fire-and-forget
+          return result;
+        } catch (e: any) {
+          throw new TRPCError({ code: "CONFLICT", message: e.message });
+        }
+      }),
+
+    // Usuário consulta suas solicitações
+    myRequests: protectedProcedure.query(async ({ ctx }) => {
+      return getUserRoleRequests(ctx.user.id);
+    }),
+
+    // Admin lista solicitações
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "approved", "rejected"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return listRoleRequests(input?.status);
+      }),
+
+    // Admin aprova/rejeita
+    review: adminProcedure
+      .input(z.object({
+        requestId: z.number(),
+        action: z.enum(["approved", "rejected"]),
+        reviewNote: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await reviewRoleRequest({
+            requestId: input.requestId,
+            action: input.action,
+            reviewedBy: ctx.user.id,
+            reviewNote: input.reviewNote,
+          });
+          return result;
+        } catch (e: any) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: e.message });
+        }
+      }),
+
+    // Contagem de pendentes (para badge no admin)
+    pendingCount: adminProcedure.query(async () => {
+      const pending = await listRoleRequests("pending");
+      return { count: pending.length };
+    }),
   }),
 });
 export type AppRouter = typeof appRouter;

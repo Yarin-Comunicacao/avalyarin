@@ -1012,3 +1012,17 @@
 - [x] Criar endpoint tRPC para verificar quais itens foram avaliados por specialist/critic
 - [x] Exibir estrela de 4 pontas no perfil do specialist (dourada) e do critic (safira)
 - [x] Substituir Star (5 pontas) por FourPointStar em: CriticPanel, SpecialistPanel, EstablishmentPage, PublicProfilePage, SpecialistProfilePage
+
+## Fluxo de Solicitação para Critic/Specialist
+- [x] Criar tabela role_requests no banco (userId, requestedRole, status, message, experience, portfolio, specialties, reviewedBy, reviewNote, timestamps)
+- [x] Migrar tabela com pnpm db:push
+- [x] Criar endpoint tRPC: roleRequests.submit (user envia solicitação)
+- [x] Criar endpoint tRPC: roleRequests.myRequests (user vê suas solicitações)
+- [x] Criar endpoint tRPC: roleRequests.list (admin lista solicitações)
+- [x] Criar endpoint tRPC: roleRequests.review (admin aprova/rejeita + altera role automaticamente)
+- [x] Criar endpoint tRPC: roleRequests.pendingCount (badge no admin)
+- [x] Formulário de solicitação na página /critic/planos e /specialist/planos
+- [x] Botão "Quero ser Crítico" e "Quero ser Especialista" com formulário completo
+- [x] Seção "Perfis" na aba Permissões do painel Admin (listar, aprovar, rejeitar com nota)
+- [x] Notificação ao Admin (notifyOwner) quando nova solicitação chegar
+- [x] Status banners no frontend (pendente, aprovado, rejeitado)

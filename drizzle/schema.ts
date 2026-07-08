@@ -899,3 +899,27 @@ export const establishmentBadges = mysqlTable("establishment_badges", {
 });
 export type EstablishmentBadge = typeof establishmentBadges.$inferSelect;
 export type InsertEstablishmentBadge = typeof establishmentBadges.$inferInsert;
+
+// ============================================================
+// Role Requests — solicitações de usuários para virar Critic ou Specialist
+// ============================================================
+export const roleRequests = mysqlTable("role_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  requestedRole: mysqlEnum("requestedRole", ["critic", "specialist"]).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  // Dados do formulário de solicitação
+  message: text("message"), // Mensagem do usuário explicando por que quer o role
+  experience: text("experience"), // Experiência profissional/gastronômica
+  portfolio: text("portfolio"), // Links de portfólio, redes sociais, certificações
+  specialties: text("specialties"), // Áreas de especialidade (para specialist)
+  // Revisão pelo admin
+  reviewedBy: int("reviewedBy"), // userId do admin que revisou
+  reviewNote: text("reviewNote"), // Nota do admin sobre a decisão
+  reviewedAt: timestamp("reviewedAt"),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type RoleRequest = typeof roleRequests.$inferSelect;
+export type InsertRoleRequest = typeof roleRequests.$inferInsert;

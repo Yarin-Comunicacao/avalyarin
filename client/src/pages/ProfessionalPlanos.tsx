@@ -1,12 +1,13 @@
 /**
  * Planos Profissionais — /critic/planos e /specialist/planos
- * Página para críticos e especialistas verem e assinarem o plano profissional (R$19,90/mês).
+ * Página para usuários solicitarem virar Crítico ou Especialista.
+ * Inclui: plano R$19,90/mês + formulário de solicitação.
  * Acessível via: Perfil > Editar Perfil > Planos
  */
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/sonner";
-import { Crown, Check, Loader2, ArrowLeft, Star, Zap } from "lucide-react";
+import { Crown, Check, Loader2, ArrowLeft, Star, Zap, Send, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -22,15 +23,41 @@ import {
 
 export default function ProfessionalPlanos() {
   const [upgradeDialog, setUpgradeDialog] = useState<{ plan: string; name: string; price: number } | null>(null);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [formData, setFormData] = useState({
+    message: "",
+    experience: "",
+    portfolio: "",
+    specialties: "",
+  });
   const { user, isAuthenticated } = useAuth();
   const [location] = useLocation();
 
   const isCritic = location.includes("/critic/");
   const roleLabel = isCritic ? "Crítico" : "Especialista";
   const backPath = isCritic ? "/painel-critico/perfil" : "/painel-especialista/perfil";
+  const requestedRole = isCritic ? "critic" as const : "specialist" as const;
 
   const { data: myPlan, refetch: refetchPlan } = trpc.plans.myPlan.useQuery(undefined, {
     enabled: isAuthenticated,
+  });
+
+  const { data: myRequests, refetch: refetchRequests } = trpc.roleRequests.myRequests.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const submitRequest = trpc.roleRequests.submit.useMutation({
+    onSuccess: () => {
+      toast.success("Solicitação enviada!", {
+        description: "Sua solicitação será analisada pela equipe. Você receberá uma notificação quando for revisada.",
+      });
+      setShowRequestForm(false);
+      setFormData({ message: "", experience: "", portfolio: "", specialties: "" });
+      refetchRequests();
+    },
+    onError: (err) => {
+      toast.error("Erro ao enviar solicitação", { description: err.message });
+    },
   });
 
   const upgradeMutation = trpc.plans.upgrade.useMutation({
@@ -60,6 +87,18 @@ export default function ProfessionalPlanos() {
 
   const currentPlan = myPlan?.plan ?? "free";
 
+  // Check if user already has the role or has a pending request
+  const userAlreadyHasRole = user?.role === requestedRole;
+  const pendingRequest = myRequests?.find(
+    (r) => r.requestedRole === requestedRole && r.status === "pending"
+  );
+  const approvedRequest = myRequests?.find(
+    (r) => r.requestedRole === requestedRole && r.status === "approved"
+  );
+  const rejectedRequest = myRequests?.find(
+    (r) => r.requestedRole === requestedRole && r.status === "rejected"
+  );
+
   const handleSelectPlan = (planId: string, planName: string, price: number) => {
     if (planId === currentPlan) {
       toast("Você já está neste plano!");
@@ -75,6 +114,20 @@ export default function ProfessionalPlanos() {
   const confirmUpgrade = () => {
     if (!upgradeDialog) return;
     upgradeMutation.mutate({ plan: upgradeDialog.plan as "premium" | "embaixador" });
+  };
+
+  const handleSubmitRequest = () => {
+    if (formData.message.length < 10) {
+      toast.error("Mensagem muito curta", { description: "Descreva brevemente por que deseja este perfil (mín. 10 caracteres)." });
+      return;
+    }
+    submitRequest.mutate({
+      requestedRole,
+      message: formData.message,
+      experience: formData.experience || undefined,
+      portfolio: formData.portfolio || undefined,
+      specialties: formData.specialties || undefined,
+    });
   };
 
   const plans = [
@@ -136,6 +189,50 @@ export default function ProfessionalPlanos() {
             </div>
           </div>
 
+          {/* Request Status Banner */}
+          {pendingRequest && (
+            <div className="mb-6 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5">
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-yellow-500" />
+                <div>
+                  <p className="text-sm font-medium text-yellow-400">Solicitação em análise</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Sua solicitação para se tornar {roleLabel} está sendo analisada pela equipe.
+                    Enviada em {new Date(pendingRequest.createdAt).toLocaleDateString("pt-BR")}.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {approvedRequest && !userAlreadyHasRole && (
+            <div className="mb-6 p-4 rounded-xl border border-green-500/30 bg-green-500/5">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <div>
+                  <p className="text-sm font-medium text-green-400">Solicitação aprovada!</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Parabéns! Sua solicitação foi aprovada. Faça logout e login novamente para ativar seu novo perfil.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {rejectedRequest && !pendingRequest && !approvedRequest && (
+            <div className="mb-6 p-4 rounded-xl border border-red-500/30 bg-red-500/5">
+              <div className="flex items-center gap-3">
+                <XCircle className="w-5 h-5 text-red-500" />
+                <div>
+                  <p className="text-sm font-medium text-red-400">Solicitação não aprovada</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {rejectedRequest.reviewNote || "Sua solicitação não foi aprovada neste momento. Você pode tentar novamente."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Current plan indicator */}
           {isAuthenticated && myPlan && (
             <div className={`mb-8 p-4 rounded-xl border ${
@@ -170,11 +267,11 @@ export default function ProfessionalPlanos() {
             </div>
           )}
 
+          {/* Plans Grid */}
           <div className="grid gap-4 md:grid-cols-2">
             {plans.map((plan) => {
               const isCurrent = plan.id === currentPlan;
               const isPopular = "popular" in plan && plan.popular;
-              const accentColor = isCritic ? "blue-500" : "primary";
               return (
                 <div
                   key={plan.id}
@@ -248,6 +345,128 @@ export default function ProfessionalPlanos() {
               );
             })}
           </div>
+
+          {/* Request to become Critic/Specialist */}
+          {!userAlreadyHasRole && !pendingRequest && (
+            <div className="mt-10">
+              <div className={`p-6 rounded-2xl border ${
+                isCritic ? "border-blue-500/30 bg-blue-500/5" : "border-primary/30 bg-primary/5"
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <Send className={`w-5 h-5 ${isCritic ? "text-blue-500" : "text-primary"}`} />
+                  <h3 className={`font-display text-lg tracking-wider ${isCritic ? "text-blue-400" : "text-primary"}`}>
+                    QUERO SER {roleLabel.toUpperCase()}
+                  </h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {isCritic
+                    ? "Envie sua solicitação para se tornar um Crítico Gastronômico no AvaLyarin. Sua candidatura será analisada pela equipe administrativa."
+                    : "Envie sua solicitação para se tornar um Especialista Gastronômico no AvaLyarin. Sua candidatura será analisada pela equipe administrativa."}
+                </p>
+
+                {!showRequestForm ? (
+                  <Button
+                    onClick={() => setShowRequestForm(true)}
+                    className={`font-display tracking-wider ${
+                      isCritic ? "bg-blue-500 hover:bg-blue-600 text-white" : "glow-amber"
+                    }`}
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    SOLICITAR PERFIL DE {roleLabel.toUpperCase()}
+                  </Button>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Message - required */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-1 block">
+                        Por que você deseja ser {roleLabel}? *
+                      </label>
+                      <textarea
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        placeholder={isCritic
+                          ? "Descreva sua motivação para se tornar um crítico gastronômico..."
+                          : "Descreva sua motivação para se tornar um especialista gastronômico..."}
+                        className="w-full min-h-[100px] p-3 rounded-xl bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                        maxLength={1000}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">{formData.message.length}/1000 caracteres (mín. 10)</p>
+                    </div>
+
+                    {/* Experience */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-1 block">
+                        Experiência profissional/gastronômica
+                      </label>
+                      <textarea
+                        value={formData.experience}
+                        onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        placeholder={isCritic
+                          ? "Ex: 5 anos escrevendo sobre gastronomia, colunista no jornal X, blog de reviews..."
+                          : "Ex: Formação em gastronomia pela escola X, 10 anos como chef, especialização em cozinha japonesa..."}
+                        className="w-full min-h-[80px] p-3 rounded-xl bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                        maxLength={2000}
+                      />
+                    </div>
+
+                    {/* Portfolio */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-1 block">
+                        Portfólio / Redes sociais
+                      </label>
+                      <textarea
+                        value={formData.portfolio}
+                        onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
+                        placeholder="Links do seu Instagram, blog, canal YouTube, LinkedIn ou outros perfis relevantes..."
+                        className="w-full min-h-[60px] p-3 rounded-xl bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                        maxLength={1000}
+                      />
+                    </div>
+
+                    {/* Specialties - only for specialist */}
+                    {!isCritic && (
+                      <div>
+                        <label className="text-sm font-medium text-foreground mb-1 block">
+                          Áreas de especialidade
+                        </label>
+                        <textarea
+                          value={formData.specialties}
+                          onChange={(e) => setFormData({ ...formData, specialties: e.target.value })}
+                          placeholder="Ex: Cozinha japonesa, vinhos franceses, confeitaria artesanal, cerveja artesanal..."
+                          className="w-full min-h-[60px] p-3 rounded-xl bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                          maxLength={1000}
+                        />
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowRequestForm(false)}
+                        className="font-display tracking-wider"
+                      >
+                        CANCELAR
+                      </Button>
+                      <Button
+                        onClick={handleSubmitRequest}
+                        disabled={submitRequest.isPending || formData.message.length < 10}
+                        className={`font-display tracking-wider ${
+                          isCritic ? "bg-blue-500 hover:bg-blue-600 text-white" : "glow-amber"
+                        }`}
+                      >
+                        {submitRequest.isPending ? (
+                          <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Enviando...</>
+                        ) : (
+                          <><Send className="w-4 h-4 mr-2" /> ENVIAR SOLICITAÇÃO</>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Info */}
           <div className="mt-8 p-4 rounded-xl bg-card/50 border border-border/30">

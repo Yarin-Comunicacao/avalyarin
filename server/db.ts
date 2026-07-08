@@ -1,6 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2856,4 +2856,117 @@ export async function getMenuItemProfessionalStars(establishmentId: number): Pro
     menuItemId,
     ...flags,
   }));
+}
+
+
+// ============================================================
+// ROLE REQUESTS — Solicitações para virar Critic ou Specialist
+// ============================================================
+
+export async function submitRoleRequest(data: {
+  userId: number;
+  requestedRole: "critic" | "specialist";
+  message?: string;
+  experience?: string;
+  portfolio?: string;
+  specialties?: string;
+}) {
+  const db = (await getDb())!;
+  // Check if user already has a pending request for this role
+  const existing = await db
+    .select()
+    .from(roleRequests)
+    .where(and(
+      eq(roleRequests.userId, data.userId),
+      eq(roleRequests.requestedRole, data.requestedRole),
+      eq(roleRequests.status, "pending")
+    ));
+  if (existing.length > 0) {
+    throw new Error("Você já possui uma solicitação pendente para este perfil.");
+  }
+  const [result] = await db.insert(roleRequests).values({
+    userId: data.userId,
+    requestedRole: data.requestedRole,
+    message: data.message || null,
+    experience: data.experience || null,
+    portfolio: data.portfolio || null,
+    specialties: data.specialties || null,
+  });
+  return { id: result.insertId };
+}
+
+export async function listRoleRequests(status?: "pending" | "approved" | "rejected") {
+  const db = (await getDb())!;
+  const conditions = status ? [eq(roleRequests.status, status)] : [];
+  const requests = await db
+    .select({
+      id: roleRequests.id,
+      userId: roleRequests.userId,
+      requestedRole: roleRequests.requestedRole,
+      status: roleRequests.status,
+      message: roleRequests.message,
+      experience: roleRequests.experience,
+      portfolio: roleRequests.portfolio,
+      specialties: roleRequests.specialties,
+      reviewedBy: roleRequests.reviewedBy,
+      reviewNote: roleRequests.reviewNote,
+      reviewedAt: roleRequests.reviewedAt,
+      createdAt: roleRequests.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+      userUsername: users.username,
+      userRole: users.role,
+    })
+    .from(roleRequests)
+    .leftJoin(users, eq(roleRequests.userId, users.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(roleRequests.createdAt));
+  return requests;
+}
+
+export async function reviewRoleRequest(data: {
+  requestId: number;
+  action: "approved" | "rejected";
+  reviewedBy: number;
+  reviewNote?: string;
+}) {
+  const db = (await getDb())!;
+  // Get the request
+  const [request] = await db
+    .select()
+    .from(roleRequests)
+    .where(eq(roleRequests.id, data.requestId));
+  if (!request) throw new Error("Solicitação não encontrada.");
+  if (request.status !== "pending") throw new Error("Esta solicitação já foi revisada.");
+
+  // Update request status
+  await db
+    .update(roleRequests)
+    .set({
+      status: data.action,
+      reviewedBy: data.reviewedBy,
+      reviewNote: data.reviewNote || null,
+      reviewedAt: new Date(),
+    })
+    .where(eq(roleRequests.id, data.requestId));
+
+  // If approved, update user role
+  if (data.action === "approved") {
+    await db
+      .update(users)
+      .set({ role: request.requestedRole })
+      .where(eq(users.id, request.userId));
+  }
+
+  return { success: true, newRole: data.action === "approved" ? request.requestedRole : null };
+}
+
+export async function getUserRoleRequests(userId: number) {
+  const db = (await getDb())!;
+  const requests = await db
+    .select()
+    .from(roleRequests)
+    .where(eq(roleRequests.userId, userId))
+    .orderBy(desc(roleRequests.createdAt));
+  return requests;
 }
