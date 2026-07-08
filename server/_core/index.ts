@@ -184,6 +184,19 @@ async function startServer() {
     }
   });
 
+  // Heartbeat: expire professional roles after 35 days without payment
+  app.post("/api/scheduled/expire-roles", async (req, res) => {
+    try {
+      const { expireOverdueRoles } = await import("../db-plans");
+      const result = await expireOverdueRoles();
+      console.log(`[Heartbeat] Expired ${result.expired} professional roles`);
+      res.json({ ok: true, ...result, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("[Heartbeat] expire-roles error:", error);
+      res.status(500).json({ error: error.message, stack: error.stack, timestamp: new Date().toISOString() });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

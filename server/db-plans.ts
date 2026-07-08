@@ -4,8 +4,9 @@ import {
   subscriptions,
   businessSubscriptions,
   ratings,
+  users,
 } from "../drizzle/schema";
-import { eq, and, gte, desc, sql } from "drizzle-orm";
+import { eq, and, gte, desc, sql, lte, inArray } from "drizzle-orm";
 
 // ─── Plan Constants ──────────────────────────────────────────────────────────
 
@@ -371,4 +372,100 @@ export async function adminGrantPlan(userId: number, plan: "premium" | "embaixad
     paymentMethod: "admin_grant",
     durationMonths,
   });
+}
+
+// ─── Role Expiration (35 days without payment) ──────────────────────────────
+
+/**
+ * Expire professional roles (critic/specialist) for users whose plan
+ * expired more than 35 days ago. Reverts them to 'user' role.
+ * Called by the Heartbeat cron daily.
+ */
+export async function expireOverdueRoles(): Promise<{ expired: number; userIds: number[] }> {
+  const db = await getDb();
+  if (!db) return { expired: 0, userIds: [] };
+
+  const GRACE_PERIOD_DAYS = 35;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - GRACE_PERIOD_DAYS);
+
+  // Find users who are critic/specialist AND whose plan expired before cutoff
+  const expiredProfessionals = await db
+    .select({ userId: userPlans.userId })
+    .from(userPlans)
+    .innerJoin(users, eq(users.id, userPlans.userId))
+    .where(
+      and(
+        inArray(users.role, ["critic", "specialist"]),
+        lte(userPlans.expiresAt, cutoffDate)
+      )
+    );
+
+  if (expiredProfessionals.length === 0) {
+    return { expired: 0, userIds: [] };
+  }
+
+  const userIds = expiredProfessionals.map((r) => r.userId);
+
+  // Revert role to 'user'
+  await db
+    .update(users)
+    .set({ role: "user" })
+    .where(inArray(users.id, userIds));
+
+  // Also downgrade their plan to free
+  for (const uid of userIds) {
+    await db
+      .update(userPlans)
+      .set({ plan: "free", expiresAt: null })
+      .where(eq(userPlans.userId, uid));
+  }
+
+  return { expired: userIds.length, userIds };
+}
+
+/**
+ * Check a single user's role expiration on login.
+ * If their plan expired 35+ days ago and they're critic/specialist, revert to user.
+ * Returns true if role was expired.
+ */
+export async function checkAndExpireUserRole(userId: number, currentRole: string): Promise<boolean> {
+  if (currentRole !== "critic" && currentRole !== "specialist") return false;
+
+  const db = await getDb();
+  if (!db) return false;
+
+  const GRACE_PERIOD_DAYS = 35;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - GRACE_PERIOD_DAYS);
+
+  const [planRecord] = await db
+    .select()
+    .from(userPlans)
+    .where(eq(userPlans.userId, userId))
+    .limit(1);
+
+  // If no plan record or plan is free, check if they should still be critic/specialist
+  if (!planRecord || planRecord.plan === "free") {
+    // No paid plan — check if expiresAt exists and is past cutoff
+    if (!planRecord || !planRecord.expiresAt) {
+      // No expiration set — they might have been granted the role without a plan
+      // Don't expire in this case (admin-granted roles without plan)
+      return false;
+    }
+    if (new Date(planRecord.expiresAt) < cutoffDate) {
+      // Expired more than 35 days ago — revert
+      await db.update(users).set({ role: "user" }).where(eq(users.id, userId));
+      return true;
+    }
+  } else {
+    // Has a paid plan — check if it's expired past grace period
+    if (planRecord.expiresAt && new Date(planRecord.expiresAt) < cutoffDate) {
+      await db.update(users).set({ role: "user" }).where(eq(users.id, userId));
+      await db.update(userPlans).set({ plan: "free", expiresAt: null }).where(eq(userPlans.userId, userId));
+      return true;
+    }
+  }
+
+  return false;
 }

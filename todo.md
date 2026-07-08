@@ -1026,3 +1026,9 @@
 - [x] Seção "Perfis" na aba Permissões do painel Admin (listar, aprovar, rejeitar com nota)
 - [x] Notificação ao Admin (notifyOwner) quando nova solicitação chegar
 - [x] Status banners no frontend (pendente, aprovado, rejeitado)
+
+## Aba Planos Critic/Specialist + Expiração de Role
+- [x] ProfessionalPlanos.tsx: mostrar apenas info do plano ativo (status, validade, benefícios) para quem já é critic/specialist
+- [x] Expiração automática: role volta para user após 35 dias sem pagamento (verificação no login + heartbeat diário)
+- [x] Handler /api/scheduled/expire-roles (heartbeat diário às 3h UTC)
+- [x] Função checkAndExpireUserRole no context.ts (verificação imediata no login)
