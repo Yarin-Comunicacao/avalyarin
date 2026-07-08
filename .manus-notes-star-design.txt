@@ -1,0 +1,4 @@
+Referências consultadas em 07/07/2026 para estrelas de 4 pontas:
+- Manual_Tecnico_Operacional_Avalyarin_v2(1).pdf, páginas 2-3: menciona critic com 'estrela azul safira' como selo de autenticidade e prioridade visual nas avaliações.
+- Arquivos 20260704_101348.heic e 20260704_101417.heic não mostram a estrela; são fotos de cardápio físico, sem símbolo útil para o componente.
+Decisão de implementação: criar componente próprio de estrela de 4 pontas em SVG, reutilizável, com variantes safira/azul (critic) e dourada (specialist), aplicável em perfil e itens avaliados.

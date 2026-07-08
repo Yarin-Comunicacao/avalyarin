@@ -15,6 +15,7 @@ import {
   BookOpen, Newspaper, FileText, Crown
 } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
+import { FourPointStar } from "@/components/FourPointStar";
 
 type Tab = "overview" | "calendar" | "ratings" | "promos" | "profile";
 
@@ -63,9 +64,9 @@ export default function CriticPanel() {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
               <Newspaper className="w-6 h-6 text-white" />
             </div>
-            {/* Star badge — Azul Safira Brilhante */}
+            {/* Star badge — Azul Safira 4 pontas */}
             <div className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center">
-              <Star className="w-4 h-4 text-blue-500 fill-blue-500" style={{ filter: "drop-shadow(0 0 3px rgba(37, 99, 235, 0.6))" }} />
+              <FourPointStar variant="critic" size={18} glow />
             </div>
           </div>
           <div>
@@ -219,7 +220,7 @@ function RatingsTab() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  <Star className="w-3.5 h-3.5 text-blue-400 fill-blue-400" />
+                  <FourPointStar variant="critic" size={14} glow={false} />
                   <span className="font-numbers text-sm font-bold text-blue-400">
                     {((rating.overallScore || 0) / 10).toFixed(1)}
                   </span>
@@ -444,7 +445,7 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
             <UserCircle className="w-10 h-10 text-white" />
           </div>
           <div className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center">
-            <Star className="w-5 h-5 text-blue-500 fill-blue-500" style={{ filter: "drop-shadow(0 0 3px rgba(37, 99, 235, 0.6))" }} />
+            <FourPointStar variant="critic" size={22} glow />
           </div>
         </div>
         <h3 className="font-display text-xl tracking-wider text-foreground">{profile.displayName || userName}</h3>

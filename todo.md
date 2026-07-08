@@ -1004,3 +1004,11 @@
 - [x] Adicionar link "Ver Todos os Planos" no BusinessInsights (aba Meu Plano) → /business/plano
 - [x] Atualizar testes vitest para refletir novos limites (free=10, premium=null)
 - [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
+
+## Estrelas de 4 pontas — Critic (safira) e Specialist (dourada) (07/07/2026)
+- [x] Criar componente SVG FourPointStar reutilizável (4 pontas, aceita cor e tamanho)
+- [x] Exibir estrela dourada no card do item do cardápio quando avaliado por specialist
+- [x] Exibir estrela safira no card do item do cardápio quando avaliado por critic (à esquerda da dourada)
+- [x] Criar endpoint tRPC para verificar quais itens foram avaliados por specialist/critic
+- [x] Exibir estrela de 4 pontas no perfil do specialist (dourada) e do critic (safira)
+- [x] Substituir Star (5 pontas) por FourPointStar em: CriticPanel, SpecialistPanel, EstablishmentPage, PublicProfilePage, SpecialistProfilePage

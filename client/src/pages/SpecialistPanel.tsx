@@ -13,6 +13,7 @@ import Navbar from "@/components/Navbar";
 import { Redirect, Link, useLocation } from "wouter";
 import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink, Crown } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
+import { FourPointStar } from "@/components/FourPointStar";
 import { toast } from "sonner";
 
 type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
@@ -64,8 +65,14 @@ export default function SpecialistPanel() {
       <div className="container pt-24 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-            <BadgeCheck className="w-6 h-6 text-primary" />
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+              <BadgeCheck className="w-6 h-6 text-primary" />
+            </div>
+            {/* Star badge — Dourada 4 pontas */}
+            <div className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center">
+              <FourPointStar variant="specialist" size={18} glow />
+            </div>
           </div>
           <div>
             <h1 className="font-display text-2xl tracking-wider text-primary">PAINEL INFLUENCER</h1>
@@ -316,8 +323,13 @@ function ProfileTab({ userId, userName }: { userId: number; userName: string }) 
   return (
     <div className="space-y-6">
       <div className="bg-card border border-border/30 rounded-xl p-6 text-center">
-        <div className="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center mx-auto mb-4">
-          <UserCircle className="w-10 h-10 text-primary" />
+        <div className="relative w-20 h-20 mx-auto mb-4">
+          <div className="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+            <UserCircle className="w-10 h-10 text-primary" />
+          </div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center">
+            <FourPointStar variant="specialist" size={22} glow />
+          </div>
         </div>
         <h3 className="font-display text-xl tracking-wider text-foreground">{userName}</h3>
         <div className="flex items-center justify-center gap-1 mt-1">

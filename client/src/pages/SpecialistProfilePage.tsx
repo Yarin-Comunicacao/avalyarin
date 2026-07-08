@@ -8,7 +8,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import { useRoute } from "wouter";
-import { Loader2, BadgeCheck, UserPlus, UserMinus, Star, MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { Loader2, BadgeCheck, UserPlus, UserMinus, MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { FourPointStar } from "@/components/FourPointStar";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -86,10 +87,15 @@ export default function SpecialistProfilePage() {
 
         {/* Profile Header */}
         <div className="bg-card border border-border/30 rounded-xl p-6 text-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl font-display text-primary">
-              {(profile.name || profile.username || "?")[0].toUpperCase()}
-            </span>
+          <div className="relative w-20 h-20 mx-auto mb-4">
+            <div className="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+              <span className="text-3xl font-display text-primary">
+                {(profile.name || profile.username || "?")[0].toUpperCase()}
+              </span>
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center">
+              <FourPointStar variant="specialist" size={22} glow />
+            </div>
           </div>
           <h1 className="font-display text-xl tracking-wider text-foreground">
             {profile.name || profile.username}
@@ -180,7 +186,7 @@ export default function SpecialistProfilePage() {
                     </div>
                     {rating.overallScore && (
                       <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-lg">
-                        <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                        <FourPointStar variant="specialist" size={14} glow={false} />
                         <span className="font-numbers text-sm font-bold text-primary">{rating.overallScore.toFixed(1)}</span>
                       </div>
                     )}

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { GoogleRatingBadge } from "@/components/GoogleRatingBadge";
 import { AvalyarinReviews } from "@/components/AvalyarinReviews";
+import { FourPointStar, ItemStars } from "@/components/FourPointStar";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,6 +62,12 @@ export default function EstablishmentPage() {
   const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
     { slug: id || "" },
     { enabled: !!id }
+  );
+
+  // Fetch professional stars (which menu items were rated by specialist/critic)
+  const { data: professionalStars } = trpc.establishments.professionalStars.useQuery(
+    { establishmentId: estData?.id || 0 },
+    { enabled: !!estData?.id }
   );
 
   if (isLoading) {
@@ -167,7 +174,14 @@ export default function EstablishmentPage() {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h5 className="text-sm font-semibold text-foreground truncate">{item.name}</h5>
+            <div className="flex items-center gap-1.5">
+              <h5 className="text-sm font-semibold text-foreground truncate">{item.name}</h5>
+              {professionalStars && (() => {
+                const star = professionalStars.find(s => s.menuItemId === item.id);
+                if (!star) return null;
+                return <ItemStars hasSpecialistRating={star.hasSpecialist} hasCriticRating={star.hasCritic} size={12} />;
+              })()}
+            </div>
             {item.description && (
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{item.description}</p>
             )}
@@ -882,6 +896,7 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
         <div className="space-y-3">
           {reviews.map((review: any) => {
             const isCritic = review.userRole === "critic";
+            const isSpecialist = review.userRole === "specialist";
             const visitDateStr = review.visitDate
               ? format(new Date(review.visitDate), "dd/MM/yyyy", { locale: ptBR })
               : review.createdAt
@@ -902,7 +917,10 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {isCritic && (
-                      <StarIcon className="w-4 h-4 text-blue-400 fill-blue-400" style={{ filter: "drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))" }} />
+                      <FourPointStar variant="critic" size={16} glow />
+                    )}
+                    {isSpecialist && (
+                      <FourPointStar variant="specialist" size={16} glow />
                     )}
                     {review.username ? (
                       <Link href={`/perfil/${review.username}`}>
@@ -920,13 +938,20 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                         CRÍTICO
                       </span>
                     )}
+                    {isSpecialist && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-500 font-medium">
+                        ESPECIALISTA
+                      </span>
+                    )}
                   </div>
                   {review.overallScore && (
                     <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
-                      isCritic ? "bg-blue-500/10 border border-blue-500/30" : "bg-primary/10 border border-primary/30"
+                      isCritic ? "bg-blue-500/10 border border-blue-500/30" : isSpecialist ? "bg-amber-500/10 border border-amber-500/30" : "bg-primary/10 border border-primary/30"
                     }`}>
-                      <StarIcon className={`w-3.5 h-3.5 ${isCritic ? "text-blue-400 fill-blue-400" : "text-primary fill-primary"}`} />
-                      <span className={`font-numbers text-sm font-bold ${isCritic ? "text-blue-400" : "text-primary"}`}>
+                      {(isCritic || isSpecialist) ? (
+                        <FourPointStar variant={isCritic ? "critic" : "specialist"} size={14} glow={false} />
+                      ) : null}
+                      <span className={`font-numbers text-sm font-bold ${isCritic ? "text-blue-400" : isSpecialist ? "text-amber-500" : "text-primary"}`}>
                         {Number(review.overallScore).toFixed(1)}
                       </span>
                     </div>
@@ -967,6 +992,13 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                           )}
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
+                          {(isCritic || isSpecialist) && (
+                            <ItemStars
+                              hasSpecialistRating={isSpecialist}
+                              hasCriticRating={isCritic}
+                              size={12}
+                            />
+                          )}
                           {item.price && (
                             <span className="text-[10px] text-muted-foreground">
                               R$ {Number(item.price).toFixed(2).replace(".", ",")}
@@ -974,10 +1006,10 @@ function ReviewsSection({ establishmentId, filterItem, onClearFilter }: {
                           )}
                           {item.score && (
                             <div className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded ${
-                              isCritic ? "bg-blue-500/10" : "bg-primary/10"
+                              isCritic ? "bg-blue-500/10" : isSpecialist ? "bg-amber-500/10" : "bg-primary/10"
                             }`}>
                               <span className={`font-numbers text-[11px] font-semibold ${
-                                isCritic ? "text-blue-400" : "text-primary"
+                                isCritic ? "text-blue-400" : isSpecialist ? "text-amber-500" : "text-primary"
                               }`}>
                                 {Number(item.score).toFixed(1)}
                               </span>

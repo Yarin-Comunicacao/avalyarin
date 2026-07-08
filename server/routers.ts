@@ -84,6 +84,7 @@ import {
   getBadgesForEstablishments,
   addEstablishmentBadge,
   removeEstablishmentBadge,
+  getMenuItemProfessionalStars,
 } from "./db";
 import {
   createGroup,
@@ -421,6 +422,13 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         return await removeEstablishmentBadge(input.establishmentId, input.badgeType);
+      }),
+
+    // Public: get which menu items have been rated by specialist/critic (4-point stars)
+    professionalStars: publicProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getMenuItemProfessionalStars(input.establishmentId);
       }),
   }),
 

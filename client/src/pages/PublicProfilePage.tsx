@@ -2,7 +2,8 @@ import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Star, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image } from "lucide-react";
+import { FourPointStar } from "@/components/FourPointStar";
 import PhotoGrid from "@/components/PhotoGrid";
 import { useAuth } from "@/_core/hooks/useAuth";
 import ShareToGroup from "@/components/ShareToGroup";
@@ -127,16 +128,14 @@ export default function PublicProfilePage() {
               {profile.name?.charAt(0)?.toUpperCase() || "?"}
             </div>
             {isCritic && (
-              <Star
-                className="absolute -top-1 -right-1 w-5 h-5 text-blue-400 fill-blue-400"
-                style={{ filter: "drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))" }}
-              />
+              <div className="absolute -top-1 -right-1">
+                <FourPointStar variant="critic" size={20} glow />
+              </div>
             )}
             {isEspecialista && (
-              <Star
-                className="absolute -top-1 -right-1 w-5 h-5 text-amber-400 fill-amber-400"
-                style={{ filter: "drop-shadow(0 0 4px rgba(245, 158, 11, 0.6))" }}
-              />
+              <div className="absolute -top-1 -right-1">
+                <FourPointStar variant="specialist" size={20} glow />
+              </div>
             )}
           </div>
 

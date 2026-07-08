@@ -2813,3 +2813,47 @@ export async function removeEstablishmentBadge(establishmentId: number, badgeTyp
   ));
   return { success: true };
 }
+
+
+// ============================================================
+// PROFESSIONAL STARS — indica quais itens do cardápio foram avaliados por specialist/critic
+// ============================================================
+export async function getMenuItemProfessionalStars(establishmentId: number): Promise<{
+  menuItemId: number;
+  hasSpecialist: boolean;
+  hasCritic: boolean;
+}[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Busca rating_items que pertencem a ratings feitas por specialist ou critic neste estabelecimento
+  const result = await db.select({
+    menuItemId: ratingItems.menuItemId,
+    userRole: users.role,
+  })
+    .from(ratingItems)
+    .innerJoin(ratings, eq(ratingItems.ratingId, ratings.id))
+    .innerJoin(users, eq(ratings.userId, users.id))
+    .where(
+      and(
+        eq(ratings.establishmentId, establishmentId),
+        or(eq(users.role, "specialist"), eq(users.role, "critic")),
+        sql`${ratingItems.menuItemId} IS NOT NULL`
+      )
+    );
+
+  // Agrupa por menuItemId
+  const map = new Map<number, { hasSpecialist: boolean; hasCritic: boolean }>();
+  for (const row of result) {
+    if (!row.menuItemId) continue;
+    const existing = map.get(row.menuItemId) || { hasSpecialist: false, hasCritic: false };
+    if (row.userRole === "specialist") existing.hasSpecialist = true;
+    if (row.userRole === "critic") existing.hasCritic = true;
+    map.set(row.menuItemId, existing);
+  }
+
+  return Array.from(map.entries()).map(([menuItemId, flags]) => ({
+    menuItemId,
+    ...flags,
+  }));
+}
