@@ -1,6 +1,9 @@
 /**
  * FourPointStar — Estrela de 4 pontas para indicar avaliação profissional
  * 
+ * Design: estrela tipo "sparkle" com 4 pontas finas e pronunciadas (N, S, E, W)
+ * e cintura estreita entre elas — similar ao símbolo ✦
+ * 
  * Variantes:
  * - "specialist" → dourada (âmbar/gold) — indica que um Especialista avaliou o item
  * - "critic" → safira (azul) — indica que um Crítico Gastronômico avaliou o item
@@ -33,15 +36,31 @@ const VARIANT_COLORS: Record<StarVariant, { fill: string; stroke: string; glow: 
 };
 
 /**
- * SVG path para estrela de 4 pontas.
- * Pontas em N, S, E, W com corpo central arredondado.
+ * SVG path para estrela de 4 pontas tipo "sparkle".
+ * Pontas finas e longas em N, S, E, W com cintura estreita entre elas.
  * Viewbox 0 0 24 24, centro em (12, 12).
+ * 
+ * Cada ponta vai até a borda (0 ou 24), e o corpo central tem apenas ~3px de largura,
+ * criando o efeito de brilho/sparkle com 4 raios finos.
  */
-const FOUR_POINT_PATH = "M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z";
+const FOUR_POINT_STAR_PATH = [
+  "M12 0",        // Ponta Norte (topo)
+  "C12.8 4.5 13 5.5 13.5 10.5",  // Curva descendo para a direita
+  "C18.5 11 19.5 11.2 24 12",    // Ponta Leste (direita)
+  "C19.5 12.8 18.5 13 13.5 13.5", // Curva descendo para baixo
+  "C13 18.5 12.8 19.5 12 24",    // Ponta Sul (baixo)
+  "C11.2 19.5 11 18.5 10.5 13.5", // Curva subindo para a esquerda
+  "C5.5 13 4.5 12.8 0 12",       // Ponta Oeste (esquerda)
+  "C4.5 11.2 5.5 11 10.5 10.5",  // Curva subindo para o topo
+  "C11 5.5 11.2 4.5 12 0",       // Fecha no topo
+  "Z"
+].join(" ");
 
 export function FourPointStar({ variant, size = 16, className, glow = true, title }: FourPointStarProps) {
   const colors = VARIANT_COLORS[variant];
   const defaultTitle = variant === "specialist" ? "Avaliado por Especialista" : "Avaliado por Crítico";
+  // Use unique IDs to avoid SVG filter conflicts when multiple stars are on the page
+  const filterId = `star-glow-${variant}-${Math.random().toString(36).slice(2, 8)}`;
 
   return (
     <svg
@@ -57,7 +76,7 @@ export function FourPointStar({ variant, size = 16, className, glow = true, titl
       <title>{title || defaultTitle}</title>
       {glow && (
         <defs>
-          <filter id={`glow-${variant}`} x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="1.5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
@@ -67,11 +86,11 @@ export function FourPointStar({ variant, size = 16, className, glow = true, titl
         </defs>
       )}
       <path
-        d={FOUR_POINT_PATH}
+        d={FOUR_POINT_STAR_PATH}
         fill={colors.fill}
         stroke={colors.stroke}
-        strokeWidth="0.5"
-        filter={glow ? `url(#glow-${variant})` : undefined}
+        strokeWidth="0.3"
+        filter={glow ? `url(#${filterId})` : undefined}
       />
     </svg>
   );

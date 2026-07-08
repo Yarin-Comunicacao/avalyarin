@@ -1,0 +1,15 @@
+Notas sobre estrela de 4 pontas — Avalyarin
+
+RESULTADO VISUAL CONFIRMADO:
+- A estrela de 4 pontas com curvas Bézier está renderizando corretamente
+- Formato "sparkle" com 4 pontas finas e pronunciadas (N, S, E, W)
+- Critic (safira/azul): #3B82F6 com stroke #2563EB
+- Specialist (dourada/amber): #F59E0B com stroke #D97706
+- Em 48px: claramente visível como estrela de 4 pontas
+- Em 14px: ainda reconhecível como estrela de 4 pontas (formato +)
+
+O SVG path usa curvas cúbicas (C) para criar pontas finas com cintura estreita.
+Formato correto confirmado visualmente no browser.
+
+O problema anterior era que o path usava linhas retas (L) criando um losango.
+O novo path com curvas cria o efeito sparkle desejado.
