@@ -7,7 +7,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/sonner";
-import { Crown, Check, Loader2, ArrowLeft, Star, Zap, Send, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Crown, Check, Loader2, ArrowLeft, Star, Zap, Send, Clock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -95,9 +95,7 @@ export default function ProfessionalPlanos() {
   const approvedRequest = myRequests?.find(
     (r) => r.requestedRole === requestedRole && r.status === "approved"
   );
-  const rejectedRequest = myRequests?.find(
-    (r) => r.requestedRole === requestedRole && r.status === "rejected"
-  );
+  // Rejected requests are ignored — the form reappears allowing the user to re-submit
 
   const handleSelectPlan = (planId: string, planName: string, price: number) => {
     if (planId === currentPlan) {
@@ -219,19 +217,7 @@ export default function ProfessionalPlanos() {
             </div>
           )}
 
-          {rejectedRequest && !pendingRequest && !approvedRequest && (
-            <div className="mb-6 p-4 rounded-xl border border-red-500/30 bg-red-500/5">
-              <div className="flex items-center gap-3">
-                <XCircle className="w-5 h-5 text-red-500" />
-                <div>
-                  <p className="text-sm font-medium text-red-400">Solicitação não aprovada</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {rejectedRequest.reviewNote || "Sua solicitação não foi aprovada neste momento. Você pode tentar novamente."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Current plan indicator */}
           {isAuthenticated && myPlan && (
