@@ -1048,3 +1048,8 @@
 - [x] BottomNav do Critic deve ser igual ao do Specialist
 - [x] Trocar Maps por Scan no BottomNav de Critic e Specialist
 - [x] Criar barra de busca de pessoas (user/critic/specialist) na aba Grupos
+
+## Ajustes Busca e Grupos (Jul/2026)
+- [x] Ocultar barra de busca do header (Navbar) quando estiver na aba Grupos
+- [x] Juntar filtros "Críticos" e "Especialistas" em um só ("Profissionais") na aba Pessoas da GruposPage
+- [x] Adicionar filtros de tipo na aba Busca: Estabelecimentos, Pratos, Itens — busca por descrição de itens do cardápio

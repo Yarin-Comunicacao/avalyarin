@@ -424,7 +424,12 @@ export async function searchPeople(query: string, roleFilter?: string, excludeUs
     conditions.push(sql`${users.id} != ${excludeUserId}`);
   }
   if (roleFilter && roleFilter !== "all") {
-    conditions.push(sql`${users.role} = ${roleFilter}`);
+    if (roleFilter === "professional") {
+      // "professional" = critic + specialist
+      conditions.push(sql`${users.role} IN ('critic', 'specialist')`);
+    } else {
+      conditions.push(sql`${users.role} = ${roleFilter}`);
+    }
   } else {
     // Only show user, critic, specialist (not admin, support, owner, business)
     conditions.push(sql`${users.role} IN ('user', 'critic', 'specialist')`);

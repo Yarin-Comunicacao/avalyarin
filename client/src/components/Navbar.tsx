@@ -3,7 +3,11 @@ import { useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import SearchBar from "./SearchBar";
 
-export default function Navbar() {
+interface NavbarProps {
+  hideSearch?: boolean;
+}
+
+export default function Navbar({ hideSearch }: NavbarProps = {}) {
   const [location] = useLocation();
   const isHome = location === "/";
 
@@ -35,19 +39,23 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Search Bar - centered */}
-        <div className="flex-1 max-w-md hidden sm:block">
-          <SearchBar />
-        </div>
+        {/* Search Bar - centered (hidden when hideSearch prop is true) */}
+        {!hideSearch && (
+          <div className="flex-1 max-w-md hidden sm:block">
+            <SearchBar />
+          </div>
+        )}
 
         <div className="flex items-center gap-2 flex-shrink-0">
         </div>
       </div>
 
-      {/* Mobile search bar - below main nav */}
-      <div className="sm:hidden px-4 pb-3">
-        <SearchBar />
-      </div>
+      {/* Mobile search bar - below main nav (hidden when hideSearch prop is true) */}
+      {!hideSearch && (
+        <div className="sm:hidden px-4 pb-3">
+          <SearchBar />
+        </div>
+      )}
     </nav>
   );
 }

@@ -543,16 +543,17 @@ function PeopleSearchSection() {
     };
   }, []);
 
+  // "professional" maps to both critic and specialist on the backend
+  const roleParam = roleFilter === "all" ? undefined : roleFilter;
   const { data: results, isLoading } = trpc.groups.searchPeople.useQuery(
-    { query: debouncedQuery, role: roleFilter === "all" ? undefined : roleFilter },
+    { query: debouncedQuery, role: roleParam },
     { enabled: debouncedQuery.length >= 2 }
   );
 
   const roleFilters = [
     { id: "all", label: "Todos" },
     { id: "user", label: "Usuários" },
-    { id: "critic", label: "Críticos" },
-    { id: "specialist", label: "Especialistas" },
+    { id: "professional", label: "Profissionais" },
   ];
 
   const getRoleBadge = (role: string) => {
@@ -703,7 +704,7 @@ export default function GruposPage() {
   if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar  />
+        <Navbar hideSearch />
         <div className="container py-20 text-center">
           <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h2 className="font-display text-2xl tracking-wider text-foreground mb-2">GRUPOS</h2>
@@ -722,7 +723,7 @@ export default function GruposPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar  />
+      <Navbar hideSearch />
 
       {showCreate && planInfo && (
         <CreateGroupModal onClose={() => setShowCreate(false)} planInfo={planInfo} />
