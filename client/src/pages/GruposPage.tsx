@@ -485,7 +485,7 @@ function FollowingTabSection({
           ) : !searchResults || searchResults.length === 0 ? (
             <div className="text-center py-10 bg-card/50 rounded-xl border border-border/30">
               <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Nenhum grupo encontrado</p>
+              <p className="text-sm text-muted-foreground">Nenhum grupo ou criador de grupo encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
