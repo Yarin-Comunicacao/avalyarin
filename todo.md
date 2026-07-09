@@ -1061,3 +1061,10 @@
 - [x] Modal criar grupo: opção Especialista → "Vire um Especialista – Crie grupos ilimitados e outras vantagens" (redireciona para plano specialist)
 - [x] Aba Seguindo: barra de busca de grupos existentes (nome do grupo + @criador)
 - [x] Aba Pessoas: busca case-insensitive (maiúsculas/minúsculas retornam mesmo resultado)
+
+## Perfil Business — Jul/2026
+- [x] Criar rota /business/perfil acessível apenas para role business
+- [x] Endpoint tRPC para listar estabelecimentos do business logado
+- [x] Endpoint tRPC para buscar menu de um estabelecimento específico
+- [x] Página BusinessProfilePage: foto de perfil, descrição, dropdown de estabelecimentos
+- [x] Exibir menu do estabelecimento selecionado no lugar do feed de avaliações

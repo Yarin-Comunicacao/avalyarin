@@ -106,7 +106,7 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
     { icon: "Store", label: "Meus Locais", path: "/business/locais" },
     { icon: "BarChart3", label: "Insights", path: "/business/insights" },
     { icon: "Megaphone", label: "Divulgação", path: "/business/divulgacoes" },
-    { icon: "User", label: "Conta", path: "/conta" },
+    { icon: "User", label: "Perfil", path: "/business/perfil" },
   ],
   support: [
     { icon: "Search", label: "Busca", path: "/" },

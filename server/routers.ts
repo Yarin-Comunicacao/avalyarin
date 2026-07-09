@@ -1103,6 +1103,30 @@ export const appRouter = router({
         return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
 
+    // Business profile: get user info + establishments with menus
+    profileData: businessProcedure
+      .input(z.object({ establishmentId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        const estabs = await getBusinessEstablishments(ctx.user!.id);
+        const selectedId = input.establishmentId || (estabs.length > 0 ? estabs[0].id : null);
+        let menu: any[] = [];
+        if (selectedId) {
+          const { getDb } = await import("./db");
+          const { menuItems } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          if (db) {
+            menu = await db.select().from(menuItems).where(eq(menuItems.establishmentId, selectedId));
+          }
+        }
+        return {
+          user: { id: ctx.user!.id, name: ctx.user!.name, username: ctx.user!.username, role: ctx.user!.role },
+          establishments: estabs,
+          selectedEstablishmentId: selectedId,
+          menu,
+        };
+      }),
+
     notifications: businessProcedure.query(async ({ ctx }) => {
       return await getBusinessNotifications(ctx.user!.id);
     }),
