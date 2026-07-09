@@ -1079,3 +1079,8 @@
 - [x] Sino de notificação no canto superior direito do perfil (user, critic, specialist, business)
 - [x] Notificações com URLs separadas para Badges e Pesquisas
 - [x] Remover Grupo das notificações (agora é aba no perfil)
+
+## Mesclar perfil business — Jul/2026
+- [x] Mesclar BusinessProfilePage em BusinessProfile.tsx (dentro de /perfil)
+- [x] Remover BusinessProfilePage.tsx e rota /business/perfil
+- [x] Atualizar BottomNav do business para apontar Perfil para /perfil
