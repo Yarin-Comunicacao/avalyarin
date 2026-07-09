@@ -414,10 +414,12 @@ export async function searchUsersByUsername(query: string, excludeUserId?: numbe
 export async function searchPeople(query: string, roleFilter?: string, excludeUserId?: number) {
   const db = await getDb();
   if (!db) return [];
+  const lowerQuery = query.toLowerCase();
+  const searchTerm = `%${lowerQuery}%`;
   const conditions: any[] = [
     or(
-      like(users.username, `%${query}%`),
-      like(users.name, `%${query}%`)
+      sql`LOWER(${users.username}) LIKE ${searchTerm}`,
+      sql`LOWER(${users.name}) LIKE ${searchTerm}`
     ),
   ];
   if (excludeUserId) {
@@ -501,4 +503,37 @@ export async function removeMemberFromGroup(groupId: number, userId: number) {
     .update(groups)
     .set({ memberCount: sql`GREATEST(${groups.memberCount} - 1, 0)` })
     .where(eq(groups.id, groupId));
+}
+
+// ─── Search Groups (by name or creator username) ────────────────────────────
+
+export async function searchGroups(query: string, limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  const lowerQuery = query.toLowerCase();
+  const searchTerm = `%${lowerQuery}%`;
+  
+  // Search groups by name OR by creator username (case-insensitive)
+  const rows = await db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      type: groups.type,
+      memberCount: groups.memberCount,
+      creatorName: users.name,
+      creatorUsername: users.username,
+    })
+    .from(groups)
+    .innerJoin(users, eq(groups.creatorId, users.id))
+    .where(
+      or(
+        sql`LOWER(${groups.name}) LIKE ${searchTerm}`,
+        sql`LOWER(${users.username}) LIKE ${searchTerm}`
+      )
+    )
+    .orderBy(desc(groups.memberCount))
+    .limit(limit);
+
+  return rows;
 }

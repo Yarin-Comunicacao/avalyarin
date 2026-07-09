@@ -107,6 +107,7 @@ import {
   getGroupFeed,
   searchUsersByUsername,
   searchPeople,
+  searchGroups,
   discoverSpecialistGroups,
   isGroupMember,
   removeMemberFromGroup,
@@ -1543,12 +1544,23 @@ export const appRouter = router({
         return await searchPeople(input.query, input.role, ctx.user!.id);
       }),
 
+    // Search groups by name or creator @username
+    searchGroups: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ input }) => {
+        return await searchGroups(input.query);
+      }),
+
     // Get user plan info
     myPlan: protectedProcedure.query(async ({ ctx }) => {
       const plan = await getUserPlanOrDefault(ctx.user!.id);
       const groupCount = await countUserGroups(ctx.user!.id);
-      const planType = plan as keyof typeof PLAN_LIMITS;
-      return { plan, groupCount, maxGroups: PLAN_LIMITS[planType]?.maxGroups ?? 3 };
+      const role = ctx.user!.role;
+      // Role-based group limits: user=10, critic/specialist=20, others=unlimited
+      let maxGroups: number | null = null;
+      if (role === "user") maxGroups = 10;
+      else if (role === "critic" || role === "specialist") maxGroups = 20;
+      return { plan, groupCount, maxGroups };
     }),
     // ==================== GROUP CHAT ====================
     // Send message to group chat (140 chars max)

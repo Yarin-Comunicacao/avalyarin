@@ -1053,3 +1053,11 @@
 - [x] Ocultar barra de busca do header (Navbar) quando estiver na aba Grupos
 - [x] Juntar filtros "Críticos" e "Especialistas" em um só ("Profissionais") na aba Pessoas da GruposPage
 - [x] Adicionar filtros de tipo na aba Busca: Estabelecimentos, Pratos, Itens — busca por descrição de itens do cardápio
+
+## Ajustes Grupos — Jul/2026 (v2)
+- [x] Remover banner de upgrade na aba Grupos para role user
+- [x] Aumentar limite de grupos: 10 para user, 20 para critic/specialist
+- [x] Modal criar grupo: descrição Privado → "Compartilhe avaliações, sugestões e agende seus eventos" (selecionado por default)
+- [x] Modal criar grupo: opção Especialista → "Vire um Especialista – Crie grupos ilimitados e outras vantagens" (redireciona para plano specialist)
+- [x] Aba Seguindo: barra de busca de grupos existentes (nome do grupo + @criador)
+- [x] Aba Pessoas: busca case-insensitive (maiúsculas/minúsculas retornam mesmo resultado)
