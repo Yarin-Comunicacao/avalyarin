@@ -197,6 +197,19 @@ async function startServer() {
     }
   });
 
+  // Heartbeat: expire business plans with progressive grace period (20/15/5 days)
+  app.post("/api/scheduled/expire-business-plans", async (req, res) => {
+    try {
+      const { expireOverdueBusinessPlans } = await import("../db-plans");
+      const result = await expireOverdueBusinessPlans();
+      console.log(`[Heartbeat] Expired ${result.expired} business plans`);
+      res.json({ ok: true, ...result, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("[Heartbeat] expire-business-plans error:", error);
+      res.status(500).json({ error: error.message, stack: error.stack, timestamp: new Date().toISOString() });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

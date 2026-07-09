@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
 import { sdk } from "./sdk";
-import { checkAndExpireUserRole } from "../db-plans";
+import { checkAndExpireUserRole, checkAndExpireBusinessRole } from "../db-plans";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -21,7 +21,14 @@ export async function createContext(
     if (user && (user.role === "critic" || user.role === "specialist")) {
       const wasExpired = await checkAndExpireUserRole(user.id, user.role);
       if (wasExpired) {
-        // Role was expired — update the user object in context
+        user = { ...user, role: "user" };
+      }
+    }
+
+    // Check if business role should be expired (progressive: 20/15/5 days)
+    if (user && user.role === "business") {
+      const wasExpired = await checkAndExpireBusinessRole(user.id);
+      if (wasExpired) {
         user = { ...user, role: "user" };
       }
     }

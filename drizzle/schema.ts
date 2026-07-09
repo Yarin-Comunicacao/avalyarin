@@ -259,6 +259,7 @@ export const businessSubscriptions = mysqlTable("business_subscriptions", {
   plan: mysqlEnum("plan", ["free", "premium"]).default("free").notNull(),
   status: mysqlEnum("status", ["active", "cancelled", "expired"]).default("active").notNull(),
   priceMonthly: float("priceMonthly"), // null = free
+  missedPayments: int("missedPayments").default(0).notNull(), // histórico de inadimplência (1ª=20d, 2ª=15d, 3ª+=5d)
   startsAt: timestamp("startsAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

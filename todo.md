@@ -1032,3 +1032,11 @@
 - [x] Expiração automática: role volta para user após 35 dias sem pagamento (verificação no login + heartbeat diário)
 - [x] Handler /api/scheduled/expire-roles (heartbeat diário às 3h UTC)
 - [x] Função checkAndExpireUserRole no context.ts (verificação imediata no login)
+
+## Expiração Progressiva do Plano Business
+- [x] Adicionar campo missedPayments (int) na tabela business_subscriptions para histórico de inadimplência
+- [x] Migrar banco com novo campo
+- [x] Implementar lógica de carência progressiva: 20 dias (1ª vez), 15 dias (2ª vez), 5 dias (3ª+ vez)
+- [x] Função expireOverdueBusinessPlans no db-plans.ts
+- [x] Verificação no login para role business (context.ts)
+- [x] Handler heartbeat /api/scheduled/expire-business-plans

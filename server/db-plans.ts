@@ -469,3 +469,144 @@ export async function checkAndExpireUserRole(userId: number, currentRole: string
 
   return false;
 }
+
+// ─── Business Role Expiration (Progressive Grace Period) ────────────────────
+
+/**
+ * Calculate grace period based on missed payments history:
+ * - 1st time: 20 days
+ * - 2nd time: 15 days
+ * - 3rd+ time: 5 days
+ */
+function getBusinessGracePeriod(missedPayments: number): number {
+  if (missedPayments <= 0) return 20; // 1st time (will become 1 after increment)
+  if (missedPayments === 1) return 15; // 2nd time
+  return 5; // 3rd+ time
+}
+
+/**
+ * Expire business roles for users whose business subscription expired
+ * past their progressive grace period. Reverts them to 'user' role.
+ * Increments missedPayments counter for history tracking.
+ * Called by the Heartbeat cron daily.
+ */
+export async function expireOverdueBusinessPlans(): Promise<{
+  expired: number;
+  details: Array<{ userId: number; establishmentId: number; missedPayments: number; graceDays: number }>;
+}> {
+  const db = await getDb();
+  if (!db) return { expired: 0, details: [] };
+
+  const now = new Date();
+
+  // Find all business subscriptions that are premium and have an expiresAt in the past
+  const expiredSubs = await db
+    .select()
+    .from(businessSubscriptions)
+    .innerJoin(users, eq(users.id, businessSubscriptions.userId))
+    .where(
+      and(
+        eq(users.role, "business"),
+        eq(businessSubscriptions.plan, "premium"),
+        lte(businessSubscriptions.expiresAt, now)
+      )
+    );
+
+  const details: Array<{ userId: number; establishmentId: number; missedPayments: number; graceDays: number }> = [];
+
+  for (const row of expiredSubs) {
+    const sub = row.business_subscriptions;
+    const user = row.users;
+    const currentMissed = sub.missedPayments;
+    const graceDays = getBusinessGracePeriod(currentMissed);
+
+    // Check if expired past grace period
+    const graceDeadline = new Date(sub.expiresAt!);
+    graceDeadline.setDate(graceDeadline.getDate() + graceDays);
+
+    if (now >= graceDeadline) {
+      // Grace period exceeded — expire the business role
+      const newMissedCount = currentMissed + 1;
+
+      // Increment missedPayments and set plan to free
+      await db
+        .update(businessSubscriptions)
+        .set({
+          plan: "free",
+          status: "expired",
+          missedPayments: newMissedCount,
+        })
+        .where(eq(businessSubscriptions.id, sub.id));
+
+      // Revert user role to 'user'
+      await db
+        .update(users)
+        .set({ role: "user" })
+        .where(eq(users.id, user.id));
+
+      details.push({
+        userId: user.id,
+        establishmentId: sub.establishmentId,
+        missedPayments: newMissedCount,
+        graceDays,
+      });
+    }
+  }
+
+  return { expired: details.length, details };
+}
+
+/**
+ * Check a single business user's role expiration on login.
+ * Uses progressive grace period based on missedPayments history.
+ * Returns true if role was expired.
+ */
+export async function checkAndExpireBusinessRole(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const now = new Date();
+
+  // Find their business subscription
+  const [sub] = await db
+    .select()
+    .from(businessSubscriptions)
+    .where(
+      and(
+        eq(businessSubscriptions.userId, userId),
+        eq(businessSubscriptions.plan, "premium")
+      )
+    )
+    .limit(1);
+
+  if (!sub || !sub.expiresAt) return false;
+
+  // Check if subscription is expired
+  if (new Date(sub.expiresAt) >= now) return false; // Still valid
+
+  // Subscription expired — check grace period
+  const graceDays = getBusinessGracePeriod(sub.missedPayments);
+  const graceDeadline = new Date(sub.expiresAt);
+  graceDeadline.setDate(graceDeadline.getDate() + graceDays);
+
+  if (now < graceDeadline) return false; // Still within grace period
+
+  // Grace period exceeded — expire
+  const newMissedCount = sub.missedPayments + 1;
+
+  await db
+    .update(businessSubscriptions)
+    .set({
+      plan: "free",
+      status: "expired",
+      missedPayments: newMissedCount,
+    })
+    .where(eq(businessSubscriptions.id, sub.id));
+
+  await db
+    .update(users)
+    .set({ role: "user" })
+    .where(eq(users.id, userId));
+
+  return true;
+}
