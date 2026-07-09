@@ -89,8 +89,8 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   specialist: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "MapPin", label: "Mapa", path: "/mapa" },
-    { icon: "Users", label: "Grupos", path: "/grupos" },
+    { icon: "ScanLine", label: "Scan", path: "/scan" },
+    { icon: "Newspaper", label: "Painel", path: "/painel-especialista" },
     { icon: "Star", label: "Avaliações", path: "/minhas-avaliacoes" },
     { icon: "User", label: "Perfil", path: "/perfil" },
   ],

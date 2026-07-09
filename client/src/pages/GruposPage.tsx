@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -8,10 +8,11 @@ import { toast } from "sonner";
 import {
   Users, Plus, Crown, Lock, ArrowLeft, UserPlus, Search,
   ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays,
-  MessageCircle, Send
+  MessageCircle, Send, UserSearch
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import GroupChat from "@/components/GroupChat";
+import FourPointStar from "@/components/FourPointStar";
 
 // ─── Create Group Modal ──────────────────────────────────────────────────────
 
@@ -382,124 +383,67 @@ function GroupDetail({
       {group.members && group.members.length > 0 && (
         <div className="mb-6">
           <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">MEMBROS</h3>
-          <div className="space-y-2">
-            {group.members.map((m: any) => (
-              <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/30">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary">
-                      {(m.userName || "?")[0]?.toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-foreground">{m.userName}</p>
-                    <p className="text-xs text-muted-foreground">@{m.username}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground capitalize">
-                  {m.role === "admin" || m.role === "creator" ? "Admin" : m.role === "follower" ? "Seguidor" : "Membro"}
+          <div className="flex flex-wrap gap-2">
+            {(group.members as any[]).map((m: any) => (
+              <Link key={m.userId} href={`/perfil/${m.username}`}>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/50 text-xs text-foreground hover:border-primary/30 transition-all cursor-pointer">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">
+                    {(m.name || m.username || "?").charAt(0).toUpperCase()}
+                  </span>
+                  {m.name || m.username}
+                  {m.userId === group.creatorId && <Crown className="w-3 h-3 text-primary" />}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Calendar Button */}
-      {!isEspecialista && group.isMember && (
-        <div className="mb-6">
-          <Link href={`/grupo/${groupId}/calendario`}>
-            <button className="w-full p-4 rounded-xl bg-primary/10 border border-primary/30 hover:border-primary/60 transition-all flex items-center justify-between group cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <CalendarDays className="w-5 h-5 text-primary" />
-                  {groupEvents && groupEvents.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {groupEvents.length}
-                    </span>
-                  )}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-foreground">Calendário de Eventos</p>
-                  <p className="text-xs text-muted-foreground">
-                    {groupEvents && groupEvents.length > 0
-                      ? `${groupEvents.length} evento${groupEvents.length > 1 ? "s" : ""} próximo${groupEvents.length > 1 ? "s" : ""}`
-                      : "Agende encontros com o grupo"}
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-            </button>
-          </Link>
         </div>
       )}
 
       {/* Group Chat */}
       {group.isMember && (
-        <GroupChat groupId={groupId} />
+        <div className="mb-6">
+          <GroupChat groupId={groupId} />
+        </div>
       )}
 
-      {/* Feed */}
-      <div>
-        <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">
-          {isEspecialista ? "PUBLICAÇÕES" : "AVALIAÇÕES COMPARTILHADAS"}
-        </h3>
-        {(!feed || feed.length === 0) ? (
-          <div className="text-center py-10 bg-background/50 rounded-xl border border-border/30">
-            <Star className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">
-              {isEspecialista
-                ? "Nenhuma publicação ainda"
-                : "Nenhuma avaliação compartilhada ainda"}
-            </p>
-            <p className="text-xs text-muted-foreground/60 mt-1">
-              {isCreator
-                ? "Compartilhe suas avaliações com o grupo!"
-                : "Aguarde os membros compartilharem avaliações"}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {feed.map((item: any) => (
-              <Link key={item.id} href={`/estabelecimento/${item.establishmentSlug}`}>
-                <div className="p-4 rounded-xl bg-background/50 border border-border/30 hover:border-primary/30 transition-all cursor-pointer">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-primary">
-                        {(item.sharerName || "?")[0]?.toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">@{item.sharerUsername}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {item.establishmentImage && (
-                      <img
-                        src={item.establishmentImage}
-                        alt=""
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {item.establishmentName}
-                      </p>
-                      {item.note && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.note}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-primary">
-                        {typeof item.overallScore === "number" ? item.overallScore.toFixed(1) : "—"}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground uppercase">{item.ratingType}</div>
-                    </div>
+      {/* Events */}
+      {groupEvents && groupEvents.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">EVENTOS</h3>
+          <div className="space-y-2">
+            {groupEvents.map((ev: any) => (
+              <Link key={ev.id} href={`/eventos/${ev.id}`}>
+                <div className="p-3 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-primary" />
+                    <span className="text-sm text-foreground">{ev.title}</span>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Feed */}
+      {feed && feed.length > 0 && (
+        <div>
+          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">ATIVIDADE</h3>
+          <div className="space-y-3">
+            {feed.map((item: any) => (
+              <div key={item.id} className="p-3 rounded-lg bg-card border border-border/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-medium text-foreground">{item.userName}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{item.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -576,10 +520,162 @@ function DiscoverSection() {
   );
 }
 
+// ─── People Search Section ──────────────────────────────────────────────────
+
+function PeopleSearchSection() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [, navigate] = useLocation();
+
+  const handleQueryChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(value);
+    }, 400);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const { data: results, isLoading } = trpc.groups.searchPeople.useQuery(
+    { query: debouncedQuery, role: roleFilter === "all" ? undefined : roleFilter },
+    { enabled: debouncedQuery.length >= 2 }
+  );
+
+  const roleFilters = [
+    { id: "all", label: "Todos" },
+    { id: "user", label: "Usuários" },
+    { id: "critic", label: "Críticos" },
+    { id: "specialist", label: "Especialistas" },
+  ];
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case "critic":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400 font-medium">
+            <FourPointStar variant="critic" size={10} />
+            Crítico
+          </span>
+        );
+      case "specialist":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-400 font-medium">
+            <FourPointStar variant="specialist" size={10} />
+            Especialista
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border/50 text-[10px] text-muted-foreground font-medium">
+            Usuário
+          </span>
+        );
+    }
+  };
+
+  return (
+    <div>
+      {/* Search input */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          placeholder="Buscar pessoas por nome ou @usuário..."
+          className="w-full bg-background border border-border/50 rounded-lg pl-10 pr-3 py-2.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+        />
+      </div>
+
+      {/* Role filters */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+        {roleFilters.map((filter) => (
+          <button
+            key={filter.id}
+            onClick={() => setRoleFilter(filter.id)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              roleFilter === filter.id
+                ? "bg-primary/10 text-primary border border-primary/30"
+                : "bg-card text-muted-foreground border border-border/50 hover:border-border"
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Results */}
+      {debouncedQuery.length < 2 ? (
+        <div className="text-center py-12 bg-card/50 rounded-xl border border-border/30">
+          <UserSearch className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground mb-1">Encontre pessoas</p>
+          <p className="text-xs text-muted-foreground/60">
+            Busque por nome ou @usuário para encontrar críticos, especialistas e outros usuários
+          </p>
+        </div>
+      ) : isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      ) : !results || results.length === 0 ? (
+        <div className="text-center py-12 bg-card/50 rounded-xl border border-border/30">
+          <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">Nenhuma pessoa encontrada</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Tente outro nome ou ajuste os filtros
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {results.map((person) => (
+            <div
+              key={person.id}
+              onClick={() => person.username && navigate(`/perfil/${person.username}`)}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Avatar placeholder */}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                  person.role === "critic"
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                    : person.role === "specialist"
+                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    : "bg-primary/10 text-primary border border-primary/20"
+                }`}>
+                  {(person.name || person.username || "?").charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {person.name || person.username}
+                    </p>
+                    {getRoleBadge(person.role)}
+                  </div>
+                  {person.username && (
+                    <p className="text-xs text-muted-foreground mt-0.5">@{person.username}</p>
+                  )}
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function GruposPage() {
-  const [activeTab, setActiveTab] = useState<"meus" | "sigo">("meus");
+  const [activeTab, setActiveTab] = useState<"meus" | "sigo" | "pessoas">("meus");
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -599,7 +695,8 @@ export default function GruposPage() {
 
   const tabs = [
     { id: "meus" as const, label: "Meus Grupos", icon: Users },
-    { id: "sigo" as const, label: "Grupos que Sigo", icon: Crown },
+    { id: "sigo" as const, label: "Seguindo", icon: Crown },
+    { id: "pessoas" as const, label: "Pessoas", icon: UserSearch },
   ];
 
   // Not authenticated
@@ -651,7 +748,7 @@ export default function GruposPage() {
             </div>
 
             {/* Plan info */}
-            {planInfo && planInfo.plan === "free" && (
+            {planInfo && planInfo.plan === "free" && activeTab !== "pessoas" && (
               <div className="mb-4 p-3 rounded-lg bg-card border border-border/50 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                   <span className="text-foreground font-medium">{planInfo.groupCount}</span>/{planInfo.maxGroups} grupos no plano gratuito
@@ -668,14 +765,15 @@ export default function GruposPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? "bg-primary/10 text-primary border border-primary/20"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
-                  {tab.label}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.id === "meus" ? "Meus" : tab.id === "sigo" ? "Seguindo" : "Pessoas"}</span>
                 </button>
               ))}
             </div>
@@ -779,6 +877,10 @@ export default function GruposPage() {
                 {/* Discover section */}
                 <DiscoverSection />
               </div>
+            )}
+
+            {activeTab === "pessoas" && (
+              <PeopleSearchSection />
             )}
           </>
         )}

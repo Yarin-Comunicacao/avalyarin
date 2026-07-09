@@ -1040,3 +1040,11 @@
 - [x] Função expireOverdueBusinessPlans no db-plans.ts
 - [x] Verificação no login para role business (context.ts)
 - [x] Handler heartbeat /api/scheduled/expire-business-plans
+
+## Heartbeat — Ideias Futuras
+- [ ] Analisar e priorizar ideias de automação (ver docs/heartbeat-ideias.md)
+
+## Ajustes BottomNav + Busca de Pessoas
+- [x] BottomNav do Critic deve ser igual ao do Specialist
+- [x] Trocar Maps por Scan no BottomNav de Critic e Specialist
+- [x] Criar barra de busca de pessoas (user/critic/specialist) na aba Grupos

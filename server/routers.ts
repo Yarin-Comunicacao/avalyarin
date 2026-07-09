@@ -106,6 +106,7 @@ import {
   shareRatingToGroup,
   getGroupFeed,
   searchUsersByUsername,
+  searchPeople,
   discoverSpecialistGroups,
   isGroupMember,
   removeMemberFromGroup,
@@ -1533,6 +1534,13 @@ export const appRouter = router({
       .input(z.object({ query: z.string().min(1) }))
       .query(async ({ ctx, input }) => {
         return await searchUsersByUsername(input.query, ctx.user!.id);
+      }),
+
+    // Search people by name/username with role filter (for discovery in groups tab)
+    searchPeople: protectedProcedure
+      .input(z.object({ query: z.string().min(1), role: z.string().optional() }))
+      .query(async ({ ctx, input }) => {
+        return await searchPeople(input.query, input.role, ctx.user!.id);
       }),
 
     // Get user plan info

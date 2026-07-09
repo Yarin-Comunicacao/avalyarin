@@ -403,10 +403,42 @@ export async function searchUsersByUsername(query: string, excludeUserId?: numbe
       id: users.id,
       name: users.name,
       username: users.username,
+      role: users.role,
     })
     .from(users)
     .where(and(...conditions))
     .limit(10);
+}
+
+// Search people by name or username, filtered by role (user/critic/specialist)
+export async function searchPeople(query: string, roleFilter?: string, excludeUserId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const conditions: any[] = [
+    or(
+      like(users.username, `%${query}%`),
+      like(users.name, `%${query}%`)
+    ),
+  ];
+  if (excludeUserId) {
+    conditions.push(sql`${users.id} != ${excludeUserId}`);
+  }
+  if (roleFilter && roleFilter !== "all") {
+    conditions.push(sql`${users.role} = ${roleFilter}`);
+  } else {
+    // Only show user, critic, specialist (not admin, support, owner, business)
+    conditions.push(sql`${users.role} IN ('user', 'critic', 'specialist')`);
+  }
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      role: users.role,
+    })
+    .from(users)
+    .where(and(...conditions))
+    .limit(15);
 }
 
 // ─── Discover Specialist Groups ──────────────────────────────────────────────
