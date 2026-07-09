@@ -1427,7 +1427,7 @@ export const appRouter = router({
     // Create a group
     create: protectedProcedure
       .input(z.object({
-        name: z.string().min(2).max(255),
+        name: z.string().min(5).max(50),
         description: z.string().max(500).optional(),
         type: z.enum(["private", "specialist"]),
       }))
@@ -1444,7 +1444,7 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         groupId: z.number(),
-        name: z.string().min(2).max(255).optional(),
+        name: z.string().min(5).max(50).optional(),
         description: z.string().max(500).optional(),
       }))
       .mutation(async ({ ctx, input }) => {

@@ -105,7 +105,7 @@ function CreateGroupModal({
             onChange={(e) => setName(e.target.value)}
             placeholder="Ex: Amigos Foodie"
             className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
-            maxLength={255}
+            maxLength={50}
           />
         </div>
 
@@ -124,7 +124,7 @@ function CreateGroupModal({
           onClick={() => createMutation.mutate({ name, description: description || undefined, type })}
           disabled={
             !name.trim() ||
-            name.length < 2 ||
+            name.length < 5 ||
             createMutation.isPending ||
             (atLimit && type === "private")
           }
