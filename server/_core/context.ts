@@ -25,12 +25,11 @@ export async function createContext(
       }
     }
 
-    // Check if business role should be expired (progressive: 20/15/5 days)
+    // Check if business plan should be downgraded (progressive: 20/15/5 days)
+    // Role stays 'business' — only the subscription plan goes to free
     if (user && user.role === "business") {
-      const wasExpired = await checkAndExpireBusinessRole(user.id);
-      if (wasExpired) {
-        user = { ...user, role: "user" };
-      }
+      await checkAndExpireBusinessRole(user.id);
+      // No role change — business remains business, just loses premium features
     }
   } catch (error) {
     // Authentication is optional for public procedures.

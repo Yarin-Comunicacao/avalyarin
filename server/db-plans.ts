@@ -485,8 +485,8 @@ function getBusinessGracePeriod(missedPayments: number): number {
 }
 
 /**
- * Expire business roles for users whose business subscription expired
- * past their progressive grace period. Reverts them to 'user' role.
+ * Expire business plans for users whose business subscription expired
+ * past their progressive grace period. Downgrades plan to free (role stays 'business').
  * Increments missedPayments counter for history tracking.
  * Called by the Heartbeat cron daily.
  */
@@ -538,11 +538,7 @@ export async function expireOverdueBusinessPlans(): Promise<{
         })
         .where(eq(businessSubscriptions.id, sub.id));
 
-      // Revert user role to 'user'
-      await db
-        .update(users)
-        .set({ role: "user" })
-        .where(eq(users.id, user.id));
+      // Role stays 'business' — only plan is downgraded to free
 
       details.push({
         userId: user.id,
@@ -557,9 +553,9 @@ export async function expireOverdueBusinessPlans(): Promise<{
 }
 
 /**
- * Check a single business user's role expiration on login.
+ * Check a single business user's plan expiration on login.
  * Uses progressive grace period based on missedPayments history.
- * Returns true if role was expired.
+ * Returns true if plan was downgraded to free (role stays 'business').
  */
 export async function checkAndExpireBusinessRole(userId: number): Promise<boolean> {
   const db = await getDb();
@@ -591,7 +587,7 @@ export async function checkAndExpireBusinessRole(userId: number): Promise<boolea
 
   if (now < graceDeadline) return false; // Still within grace period
 
-  // Grace period exceeded — expire
+  // Grace period exceeded — downgrade plan to free (role stays 'business')
   const newMissedCount = sub.missedPayments + 1;
 
   await db
@@ -602,11 +598,6 @@ export async function checkAndExpireBusinessRole(userId: number): Promise<boolea
       missedPayments: newMissedCount,
     })
     .where(eq(businessSubscriptions.id, sub.id));
-
-  await db
-    .update(users)
-    .set({ role: "user" })
-    .where(eq(users.id, userId));
 
   return true;
 }
