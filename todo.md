@@ -1068,3 +1068,14 @@
 - [x] Endpoint tRPC para buscar menu de um estabelecimento específico
 - [x] Página BusinessProfilePage: foto de perfil, descrição, dropdown de estabelecimentos
 - [x] Exibir menu do estabelecimento selecionado no lugar do feed de avaliações
+
+## Ajustes Perfil Business + Notificações — Jul/2026
+- [x] BusinessProfilePage: alinhamento à esquerda (como perfil user)
+- [x] Limpar símbolos como {"" do horário de atendimento em todos os estabs
+- [x] Adicionar métricas: Avaliações, Seguidores e Seguindo no perfil business
+- [x] Adicionar abas no perfil business: Cardápio, Grupos, Editar Perfil
+- [x] Aba Grupos no perfil business (antes acessada via conta > notificação > grupos)
+- [x] Aba Editar Perfil no perfil business (antes era "conta")
+- [x] Sino de notificação no canto superior direito do perfil (user, critic, specialist, business)
+- [x] Notificações com URLs separadas para Badges e Pesquisas
+- [x] Remover Grupo das notificações (agora é aba no perfil)

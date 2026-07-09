@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { Camera, Settings, Share2, Star, MapPin, Users, Loader2 } from "lucide-react";
+import { Camera, Settings, Share2, Star, MapPin, Users, Loader2, Bell } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
@@ -66,6 +66,13 @@ export default function UserProfile() {
               </div>
             </div>
           </div>
+
+          {/* Notification bell */}
+          <Link href="/notificacoes">
+            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </Link>
         </div>
 
         {/* Name + username */}

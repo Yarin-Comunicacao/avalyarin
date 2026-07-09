@@ -102,7 +102,7 @@ const PREFERENCE_SURVEYS = [
   },
 ];
 
-type Tab = "badges" | "pesquisas" | "grupos";
+type Tab = "badges" | "pesquisas";
 
 // ─── Group Notifications Tab ─────────────────────────────────────────────────
 function GroupNotificationsTab() {
@@ -285,7 +285,6 @@ export default function NotificacoesPage() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "badges", label: "Badges", icon: <Trophy className="w-4 h-4" /> },
     { id: "pesquisas", label: "Pesquisas", icon: <ClipboardCheck className="w-4 h-4" /> },
-    { id: "grupos", label: "Grupos", icon: <Users className="w-4 h-4" /> },
   ];
 
   return (
@@ -492,9 +491,6 @@ export default function NotificacoesPage() {
             </motion.div>
           )}
 
-          {activeTab === "grupos" && (
-            <GroupNotificationsTab />
-          )}
         </AnimatePresence>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { Camera, Settings, Share2, Star, Loader2 } from "lucide-react";
+import { Camera, Settings, Share2, Star, Loader2, Bell } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
@@ -63,10 +63,16 @@ export default function CriticProfile() {
                 <span className="text-lg font-bold text-foreground">{followCounts?.following ?? 0}</span>
                 <p className="text-[11px] text-muted-foreground">seguindo</p>
               </div>
-            </div>
+                        </div>
           </div>
-        </div>
 
+          {/* Notification bell */}
+          <Link href="/notificacoes">
+            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </Link>
+        </div>
         {/* Name + username + role badge */}
         <div className="mt-3">
           <div className="flex items-center gap-2">
