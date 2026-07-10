@@ -46,7 +46,7 @@ export default function SpecialistPanel() {
     );
   }
 
-  if (!user || user.role !== "specialist") {
+  if (!user || (user.role !== "specialist" && user.role !== "owner")) {
     return <Redirect to="/" />;
   }
 

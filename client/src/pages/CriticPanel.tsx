@@ -41,7 +41,7 @@ export default function CriticPanel() {
     );
   }
 
-  if (!user || user.role !== "critic") {
+  if (!user || (user.role !== "critic" && user.role !== "owner")) {
     return <Redirect to="/" />;
   }
 
