@@ -141,6 +141,13 @@
       "when": 1783694526510,
       "tag": "0019_smart_aqueduct",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1783695323903,
+      "tag": "0020_daily_leech",
+      "breakpoints": true
     }
   ]
 }

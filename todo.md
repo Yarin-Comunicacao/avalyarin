@@ -1105,10 +1105,10 @@
 - [x] Card safira para critic, dourado/ambar para specialist nos pedidos de código
 - [x] Business pode aceitar (vai para Vigentes) ou colocar em espera
 - [x] Critic/specialist recebe notificação apenas quando pedido é aceito
-- [ ] Sistema de eventos no Calendário: criar evento gera grupo automaticamente
-- [ ] Evento necessita de local: Definir Local ou Colocar para Votação
-- [ ] Definir Local: escolher estab do banco OU endereço manual (rua, número, nome)
-- [ ] Votação de local: 2-5 opções (estabs ou manuais) + checkbox múltipla escolha
+- [x] Sistema de eventos no Calendário: criar evento vinculado ao grupo
+- [x] Evento necessita de local: Definir Local ou Colocar para Votação
+- [x] Definir Local: escolher estab do banco OU endereço manual (rua, número, nome)
+- [x] Votação de local: 2-5 opções (estabs ou manuais) + checkbox múltipla escolha
 - [x] Borda do avatar specialist: vermelha (para contrastar com estrela dourada)
 - [x] Borda do avatar critic: prateada (para contrastar com estrela azul safira)
 - [x] FourPointStar com proporção 2:1 (eixo Y = dobro do eixo X)

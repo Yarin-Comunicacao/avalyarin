@@ -75,6 +75,11 @@ import {
   getUserEvents,
   cancelGroupEvent,
   getEventsByEstablishment,
+  createGroupEventWithLocation,
+  getEventLocationOptions,
+  getEventLocationVotesForEvent,
+  voteOnEventLocation,
+  closeEventVoting,
   saveUserLocation,
   getIntegration,
   setIntegration,
@@ -3002,6 +3007,107 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este estabelecimento." });
         }
         return await getEventsByEstablishment(input.establishmentId, input.upcoming);
+      }),
+
+    // Criar evento com local definido ou votação
+    createWithLocation: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        title: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        eventDate: z.string(), // ISO string
+        maxGuests: z.number().min(1).max(500).optional(),
+        locationMode: z.enum(["defined", "voting"]),
+        // Modo defined: local
+        establishmentId: z.number().optional(),
+        manualLocationName: z.string().max(255).optional(),
+        manualLocationAddress: z.string().max(512).optional(),
+        // Modo voting: opções (2-5)
+        locationOptions: z.array(z.object({
+          establishmentId: z.number().optional(),
+          manualName: z.string().max(255).optional(),
+          manualAddress: z.string().max(512).optional(),
+        })).min(2).max(5).optional(),
+        votingClosesAt: z.string().optional(), // ISO string
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const isMember = await isGroupMember(input.groupId, userId);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        }
+
+        // Validações
+        if (input.locationMode === "defined") {
+          if (!input.establishmentId && !input.manualLocationName) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Defina um local (estabelecimento ou endereço manual)." });
+          }
+        } else if (input.locationMode === "voting") {
+          if (!input.locationOptions || input.locationOptions.length < 2) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Forneça ao menos 2 opções de local para votação." });
+          }
+        }
+
+        return await createGroupEventWithLocation({
+          groupId: input.groupId,
+          creatorId: userId,
+          title: input.title,
+          description: input.description,
+          eventDate: new Date(input.eventDate),
+          maxGuests: input.maxGuests,
+          locationMode: input.locationMode,
+          establishmentId: input.establishmentId,
+          manualLocationName: input.manualLocationName,
+          manualLocationAddress: input.manualLocationAddress,
+          locationOptions: input.locationOptions,
+          votingClosesAt: input.votingClosesAt ? new Date(input.votingClosesAt) : undefined,
+        });
+      }),
+
+    // Buscar opções de local de um evento em votação
+    locationOptions: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
+        return await getEventLocationOptions(input.eventId);
+      }),
+
+    // Buscar votos de um evento
+    locationVotes: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
+        return await getEventLocationVotesForEvent(input.eventId);
+      }),
+
+    // Votar em opções de local (múltipla escolha)
+    voteLocation: protectedProcedure
+      .input(z.object({
+        eventId: z.number(),
+        optionIds: z.array(z.number()).min(1).max(5),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        if (event.locationMode !== 'voting') {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Este evento não está em modo de votação." });
+        }
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        return await voteOnEventLocation(input.eventId, ctx.user!.id, input.optionIds);
+      }),
+
+    // Encerrar votação e definir vencedor
+    closeVoting: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await closeEventVoting(input.eventId, ctx.user!.id);
       }),
   }),
 

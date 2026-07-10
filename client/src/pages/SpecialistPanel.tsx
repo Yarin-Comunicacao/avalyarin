@@ -514,7 +514,7 @@ function CalendarTab() {
                   <div className="flex-1">
                     <h4 className="text-sm font-medium text-foreground">{event.title}</h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {event.groupName} • {event.establishmentName}
+                      {event.groupName} • {event.locationMode === 'voting' ? '🗳️ Local em votação' : (event.establishmentName || event.manualLocationName || 'Local a definir')}
                     </p>
                     {event.establishmentNeighborhood && (
                       <p className="text-xs text-muted-foreground/70 flex items-center gap-1 mt-0.5">
