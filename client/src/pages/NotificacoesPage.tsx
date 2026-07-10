@@ -241,6 +241,31 @@ export default function NotificacoesPage() {
     return <Redirect to={getLoginUrl()} />;
   }
 
+  // Require phone verification to access notifications
+  if (!user.phoneVerified) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container pt-28 pb-24">
+          <div className="max-w-md mx-auto text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+              <Bell className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl tracking-wider text-foreground mb-3">Verifique seu celular</h2>
+            <p className="text-muted-foreground mb-6">
+              Para acessar as notificações, você precisa verificar seu número de celular. Isso garante a segurança da sua conta.
+            </p>
+            <Link href="/perfil">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider">
+                Verificar celular
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const currentBadgeLevel = BADGE_LEVELS.filter(b => badgePoints >= b.minPoints).pop();
   const nextBadge = BADGE_LEVELS.find(b => badgePoints < b.minPoints);
   const earnedBadges = BADGE_LEVELS.filter(b => badgePoints >= b.minPoints);

@@ -1084,3 +1084,8 @@
 - [x] Mesclar BusinessProfilePage em BusinessProfile.tsx (dentro de /perfil)
 - [x] Remover BusinessProfilePage.tsx e rota /business/perfil
 - [x] Atualizar BottomNav do business para apontar Perfil para /perfil
+
+## Validações Grupo + Verificação Celular — Jul/2026
+- [x] Descrição de grupo obrigatória (não opcional) com mínimo de 25 caracteres
+- [x] Notificações requerem celular verificado para acessar
+- [x] WhatsApp de estabelecimentos só clicável com telefone verificado

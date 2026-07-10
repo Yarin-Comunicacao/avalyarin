@@ -127,6 +127,13 @@
       "when": 1783522528503,
       "tag": "0017_bright_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1783648411040,
+      "tag": "0018_opposite_george_stacy",
+      "breakpoints": true
     }
   ]
 }

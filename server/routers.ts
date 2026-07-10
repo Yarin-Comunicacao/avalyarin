@@ -1452,7 +1452,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         name: z.string().min(5).max(50),
-        description: z.string().max(500).optional(),
+        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500, 'Descrição deve ter no máximo 500 caracteres'),
         type: z.enum(["private", "specialist"]),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1469,7 +1469,7 @@ export const appRouter = router({
       .input(z.object({
         groupId: z.number(),
         name: z.string().min(5).max(50).optional(),
-        description: z.string().max(500).optional(),
+        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const group = await getGroupById(input.groupId);

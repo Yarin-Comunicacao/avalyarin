@@ -15,6 +15,8 @@ export const users = mysqlTable("users", {
   surveyData: json("surveyData"), // Full survey answers JSON
   role: mysqlEnum("role", ["user", "admin", "owner", "business", "specialist", "critic", "support"]).default("user").notNull(),
   verified: boolean("verified").default(false).notNull(),
+  phone: varchar("phone", { length: 32 }),
+  phoneVerified: boolean("phoneVerified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),
   locationUpdatedAt: bigint("locationUpdatedAt", { mode: "number" }),

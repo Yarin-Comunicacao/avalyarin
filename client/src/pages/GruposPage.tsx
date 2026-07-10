@@ -110,21 +110,26 @@ function CreateGroupModal({
         </div>
 
         <div className="mb-6">
-          <label className="text-sm text-muted-foreground mb-1 block">Descrição (opcional)</label>
+          <label className="text-sm text-muted-foreground mb-1 block">Descrição <span className="text-red-400">*</span></label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Sobre o que é esse grupo..."
+            placeholder="Descreva o objetivo do grupo (mín. 25 caracteres)..."
             className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 resize-none h-20"
             maxLength={500}
           />
+          {description.length > 0 && description.length < 25 && (
+            <p className="text-xs text-red-400 mt-1">Mínimo de 25 caracteres ({description.length}/25)</p>
+          )}
         </div>
 
         <Button
-          onClick={() => createMutation.mutate({ name, description: description || undefined, type })}
+          onClick={() => createMutation.mutate({ name, description, type })}
           disabled={
             !name.trim() ||
             name.length < 5 ||
+            !description.trim() ||
+            description.length < 25 ||
             createMutation.isPending ||
             (atLimit && type === "private")
           }
