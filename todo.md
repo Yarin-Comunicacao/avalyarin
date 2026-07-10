@@ -948,7 +948,7 @@
 - [x] Verificar TypeScript (0 erros), rodar testes (443 passando) e salvar checkpoint
 
 ## Pendências Futuras (aguardando)
-- [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
+- [x] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
 - [ ] Adicionar mapa de navegação de páginas ao Manual Técnico Operacional (aguardando envio do arquivo)
 
 ## Reestruturação BottomNav Admin (03/07/2026)
@@ -1003,7 +1003,7 @@
 - [x] Adicionar link "Meu Plano" no SpecialistPanel (aba Perfil) → /specialist/planos
 - [x] Adicionar link "Ver Todos os Planos" no BusinessInsights (aba Meu Plano) → /business/plano
 - [x] Atualizar testes vitest para refletir novos limites (free=10, premium=null)
-- [ ] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
+- [x] Testes da aba Mapa (validar exibição por role, dados dos markers, comportamento com/sem coordenadas)
 
 ## Estrelas de 4 pontas — Critic (safira) e Specialist (dourada) (07/07/2026)
 - [x] Criar componente SVG FourPointStar reutilizável (4 pontas, aceita cor e tamanho)
