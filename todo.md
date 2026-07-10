@@ -1089,3 +1089,9 @@
 - [x] Descrição de grupo obrigatória (não opcional) com mínimo de 25 caracteres
 - [x] Notificações requerem celular verificado para acessar
 - [x] WhatsApp de estabelecimentos só clicável com telefone verificado
+
+## Painel como aba no perfil — Jul/2026
+- [x] Transformar Painel de critic em aba dentro do CriticProfile (visível só para o próprio usuário)
+- [x] Transformar Painel de specialist em aba dentro do SpecialistProfile (visível só para o próprio)
+- [x] Ambos devem ter as mesmas informações no Painel
+- [x] Remover link de Painel do BottomNav de critic e specialist (substituído por Grupos)

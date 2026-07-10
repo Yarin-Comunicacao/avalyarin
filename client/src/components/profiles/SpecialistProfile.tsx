@@ -1,12 +1,19 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { Camera, Settings, Share2, Star, Loader2, Bell } from "lucide-react";
+import {
+  Camera, Settings, Share2, Star, Loader2, Bell, BarChart3
+} from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
+import { PainelTab } from "./CriticProfile";
+
+type ProfileTab = "galeria" | "painel";
 
 export default function SpecialistProfile() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
 
   // Profile data
   const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -25,6 +32,7 @@ export default function SpecialistProfile() {
 
   const totalRatings = stats?.totalRatings ?? 0;
   const uniqueEstabs = stats?.establishmentsVisited ?? 0;
+  const avgScore = stats?.avgScore ?? 0;
   const activePartnerships = partnerships?.filter((p: any) => p.status === "active")?.length ?? 0;
 
   return (
@@ -64,7 +72,7 @@ export default function SpecialistProfile() {
                 <span className="text-lg font-bold text-foreground">{followCounts?.following ?? 0}</span>
                 <p className="text-[11px] text-muted-foreground">seguindo</p>
               </div>
-                        </div>
+            </div>
           </div>
 
           {/* Notification bell */}
@@ -100,11 +108,6 @@ export default function SpecialistProfile() {
               Editar perfil
             </button>
           </Link>
-          <Link href="/painel-especialista" className="flex-1">
-            <button className="w-full py-2 px-4 rounded-lg bg-amber-500/10 text-amber-400 text-sm font-medium border border-amber-500/30 flex items-center justify-center gap-1.5">
-              Painel
-            </button>
-          </Link>
           <button
             onClick={() => {
               if (profile?.username) {
@@ -121,36 +124,69 @@ export default function SpecialistProfile() {
         </div>
       </div>
 
-      {/* Divider + Gallery label */}
+      {/* Tabs — Galeria + Painel */}
       <div className="border-t border-border/50">
-        <div className="flex items-center justify-center py-2.5">
-          <Camera className="w-4 h-4 text-yellow-500" />
-          <span className="text-xs font-medium text-yellow-500 ml-1.5 tracking-wide">GALERIA</span>
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("galeria")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
+              activeTab === "galeria"
+                ? "text-yellow-500 border-b-2 border-yellow-500"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Camera className="w-4 h-4" />
+            GALERIA
+          </button>
+          <button
+            onClick={() => setActiveTab("painel")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
+              activeTab === "painel"
+                ? "text-yellow-500 border-b-2 border-yellow-500"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            PAINEL
+          </button>
         </div>
       </div>
 
-      {/* Photo Gallery Grid */}
-      <div className="px-1">
-        {galleryLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-yellow-500/50" />
-          </div>
-        ) : (
-          <PhotoGrid
-            photos={(galleryPhotos || []).map((p: any) => ({
-              id: p.id,
-              url: p.url,
-              establishmentName: p.establishmentName,
-              establishmentSlug: p.establishmentSlug,
-              overallScore: p.overallScore,
-              visitDate: p.visitDate,
-              taggedItemIds: p.taggedItemIds,
-              ratingId: p.ratingId,
-            }))}
-            emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil de especialista!"
-          />
-        )}
-      </div>
+      {/* Tab Content */}
+      {activeTab === "galeria" && (
+        <div className="px-1">
+          {galleryLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-yellow-500/50" />
+            </div>
+          ) : (
+            <PhotoGrid
+              photos={(galleryPhotos || []).map((p: any) => ({
+                id: p.id,
+                url: p.url,
+                establishmentName: p.establishmentName,
+                establishmentSlug: p.establishmentSlug,
+                overallScore: p.overallScore,
+                visitDate: p.visitDate,
+                taggedItemIds: p.taggedItemIds,
+                ratingId: p.ratingId,
+              }))}
+              emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil de especialista!"
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === "painel" && (
+        <PainelTab
+          totalRatings={totalRatings}
+          avgScore={avgScore}
+          locaisVisitados={uniqueEstabs}
+          publication={undefined}
+          ratingsByMonth={stats?.ratingsByMonth}
+          variant="specialist"
+        />
+      )}
     </div>
   );
 }
