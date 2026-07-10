@@ -1109,3 +1109,6 @@
 - [ ] Evento necessita de local: Definir Local ou Colocar para Votação
 - [ ] Definir Local: escolher estab do banco OU endereço manual (rua, número, nome)
 - [ ] Votação de local: 2-5 opções (estabs ou manuais) + checkbox múltipla escolha
+- [x] Borda do avatar specialist: vermelha (para contrastar com estrela dourada)
+- [x] Borda do avatar critic: prateada (para contrastar com estrela azul safira)
+- [x] FourPointStar com proporção 2:1 (eixo Y = dobro do eixo X)

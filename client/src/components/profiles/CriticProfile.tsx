@@ -43,7 +43,7 @@ export default function CriticProfile() {
         <div className="flex items-start gap-4">
           {/* Avatar with blue border + star */}
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center overflow-hidden border-[3px] border-blue-500 shadow-lg shadow-blue-500/20">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center overflow-hidden border-[3px] border-slate-300 shadow-lg shadow-slate-300/20">
               {user?.name ? (
                 <span className="text-2xl font-bold text-white">
                   {user.name.charAt(0).toUpperCase()}

@@ -43,7 +43,7 @@ export default function SpecialistProfile() {
         <div className="flex items-start gap-4">
           {/* Avatar with gold border + star */}
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center overflow-hidden border-[3px] border-yellow-500 shadow-lg shadow-yellow-500/20">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center overflow-hidden border-[3px] border-red-500 shadow-lg shadow-red-500/20">
               {user?.name ? (
                 <span className="text-2xl font-bold text-white">
                   {user.name.charAt(0).toUpperCase()}
