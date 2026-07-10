@@ -1123,3 +1123,10 @@
 - [x] Implementar upload de foto de perfil (galeria ou câmera ao clicar no avatar)
 - [x] Preparar estrutura para login próprio (Facebook/Google/Email) substituindo Manus OAuth
 - [x] Captar foto de perfil automaticamente do Facebook/Google ao fazer login social
+
+## Reestruturação Editar Perfil — 5 abas
+- [x] Aba 1 "Editar": Nome, Sobrenome, Username, Data de Nascimento, Email, Telefone
+- [x] Aba 2 "Minhas Preferências": dados da survey
+- [x] Aba 3 "Planos": conteúdo da página /conta/planos
+- [x] Aba 4 "Tema e Plano de Fundo": unir Tema Visual + Imagem de Fundo
+- [x] Aba 5 "Lista de Salvos": conteúdo de /salvos/locais

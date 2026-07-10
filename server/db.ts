@@ -1670,10 +1670,12 @@ export async function getUserProfile(userId: number) {
       id: users.id,
       name: users.name,
       email: users.email,
+      phone: users.phone,
       username: users.username,
       birthdate: users.birthdate,
       role: users.role,
       verified: users.verified,
+      profilePhotoUrl: users.profilePhotoUrl,
       createdAt: users.createdAt,
     })
     .from(users)
@@ -1682,13 +1684,15 @@ export async function getUserProfile(userId: number) {
   return rows[0] || null;
 }
 
-export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string }) {
+export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string; email?: string; phone?: string }) {
   const db = await getDb();
   if (!db) return null;
   
   const updateData: Record<string, any> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
+  if (data.email !== undefined) updateData.email = data.email;
+  if (data.phone !== undefined) updateData.phone = data.phone;
   if (data.username !== undefined) {
     // Check username availability
     const existing = await db.select({ id: users.id }).from(users)

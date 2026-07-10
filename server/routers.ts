@@ -1404,6 +1404,8 @@ export const appRouter = router({
         name: z.string().min(2).max(100).optional(),
         username: z.string().min(3).max(30).optional(),
         birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        email: z.string().email().max(320).optional(),
+        phone: z.string().max(32).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await updateUserProfile(ctx.user!.id, input);

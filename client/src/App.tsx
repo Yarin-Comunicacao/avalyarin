@@ -70,6 +70,7 @@ import MapaPage from "./pages/MapaPage";
 import DestaquesPage from "./pages/DestaquesPage";
 // Conta Hub
 import ContaPage from "./pages/ContaPage";
+import EditarPerfil from "./pages/EditarPerfil";
 // Planos por role
 import BusinessPlanos from "./pages/BusinessPlanos";
 import ProfessionalPlanos from "./pages/ProfessionalPlanos";
@@ -141,6 +142,7 @@ function Router() {
       <Route path="/avaliar/:establishmentId" component={RatingPage} />
       {/* Account */}
       <Route path="/conta" component={ContaPage} />
+      <Route path="/conta/editar-perfil" component={EditarPerfil} />
       <Route path="/conta/dados" component={MeusDados} />
       <Route path="/conta/cadastro" component={Cadastro} />
       <Route path="/conta/conectadas" component={ContasConectadas} />
