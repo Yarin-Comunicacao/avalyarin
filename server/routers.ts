@@ -161,6 +161,12 @@ import {
   rejectPromoCode,
   isCodeTaken,
   getPromoCodeStats,
+  createPromoCodeWithEstablishments,
+  notifyBusinessesOfPromoRequest,
+  getBusinessPromoCodeRequests,
+  respondToPromoCodeRequest,
+  getMyPromoCodeRequests,
+  getEstablishmentsForPromoSelection,
 } from "./db-promo";
 import {
   getAdminCategoriesWithCounts,
@@ -2013,6 +2019,94 @@ export const appRouter = router({
       .input(z.object({ codeId: z.number() }))
       .query(async ({ ctx, input }) => {
         return await getPromoCodeStats(input.codeId);
+      }),
+
+    // ============================================================
+    // Multi-establishment promo codes (critic/specialist)
+    // ============================================================
+
+    // List active establishments for selection when creating a code
+    establishmentsForSelection: protectedProcedure.query(async ({ ctx }) => {
+      if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem selecionar estabelecimentos.' });
+      }
+      return await getEstablishmentsForPromoSelection();
+    }),
+
+    // Critic/specialist creates a promo code linked to multiple establishments
+    createWithEstablishments: protectedProcedure
+      .input(z.object({
+        code: z.string().min(3).max(20).regex(/^[A-Z0-9]+$/i, "Código deve conter apenas letras e números"),
+        type: z.enum(["percentage", "buy_one_get_one", "free_item", "fixed_discount"]),
+        value: z.number().optional(),
+        description: z.string().max(500).optional(),
+        establishmentIds: z.array(z.number()).min(1, "Selecione ao menos 1 estabelecimento").max(20),
+        startsAt: z.number().optional(),
+        expiresAt: z.number().optional(),
+        maxUses: z.number().optional(),
+        maxUsesPerUser: z.number().optional(),
+        firstVisitOnly: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem criar códigos com múltiplos estabelecimentos.' });
+        }
+        const taken = await isCodeTaken(input.code);
+        if (taken) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Este código já está em uso.' });
+        }
+        const creatorType = ctx.user!.role === 'critic' ? 'critic' : 'specialist';
+        const id = await createPromoCodeWithEstablishments({
+          code: input.code,
+          type: input.type,
+          value: input.value,
+          description: input.description,
+          creatorId: ctx.user!.id,
+          creatorType,
+          establishmentIds: input.establishmentIds,
+          startsAt: input.startsAt,
+          expiresAt: input.expiresAt,
+          maxUses: input.maxUses,
+          maxUsesPerUser: input.maxUsesPerUser,
+          firstVisitOnly: input.firstVisitOnly,
+        });
+        // Notify business owners of each establishment
+        await notifyBusinessesOfPromoRequest({
+          promoCodeId: id,
+          code: input.code.toUpperCase().trim(),
+          creatorName: ctx.user!.name || 'Usuário',
+          creatorType,
+          establishmentIds: input.establishmentIds,
+        });
+        return { id };
+      }),
+
+    // Critic/specialist: my requests with per-establishment status
+    myRequests: protectedProcedure.query(async ({ ctx }) => {
+      return await getMyPromoCodeRequests(ctx.user!.id);
+    }),
+
+    // Business: list code requests for my establishments (all statuses)
+    businessRequests: businessProcedure.query(async ({ ctx }) => {
+      return await getBusinessPromoCodeRequests(ctx.user!.id);
+    }),
+
+    // Business: accept or put a code request on hold
+    respondToRequest: businessProcedure
+      .input(z.object({
+        linkId: z.number(),
+        action: z.enum(["accepted", "on_hold"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await respondToPromoCodeRequest({
+          userId: ctx.user!.id,
+          linkId: input.linkId,
+          action: input.action,
+        });
+        if (!result) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Você não gerencia este estabelecimento ou o pedido não existe.' });
+        }
+        return { success: true, ...result };
       }),
   }),
 

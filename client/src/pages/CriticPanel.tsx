@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { getConnectYarinUrl } from "@shared/const";
 import { FourPointStar } from "@/components/FourPointStar";
+import { PromoCodeCreator } from "@/components/PromoCodeCreator";
 
 type Tab = "overview" | "calendar" | "ratings" | "promos";
 
@@ -331,43 +332,112 @@ function CalendarTab() {
 // PROMOS TAB
 // ============================================================
 function PromosTab({ userId }: { userId: number }) {
-  const { data: codes, isLoading } = trpc.promo.myCodes.useQuery();
+  const { data: requests, isLoading } = trpc.promo.myRequests.useQuery();
+  const [showCreate, setShowCreate] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+  // Agrupar pedidos por código
+  const grouped = (requests || []).reduce((acc: Record<number, any>, row: any) => {
+    if (!acc[row.promoCodeId]) {
+      acc[row.promoCodeId] = {
+        promoCodeId: row.promoCodeId,
+        code: row.code,
+        type: row.type,
+        value: row.value,
+        description: row.description,
+        codeStatus: row.codeStatus,
+        expiresAt: row.expiresAt,
+        establishments: [],
+      };
+    }
+    acc[row.promoCodeId].establishments.push({
+      linkId: row.linkId,
+      status: row.linkStatus,
+      name: row.establishmentName,
+    });
+    return acc;
+  }, {});
+  const codes = Object.values(grouped);
 
-  if (!codes || codes.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <p className="text-muted-foreground">Nenhum código promocional vinculado.</p>
-        <p className="text-xs text-muted-foreground/70 mt-1">Códigos são criados pelos estabelecimentos parceiros.</p>
-      </div>
-    );
-  }
+  const linkStatusLabel: Record<string, { text: string; color: string }> = {
+    pending: { text: "Aguardando", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30" },
+    accepted: { text: "Aceito", color: "text-green-400 bg-green-500/10 border-green-500/30" },
+    on_hold: { text: "Em espera", color: "text-blue-300 bg-blue-500/10 border-blue-500/30" },
+  };
+
+  const typeLabel: Record<string, string> = {
+    percentage: "% Desconto",
+    buy_one_get_one: "Pague 1 Leve 2",
+    free_item: "Item Grátis",
+    fixed_discount: "R$ Desconto",
+  };
 
   return (
-    <div className="space-y-3">
-      <h3 className="font-display text-lg tracking-wider text-blue-400 mb-3">MEUS CÓDIGOS</h3>
-      {codes.map((code: any) => (
-        <div key={code.id} className="p-4 rounded-xl bg-card border border-border/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-mono text-lg font-bold text-blue-400 tracking-wider">{code.code}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{code.description || code.type}</p>
-            </div>
-            <div className="text-right">
-              <p className="font-numbers text-sm text-foreground">{code.usageCount || 0} usos</p>
-              <p className="text-[11px] text-muted-foreground">{code.active ? "Ativo" : "Inativo"}</p>
-            </div>
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-lg tracking-wider text-blue-400">MEUS CÓDIGOS</h3>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 transition-colors"
+        >
+          <Tag className="w-4 h-4" />
+          Criar Código
+        </button>
+      </div>
+
+      <PromoCodeCreator
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        accent="critic"
+      />
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
         </div>
-      ))}
+      ) : codes.length === 0 ? (
+        <div className="text-center py-12">
+          <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground">Nenhum código promocional criado.</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">Crie um código e selecione os estabelecimentos parceiros.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {codes.map((code: any) => (
+            <div key={code.promoCodeId} className="p-4 rounded-xl bg-card border border-blue-500/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-lg font-bold text-blue-400 tracking-wider">{code.code}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {typeLabel[code.type] || code.type}
+                    {code.value ? ` • ${code.type === "percentage" ? `${code.value}%` : `R$${code.value}`}` : ""}
+                  </p>
+                </div>
+                {code.expiresAt && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Válido até {new Date(code.expiresAt).toLocaleDateString("pt-BR")}
+                  </p>
+                )}
+              </div>
+              {code.description && (
+                <p className="text-xs text-muted-foreground/80 mt-1">{code.description}</p>
+              )}
+              <div className="mt-3 space-y-1.5">
+                {code.establishments.map((estab: any) => {
+                  const st = linkStatusLabel[estab.status] || linkStatusLabel.pending;
+                  return (
+                    <div key={estab.linkId} className="flex items-center justify-between text-sm">
+                      <span className="text-foreground/90 truncate">{estab.name}</span>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full border shrink-0 ${st.color}`}>
+                        {st.text}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

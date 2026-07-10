@@ -1099,12 +1099,12 @@
 ## Ajustes Painel + Códigos + Eventos — Jul/2026
 - [x] Trocar estrelas 5 pontas por FourPointStar no perfil de critic/specialist
 - [x] Remover aba "Meu Perfil" do CriticPanel e SpecialistPanel (já existe aba perfil)
-- [ ] Sistema de códigos promo: critic/specialist criam códigos e selecionam estabs aptos
-- [ ] Notificação para business quando novo código é solicitado
-- [ ] Business: Divulgação > Códigos com 3 abas (Pedido de código, Vigentes, Em espera)
-- [ ] Card safira para critic, dourado/ambar para specialist nos pedidos de código
-- [ ] Business pode aceitar (vai para Vigentes) ou colocar em espera
-- [ ] Critic/specialist recebe notificação apenas quando pedido é aceito
+- [x] Sistema de códigos promo: critic/specialist criam códigos e selecionam estabs aptos
+- [x] Notificação para business quando novo código é solicitado
+- [x] Business: Divulgação > Códigos com 3 abas (Pedido de código, Vigentes, Em espera)
+- [x] Card safira para critic, dourado/ambar para specialist nos pedidos de código
+- [x] Business pode aceitar (vai para Vigentes) ou colocar em espera
+- [x] Critic/specialist recebe notificação apenas quando pedido é aceito
 - [ ] Sistema de eventos no Calendário: criar evento gera grupo automaticamente
 - [ ] Evento necessita de local: Definir Local ou Colocar para Votação
 - [ ] Definir Local: escolher estab do banco OU endereço manual (rua, número, nome)

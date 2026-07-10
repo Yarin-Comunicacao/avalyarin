@@ -23,6 +23,7 @@ import {
   EventosEstabTab,
   DestaquesTab,
 } from "./BusinessPanelTabs";
+import { BusinessPromoRequests } from "@/components/BusinessPromoRequests";
 
 type TabId = "destaques" | "codigos" | "parcerias" | "transmissao" | "eventos";
 
@@ -112,7 +113,14 @@ export default function BusinessDivulgacoes() {
       {/* Content */}
       <div className="container py-6">
         {activeTab === "destaques" && <DestaquesTab />}
-        {activeTab === "codigos" && <PromoCodesTab />}
+        {activeTab === "codigos" && (
+          <div className="space-y-8">
+            <BusinessPromoRequests />
+            <div className="border-t border-border/30 pt-6">
+              <PromoCodesTab />
+            </div>
+          </div>
+        )}
         {activeTab === "parcerias" && <PartnershipsTab />}
         {activeTab === "transmissao" && <BroadcastTab />}
         {activeTab === "eventos" && <EventosEstabTab />}

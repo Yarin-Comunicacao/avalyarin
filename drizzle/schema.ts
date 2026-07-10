@@ -444,7 +444,7 @@ export const promoCodes = mysqlTable("promo_codes", {
   value: float("value"), // valor do desconto (% ou R$), null para buy_one_get_one
   description: text("description"), // descrição visível ao usuário
   creatorId: int("creatorId").notNull(), // user id do criador
-  creatorType: mysqlEnum("creatorType", ["specialist", "business"]).notNull(),
+  creatorType: mysqlEnum("creatorType", ["specialist", "business", "critic"]).notNull(),
   establishmentId: int("establishmentId"), // estab vinculado (NULL = qualquer parceiro)
   startsAt: bigint("startsAt", { mode: "number" }), // início validade (timestamp ms)
   expiresAt: bigint("expiresAt", { mode: "number" }), // fim validade (NULL = permanente, requer plano pago)
@@ -474,6 +474,22 @@ export const promoCodeUses = mysqlTable("promo_code_uses", {
 
 export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
 export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;
+
+// ============================================================
+// Promo Code Establishments — vínculo N:N entre códigos e estabs
+// Cada estab responde individualmente: pending → accepted | on_hold
+// ============================================================
+export const promoCodeEstablishments = mysqlTable("promo_code_establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  promoCodeId: int("promoCodeId").notNull(), // FK para promo_codes.id
+  establishmentId: int("establishmentId").notNull(), // FK para establishments.id
+  status: mysqlEnum("status", ["pending", "accepted", "on_hold"]).default("pending").notNull(),
+  respondedAt: bigint("respondedAt", { mode: "number" }), // quando o business respondeu
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PromoCodeEstablishment = typeof promoCodeEstablishments.$inferSelect;
+export type InsertPromoCodeEstablishment = typeof promoCodeEstablishments.$inferInsert;
 
 // ============================================================
 // Specialist Applications — solicitações para virar specialist
