@@ -19,8 +19,9 @@ import {
   Loader2, Navigation, BarChart3
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
+import InsigniasTab from "@/components/InsigniasTab";
 
-type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats";
+type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats" | "insignias";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -302,6 +303,7 @@ export default function MinhasAvaliacoes() {
     { id: "locais", label: "Locais Visitados", icon: <MapPin className="w-4 h-4" /> },
     { id: "galeria", label: "Galeria", icon: <Image className="w-4 h-4" /> },
     { id: "stats", label: "Estatísticas", icon: <BarChart3 className="w-4 h-4" /> },
+    { id: "insignias", label: "Insígnias", icon: <Crown className="w-4 h-4" /> },
   ];
 
   return (
@@ -915,6 +917,13 @@ export default function MinhasAvaliacoes() {
           {activeTab === "stats" && (
             <motion.div key="stats" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <UserStatsSection />
+            </motion.div>
+          )}
+
+          {/* ============ INSÍGNIAS TAB ============ */}
+          {activeTab === "insignias" && (
+            <motion.div key="insignias" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <InsigniasTab />
             </motion.div>
           )}
         </AnimatePresence>

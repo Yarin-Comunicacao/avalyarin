@@ -276,7 +276,7 @@ export default function ContaPage() {
           </Link>
 
           {/* Insígnias */}
-          <Link href="/insignias">
+          <Link href="/minhas-avaliacoes/insignias">
             <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-card/80 transition-colors cursor-pointer group">
               <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Trophy className="w-4.5 h-4.5 text-amber-400" />

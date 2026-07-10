@@ -158,8 +158,8 @@ function Router() {
       <Route path="/salvos/especialistas" component={SpecialistsFavoritos} />
       <Route path="/salvos/collab" component={ListasCollab} />
       {/* Insígnias */}
-      <Route path="/insignias" component={BadgesPage} />
-      <Route path="/badges" component={BadgesPage} /> {/* Redirect compat */}
+      <Route path="/insignias">{() => { window.location.replace("/minhas-avaliacoes/insignias"); return null; }}</Route>
+      <Route path="/badges">{() => { window.location.replace("/minhas-avaliacoes/insignias"); return null; }}</Route>
       {/* Grupos */}
       <Route path="/grupos" component={GruposPage} />
       {/* Notificações */}
