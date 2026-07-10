@@ -103,7 +103,7 @@ export default function SpecialistProfile() {
 
         {/* Action buttons */}
         <div className="flex gap-2 mt-3">
-          <Link href="/conta" className="flex-1">
+          <Link href="/conta/editar-perfil" className="flex-1">
             <button className="w-full py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5">
               <Settings className="w-3.5 h-3.5" />
               Editar perfil
