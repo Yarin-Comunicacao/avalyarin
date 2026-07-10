@@ -1130,3 +1130,7 @@
 - [x] Aba 3 "Planos": conteúdo da página /conta/planos
 - [x] Aba 4 "Tema e Plano de Fundo": unir Tema Visual + Imagem de Fundo
 - [x] Aba 5 "Lista de Salvos": conteúdo de /salvos/locais
+
+## Correção Barra de Busca — Jul/2026
+- [x] Barra de busca visível APENAS na aba Busca do bottomNav (remover de outras abas)
+- [x] Barra de busca ao lado do logo (mesma linha), não abaixo

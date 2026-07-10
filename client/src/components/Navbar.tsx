@@ -1,19 +1,24 @@
-// Design: AvaLyarin — Navbar with Y logo, search bar, and hamburger menu trigger on left
+// Design: AvaLyarin — Navbar with Y logo, search bar (only on Busca tab), and back button
 import { useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import SearchBar from "./SearchBar";
 
 interface NavbarProps {
   hideSearch?: boolean;
+  showSearch?: boolean;
 }
 
-export default function Navbar({ hideSearch }: NavbarProps = {}) {
+export default function Navbar({ hideSearch, showSearch }: NavbarProps = {}) {
   const [location] = useLocation();
   const isHome = location === "/";
 
+  // Search bar is only visible on the Home page (which is the "Busca" tab in bottomNav)
+  // Unless explicitly overridden by showSearch/hideSearch props
+  const shouldShowSearch = showSearch ?? (!hideSearch && isHome);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
-      <div className="container flex items-center justify-between h-16 gap-3">
+      <div className="container flex items-center h-16 gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
           {!isHome && (
             <button
@@ -39,9 +44,9 @@ export default function Navbar({ hideSearch }: NavbarProps = {}) {
           </div>
         </div>
 
-        {/* Search Bar - centered (hidden when hideSearch prop is true) */}
-        {!hideSearch && (
-          <div className="flex-1 max-w-md hidden sm:block">
+        {/* Search Bar - inline next to logo, only on Busca tab */}
+        {shouldShowSearch && (
+          <div className="flex-1 max-w-md">
             <SearchBar />
           </div>
         )}
@@ -49,13 +54,6 @@ export default function Navbar({ hideSearch }: NavbarProps = {}) {
         <div className="flex items-center gap-2 flex-shrink-0">
         </div>
       </div>
-
-      {/* Mobile search bar - below main nav (hidden when hideSearch prop is true) */}
-      {!hideSearch && (
-        <div className="sm:hidden px-4 pb-3">
-          <SearchBar />
-        </div>
-      )}
     </nav>
   );
 }

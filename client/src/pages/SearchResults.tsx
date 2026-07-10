@@ -115,8 +115,8 @@ export default function SearchResults() {
   if (!query && !bairro && !tipo) {
     return (
       <div className="min-h-screen">
-        <Navbar  />
-        <div className="pt-28 container text-center">
+        <Navbar showSearch />
+        <div className="pt-20 container text-center">
           <Search className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <p className="text-muted-foreground">Digite algo para buscar</p>
         </div>
@@ -126,9 +126,9 @@ export default function SearchResults() {
 
   return (
     <div className="min-h-screen">
-      <Navbar  />
+      <Navbar showSearch />
 
-      <div className="pt-28 pb-24 container">
+      <div className="pt-20 pb-24 container">
         {/* Header */}
         <div className="mb-8">
           {pageSubtitle && (
