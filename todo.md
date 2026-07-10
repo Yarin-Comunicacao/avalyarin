@@ -1112,3 +1112,9 @@
 - [x] Borda do avatar specialist: vermelha (para contrastar com estrela dourada)
 - [x] Borda do avatar critic: prateada (para contrastar com estrela azul safira)
 - [x] FourPointStar com proporção 2:1 (eixo Y = dobro do eixo X)
+
+## Manual Técnico Operacional — Jul/2026
+- [x] Atualizar o Manual Técnico Operacional com nomenclaturas, roles, tabelas, fluxos e funcionalidades implementadas recentemente
+- [x] Revisar e complementar a seção de navegação/fluxos com os recursos atuais do app
+- [x] Entregar versão atualizada do Manual Técnico Operacional nos arquivos do projeto
+
