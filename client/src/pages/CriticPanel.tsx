@@ -17,7 +17,7 @@ import {
 import { getConnectYarinUrl } from "@shared/const";
 import { FourPointStar } from "@/components/FourPointStar";
 
-type Tab = "overview" | "calendar" | "ratings" | "promos" | "profile";
+type Tab = "overview" | "calendar" | "ratings" | "promos";
 
 export default function CriticPanel() {
   const { user, loading } = useAuth();
@@ -27,7 +27,6 @@ export default function CriticPanel() {
     if (location.includes("/painel-critico/calendario")) return "calendar";
     if (location.includes("/painel-critico/avaliacoes")) return "ratings";
     if (location.includes("/painel-critico/codigos")) return "promos";
-    if (location.includes("/painel-critico/perfil")) return "profile";
     return "overview";
   };
 
@@ -50,7 +49,6 @@ export default function CriticPanel() {
     { id: "calendar", label: "Calendário", icon: CalendarDays },
     { id: "ratings", label: "Minhas Avaliações", icon: FileText },
     { id: "promos", label: "Códigos", icon: Tag },
-    { id: "profile", label: "Meu Perfil", icon: UserCircle },
   ];
 
   return (
@@ -90,7 +88,6 @@ export default function CriticPanel() {
                       calendar: "calendario",
                       ratings: "avaliacoes",
                       promos: "codigos",
-                      profile: "perfil",
                     };
                     navigate(`/painel-critico/${slugMap[tab.id]}`);
                   }
@@ -113,7 +110,6 @@ export default function CriticPanel() {
         {activeTab === "calendar" && <CalendarTab />}
         {activeTab === "ratings" && <RatingsTab />}
         {activeTab === "promos" && <PromosTab userId={user.id} />}
-        {activeTab === "profile" && <ProfileTab userId={user.id} userName={user.name || user.username || ""} />}
       </div>
     </div>
   );

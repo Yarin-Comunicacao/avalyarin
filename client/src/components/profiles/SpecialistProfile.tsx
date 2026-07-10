@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
+import { FourPointStar } from "@/components/FourPointStar";
 import { PainelTab } from "./CriticProfile";
 
 type ProfileTab = "galeria" | "painel";
@@ -53,7 +54,7 @@ export default function SpecialistProfile() {
             </div>
             {/* Star badge */}
             <div className="absolute -top-1 -right-1 w-7 h-7 flex items-center justify-center">
-              <Star className="w-6 h-6 text-yellow-500 fill-yellow-500 drop-shadow-md" />
+              <FourPointStar variant="specialist" size={22} glow />
             </div>
           </div>
 

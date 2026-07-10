@@ -16,7 +16,7 @@ import { getConnectYarinUrl } from "@shared/const";
 import { FourPointStar } from "@/components/FourPointStar";
 import { toast } from "sonner";
 
-type Tab = "overview" | "calendar" | "partnerships" | "promos" | "profile";
+type Tab = "overview" | "calendar" | "partnerships" | "promos";
 
 export default function SpecialistPanel() {
   const { user, loading } = useAuth();
@@ -26,7 +26,6 @@ export default function SpecialistPanel() {
     if (location.includes("/painel-especialista/calendario")) return "calendar";
     if (location.includes("/painel-especialista/parcerias")) return "partnerships";
     if (location.includes("/painel-especialista/codigos")) return "promos";
-    if (location.includes("/painel-especialista/perfil")) return "profile";
     return "overview";
   };
 
@@ -55,7 +54,6 @@ export default function SpecialistPanel() {
     { id: "calendar", label: "Calendário", icon: CalendarDays },
     { id: "partnerships", label: "Parcerias", icon: Handshake },
     { id: "promos", label: "Códigos", icon: Tag },
-    { id: "profile", label: "Meu Perfil", icon: UserCircle },
   ];
 
   return (
@@ -95,7 +93,6 @@ export default function SpecialistPanel() {
                       calendar: "calendario",
                       partnerships: "parcerias",
                       promos: "codigos",
-                      profile: "perfil",
                     };
                     navigate(`/painel-especialista/${slugMap[tab.id]}`);
                   }
@@ -118,7 +115,6 @@ export default function SpecialistPanel() {
         {activeTab === "calendar" && <CalendarTab />}
         {activeTab === "partnerships" && <PartnershipsTab userId={user.id} />}
         {activeTab === "promos" && <PromosTab userId={user.id} />}
-        {activeTab === "profile" && <ProfileTab userId={user.id} userName={user.name || user.username || ""} />}
       </div>
     </div>
   );

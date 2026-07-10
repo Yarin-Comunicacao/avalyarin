@@ -54,7 +54,7 @@ export default function CriticProfile() {
             </div>
             {/* Star badge */}
             <div className="absolute -top-1 -right-1 w-7 h-7 flex items-center justify-center">
-              <Star className="w-6 h-6 text-blue-400 fill-blue-400 drop-shadow-md" />
+              <FourPointStar variant="critic" size={22} glow />
             </div>
           </div>
 
@@ -222,7 +222,7 @@ function PainelTab({
       <div className="grid grid-cols-2 gap-3">
         <div className={`p-4 rounded-xl bg-card border border-border/30`}>
           <div className="flex items-center gap-2 mb-1">
-            <Star className={`w-4 h-4 text-${accentColor}-400`} />
+            <FourPointStar variant="critic" size={14} />
             <span className="text-xs text-muted-foreground">Avaliações</span>
           </div>
           <p className="font-numbers text-2xl font-bold text-foreground">{totalRatings}</p>
