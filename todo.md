@@ -1118,3 +1118,8 @@
 - [x] Revisar e complementar a seção de navegação/fluxos com os recursos atuais do app
 - [x] Entregar versão atualizada do Manual Técnico Operacional nos arquivos do projeto
 
+## Correções Jul/2026 — Avaliação Business + Foto de Perfil + Login Próprio
+- [x] Remover opção de avaliar para role business (backend bloqueia + frontend esconde)
+- [x] Implementar upload de foto de perfil (galeria ou câmera ao clicar no avatar)
+- [x] Preparar estrutura para login próprio (Facebook/Google/Email) substituindo Manus OAuth
+- [x] Captar foto de perfil automaticamente do Facebook/Google ao fazer login social

@@ -171,6 +171,7 @@ export default function QRScanPage() {
 
         {/* CTA buttons */}
         <div className="flex flex-col gap-3">
+          {user?.role !== "business" && (
           <Button
             size="lg"
             className="w-full font-display tracking-wider bg-primary text-primary-foreground"
@@ -179,6 +180,7 @@ export default function QRScanPage() {
             <Star className="w-5 h-5 mr-2" />
             AVALIAR VISITA
           </Button>
+          )}
           <Button
             variant="outline"
             size="lg"

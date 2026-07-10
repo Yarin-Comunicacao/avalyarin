@@ -1,0 +1,4 @@
+ALTER TABLE `users` ADD `facebookId` varchar(64);--> statement-breakpoint
+ALTER TABLE `users` ADD `googleId` varchar(128);--> statement-breakpoint
+ALTER TABLE `users` ADD `passwordHash` varchar(255);--> statement-breakpoint
+ALTER TABLE `users` ADD `emailVerified` boolean DEFAULT false NOT NULL;

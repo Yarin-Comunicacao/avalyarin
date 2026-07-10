@@ -88,6 +88,7 @@ import BottomNav from "./components/BottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
 import AuthChoice from "./components/AuthChoice";
+import LoginPage from "./pages/LoginPage";
 import HowItWorksDialog from "./components/HowItWorksDialog";
 
 // ============================================================
@@ -129,6 +130,7 @@ function Router() {
     <>
     <ScrollToTop />
     <Switch>
+      <Route path="/login" component={LoginPage} />
       <Route path="/" component={Home} />
       <Route path="/categoria/:id" component={CategoryPage} />
       <Route path="/grupo/:id/calendario" component={CalendarioGrupo} />

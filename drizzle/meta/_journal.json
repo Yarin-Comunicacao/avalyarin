@@ -148,6 +148,20 @@
       "when": 1783695323903,
       "tag": "0020_daily_leech",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1783707217512,
+      "tag": "0021_cloudy_major_mapleleaf",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1783707515416,
+      "tag": "0022_modern_dreaming_celestial",
+      "breakpoints": true
     }
   ]
 }

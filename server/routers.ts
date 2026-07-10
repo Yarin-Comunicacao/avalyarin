@@ -1416,6 +1416,28 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
       }),
+    uploadProfilePhoto: protectedProcedure
+      .input(z.object({
+        base64: z.string(), // base64-encoded image data
+        mimeType: z.string().regex(/^image\/(jpeg|png|webp|heic)$/),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        const buffer = Buffer.from(input.base64, "base64");
+        // Limit to 5MB
+        if (buffer.length > 5 * 1024 * 1024) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem muito grande. Máximo: 5MB." });
+        }
+        const ext = input.mimeType.split("/")[1] === "jpeg" ? "jpg" : input.mimeType.split("/")[1];
+        const key = `profile-photos/${ctx.user!.id}/photo_${Date.now()}.${ext}`;
+        const { url, key: storedKey } = await storagePut(key, buffer, input.mimeType);
+        // Update user record
+        const db = await (await import("./db")).getDb();
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await db!.update(users).set({ profilePhotoUrl: url, profilePhotoKey: storedKey }).where(eq(users.id, ctx.user!.id));
+        return { url, key: storedKey };
+      }),
     publicByUsername: publicProcedure
       .input(z.object({ username: z.string().min(1) }))
       .query(async ({ input }) => {
