@@ -3,10 +3,17 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import {
   Store, BarChart3, ChevronDown, Plus, Bell,
-  UtensilsCrossed, Users, Settings, MapPin, Phone, Clock, Instagram
+  UtensilsCrossed, Users, MapPin, Phone, Clock, Instagram,
+  Pencil, Heart, Crown, Palette, Flag, Share2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { getConnectYarinUrl } from "@shared/const";
+import ProfileEditarTab from "@/components/profile-tabs/EditarTab";
+import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+import PlanosTab from "@/components/profile-tabs/PlanosTab";
+import TemaFundoTab from "@/components/profile-tabs/TemaFundoTab";
+import SalvosTab from "@/components/profile-tabs/SalvosTab";
 
 /** Clean hours string from JSON artifacts like {"" */
 function cleanHours(hours: string | null | undefined): string {
@@ -14,7 +21,7 @@ function cleanHours(hours: string | null | undefined): string {
   return hours.replace(/[{}"\\]/g, "").replace(/,/g, ", ").trim();
 }
 
-type TabId = "cardapio" | "grupos" | "editar";
+type TabId = "cardapio" | "grupos" | "salvos" | "editar" | "preferencias" | "planos" | "tema";
 
 export default function BusinessProfile() {
   const { user } = useAuth();
@@ -183,13 +190,51 @@ export default function BusinessProfile() {
         )}
       </div>
 
+            {/* Action icons row */}
+      <div className="px-4 mt-3">
+        <div className="flex items-center gap-2">
+          {([
+            { id: "editar" as TabId, icon: Pencil, label: "Editar" },
+            { id: "preferencias" as TabId, icon: Heart, label: "Prefer\u00eancias" },
+            { id: "planos" as TabId, icon: Crown, label: "Planos" },
+            { id: "tema" as TabId, icon: Palette, label: "Temas" },
+          ]).map(action => (
+            <button
+              key={action.id}
+              onClick={() => setActiveTab(activeTab === action.id ? "cardapio" : action.id)}
+              className={cn(
+                "flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs transition-colors",
+                activeTab === action.id
+                  ? "bg-orange-500/10 border border-orange-500/40 text-orange-500"
+                  : "bg-secondary border border-border/50 text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <action.icon className="w-4 h-4" />
+              <span className="text-[10px] font-medium">{action.label}</span>
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              navigator.share?.({
+                title: currentEstab?.name || "Estabelecimento",
+                url: window.location.href,
+              }).catch(() => {});
+            }}
+            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            <span className="text-[10px] font-medium">Enviar</span>
+          </button>
+        </div>
+      </div>
+
       {/* Tabs */}
-      <div className="border-t border-border/50">
+      <div className="border-t border-border/50 mt-3">
         <div className="flex">
           {([
-            { id: "cardapio" as TabId, label: "Cardápio", icon: UtensilsCrossed },
+            { id: "cardapio" as TabId, label: "Card\u00e1pio", icon: UtensilsCrossed },
             { id: "grupos" as TabId, label: "Grupos", icon: Users },
-            { id: "editar" as TabId, label: "Editar Perfil", icon: Settings },
+            { id: "salvos" as TabId, label: "Salvos", icon: Flag },
           ]).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -209,7 +254,6 @@ export default function BusinessProfile() {
           })}
         </div>
       </div>
-
       {/* Tab Content */}
       <div className="px-4 pt-4">
         {activeTab === "cardapio" && (
@@ -218,8 +262,20 @@ export default function BusinessProfile() {
         {activeTab === "grupos" && (
           <GruposTab />
         )}
+        {activeTab === "salvos" && (
+          <SalvosTab />
+        )}
         {activeTab === "editar" && (
-          <EditarTab />
+          <ProfileEditarTab />
+        )}
+        {activeTab === "preferencias" && (
+          <PreferenciasTab />
+        )}
+        {activeTab === "planos" && (
+          <PlanosTab />
+        )}
+        {activeTab === "tema" && (
+          <TemaFundoTab />
         )}
       </div>
     </div>
@@ -300,8 +356,8 @@ function GruposTab() {
   );
 }
 
-/** Editar Perfil tab */
-function EditarTab() {
+/** Editar Perfil tab (Business-specific, kept for reference) */
+function BusinessEditarLocal() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground mb-4">Edite as informações do seu estabelecimento</p>

@@ -1149,3 +1149,8 @@
 - [x] Corrigir aba Planos — não mostrar 'PLANO ATIVO' quando plano é 'free', exibir wizard de upgrade
 - [x] TemaFundoTab — apenas Diurno/Noturno + upload de imagem de fundo customizada pelo usuário
 - [x] Investigar por que alan_1927 não tem preferências — surveyData é NULL no banco (onboarding não persistiu)
+- [ ] Remover rotas antigas de /conta (dados, usuario, conectadas, planos) — futuro
+- [x] Remover botão "Editar perfil" do UserProfile
+- [x] Adicionar 4 ícones (Editar, Preferências, Planos, Temas) ao lado do botão compartilhar (fileira de ícones)
+- [x] Na fileira de tabs abaixo, manter apenas Galeria e Salvos (com ícone de bandeirola)
+- [x] Aplicar novo layout de ícones/tabs aos roles critic, specialist e business

@@ -3,14 +3,20 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import {
-  Camera, Settings, Share2, Star, Loader2, Bell, BarChart3
+  Camera, Share2, Loader2, Bell, BarChart3,
+  Pencil, Heart, Crown, Palette, Flag
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 import { FourPointStar } from "@/components/FourPointStar";
 import { PainelTab } from "./CriticProfile";
+import EditarTab from "@/components/profile-tabs/EditarTab";
+import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+import PlanosTab from "@/components/profile-tabs/PlanosTab";
+import TemaFundoTab from "@/components/profile-tabs/TemaFundoTab";
+import SalvosTab from "@/components/profile-tabs/SalvosTab";
 
-type ProfileTab = "galeria" | "painel";
+type ProfileTab = "galeria" | "salvos" | "painel" | "editar" | "preferencias" | "planos" | "tema";
 
 export default function SpecialistProfile() {
   const { user } = useAuth();
@@ -101,14 +107,27 @@ export default function SpecialistProfile() {
           </p>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2 mt-3">
-          <Link href="/conta/editar-perfil" className="flex-1">
-            <button className="w-full py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5">
-              <Settings className="w-3.5 h-3.5" />
-              Editar perfil
+        {/* Action icons row */}
+        <div className="flex items-center gap-2 mt-3">
+          {([
+            { id: "editar" as ProfileTab, icon: Pencil, label: "Editar" },
+            { id: "preferencias" as ProfileTab, icon: Heart, label: "Preferências" },
+            { id: "planos" as ProfileTab, icon: Crown, label: "Planos" },
+            { id: "tema" as ProfileTab, icon: Palette, label: "Temas" },
+          ]).map(action => (
+            <button
+              key={action.id}
+              onClick={() => setActiveTab(activeTab === action.id ? "galeria" : action.id)}
+              className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs transition-colors ${
+                activeTab === action.id
+                  ? "bg-yellow-500/10 border border-yellow-500/40 text-yellow-500"
+                  : "bg-secondary border border-border/50 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <action.icon className="w-4 h-4" />
+              <span className="text-[10px] font-medium">{action.label}</span>
             </button>
-          </Link>
+          ))}
           <button
             onClick={() => {
               if (profile?.username) {
@@ -118,14 +137,15 @@ export default function SpecialistProfile() {
                 }).catch(() => {});
               }
             }}
-            className="py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center"
+            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Share2 className="w-3.5 h-3.5" />
+            <Share2 className="w-4 h-4" />
+            <span className="text-[10px] font-medium">Enviar</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs — Galeria + Painel */}
+      {/* Tabs — Galeria + Salvos + Painel */}
       <div className="border-t border-border/50">
         <div className="flex">
           <button
@@ -138,6 +158,17 @@ export default function SpecialistProfile() {
           >
             <Camera className="w-4 h-4" />
             GALERIA
+          </button>
+          <button
+            onClick={() => setActiveTab("salvos")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
+              activeTab === "salvos"
+                ? "text-yellow-500 border-b-2 border-yellow-500"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Flag className="w-4 h-4" />
+            SALVOS
           </button>
           <button
             onClick={() => setActiveTab("painel")}
@@ -178,6 +209,9 @@ export default function SpecialistProfile() {
         </div>
       )}
 
+      {activeTab === "salvos" && (
+        <div className="px-4 pt-2 pb-6"><SalvosTab /></div>
+      )}
       {activeTab === "painel" && (
         <PainelTab
           totalRatings={totalRatings}
@@ -187,6 +221,18 @@ export default function SpecialistProfile() {
           ratingsByMonth={stats?.ratingsByMonth}
           variant="specialist"
         />
+      )}
+      {activeTab === "editar" && (
+        <div className="px-4 pt-2 pb-6"><EditarTab /></div>
+      )}
+      {activeTab === "preferencias" && (
+        <div className="px-4 pt-2 pb-6"><PreferenciasTab /></div>
+      )}
+      {activeTab === "planos" && (
+        <div className="px-4 pt-2 pb-6"><PlanosTab /></div>
+      )}
+      {activeTab === "tema" && (
+        <div className="px-4 pt-2 pb-6"><TemaFundoTab /></div>
       )}
     </div>
   );

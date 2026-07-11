@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { Camera, Settings, Share2, Star, MapPin, Users, Loader2, Bell, Pencil } from "lucide-react";
+import {
+  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Palette, Bookmark, Flag
+} from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
@@ -13,16 +15,7 @@ import PlanosTab from "@/components/profile-tabs/PlanosTab";
 import TemaFundoTab from "@/components/profile-tabs/TemaFundoTab";
 import SalvosTab from "@/components/profile-tabs/SalvosTab";
 
-type ProfileTab = "galeria" | "editar" | "preferencias" | "planos" | "tema" | "salvos";
-
-const PROFILE_TABS: { id: ProfileTab; label: string }[] = [
-  { id: "galeria", label: "Galeria" },
-  { id: "editar", label: "Editar" },
-  { id: "preferencias", label: "Preferências" },
-  { id: "planos", label: "Planos" },
-  { id: "tema", label: "Tema e Fundo" },
-  { id: "salvos", label: "Salvos" },
-];
+type ProfileTab = "galeria" | "salvos" | "editar" | "preferencias" | "planos" | "tema";
 
 export default function UserProfile() {
   const { user } = useAuth();
@@ -55,12 +48,20 @@ export default function UserProfile() {
   const avatarUrl = profile?.profilePhotoUrl || user?.profilePhotoUrl;
   const initials = (profile?.name || user?.name || "U").charAt(0).toUpperCase();
 
+  // Icon action buttons config
+  const iconActions: { id: ProfileTab; icon: typeof Pencil; label: string }[] = [
+    { id: "editar", icon: Pencil, label: "Editar" },
+    { id: "preferencias", icon: Heart, label: "Preferências" },
+    { id: "planos", icon: Crown, label: "Planos" },
+    { id: "tema", icon: Palette, label: "Temas" },
+  ];
+
   return (
     <div className="pb-28">
       {/* Profile Header */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">
-          {/* Avatar — shows uploaded photo or initials */}
+          {/* Avatar */}
           <div className="relative flex-shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center overflow-hidden border-2 border-amber-500/30">
               {avatarUrl ? (
@@ -116,19 +117,23 @@ export default function UserProfile() {
           </p>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2 mt-3">
-          <button
-            onClick={() => setActiveTab(activeTab === "editar" ? "galeria" : "editar")}
-            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium border flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === "editar"
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-foreground border-border/50"
-            }`}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            Editar perfil
-          </button>
+        {/* Action icons row: 4 ícones + compartilhar */}
+        <div className="flex items-center gap-2 mt-3">
+          {iconActions.map(action => (
+            <button
+              key={action.id}
+              onClick={() => setActiveTab(activeTab === action.id ? "galeria" : action.id)}
+              className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs transition-colors ${
+                activeTab === action.id
+                  ? "bg-primary/10 border border-primary/40 text-primary"
+                  : "bg-secondary border border-border/50 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <action.icon className="w-4 h-4" />
+              <span className="text-[10px] font-medium">{action.label}</span>
+            </button>
+          ))}
+          {/* Compartilhar */}
           <button
             onClick={() => {
               if (profile?.username) {
@@ -138,30 +143,39 @@ export default function UserProfile() {
                 }).catch(() => {});
               }
             }}
-            className="py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5"
+            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Share2 className="w-3.5 h-3.5" />
+            <Share2 className="w-4 h-4" />
+            <span className="text-[10px] font-medium">Enviar</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs Navigation */}
+      {/* Tabs Navigation — apenas Galeria e Salvos */}
       <div className="border-t border-border/50">
-        <div className="flex overflow-x-auto scrollbar-hide px-2 py-2 gap-1">
-          {PROFILE_TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-card"
-              }`}
-            >
-              {tab.id === "galeria" && <Camera className="w-3 h-3 inline mr-1" />}
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("galeria")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
+              activeTab === "galeria"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Camera className="w-4 h-4" />
+            GALERIA
+          </button>
+          <button
+            onClick={() => setActiveTab("salvos")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
+              activeTab === "salvos"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Flag className="w-4 h-4" />
+            SALVOS
+          </button>
         </div>
       </div>
 
@@ -174,11 +188,11 @@ export default function UserProfile() {
             galleryLoading={galleryLoading}
           />
         )}
+        {activeTab === "salvos" && <SalvosTab />}
         {activeTab === "editar" && <EditarTab />}
         {activeTab === "preferencias" && <PreferenciasTab />}
         {activeTab === "planos" && <PlanosTab />}
         {activeTab === "tema" && <TemaFundoTab />}
-        {activeTab === "salvos" && <SalvosTab />}
       </div>
     </div>
   );
@@ -193,7 +207,6 @@ function GaleriaContent({ galleryPhotos, myRatings, galleryLoading }: { galleryP
     );
   }
 
-  // Combine photos + ratings without photos (shown as logo cards)
   const photoEntries = (galleryPhotos || []).map((p: any) => ({
     id: p.id,
     url: p.url,
@@ -206,7 +219,6 @@ function GaleriaContent({ galleryPhotos, myRatings, galleryLoading }: { galleryP
     ratingId: p.ratingId,
   }));
 
-  // Find ratings that have NO photos
   const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
   const ratingsWithoutPhotos = (myRatings || []).filter(
     (r: any) => !ratingIdsWithPhotos.has(r.id)
