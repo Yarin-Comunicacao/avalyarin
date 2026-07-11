@@ -1166,3 +1166,8 @@
 - [x] Unificar todas as notificações: solicitações de follow, convites de grupo, mensagens novas (DMs)
 - [x] Desacoplar projeto da infraestrutura Manus: OAuth → Google OAuth direto, Storage → Cloudflare R2, DB → TiDB com SSL, LLM → OpenAI-compatible
 - [x] Criar ENV_SETUP.md e DEPLOY.md com instruções de deploy externo
+- [x] Migrar todas as imagens do Manus Storage para Cloudflare R2 (173 imagens: 48 estáticas + 120 do banco + 5 do CloudFront)
+- [x] Atualizar URLs do CloudFront no código para /storage/ (servidas via R2 storageProxy)
+- [x] Ocultar POIs nativos do Google Maps (teatros, lojas, etc) via map styling
+- [x] Fix: markers do app não carregam consistentemente (problema de timing)
+- [x] Garantir que apenas estabelecimentos cadastrados no app apareçam como pins no mapa

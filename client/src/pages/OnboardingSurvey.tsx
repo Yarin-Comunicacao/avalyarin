@@ -355,7 +355,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin"
                 className="w-full h-full object-contain"
               />

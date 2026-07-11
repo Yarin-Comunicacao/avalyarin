@@ -110,6 +110,8 @@ interface MapViewProps {
   initialCenter?: google.maps.LatLngLiteral;
   initialZoom?: number;
   onMapReady?: (map: google.maps.Map) => void;
+  /** Custom map styles to hide/show features */
+  styles?: google.maps.MapTypeStyle[];
 }
 
 export function MapView({
@@ -117,6 +119,7 @@ export function MapView({
   initialCenter = { lat: 37.7749, lng: -122.4194 },
   initialZoom = 12,
   onMapReady,
+  styles,
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<google.maps.Map | null>(null);
@@ -135,6 +138,7 @@ export function MapView({
       zoomControl: true,
       streetViewControl: true,
       mapId: "DEMO_MAP_ID",
+      ...(styles ? { styles } : {}),
     });
     if (onMapReady) {
       onMapReady(map.current);

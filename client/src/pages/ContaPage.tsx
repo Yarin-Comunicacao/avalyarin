@@ -44,7 +44,7 @@ export default function ContaPage() {
         <div className="absolute inset-0 flex pointer-events-none">
           <div className="w-1/2 h-full relative">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
+              src="/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
               alt="Restaurante durante o dia"
               className="w-full h-full object-cover"
               loading="eager"
@@ -54,7 +54,7 @@ export default function ContaPage() {
           </div>
           <div className="w-1/2 h-full relative">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
+              src="/storage/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
               alt="Bar ao entardecer"
               className="w-full h-full object-cover"
               loading="eager"
@@ -70,7 +70,7 @@ export default function ContaPage() {
           <div className="flex items-center gap-2 mb-8">
             <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin"
                 className="w-full h-full object-contain"
               />

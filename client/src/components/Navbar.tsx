@@ -31,7 +31,7 @@ export default function Navbar({ hideSearch, showSearch }: NavbarProps = {}) {
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center glow-amber overflow-hidden p-1">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin Y logo"
                 className="w-full h-full object-contain"
               />

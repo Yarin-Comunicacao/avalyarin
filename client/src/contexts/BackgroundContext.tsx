@@ -7,8 +7,8 @@ export interface BackgroundOption {
   url: string;
 }
 
-const DAY_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
-const NIGHT_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp";
+const DAY_IMAGE = "/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
+const NIGHT_IMAGE = "/storage/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp";
 
 export const BACKGROUND_OPTIONS: BackgroundOption[] = [
   { id: "noturna", label: "Noturna", thumbnail: NIGHT_IMAGE, url: NIGHT_IMAGE },
