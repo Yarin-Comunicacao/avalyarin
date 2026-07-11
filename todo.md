@@ -1137,3 +1137,7 @@
 - [x] Mover 5 abas (Editar, Preferências, Planos, Tema e Fundo, Salvos) para dentro da página de Perfil (UserProfile) com sistema de abas inline
 - [x] Criar componentes separados em client/src/components/profile-tabs/ (EditarTab, PreferenciasTab, PlanosTab, TemaFundoTab, SalvosTab)
 - [x] Adicionar toast messages de sucesso/erro nas abas Editar, Preferências e Tema e Fundo ao salvar alterações
+- [x] Verificar rota /conta — identificar funcionalidades exclusivas não acessíveis por outro caminho
+- [x] Corrigir foto de perfil: alteração na aba Editar não reflete no avatar do UserProfile
+- [x] Ajustar margem inferior do perfil
+- [x] Nome e data de nascimento devem ser somente visualização (não editáveis) na aba Editar

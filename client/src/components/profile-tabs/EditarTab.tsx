@@ -8,17 +8,13 @@ export default function EditarTab() {
   const { data: profile, isLoading } = trpc.profile.get.useQuery();
   const utils = trpc.useUtils();
 
-  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [birthdate, setBirthdate] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
   useEffect(() => {
     if (profile) {
-      setName(profile.name || "");
       setUsername(profile.username || "");
-      setBirthdate(profile.birthdate || "");
       setEmail(profile.email || "");
       setPhone(profile.phone || "");
     }
@@ -27,6 +23,7 @@ export default function EditarTab() {
   const updateProfile = trpc.profile.update.useMutation({
     onSuccess: () => {
       utils.profile.get.invalidate();
+      utils.auth.me.invalidate();
       toast.success("Perfil atualizado com sucesso!");
     },
     onError: (err) => toast.error(err.message || "Erro ao atualizar"),
@@ -48,32 +45,31 @@ export default function EditarTab() {
     setUsername(val.toLowerCase().replace(/[^a-z0-9._]/g, ""));
   };
 
-  const nameParts = name.trim().split(/\s+/);
-  const hasValidName = nameParts.length >= 2 && nameParts[0].length >= 2;
   const hasValidUsername = username.length >= 3 && !/\s/.test(username);
   const usernameAvailable = usernameCheck?.available !== false || username === profile?.username;
 
   const hasChanges = profile && (
-    name !== (profile.name || "") ||
     username !== (profile.username || "") ||
-    birthdate !== (profile.birthdate || "") ||
     email !== (profile.email || "") ||
     phone !== (profile.phone || "")
   );
 
-  const canSave = hasChanges && hasValidName && hasValidUsername && usernameAvailable;
+  const canSave = hasChanges && hasValidUsername && usernameAvailable;
 
   const handleSave = () => {
-    const data: { name?: string; username?: string; birthdate?: string; email?: string; phone?: string } = {};
-    if (name !== (profile?.name || "")) data.name = name.trim();
+    const data: { username?: string; email?: string; phone?: string } = {};
     if (username !== (profile?.username || "")) data.username = username;
-    if (birthdate !== (profile?.birthdate || "")) data.birthdate = birthdate;
     if (email !== (profile?.email || "")) data.email = email.trim();
     if (phone !== (profile?.phone || "")) data.phone = phone.trim();
     updateProfile.mutate(data);
   };
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>;
+
+  // Format birthdate for display
+  const displayBirthdate = profile?.birthdate
+    ? new Date(profile.birthdate + "T12:00:00").toLocaleDateString("pt-BR")
+    : "Não informada";
 
   return (
     <div className="space-y-6">
@@ -83,19 +79,22 @@ export default function EditarTab() {
         <p className="text-xs text-muted-foreground">Toque para alterar a foto</p>
       </div>
 
-      {/* Nome Completo */}
+      {/* Nome Completo — somente visualização */}
       <div>
-        <label className="text-xs text-muted-foreground mb-1 block">Nome e Sobrenome *</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Ex: João Silva"
-          className="w-full px-3 py-2.5 rounded-lg bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
-        />
-        {name && !hasValidName && (
-          <p className="text-xs text-red-400 mt-1">Informe nome e sobrenome (mínimo 2 palavras)</p>
-        )}
+        <label className="text-xs text-muted-foreground mb-1 block">Nome</label>
+        <div className="w-full px-3 py-2.5 rounded-lg bg-card/50 border border-border/30 text-sm text-foreground/80">
+          {profile?.name || "Não informado"}
+        </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1">Para alterar o nome, acesse Meus Dados</p>
+      </div>
+
+      {/* Data de Nascimento — somente visualização */}
+      <div>
+        <label className="text-xs text-muted-foreground mb-1 block">Data de Nascimento</label>
+        <div className="w-full px-3 py-2.5 rounded-lg bg-card/50 border border-border/30 text-sm text-foreground/80">
+          {displayBirthdate}
+        </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1">Para alterar, acesse Meus Dados</p>
       </div>
 
       {/* Username */}
@@ -121,18 +120,6 @@ export default function EditarTab() {
         {!usernameAvailable && username !== profile?.username && (
           <p className="text-xs text-red-400 mt-1">Username já em uso</p>
         )}
-      </div>
-
-      {/* Data de Nascimento */}
-      <div>
-        <label className="text-xs text-muted-foreground mb-1 block">Data de Nascimento</label>
-        <input
-          type="date"
-          value={birthdate}
-          onChange={(e) => setBirthdate(e.target.value)}
-          max={new Date().toISOString().split("T")[0]}
-          className="w-full px-3 py-2.5 rounded-lg bg-card border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
-        />
       </div>
 
       {/* Email */}

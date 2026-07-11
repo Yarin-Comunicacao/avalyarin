@@ -6,7 +6,7 @@ import { Camera, Settings, Share2, Star, MapPin, Users, Loader2, Bell, Pencil } 
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
-// Import tab content components from EditarPerfil
+// Import tab content components
 import EditarTab from "@/components/profile-tabs/EditarTab";
 import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
 import PlanosTab from "@/components/profile-tabs/PlanosTab";
@@ -51,20 +51,28 @@ export default function UserProfile() {
   const totalRatings = stats?.totalRatings ?? 0;
   const uniqueEstabs = stats?.establishmentsVisited ?? 0;
 
+  // Use profilePhotoUrl from profile query (most up-to-date after upload)
+  const avatarUrl = profile?.profilePhotoUrl || user?.profilePhotoUrl;
+  const initials = (profile?.name || user?.name || "U").charAt(0).toUpperCase();
+
   return (
-    <div className="pb-20">
+    <div className="pb-28">
       {/* Profile Header */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">
-          {/* Avatar */}
+          {/* Avatar — shows uploaded photo or initials */}
           <div className="relative flex-shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center overflow-hidden border-2 border-amber-500/30">
-              {user?.name ? (
-                <span className="text-2xl font-bold text-white">
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Foto de perfil"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span className="text-2xl">👤</span>
+                <span className="text-2xl font-bold text-white">
+                  {initials}
+                </span>
               )}
             </div>
           </div>
@@ -158,7 +166,7 @@ export default function UserProfile() {
       </div>
 
       {/* Tab Content */}
-      <div className="px-4 pt-2">
+      <div className="px-4 pt-2 pb-6">
         {activeTab === "galeria" && (
           <GaleriaContent
             galleryPhotos={galleryPhotos}
