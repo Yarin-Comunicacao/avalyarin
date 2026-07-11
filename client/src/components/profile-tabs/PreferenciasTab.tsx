@@ -1,11 +1,11 @@
 import { trpc } from "@/lib/trpc";
 import { Loader2, User } from "lucide-react";
-import { Link, useLocation } from "wouter";
+
 import { toast } from "sonner";
 
 export default function PreferenciasTab() {
   const { data: surveyData, isLoading, error } = trpc.survey.get.useQuery();
-  const [, navigate] = useLocation();
+
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>;
 
@@ -29,8 +29,10 @@ export default function PreferenciasTab() {
         <div className="pt-4">
           <button
             onClick={() => {
+              localStorage.removeItem("avalyarin_survey_completed");
+              localStorage.removeItem("avalyarin_survey_answers");
               toast.info("Redirecionando para a pesquisa...");
-              navigate("/survey/onboarding");
+              window.location.href = "/";
             }}
             className="w-full py-3 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/10 transition-colors"
           >
@@ -68,8 +70,10 @@ export default function PreferenciasTab() {
       <div className="pt-4">
         <button
           onClick={() => {
+            localStorage.removeItem("avalyarin_survey_completed");
+            localStorage.removeItem("avalyarin_survey_answers");
             toast.info("Redirecionando para refazer a pesquisa...");
-            navigate("/survey/onboarding");
+            window.location.href = "/";
           }}
           className="w-full py-3 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/10 transition-colors"
         >
