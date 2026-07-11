@@ -1146,3 +1146,6 @@
 - [x] Migrar conteúdo de /conta/planos para Perfil > Planos (wizard 4 etapas) — já existia
 - [x] Migrar conteúdo de /conta/conectadas para Perfil > Editar (contas sociais)
 - [x] Adicionar botão Sair em Perfil > Editar (logout)
+- [x] Corrigir aba Planos — não mostrar 'PLANO ATIVO' quando plano é 'free', exibir wizard de upgrade
+- [x] TemaFundoTab — apenas Diurno/Noturno + upload de imagem de fundo customizada pelo usuário
+- [x] Investigar por que alan_1927 não tem preferências — surveyData é NULL no banco (onboarding não persistiu)

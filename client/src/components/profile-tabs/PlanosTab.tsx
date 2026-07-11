@@ -74,7 +74,7 @@ export default function PlanosTab() {
     );
   }
 
-  if (myPlan?.plan) {
+  if (myPlan?.plan && myPlan.plan !== "free") {
     return (
       <div className="text-center py-8">
         <Crown className="w-12 h-12 text-primary mx-auto mb-4" />
