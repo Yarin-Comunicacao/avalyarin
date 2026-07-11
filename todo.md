@@ -1160,3 +1160,5 @@
 - [x] Mensagem de alerta de privacidade ao solicitar seguir um user (dados de localização)
 - [x] Frontend: botão Seguir mostra estado 'Pendente' enquanto aguarda aprovação
 - [x] Frontend: tela de notificações com aceitar/recusar pedidos de follow
+- [x] Fix: BottomNav do role critic não destaca aba ativa ao clicar
+- [x] Fix: Perfil > Planos para critics/specialists deve mostrar benefícios do plano atual (não wizard de upgrade)

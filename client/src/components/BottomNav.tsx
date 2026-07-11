@@ -232,22 +232,25 @@ export default function BottomNav() {
           return (
             <Link key={item.path} href={item.path}>
               <div className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer">
-                <div className={cn(
-                  "p-1.5 rounded-lg transition-colors",
-                  isActive && "bg-primary/10"
-                )}>
+                <div
+                  className={cn(
+                    "p-1.5 rounded-lg transition-colors"
+                  )}
+                  style={isActive ? { backgroundColor: `${colors.primary}15` } : undefined}
+                >
                   <Icon
                     className={cn(
                       "w-5 h-5 transition-colors",
-                      isActive ? "text-primary" : "text-muted-foreground"
+                      !isActive && "text-muted-foreground"
                     )}
                     style={isActive ? { color: colors.primary } : undefined}
                   />
                 </div>
-                <span className={cn(
-                  "text-[10px] font-medium transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )}
+                <span
+                  className={cn(
+                    "text-[10px] font-medium transition-colors",
+                    !isActive && "text-muted-foreground"
+                  )}
                   style={isActive ? { color: colors.primary } : undefined}
                 >
                   {item.label}

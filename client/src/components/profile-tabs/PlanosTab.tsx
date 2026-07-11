@@ -74,6 +74,58 @@ export default function PlanosTab() {
     );
   }
 
+  // If user already has critic/specialist role, show benefits
+  const userRole = user?.role;
+  if (userRole === "critic" || userRole === "specialist") {
+    const isCritic = userRole === "critic";
+    const benefits = isCritic
+      ? [
+          "Avaliações com peso diferenciado no ranking",
+          "Badge exclusivo de Crítico no perfil",
+          "Acesso ao Painel do Crítico",
+          "Grupos ilimitados",
+          "Prioridade em eventos e parcerias",
+          "Destaque nas avaliações dos estabelecimentos",
+        ]
+      : [
+          "Badge exclusivo de Especialista no perfil",
+          "Acesso ao Painel do Especialista",
+          "Grupos ilimitados",
+          "Scan de cardápios com IA",
+          "Conteúdo exclusivo para seguidores",
+          "Prioridade em eventos e parcerias",
+        ];
+    return (
+      <div className="py-4 space-y-5">
+        <div className="flex items-center gap-3">
+          <FourPointStar variant={isCritic ? "critic" : "specialist"} className="w-10 h-10" />
+          <div>
+            <h3 className="font-display text-lg text-foreground tracking-wider">
+              {isCritic ? "CRÍTICO" : "ESPECIALISTA"}
+            </h3>
+            <p className="text-xs text-muted-foreground">Plano ativo</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-card border border-border/50 p-4">
+          <h4 className="text-sm font-medium text-foreground mb-3">Seus benefícios:</h4>
+          <ul className="space-y-2">
+            {benefits.map((b, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-xs text-muted-foreground/60 text-center">
+          Membro desde a aprovação do seu perfil profissional.
+        </p>
+      </div>
+    );
+  }
+
   if (myPlan?.plan && myPlan.plan !== "free") {
     return (
       <div className="text-center py-8">
