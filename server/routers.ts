@@ -304,6 +304,7 @@ import {
   followUser, unfollowUser, isFollowing, isMutualFollow,
   getFollowers, getFollowing, getFollowCounts, getMutualFollows,
   sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
+  acceptFollowRequest, rejectFollowRequest, getPendingFollowRequests, getPendingFollowCount, getFollowStatus,
 } from "./db-follows";
 import {
   createEstablishmentEvent,
@@ -3140,8 +3141,8 @@ export const appRouter = router({
     follow: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await followUser(ctx.user!.id, input.userId);
-        return { success: true };
+        const status = await followUser(ctx.user!.id, input.userId);
+        return { success: true, status };
       }),
     unfollow: protectedProcedure
       .input(z.object({ userId: z.number() }))
@@ -3152,9 +3153,11 @@ export const appRouter = router({
     isFollowing: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const following = await isFollowing(ctx.user!.id, input.userId);
+        const status = await getFollowStatus(ctx.user!.id, input.userId);
+        const following = status === "accepted";
+        const pending = status === "pending";
         const mutual = following ? await isMutualFollow(ctx.user!.id, input.userId) : false;
-        return { following, mutual };
+        return { following, pending, mutual, status };
       }),
     followers: protectedProcedure
       .input(z.object({ userId: z.number().optional() }))
@@ -3174,6 +3177,27 @@ export const appRouter = router({
     mutuals: protectedProcedure
       .query(async ({ ctx }) => {
         return await getMutualFollows(ctx.user!.id);
+      }),
+    // Pending follow requests
+    pendingRequests: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getPendingFollowRequests(ctx.user!.id);
+      }),
+    pendingCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getPendingFollowCount(ctx.user!.id);
+      }),
+    acceptRequest: protectedProcedure
+      .input(z.object({ followId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await acceptFollowRequest(input.followId, ctx.user!.id);
+        return { success: true };
+      }),
+    rejectRequest: protectedProcedure
+      .input(z.object({ followId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await rejectFollowRequest(input.followId, ctx.user!.id);
+        return { success: true };
       }),
     // DMs
     dmConversations: protectedProcedure

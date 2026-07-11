@@ -1154,3 +1154,9 @@
 - [x] Adicionar 4 ícones (Editar, Preferências, Planos, Temas) ao lado do botão compartilhar (fileira de ícones)
 - [x] Na fileira de tabs abaixo, manter apenas Galeria e Salvos (com ícone de bandeirola)
 - [x] Aplicar novo layout de ícones/tabs aos roles critic, specialist e business
+- [x] Sistema de follow com aprovação para role 'user': pedido fica pendente até o seguido aceitar
+- [x] Follow livre para roles 'critic' e 'specialist' (sem necessidade de aprovação)
+- [x] Notificação de pedido de follow pendente no ícone de notificação do seguido
+- [x] Mensagem de alerta de privacidade ao solicitar seguir um user (dados de localização)
+- [x] Frontend: botão Seguir mostra estado 'Pendente' enquanto aguarda aprovação
+- [x] Frontend: tela de notificações com aceitar/recusar pedidos de follow

@@ -102,7 +102,7 @@ const PREFERENCE_SURVEYS = [
   },
 ];
 
-type Tab = "badges" | "pesquisas";
+type Tab = "badges" | "pesquisas" | "solicitacoes";
 
 // ─── Group Notifications Tab ─────────────────────────────────────────────────
 function GroupNotificationsTab() {
@@ -213,8 +213,9 @@ function GroupNotificationsTab() {
 
 export default function NotificacoesPage() {
   const { user, loading: authLoading } = useAuth();
+  const utils = trpc.useUtils();
   const params = useParams<{ tab?: string }>();
-  const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "badges");
+  const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "solicitacoes");
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string[]>>({});
 
   // Load review count and badge data from localStorage
@@ -307,7 +308,28 @@ export default function NotificacoesPage() {
     toast.success("Pesquisa enviada! Obrigado pelo feedback 🎉");
   };
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  // Pending follow requests
+  const { data: pendingRequests, isLoading: pendingLoading } = trpc.social.pendingRequests.useQuery();
+  const { data: pendingCount } = trpc.social.pendingCount.useQuery();
+  const acceptRequestMutation = trpc.social.acceptRequest.useMutation({
+    onSuccess: () => {
+      toast.success("Solicitação aceita!");
+      utils.social.pendingRequests.invalidate();
+      utils.social.pendingCount.invalidate();
+    },
+    onError: () => toast.error("Erro ao aceitar solicitação"),
+  });
+  const rejectRequestMutation = trpc.social.rejectRequest.useMutation({
+    onSuccess: () => {
+      toast("Solicitação recusada");
+      utils.social.pendingRequests.invalidate();
+      utils.social.pendingCount.invalidate();
+    },
+    onError: () => toast.error("Erro ao recusar solicitação"),
+  });
+
+  const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
+    { id: "solicitacoes", label: "Solicitações", icon: <UserPlus className="w-4 h-4" />, badge: pendingCount || 0 },
     { id: "badges", label: "Badges", icon: <Trophy className="w-4 h-4" /> },
     { id: "pesquisas", label: "Pesquisas", icon: <ClipboardCheck className="w-4 h-4" /> },
   ];
@@ -342,12 +364,84 @@ export default function NotificacoesPage() {
             >
               {tab.icon}
               {tab.label}
+              {tab.badge && tab.badge > 0 ? (
+                <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-white min-w-[18px] text-center">{tab.badge}</span>
+              ) : null}
             </button>
           ))}
         </div>
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "solicitacoes" && (
+            <motion.div
+              key="solicitacoes"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4"
+            >
+              {/* Privacy alert */}
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Proteja sua privacidade</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ao aceitar seguidores, eles poderão ver seus locais visitados e lugares que você frequenta. Aceite apenas pessoas que você conhece.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {pendingLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                </div>
+              ) : pendingRequests && pendingRequests.length > 0 ? (
+                pendingRequests.map((req: any) => (
+                  <div key={req.id} className="rounded-xl bg-card border border-border/50 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
+                        {req.followerPhoto ? (
+                          <img src={req.followerPhoto} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-sm font-bold text-primary">{(req.followerName || "?")[0].toUpperCase()}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
+                        <p className="text-xs text-muted-foreground">@{req.followerUsername}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => acceptRequestMutation.mutate({ followId: req.id })}
+                          className="p-2 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 transition-colors"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => rejectRequestMutation.mutate({ followId: req.id })}
+                          className="p-2 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <UserPlus className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Nenhuma solicitação pendente</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Quando alguém pedir para te seguir, aparecerá aqui.</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {activeTab === "badges" && (
             <motion.div
               key="badges"

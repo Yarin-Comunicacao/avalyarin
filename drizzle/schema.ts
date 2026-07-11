@@ -799,6 +799,7 @@ export const userFollows = mysqlTable("user_follows", {
   id: int("id").autoincrement().primaryKey(),
   followerId: int("followerId").notNull(),
   followingId: int("followingId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted"]).default("accepted").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type UserFollow = typeof userFollows.$inferSelect;

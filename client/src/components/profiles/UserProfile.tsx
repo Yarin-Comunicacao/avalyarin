@@ -21,6 +21,9 @@ export default function UserProfile() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
 
+  // Pending follow count for notification badge
+  const { data: pendingCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: !!user });
+
   // Profile data
   const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
   const { data: stats } = trpc.analytics.myStats.useQuery(undefined, { enabled: !!user });
@@ -100,6 +103,9 @@ export default function UserProfile() {
           <Link href="/notificacoes">
             <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
               <Bell className="w-5 h-5 text-muted-foreground" />
+              {pendingCount && pendingCount > 0 ? (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{pendingCount > 9 ? '9+' : pendingCount}</span>
+              ) : null}
             </button>
           </Link>
         </div>
