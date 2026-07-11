@@ -1,5 +1,6 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
@@ -57,13 +58,24 @@ export async function generateCode(table: 'users' | 'categories' | 'establishmen
   return String(nextNum);
 }
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: any = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const sslCa = process.env.DATABASE_SSL_CA;
+      const sslOptions: any = {};
+      if (sslCa && fs.existsSync(sslCa)) {
+        sslOptions.ssl = { ca: fs.readFileSync(sslCa) };
+      } else if (process.env.DATABASE_URL.includes("tidbcloud.com")) {
+        sslOptions.ssl = { rejectUnauthorized: true };
+      }
+      const pool = mysql.createPool({
+        uri: process.env.DATABASE_URL,
+        ...sslOptions,
+      });
+      _db = drizzle(pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

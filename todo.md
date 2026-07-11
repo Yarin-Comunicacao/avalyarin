@@ -1164,3 +1164,5 @@
 - [x] Fix: Perfil > Planos para critics/specialists deve mostrar benefícios do plano atual (não wizard de upgrade)
 - [x] Adicionar tab "Convites" na página de notificações para convites de grupo pendentes
 - [x] Unificar todas as notificações: solicitações de follow, convites de grupo, mensagens novas (DMs)
+- [x] Desacoplar projeto da infraestrutura Manus: OAuth → Google OAuth direto, Storage → Cloudflare R2, DB → TiDB com SSL, LLM → OpenAI-compatible
+- [x] Criar ENV_SETUP.md e DEPLOY.md com instruções de deploy externo
