@@ -102,7 +102,7 @@ const PREFERENCE_SURVEYS = [
   },
 ];
 
-type Tab = "badges" | "pesquisas" | "solicitacoes";
+type Tab = "badges" | "pesquisas" | "solicitacoes" | "convites" | "mensagens";
 
 // ─── Group Notifications Tab ─────────────────────────────────────────────────
 function GroupNotificationsTab() {
@@ -328,8 +328,18 @@ export default function NotificacoesPage() {
     onError: () => toast.error("Erro ao recusar solicitação"),
   });
 
+  // Group invites count
+  const { data: groupInvites } = trpc.groups.pendingInvites.useQuery();
+  const groupInviteCount = groupInvites?.length || 0;
+
+  // DM unread count
+  const { data: dmConversations } = trpc.social.dmConversations.useQuery();
+  const unreadDMCount = dmConversations?.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0) || 0;
+
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { id: "solicitacoes", label: "Solicitações", icon: <UserPlus className="w-4 h-4" />, badge: pendingCount || 0 },
+    { id: "solicitacoes", label: "Solicitações", icon: <UserPlus className="w-4 h-4" />, badge: (pendingCount || 0) + groupInviteCount },
+    { id: "convites", label: "Grupos", icon: <Users className="w-4 h-4" />, badge: groupInviteCount },
+    { id: "mensagens", label: "Mensagens", icon: <MessageSquare className="w-4 h-4" />, badge: unreadDMCount },
     { id: "badges", label: "Badges", icon: <Trophy className="w-4 h-4" /> },
     { id: "pesquisas", label: "Pesquisas", icon: <ClipboardCheck className="w-4 h-4" /> },
   ];
@@ -607,6 +617,69 @@ export default function NotificacoesPage() {
                   </Link>
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === "convites" && (
+            <GroupNotificationsTab />
+          )}
+
+          {activeTab === "mensagens" && (
+            <motion.div
+              key="mensagens"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4"
+            >
+              {!dmConversations || dmConversations.length === 0 ? (
+                <div className="text-center py-10 bg-secondary/20 rounded-xl border border-border/20">
+                  <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma conversa ainda</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Siga pessoas e inicie conversas com seguidores mútuos</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {dmConversations.map((conv: any) => (
+                    <Link key={conv.partnerId} href={`/mensagens/${conv.partnerUsername}`}>
+                      <div className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        conv.unreadCount > 0
+                          ? "bg-primary/5 border-primary/20"
+                          : "bg-card border-border/50 hover:border-primary/30"
+                      }`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-secondary border border-border/50 flex items-center justify-center">
+                            <span className="text-sm font-medium text-foreground">{conv.partnerName?.charAt(0)?.toUpperCase()}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-foreground truncate">@{conv.partnerUsername}</p>
+                              {conv.unreadCount > 0 && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-white min-w-[18px] text-center">{conv.unreadCount}</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage || "Sem mensagens"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              <Link href="/mensagens">
+                <div className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Ver todas as mensagens</p>
+                        <p className="text-xs text-muted-foreground">Abrir página de conversas</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           )}
 

@@ -23,6 +23,9 @@ export default function UserProfile() {
 
   // Pending follow count for notification badge
   const { data: pendingCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: !!user });
+  const { data: groupInvites } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: !!user });
+  const { data: dmConvs } = trpc.social.dmConversations.useQuery(undefined, { enabled: !!user });
+  const totalNotifs = (pendingCount || 0) + (groupInvites?.length || 0) + (dmConvs?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
 
   // Profile data
   const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -103,8 +106,8 @@ export default function UserProfile() {
           <Link href="/notificacoes">
             <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
               <Bell className="w-5 h-5 text-muted-foreground" />
-              {pendingCount && pendingCount > 0 ? (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{pendingCount > 9 ? '9+' : pendingCount}</span>
+              {totalNotifs > 0 ? (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
               ) : null}
             </button>
           </Link>

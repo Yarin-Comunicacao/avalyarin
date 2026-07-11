@@ -1162,3 +1162,5 @@
 - [x] Frontend: tela de notificações com aceitar/recusar pedidos de follow
 - [x] Fix: BottomNav do role critic não destaca aba ativa ao clicar
 - [x] Fix: Perfil > Planos para critics/specialists deve mostrar benefícios do plano atual (não wizard de upgrade)
+- [x] Adicionar tab "Convites" na página de notificações para convites de grupo pendentes
+- [x] Unificar todas as notificações: solicitações de follow, convites de grupo, mensagens novas (DMs)
