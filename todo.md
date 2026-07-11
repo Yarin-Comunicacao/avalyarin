@@ -1171,3 +1171,4 @@
 - [x] Ocultar POIs nativos do Google Maps (teatros, lojas, etc) via map styling
 - [x] Fix: markers do app não carregam consistentemente (problema de timing)
 - [x] Garantir que apenas estabelecimentos cadastrados no app apareçam como pins no mapa
+- [x] Fix: React error #310 (hooks após early return no BottomNav.tsx)

@@ -55,6 +55,11 @@ export default function BottomNav() {
   const [location] = useLocation();
   const [activeOwnerRole, setActiveOwnerRole] = useState<string | null>(null);
   const { setViewingAs } = useOwnerView();
+  // IMPORTANT: All hooks must be declared before any conditional returns
+  const { data: pendingFollowCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: groupInvitesList } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: dmConvsList } = trpc.social.dmConversations.useQuery(undefined, { enabled: isAuthenticated });
+  const totalNotifCount = (pendingFollowCount || 0) + (groupInvitesList?.length || 0) + (dmConvsList?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
 
   // While auth is loading, hide the BottomNav entirely to prevent flash of wrong role
   if (loading) {
@@ -214,14 +219,8 @@ export default function BottomNav() {
     );
   }
 
-  // Non-owner authenticated users
+    // Non-owner authenticated users
   const navItems = ROLE_BOTTOM_NAV[role] || ROLE_BOTTOM_NAV.user;
-
-  // Notification badge for Perfil icon
-  const { data: pendingFollowCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: isAuthenticated });
-  const { data: groupInvitesList } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: isAuthenticated });
-  const { data: dmConvsList } = trpc.social.dmConversations.useQuery(undefined, { enabled: isAuthenticated });
-  const totalNotifCount = (pendingFollowCount || 0) + (groupInvitesList?.length || 0) + (dmConvsList?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50 pb-safe">
