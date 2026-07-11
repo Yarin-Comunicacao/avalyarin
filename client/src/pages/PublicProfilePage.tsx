@@ -226,33 +226,7 @@ export default function PublicProfilePage() {
           )}
 
           {/* Share profile button */}
-          <div className="mt-3">
-            <ShareToGroup
-              type="share_profile"
-              referenceSlug={`perfil/${profile.username}`}
-              label="Compartilhar perfil"
-            />
-          </div>
 
-          {/* Connect Yarin link */}
-          {connectYarinUrl && (
-            <a
-              href={connectYarinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 text-xs text-muted-foreground hover:text-primary transition-colors underline"
-            >
-              Ver links no Connect Yarin
-            </a>
-          )}
-
-          {/* Member since */}
-          {profile.createdAt && (
-            <p className="mt-3 text-xs text-muted-foreground flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              Membro desde {format(new Date(profile.createdAt), "MMMM 'de' yyyy", { locale: ptBR })}
-            </p>
-          )}
         </div>
 
         {/* Nobility badges */}
