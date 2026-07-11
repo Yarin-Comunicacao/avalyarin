@@ -8,6 +8,7 @@ import {
 import { ROLE_BOTTOM_NAV, ROLE_COLORS, type AppRole } from "@shared/role-visibility";
 import { cn } from "@/lib/utils";
 import { useOwnerView } from "@/contexts/OwnerViewContext";
+import { trpc } from "@/lib/trpc";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
@@ -216,6 +217,12 @@ export default function BottomNav() {
   // Non-owner authenticated users
   const navItems = ROLE_BOTTOM_NAV[role] || ROLE_BOTTOM_NAV.user;
 
+  // Notification badge for Perfil icon
+  const { data: pendingFollowCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: groupInvitesList } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: dmConvsList } = trpc.social.dmConversations.useQuery(undefined, { enabled: isAuthenticated });
+  const totalNotifCount = (pendingFollowCount || 0) + (groupInvitesList?.length || 0) + (dmConvsList?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50 pb-safe">
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
@@ -228,13 +235,14 @@ export default function BottomNav() {
               (location === other.path || location.startsWith(other.path + "/"))
           );
           const isActive = isExactMatch || (isPartialMatch && !hasMoreSpecificMatch);
+          const isPerfilItem = item.path === "/perfil";
 
           return (
             <Link key={item.path} href={item.path}>
-              <div className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer">
+              <div className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer relative">
                 <div
                   className={cn(
-                    "p-1.5 rounded-lg transition-colors"
+                    "p-1.5 rounded-lg transition-colors relative"
                   )}
                   style={isActive ? { backgroundColor: `${colors.primary}15` } : undefined}
                 >
@@ -245,6 +253,9 @@ export default function BottomNav() {
                     )}
                     style={isActive ? { color: colors.primary } : undefined}
                   />
+                  {isPerfilItem && totalNotifCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-background" />
+                  )}
                 </div>
                 <span
                   className={cn(
