@@ -1136,3 +1136,4 @@
 - [x] Barra de busca ao lado do logo (mesma linha), não abaixo
 - [x] Mover 5 abas (Editar, Preferências, Planos, Tema e Fundo, Salvos) para dentro da página de Perfil (UserProfile) com sistema de abas inline
 - [x] Criar componentes separados em client/src/components/profile-tabs/ (EditarTab, PreferenciasTab, PlanosTab, TemaFundoTab, SalvosTab)
+- [x] Adicionar toast messages de sucesso/erro nas abas Editar, Preferências e Tema e Fundo ao salvar alterações

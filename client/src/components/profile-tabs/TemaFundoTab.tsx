@@ -1,10 +1,31 @@
 import { Palette, Image as ImageIcon, Check } from "lucide-react";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
+import { toast } from "sonner";
 
 export default function TemaFundoTab() {
   const { theme, setTheme } = useTheme();
   const { background, setBackground } = useBackground();
+
+  const handleThemeChange = (t: ThemeName) => {
+    try {
+      setTheme(t);
+      const label = THEME_OPTIONS.find(opt => opt.id === t)?.label || t;
+      toast.success(`Tema "${label}" aplicado!`);
+    } catch {
+      toast.error("Erro ao aplicar tema");
+    }
+  };
+
+  const handleBackgroundChange = (bgId: string) => {
+    try {
+      setBackground(bgId);
+      const label = BACKGROUND_OPTIONS.find(opt => opt.id === bgId)?.label || bgId;
+      toast.success(`Fundo "${label}" aplicado!`);
+    } catch {
+      toast.error("Erro ao aplicar plano de fundo");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -17,7 +38,7 @@ export default function TemaFundoTab() {
           {THEME_OPTIONS.map(t => (
             <button
               key={t.id}
-              onClick={() => setTheme(t.id)}
+              onClick={() => handleThemeChange(t.id)}
               className={`flex items-center gap-2 px-3 py-3 rounded-xl text-sm transition-all ${
                 theme === t.id
                   ? "bg-primary/10 border-2 border-primary text-primary"
@@ -44,7 +65,7 @@ export default function TemaFundoTab() {
           {BACKGROUND_OPTIONS.map(bg => (
             <button
               key={bg.id}
-              onClick={() => setBackground(bg.id)}
+              onClick={() => handleBackgroundChange(bg.id)}
               className={`relative aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all ${
                 background === bg.id ? "border-primary ring-2 ring-primary/30" : "border-border/50 hover:border-primary/30"
               }`}
