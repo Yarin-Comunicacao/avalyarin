@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Palette, Bookmark, Flag
 } from "lucide-react";
@@ -103,13 +103,11 @@ export default function UserProfile() {
           </div>
 
           {/* Notification bell */}
-          <Link href="/notificacoes">
-            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-              {totalNotifs > 0 ? (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
-              ) : null}
-            </button>
+          <Link href="/notificacoes" className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+            <Bell className="w-5 h-5 text-muted-foreground" />
+            {totalNotifs > 0 ? (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
+            ) : null}
           </Link>
         </div>
 

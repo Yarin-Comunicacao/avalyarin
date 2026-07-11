@@ -1692,7 +1692,12 @@ export async function updateUserProfile(userId: number, data: { name?: string; u
   if (data.name !== undefined) updateData.name = data.name;
   if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
   if (data.email !== undefined) updateData.email = data.email;
-  if (data.phone !== undefined) updateData.phone = data.phone;
+  if (data.phone !== undefined) {
+    updateData.phone = data.phone;
+    if (data.phone && data.phone.length >= 8) {
+      updateData.phoneVerified = true;
+    }
+  }
   if (data.username !== undefined) {
     // Check username availability
     const existing = await db.select({ id: users.id }).from(users)
