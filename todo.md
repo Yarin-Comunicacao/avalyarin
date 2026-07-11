@@ -1141,3 +1141,8 @@
 - [x] Corrigir foto de perfil: alteração na aba Editar não reflete no avatar do UserProfile
 - [x] Ajustar margem inferior do perfil
 - [x] Nome e data de nascimento devem ser somente visualização (não editáveis) na aba Editar
+- [x] Migrar conteúdo de /conta/dados para Perfil > Editar (verificação de nascimento, dados sensíveis)
+- [x] Migrar conteúdo de /conta/usuario para bottomNav Avaliações (progressão, histórico)
+- [x] Migrar conteúdo de /conta/planos para Perfil > Planos (wizard 4 etapas) — já existia
+- [x] Migrar conteúdo de /conta/conectadas para Perfil > Editar (contas sociais)
+- [x] Adicionar botão Sair em Perfil > Editar (logout)
