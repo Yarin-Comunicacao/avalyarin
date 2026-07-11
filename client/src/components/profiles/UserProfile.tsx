@@ -1,12 +1,32 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { Camera, Settings, Share2, Star, MapPin, Users, Loader2, Bell } from "lucide-react";
+import { Camera, Settings, Share2, Star, MapPin, Users, Loader2, Bell, Pencil } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
+// Import tab content components from EditarPerfil
+import EditarTab from "@/components/profile-tabs/EditarTab";
+import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+import PlanosTab from "@/components/profile-tabs/PlanosTab";
+import TemaFundoTab from "@/components/profile-tabs/TemaFundoTab";
+import SalvosTab from "@/components/profile-tabs/SalvosTab";
+
+type ProfileTab = "galeria" | "editar" | "preferencias" | "planos" | "tema" | "salvos";
+
+const PROFILE_TABS: { id: ProfileTab; label: string }[] = [
+  { id: "galeria", label: "Galeria" },
+  { id: "editar", label: "Editar" },
+  { id: "preferencias", label: "Preferências" },
+  { id: "planos", label: "Planos" },
+  { id: "tema", label: "Tema e Fundo" },
+  { id: "salvos", label: "Salvos" },
+];
+
 export default function UserProfile() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
 
   // Profile data
   const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -90,12 +110,17 @@ export default function UserProfile() {
 
         {/* Action buttons */}
         <div className="flex gap-2 mt-3">
-          <Link href="/conta/editar-perfil" className="flex-1">
-            <button className="w-full py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5">
-              <Settings className="w-3.5 h-3.5" />
-              Editar perfil
-            </button>
-          </Link>
+          <button
+            onClick={() => setActiveTab(activeTab === "editar" ? "galeria" : "editar")}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium border flex items-center justify-center gap-1.5 transition-colors ${
+              activeTab === "editar"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-secondary text-foreground border-border/50"
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            Editar perfil
+          </button>
           <button
             onClick={() => {
               if (profile?.username) {
@@ -112,60 +137,91 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* Divider + Gallery label */}
+      {/* Tabs Navigation */}
       <div className="border-t border-border/50">
-        <div className="flex items-center justify-center py-2.5">
-          <Camera className="w-4 h-4 text-primary" />
-          <span className="text-xs font-medium text-primary ml-1.5 tracking-wide">GALERIA</span>
+        <div className="flex overflow-x-auto scrollbar-hide px-2 py-2 gap-1">
+          {PROFILE_TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                activeTab === tab.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-card"
+              }`}
+            >
+              {tab.id === "galeria" && <Camera className="w-3 h-3 inline mr-1" />}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Photo Gallery Grid */}
-      <div className="px-1">
-        {galleryLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
-          </div>
-        ) : (() => {
-          // Combine photos + ratings without photos (shown as logo cards)
-          const photoEntries = (galleryPhotos || []).map((p: any) => ({
-            id: p.id,
-            url: p.url,
-            establishmentName: p.establishmentName,
-            establishmentSlug: p.establishmentSlug,
-            establishmentLogo: p.establishmentLogo || null,
-            overallScore: p.overallScore ? Number(p.overallScore) : null,
-            visitDate: p.visitDate,
-            taggedItemIds: p.taggedItemIds,
-            ratingId: p.ratingId,
-          }));
-
-          // Find ratings that have NO photos
-          const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
-          const ratingsWithoutPhotos = (myRatings || []).filter(
-            (r: any) => !ratingIdsWithPhotos.has(r.id)
-          ).map((r: any) => ({
-            id: r.id + 100000, // offset to avoid key collision
-            url: "", // no photo URL — PhotoGrid will show logo fallback
-            establishmentName: r.establishmentName,
-            establishmentSlug: r.establishmentSlug,
-            establishmentLogo: r.establishmentLogo || null,
-            overallScore: r.overallScore ? Number(r.overallScore) : null,
-            visitDate: r.visitDate || r.createdAt,
-            taggedItemIds: null,
-            ratingId: r.id,
-          }));
-
-          const allPhotos = [...photoEntries, ...ratingsWithoutPhotos];
-
-          return (
-            <PhotoGrid
-              photos={allPhotos}
-              emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
-            />
-          );
-        })()}
+      {/* Tab Content */}
+      <div className="px-4 pt-2">
+        {activeTab === "galeria" && (
+          <GaleriaContent
+            galleryPhotos={galleryPhotos}
+            myRatings={myRatings}
+            galleryLoading={galleryLoading}
+          />
+        )}
+        {activeTab === "editar" && <EditarTab />}
+        {activeTab === "preferencias" && <PreferenciasTab />}
+        {activeTab === "planos" && <PlanosTab />}
+        {activeTab === "tema" && <TemaFundoTab />}
+        {activeTab === "salvos" && <SalvosTab />}
       </div>
+    </div>
+  );
+}
+
+function GaleriaContent({ galleryPhotos, myRatings, galleryLoading }: { galleryPhotos: any; myRatings: any; galleryLoading: boolean }) {
+  if (galleryLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
+      </div>
+    );
+  }
+
+  // Combine photos + ratings without photos (shown as logo cards)
+  const photoEntries = (galleryPhotos || []).map((p: any) => ({
+    id: p.id,
+    url: p.url,
+    establishmentName: p.establishmentName,
+    establishmentSlug: p.establishmentSlug,
+    establishmentLogo: p.establishmentLogo || null,
+    overallScore: p.overallScore ? Number(p.overallScore) : null,
+    visitDate: p.visitDate,
+    taggedItemIds: p.taggedItemIds,
+    ratingId: p.ratingId,
+  }));
+
+  // Find ratings that have NO photos
+  const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
+  const ratingsWithoutPhotos = (myRatings || []).filter(
+    (r: any) => !ratingIdsWithPhotos.has(r.id)
+  ).map((r: any) => ({
+    id: r.id + 100000,
+    url: "",
+    establishmentName: r.establishmentName,
+    establishmentSlug: r.establishmentSlug,
+    establishmentLogo: r.establishmentLogo || null,
+    overallScore: r.overallScore ? Number(r.overallScore) : null,
+    visitDate: r.visitDate || r.createdAt,
+    taggedItemIds: null,
+    ratingId: r.id,
+  }));
+
+  const allPhotos = [...photoEntries, ...ratingsWithoutPhotos];
+
+  return (
+    <div className="-mx-4 px-1">
+      <PhotoGrid
+        photos={allPhotos}
+        emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
+      />
     </div>
   );
 }
