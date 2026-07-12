@@ -1172,3 +1172,5 @@
 - [x] Fix: markers do app não carregam consistentemente (problema de timing)
 - [x] Garantir que apenas estabelecimentos cadastrados no app apareçam como pins no mapa
 - [x] Fix: React error #310 (hooks após early return no BottomNav.tsx)
+- [x] Fix: OAuth callback failed após login com Google no Render (trust proxy + https enforcement)
+- [x] Adicionar botões de login por email e Facebook na tela AuthChoice

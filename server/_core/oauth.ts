@@ -15,7 +15,11 @@ export function registerOAuthRoutes(app: Express) {
   // Google OAuth login redirect
   app.get("/api/auth/login", (req: Request, res: Response) => {
     const origin = getQueryParam(req, "origin") || `${req.protocol}://${req.get("host")}`;
-    const redirectUri = `${origin}/api/oauth/callback`;
+    // Ensure https in production (behind proxy)
+    const safeOrigin = process.env.NODE_ENV === "production" && origin.startsWith("http://")
+      ? origin.replace("http://", "https://")
+      : origin;
+    const redirectUri = `${safeOrigin}/api/oauth/callback`;
 
     const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     googleAuthUrl.searchParams.set("client_id", ENV.googleClientId);
@@ -24,6 +28,7 @@ export function registerOAuthRoutes(app: Express) {
     googleAuthUrl.searchParams.set("scope", "openid email profile");
     googleAuthUrl.searchParams.set("access_type", "offline");
     googleAuthUrl.searchParams.set("state", Buffer.from(redirectUri).toString("base64"));
+    console.log("[OAuth] Login redirect to Google, redirectUri:", redirectUri);
 
     res.redirect(302, googleAuthUrl.toString());
   });
@@ -107,9 +112,9 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
       res.redirect(302, "/");
-    } catch (error) {
-      console.error("[OAuth] Callback failed", error);
-      res.status(500).json({ error: "OAuth callback failed" });
+    } catch (error: any) {
+      console.error("[OAuth] Callback failed:", error?.message || error);
+      res.status(500).json({ error: "OAuth callback failed", detail: error?.message });
     }
   });
 
