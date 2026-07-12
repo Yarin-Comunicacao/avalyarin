@@ -41,6 +41,24 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   Search: <Search className="w-6 h-6" />,
 };
 
+/**
+ * Safely parse options from DB — handles string, array, null, or unexpected formats.
+ * Ensures options is always a valid array of { label, value }.
+ */
+function parseOptions(raw: unknown): { label: string; value: string }[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 interface OnboardingSurveyProps {
   onComplete: (answers: SurveyAnswer) => void;
 }
@@ -100,7 +118,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
         subtitle: (q.subtitle as string) || "",
         type: q.type as any,
         maxSelect: q.maxSelect || undefined,
-        options: (q.options as { label: string; value: string }[] | null) || [],
+        options: parseOptions(q.options),
         parentQuestionId: null,
         triggerOption: null,
       });
@@ -115,7 +133,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           subtitle: (child.subtitle as string) || "",
           type: child.type as any,
           maxSelect: child.maxSelect || undefined,
-          options: (child.options as { label: string; value: string }[] | null) || [],
+          options: parseOptions(child.options),
           parentQuestionId: child.parentQuestionId,
           triggerOption: child.triggerOption,
         });

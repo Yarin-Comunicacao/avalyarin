@@ -94,15 +94,11 @@ class SDKServer {
     const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
 
-    if (!user) {
+        if (!user) {
       throw ForbiddenError("User not found");
     }
-
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
-
+    // Just update lastSignedIn — user already exists, no need for upsert
+    await db.updateLastSignedIn(user.openId, signedInAt);
     return user;
   }
 }

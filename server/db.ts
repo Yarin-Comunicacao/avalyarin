@@ -96,9 +96,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
+    // FIRST: Check if user already exists by openId to avoid duplicates
+    const existing = await db.select().from(users)
+      .where(eq(users.openId, user.openId))
+      .limit(1)
+      .then(r => r[0]);
+
     const updateSet: Record<string, unknown> = {};
 
     const textFields = ["name", "email", "loginMethod"] as const;
@@ -108,45 +111,46 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       const value = user[field];
       if (value === undefined) return;
       const normalized = value ?? null;
-      values[field] = normalized;
       updateSet[field] = normalized;
     };
 
     textFields.forEach(assignNullable);
 
     if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
     }
     if (user.role !== undefined) {
-      values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
       updateSet.role = 'admin';
     }
 
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
+    if (!updateSet.lastSignedIn) {
       updateSet.lastSignedIn = new Date();
     }
 
-    // Generate code for new users
-    const newCode = await generateCode('users');
-    values.code = newCode;
+    if (existing) {
+      // User exists — just update
+      await db.update(users)
+        .set(updateSet)
+        .where(eq(users.id, existing.id));
+    } else {
+      // User does NOT exist — create new
+      const values: InsertUser = {
+        openId: user.openId,
+        ...updateSet,
+      } as InsertUser;
 
-    // Generate explicit id for new users (avoids AUTO_INCREMENT issues on TiDB)
-    if (!values.id) {
+      // Generate code for new users
+      const newCode = await generateCode('users');
+      values.code = newCode;
+
+      // Generate explicit id (avoids AUTO_INCREMENT issues on TiDB)
       const maxResult = await db.select({ maxId: sql`MAX(id)` }).from(users);
       values.id = (maxResult[0]?.maxId || 0) + 1;
-    }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+      await db.insert(users).values(values);
+    }
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -163,6 +167,14 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateLastSignedIn(openId: string, signedInAt: Date): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users)
+    .set({ lastSignedIn: signedInAt })
+    .where(eq(users.openId, openId));
 }
 
 // ============================================================

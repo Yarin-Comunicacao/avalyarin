@@ -1182,3 +1182,7 @@
 - [x] Fix App.tsx: não pular onboarding após login — verificar backend (trpc.survey.get) para determinar se survey já foi preenchido
 - [x] Fix banco: vincular googleId de rossegon@gmail.com ao registro existente (id=1000, openId=google_117795824834500260293)
 - [x] Fix: gerar ID explícito (MAX(id)+1) em todos os INSERTs de users (auth-own.ts e db.ts upsertUser) para evitar erro 'Field id doesn't have a default value'
+- [x] Fix: reescrever upsertUser para verificar existência por openId antes de INSERT (evita duplicatas)
+- [x] Fix: sdk.ts usar updateLastSignedIn em vez de upsertUser (evita criar user a cada request)
+- [x] Fix: adicionar parseOptions() no OnboardingSurvey.tsx para tratar options como string/null/array
+- [x] Fix: limpar 14 registros duplicados da Rose no banco (manter apenas id=1003950003)
