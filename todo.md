@@ -1181,3 +1181,4 @@
 - [x] Fix AuthChoice.tsx: remover localStorage.setItem('avalyarin_survey_completed', 'true') após login social
 - [x] Fix App.tsx: não pular onboarding após login — verificar backend (trpc.survey.get) para determinar se survey já foi preenchido
 - [x] Fix banco: vincular googleId de rossegon@gmail.com ao registro existente (id=1000, openId=google_117795824834500260293)
+- [x] Fix: gerar ID explícito (MAX(id)+1) em todos os INSERTs de users (auth-own.ts e db.ts upsertUser) para evitar erro 'Field id doesn't have a default value'

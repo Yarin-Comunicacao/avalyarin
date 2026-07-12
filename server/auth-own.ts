@@ -6,7 +6,7 @@
 import { Express, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 // jose not needed — session tokens are created via sdk.createSessionToken
-import { eq, or } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { users } from "../drizzle/schema";
 import { storagePut } from "./storage";
@@ -55,6 +55,16 @@ async function downloadAndStorePhoto(url: string, userId: number): Promise<{ pho
 
 function generateOpenId(): string {
   return `local_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/**
+ * Generate a unique user ID by querying MAX(id) + 1.
+ * This ensures the app generates the ID explicitly, avoiding AUTO_INCREMENT issues.
+ */
+async function generateUserId(db: any): Promise<number> {
+  const result = await db.select({ maxId: sql`MAX(id)` }).from(users);
+  const currentMax = result[0]?.maxId || 0;
+  return currentMax + 1;
 }
 
 // ============================================================
@@ -128,7 +138,9 @@ async function handleFacebookLogin(req: Request, res: Response) {
           .set({ lastSignedIn: new Date(), facebookId: fbUser.id })
           .where(eq(users.id, userId));
       } else {
-        const result = await db.insert(users).values({
+        const newId = await generateUserId(db);
+        await db.insert(users).values({
+          id: newId,
           openId,
           name: fbUser.name,
           email: fbUser.email || null,
@@ -136,7 +148,7 @@ async function handleFacebookLogin(req: Request, res: Response) {
           loginMethod: "facebook",
           emailVerified: fbUser.email ? true : false,
         });
-        userId = result[0].insertId;
+        userId = newId;
       }
     }
 
@@ -233,7 +245,9 @@ async function handleGoogleLogin(req: Request, res: Response) {
           .set({ lastSignedIn: new Date(), googleId: googleUser.sub })
           .where(eq(users.id, userId));
       } else {
-        const result = await db.insert(users).values({
+        const newId = await generateUserId(db);
+        await db.insert(users).values({
+          id: newId,
           openId,
           name: googleUser.name || null,
           email: googleUser.email || null,
@@ -241,7 +255,7 @@ async function handleGoogleLogin(req: Request, res: Response) {
           loginMethod: "google",
           emailVerified: googleUser.email_verified === "true",
         });
-        userId = result[0].insertId;
+        userId = newId;
       }
     }
 
@@ -296,7 +310,9 @@ async function handleEmailRegister(req: Request, res: Response) {
     // Hash password and create user
     const passwordHash = await bcrypt.hash(password, 12);
     const openId = generateOpenId();
-    const result = await db.insert(users).values({
+    const newId = await generateUserId(db);
+    await db.insert(users).values({
+      id: newId,
       openId,
       name: name || null,
       email: email.toLowerCase().trim(),
@@ -304,7 +320,7 @@ async function handleEmailRegister(req: Request, res: Response) {
       loginMethod: "email",
       emailVerified: false,
     });
-    const userId = result[0].insertId;
+    const userId = newId;
 
     // Create session
     const token = await createSessionToken(openId, name || "");

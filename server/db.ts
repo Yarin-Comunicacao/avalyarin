@@ -138,6 +138,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     const newCode = await generateCode('users');
     values.code = newCode;
 
+    // Generate explicit id for new users (avoids AUTO_INCREMENT issues on TiDB)
+    if (!values.id) {
+      const maxResult = await db.select({ maxId: sql`MAX(id)` }).from(users);
+      values.id = (maxResult[0]?.maxId || 0) + 1;
+    }
+
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
