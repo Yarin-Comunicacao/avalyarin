@@ -63,7 +63,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
             const data = await res.json();
             if (res.ok && data.success) {
               localStorage.setItem("avalyarin_auth_flow", "login");
-              localStorage.setItem("avalyarin_survey_completed", "true");
+              // DO NOT set avalyarin_survey_completed here — let App.tsx check if user needs onboarding
               onChoose("login");
               window.location.reload();
             } else {
@@ -139,7 +139,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
               .then((data) => {
                 if (data.success) {
                   localStorage.setItem("avalyarin_auth_flow", "login");
-                  localStorage.setItem("avalyarin_survey_completed", "true");
+                  // DO NOT set avalyarin_survey_completed here — let App.tsx check if user needs onboarding
                   onChoose("login");
                   window.location.reload();
                 } else {
@@ -181,7 +181,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
       const data = await res.json();
       if (res.ok && data.success) {
         localStorage.setItem("avalyarin_auth_flow", "login");
-        localStorage.setItem("avalyarin_survey_completed", "true");
+        // DO NOT set avalyarin_survey_completed here — let App.tsx check if user needs onboarding
         onChoose("login");
         window.location.reload();
       } else {

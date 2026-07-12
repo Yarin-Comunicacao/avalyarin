@@ -268,10 +268,25 @@ function App() {
     return flow !== null || surveyDone;
   });
 
-  // Phase 1 — Onboarding
+  // Phase 1 — Onboarding: check localStorage first, then verify with backend
   const [surveyCompleted, setSurveyCompleted] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_survey_completed") === "true";
   });
+
+  // After login, check backend to see if user already completed survey
+  const { data: surveyCheck } = trpc.survey.get.useQuery(undefined, {
+    enabled: authChoiceMade && !surveyCompleted,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
+
+  // Sync survey status from backend: if user has surveyData in DB, mark as completed
+  useEffect(() => {
+    if (surveyCheck && surveyCheck.surveyData && Object.keys(surveyCheck.surveyData as object).length > 0) {
+      localStorage.setItem("avalyarin_survey_completed", "true");
+      setSurveyCompleted(true);
+    }
+  }, [surveyCheck]);
 
   // Phase 2 — Explorer (after 5 reviews)
   const [showPhase2, setShowPhase2] = useState<boolean>(() => isSurveyPhase2Due());
@@ -362,9 +377,7 @@ function App() {
             renderGate={() => (
               <AuthChoice onChoose={(type) => {
                 setAuthChoiceMade(true);
-                if (type === "login") {
-                  setSurveyCompleted(true);
-                }
+                // Do NOT skip onboarding for login — let the backend check determine if survey was already done
               }} />
             )}
             renderContent={() => (

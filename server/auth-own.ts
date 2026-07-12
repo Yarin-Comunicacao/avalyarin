@@ -5,26 +5,26 @@
  */
 import { Express, Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { SignJWT, jwtVerify } from "jose";
+// jose not needed — session tokens are created via sdk.createSessionToken
 import { eq, or } from "drizzle-orm";
 import { getDb } from "./db";
 import { users } from "../drizzle/schema";
 import { storagePut } from "./storage";
 import { ENV } from "./_core/env";
+import { sdk } from "./_core/sdk";
 
-const JWT_SECRET_KEY = new TextEncoder().encode(ENV.cookieSecret || "fallback-secret-key");
 const COOKIE_NAME = "session";
 
 // ============================================================
 // HELPERS
 // ============================================================
 
-async function createSessionToken(userId: number): Promise<string> {
-  return await new SignJWT({ sub: String(userId) })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("30d")
-    .sign(JWT_SECRET_KEY);
+/**
+ * Create session token using the same format as sdk.ts (openId + appId + name)
+ * This ensures compatibility with the verifySession/authenticateRequest flow.
+ */
+async function createSessionToken(openId: string, name: string): Promise<string> {
+  return await sdk.createSessionToken(openId, { name, expiresInMs: 30 * 24 * 60 * 60 * 1000 });
 }
 
 function setSessionCookie(res: Response, token: string) {
@@ -110,20 +110,34 @@ async function handleFacebookLogin(req: Request, res: Response) {
       userId = existingUser.id;
       // Update last sign in
       await db.update(users)
-        .set({ lastSignedIn: new Date() })
+        .set({ lastSignedIn: new Date(), name: fbUser.name || existingUser.name })
         .where(eq(users.id, userId));
     } else {
-      // Create new user
-      const openId = generateOpenId();
-      const result = await db.insert(users).values({
-        openId,
-        name: fbUser.name,
-        email: fbUser.email || null,
-        facebookId: fbUser.id,
-        loginMethod: "facebook",
-        emailVerified: fbUser.email ? true : false,
-      });
-      userId = result[0].insertId;
+      // Create new user - use stable facebook_<id> as openId
+      const openId = `facebook_${fbUser.id}`;
+      
+      // Check if user already exists with this openId
+      const existingByOpenId = await db.select().from(users)
+        .where(eq(users.openId, openId))
+        .limit(1)
+        .then(r => r[0]);
+      
+      if (existingByOpenId) {
+        userId = existingByOpenId.id;
+        await db.update(users)
+          .set({ lastSignedIn: new Date(), facebookId: fbUser.id })
+          .where(eq(users.id, userId));
+      } else {
+        const result = await db.insert(users).values({
+          openId,
+          name: fbUser.name,
+          email: fbUser.email || null,
+          facebookId: fbUser.id,
+          loginMethod: "facebook",
+          emailVerified: fbUser.email ? true : false,
+        });
+        userId = result[0].insertId;
+      }
     }
 
     // Download and store profile photo from Facebook
@@ -137,8 +151,9 @@ async function handleFacebookLogin(req: Request, res: Response) {
       }
     }
 
-    // Create session
-    const token = await createSessionToken(userId);
+    // Create session — need to fetch the user's openId for the JWT
+    const finalUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then(r => r[0]);
+    const token = await createSessionToken(finalUser!.openId, finalUser!.name || fbUser.name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId });
   } catch (err) {
@@ -200,20 +215,34 @@ async function handleGoogleLogin(req: Request, res: Response) {
     if (existingUser) {
       userId = existingUser.id;
       await db.update(users)
-        .set({ lastSignedIn: new Date() })
+        .set({ lastSignedIn: new Date(), name: googleUser.name || existingUser.name })
         .where(eq(users.id, userId));
     } else {
-      // Create new user
-      const openId = generateOpenId();
-      const result = await db.insert(users).values({
-        openId,
-        name: googleUser.name || null,
-        email: googleUser.email || null,
-        googleId: googleUser.sub,
-        loginMethod: "google",
-        emailVerified: googleUser.email_verified === "true",
-      });
-      userId = result[0].insertId;
+      // Create new user - use stable google_<sub> as openId (consistent with oauth.ts redirect flow)
+      const openId = `google_${googleUser.sub}`;
+      
+      // Check if user already exists with this openId (from redirect flow)
+      const existingByOpenId = await db.select().from(users)
+        .where(eq(users.openId, openId))
+        .limit(1)
+        .then(r => r[0]);
+      
+      if (existingByOpenId) {
+        userId = existingByOpenId.id;
+        await db.update(users)
+          .set({ lastSignedIn: new Date(), googleId: googleUser.sub })
+          .where(eq(users.id, userId));
+      } else {
+        const result = await db.insert(users).values({
+          openId,
+          name: googleUser.name || null,
+          email: googleUser.email || null,
+          googleId: googleUser.sub,
+          loginMethod: "google",
+          emailVerified: googleUser.email_verified === "true",
+        });
+        userId = result[0].insertId;
+      }
     }
 
     // Download and store profile photo from Google
@@ -226,8 +255,9 @@ async function handleGoogleLogin(req: Request, res: Response) {
       }
     }
 
-    // Create session
-    const token = await createSessionToken(userId);
+    // Create session — need to fetch the user's openId for the JWT
+    const finalGoogleUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then(r => r[0]);
+    const token = await createSessionToken(finalGoogleUser!.openId, finalGoogleUser!.name || googleUser.name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId });
   } catch (err) {
@@ -277,7 +307,7 @@ async function handleEmailRegister(req: Request, res: Response) {
     const userId = result[0].insertId;
 
     // Create session
-    const token = await createSessionToken(userId);
+    const token = await createSessionToken(openId, name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId });
   } catch (err) {
@@ -316,7 +346,7 @@ async function handleEmailLogin(req: Request, res: Response) {
       .where(eq(users.id, user.id));
 
     // Create session
-    const token = await createSessionToken(user.id);
+    const token = await createSessionToken(user.openId, user.name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId: user.id });
   } catch (err) {

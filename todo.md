@@ -1174,3 +1174,10 @@
 - [x] Fix: React error #310 (hooks após early return no BottomNav.tsx)
 - [x] Fix: OAuth callback failed após login com Google no Render (trust proxy + https enforcement)
 - [x] Adicionar botões de login por email e Facebook na tela AuthChoice
+
+- [x] Fix auth-own.ts: usar google_<sub> como openId estável (consistente com oauth.ts redirect flow)
+- [x] Fix auth-own.ts: usar facebook_<id> como openId estável para Facebook login
+- [x] Fix auth-own.ts: JWT agora usa sdk.createSessionToken (openId+appId+name) em vez de sub=userId
+- [x] Fix AuthChoice.tsx: remover localStorage.setItem('avalyarin_survey_completed', 'true') após login social
+- [x] Fix App.tsx: não pular onboarding após login — verificar backend (trpc.survey.get) para determinar se survey já foi preenchido
+- [x] Fix banco: vincular googleId de rossegon@gmail.com ao registro existente (id=1000, openId=google_117795824834500260293)
