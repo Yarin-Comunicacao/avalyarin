@@ -124,6 +124,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     } else if (user.openId === ENV.ownerOpenId) {
       updateSet.role = 'admin';
     }
+    // Ensure role is never NULL for existing users
+    if (existing && !existing.role && !updateSet.role) {
+      updateSet.role = 'user';
+    }
 
     if (!updateSet.lastSignedIn) {
       updateSet.lastSignedIn = new Date();
@@ -138,6 +142,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       // User does NOT exist — create new
       const values: InsertUser = {
         openId: user.openId,
+        role: 'user', // Default role for new users
+        verified: false,
+        phoneVerified: false,
+        emailVerified: false,
         ...updateSet,
       } as InsertUser;
 

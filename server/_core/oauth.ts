@@ -5,10 +5,32 @@ import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
 import { ENV } from "./env";
+import { getDb } from "../db";
+import { users } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { storagePut } from "../storage";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
   return typeof value === "string" ? value : undefined;
+}
+
+/**
+ * Download Google profile photo and store in S3
+ */
+async function downloadAndStoreGooglePhoto(pictureUrl: string, userId: number): Promise<{ photoUrl: string; photoKey: string } | null> {
+  try {
+    const resp = await fetch(pictureUrl);
+    if (!resp.ok) return null;
+    const buffer = Buffer.from(await resp.arrayBuffer());
+    const ext = "jpg";
+    const key = `profile-photos/${userId}/social_${Date.now()}_${Math.random().toString(16).slice(2, 10)}.${ext}`;
+    const { url } = await storagePut(key, buffer, "image/jpeg");
+    return { photoUrl: url, photoKey: key };
+  } catch (err) {
+    console.error("[OAuth] Failed to download/store profile photo:", err);
+    return null;
+  }
 }
 
 export function registerOAuthRoutes(app: Express) {
@@ -90,9 +112,10 @@ export function registerOAuthRoutes(app: Express) {
         email: string;
         name: string;
         picture?: string;
+        verified_email?: boolean;
       };
 
-      // Upsert user in our database
+      // Upsert user in our database with all required fields
       const openId = `google_${googleUser.id}`;
       await db.upsertUser({
         openId,
@@ -100,8 +123,44 @@ export function registerOAuthRoutes(app: Express) {
         email: googleUser.email ?? null,
         loginMethod: "google",
         lastSignedIn: new Date(),
-      });
+        role: "user", // Default role for new users
+        verified: false,
+        emailVerified: googleUser.verified_email ?? true,
+        googleId: googleUser.id,
+      } as any);
 
+      // After upsert, update googleId directly (in case upsertUser doesn't handle it)
+      const database = await getDb();
+      if (database) {
+        const existingUser = await database.select().from(users)
+          .where(eq(users.openId, openId))
+          .limit(1)
+          .then(r => r[0]);
+
+        if (existingUser) {
+          // Update googleId and emailVerified if not set
+          const updateFields: Record<string, unknown> = {};
+          if (!existingUser.googleId) {
+            updateFields.googleId = googleUser.id;
+          }
+          if (!existingUser.emailVerified && googleUser.verified_email) {
+            updateFields.emailVerified = true;
+          }
+          // Download and store profile photo if user doesn't have one
+          if (!existingUser.profilePhotoUrl && googleUser.picture) {
+            const stored = await downloadAndStoreGooglePhoto(googleUser.picture, existingUser.id);
+            if (stored) {
+              updateFields.profilePhotoUrl = stored.photoUrl;
+              updateFields.profilePhotoKey = stored.photoKey;
+            }
+          }
+          if (Object.keys(updateFields).length > 0) {
+            await database.update(users)
+              .set(updateFields)
+              .where(eq(users.id, existingUser.id));
+          }
+        }
+      }
 
       // Create session JWT
       const sessionToken = await sdk.createSessionToken(openId, {
