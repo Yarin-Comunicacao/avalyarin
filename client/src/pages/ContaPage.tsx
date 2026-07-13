@@ -22,7 +22,7 @@ export default function ContaPage() {
   const { background, setBackground } = useBackground();
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showBgPicker, setShowBgPicker] = useState(false);
-
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Profile data
   const { data: profile, isLoading: profileLoading } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -44,7 +44,7 @@ export default function ContaPage() {
         <div className="absolute inset-0 flex pointer-events-none">
           <div className="w-1/2 h-full relative">
             <img
-              src="/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp"
               alt="Restaurante durante o dia"
               className="w-full h-full object-cover"
               loading="eager"
@@ -54,7 +54,7 @@ export default function ContaPage() {
           </div>
           <div className="w-1/2 h-full relative">
             <img
-              src="/storage/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp"
               alt="Bar ao entardecer"
               className="w-full h-full object-cover"
               loading="eager"
@@ -70,7 +70,7 @@ export default function ContaPage() {
           <div className="flex items-center gap-2 mb-8">
             <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
               <img
-                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin"
                 className="w-full h-full object-contain"
               />
@@ -151,12 +151,18 @@ export default function ContaPage() {
             )}
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
-          <Link href="/conta/editar-perfil">
-            <button className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
-              <Edit className="w-4 h-4 text-primary" />
-            </button>
-          </Link>
+          <button
+            onClick={() => setShowEditProfile(true)}
+            className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+          >
+            <Edit className="w-4 h-4 text-primary" />
+          </button>
         </div>
+
+        {/* Editar Perfil Modal */}
+        {showEditProfile && (
+          <EditProfileSection profile={profile} onClose={() => setShowEditProfile(false)} />
+        )}
 
         {/* Menu Items */}
         <div className="space-y-1">
@@ -270,7 +276,7 @@ export default function ContaPage() {
           </Link>
 
           {/* Insígnias */}
-          <Link href="/minhas-avaliacoes/insignias">
+          <Link href="/insignias">
             <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-card/80 transition-colors cursor-pointer group">
               <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Trophy className="w-4.5 h-4.5 text-amber-400" />
@@ -299,3 +305,126 @@ export default function ContaPage() {
   );
 }
 
+// ─── Edit Profile Section ────────────────────────────────────────────────────
+
+function EditProfileSection({ profile, onClose }: { profile: any; onClose: () => void }) {
+  const utils = trpc.useUtils();
+  const [name, setName] = useState(profile?.name || "");
+  const [username, setUsername] = useState(profile?.username || "");
+  const [birthdate, setBirthdate] = useState(profile?.birthdate || "");
+
+  const updateProfile = trpc.profile.update.useMutation({
+    onSuccess: () => {
+      utils.profile.get.invalidate();
+      toast.success("Perfil atualizado com sucesso!");
+      onClose();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao atualizar perfil");
+    },
+  });
+
+  // Username availability check
+  const [debouncedUsername, setDebouncedUsername] = useState(username);
+  const { data: usernameCheck, isFetching: checkingUsername } = trpc.profile.checkUsername.useQuery(
+    { username: debouncedUsername },
+    { enabled: debouncedUsername.length >= 3 && debouncedUsername !== profile?.username && !/\s/.test(debouncedUsername) }
+  );
+
+  const handleUsernameChange = (val: string) => {
+    const sanitized = val.toLowerCase().replace(/[^a-z0-9._]/g, "");
+    setUsername(sanitized);
+    setTimeout(() => setDebouncedUsername(sanitized), 500);
+  };
+
+  const nameParts = name.trim().split(/\s+/);
+  const hasValidName = nameParts.length >= 2 && nameParts[0].length >= 2;
+  const hasValidUsername = username.length >= 3 && !/\s/.test(username);
+  const usernameAvailable = usernameCheck?.available !== false || username === profile?.username;
+
+  const canSave = (name !== profile?.name || username !== profile?.username || birthdate !== profile?.birthdate) &&
+    hasValidName && hasValidUsername && usernameAvailable;
+
+  const handleSave = () => {
+    const data: { name?: string; username?: string; birthdate?: string } = {};
+    if (name !== profile?.name) data.name = name.trim();
+    if (username !== profile?.username) data.username = username;
+    if (birthdate !== profile?.birthdate) data.birthdate = birthdate;
+    updateProfile.mutate(data);
+  };
+
+  return (
+    <div className="mb-6 p-5 rounded-xl bg-card border border-border/50">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg text-foreground tracking-wider">EDITAR PERFIL</h3>
+        <button onClick={onClose} className="p-1 rounded hover:bg-secondary">
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {/* Nome Completo */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Nome e Sobrenome *</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ex: João Silva"
+            className="w-full px-3 py-2.5 rounded-lg bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+          />
+          {name && !hasValidName && (
+            <p className="text-xs text-red-400 mt-1">Informe nome e sobrenome (mínimo 2 palavras)</p>
+          )}
+        </div>
+
+        {/* Username */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Username *</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">@</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => handleUsernameChange(e.target.value)}
+              placeholder="meu_username"
+              className="w-full pl-7 pr-8 py-2.5 rounded-lg bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+            />
+            {checkingUsername && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />}
+            {!checkingUsername && hasValidUsername && usernameAvailable && username !== profile?.username && (
+              <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-400" />
+            )}
+            {!checkingUsername && hasValidUsername && !usernameAvailable && username !== profile?.username && (
+              <X className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
+            )}
+          </div>
+          {!usernameAvailable && username !== profile?.username && (
+            <p className="text-xs text-red-400 mt-1">Username já em uso</p>
+          )}
+        </div>
+
+        {/* Data de Nascimento */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Data de Nascimento</label>
+          <input
+            type="date"
+            value={birthdate}
+            onChange={(e) => setBirthdate(e.target.value)}
+            max={new Date().toISOString().split("T")[0]}
+            className="w-full px-3 py-2.5 rounded-lg bg-background border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+          />
+        </div>
+
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          disabled={!canSave || updateProfile.isPending}
+          className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {updateProfile.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+          Salvar Alterações
+        </button>
+      </div>
+    </div>
+  );
+}

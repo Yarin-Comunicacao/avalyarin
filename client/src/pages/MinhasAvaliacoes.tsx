@@ -16,110 +16,11 @@ import {
   ArrowRight, GripVertical, Save, Compass, Image, Camera, X,
   Coffee, Beer, UtensilsCrossed, ChefHat, Sparkles, Cake,
   Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
-  Loader2, Navigation, BarChart3, TrendingUp, Award
+  Loader2, Navigation, BarChart3
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
-import InsigniasTab from "@/components/InsigniasTab";
 
-function ProgressionCard() {
-  const { data: progression, isLoading, error } = trpc.progression.me.useQuery();
-
-  if (isLoading) {
-    return (
-      <section className="mb-6 p-5 rounded-xl bg-card border border-border/50">
-        <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 text-primary animate-spin" />
-          <span className="text-sm text-muted-foreground">Carregando progresso...</span>
-        </div>
-      </section>
-    );
-  }
-
-  if (error || !progression || progression.currentLevel === 0) {
-    return (
-      <section className="mb-6 p-5 rounded-xl bg-card border border-border/50">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-display text-lg tracking-wider text-foreground">MEU NÍVEL</h2>
-            <p className="text-xs text-muted-foreground">Avalie para começar sua jornada</p>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground/60">
-          Faça sua primeira avaliação para desbloquear o sistema de progressão!
-        </p>
-      </section>
-    );
-  }
-
-  const { currentLevel, levelName, levelIcon, totalPointsWeighted, totalRatingsAllTime, nextLevel, phrase, topCategories } = progression;
-
-  return (
-    <section className="mb-6 p-5 rounded-xl bg-card border border-border/50">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center text-2xl">
-          {levelIcon}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="font-display text-xl tracking-wider text-primary">
-              {levelName.toUpperCase()}
-            </h2>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-numbers">
-              Nv. {currentLevel}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {totalPointsWeighted.toFixed(1)} pontos ({totalRatingsAllTime} avaliações no total)
-          </p>
-        </div>
-        <Link href="/insignias">
-          <div className="p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors cursor-pointer">
-            <Award className="w-5 h-5 text-primary" />
-          </div>
-        </Link>
-      </div>
-      {phrase && (
-        <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-          <div className="flex items-start gap-2">
-            <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-foreground/90 italic">"{phrase}"</p>
-          </div>
-        </div>
-      )}
-      {nextLevel && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-            <span>Próximo: {nextLevel.name}</span>
-            <span className="font-numbers">{nextLevel.progressPercent}%</span>
-          </div>
-          <div className="h-2 rounded-full bg-secondary/50 border border-border/30 overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-primary/80 to-primary transition-all duration-500" style={{ width: `${nextLevel.progressPercent}%` }} />
-          </div>
-          <p className="text-[11px] text-muted-foreground/60 mt-1">
-            Faltam {nextLevel.pointsRemaining} avaliações para o nível {nextLevel.level}
-          </p>
-        </div>
-      )}
-      {topCategories.length > 0 && (
-        <div>
-          <p className="text-xs text-muted-foreground mb-2">Categorias mais avaliadas:</p>
-          <div className="flex flex-wrap gap-1.5">
-            {topCategories.slice(0, 4).map((cat) => (
-              <span key={cat.name} className="text-[11px] px-2 py-0.5 rounded-full bg-secondary/50 border border-border/30 text-muted-foreground">
-                {cat.name} ({cat.count})
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
-
-type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats" | "insignias";
+type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats";
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -401,7 +302,6 @@ export default function MinhasAvaliacoes() {
     { id: "locais", label: "Locais Visitados", icon: <MapPin className="w-4 h-4" /> },
     { id: "galeria", label: "Galeria", icon: <Image className="w-4 h-4" /> },
     { id: "stats", label: "Estatísticas", icon: <BarChart3 className="w-4 h-4" /> },
-    { id: "insignias", label: "Insígnias", icon: <Crown className="w-4 h-4" /> },
   ];
 
   return (
@@ -421,9 +321,6 @@ export default function MinhasAvaliacoes() {
             </p>
           </div>
         </div>
-
-        {/* Progression Card */}
-        <ProgressionCard />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
@@ -1018,13 +915,6 @@ export default function MinhasAvaliacoes() {
           {activeTab === "stats" && (
             <motion.div key="stats" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <UserStatsSection />
-            </motion.div>
-          )}
-
-          {/* ============ INSÍGNIAS TAB ============ */}
-          {activeTab === "insignias" && (
-            <motion.div key="insignias" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <InsigniasTab />
             </motion.div>
           )}
         </AnimatePresence>

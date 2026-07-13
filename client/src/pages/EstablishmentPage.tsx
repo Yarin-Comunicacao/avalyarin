@@ -269,21 +269,12 @@ export default function EstablishmentPage() {
                   {establishment.phone && (
                     <div className="flex items-center gap-1.5">
                       <Phone className="w-4 h-4 shrink-0 text-primary/60" />
-                      {user?.phoneVerified ? (
-                        <a
-                          href={`tel:${establishment.phone.replace(/[^\d+]/g, '')}`}
-                          className="text-primary hover:text-primary/80 hover:underline transition-colors"
-                        >
-                          {establishment.phone}
-                        </a>
-                      ) : (
-                        <span
-                          onClick={() => toast("Verifique seu celular", { description: "Você precisa verificar seu número de celular para acessar o telefone do estabelecimento." })}
-                          className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-                        >
-                          {establishment.phone.replace(/\d/g, '•')}
-                        </span>
-                      )}
+                      <a
+                        href={`tel:${establishment.phone.replace(/[^\d+]/g, '')}`}
+                        className="text-primary hover:text-primary/80 hover:underline transition-colors"
+                      >
+                        {establishment.phone}
+                      </a>
                     </div>
                   )}
                   {establishment.instagram && (
@@ -305,25 +296,15 @@ export default function EstablishmentPage() {
 
             {/* Share & Save buttons */}
             <div className="flex gap-3 mt-5 flex-wrap">
-              {user?.phoneVerified ? (
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Confira ${establishment.name} no AvaLyarin! ${window.location.href}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-sm font-medium"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
-                </a>
-              ) : (
-                <button
-                  onClick={() => toast("Verifique seu celular", { description: "Você precisa verificar seu número de celular para compartilhar via WhatsApp." })}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366]/50 cursor-not-allowed text-sm font-medium"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
-                </button>
-              )}
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Confira ${establishment.name} no AvaLyarin! ${window.location.href}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 text-[#25D366] hover:bg-[#25D366]/20 transition-all text-sm font-medium"
+              >
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
+              </a>
               <ShareToGroup
                 type="share_establishment"
                 referenceId={establishment.id}

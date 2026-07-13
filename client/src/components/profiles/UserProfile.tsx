@@ -1,31 +1,12 @@
-import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Link, useLocation } from "wouter";
-import {
-  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Palette, Bookmark, Flag
-} from "lucide-react";
+import { Link } from "wouter";
+import { Camera, Settings, Share2, Star, MapPin, Users, Loader2 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
 
-// Import tab content components
-import EditarTab from "@/components/profile-tabs/EditarTab";
-import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
-import PlanosTab from "@/components/profile-tabs/PlanosTab";
-import TemaFundoTab from "@/components/profile-tabs/TemaFundoTab";
-import SalvosTab from "@/components/profile-tabs/SalvosTab";
-
-type ProfileTab = "galeria" | "salvos" | "editar" | "preferencias" | "planos" | "tema";
-
 export default function UserProfile() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
-
-  // Pending follow count for notification badge
-  const { data: pendingCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: !!user });
-  const { data: groupInvites } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: !!user });
-  const { data: dmConvs } = trpc.social.dmConversations.useQuery(undefined, { enabled: !!user });
-  const totalNotifs = (pendingCount || 0) + (groupInvites?.length || 0) + (dmConvs?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
 
   // Profile data
   const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -50,36 +31,20 @@ export default function UserProfile() {
   const totalRatings = stats?.totalRatings ?? 0;
   const uniqueEstabs = stats?.establishmentsVisited ?? 0;
 
-  // Use profilePhotoUrl from profile query (most up-to-date after upload)
-  const avatarUrl = profile?.profilePhotoUrl || user?.profilePhotoUrl;
-  const initials = (profile?.name || user?.name || "U").charAt(0).toUpperCase();
-
-  // Icon action buttons config
-  const iconActions: { id: ProfileTab; icon: typeof Pencil; label: string }[] = [
-    { id: "editar", icon: Pencil, label: "Editar" },
-    { id: "preferencias", icon: Heart, label: "Preferências" },
-    { id: "planos", icon: Crown, label: "Planos" },
-    { id: "tema", icon: Palette, label: "Temas" },
-  ];
-
   return (
-    <div className="pb-28">
+    <div className="pb-20">
       {/* Profile Header */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <div className="relative flex-shrink-0">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center overflow-hidden border-2 border-amber-500/30">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Foto de perfil"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
+              {user?.name ? (
                 <span className="text-2xl font-bold text-white">
-                  {initials}
+                  {user.name.charAt(0).toUpperCase()}
                 </span>
+              ) : (
+                <span className="text-2xl">👤</span>
               )}
             </div>
           </div>
@@ -101,14 +66,6 @@ export default function UserProfile() {
               </div>
             </div>
           </div>
-
-          {/* Notification bell */}
-          <Link href="/notificacoes" className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
-            <Bell className="w-5 h-5 text-muted-foreground" />
-            {totalNotifs > 0 ? (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
-            ) : null}
-          </Link>
         </div>
 
         {/* Name + username */}
@@ -124,23 +81,14 @@ export default function UserProfile() {
           </p>
         </div>
 
-        {/* Action icons row: 4 ícones + compartilhar */}
-        <div className="flex items-center gap-2 mt-3">
-          {iconActions.map(action => (
-            <button
-              key={action.id}
-              onClick={() => setActiveTab(activeTab === action.id ? "galeria" : action.id)}
-              className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs transition-colors ${
-                activeTab === action.id
-                  ? "bg-primary/10 border border-primary/40 text-primary"
-                  : "bg-secondary border border-border/50 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <action.icon className="w-4 h-4" />
-              <span className="text-[10px] font-medium">{action.label}</span>
+        {/* Action buttons */}
+        <div className="flex gap-2 mt-3">
+          <Link href="/conta" className="flex-1">
+            <button className="w-full py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5">
+              <Settings className="w-3.5 h-3.5" />
+              Editar perfil
             </button>
-          ))}
-          {/* Compartilhar */}
+          </Link>
           <button
             onClick={() => {
               if (profile?.username) {
@@ -150,105 +98,67 @@ export default function UserProfile() {
                 }).catch(() => {});
               }
             }}
-            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+            className="py-2 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium border border-border/50 flex items-center justify-center gap-1.5"
           >
-            <Share2 className="w-4 h-4" />
-            <span className="text-[10px] font-medium">Enviar</span>
+            <Share2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Tabs Navigation — apenas Galeria e Salvos */}
+      {/* Divider + Gallery label */}
       <div className="border-t border-border/50">
-        <div className="flex">
-          <button
-            onClick={() => setActiveTab("galeria")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
-              activeTab === "galeria"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Camera className="w-4 h-4" />
-            GALERIA
-          </button>
-          <button
-            onClick={() => setActiveTab("salvos")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium tracking-wide transition-colors ${
-              activeTab === "salvos"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Flag className="w-4 h-4" />
-            SALVOS
-          </button>
+        <div className="flex items-center justify-center py-2.5">
+          <Camera className="w-4 h-4 text-primary" />
+          <span className="text-xs font-medium text-primary ml-1.5 tracking-wide">GALERIA</span>
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="px-4 pt-2 pb-6">
-        {activeTab === "galeria" && (
-          <GaleriaContent
-            galleryPhotos={galleryPhotos}
-            myRatings={myRatings}
-            galleryLoading={galleryLoading}
-          />
-        )}
-        {activeTab === "salvos" && <SalvosTab />}
-        {activeTab === "editar" && <EditarTab />}
-        {activeTab === "preferencias" && <PreferenciasTab />}
-        {activeTab === "planos" && <PlanosTab />}
-        {activeTab === "tema" && <TemaFundoTab />}
+      {/* Photo Gallery Grid */}
+      <div className="px-1">
+        {galleryLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
+          </div>
+        ) : (() => {
+          // Combine photos + ratings without photos (shown as logo cards)
+          const photoEntries = (galleryPhotos || []).map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            establishmentName: p.establishmentName,
+            establishmentSlug: p.establishmentSlug,
+            establishmentLogo: p.establishmentLogo || null,
+            overallScore: p.overallScore ? Number(p.overallScore) : null,
+            visitDate: p.visitDate,
+            taggedItemIds: p.taggedItemIds,
+            ratingId: p.ratingId,
+          }));
+
+          // Find ratings that have NO photos
+          const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
+          const ratingsWithoutPhotos = (myRatings || []).filter(
+            (r: any) => !ratingIdsWithPhotos.has(r.id)
+          ).map((r: any) => ({
+            id: r.id + 100000, // offset to avoid key collision
+            url: "", // no photo URL — PhotoGrid will show logo fallback
+            establishmentName: r.establishmentName,
+            establishmentSlug: r.establishmentSlug,
+            establishmentLogo: r.establishmentLogo || null,
+            overallScore: r.overallScore ? Number(r.overallScore) : null,
+            visitDate: r.visitDate || r.createdAt,
+            taggedItemIds: null,
+            ratingId: r.id,
+          }));
+
+          const allPhotos = [...photoEntries, ...ratingsWithoutPhotos];
+
+          return (
+            <PhotoGrid
+              photos={allPhotos}
+              emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
+            />
+          );
+        })()}
       </div>
-    </div>
-  );
-}
-
-function GaleriaContent({ galleryPhotos, myRatings, galleryLoading }: { galleryPhotos: any; myRatings: any; galleryLoading: boolean }) {
-  if (galleryLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
-      </div>
-    );
-  }
-
-  const photoEntries = (galleryPhotos || []).map((p: any) => ({
-    id: p.id,
-    url: p.url,
-    establishmentName: p.establishmentName,
-    establishmentSlug: p.establishmentSlug,
-    establishmentLogo: p.establishmentLogo || null,
-    overallScore: p.overallScore ? Number(p.overallScore) : null,
-    visitDate: p.visitDate,
-    taggedItemIds: p.taggedItemIds,
-    ratingId: p.ratingId,
-  }));
-
-  const ratingIdsWithPhotos = new Set(photoEntries.map((p: any) => p.ratingId).filter(Boolean));
-  const ratingsWithoutPhotos = (myRatings || []).filter(
-    (r: any) => !ratingIdsWithPhotos.has(r.id)
-  ).map((r: any) => ({
-    id: r.id + 100000,
-    url: "",
-    establishmentName: r.establishmentName,
-    establishmentSlug: r.establishmentSlug,
-    establishmentLogo: r.establishmentLogo || null,
-    overallScore: r.overallScore ? Number(r.overallScore) : null,
-    visitDate: r.visitDate || r.createdAt,
-    taggedItemIds: null,
-    ratingId: r.id,
-  }));
-
-  const allPhotos = [...photoEntries, ...ratingsWithoutPhotos];
-
-  return (
-    <div className="-mx-4 px-1">
-      <PhotoGrid
-        photos={allPhotos}
-        emptyMessage="Avalie estabelecimentos e envie fotos para construir seu perfil!"
-      />
     </div>
   );
 }

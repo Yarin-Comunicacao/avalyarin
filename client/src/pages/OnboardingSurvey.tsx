@@ -41,24 +41,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   Search: <Search className="w-6 h-6" />,
 };
 
-/**
- * Safely parse options from DB — handles string, array, null, or unexpected formats.
- * Ensures options is always a valid array of { label, value }.
- */
-function parseOptions(raw: unknown): { label: string; value: string }[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === "string") {
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
-
 interface OnboardingSurveyProps {
   onComplete: (answers: SurveyAnswer) => void;
 }
@@ -118,7 +100,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
         subtitle: (q.subtitle as string) || "",
         type: q.type as any,
         maxSelect: q.maxSelect || undefined,
-        options: parseOptions(q.options),
+        options: (q.options as { label: string; value: string }[] | null) || [],
         parentQuestionId: null,
         triggerOption: null,
       });
@@ -133,7 +115,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           subtitle: (child.subtitle as string) || "",
           type: child.type as any,
           maxSelect: child.maxSelect || undefined,
-          options: parseOptions(child.options),
+          options: (child.options as { label: string; value: string }[] | null) || [],
           parentQuestionId: child.parentQuestionId,
           triggerOption: child.triggerOption,
         });
@@ -373,7 +355,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
               <img
-                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin"
                 className="w-full h-full object-contain"
               />

@@ -1,1 +1,0 @@
-ALTER TABLE `user_follows` ADD `status` enum('pending','accepted') DEFAULT 'accepted' NOT NULL;

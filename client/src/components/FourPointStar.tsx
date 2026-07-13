@@ -1,8 +1,8 @@
 /**
  * FourPointStar — Estrela de 4 pontas para indicar avaliação profissional
  * 
- * Design: estrela tipo "sparkle" com proporção 2:1 (eixo Y = dobro do eixo X)
- * Pontas N/S mais longas que E/W, criando formato vertical elegante.
+ * Design: estrela tipo "sparkle" com 4 pontas finas e pronunciadas (N, S, E, W)
+ * e cintura estreita entre elas — similar ao símbolo ✦
  * 
  * Variantes:
  * - "specialist" → dourada (âmbar/gold) — indica que um Especialista avaliou o item
@@ -36,23 +36,23 @@ const VARIANT_COLORS: Record<StarVariant, { fill: string; stroke: string; glow: 
 };
 
 /**
- * SVG path para estrela de 4 pontas com proporção 2:1.
- * Viewbox 0 0 12 24 (largura = metade da altura).
- * Centro em (6, 12).
- * Pontas N/S vão até 0 e 24 (eixo Y completo).
- * Pontas E/W vão até 0 e 12 (eixo X completo, metade da altura).
- * Cintura estreita no centro para efeito sparkle.
+ * SVG path para estrela de 4 pontas tipo "sparkle".
+ * Pontas finas e longas em N, S, E, W com cintura estreita entre elas.
+ * Viewbox 0 0 24 24, centro em (12, 12).
+ * 
+ * Cada ponta vai até a borda (0 ou 24), e o corpo central tem apenas ~3px de largura,
+ * criando o efeito de brilho/sparkle com 4 raios finos.
  */
 const FOUR_POINT_STAR_PATH = [
-  "M6 0",           // Ponta Norte (topo)
-  "C6.5 4 6.8 6 7.2 10.5",       // Curva descendo para a direita
-  "C9.5 11.2 10.5 11.5 12 12",   // Ponta Leste (direita)
-  "C10.5 12.5 9.5 12.8 7.2 13.5", // Curva descendo para baixo
-  "C6.8 18 6.5 20 6 24",          // Ponta Sul (baixo)
-  "C5.5 20 5.2 18 4.8 13.5",     // Curva subindo para a esquerda
-  "C2.5 12.8 1.5 12.5 0 12",     // Ponta Oeste (esquerda)
-  "C1.5 11.5 2.5 11.2 4.8 10.5", // Curva subindo para o topo
-  "C5.2 6 5.5 4 6 0",            // Fecha no topo
+  "M12 0",        // Ponta Norte (topo)
+  "C12.8 4.5 13 5.5 13.5 10.5",  // Curva descendo para a direita
+  "C18.5 11 19.5 11.2 24 12",    // Ponta Leste (direita)
+  "C19.5 12.8 18.5 13 13.5 13.5", // Curva descendo para baixo
+  "C13 18.5 12.8 19.5 12 24",    // Ponta Sul (baixo)
+  "C11.2 19.5 11 18.5 10.5 13.5", // Curva subindo para a esquerda
+  "C5.5 13 4.5 12.8 0 12",       // Ponta Oeste (esquerda)
+  "C4.5 11.2 5.5 11 10.5 10.5",  // Curva subindo para o topo
+  "C11 5.5 11.2 4.5 12 0",       // Fecha no topo
   "Z"
 ].join(" ");
 
@@ -62,15 +62,11 @@ export function FourPointStar({ variant, size = 16, className, glow = true, titl
   // Use unique IDs to avoid SVG filter conflicts when multiple stars are on the page
   const filterId = `star-glow-${variant}-${Math.random().toString(36).slice(2, 8)}`;
 
-  // Proporção 2:1 — height = size, width = size/2
-  const height = size;
-  const width = size / 2;
-
   return (
     <svg
-      width={width}
-      height={height}
-      viewBox="0 0 12 24"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn("inline-block shrink-0", className)}

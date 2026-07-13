@@ -1064,51 +1064,15 @@ export function NotificationsTab() {
         </div>
       )}
 
-      {/* Promo code requests — pedidos de código promocional */}
-      {ratingNotifs && ratingNotifs.some((n: any) => n.type === "promo_code_request") && (
-        <div className="mt-6">
-          <h3 className="flex items-center gap-2 text-sm font-medium text-primary mb-3">
-            <Tag className="w-4 h-4" />
-            Pedidos de Código Promocional ({ratingNotifs.filter((n: any) => n.type === "promo_code_request" && !n.isRead).length} novos)
-          </h3>
-          <div className="space-y-2">
-            {ratingNotifs.filter((n: any) => n.type === "promo_code_request").map((n: any) => (
-              <Link key={n.id} href="/business/divulgacoes/codigos">
-                <div
-                  className={`p-4 rounded-xl flex items-start gap-3 cursor-pointer transition-all ${
-                    n.isRead
-                      ? "bg-card/30 border border-border/30 opacity-60"
-                      : "bg-primary/5 border border-primary/30 hover:border-primary/50"
-                  }`}
-                  onClick={() => !n.isRead && markRead.mutate({ notificationId: n.id })}
-                >
-                  <Tag className={`w-4 h-4 shrink-0 mt-0.5 ${n.isRead ? "text-muted-foreground" : "text-primary"}`} />
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground font-medium">{n.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      {new Date(n.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                  </div>
-                  {!n.isRead && (
-                    <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Rating notifications — new reviews received */}
-      {hasRatingNotifs && ratingNotifs!.some((n: any) => n.type !== "promo_code_request") && (
+      {hasRatingNotifs && (
         <div className="mt-6">
           <h3 className="flex items-center gap-2 text-sm font-medium text-green-400 mb-3">
             <Star className="w-4 h-4" />
-            Avaliações Recebidas ({ratingNotifs!.filter((n: any) => n.type !== "promo_code_request" && !n.isRead).length} novas)
+            Avaliações Recebidas ({ratingNotifs!.filter(n => !n.isRead).length} novas)
           </h3>
           <div className="space-y-2">
-            {ratingNotifs!.filter((n: any) => n.type !== "promo_code_request").map((n) => (
+            {ratingNotifs!.map((n) => (
               <div
                 key={n.id}
                 className={`p-4 rounded-xl flex items-start gap-3 cursor-pointer transition-all ${

@@ -15,7 +15,6 @@ import { getLoginUrl } from "@/const";
 import { useTheme, THEME_OPTIONS, ThemeName } from "@/contexts/ThemeContext";
 import { useBackground, BACKGROUND_OPTIONS } from "@/contexts/BackgroundContext";
 import { trpc } from "@/lib/trpc";
-import ProfilePhotoUploader from "@/components/ProfilePhotoUploader";
 
 interface AppMenuProps {
   isOpen: boolean;
@@ -136,7 +135,9 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
             <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-xl border-b border-border/50 px-5 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <ProfilePhotoUploader size="sm" />
+                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
                   <div>
                     <p className="font-display text-sm tracking-wider text-foreground">
                       {user ? (user.name || "USUÁRIO") : "VISITANTE"}

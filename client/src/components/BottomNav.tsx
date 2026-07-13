@@ -8,7 +8,6 @@ import {
 import { ROLE_BOTTOM_NAV, ROLE_COLORS, type AppRole } from "@shared/role-visibility";
 import { cn } from "@/lib/utils";
 import { useOwnerView } from "@/contexts/OwnerViewContext";
-import { trpc } from "@/lib/trpc";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
@@ -55,11 +54,6 @@ export default function BottomNav() {
   const [location] = useLocation();
   const [activeOwnerRole, setActiveOwnerRole] = useState<string | null>(null);
   const { setViewingAs } = useOwnerView();
-  // IMPORTANT: All hooks must be declared before any conditional returns
-  const { data: pendingFollowCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: isAuthenticated });
-  const { data: groupInvitesList } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: isAuthenticated });
-  const { data: dmConvsList } = trpc.social.dmConversations.useQuery(undefined, { enabled: isAuthenticated });
-  const totalNotifCount = (pendingFollowCount || 0) + (groupInvitesList?.length || 0) + (dmConvsList?.reduce((a: number, c: any) => a + (c.unreadCount || 0), 0) || 0);
 
   // While auth is loading, hide the BottomNav entirely to prevent flash of wrong role
   if (loading) {
@@ -219,7 +213,7 @@ export default function BottomNav() {
     );
   }
 
-    // Non-owner authenticated users
+  // Non-owner authenticated users
   const navItems = ROLE_BOTTOM_NAV[role] || ROLE_BOTTOM_NAV.user;
 
   return (
@@ -234,33 +228,26 @@ export default function BottomNav() {
               (location === other.path || location.startsWith(other.path + "/"))
           );
           const isActive = isExactMatch || (isPartialMatch && !hasMoreSpecificMatch);
-          const isPerfilItem = item.path === "/perfil";
 
           return (
             <Link key={item.path} href={item.path}>
-              <div className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer relative">
-                <div
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors relative"
-                  )}
-                  style={isActive ? { backgroundColor: `${colors.primary}15` } : undefined}
-                >
+              <div className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer">
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-colors",
+                  isActive && "bg-primary/10"
+                )}>
                   <Icon
                     className={cn(
                       "w-5 h-5 transition-colors",
-                      !isActive && "text-muted-foreground"
+                      isActive ? "text-primary" : "text-muted-foreground"
                     )}
                     style={isActive ? { color: colors.primary } : undefined}
                   />
-                  {isPerfilItem && totalNotifCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 border border-background" />
-                  )}
                 </div>
-                <span
-                  className={cn(
-                    "text-[10px] font-medium transition-colors",
-                    !isActive && "text-muted-foreground"
-                  )}
+                <span className={cn(
+                  "text-[10px] font-medium transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )}
                   style={isActive ? { color: colors.primary } : undefined}
                 >
                   {item.label}

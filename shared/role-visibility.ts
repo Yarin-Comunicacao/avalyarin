@@ -89,16 +89,14 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   specialist: [
     { icon: "Search", label: "Busca", path: "/" },
-    { icon: "ScanLine", label: "Scan", path: "/scan" },
+    { icon: "MapPin", label: "Mapa", path: "/mapa" },
     { icon: "Users", label: "Grupos", path: "/grupos" },
-    { icon: "Newspaper", label: "Painel", path: "/painel-especialista" },
     { icon: "Star", label: "Avaliações", path: "/minhas-avaliacoes" },
     { icon: "User", label: "Perfil", path: "/perfil" },
   ],
   critic: [
     { icon: "Search", label: "Busca", path: "/" },
     { icon: "ScanLine", label: "Scan", path: "/scan" },
-    { icon: "Users", label: "Grupos", path: "/grupos" },
     { icon: "Newspaper", label: "Painel", path: "/painel-critico" },
     { icon: "Star", label: "Avaliações", path: "/minhas-avaliacoes" },
     { icon: "User", label: "Perfil", path: "/perfil" },
@@ -108,7 +106,7 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
     { icon: "Store", label: "Meus Locais", path: "/business/locais" },
     { icon: "BarChart3", label: "Insights", path: "/business/insights" },
     { icon: "Megaphone", label: "Divulgação", path: "/business/divulgacoes" },
-    { icon: "User", label: "Perfil", path: "/perfil" },
+    { icon: "User", label: "Conta", path: "/conta" },
   ],
   support: [
     { icon: "Search", label: "Busca", path: "/" },

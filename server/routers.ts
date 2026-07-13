@@ -75,11 +75,6 @@ import {
   getUserEvents,
   cancelGroupEvent,
   getEventsByEstablishment,
-  createGroupEventWithLocation,
-  getEventLocationOptions,
-  getEventLocationVotesForEvent,
-  voteOnEventLocation,
-  closeEventVoting,
   saveUserLocation,
   getIntegration,
   setIntegration,
@@ -111,8 +106,6 @@ import {
   shareRatingToGroup,
   getGroupFeed,
   searchUsersByUsername,
-  searchPeople,
-  searchGroups,
   discoverSpecialistGroups,
   isGroupMember,
   removeMemberFromGroup,
@@ -166,12 +159,6 @@ import {
   rejectPromoCode,
   isCodeTaken,
   getPromoCodeStats,
-  createPromoCodeWithEstablishments,
-  notifyBusinessesOfPromoRequest,
-  getBusinessPromoCodeRequests,
-  respondToPromoCodeRequest,
-  getMyPromoCodeRequests,
-  getEstablishmentsForPromoSelection,
 } from "./db-promo";
 import {
   getAdminCategoriesWithCounts,
@@ -304,7 +291,6 @@ import {
   followUser, unfollowUser, isFollowing, isMutualFollow,
   getFollowers, getFollowing, getFollowCounts, getMutualFollows,
   sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
-  acceptFollowRequest, rejectFollowRequest, getPendingFollowRequests, getPendingFollowCount, getFollowStatus,
 } from "./db-follows";
 import {
   createEstablishmentEvent,
@@ -1115,30 +1101,6 @@ export const appRouter = router({
         return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
 
-    // Business profile: get user info + establishments with menus
-    profileData: businessProcedure
-      .input(z.object({ establishmentId: z.number().optional() }))
-      .query(async ({ ctx, input }) => {
-        const estabs = await getBusinessEstablishments(ctx.user!.id);
-        const selectedId = input.establishmentId || (estabs.length > 0 ? estabs[0].id : null);
-        let menu: any[] = [];
-        if (selectedId) {
-          const { getDb } = await import("./db");
-          const { menuItems } = await import("../drizzle/schema");
-          const { eq } = await import("drizzle-orm");
-          const db = await getDb();
-          if (db) {
-            menu = await db.select().from(menuItems).where(eq(menuItems.establishmentId, selectedId));
-          }
-        }
-        return {
-          user: { id: ctx.user!.id, name: ctx.user!.name, username: ctx.user!.username, role: ctx.user!.role },
-          establishments: estabs,
-          selectedEstablishmentId: selectedId,
-          menu,
-        };
-      }),
-
     notifications: businessProcedure.query(async ({ ctx }) => {
       return await getBusinessNotifications(ctx.user!.id);
     }),
@@ -1405,8 +1367,6 @@ export const appRouter = router({
         name: z.string().min(2).max(100).optional(),
         username: z.string().min(3).max(30).optional(),
         birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-        email: z.string().email().max(320).optional(),
-        phone: z.string().max(32).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await updateUserProfile(ctx.user!.id, input);
@@ -1418,28 +1378,6 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
-      }),
-    uploadProfilePhoto: protectedProcedure
-      .input(z.object({
-        base64: z.string(), // base64-encoded image data
-        mimeType: z.string().regex(/^image\/(jpeg|png|webp|heic)$/),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const { storagePut } = await import("./storage");
-        const buffer = Buffer.from(input.base64, "base64");
-        // Limit to 5MB
-        if (buffer.length > 5 * 1024 * 1024) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem muito grande. Máximo: 5MB." });
-        }
-        const ext = input.mimeType.split("/")[1] === "jpeg" ? "jpg" : input.mimeType.split("/")[1];
-        const key = `profile-photos/${ctx.user!.id}/photo_${Date.now()}.${ext}`;
-        const { url, key: storedKey } = await storagePut(key, buffer, input.mimeType);
-        // Update user record
-        const db = await (await import("./db")).getDb();
-        const { users } = await import("../drizzle/schema");
-        const { eq } = await import("drizzle-orm");
-        await db!.update(users).set({ profilePhotoUrl: url, profilePhotoKey: storedKey }).where(eq(users.id, ctx.user!.id));
-        return { url, key: storedKey };
       }),
     publicByUsername: publicProcedure
       .input(z.object({ username: z.string().min(1) }))
@@ -1487,8 +1425,8 @@ export const appRouter = router({
     // Create a group
     create: protectedProcedure
       .input(z.object({
-        name: z.string().min(5).max(50),
-        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500, 'Descrição deve ter no máximo 500 caracteres'),
+        name: z.string().min(2).max(255),
+        description: z.string().max(500).optional(),
         type: z.enum(["private", "specialist"]),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1504,8 +1442,8 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         groupId: z.number(),
-        name: z.string().min(5).max(50).optional(),
-        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500).optional(),
+        name: z.string().min(2).max(255).optional(),
+        description: z.string().max(500).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const group = await getGroupById(input.groupId);
@@ -1597,30 +1535,12 @@ export const appRouter = router({
         return await searchUsersByUsername(input.query, ctx.user!.id);
       }),
 
-    // Search people by name/username with role filter (for discovery in groups tab)
-    searchPeople: protectedProcedure
-      .input(z.object({ query: z.string().min(1), role: z.string().optional() }))
-      .query(async ({ ctx, input }) => {
-        return await searchPeople(input.query, input.role, ctx.user!.id);
-      }),
-
-    // Search groups by name or creator @username
-    searchGroups: protectedProcedure
-      .input(z.object({ query: z.string().min(1) }))
-      .query(async ({ input }) => {
-        return await searchGroups(input.query);
-      }),
-
     // Get user plan info
     myPlan: protectedProcedure.query(async ({ ctx }) => {
       const plan = await getUserPlanOrDefault(ctx.user!.id);
       const groupCount = await countUserGroups(ctx.user!.id);
-      const role = ctx.user!.role;
-      // Role-based group limits: user=10, critic/specialist=20, others=unlimited
-      let maxGroups: number | null = null;
-      if (role === "user") maxGroups = 10;
-      else if (role === "critic" || role === "specialist") maxGroups = 20;
-      return { plan, groupCount, maxGroups };
+      const planType = plan as keyof typeof PLAN_LIMITS;
+      return { plan, groupCount, maxGroups: PLAN_LIMITS[planType]?.maxGroups ?? 3 };
     }),
     // ==================== GROUP CHAT ====================
     // Send message to group chat (140 chars max)
@@ -2049,94 +1969,6 @@ export const appRouter = router({
       .input(z.object({ codeId: z.number() }))
       .query(async ({ ctx, input }) => {
         return await getPromoCodeStats(input.codeId);
-      }),
-
-    // ============================================================
-    // Multi-establishment promo codes (critic/specialist)
-    // ============================================================
-
-    // List active establishments for selection when creating a code
-    establishmentsForSelection: protectedProcedure.query(async ({ ctx }) => {
-      if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem selecionar estabelecimentos.' });
-      }
-      return await getEstablishmentsForPromoSelection();
-    }),
-
-    // Critic/specialist creates a promo code linked to multiple establishments
-    createWithEstablishments: protectedProcedure
-      .input(z.object({
-        code: z.string().min(3).max(20).regex(/^[A-Z0-9]+$/i, "Código deve conter apenas letras e números"),
-        type: z.enum(["percentage", "buy_one_get_one", "free_item", "fixed_discount"]),
-        value: z.number().optional(),
-        description: z.string().max(500).optional(),
-        establishmentIds: z.array(z.number()).min(1, "Selecione ao menos 1 estabelecimento").max(20),
-        startsAt: z.number().optional(),
-        expiresAt: z.number().optional(),
-        maxUses: z.number().optional(),
-        maxUsesPerUser: z.number().optional(),
-        firstVisitOnly: z.boolean().optional(),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem criar códigos com múltiplos estabelecimentos.' });
-        }
-        const taken = await isCodeTaken(input.code);
-        if (taken) {
-          throw new TRPCError({ code: 'CONFLICT', message: 'Este código já está em uso.' });
-        }
-        const creatorType = ctx.user!.role === 'critic' ? 'critic' : 'specialist';
-        const id = await createPromoCodeWithEstablishments({
-          code: input.code,
-          type: input.type,
-          value: input.value,
-          description: input.description,
-          creatorId: ctx.user!.id,
-          creatorType,
-          establishmentIds: input.establishmentIds,
-          startsAt: input.startsAt,
-          expiresAt: input.expiresAt,
-          maxUses: input.maxUses,
-          maxUsesPerUser: input.maxUsesPerUser,
-          firstVisitOnly: input.firstVisitOnly,
-        });
-        // Notify business owners of each establishment
-        await notifyBusinessesOfPromoRequest({
-          promoCodeId: id,
-          code: input.code.toUpperCase().trim(),
-          creatorName: ctx.user!.name || 'Usuário',
-          creatorType,
-          establishmentIds: input.establishmentIds,
-        });
-        return { id };
-      }),
-
-    // Critic/specialist: my requests with per-establishment status
-    myRequests: protectedProcedure.query(async ({ ctx }) => {
-      return await getMyPromoCodeRequests(ctx.user!.id);
-    }),
-
-    // Business: list code requests for my establishments (all statuses)
-    businessRequests: businessProcedure.query(async ({ ctx }) => {
-      return await getBusinessPromoCodeRequests(ctx.user!.id);
-    }),
-
-    // Business: accept or put a code request on hold
-    respondToRequest: businessProcedure
-      .input(z.object({
-        linkId: z.number(),
-        action: z.enum(["accepted", "on_hold"]),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const result = await respondToPromoCodeRequest({
-          userId: ctx.user!.id,
-          linkId: input.linkId,
-          action: input.action,
-        });
-        if (!result) {
-          throw new TRPCError({ code: 'FORBIDDEN', message: 'Você não gerencia este estabelecimento ou o pedido não existe.' });
-        }
-        return { success: true, ...result };
       }),
   }),
 
@@ -3033,107 +2865,6 @@ export const appRouter = router({
         }
         return await getEventsByEstablishment(input.establishmentId, input.upcoming);
       }),
-
-    // Criar evento com local definido ou votação
-    createWithLocation: protectedProcedure
-      .input(z.object({
-        groupId: z.number(),
-        title: z.string().min(1).max(255),
-        description: z.string().max(1000).optional(),
-        eventDate: z.string(), // ISO string
-        maxGuests: z.number().min(1).max(500).optional(),
-        locationMode: z.enum(["defined", "voting"]),
-        // Modo defined: local
-        establishmentId: z.number().optional(),
-        manualLocationName: z.string().max(255).optional(),
-        manualLocationAddress: z.string().max(512).optional(),
-        // Modo voting: opções (2-5)
-        locationOptions: z.array(z.object({
-          establishmentId: z.number().optional(),
-          manualName: z.string().max(255).optional(),
-          manualAddress: z.string().max(512).optional(),
-        })).min(2).max(5).optional(),
-        votingClosesAt: z.string().optional(), // ISO string
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const userId = ctx.user!.id;
-        const isMember = await isGroupMember(input.groupId, userId);
-        if (!isMember) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
-        }
-
-        // Validações
-        if (input.locationMode === "defined") {
-          if (!input.establishmentId && !input.manualLocationName) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Defina um local (estabelecimento ou endereço manual)." });
-          }
-        } else if (input.locationMode === "voting") {
-          if (!input.locationOptions || input.locationOptions.length < 2) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Forneça ao menos 2 opções de local para votação." });
-          }
-        }
-
-        return await createGroupEventWithLocation({
-          groupId: input.groupId,
-          creatorId: userId,
-          title: input.title,
-          description: input.description,
-          eventDate: new Date(input.eventDate),
-          maxGuests: input.maxGuests,
-          locationMode: input.locationMode,
-          establishmentId: input.establishmentId,
-          manualLocationName: input.manualLocationName,
-          manualLocationAddress: input.manualLocationAddress,
-          locationOptions: input.locationOptions,
-          votingClosesAt: input.votingClosesAt ? new Date(input.votingClosesAt) : undefined,
-        });
-      }),
-
-    // Buscar opções de local de um evento em votação
-    locationOptions: protectedProcedure
-      .input(z.object({ eventId: z.number() }))
-      .query(async ({ ctx, input }) => {
-        const event = await getEventById(input.eventId);
-        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
-        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
-        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
-        return await getEventLocationOptions(input.eventId);
-      }),
-
-    // Buscar votos de um evento
-    locationVotes: protectedProcedure
-      .input(z.object({ eventId: z.number() }))
-      .query(async ({ ctx, input }) => {
-        const event = await getEventById(input.eventId);
-        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
-        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
-        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
-        return await getEventLocationVotesForEvent(input.eventId);
-      }),
-
-    // Votar em opções de local (múltipla escolha)
-    voteLocation: protectedProcedure
-      .input(z.object({
-        eventId: z.number(),
-        optionIds: z.array(z.number()).min(1).max(5),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const event = await getEventById(input.eventId);
-        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
-        if (event.locationMode !== 'voting') {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Este evento não está em modo de votação." });
-        }
-        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
-        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
-        return await voteOnEventLocation(input.eventId, ctx.user!.id, input.optionIds);
-      }),
-
-    // Encerrar votação e definir vencedor
-    closeVoting: protectedProcedure
-      .input(z.object({ eventId: z.number() }))
-      .mutation(async ({ ctx, input }) => {
-        return await closeEventVoting(input.eventId, ctx.user!.id);
-      }),
   }),
 
   // ============ SOCIAL (Follows + DMs) ============
@@ -3141,8 +2872,8 @@ export const appRouter = router({
     follow: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const status = await followUser(ctx.user!.id, input.userId);
-        return { success: true, status };
+        await followUser(ctx.user!.id, input.userId);
+        return { success: true };
       }),
     unfollow: protectedProcedure
       .input(z.object({ userId: z.number() }))
@@ -3153,11 +2884,9 @@ export const appRouter = router({
     isFollowing: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const status = await getFollowStatus(ctx.user!.id, input.userId);
-        const following = status === "accepted";
-        const pending = status === "pending";
+        const following = await isFollowing(ctx.user!.id, input.userId);
         const mutual = following ? await isMutualFollow(ctx.user!.id, input.userId) : false;
-        return { following, pending, mutual, status };
+        return { following, mutual };
       }),
     followers: protectedProcedure
       .input(z.object({ userId: z.number().optional() }))
@@ -3177,27 +2906,6 @@ export const appRouter = router({
     mutuals: protectedProcedure
       .query(async ({ ctx }) => {
         return await getMutualFollows(ctx.user!.id);
-      }),
-    // Pending follow requests
-    pendingRequests: protectedProcedure
-      .query(async ({ ctx }) => {
-        return await getPendingFollowRequests(ctx.user!.id);
-      }),
-    pendingCount: protectedProcedure
-      .query(async ({ ctx }) => {
-        return await getPendingFollowCount(ctx.user!.id);
-      }),
-    acceptRequest: protectedProcedure
-      .input(z.object({ followId: z.number() }))
-      .mutation(async ({ ctx, input }) => {
-        await acceptFollowRequest(input.followId, ctx.user!.id);
-        return { success: true };
-      }),
-    rejectRequest: protectedProcedure
-      .input(z.object({ followId: z.number() }))
-      .mutation(async ({ ctx, input }) => {
-        await rejectFollowRequest(input.followId, ctx.user!.id);
-        return { success: true };
       }),
     // DMs
     dmConversations: protectedProcedure
