@@ -1064,15 +1064,51 @@ export function NotificationsTab() {
         </div>
       )}
 
+      {/* Promo code requests — pedidos de código promocional */}
+      {ratingNotifs && ratingNotifs.some((n: any) => n.type === "promo_code_request") && (
+        <div className="mt-6">
+          <h3 className="flex items-center gap-2 text-sm font-medium text-primary mb-3">
+            <Tag className="w-4 h-4" />
+            Pedidos de Código Promocional ({ratingNotifs.filter((n: any) => n.type === "promo_code_request" && !n.isRead).length} novos)
+          </h3>
+          <div className="space-y-2">
+            {ratingNotifs.filter((n: any) => n.type === "promo_code_request").map((n: any) => (
+              <Link key={n.id} href="/business/divulgacoes/codigos">
+                <div
+                  className={`p-4 rounded-xl flex items-start gap-3 cursor-pointer transition-all ${
+                    n.isRead
+                      ? "bg-card/30 border border-border/30 opacity-60"
+                      : "bg-primary/5 border border-primary/30 hover:border-primary/50"
+                  }`}
+                  onClick={() => !n.isRead && markRead.mutate({ notificationId: n.id })}
+                >
+                  <Tag className={`w-4 h-4 shrink-0 mt-0.5 ${n.isRead ? "text-muted-foreground" : "text-primary"}`} />
+                  <div className="flex-1">
+                    <p className="text-sm text-foreground font-medium">{n.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      {new Date(n.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                  {!n.isRead && (
+                    <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2" />
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Rating notifications — new reviews received */}
-      {hasRatingNotifs && (
+      {hasRatingNotifs && ratingNotifs!.some((n: any) => n.type !== "promo_code_request") && (
         <div className="mt-6">
           <h3 className="flex items-center gap-2 text-sm font-medium text-green-400 mb-3">
             <Star className="w-4 h-4" />
-            Avaliações Recebidas ({ratingNotifs!.filter(n => !n.isRead).length} novas)
+            Avaliações Recebidas ({ratingNotifs!.filter((n: any) => n.type !== "promo_code_request" && !n.isRead).length} novas)
           </h3>
           <div className="space-y-2">
-            {ratingNotifs!.map((n) => (
+            {ratingNotifs!.filter((n: any) => n.type !== "promo_code_request").map((n) => (
               <div
                 key={n.id}
                 className={`p-4 rounded-xl flex items-start gap-3 cursor-pointer transition-all ${
@@ -1779,6 +1815,7 @@ export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
   const { data: establishments } = trpc.business.myEstablishments.useQuery(undefined, {
     enabled: !establishmentId,
   });
+  const { data: planOptions } = trpc.plans.options.useQuery();
   const [selectedEst, setSelectedEst] = useState<number | null>(null);
 
   const estId = establishmentId || selectedEst || (establishments && establishments.length > 0 ? establishments[0].id : null);
@@ -1786,6 +1823,14 @@ export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
     { establishmentId: estId! },
     { enabled: !!estId }
   );
+
+  // Get premium business plan price dynamically from DB
+  const businessPlans = planOptions?.business || [];
+  const premiumPlan = businessPlans.find((p: any) => p.name?.toLowerCase().includes("premium") || p.highlighted) || businessPlans.find((p: any) => p.price > 0);
+  const premiumPrice = premiumPlan?.price ?? 29.9;
+  const premiumFeatures = premiumPlan?.features || ["Códigos promocionais ilimitados", "Analytics e métricas", "Destaque no app", "Tudo do plano Básico"];
+  const basicPlan = businessPlans.find((p: any) => p.price === 0);
+  const basicFeatures = basicPlan?.features || ["Perfil do estabelecimento", "QR Code personalizado", "1 código promo ativo", "Notificações"];
 
   const upgradeMutation = trpc.plans.upgradeBusiness.useMutation({
     onSuccess: () => {
@@ -1823,7 +1868,7 @@ export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
               {currentPlan === "premium" ? "PREMIUM" : "BÁSICO"}
             </h3>
             <p className="text-xs text-muted-foreground">
-              {currentPlan === "premium" ? "R$ 97,00/mês" : "Grátis"}
+              {currentPlan === "premium" ? `R$ ${premiumPrice.toFixed(2).replace('.', ',')}/mês` : "Grátis"}
             </p>
           </div>
           {currentPlan === "premium" && (
@@ -1838,7 +1883,7 @@ export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
           <div className={`p-4 rounded-lg border ${currentPlan === "free" ? "border-primary/30 bg-primary/5" : "border-border/30"}`}>
             <h4 className="font-display text-sm tracking-wider text-foreground mb-3">BÁSICO</h4>
             <ul className="space-y-2">
-              {["Perfil do estabelecimento", "QR Code personalizado", "1 código promo ativo", "Notificações"].map((f, i) => (
+              {basicFeatures.map((f: string, i: number) => (
                 <li key={i} className="flex items-start gap-2 text-xs">
                   <Check className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
                   <span className="text-foreground/70">{f}</span>
@@ -1849,14 +1894,14 @@ export function BusinessPlanTab({ establishmentId }: BusinessPlanTabProps) {
           <div className={`p-4 rounded-lg border ${currentPlan === "premium" ? "border-primary/30 bg-primary/5" : "border-border/30"}`}>
             <h4 className="font-display text-sm tracking-wider text-primary mb-3">PREMIUM</h4>
             <ul className="space-y-2">
-              {["Dashboard completo com gráficos", "20 insights de desempenho", "Plano de Ação com IA", "Detecção de outliers", "Códigos promo ilimitados", "Destaque no app", "Tudo do Básico"].map((f, i) => (
+              {premiumFeatures.map((f: string, i: number) => (
                 <li key={i} className="flex items-start gap-2 text-xs">
                   <Check className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
                   <span className="text-foreground/70">{f}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 font-numbers text-lg font-bold text-primary">R$ 97<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
+            <p className="mt-3 font-numbers text-lg font-bold text-primary">R$ {premiumPrice.toFixed(2).replace('.', ',')}<span className="text-xs text-muted-foreground font-normal">/mês</span></p>
           </div>
         </div>
       </div>

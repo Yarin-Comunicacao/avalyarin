@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IconPicker from "@/components/IconPicker";
+// import SkipRulesManager from "@/components/SkipRulesManager";
 import {
   DndContext,
   closestCenter,
@@ -34,6 +35,7 @@ type QuestionType = "single" | "multi" | "score" | "text" | "birthdate" | "estab
 interface Option {
   label: string;
   value: string;
+  endsSurvey?: boolean;
 }
 
 interface QuestionData {
@@ -55,9 +57,14 @@ interface QuestionData {
 }
 
 const PHASE_LABELS: Record<Phase, string> = {
-  onboarding: "Onboarding (Fase 1)",
-  explorer: "Explorer (Fase 2 — após 5 avaliações)",
-  connoisseur: "Connoisseur (Fase 3 — após 10 avaliações)",
+  onboarding: "Fase 1",
+  explorer: "Fase 2",
+  connoisseur: "Fase 3",
+};
+const PHASE_SUBTITLES: Record<Phase, string> = {
+  onboarding: "Onboarding",
+  explorer: "Explorer (5+ avaliações)",
+  connoisseur: "Connoisseur (10+ avaliações)",
 };
 
 const TYPE_LABELS: Record<QuestionType, string> = {
@@ -264,18 +271,19 @@ export default function OwnerSurvey() {
 
       {/* Phase Tabs */}
       <div className="border-b border-border/50 sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="container flex overflow-x-auto scrollbar-hide">
+        <div className="container grid grid-cols-3 gap-0">
           {(Object.keys(PHASE_LABELS) as Phase[]).map((phase) => (
             <button
               key={phase}
               onClick={() => { setActivePhase(phase); setEditingQuestion(null); setIsCreating(false); }}
-              className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`flex flex-col items-center px-2 py-3 text-xs font-medium border-b-2 transition-colors ${
                 activePhase === phase
                   ? "border-yellow-500 text-yellow-500"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              {PHASE_LABELS[phase]}
+              <span className="font-bold">{PHASE_LABELS[phase]}</span>
+              <span className="text-[10px] opacity-70">{PHASE_SUBTITLES[phase]}</span>
             </button>
           ))}
         </div>
@@ -301,14 +309,14 @@ export default function OwnerSurvey() {
 
         {/* Actions Bar */}
         {!editingQuestion && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <p className="text-sm text-muted-foreground">
               {isLoading ? "Carregando..." : `${mainQuestions.length} perguntas principais, ${childQuestions.length} condicionais`}
             </p>
             <Button
               size="sm"
               onClick={startCreate}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black"
+              className="bg-yellow-500 hover:bg-yellow-600 text-black w-full sm:w-auto"
             >
               <Plus className="w-4 h-4 mr-1" />
               Nova Pergunta
@@ -597,11 +605,13 @@ function SortableOptionItem({
   option,
   index,
   onRemove,
+  onToggleEndsSurvey,
 }: {
   id: string;
   option: Option;
   index: number;
   onRemove: (idx: number) => void;
+  onToggleEndsSurvey?: (idx: number) => void;
 }) {
   const {
     attributes,
@@ -633,7 +643,23 @@ function SortableOptionItem({
       </button>
       <span className="text-xs text-muted-foreground/50 w-5">{index + 1}.</span>
       <span className="text-sm text-foreground flex-1">{option.label}</span>
+      {option.endsSurvey && (
+        <span className="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">Encerra</span>
+      )}
       <span className="text-xs text-muted-foreground">{option.value}</span>
+      {onToggleEndsSurvey && (
+        <button
+          onClick={() => onToggleEndsSurvey(index)}
+          title={option.endsSurvey ? "Remover encerramento" : "Encerrar survey nesta opção"}
+          className={`text-xs px-1.5 py-0.5 rounded border transition-colors ${
+            option.endsSurvey
+              ? "border-red-500/50 text-red-400 bg-red-500/10"
+              : "border-border/50 text-muted-foreground hover:text-yellow-500 hover:border-yellow-500/50"
+          }`}
+        >
+          {option.endsSurvey ? "✕ Enc" : "⏹"}
+        </button>
+      )}
       <button onClick={() => onRemove(index)} className="text-red-400 hover:text-red-300">
         <X className="w-3.5 h-3.5" />
       </button>
@@ -927,7 +953,7 @@ function QuestionEditor({
           <div className="border-t border-border/30 pt-4">
             <h4 className="text-sm font-medium text-foreground mb-1">Opções de Resposta</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              Arraste as opções para reordenar. A ordem aqui é a ordem exibida ao usuário.
+              Arraste para reordenar. Clique em <span className="text-yellow-500">⏹</span> para marcar uma opção como "encerra o survey" (pula as próximas perguntas).
             </p>
             {form.options && form.options.length > 0 && (
               <DndContext
@@ -947,6 +973,11 @@ function QuestionEditor({
                         option={opt}
                         index={idx}
                         onRemove={removeOption}
+                        onToggleEndsSurvey={(i) => {
+                          const updated = [...(form.options || [])];
+                          updated[i] = { ...updated[i], endsSurvey: !updated[i].endsSurvey };
+                          updateField("options", updated);
+                        }}
                       />
                     ))}
                   </div>

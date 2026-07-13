@@ -1,6 +1,7 @@
 import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests } from "../drizzle/schema";
+import mysql from "mysql2/promise";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -57,13 +58,24 @@ export async function generateCode(table: 'users' | 'categories' | 'establishmen
   return String(nextNum);
 }
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: any = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const sslCa = process.env.DATABASE_SSL_CA;
+      const sslOptions: any = {};
+      if (sslCa && fs.existsSync(sslCa)) {
+        sslOptions.ssl = { ca: fs.readFileSync(sslCa) };
+      } else if (process.env.DATABASE_URL.includes("tidbcloud.com")) {
+        sslOptions.ssl = { rejectUnauthorized: true };
+      }
+      const pool = mysql.createPool({
+        uri: process.env.DATABASE_URL,
+        ...sslOptions,
+      });
+      _db = drizzle(pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -84,9 +96,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
+    // FIRST: Check if user already exists by openId to avoid duplicates
+    const existing = await db.select().from(users)
+      .where(eq(users.openId, user.openId))
+      .limit(1)
+      .then(r => r[0]);
+
     const updateSet: Record<string, unknown> = {};
 
     const textFields = ["name", "email", "loginMethod"] as const;
@@ -96,39 +111,46 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       const value = user[field];
       if (value === undefined) return;
       const normalized = value ?? null;
-      values[field] = normalized;
       updateSet[field] = normalized;
     };
 
     textFields.forEach(assignNullable);
 
     if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
     }
     if (user.role !== undefined) {
-      values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
       updateSet.role = 'admin';
     }
 
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
+    if (!updateSet.lastSignedIn) {
       updateSet.lastSignedIn = new Date();
     }
 
-    // Generate code for new users
-    const newCode = await generateCode('users');
-    values.code = newCode;
+    if (existing) {
+      // User exists — just update
+      await db.update(users)
+        .set(updateSet)
+        .where(eq(users.id, existing.id));
+    } else {
+      // User does NOT exist — create new
+      const values: InsertUser = {
+        openId: user.openId,
+        ...updateSet,
+      } as InsertUser;
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+      // Generate code for new users
+      const newCode = await generateCode('users');
+      values.code = newCode;
+
+      // Generate explicit id (avoids AUTO_INCREMENT issues on TiDB)
+      const maxResult = await db.select({ maxId: sql`MAX(id)` }).from(users);
+      values.id = (maxResult[0]?.maxId || 0) + 1;
+
+      await db.insert(users).values(values);
+    }
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -145,6 +167,14 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateLastSignedIn(openId: string, signedInAt: Date): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users)
+    .set({ lastSignedIn: signedInAt })
+    .where(eq(users.openId, openId));
 }
 
 // ============================================================
@@ -1670,10 +1700,12 @@ export async function getUserProfile(userId: number) {
       id: users.id,
       name: users.name,
       email: users.email,
+      phone: users.phone,
       username: users.username,
       birthdate: users.birthdate,
       role: users.role,
       verified: users.verified,
+      profilePhotoUrl: users.profilePhotoUrl,
       createdAt: users.createdAt,
     })
     .from(users)
@@ -1682,13 +1714,20 @@ export async function getUserProfile(userId: number) {
   return rows[0] || null;
 }
 
-export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string }) {
+export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string; email?: string; phone?: string }) {
   const db = await getDb();
   if (!db) return null;
   
   const updateData: Record<string, any> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
+  if (data.email !== undefined) updateData.email = data.email;
+  if (data.phone !== undefined) {
+    updateData.phone = data.phone;
+    if (data.phone && data.phone.length >= 8) {
+      updateData.phoneVerified = true;
+    }
+  }
   if (data.username !== undefined) {
     // Check username availability
     const existing = await db.select({ id: users.id }).from(users)
@@ -2034,7 +2073,6 @@ export async function createGroupEvent(data: {
 export async function getGroupEvents(groupId: number, status: 'active' | 'cancelled' | 'completed' = 'active') {
   const db = await getDb();
   if (!db) return [];
-
   const rows = await db.select({
     id: groupEvents.id,
     code: groupEvents.code,
@@ -2046,6 +2084,8 @@ export async function getGroupEvents(groupId: number, status: 'active' | 'cancel
     eventDate: groupEvents.eventDate,
     maxGuests: groupEvents.maxGuests,
     status: groupEvents.status,
+    locationMode: groupEvents.locationMode,
+    manualLocationName: groupEvents.manualLocationName,
     createdAt: groupEvents.createdAt,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
@@ -2055,14 +2095,13 @@ export async function getGroupEvents(groupId: number, status: 'active' | 'cancel
     creatorName: users.name,
   })
     .from(groupEvents)
-    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .leftJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
     .innerJoin(users, eq(users.id, groupEvents.creatorId))
     .where(and(
       eq(groupEvents.groupId, groupId),
       eq(groupEvents.status, status)
     ))
     .orderBy(groupEvents.eventDate);
-
   return rows;
 }
 
@@ -2070,7 +2109,7 @@ export async function getEventById(eventId: number) {
   const db = await getDb();
   if (!db) return null;
 
-  const [event] = await db.select({
+    const [event] = await db.select({
     id: groupEvents.id,
     code: groupEvents.code,
     groupId: groupEvents.groupId,
@@ -2081,6 +2120,10 @@ export async function getEventById(eventId: number) {
     eventDate: groupEvents.eventDate,
     maxGuests: groupEvents.maxGuests,
     status: groupEvents.status,
+    locationMode: groupEvents.locationMode,
+    manualLocationName: groupEvents.manualLocationName,
+    manualLocationAddress: groupEvents.manualLocationAddress,
+    votingClosesAt: groupEvents.votingClosesAt,
     createdAt: groupEvents.createdAt,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
@@ -2093,12 +2136,11 @@ export async function getEventById(eventId: number) {
     groupName: groups.name,
   })
     .from(groupEvents)
-    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .leftJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
     .innerJoin(users, eq(users.id, groupEvents.creatorId))
     .innerJoin(groups, eq(groups.id, groupEvents.groupId))
     .where(eq(groupEvents.id, eventId))
     .limit(1);
-
   return event || null;
 }
 
@@ -2178,6 +2220,8 @@ export async function getUserEvents(userId: number, upcoming = true) {
     eventDate: groupEvents.eventDate,
     maxGuests: groupEvents.maxGuests,
     status: groupEvents.status,
+    locationMode: groupEvents.locationMode,
+    manualLocationName: groupEvents.manualLocationName,
     createdAt: groupEvents.createdAt,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
@@ -2187,7 +2231,7 @@ export async function getUserEvents(userId: number, upcoming = true) {
     groupName: groups.name,
   })
     .from(groupEvents)
-    .innerJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
+    .leftJoin(establishments, eq(establishments.id, groupEvents.establishmentId))
     .innerJoin(users, eq(users.id, groupEvents.creatorId))
     .innerJoin(groups, eq(groups.id, groupEvents.groupId))
     .where(and(
@@ -2969,4 +3013,212 @@ export async function getUserRoleRequests(userId: number) {
     .where(eq(roleRequests.userId, userId))
     .orderBy(desc(roleRequests.createdAt));
   return requests;
+}
+
+
+// ============================================================
+// EVENT LOCATION VOTING — votação de local para eventos
+// ============================================================
+
+/**
+ * Criar evento com local definido (estabelecimento ou manual)
+ */
+export async function createGroupEventWithLocation(data: {
+  groupId: number;
+  creatorId: number;
+  title: string;
+  description?: string;
+  eventDate: Date;
+  maxGuests?: number;
+  locationMode: 'defined' | 'voting';
+  // Local definido
+  establishmentId?: number;
+  manualLocationName?: string;
+  manualLocationAddress?: string;
+  // Votação: opções de local
+  locationOptions?: Array<{
+    establishmentId?: number;
+    manualName?: string;
+    manualAddress?: string;
+  }>;
+  votingClosesAt?: Date;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const code = `ev${String(Date.now() % 999999).padStart(6, '0')}`;
+
+  const [result] = await db.insert(groupEvents).values({
+    code,
+    groupId: data.groupId,
+    creatorId: data.creatorId,
+    establishmentId: data.establishmentId || null,
+    title: data.title,
+    description: data.description || null,
+    eventDate: data.eventDate,
+    maxGuests: data.maxGuests || null,
+    locationMode: data.locationMode,
+    manualLocationName: data.manualLocationName || null,
+    manualLocationAddress: data.manualLocationAddress || null,
+    votingClosesAt: data.votingClosesAt || null,
+  }).$returningId();
+
+  // Se modo votação, inserir opções
+  if (data.locationMode === 'voting' && data.locationOptions && data.locationOptions.length >= 2) {
+    for (const opt of data.locationOptions) {
+      await db.insert(eventLocationOptions).values({
+        eventId: result.id,
+        establishmentId: opt.establishmentId || null,
+        manualName: opt.manualName || null,
+        manualAddress: opt.manualAddress || null,
+      });
+    }
+  }
+
+  return { id: result.id, code };
+}
+
+/**
+ * Buscar opções de local de um evento em votação
+ */
+export async function getEventLocationOptions(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const options = await db.select({
+    id: eventLocationOptions.id,
+    eventId: eventLocationOptions.eventId,
+    establishmentId: eventLocationOptions.establishmentId,
+    manualName: eventLocationOptions.manualName,
+    manualAddress: eventLocationOptions.manualAddress,
+    isWinner: eventLocationOptions.isWinner,
+  })
+    .from(eventLocationOptions)
+    .where(eq(eventLocationOptions.eventId, eventId));
+
+  // Para cada opção, buscar dados do estabelecimento se aplicável
+  const enriched = await Promise.all(options.map(async (opt) => {
+    if (opt.establishmentId) {
+      const [estab] = await db.select({
+        name: establishments.name,
+        neighborhood: establishments.neighborhood,
+        address: establishments.address,
+        image: establishments.image,
+      })
+        .from(establishments)
+        .where(eq(establishments.id, opt.establishmentId))
+        .limit(1);
+      return { ...opt, establishment: estab || null };
+    }
+    return { ...opt, establishment: null };
+  }));
+
+  return enriched;
+}
+
+/**
+ * Buscar votos de um evento
+ */
+export async function getEventLocationVotesForEvent(eventId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select({
+    id: eventLocationVotes.id,
+    optionId: eventLocationVotes.optionId,
+    userId: eventLocationVotes.userId,
+    userName: users.name,
+  })
+    .from(eventLocationVotes)
+    .innerJoin(users, eq(users.id, eventLocationVotes.userId))
+    .where(eq(eventLocationVotes.eventId, eventId));
+}
+
+/**
+ * Votar em opções de local (múltipla escolha)
+ * Remove votos anteriores do usuário e insere os novos
+ */
+export async function voteOnEventLocation(eventId: number, userId: number, optionIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Remover votos anteriores do usuário neste evento
+  await db.delete(eventLocationVotes)
+    .where(and(
+      eq(eventLocationVotes.eventId, eventId),
+      eq(eventLocationVotes.userId, userId)
+    ));
+
+  // Inserir novos votos
+  for (const optionId of optionIds) {
+    await db.insert(eventLocationVotes).values({
+      eventId,
+      optionId,
+      userId,
+    });
+  }
+
+  return { success: true };
+}
+
+/**
+ * Encerrar votação e definir vencedor (opção com mais votos)
+ */
+export async function closeEventVoting(eventId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Verificar se o usuário é o criador
+  const [event] = await db.select({ creatorId: groupEvents.creatorId, locationMode: groupEvents.locationMode })
+    .from(groupEvents)
+    .where(eq(groupEvents.id, eventId))
+    .limit(1);
+
+  if (!event || event.creatorId !== userId) {
+    throw new Error("Apenas o criador pode encerrar a votação");
+  }
+  if (event.locationMode !== 'voting') {
+    throw new Error("Este evento não está em modo de votação");
+  }
+
+  // Contar votos por opção
+  const voteCounts = await db.select({
+    optionId: eventLocationVotes.optionId,
+    count: sql<number>`COUNT(*)`,
+  })
+    .from(eventLocationVotes)
+    .where(eq(eventLocationVotes.eventId, eventId))
+    .groupBy(eventLocationVotes.optionId);
+
+  if (voteCounts.length === 0) {
+    throw new Error("Nenhum voto registrado ainda");
+  }
+
+  // Encontrar opção com mais votos
+  const winner = voteCounts.reduce((max, curr) =>
+    Number(curr.count) > Number(max.count) ? curr : max
+  );
+
+  // Marcar como vencedora
+  await db.update(eventLocationOptions)
+    .set({ isWinner: true })
+    .where(eq(eventLocationOptions.id, winner.optionId));
+
+  // Buscar dados da opção vencedora para atualizar o evento
+  const [winnerOpt] = await db.select()
+    .from(eventLocationOptions)
+    .where(eq(eventLocationOptions.id, winner.optionId))
+    .limit(1);
+
+  // Atualizar evento: modo decided + preencher local
+  await db.update(groupEvents)
+    .set({
+      locationMode: 'decided',
+      establishmentId: winnerOpt.establishmentId || null,
+      manualLocationName: winnerOpt.manualName || null,
+      manualLocationAddress: winnerOpt.manualAddress || null,
+    })
+    .where(eq(groupEvents.id, eventId));
+
+  return { success: true, winnerId: winner.optionId };
 }

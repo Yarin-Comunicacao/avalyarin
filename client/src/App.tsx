@@ -70,6 +70,7 @@ import MapaPage from "./pages/MapaPage";
 import DestaquesPage from "./pages/DestaquesPage";
 // Conta Hub
 import ContaPage from "./pages/ContaPage";
+import EditarPerfil from "./pages/EditarPerfil";
 // Planos por role
 import BusinessPlanos from "./pages/BusinessPlanos";
 import ProfessionalPlanos from "./pages/ProfessionalPlanos";
@@ -88,6 +89,7 @@ import BottomNav from "./components/BottomNav";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import AgeGate from "./components/AgeGate";
 import AuthChoice from "./components/AuthChoice";
+import LoginPage from "./pages/LoginPage";
 import HowItWorksDialog from "./components/HowItWorksDialog";
 
 // ============================================================
@@ -129,6 +131,7 @@ function Router() {
     <>
     <ScrollToTop />
     <Switch>
+      <Route path="/login" component={LoginPage} />
       <Route path="/" component={Home} />
       <Route path="/categoria/:id" component={CategoryPage} />
       <Route path="/grupo/:id/calendario" component={CalendarioGrupo} />
@@ -139,6 +142,7 @@ function Router() {
       <Route path="/avaliar/:establishmentId" component={RatingPage} />
       {/* Account */}
       <Route path="/conta" component={ContaPage} />
+      <Route path="/conta/editar-perfil" component={EditarPerfil} />
       <Route path="/conta/dados" component={MeusDados} />
       <Route path="/conta/cadastro" component={Cadastro} />
       <Route path="/conta/conectadas" component={ContasConectadas} />
@@ -156,8 +160,8 @@ function Router() {
       <Route path="/salvos/especialistas" component={SpecialistsFavoritos} />
       <Route path="/salvos/collab" component={ListasCollab} />
       {/* Insígnias */}
-      <Route path="/insignias" component={BadgesPage} />
-      <Route path="/badges" component={BadgesPage} /> {/* Redirect compat */}
+      <Route path="/insignias">{() => { window.location.replace("/minhas-avaliacoes/insignias"); return null; }}</Route>
+      <Route path="/badges">{() => { window.location.replace("/minhas-avaliacoes/insignias"); return null; }}</Route>
       {/* Grupos */}
       <Route path="/grupos" component={GruposPage} />
       {/* Notificações */}
@@ -264,10 +268,25 @@ function App() {
     return flow !== null || surveyDone;
   });
 
-  // Phase 1 — Onboarding
+  // Phase 1 — Onboarding: check localStorage first, then verify with backend
   const [surveyCompleted, setSurveyCompleted] = useState<boolean>(() => {
     return localStorage.getItem("avalyarin_survey_completed") === "true";
   });
+
+  // After login, check backend to see if user already completed survey
+  const { data: surveyCheck } = trpc.survey.get.useQuery(undefined, {
+    enabled: authChoiceMade && !surveyCompleted,
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  });
+
+  // Sync survey status from backend: if user has surveyData in DB, mark as completed
+  useEffect(() => {
+    if (surveyCheck && surveyCheck.surveyData && Object.keys(surveyCheck.surveyData as object).length > 0) {
+      localStorage.setItem("avalyarin_survey_completed", "true");
+      setSurveyCompleted(true);
+    }
+  }, [surveyCheck]);
 
   // Phase 2 — Explorer (after 5 reviews)
   const [showPhase2, setShowPhase2] = useState<boolean>(() => isSurveyPhase2Due());
@@ -358,9 +377,7 @@ function App() {
             renderGate={() => (
               <AuthChoice onChoose={(type) => {
                 setAuthChoiceMade(true);
-                if (type === "login") {
-                  setSurveyCompleted(true);
-                }
+                // Do NOT skip onboarding for login — let the backend check determine if survey was already done
               }} />
             )}
             renderContent={() => (

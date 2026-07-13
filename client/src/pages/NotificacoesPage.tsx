@@ -102,7 +102,7 @@ const PREFERENCE_SURVEYS = [
   },
 ];
 
-type Tab = "badges" | "pesquisas" | "grupos";
+type Tab = "badges" | "pesquisas" | "solicitacoes" | "convites" | "mensagens";
 
 // ─── Group Notifications Tab ─────────────────────────────────────────────────
 function GroupNotificationsTab() {
@@ -213,8 +213,9 @@ function GroupNotificationsTab() {
 
 export default function NotificacoesPage() {
   const { user, loading: authLoading } = useAuth();
+  const utils = trpc.useUtils();
   const params = useParams<{ tab?: string }>();
-  const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "badges");
+  const [activeTab, setActiveTab] = useState<Tab>((params.tab as Tab) || "solicitacoes");
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string[]>>({});
 
   // Load review count and badge data from localStorage
@@ -240,6 +241,8 @@ export default function NotificacoesPage() {
   if (!user) {
     return <Redirect to={getLoginUrl()} />;
   }
+
+  // Phone verification no longer required to access notifications
 
   const currentBadgeLevel = BADGE_LEVELS.filter(b => badgePoints >= b.minPoints).pop();
   const nextBadge = BADGE_LEVELS.find(b => badgePoints < b.minPoints);
@@ -282,10 +285,40 @@ export default function NotificacoesPage() {
     toast.success("Pesquisa enviada! Obrigado pelo feedback 🎉");
   };
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  // Pending follow requests
+  const { data: pendingRequests, isLoading: pendingLoading } = trpc.social.pendingRequests.useQuery();
+  const { data: pendingCount } = trpc.social.pendingCount.useQuery();
+  const acceptRequestMutation = trpc.social.acceptRequest.useMutation({
+    onSuccess: () => {
+      toast.success("Solicitação aceita!");
+      utils.social.pendingRequests.invalidate();
+      utils.social.pendingCount.invalidate();
+    },
+    onError: () => toast.error("Erro ao aceitar solicitação"),
+  });
+  const rejectRequestMutation = trpc.social.rejectRequest.useMutation({
+    onSuccess: () => {
+      toast("Solicitação recusada");
+      utils.social.pendingRequests.invalidate();
+      utils.social.pendingCount.invalidate();
+    },
+    onError: () => toast.error("Erro ao recusar solicitação"),
+  });
+
+  // Group invites count
+  const { data: groupInvites } = trpc.groups.pendingInvites.useQuery();
+  const groupInviteCount = groupInvites?.length || 0;
+
+  // DM unread count
+  const { data: dmConversations } = trpc.social.dmConversations.useQuery();
+  const unreadDMCount = dmConversations?.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0) || 0;
+
+  const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
+    { id: "solicitacoes", label: "Solicitações", icon: <UserPlus className="w-4 h-4" />, badge: (pendingCount || 0) + groupInviteCount },
+    { id: "convites", label: "Grupos", icon: <Users className="w-4 h-4" />, badge: groupInviteCount },
+    { id: "mensagens", label: "Mensagens", icon: <MessageSquare className="w-4 h-4" />, badge: unreadDMCount },
     { id: "badges", label: "Badges", icon: <Trophy className="w-4 h-4" /> },
     { id: "pesquisas", label: "Pesquisas", icon: <ClipboardCheck className="w-4 h-4" /> },
-    { id: "grupos", label: "Grupos", icon: <Users className="w-4 h-4" /> },
   ];
 
   return (
@@ -318,12 +351,84 @@ export default function NotificacoesPage() {
             >
               {tab.icon}
               {tab.label}
+              {tab.badge && tab.badge > 0 ? (
+                <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-white min-w-[18px] text-center">{tab.badge}</span>
+              ) : null}
             </button>
           ))}
         </div>
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "solicitacoes" && (
+            <motion.div
+              key="solicitacoes"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4"
+            >
+              {/* Privacy alert */}
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Proteja sua privacidade</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ao aceitar seguidores, eles poderão ver seus locais visitados e lugares que você frequenta. Aceite apenas pessoas que você conhece.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {pendingLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                </div>
+              ) : pendingRequests && pendingRequests.length > 0 ? (
+                pendingRequests.map((req: any) => (
+                  <div key={req.id} className="rounded-xl bg-card border border-border/50 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
+                        {req.followerPhoto ? (
+                          <img src={req.followerPhoto} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-sm font-bold text-primary">{(req.followerName || "?")[0].toUpperCase()}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
+                        <p className="text-xs text-muted-foreground">@{req.followerUsername}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => acceptRequestMutation.mutate({ followId: req.id })}
+                          className="p-2 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 transition-colors"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => rejectRequestMutation.mutate({ followId: req.id })}
+                          className="p-2 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <UserPlus className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Nenhuma solicitação pendente</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Quando alguém pedir para te seguir, aparecerá aqui.</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {activeTab === "badges" && (
             <motion.div
               key="badges"
@@ -492,9 +597,69 @@ export default function NotificacoesPage() {
             </motion.div>
           )}
 
-          {activeTab === "grupos" && (
+          {activeTab === "convites" && (
             <GroupNotificationsTab />
           )}
+
+          {activeTab === "mensagens" && (
+            <motion.div
+              key="mensagens"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4"
+            >
+              {!dmConversations || dmConversations.length === 0 ? (
+                <div className="text-center py-10 bg-secondary/20 rounded-xl border border-border/20">
+                  <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhuma conversa ainda</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Siga pessoas e inicie conversas com seguidores mútuos</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {dmConversations.map((conv: any) => (
+                    <Link key={conv.partnerId} href={`/mensagens/${conv.partnerUsername}`}>
+                      <div className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        conv.unreadCount > 0
+                          ? "bg-primary/5 border-primary/20"
+                          : "bg-card border-border/50 hover:border-primary/30"
+                      }`}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-secondary border border-border/50 flex items-center justify-center">
+                            <span className="text-sm font-medium text-foreground">{conv.partnerName?.charAt(0)?.toUpperCase()}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium text-foreground truncate">@{conv.partnerUsername}</p>
+                              {conv.unreadCount > 0 && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-white min-w-[18px] text-center">{conv.unreadCount}</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage || "Sem mensagens"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              <Link href="/mensagens">
+                <div className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Ver todas as mensagens</p>
+                        <p className="text-xs text-muted-foreground">Abrir página de conversas</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          )}
+
         </AnimatePresence>
       </div>
     </div>

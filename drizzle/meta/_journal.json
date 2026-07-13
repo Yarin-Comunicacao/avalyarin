@@ -127,6 +127,62 @@
       "when": 1783522528503,
       "tag": "0017_bright_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1783648411040,
+      "tag": "0018_opposite_george_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1783694526510,
+      "tag": "0019_smart_aqueduct",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1783695323903,
+      "tag": "0020_daily_leech",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1783707217512,
+      "tag": "0021_cloudy_major_mapleleaf",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1783707515416,
+      "tag": "0022_modern_dreaming_celestial",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1783776781393,
+      "tag": "0023_legal_rhodey",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1783916417442,
+      "tag": "0024_bored_killmonger",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1783964058138,
+      "tag": "0025_chunky_wild_child",
+      "breakpoints": true
     }
   ]
 }

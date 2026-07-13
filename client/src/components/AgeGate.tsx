@@ -6,8 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
-const DAY_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
-const NIGHT_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp";
+const DAY_IMAGE = "/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
+const NIGHT_IMAGE = "/storage/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp";
 
 interface AgeGateProps {
   onConfirm: () => void;
@@ -55,7 +55,7 @@ export default function AgeGate({ onConfirm }: AgeGateProps) {
         <div className="flex items-center gap-2 mb-8">
           <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+              src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
               alt="AvaLyarin"
               className="w-full h-full object-contain"
             />

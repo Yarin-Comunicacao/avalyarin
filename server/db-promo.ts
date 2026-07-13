@@ -248,3 +248,283 @@ export async function getPromoCodeStats(codeId: number) {
 
   return { totalUses, uniqueUsers };
 }
+
+
+// ============================================================
+// Promo Code Establishments — vínculo N:N + fluxo de aprovação pelo business
+// ============================================================
+
+import { promoCodeEstablishments, establishments, businessClaims, users, businessNotifications } from "../drizzle/schema";
+import { inArray } from "drizzle-orm";
+
+/**
+ * Create a promo code (critic/specialist) linked to multiple establishments.
+ * Each establishment link starts as "pending" and the business owner(s) get notified.
+ */
+export async function createPromoCodeWithEstablishments(data: {
+  code: string;
+  type: "percentage" | "buy_one_get_one" | "free_item" | "fixed_discount";
+  value?: number;
+  description?: string;
+  creatorId: number;
+  creatorType: "specialist" | "business" | "critic";
+  establishmentIds: number[];
+  startsAt?: number;
+  expiresAt?: number;
+  maxUses?: number;
+  maxUsesPerUser?: number;
+  firstVisitOnly?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(promoCodes).values({
+    code: data.code.toUpperCase().trim(),
+    type: data.type,
+    value: data.value ?? null,
+    description: data.description ?? null,
+    creatorId: data.creatorId,
+    creatorType: data.creatorType,
+    establishmentId: null, // multi-estab: usa a tabela de junção
+    startsAt: data.startsAt ?? null,
+    expiresAt: data.expiresAt ?? null,
+    maxUses: data.maxUses ?? null,
+    maxUsesPerUser: data.maxUsesPerUser ?? 1,
+    firstVisitOnly: data.firstVisitOnly ?? false,
+    status: "pending_approval",
+  });
+  const promoCodeId = result.insertId;
+
+  // Link establishments
+  if (data.establishmentIds.length > 0) {
+    await db.insert(promoCodeEstablishments).values(
+      data.establishmentIds.map((estId) => ({
+        promoCodeId,
+        establishmentId: estId,
+        status: "pending" as const,
+      }))
+    );
+  }
+
+  return promoCodeId;
+}
+
+/**
+ * Notify business owners of establishments about a new promo code request.
+ * Returns the list of notified user ids.
+ */
+export async function notifyBusinessesOfPromoRequest(params: {
+  promoCodeId: number;
+  code: string;
+  creatorName: string;
+  creatorType: "specialist" | "critic";
+  establishmentIds: number[];
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  if (params.establishmentIds.length === 0) return [];
+
+  // Find approved business claims for these establishments
+  const claims = await db
+    .select()
+    .from(businessClaims)
+    .where(
+      and(
+        inArray(businessClaims.establishmentId, params.establishmentIds),
+        eq(businessClaims.status, "approved")
+      )
+    );
+
+  if (claims.length === 0) return [];
+
+  const estRows = await db
+    .select({ id: establishments.id, name: establishments.name })
+    .from(establishments)
+    .where(inArray(establishments.id, params.establishmentIds));
+  const estNameById = new Map(estRows.map((e) => [e.id, e.name]));
+
+  const roleLabel = params.creatorType === "critic" ? "Crítico" : "Especialista";
+
+  await db.insert(businessNotifications).values(
+    claims.map((c) => ({
+      userId: c.userId,
+      establishmentId: c.establishmentId,
+      type: "promo_code_request",
+      title: `Novo pedido de código promocional`,
+      message: `${roleLabel} ${params.creatorName} solicitou o código ${params.code} para "${estNameById.get(c.establishmentId) || "seu estabelecimento"}".`,
+      ratingId: params.promoCodeId, // reaproveita campo para referenciar o código
+    }))
+  );
+
+  return claims.map((c) => c.userId);
+}
+
+/**
+ * Get promo code requests for a business user, grouped by status.
+ * Returns entries for all establishments the user has approved claims on.
+ */
+export async function getBusinessPromoCodeRequests(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Establishments this business manages
+  const claims = await db
+    .select()
+    .from(businessClaims)
+    .where(and(eq(businessClaims.userId, userId), eq(businessClaims.status, "approved")));
+  if (claims.length === 0) return [];
+
+  const estIds = claims.map((c) => c.establishmentId);
+
+  const rows = await db
+    .select({
+      linkId: promoCodeEstablishments.id,
+      linkStatus: promoCodeEstablishments.status,
+      respondedAt: promoCodeEstablishments.respondedAt,
+      establishmentId: promoCodeEstablishments.establishmentId,
+      promoCodeId: promoCodes.id,
+      code: promoCodes.code,
+      type: promoCodes.type,
+      value: promoCodes.value,
+      description: promoCodes.description,
+      creatorId: promoCodes.creatorId,
+      creatorType: promoCodes.creatorType,
+      startsAt: promoCodes.startsAt,
+      expiresAt: promoCodes.expiresAt,
+      maxUses: promoCodes.maxUses,
+      firstVisitOnly: promoCodes.firstVisitOnly,
+      codeStatus: promoCodes.status,
+      createdAt: promoCodeEstablishments.createdAt,
+      creatorName: users.name,
+      creatorUsername: users.username,
+      establishmentName: establishments.name,
+    })
+    .from(promoCodeEstablishments)
+    .innerJoin(promoCodes, eq(promoCodes.id, promoCodeEstablishments.promoCodeId))
+    .innerJoin(users, eq(users.id, promoCodes.creatorId))
+    .innerJoin(establishments, eq(establishments.id, promoCodeEstablishments.establishmentId))
+    .where(inArray(promoCodeEstablishments.establishmentId, estIds))
+    .orderBy(desc(promoCodeEstablishments.createdAt));
+
+  return rows;
+}
+
+/**
+ * Business responds to a promo code request (accept or put on hold).
+ * Validates that the user owns the establishment of the link.
+ * Returns info needed for notifying the creator when accepted.
+ */
+export async function respondToPromoCodeRequest(params: {
+  userId: number;
+  linkId: number;
+  action: "accepted" | "on_hold";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Load the link
+  const [link] = await db
+    .select()
+    .from(promoCodeEstablishments)
+    .where(eq(promoCodeEstablishments.id, params.linkId))
+    .limit(1);
+  if (!link) return null;
+
+  // Verify ownership
+  const [claim] = await db
+    .select()
+    .from(businessClaims)
+    .where(
+      and(
+        eq(businessClaims.userId, params.userId),
+        eq(businessClaims.establishmentId, link.establishmentId),
+        eq(businessClaims.status, "approved")
+      )
+    )
+    .limit(1);
+  if (!claim) return null;
+
+  await db
+    .update(promoCodeEstablishments)
+    .set({ status: params.action, respondedAt: Date.now() })
+    .where(eq(promoCodeEstablishments.id, params.linkId));
+
+  // If accepted, activate the promo code (at least one estab accepted)
+  if (params.action === "accepted") {
+    await db
+      .update(promoCodes)
+      .set({ status: "active" })
+      .where(and(eq(promoCodes.id, link.promoCodeId), eq(promoCodes.status, "pending_approval")));
+  }
+
+  // Return data for creator notification
+  const [promo] = await db
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.id, link.promoCodeId))
+    .limit(1);
+  const [est] = await db
+    .select({ id: establishments.id, name: establishments.name })
+    .from(establishments)
+    .where(eq(establishments.id, link.establishmentId))
+    .limit(1);
+
+  return {
+    promoCodeId: link.promoCodeId,
+    creatorId: promo?.creatorId,
+    code: promo?.code,
+    establishmentName: est?.name,
+    action: params.action,
+  };
+}
+
+/**
+ * Get my promo code requests (critic/specialist) with per-establishment status.
+ */
+export async function getMyPromoCodeRequests(creatorId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const rows = await db
+    .select({
+      promoCodeId: promoCodes.id,
+      code: promoCodes.code,
+      type: promoCodes.type,
+      value: promoCodes.value,
+      description: promoCodes.description,
+      codeStatus: promoCodes.status,
+      expiresAt: promoCodes.expiresAt,
+      maxUses: promoCodes.maxUses,
+      createdAt: promoCodes.createdAt,
+      linkId: promoCodeEstablishments.id,
+      linkStatus: promoCodeEstablishments.status,
+      establishmentId: promoCodeEstablishments.establishmentId,
+      establishmentName: establishments.name,
+    })
+    .from(promoCodes)
+    .innerJoin(promoCodeEstablishments, eq(promoCodeEstablishments.promoCodeId, promoCodes.id))
+    .innerJoin(establishments, eq(establishments.id, promoCodeEstablishments.establishmentId))
+    .where(eq(promoCodes.creatorId, creatorId))
+    .orderBy(desc(promoCodes.createdAt));
+
+  return rows;
+}
+
+/**
+ * List active establishments available for promo code selection.
+ */
+export async function getEstablishmentsForPromoSelection() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select({
+      id: establishments.id,
+      name: establishments.name,
+      neighborhood: establishments.neighborhood,
+      image: establishments.image,
+      logo: establishments.logo,
+    })
+    .from(establishments)
+    .where(eq(establishments.status, "active"))
+    .orderBy(establishments.name);
+}

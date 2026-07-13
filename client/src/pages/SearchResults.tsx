@@ -2,7 +2,7 @@
 // Supports: ?q=query, ?bairro=neighborhood, ?tipo=post_type
 // Uses smartSearch (LLM) for natural language queries, standard search for short queries
 import { useState, useMemo } from "react";
-import { Link, useSearch } from "wouter";
+import { Link, useSearch, useLocation } from "wouter";
 import { Search, MapPin, UtensilsCrossed, Star, Loader2, Calendar, Tag, Megaphone, Sparkles, Handshake } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { trpc } from "@/lib/trpc";
@@ -27,12 +27,20 @@ function needsAiInterpretation(query: string): boolean {
   return false;
 }
 
+const searchTypeFilters = [
+  { id: "all", label: "Todos" },
+  { id: "establishments", label: "Estabelecimentos" },
+  { id: "items", label: "Itens" },
+];
+
 export default function SearchResults() {
   const searchString = useSearch();
   const params = useMemo(() => new URLSearchParams(searchString), [searchString]);
   const query = params.get("q") || "";
   const bairro = params.get("bairro") || "";
   const tipo = params.get("tipo") || "";
+  const filtro = params.get("filtro") || "all";
+  const [, navigate] = useLocation();
 
   // Determine if we should use AI search
   const useAi = useMemo(() => needsAiInterpretation(query), [query]);
@@ -63,15 +71,30 @@ export default function SearchResults() {
 
   const isLoading = isSearchLoading || isSmartLoading || isNeighborhoodLoading || isTypeLoading;
 
-  // Determine what to show based on search type
-  const establishments = useAi
+  // Determine what to show based on search type and filter
+  const allEstablishments = useAi
     ? (smartResults?.establishments || [])
     : (searchResults?.establishments || []);
   const menuItemsByName = useAi ? [] : (searchResults?.menuItemsByName || []);
   const menuItemsByDescription = useAi ? [] : (searchResults?.menuItemsByDescription || []);
   const smartMenuItems = useAi ? (smartResults?.menuItems || []) : [];
-  const items = useAi ? smartMenuItems : [...menuItemsByName, ...menuItemsByDescription];
+  const allItems = useAi ? smartMenuItems : [...menuItemsByName, ...menuItemsByDescription];
+
+  // Apply filter
+  const establishments = filtro === "items" ? [] : allEstablishments;
+  const items = filtro === "establishments" ? [] : allItems;
   const totalResults = establishments.length + items.length;
+
+  // Helper to change filter while preserving other params
+  function setFilter(newFilter: string) {
+    const p = new URLSearchParams(searchString);
+    if (newFilter === "all") {
+      p.delete("filtro");
+    } else {
+      p.set("filtro", newFilter);
+    }
+    navigate(`/busca?${p.toString()}`);
+  }
   const isAiPowered = useAi && smartResults?.isAiPowered;
   const aiInterpretation = useAi && smartResults?.interpretation;
 
@@ -92,8 +115,8 @@ export default function SearchResults() {
   if (!query && !bairro && !tipo) {
     return (
       <div className="min-h-screen">
-        <Navbar  />
-        <div className="pt-28 container text-center">
+        <Navbar showSearch />
+        <div className="pt-20 container text-center">
           <Search className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <p className="text-muted-foreground">Digite algo para buscar</p>
         </div>
@@ -103,9 +126,9 @@ export default function SearchResults() {
 
   return (
     <div className="min-h-screen">
-      <Navbar  />
+      <Navbar showSearch />
 
-      <div className="pt-28 pb-24 container">
+      <div className="pt-20 pb-24 container">
         {/* Header */}
         <div className="mb-8">
           {pageSubtitle && (
@@ -119,6 +142,25 @@ export default function SearchResults() {
           <h2 className="font-display text-2xl sm:text-3xl tracking-wider text-primary text-glow-amber break-words">
             {pageTitle}
           </h2>
+
+          {/* Search type filter chips */}
+          {query && !bairro && !tipo && (
+            <div className="flex items-center gap-2 mt-4 flex-wrap">
+              {searchTypeFilters.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilter(f.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                    filtro === f.id
+                      ? "bg-primary/20 border-primary/50 text-primary"
+                      : "bg-secondary/50 border-border/50 text-muted-foreground hover:border-primary/30"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* AI Interpretation Banner */}
           {isAiPowered && aiInterpretation && !isLoading && (

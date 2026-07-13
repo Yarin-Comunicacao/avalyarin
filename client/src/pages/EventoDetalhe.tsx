@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   ArrowLeft, MapPin, Clock, CalendarDays, Users,
-  Check, HelpCircle, X, Loader2, Trash2, ExternalLink
+  Check, HelpCircle, X, Loader2, Trash2, ExternalLink, Vote, Trophy
 } from "lucide-react";
 
 export default function EventoDetalhe() {
@@ -154,6 +154,47 @@ export default function EventoDetalhe() {
             </div>
           )}
 
+          {/* Manual Location */}
+          {!event.establishmentName && event.manualLocationName && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">{event.manualLocationName}</p>
+                {event.manualLocationAddress && (
+                  <p className="text-xs text-muted-foreground">{event.manualLocationAddress}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Voting Mode Indicator */}
+          {event.locationMode === 'voting' && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <Vote className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Votação de local em andamento</p>
+                <p className="text-xs text-muted-foreground">Membros estão votando no local</p>
+              </div>
+            </div>
+          )}
+
+          {/* Decided (after voting) */}
+          {event.locationMode === 'decided' && !event.establishmentName && event.manualLocationName && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">{event.manualLocationName}</p>
+                <p className="text-xs text-green-400">Local definido por votação</p>
+              </div>
+            </div>
+          )}
+
           {/* Capacity */}
           {event.maxGuests && (
             <div className="flex items-center gap-3">
@@ -183,6 +224,11 @@ export default function EventoDetalhe() {
             </div>
           </div>
         </div>
+
+        {/* Location Voting Section */}
+        {event.locationMode === 'voting' && !isPast && !isCancelled && (
+          <LocationVotingSection eventId={eventId} isCreator={isCreator} />
+        )}
 
         {/* RSVP Buttons */}
         {!isPast && !isCancelled && (
@@ -345,6 +391,179 @@ export default function EventoDetalhe() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+
+// ─── Location Voting Section ────────────────────────────────────────────────
+
+function LocationVotingSection({ eventId, isCreator }: { eventId: number; isCreator: boolean }) {
+  const utils = trpc.useUtils();
+  const { user } = useAuth();
+
+  const { data: options, isLoading: optionsLoading } = trpc.events.locationOptions.useQuery(
+    { eventId },
+    { enabled: eventId > 0 }
+  );
+
+  const { data: votes } = trpc.events.locationVotes.useQuery(
+    { eventId },
+    { enabled: eventId > 0 }
+  );
+
+  const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+
+  const voteMutation = trpc.events.voteLocation.useMutation({
+    onSuccess: () => {
+      toast.success("Voto registrado!");
+      utils.events.locationVotes.invalidate({ eventId });
+      utils.events.locationOptions.invalidate({ eventId });
+    },
+    onError: (err) => toast.error(err.message || "Erro ao votar"),
+  });
+
+  const closeVotingMutation = trpc.events.closeVoting.useMutation({
+    onSuccess: () => {
+      toast.success("Votação encerrada! Local definido.");
+      utils.events.getById.invalidate({ eventId });
+      utils.events.locationOptions.invalidate({ eventId });
+    },
+    onError: (err) => toast.error(err.message || "Erro ao encerrar votação"),
+  });
+
+  // Initialize selected options from user's existing votes
+  const myVotes = votes?.filter((v: any) => v.userId === user?.id).map((v: any) => v.optionId) || [];
+
+  const toggleOption = (optId: number) => {
+    setSelectedOptions(prev =>
+      prev.includes(optId) ? prev.filter(id => id !== optId) : [...prev, optId]
+    );
+  };
+
+  const handleVote = () => {
+    if (selectedOptions.length === 0) {
+      toast.error("Selecione ao menos uma opção");
+      return;
+    }
+    voteMutation.mutate({ eventId, optionIds: selectedOptions });
+  };
+
+  if (optionsLoading) {
+    return (
+      <div className="mb-6 flex justify-center py-4">
+        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!options || options.length === 0) return null;
+
+  // Count votes per option
+  const voteCountByOption: Record<number, number> = {};
+  votes?.forEach((v: any) => {
+    voteCountByOption[v.optionId] = (voteCountByOption[v.optionId] || 0) + 1;
+  });
+
+  const totalVoters = new Set(votes?.map((v: any) => v.userId)).size;
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-display text-sm tracking-wider text-muted-foreground flex items-center gap-2">
+          <Vote className="w-4 h-4 text-purple-400" />
+          VOTAÇÃO DE LOCAL
+        </h3>
+        {totalVoters > 0 && (
+          <span className="text-xs text-muted-foreground">{totalVoters} {totalVoters === 1 ? "voto" : "votos"}</span>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        {options.map((opt: any) => {
+          const count = voteCountByOption[opt.id] || 0;
+          const isMyVote = myVotes.includes(opt.id);
+          const isSelected = selectedOptions.includes(opt.id);
+          const displayName = opt.establishment?.name || opt.manualName || "Local";
+          const displayAddress = opt.establishment?.address || opt.manualAddress || "";
+
+          return (
+            <button
+              key={opt.id}
+              onClick={() => toggleOption(opt.id)}
+              className={`w-full text-left p-3 rounded-xl border transition-all ${
+                isSelected
+                  ? "bg-purple-500/10 border-purple-500/40"
+                  : isMyVote
+                    ? "bg-purple-500/5 border-purple-500/20"
+                    : "border-border/50 hover:border-purple-500/30"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                    isSelected
+                      ? "bg-purple-500 border-purple-500"
+                      : "border-border/50"
+                  }`}>
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{displayName}</p>
+                    {displayAddress && (
+                      <p className="text-xs text-muted-foreground">{displayAddress}</p>
+                    )}
+                  </div>
+                </div>
+                {count > 0 && (
+                  <span className="text-xs font-medium text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">
+                    {count}
+                  </span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Vote Button */}
+      <div className="mt-3 flex gap-2">
+        <Button
+          onClick={handleVote}
+          disabled={selectedOptions.length === 0 || voteMutation.isPending}
+          className="flex-1 bg-purple-600 text-white hover:bg-purple-700"
+          size="sm"
+        >
+          {voteMutation.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+          ) : (
+            <Vote className="w-4 h-4 mr-1" />
+          )}
+          Votar
+        </Button>
+
+        {/* Close Voting (creator only) */}
+        {isCreator && (
+          <Button
+            onClick={() => {
+              if (confirm("Encerrar votação? O local mais votado será definido.")) {
+                closeVotingMutation.mutate({ eventId });
+              }
+            }}
+            disabled={closeVotingMutation.isPending}
+            variant="outline"
+            size="sm"
+            className="border-primary/30 text-primary hover:bg-primary/10"
+          >
+            <Trophy className="w-4 h-4 mr-1" />
+            Encerrar
+          </Button>
+        )}
+      </div>
+
+      <p className="text-[11px] text-muted-foreground/60 mt-2">
+        Selecione uma ou mais opções. O criador pode encerrar a votação a qualquer momento.
+      </p>
     </div>
   );
 }
