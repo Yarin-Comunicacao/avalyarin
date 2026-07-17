@@ -28,6 +28,8 @@ export async function createGroup(data: {
   type: "private" | "specialist";
   creatorId: number;
   image?: string;
+  /** When owner/admin views as another role, pass it here to apply that role's limits */
+  effectiveRole?: string | null;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -39,7 +41,15 @@ export async function createGroup(data: {
     throw new Error("PLAN_REQUIRED: Grupos de specialist requerem plano premium");
   }
 
-  // Sem limite de grupos para nenhum plano (removido na Fase 12.5)
+  // Limite de 10 grupos para role "user" (effectiveRole overrides for owner/admin viewing as)
+  const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, data.creatorId)).limit(1);
+  const creatorRole = data.effectiveRole || creator?.role || "user";
+  if (creatorRole === "user") {
+    const groupCount = await countUserGroups(data.creatorId, data.effectiveRole);
+    if (groupCount >= 10) {
+      throw new Error("PLAN_LIMIT: Limite de 10 grupos atingido");
+    }
+  }
 
   // Generate code for new group
   const groupCode = await generateCode('groups');
@@ -52,6 +62,7 @@ export async function createGroup(data: {
     creatorId: data.creatorId,
     image: data.image ?? null,
     memberCount: 1,
+    createdAsRole: data.effectiveRole || creatorRole || "user",
   });
 
   const groupId = result.insertId;
@@ -66,21 +77,42 @@ export async function createGroup(data: {
   return { id: Number(groupId) };
 }
 
-export async function countUserGroups(userId: number): Promise<number> {
+export async function countUserGroups(userId: number, effectiveRole?: string | null): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
+
+  const conditions = [eq(groups.creatorId, userId)];
+  // When owner views as a role, count only groups created under that role
+  if (effectiveRole) {
+    conditions.push(eq(groups.createdAsRole, effectiveRole));
+  }
+
   const [result] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(groups)
-    .where(eq(groups.creatorId, userId));
+    .where(and(...conditions));
   return result?.count ?? 0;
 }
 
-export async function getMyGroups(userId: number) {
+export async function getMyGroups(userId: number, effectiveRole?: string | null) {
   const db = await getDb();
   if (!db) return [];
 
-  // Groups where user is a member (private groups they belong to + specialist groups they created)
+  // Build conditions
+  const conditions = [
+    eq(groupMembers.userId, userId),
+    or(
+      eq(groups.type, "private"),
+      and(eq(groups.type, "specialist"), eq(groups.creatorId, userId))
+    ),
+  ];
+
+  // When owner is viewing as a specific role, only show groups created under that role
+  // For real users (no effectiveRole), show ALL their groups regardless of createdAsRole
+  if (effectiveRole) {
+    conditions.push(eq(groups.createdAsRole, effectiveRole));
+  }
+
   const rows = await db
     .select({
       id: groups.id,
@@ -91,19 +123,12 @@ export async function getMyGroups(userId: number) {
       image: groups.image,
       memberCount: groups.memberCount,
       createdAt: groups.createdAt,
+      createdAsRole: groups.createdAsRole,
       role: groupMembers.role,
     })
     .from(groupMembers)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
-    .where(
-      and(
-        eq(groupMembers.userId, userId),
-        or(
-          eq(groups.type, "private"),
-          and(eq(groups.type, "specialist"), eq(groups.creatorId, userId))
-        )
-      )
-    )
+    .where(and(...conditions))
     .orderBy(desc(groups.createdAt));
 
   return rows;
@@ -189,9 +214,19 @@ export async function deleteGroup(groupId: number) {
 
 // ─── Invites ─────────────────────────────────────────────────────────────────
 
-export async function inviteToGroup(groupId: number, inviterId: number, inviteeId: number) {
+export async function inviteToGroup(groupId: number, inviterId: number, inviteeId: number, effectiveRole?: string | null) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+
+  // Check member limit (70 for user role groups)
+  const [group] = await db.select({ creatorId: groups.creatorId, memberCount: groups.memberCount, type: groups.type }).from(groups).where(eq(groups.id, groupId)).limit(1);
+  if (group && group.type === "private") {
+    const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, group.creatorId)).limit(1);
+    const creatorRole = effectiveRole || creator?.role || "user";
+    if (creatorRole === "user" && (group.memberCount || 0) >= 70) {
+      throw new Error("MEMBER_LIMIT: Limite de convidados atingido, vire um especialista e crie grupos sem limites de usu\u00e1rios");
+    }
+  }
 
   // Check if already a member
   const [existing] = await db
@@ -199,7 +234,7 @@ export async function inviteToGroup(groupId: number, inviterId: number, inviteeI
     .from(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, inviteeId)))
     .limit(1);
-  if (existing) throw new Error("ALREADY_MEMBER: Usuário já é membro deste grupo");
+  if (existing) throw new Error("ALREADY_MEMBER: Usu\u00e1rio j\u00e1 \u00e9 membro deste grupo");
 
   // Check if already invited (pending)
   const [pendingInvite] = await db
@@ -265,6 +300,17 @@ export async function respondToInvite(inviteId: number, userId: number, accept: 
 
   if (!invite) throw new Error("NOT_FOUND: Convite não encontrado");
   if (invite.status !== "pending") throw new Error("ALREADY_RESPONDED: Convite já respondido");
+
+  if (accept) {
+    // Check member limit (70 for user-owned private groups)
+    const [group] = await db.select({ creatorId: groups.creatorId, memberCount: groups.memberCount, type: groups.type }).from(groups).where(eq(groups.id, invite.groupId)).limit(1);
+    if (group && group.type === "private") {
+      const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, group.creatorId)).limit(1);
+      if (creator?.role === "user" && (group.memberCount || 0) >= 70) {
+        throw new Error("MEMBER_LIMIT: Limite de convidados atingido neste grupo");
+      }
+    }
+  }
 
   await db
     .update(groupInvites)
@@ -403,10 +449,49 @@ export async function searchUsersByUsername(query: string, excludeUserId?: numbe
       id: users.id,
       name: users.name,
       username: users.username,
+      role: users.role,
     })
     .from(users)
     .where(and(...conditions))
     .limit(10);
+}
+
+// Search people by name or username, filtered by role (user/critic/specialist)
+export async function searchPeople(query: string, roleFilter?: string, excludeUserId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const lowerQuery = query.toLowerCase();
+  const searchTerm = `%${lowerQuery}%`;
+  const conditions: any[] = [
+    or(
+      sql`LOWER(${users.username}) LIKE ${searchTerm}`,
+      sql`LOWER(${users.name}) LIKE ${searchTerm}`
+    ),
+  ];
+  if (excludeUserId) {
+    conditions.push(sql`${users.id} != ${excludeUserId}`);
+  }
+  if (roleFilter && roleFilter !== "all") {
+    if (roleFilter === "professional") {
+      // "professional" = critic + specialist
+      conditions.push(sql`${users.role} IN ('critic', 'specialist')`);
+    } else {
+      conditions.push(sql`${users.role} = ${roleFilter}`);
+    }
+  } else {
+    // Only show user, critic, specialist (not admin, support, owner, business)
+    conditions.push(sql`${users.role} IN ('user', 'critic', 'specialist')`);
+  }
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      username: users.username,
+      role: users.role,
+    })
+    .from(users)
+    .where(and(...conditions))
+    .limit(15);
 }
 
 // ─── Discover Specialist Groups ──────────────────────────────────────────────
@@ -464,4 +549,37 @@ export async function removeMemberFromGroup(groupId: number, userId: number) {
     .update(groups)
     .set({ memberCount: sql`GREATEST(${groups.memberCount} - 1, 0)` })
     .where(eq(groups.id, groupId));
+}
+
+// ─── Search Groups (by name or creator username) ────────────────────────────
+
+export async function searchGroups(query: string, limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  const lowerQuery = query.toLowerCase();
+  const searchTerm = `%${lowerQuery}%`;
+  
+  // Search groups by name OR by creator username (case-insensitive)
+  const rows = await db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      type: groups.type,
+      memberCount: groups.memberCount,
+      creatorName: users.name,
+      creatorUsername: users.username,
+    })
+    .from(groups)
+    .innerJoin(users, eq(groups.creatorId, users.id))
+    .where(
+      or(
+        sql`LOWER(${groups.name}) LIKE ${searchTerm}`,
+        sql`LOWER(${users.username}) LIKE ${searchTerm}`
+      )
+    )
+    .orderBy(desc(groups.memberCount))
+    .limit(limit);
+
+  return rows;
 }

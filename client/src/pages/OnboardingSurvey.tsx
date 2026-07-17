@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 
 export interface SurveyAnswer {
   birthdate: string; // ISO date YYYY-MM-DD
+  role?: string; // "yes" = dono, "no" = consumidor
   region: string;
   frequency: string;
   avgSpend: string;
@@ -40,6 +41,24 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   Store: <Store className="w-6 h-6" />,
   Search: <Search className="w-6 h-6" />,
 };
+
+/**
+ * Safely parse options from DB — handles string, array, null, or unexpected formats.
+ * Ensures options is always a valid array of { label, value }.
+ */
+function parseOptions(raw: unknown): { label: string; value: string }[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 interface OnboardingSurveyProps {
   onComplete: (answers: SurveyAnswer) => void;
@@ -86,7 +105,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       subtitle: string;
       type: "single" | "multi" | "birthdate" | "score" | "text" | "establishment";
       maxSelect?: number;
-      options: { label: string; value: string }[];
+      options: { label: string; value: string; endsSurvey?: boolean }[];
       parentQuestionId?: number | null;
       triggerOption?: string | null;
     }> = [];
@@ -100,7 +119,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
         subtitle: (q.subtitle as string) || "",
         type: q.type as any,
         maxSelect: q.maxSelect || undefined,
-        options: (q.options as { label: string; value: string }[] | null) || [],
+        options: parseOptions(q.options) as any,
         parentQuestionId: null,
         triggerOption: null,
       });
@@ -115,7 +134,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           subtitle: (child.subtitle as string) || "",
           type: child.type as any,
           maxSelect: child.maxSelect || undefined,
-          options: (child.options as { label: string; value: string }[] | null) || [],
+          options: parseOptions(child.options) as any,
           parentQuestionId: child.parentQuestionId,
           triggerOption: child.triggerOption,
         });
@@ -124,21 +143,84 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     return result;
   }, [dbQuestions]);
 
-  // Filter visible questions based on conditional logic (answers determine which children show)
+  // Fetch skip rules from database (dynamic conditional logic)
+  const { data: skipRules } = trpc.survey.skipRules.useQuery(
+    { phase: "onboarding" },
+    { staleTime: 60000 }
+  );
+
+  // Filter visible questions based on endsSurvey flag in options + skip rules + conditional child logic
   const VISIBLE_QUESTIONS = useMemo(() => {
-    return QUESTIONS.filter(q => {
-      // Main questions always visible
-      if (!q.parentQuestionId || !q.triggerOption) return true;
-      // Find parent question's ID (questionId string) by dbId
-      const parent = QUESTIONS.find(p => p.dbId === q.parentQuestionId);
-      if (!parent) return false;
-      // Check if user's answer to parent matches the trigger
-      const parentAnswer = answers[parent.id];
-      if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
-      if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
-      return false;
+    // Build set of questionIds to skip based on active rules from DB
+    const skipSet = new Set<string>();
+    if (skipRules) {
+      for (const rule of skipRules) {
+        const userAnswer = answers[rule.triggerQuestionId];
+        const triggerMatched =
+          (typeof userAnswer === "string" && userAnswer === rule.triggerValue) ||
+          (Array.isArray(userAnswer) && userAnswer.includes(rule.triggerValue));
+        if (triggerMatched) {
+          const ids: string[] = typeof rule.skipQuestionIds === "string"
+            ? JSON.parse(rule.skipQuestionIds)
+            : rule.skipQuestionIds || [];
+          ids.forEach(id => skipSet.add(id));
+        }
+      }
+    }
+
+    // Check if any answered question has an option with endsSurvey=true selected
+    // If so, skip all questions that come AFTER it (except child questions triggered by it)
+    let endsSurveyAfterIndex = -1;
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      const q = QUESTIONS[i];
+      const userAnswer = answers[q.id];
+      if (!userAnswer) continue;
+      const hasEndOption = q.options.some(opt => {
+        if (!opt.endsSurvey) return false;
+        if (typeof userAnswer === "string") return userAnswer === opt.value;
+        if (Array.isArray(userAnswer)) return userAnswer.includes(opt.value);
+        return false;
+      });
+      if (hasEndOption) {
+        endsSurveyAfterIndex = i;
+        break;
+      }
+    }
+
+    return QUESTIONS.filter((q, idx) => {
+      // Skip questions matched by active rules
+      if (skipSet.has(q.id)) {
+        return false;
+      }
+
+      // If endsSurvey was triggered, only show questions up to and including the trigger,
+      // plus any child questions of the trigger question
+      if (endsSurveyAfterIndex >= 0 && idx > endsSurveyAfterIndex) {
+        // Allow child questions of the trigger question
+        const triggerQ = QUESTIONS[endsSurveyAfterIndex];
+        if (q.parentQuestionId === triggerQ.dbId) {
+          // Show child if parent answer matches trigger
+          const parentAnswer = answers[triggerQ.id];
+          if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+          if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption!);
+        }
+        return false;
+      }
+
+      // Child questions: show only if parent answer matches trigger
+      if (q.parentQuestionId && q.triggerOption) {
+        const parent = QUESTIONS.find(p => p.dbId === q.parentQuestionId);
+        if (!parent) return false;
+        const parentAnswer = answers[parent.id];
+        if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+        if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
+        return false;
+      }
+
+      // Main questions always visible (unless filtered above)
+      return true;
     });
-  }, [QUESTIONS, answers]);
+  }, [QUESTIONS, answers, skipRules]);
 
   // Total steps = VISIBLE_QUESTIONS + 1 (location step)
   const TOTAL_STEPS = VISIBLE_QUESTIONS.length + 1;
@@ -233,6 +315,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
       const estabId = estabQuestion ? (answers[estabQuestion.id] as string) : undefined;
       const surveyAnswers: SurveyAnswer = {
         birthdate: (answers.birthdate as string) || "",
+        role: (answers.role as string) || undefined,
         region: (answers.region as string) || "",
         frequency: (answers.frequency as string) || "",
         avgSpend: (answers.spend as string) || "",
@@ -355,7 +438,7 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
+                src="/storage/avalyarin-icon-green-Wax4Z5TjBNDkcesjXd93cC.webp"
                 alt="AvaLyarin"
                 className="w-full h-full object-contain"
               />

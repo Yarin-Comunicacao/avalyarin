@@ -8,7 +8,8 @@ import { toast } from "sonner";
 import {
   BarChart3, Users, Store, Star, ClipboardCheck, ArrowLeft,
   CheckCircle, XCircle, Clock, Shield, Crown, User as UserIcon, FileCheck,
-  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink, Newspaper, Loader2
+  Code, Download, RefreshCw, FileCode, BookOpen, Tag as TagIcon, TrendingUp, Activity, Plug, Eye, EyeOff, Save, Trash2, ExternalLink, Newspaper, Loader2,
+  Plus, Pencil, Sparkles, CreditCard, Percent, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -1794,13 +1795,289 @@ function CriticsTab() {
 
 
 function PlanosTab() {
+  const { data: plansData, isLoading, refetch } = trpc.plans.adminListPlans.useQuery();
+  const { data: promosData, refetch: refetchPromos } = trpc.plans.adminListPromos.useQuery();
+  const createPlan = trpc.plans.adminCreatePlan.useMutation({ onSuccess: () => { refetch(); toast.success("Plano criado!"); setShowPlanForm(false); } });
+  const updatePlan = trpc.plans.adminUpdatePlan.useMutation({ onSuccess: () => { refetch(); toast.success("Plano atualizado!"); setEditingPlan(null); } });
+  const deletePlan = trpc.plans.adminDeletePlan.useMutation({ onSuccess: () => { refetch(); toast.success("Plano removido!"); } });
+  const createPromo = trpc.plans.adminCreatePromo.useMutation({ onSuccess: () => { refetchPromos(); toast.success("Código criado!"); setShowPromoForm(false); } });
+  const deletePromo = trpc.plans.adminDeletePromo.useMutation({ onSuccess: () => { refetchPromos(); toast.success("Código removido!"); } });
+
+  const [showPlanForm, setShowPlanForm] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [showPromoForm, setShowPromoForm] = useState(false);
+
+  // Plan form state
+  const [planName, setPlanName] = useState("");
+  const [planDesc, setPlanDesc] = useState("");
+  const [planPrice, setPlanPrice] = useState("");
+  const [planFeatures, setPlanFeatures] = useState("");
+  const [planHighlighted, setPlanHighlighted] = useState(false);
+  const [planMaxRatings, setPlanMaxRatings] = useState("3");
+
+  // Promo form state
+  const [promoCode, setPromoCode] = useState("");
+  const [promoType, setPromoType] = useState<"percentage" | "fixed">("percentage");
+  const [promoValue, setPromoValue] = useState("");
+  const [promoDesc, setPromoDesc] = useState("");
+  const [promoPlanId, setPromoPlanId] = useState<string>("");
+  const [promoMaxUses, setPromoMaxUses] = useState("");
+  const [promoValidUntil, setPromoValidUntil] = useState("");
+
+  const resetPlanForm = () => {
+    setPlanName(""); setPlanDesc(""); setPlanPrice(""); setPlanFeatures(""); setPlanHighlighted(false); setPlanMaxRatings("3");
+  };
+
+  const resetPromoForm = () => {
+    setPromoCode(""); setPromoType("percentage"); setPromoValue(""); setPromoDesc(""); setPromoPlanId(""); setPromoMaxUses(""); setPromoValidUntil("");
+  };
+
+  const handleCreatePlan = () => {
+    createPlan.mutate({
+      name: planName,
+      description: planDesc || undefined,
+      price: parseFloat(planPrice) || 0,
+      features: planFeatures.split("\n").filter(f => f.trim()),
+      highlighted: planHighlighted,
+      maxRatingsPerDay: parseInt(planMaxRatings) || 3,
+      sortOrder: (plansData?.length || 0),
+    });
+    resetPlanForm();
+  };
+
+  const handleUpdatePlan = () => {
+    if (!editingPlan) return;
+    updatePlan.mutate({
+      id: editingPlan.id,
+      name: planName,
+      description: planDesc || undefined,
+      price: parseFloat(planPrice) || 0,
+      features: planFeatures.split("\n").filter(f => f.trim()),
+      highlighted: planHighlighted,
+      maxRatingsPerDay: parseInt(planMaxRatings) || 3,
+    });
+    resetPlanForm();
+  };
+
+  const startEdit = (plan: any) => {
+    setEditingPlan(plan);
+    setPlanName(plan.name);
+    setPlanDesc(plan.description || "");
+    setPlanPrice(String(plan.price));
+    setPlanFeatures((plan.features || []).join("\n"));
+    setPlanHighlighted(plan.highlighted);
+    setPlanMaxRatings(String(plan.maxRatingsPerDay));
+  };
+
+  const handleCreatePromo = () => {
+    createPromo.mutate({
+      code: promoCode,
+      discountType: promoType,
+      discountValue: parseFloat(promoValue) || 0,
+      description: promoDesc || undefined,
+      planId: promoPlanId ? parseInt(promoPlanId) : null,
+      maxUses: promoMaxUses ? parseInt(promoMaxUses) : null,
+      validUntil: promoValidUntil || null,
+    });
+    resetPromoForm();
+  };
+
+  if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+
   return (
-    <div>
-      <h2 className="font-display text-2xl tracking-wider text-foreground mb-6">PLANOS</h2>
-      <div className="p-8 rounded-xl bg-card border border-border/50 text-center">
-        <TagIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <p className="text-muted-foreground">Gerenciamento de planos de assinatura.</p>
-        <p className="text-xs text-muted-foreground/60 mt-2">Em breve: configuração de planos Free, Premium e Pro.</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl tracking-wider text-foreground">PLANOS</h2>
+        <Button onClick={() => { resetPlanForm(); setEditingPlan(null); setShowPlanForm(true); }} className="gap-2">
+          <Plus className="w-4 h-4" /> Novo Plano
+        </Button>
+      </div>
+
+      {/* Plan Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {plansData?.map((plan: any) => (
+          <div key={plan.id} className={`relative p-6 rounded-xl border transition-all ${
+            plan.highlighted ? 'border-primary/60 bg-primary/5 ring-1 ring-primary/20' : 'border-border/50 bg-card'
+          } ${!plan.active ? 'opacity-50' : ''}`}>
+            {plan.highlighted && (
+              <div className="absolute -top-3 left-4 px-3 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> DESTAQUE
+              </div>
+            )}
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-display text-lg tracking-wider text-foreground">{plan.name}</h3>
+                {!plan.active && <span className="text-xs text-red-400">(Inativo)</span>}
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => startEdit(plan)} className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors">
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button onClick={() => { if (confirm(`Excluir plano "${plan.name}"?`)) deletePlan.mutate({ id: plan.id }); }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="mb-3">
+              <span className="text-3xl font-bold text-primary">R$ {plan.price.toFixed(2).replace('.', ',')}</span>
+              <span className="text-sm text-muted-foreground">/mês</span>
+            </div>
+            {plan.description && <p className="text-sm text-muted-foreground mb-3">{plan.description}</p>}
+            <div className="space-y-1.5 mb-3">
+              {(plan.features || []).map((f: string, i: number) => (
+                <div key={i} className="flex items-center gap-2 text-sm text-foreground/80">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" />
+                  <span>{f}</span>
+                </div>
+              ))}
+            </div>
+            <div className="pt-3 border-t border-border/30">
+              <p className="text-xs text-muted-foreground">Máx. {plan.maxRatingsPerDay} avaliações/dia</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Plan Form (Create/Edit) */}
+      {(showPlanForm || editingPlan) && (
+        <div className="p-6 rounded-xl bg-card border border-primary/30 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg tracking-wider text-primary">
+              {editingPlan ? 'EDITAR PLANO' : 'NOVO PLANO'}
+            </h3>
+            <button onClick={() => { setShowPlanForm(false); setEditingPlan(null); resetPlanForm(); }} className="p-1 text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Nome do Plano</label>
+              <input value={planName} onChange={e => setPlanName(e.target.value)} placeholder="Ex: Premium" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Preço (R$/mês)</label>
+              <input value={planPrice} onChange={e => setPlanPrice(e.target.value)} type="number" step="0.01" placeholder="9.90" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Máx. Avaliações/Dia</label>
+              <input value={planMaxRatings} onChange={e => setPlanMaxRatings(e.target.value)} type="number" placeholder="3" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+            </div>
+            <div className="flex items-center gap-2 pt-5">
+              <input type="checkbox" checked={planHighlighted} onChange={e => setPlanHighlighted(e.target.checked)} id="highlighted" className="rounded" />
+              <label htmlFor="highlighted" className="text-sm text-foreground">Plano em destaque</label>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Descrição</label>
+            <input value={planDesc} onChange={e => setPlanDesc(e.target.value)} placeholder="Descrição curta do plano" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Benefícios (um por linha)</label>
+            <textarea value={planFeatures} onChange={e => setPlanFeatures(e.target.value)} rows={4} placeholder={"Até 5 avaliações por dia\nDouble no primeiro pedido\nDescontos exclusivos"} className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm resize-none" />
+          </div>
+          <div className="flex gap-3">
+            <Button onClick={editingPlan ? handleUpdatePlan : handleCreatePlan} disabled={!planName || !planPrice} className="gap-2">
+              <Save className="w-4 h-4" /> {editingPlan ? 'Salvar Alterações' : 'Criar Plano'}
+            </Button>
+            <Button variant="outline" onClick={() => { setShowPlanForm(false); setEditingPlan(null); resetPlanForm(); }}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Promo Codes Section */}
+      <div className="pt-6 border-t border-border/30">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Percent className="w-5 h-5 text-primary" />
+            <h3 className="font-display text-xl tracking-wider text-foreground">CÓDIGOS PROMOCIONAIS</h3>
+          </div>
+          <Button variant="outline" onClick={() => { resetPromoForm(); setShowPromoForm(true); }} className="gap-2" size="sm">
+            <Plus className="w-4 h-4" /> Novo Código
+          </Button>
+        </div>
+
+        {/* Promo list */}
+        {promosData && promosData.length > 0 ? (
+          <div className="space-y-2">
+            {promosData.map((promo: any) => (
+              <div key={promo.id} className={`flex items-center justify-between p-4 rounded-lg border ${promo.active ? 'border-border/50 bg-card' : 'border-border/30 bg-card/50 opacity-60'}`}>
+                <div className="flex items-center gap-4">
+                  <code className="px-3 py-1 rounded bg-primary/10 text-primary font-mono font-bold text-sm">{promo.code}</code>
+                  <span className="text-sm text-foreground">
+                    {promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `R$ ${promo.discountValue.toFixed(2)} OFF`}
+                  </span>
+                  {promo.description && <span className="text-xs text-muted-foreground">— {promo.description}</span>}
+                  {promo.maxUses && <span className="text-xs text-muted-foreground">({promo.currentUses}/{promo.maxUses} usos)</span>}
+                  {promo.validUntil && <span className="text-xs text-muted-foreground">até {new Date(promo.validUntil).toLocaleDateString('pt-BR')}</span>}
+                </div>
+                <button onClick={() => { if (confirm(`Excluir código "${promo.code}"?`)) deletePromo.mutate({ id: promo.id }); }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-4">Nenhum código promocional cadastrado.</p>
+        )}
+
+        {/* Promo Form */}
+        {showPromoForm && (
+          <div className="mt-4 p-6 rounded-xl bg-card border border-primary/30 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-display text-lg tracking-wider text-primary">NOVO CÓDIGO</h4>
+              <button onClick={() => { setShowPromoForm(false); resetPromoForm(); }} className="p-1 text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Código</label>
+                <input value={promoCode} onChange={e => setPromoCode(e.target.value.toUpperCase())} placeholder="YARIN20" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm font-mono" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Tipo de Desconto</label>
+                <select value={promoType} onChange={e => setPromoType(e.target.value as any)} className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm">
+                  <option value="percentage">Percentual (%)</option>
+                  <option value="fixed">Valor Fixo (R$)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Valor do Desconto</label>
+                <input value={promoValue} onChange={e => setPromoValue(e.target.value)} type="number" step="0.01" placeholder={promoType === 'percentage' ? '20' : '5.00'} className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Plano (opcional)</label>
+                <select value={promoPlanId} onChange={e => setPromoPlanId(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm">
+                  <option value="">Todos os planos</option>
+                  {plansData?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Máx. Usos (vazio = ilimitado)</label>
+                <input value={promoMaxUses} onChange={e => setPromoMaxUses(e.target.value)} type="number" placeholder="100" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Válido até</label>
+                <input value={promoValidUntil} onChange={e => setPromoValidUntil(e.target.value)} type="date" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Descrição (opcional)</label>
+              <input value={promoDesc} onChange={e => setPromoDesc(e.target.value)} placeholder="Desconto de lançamento" className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm" />
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={handleCreatePromo} disabled={!promoCode || !promoValue} className="gap-2">
+                <Save className="w-4 h-4" /> Criar Código
+              </Button>
+              <Button variant="outline" onClick={() => { setShowPromoForm(false); resetPromoForm(); }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

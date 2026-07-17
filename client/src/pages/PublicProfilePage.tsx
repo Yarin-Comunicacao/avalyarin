@@ -2,7 +2,8 @@ import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image, Clock, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
 import { FourPointStar } from "@/components/FourPointStar";
 import PhotoGrid from "@/components/PhotoGrid";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -179,9 +180,34 @@ export default function PublicProfilePage() {
                   <UserCheck className="w-3.5 h-3.5" />
                   Seguindo
                 </button>
+              ) : followStatus?.pending ? (
+                <button
+                  onClick={() => {
+                    unfollowMutation.mutate({ userId: profile.id });
+                    toast("Solicitação cancelada");
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-muted-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  Pendente
+                </button>
               ) : (
                 <button
-                  onClick={() => followMutation.mutate({ userId: profile.id })}
+                  onClick={() => {
+                    // Show privacy alert for regular users
+                    const isPublicProfile = profile.role === "critic" || profile.role === "specialist";
+                    if (!isPublicProfile) {
+                      toast(
+                        "Solicitação de seguir enviada",
+                        {
+                          description: "Por segurança, o usuário precisa aceitar sua solicitação. Dados de localização e lugares frequentados são informações pessoais protegidas.",
+                          icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
+                          duration: 5000,
+                        }
+                      );
+                    }
+                    followMutation.mutate({ userId: profile.id });
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
@@ -200,33 +226,7 @@ export default function PublicProfilePage() {
           )}
 
           {/* Share profile button */}
-          <div className="mt-3">
-            <ShareToGroup
-              type="share_profile"
-              referenceSlug={`perfil/${profile.username}`}
-              label="Compartilhar perfil"
-            />
-          </div>
 
-          {/* Connect Yarin link */}
-          {connectYarinUrl && (
-            <a
-              href={connectYarinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 text-xs text-muted-foreground hover:text-primary transition-colors underline"
-            >
-              Ver links no Connect Yarin
-            </a>
-          )}
-
-          {/* Member since */}
-          {profile.createdAt && (
-            <p className="mt-3 text-xs text-muted-foreground flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              Membro desde {format(new Date(profile.createdAt), "MMMM 'de' yyyy", { locale: ptBR })}
-            </p>
-          )}
         </div>
 
         {/* Nobility badges */}

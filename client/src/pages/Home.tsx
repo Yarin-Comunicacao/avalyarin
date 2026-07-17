@@ -114,7 +114,7 @@ export default function Home() {
       <Navbar  />
 
       {/* Hero Section — text only, background comes from body::before */}
-      <section className="relative pt-32 pb-24">
+      <section className="relative pt-20 pb-24">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 40 }}

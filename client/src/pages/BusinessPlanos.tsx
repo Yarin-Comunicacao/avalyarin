@@ -73,10 +73,10 @@ export default function BusinessPlanos() {
     upgradeMutation.mutate({ plan: upgradeDialog.plan as "premium" | "embaixador" });
   };
 
-  const businessPlans = planOptions?.business ?? [
-    { id: "free", name: "Básico", price: 0, period: "", features: ["Perfil do estabelecimento", "Receber avaliações", "Visualizar métricas básicas"] },
+  // Filtrar plano Free — todos já começam nele, não precisa exibir
+  const businessPlans = (planOptions?.business ?? [
     { id: "premium", name: "Profissional", price: 49.9, period: "/mês", features: ["Tudo do Básico", "Promoções e destaques", "Suporte prioritário", "Dashboard avançado", "Códigos promocionais ilimitados", "Parcerias com especialistas"] },
-  ];
+  ]).filter((p: any) => p.price > 0);
 
   return (
     <div className="min-h-screen">

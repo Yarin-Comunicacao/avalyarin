@@ -7,6 +7,8 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  /** The effective role for limit calculations (owner/admin viewing as another role) */
+  effectiveRole: string | null;
 };
 
 export async function createContext(
@@ -36,9 +38,19 @@ export async function createContext(
     user = null;
   }
 
+  // Owner/admin can simulate another role's limits via x-viewing-as header
+  let effectiveRole: string | null = null;
+  if (user && (user.role === "owner" || user.role === "admin")) {
+    const viewingAs = opts.req.headers["x-viewing-as"] as string | undefined;
+    if (viewingAs && viewingAs !== user.role) {
+      effectiveRole = viewingAs;
+    }
+  }
+
   return {
     req: opts.req,
     res: opts.res,
     user,
+    effectiveRole,
   };
 }

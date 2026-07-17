@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { MapView } from "@/components/Map";
 import { trpc } from "@/lib/trpc";
-import { Loader2, MapPin, Star, Navigation } from "lucide-react";
+import { Loader2, MapPin, Star } from "lucide-react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 
@@ -20,6 +20,43 @@ const CATEGORY_COLORS: Record<string, string> = {
   "baladas": "#ec4899",
 };
 
+// Category display names for legend
+const CATEGORY_LABELS: Record<string, string> = {
+  "bares-tradicionais": "Bares Tradicionais",
+  "gastronomia": "Gastronomia",
+  "cafes-e-doces": "Cafés e Doces",
+  "natural": "Natural",
+  "veg-vegan": "Veg / Vegan",
+  "vegetariano": "Vegetariano",
+  "baladas": "Baladas",
+  "bar-de-cervejas-artesanais": "Cervejas Artesanais",
+};
+
+// Map styles to hide Google's native POIs (restaurants, shops, etc.)
+// This ensures only OUR markers are visible
+const MAP_STYLES: google.maps.MapTypeStyle[] = [
+  {
+    featureType: "poi",
+    elementType: "all",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ visibility: "on" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "labels.icon",
+    stylers: [{ visibility: "off" }],
+  },
+];
+
 function getMarkerColor(categorySlug: string): string {
   return CATEGORY_COLORS[categorySlug] || "#f59e0b";
 }
@@ -27,6 +64,7 @@ function getMarkerColor(categorySlug: string): string {
 export default function MapaPage() {
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [mapReady, setMapReady] = useState(false);
   const [selectedEst, setSelectedEst] = useState<{
     id: number;
     name: string;
@@ -44,12 +82,8 @@ export default function MapaPage() {
 
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
-
-    // Add markers once data is ready
-    if (establishments && establishments.length > 0) {
-      addMarkers(map, establishments);
-    }
-  }, [establishments]);
+    setMapReady(true);
+  }, []);
 
   // Add markers to map
   const addMarkers = useCallback((map: google.maps.Map, ests: NonNullable<typeof establishments>) => {
@@ -89,16 +123,16 @@ export default function MapaPage() {
     }
   }, []);
 
-  // When data loads after map is ready, add markers
-  const prevDataRef = useRef<typeof establishments>(null);
-  if (establishments && establishments !== prevDataRef.current && mapRef.current) {
-    prevDataRef.current = establishments;
-    addMarkers(mapRef.current, establishments);
-  }
+  // Effect: add markers when BOTH map is ready AND data is loaded
+  useEffect(() => {
+    if (mapReady && mapRef.current && establishments && establishments.length > 0) {
+      addMarkers(mapRef.current, establishments);
+    }
+  }, [mapReady, establishments, addMarkers]);
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar  />
+      <Navbar />
 
       <div className="relative w-full" style={{ height: "calc(100vh - 64px - 64px)" }}>
         {isLoading && (
@@ -112,6 +146,7 @@ export default function MapaPage() {
           initialCenter={SP_CENTER}
           initialZoom={14}
           onMapReady={handleMapReady}
+          styles={MAP_STYLES}
         />
 
         {/* Info card for selected establishment */}
@@ -170,8 +205,8 @@ export default function MapaPage() {
           {Object.entries(CATEGORY_COLORS).map(([slug, color]) => (
             <div key={slug} className="flex items-center gap-1.5 mb-0.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-muted-foreground capitalize">
-                {slug.replace(/-/g, " ").replace("de ", "").replace("e ", "")}
+              <span className="text-muted-foreground">
+                {CATEGORY_LABELS[slug] || slug.replace(/-/g, " ")}
               </span>
             </div>
           ))}

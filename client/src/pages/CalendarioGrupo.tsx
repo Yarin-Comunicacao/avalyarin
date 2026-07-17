@@ -7,10 +7,17 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   ArrowLeft, Plus, ChevronLeft, ChevronRight, CalendarDays,
-  MapPin, Clock, Users, Check, HelpCircle, X, Loader2, Search
+  MapPin, Clock, Users, Check, HelpCircle, X, Loader2, Search, Vote, Navigation
 } from "lucide-react";
 
-// ─── Create Event Modal ──────────────────────────────────────────────────────
+// ─── Create Event Modal (com suporte a local definido/manual e votação) ────────
+
+type LocationOption = {
+  type: "establishment" | "manual";
+  establishmentId?: number;
+  name: string;
+  address?: string;
+};
 
 function CreateEventModal({
   groupId,
@@ -27,6 +34,19 @@ function CreateEventModal({
   const [estabSearch, setEstabSearch] = useState("");
   const [selectedEstab, setSelectedEstab] = useState<{ id: number; name: string } | null>(null);
 
+  // Novo: modo de local
+  const [locationMode, setLocationMode] = useState<"defined" | "voting">("defined");
+  const [locationType, setLocationType] = useState<"establishment" | "manual">("establishment");
+  const [manualName, setManualName] = useState("");
+  const [manualAddress, setManualAddress] = useState("");
+
+  // Votação: opções de local (2-5)
+  const [votingOptions, setVotingOptions] = useState<LocationOption[]>([
+    { type: "establishment", name: "" },
+    { type: "establishment", name: "" },
+  ]);
+  const [votingOptionSearch, setVotingOptionSearch] = useState<string[]>(["", ""]);
+
   const utils = trpc.useUtils();
 
   // Search establishments
@@ -35,10 +55,18 @@ function CreateEventModal({
     { enabled: estabSearch.length >= 2 }
   );
 
-  const createMutation = trpc.events.create.useMutation({
+  // Search for voting options
+  const [activeVotingSearch, setActiveVotingSearch] = useState(-1);
+  const { data: votingSearchResults } = trpc.establishments.search.useQuery(
+    { query: votingOptionSearch[activeVotingSearch] || "" },
+    { enabled: activeVotingSearch >= 0 && (votingOptionSearch[activeVotingSearch]?.length ?? 0) >= 2 }
+  );
+
+  const createMutation = trpc.events.createWithLocation.useMutation({
     onSuccess: () => {
       toast.success("Evento criado com sucesso!");
       utils.events.listByGroup.invalidate();
+      utils.events.myEvents.invalidate();
       onClose();
     },
     onError: (err) => {
@@ -47,16 +75,66 @@ function CreateEventModal({
   });
 
   const handleSubmit = () => {
-    if (!selectedEstab || !title.trim() || !eventDate) return;
+    if (!title.trim() || !eventDate) return;
     const dateTime = new Date(`${eventDate}T${eventTime}:00`);
-    createMutation.mutate({
-      groupId,
-      establishmentId: selectedEstab.id,
-      title: title.trim(),
-      description: description.trim() || undefined,
-      eventDate: dateTime.toISOString(),
-      maxGuests: maxGuests ? parseInt(maxGuests) : undefined,
-    });
+
+    if (locationMode === "defined") {
+      if (locationType === "establishment" && !selectedEstab) return;
+      if (locationType === "manual" && !manualName.trim()) return;
+
+      createMutation.mutate({
+        groupId,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        eventDate: dateTime.toISOString(),
+        maxGuests: maxGuests ? parseInt(maxGuests) : undefined,
+        locationMode: "defined",
+        establishmentId: locationType === "establishment" ? selectedEstab?.id : undefined,
+        manualLocationName: locationType === "manual" ? manualName.trim() : undefined,
+        manualLocationAddress: locationType === "manual" ? manualAddress.trim() || undefined : undefined,
+      });
+    } else {
+      // Votação
+      const validOptions = votingOptions.filter(o => o.name.trim());
+      if (validOptions.length < 2) {
+        toast.error("Adicione ao menos 2 opções de local para votação.");
+        return;
+      }
+      createMutation.mutate({
+        groupId,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        eventDate: dateTime.toISOString(),
+        maxGuests: maxGuests ? parseInt(maxGuests) : undefined,
+        locationMode: "voting",
+        locationOptions: validOptions.map(o => ({
+          establishmentId: o.type === "establishment" ? o.establishmentId : undefined,
+          manualName: o.type === "manual" ? o.name : undefined,
+          manualAddress: o.type === "manual" ? o.address : undefined,
+        })),
+      });
+    }
+  };
+
+  const addVotingOption = () => {
+    if (votingOptions.length >= 5) return;
+    setVotingOptions([...votingOptions, { type: "establishment", name: "" }]);
+    setVotingOptionSearch([...votingOptionSearch, ""]);
+  };
+
+  const removeVotingOption = (idx: number) => {
+    if (votingOptions.length <= 2) return;
+    setVotingOptions(votingOptions.filter((_, i) => i !== idx));
+    setVotingOptionSearch(votingOptionSearch.filter((_, i) => i !== idx));
+  };
+
+  const canSubmit = () => {
+    if (!title.trim() || !eventDate) return false;
+    if (locationMode === "defined") {
+      if (locationType === "establishment") return !!selectedEstab;
+      return !!manualName.trim();
+    }
+    return votingOptions.filter(o => o.name.trim()).length >= 2;
   };
 
   return (
@@ -82,49 +160,227 @@ function CreateEventModal({
           />
         </div>
 
-        {/* Establishment Search */}
+        {/* Location Mode Toggle */}
         <div className="mb-4">
-          <label className="text-sm text-muted-foreground mb-1 block">Local (estabelecimento)</label>
-          {selectedEstab ? (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span className="text-sm text-foreground">{selectedEstab.name}</span>
-              </div>
-              <button onClick={() => setSelectedEstab(null)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
+          <label className="text-sm text-muted-foreground mb-2 block">Como definir o local?</label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLocationMode("defined")}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                locationMode === "defined"
+                  ? "bg-primary/20 text-primary border border-primary/40"
+                  : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+              }`}
+            >
+              <Navigation className="w-4 h-4" />
+              Definir Local
+            </button>
+            <button
+              onClick={() => setLocationMode("voting")}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                locationMode === "voting"
+                  ? "bg-primary/20 text-primary border border-primary/40"
+                  : "bg-secondary/30 text-muted-foreground border border-border/30 hover:bg-secondary/50"
+              }`}
+            >
+              <Vote className="w-4 h-4" />
+              Votação
+            </button>
+          </div>
+        </div>
+
+        {/* Defined Location */}
+        {locationMode === "defined" && (
+          <div className="mb-4">
+            {/* Sub-toggle: estab vs manual */}
+            <div className="flex gap-2 mb-3">
+              <button
+                onClick={() => setLocationType("establishment")}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  locationType === "establishment"
+                    ? "bg-primary/10 text-primary border border-primary/30"
+                    : "bg-secondary/20 text-muted-foreground border border-border/20"
+                }`}
+              >
+                Estabelecimento
+              </button>
+              <button
+                onClick={() => setLocationType("manual")}
+                className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  locationType === "manual"
+                    ? "bg-primary/10 text-primary border border-primary/30"
+                    : "bg-secondary/20 text-muted-foreground border border-border/20"
+                }`}
+              >
+                Endereço Manual
               </button>
             </div>
-          ) : (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={estabSearch}
-                onChange={(e) => setEstabSearch(e.target.value)}
-                placeholder="Buscar bar ou restaurante..."
-                className="w-full bg-background border border-border/50 rounded-lg pl-10 pr-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
-              />
-              {searchResults && searchResults.establishments && searchResults.establishments.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg overflow-hidden z-10 max-h-40 overflow-y-auto">
-                  {searchResults.establishments.map((estab: any) => (
-                    <button
-                      key={estab.id}
-                      onClick={() => {
-                        setSelectedEstab({ id: estab.id, name: estab.name });
-                        setEstabSearch("");
-                      }}
-                      className="w-full text-left px-3 py-2 hover:bg-primary/10 transition-colors border-b border-border/20 last:border-0"
-                    >
-                      <p className="text-sm text-foreground">{estab.name}</p>
-                      <p className="text-xs text-muted-foreground">{estab.neighborhood || estab.address}</p>
+
+            {locationType === "establishment" ? (
+              <>
+                {selectedEstab ? (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/30">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-primary" />
+                      <span className="text-sm text-foreground">{selectedEstab.name}</span>
+                    </div>
+                    <button onClick={() => setSelectedEstab(null)} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-4 h-4" />
                     </button>
-                  ))}
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={estabSearch}
+                      onChange={(e) => setEstabSearch(e.target.value)}
+                      placeholder="Buscar bar ou restaurante..."
+                      className="w-full bg-background border border-border/50 rounded-lg pl-10 pr-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                    />
+                    {searchResults && searchResults.establishments && searchResults.establishments.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg overflow-hidden z-10 max-h-40 overflow-y-auto">
+                        {searchResults.establishments.map((estab: any) => (
+                          <button
+                            key={estab.id}
+                            onClick={() => {
+                              setSelectedEstab({ id: estab.id, name: estab.name });
+                              setEstabSearch("");
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-primary/10 transition-colors border-b border-border/20 last:border-0"
+                          >
+                            <p className="text-sm text-foreground">{estab.name}</p>
+                            <p className="text-xs text-muted-foreground">{estab.neighborhood || estab.address}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  placeholder="Nome do local (ex: Casa do João)"
+                  className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                  maxLength={255}
+                />
+                <input
+                  type="text"
+                  value={manualAddress}
+                  onChange={(e) => setManualAddress(e.target.value)}
+                  placeholder="Endereço (opcional)"
+                  className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                  maxLength={512}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Voting Options */}
+        {locationMode === "voting" && (
+          <div className="mb-4">
+            <label className="text-sm text-muted-foreground mb-2 block">Opções de local (2-5)</label>
+            <div className="space-y-2">
+              {votingOptions.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground w-4">{idx + 1}.</span>
+                  <div className="flex-1">
+                    {opt.name ? (
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-primary/5 border border-primary/20">
+                        <span className="text-sm text-foreground truncate">{opt.name}</span>
+                        <button
+                          onClick={() => {
+                            const newOpts = [...votingOptions];
+                            newOpts[idx] = { type: "establishment", name: "" };
+                            setVotingOptions(newOpts);
+                          }}
+                          className="text-muted-foreground hover:text-foreground ml-2"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={votingOptionSearch[idx] || ""}
+                          onChange={(e) => {
+                            const newSearch = [...votingOptionSearch];
+                            newSearch[idx] = e.target.value;
+                            setVotingOptionSearch(newSearch);
+                            setActiveVotingSearch(idx);
+                          }}
+                          onFocus={() => setActiveVotingSearch(idx)}
+                          placeholder="Buscar estab ou digitar nome manual..."
+                          className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                        />
+                        {activeVotingSearch === idx && votingSearchResults?.establishments && votingSearchResults.establishments.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border/50 rounded-lg overflow-hidden z-10 max-h-32 overflow-y-auto">
+                            {votingSearchResults.establishments.map((estab: any) => (
+                              <button
+                                key={estab.id}
+                                onClick={() => {
+                                  const newOpts = [...votingOptions];
+                                  newOpts[idx] = { type: "establishment", establishmentId: estab.id, name: estab.name };
+                                  setVotingOptions(newOpts);
+                                  const newSearch = [...votingOptionSearch];
+                                  newSearch[idx] = "";
+                                  setVotingOptionSearch(newSearch);
+                                  setActiveVotingSearch(-1);
+                                }}
+                                className="w-full text-left px-3 py-1.5 hover:bg-primary/10 transition-colors border-b border-border/20 last:border-0"
+                              >
+                                <p className="text-xs text-foreground">{estab.name}</p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {/* Botão para confirmar como manual */}
+                        {votingOptionSearch[idx]?.length >= 2 && (
+                          <button
+                            onClick={() => {
+                              const newOpts = [...votingOptions];
+                              newOpts[idx] = { type: "manual", name: votingOptionSearch[idx], address: "" };
+                              setVotingOptions(newOpts);
+                              const newSearch = [...votingOptionSearch];
+                              newSearch[idx] = "";
+                              setVotingOptionSearch(newSearch);
+                              setActiveVotingSearch(-1);
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-primary hover:underline"
+                          >
+                            Usar como manual
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {votingOptions.length > 2 && (
+                    <button onClick={() => removeVotingOption(idx)} className="text-muted-foreground hover:text-red-400">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          )}
-        </div>
+            {votingOptions.length < 5 && (
+              <button
+                onClick={addVotingOption}
+                className="mt-2 flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                <Plus className="w-3 h-3" /> Adicionar opção
+              </button>
+            )}
+            <p className="text-[11px] text-muted-foreground/60 mt-2">
+              Membros do grupo poderão votar em múltiplas opções (checkbox).
+            </p>
+          </div>
+        )}
 
         {/* Date & Time */}
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -177,7 +433,7 @@ function CreateEventModal({
 
         <Button
           onClick={handleSubmit}
-          disabled={!title.trim() || !selectedEstab || !eventDate || createMutation.isPending}
+          disabled={!canSubmit() || createMutation.isPending}
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
         >
           {createMutation.isPending ? (
@@ -300,10 +556,13 @@ function EventCard({ event }: { event: any }) {
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-foreground truncate">{event.title}</h4>
-            {event.establishmentName && (
+            {(event.establishmentName || event.manualLocationName || event.locationMode === 'voting') && (
               <div className="flex items-center gap-1 mt-1">
-                <MapPin className="w-3 h-3 text-primary" />
-                <span className="text-xs text-muted-foreground truncate">{event.establishmentName}</span>
+                {event.locationMode === 'voting' ? (
+                  <><Vote className="w-3 h-3 text-purple-400" /><span className="text-xs text-purple-400 truncate">Votação de local</span></>
+                ) : (
+                  <><MapPin className="w-3 h-3 text-primary" /><span className="text-xs text-muted-foreground truncate">{event.establishmentName || event.manualLocationName}</span></>
+                )}
               </div>
             )}
           </div>

@@ -6,12 +6,13 @@
  * /business/divulgacoes/parcerias → Parcerias
  * /business/divulgacoes/transmissao → Lista de Transmissão
  * /business/divulgacoes/eventos → Eventos do Estab.
+ * /business/divulgacoes/grupos → Grupos
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useEffect } from "react";
 import { getLoginUrl } from "@/const";
 import {
-  Tag, Building2, Megaphone, CalendarDays, Sparkles
+  Tag, Building2, Megaphone, CalendarDays, Sparkles, Users
 } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 import { useLocation } from "wouter";
@@ -23,8 +24,10 @@ import {
   EventosEstabTab,
   DestaquesTab,
 } from "./BusinessPanelTabs";
+import { BusinessPromoRequests } from "@/components/BusinessPromoRequests";
+import GruposPage from "./GruposPage";
 
-type TabId = "destaques" | "codigos" | "parcerias" | "transmissao" | "eventos";
+type TabId = "destaques" | "codigos" | "parcerias" | "transmissao" | "eventos" | "grupos";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "destaques", label: "Destaques", labelFull: "Destaques", icon: Sparkles },
@@ -32,6 +35,7 @@ const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementTy
   { id: "parcerias", label: "Parcerias", labelFull: "Parcerias", icon: Building2 },
   { id: "transmissao", label: "Transmissão", labelFull: "Lista de Transmissão", icon: Megaphone },
   { id: "eventos", label: "Eventos", labelFull: "Eventos do Estab.", icon: CalendarDays },
+  { id: "grupos", label: "Grupos", labelFull: "Grupos", icon: Users },
 ];
 
 export default function BusinessDivulgacoes() {
@@ -44,6 +48,7 @@ export default function BusinessDivulgacoes() {
     if (location.includes("/business/divulgacoes/parcerias")) return "parcerias";
     if (location.includes("/business/divulgacoes/transmissao")) return "transmissao";
     if (location.includes("/business/divulgacoes/eventos")) return "eventos";
+    if (location.includes("/business/divulgacoes/grupos")) return "grupos";
     if (location.includes("/business/divulgacoes/destaques")) return "destaques";
     return "destaques"; // default
   };
@@ -112,11 +117,31 @@ export default function BusinessDivulgacoes() {
       {/* Content */}
       <div className="container py-6">
         {activeTab === "destaques" && <DestaquesTab />}
-        {activeTab === "codigos" && <PromoCodesTab />}
+        {activeTab === "codigos" && (
+          <div className="space-y-8">
+            <BusinessPromoRequests />
+            <div className="border-t border-border/30 pt-6">
+              <PromoCodesTab />
+            </div>
+          </div>
+        )}
         {activeTab === "parcerias" && <PartnershipsTab />}
         {activeTab === "transmissao" && <BroadcastTab />}
         {activeTab === "eventos" && <EventosEstabTab />}
+        {activeTab === "grupos" && <BusinessGruposEmbed />}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Embedded Grupos view for Business Divulgação tab.
+ * Renders the GruposPage component inline (without its own navbar).
+ */
+function BusinessGruposEmbed() {
+  return (
+    <div className="-mx-4">
+      <GruposPage embedded />
     </div>
   );
 }

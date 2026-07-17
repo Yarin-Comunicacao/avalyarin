@@ -52,6 +52,14 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
+      headers() {
+        // Send the owner's "viewing as" role to backend for limit simulation
+        const viewingAs = (window as any).__ownerViewingAs;
+        if (viewingAs) {
+          return { "x-viewing-as": viewingAs };
+        }
+        return {};
+      },
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),

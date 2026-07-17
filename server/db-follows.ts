@@ -4,12 +4,89 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 
 // ============ FOLLOW SYSTEM ============
 
-export async function followUser(followerId: number, followingId: number) {
+/**
+ * Follow a user. If target is 'user' role → pending. If 'critic'/'specialist' → accepted instantly.
+ */
+export async function followUser(followerId: number, followingId: number): Promise<"accepted" | "pending"> {
   const db = (await getDb())!;
-  // Prevent self-follow
   if (followerId === followingId) throw new Error("Não é possível seguir a si mesmo");
-  // Upsert (ignore duplicate)
-  await db.insert(userFollows).values({ followerId, followingId }).onDuplicateKeyUpdate({ set: { followerId: sql`followerId` } });
+
+  // Check target user's role
+  const [targetUser] = await db.select({ role: users.role }).from(users).where(eq(users.id, followingId)).limit(1);
+  if (!targetUser) throw new Error("Usuário não encontrado");
+
+  // Critics and specialists: instant follow. Regular users: pending approval.
+  const status = (targetUser.role === "critic" || targetUser.role === "specialist") ? "accepted" : "pending";
+
+  await db.insert(userFollows).values({ followerId, followingId, status })
+    .onDuplicateKeyUpdate({ set: { followerId: sql`followerId` } });
+
+  return status;
+}
+
+/**
+ * Accept a pending follow request
+ */
+export async function acceptFollowRequest(followId: number, userId: number) {
+  const db = (await getDb())!;
+  await db.update(userFollows)
+    .set({ status: "accepted" })
+    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId)));
+}
+
+/**
+ * Reject (delete) a pending follow request
+ */
+export async function rejectFollowRequest(followId: number, userId: number) {
+  const db = (await getDb())!;
+  await db.delete(userFollows).where(
+    and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending"))
+  );
+}
+
+/**
+ * Get pending follow requests for a user
+ */
+export async function getPendingFollowRequests(userId: number) {
+  const db = (await getDb())!;
+  const rows = await db
+    .select({
+      id: userFollows.id,
+      followerId: userFollows.followerId,
+      followerName: users.name,
+      followerUsername: users.username,
+      followerPhoto: users.profilePhotoUrl,
+      createdAt: userFollows.createdAt,
+    })
+    .from(userFollows)
+    .innerJoin(users, eq(users.id, userFollows.followerId))
+    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "pending")))
+    .orderBy(desc(userFollows.createdAt));
+  return rows;
+}
+
+/**
+ * Count pending follow requests
+ */
+export async function getPendingFollowCount(userId: number): Promise<number> {
+  const db = (await getDb())!;
+  const [result] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(userFollows)
+    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "pending")));
+  return result?.count || 0;
+}
+
+/**
+ * Get follow status: 'none' | 'pending' | 'accepted'
+ */
+export async function getFollowStatus(followerId: number, followingId: number): Promise<"none" | "pending" | "accepted"> {
+  const db = (await getDb())!;
+  const [row] = await db.select({ status: userFollows.status }).from(userFollows).where(
+    and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId))
+  ).limit(1);
+  if (!row) return "none";
+  return row.status;
 }
 
 export async function unfollowUser(followerId: number, followingId: number) {
@@ -22,7 +99,7 @@ export async function unfollowUser(followerId: number, followingId: number) {
 export async function isFollowing(followerId: number, followingId: number): Promise<boolean> {
   const db = (await getDb())!;
   const [row] = await db.select({ id: userFollows.id }).from(userFollows).where(
-    and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId))
+    and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId), eq(userFollows.status, "accepted"))
   ).limit(1);
   return !!row;
 }
@@ -45,7 +122,7 @@ export async function getFollowers(userId: number) {
     })
     .from(userFollows)
     .innerJoin(users, eq(users.id, userFollows.followerId))
-    .where(eq(userFollows.followingId, userId))
+    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "accepted")))
     .orderBy(desc(userFollows.createdAt));
   return rows;
 }
@@ -62,7 +139,7 @@ export async function getFollowing(userId: number) {
     })
     .from(userFollows)
     .innerJoin(users, eq(users.id, userFollows.followingId))
-    .where(eq(userFollows.followerId, userId))
+    .where(and(eq(userFollows.followerId, userId), eq(userFollows.status, "accepted")))
     .orderBy(desc(userFollows.createdAt));
   return rows;
 }
@@ -72,11 +149,11 @@ export async function getFollowCounts(userId: number) {
   const [followersCount] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(userFollows)
-    .where(eq(userFollows.followingId, userId));
+    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "accepted")));
   const [followingCount] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(userFollows)
-    .where(eq(userFollows.followerId, userId));
+    .where(and(eq(userFollows.followerId, userId), eq(userFollows.status, "accepted")));
   return {
     followers: followersCount?.count || 0,
     following: followingCount?.count || 0,
@@ -91,7 +168,7 @@ export async function getMutualFollows(userId: number) {
     FROM user_follows f1
     INNER JOIN user_follows f2 ON f1.followingId = f2.followerId AND f1.followerId = f2.followingId
     INNER JOIN users u ON u.id = f1.followingId
-    WHERE f1.followerId = ${userId}
+    WHERE f1.followerId = ${userId} AND f1.status = 'accepted' AND f2.status = 'accepted'
     ORDER BY u.name ASC
   `);
   return (rows as any)[0] as any[];
@@ -166,4 +243,26 @@ export async function getDMConversations(userId: number) {
     ORDER BY dm.createdAt DESC
   `);
   return (rows as any)[0] as any[];
+}
+
+
+/**
+ * Search mutual follows by name or username (for group invite restricted to followers)
+ */
+export async function searchMutualFollows(userId: number, query: string) {
+  const db = (await getDb())!;
+  const searchTerm = `%${query}%`;
+  const rows = await db.execute(sql`
+    SELECT u.id, u.name, u.username, u.profilePhotoUrl
+    FROM user_follows f1
+    INNER JOIN user_follows f2 ON f1.followingId = f2.followerId AND f1.followerId = f2.followingId
+    INNER JOIN users u ON u.id = f1.followingId
+    WHERE f1.followerId = ${userId}
+      AND f1.status = 'accepted'
+      AND f2.status = 'accepted'
+      AND (u.name LIKE ${searchTerm} OR u.username LIKE ${searchTerm})
+    ORDER BY u.name ASC
+    LIMIT 20
+  `);
+  return (rows as any)[0] as Array<{ id: number; name: string | null; username: string | null; profilePhotoUrl: string | null }>;
 }

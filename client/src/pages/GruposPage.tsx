@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -8,10 +8,12 @@ import { toast } from "sonner";
 import {
   Users, Plus, Crown, Lock, ArrowLeft, UserPlus, Search,
   ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays,
-  MessageCircle, Send
+  MessageCircle, Send, UserSearch, Radio, EyeOff
 } from "lucide-react";
+import { useOwnerView } from "@/contexts/OwnerViewContext";
 import { Link, useLocation } from "wouter";
 import GroupChat from "@/components/GroupChat";
+import FourPointStar from "@/components/FourPointStar";
 
 // ─── Create Group Modal ──────────────────────────────────────────────────────
 
@@ -24,7 +26,11 @@ function CreateGroupModal({
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<"private" | "specialist">("private");
+  const [type, setType] = useState<"private" | "specialist" | "broadcast">("private");
+  const { user } = useAuth();
+  const { viewingAs } = useOwnerView();
+  const effectiveRole = viewingAs || user?.role || "user";
+  const canCreateBroadcast = ["business", "specialist", "critic", "admin", "owner"].includes(effectiveRole);
   const utils = trpc.useUtils();
 
   const createMutation = trpc.groups.create.useMutation({
@@ -45,7 +51,7 @@ function CreateGroupModal({
     },
   });
 
-  const atLimit = planInfo.plan === "free" && planInfo.groupCount >= (planInfo.maxGroups ?? 3);
+  const atLimit = planInfo.maxGroups !== null && planInfo.groupCount >= planInfo.maxGroups;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
@@ -57,107 +63,107 @@ function CreateGroupModal({
           </button>
         </div>
 
-        {/* Type selection */}
-        <div className="mb-4">
-          <label className="text-sm text-muted-foreground mb-2 block">Tipo de grupo</label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setType("private")}
-              className={`p-3 rounded-lg border text-left transition-all ${
-                type === "private"
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border/50 text-muted-foreground hover:border-border"
-              }`}
-            >
-              <Users className="w-5 h-5 mb-1" />
-              <div className="text-sm font-medium">Privado</div>
-              <div className="text-xs text-muted-foreground">Compartilhe avaliações com amigos</div>
-            </button>
-            <button
-              onClick={() => setType("specialist")}
-              className={`p-3 rounded-lg border text-left transition-all relative ${
-                type === "specialist"
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border/50 text-muted-foreground hover:border-border"
-              } ${planInfo.plan === "free" ? "opacity-60" : ""}`}
-            >
-              {planInfo.plan === "free" && (
-                <div className="absolute top-2 right-2">
-                  <Lock className="w-3 h-3 text-primary" />
-                </div>
+        {/* Type selection - hidden when at limit */}
+        {!atLimit && (
+          <div className="mb-4">
+            <label className="text-sm text-muted-foreground mb-2 block">Tipo de grupo</label>
+            <div className={`grid ${canCreateBroadcast ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
+              <button
+                onClick={() => setType("private")}
+                className={`p-3 rounded-lg border text-left transition-all ${
+                  type === "private"
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border/50 text-muted-foreground hover:border-border"
+                }`}
+              >
+                <Users className="w-5 h-5 mb-1" />
+                <div className="text-sm font-medium">Privado</div>
+                <div className="text-xs text-muted-foreground">Compartilhe avaliações, sugestões e agende seus eventos com seus amigos</div>
+              </button>
+              {canCreateBroadcast && (
+                <button
+                  onClick={() => setType("broadcast")}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    type === "broadcast"
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border/50 text-muted-foreground hover:border-border"
+                  }`}
+                >
+                  <Radio className="w-5 h-5 mb-1" />
+                  <div className="text-sm font-medium">Grupo de Transmissão</div>
+                  <div className="text-xs text-muted-foreground">Compartilhe promoções, novas parcerias diretamente com quem te segue</div>
+                </button>
               )}
-              <Crown className="w-5 h-5 mb-1" />
-              <div className="text-sm font-medium">Especialista</div>
-              <div className="text-xs text-muted-foreground">Publique para seguidores</div>
-            </button>
-          </div>
-        </div>
-
-        {type === "specialist" && planInfo.plan === "free" && (
-          <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <p className="text-sm text-primary">
-              <Crown className="w-4 h-4 inline mr-1" />
-              Grupos de especialista requerem plano premium.
-            </p>
-            <Link href="/conta/planos">
-              <span className="text-xs text-primary underline mt-1 inline-block">Ver planos</span>
-            </Link>
+            </div>
           </div>
         )}
 
-        {atLimit && type === "private" && (
-          <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <p className="text-sm text-primary">
-              <Lock className="w-4 h-4 inline mr-1" />
-              Você atingiu o limite de {planInfo.maxGroups} grupos no plano gratuito.
+        {atLimit ? (
+          <div className="mb-4 p-4 rounded-lg bg-primary/5 border border-primary/20 text-center">
+            <Lock className="w-6 h-6 text-primary mx-auto mb-2" />
+            <p className="text-sm text-foreground mb-1 font-medium">
+              Limite de {planInfo.maxGroups} grupos atingido
             </p>
-            <Link href="/conta/planos">
-              <span className="text-xs text-primary underline mt-1 inline-block">Fazer upgrade</span>
+            <p className="text-xs text-muted-foreground mb-4">
+              Exclua um grupo para criar um novo ou vire um especialista e tenha grupos ilimitados
+            </p>
+            <Link href="/conta/editar-perfil?tab=planos">
+              <Button
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary/10 font-display tracking-wider"
+              >
+                <Crown className="w-4 h-4 mr-1" /> VER PLANOS
+              </Button>
             </Link>
           </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <label className="text-sm text-muted-foreground mb-1 block">Nome do grupo</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Amigos Foodie"
+                className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                maxLength={50}
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="text-sm text-muted-foreground mb-1 block">Descrição <span className="text-red-400">*</span></label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Descreva o objetivo do grupo (mín. 25 caracteres)..."
+                className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 resize-none h-20"
+                maxLength={500}
+              />
+              {description.length > 0 && description.length < 25 && (
+                <p className="text-xs text-red-400 mt-1">Mínimo de 25 caracteres ({description.length}/25)</p>
+              )}
+            </div>
+
+            <Button
+              onClick={() => createMutation.mutate({ name, description, type })}
+              disabled={
+                !name.trim() ||
+                name.length < 5 ||
+                !description.trim() ||
+                description.length < 25 ||
+                createMutation.isPending
+              }
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
+            >
+              {createMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Plus className="w-4 h-4 mr-2" />
+              )}
+              CRIAR GRUPO
+            </Button>
+          </>
         )}
-
-        <div className="mb-4">
-          <label className="text-sm text-muted-foreground mb-1 block">Nome do grupo</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ex: Amigos Foodie"
-            className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
-            maxLength={255}
-          />
-        </div>
-
-        <div className="mb-6">
-          <label className="text-sm text-muted-foreground mb-1 block">Descrição (opcional)</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Sobre o que é esse grupo..."
-            className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 resize-none h-20"
-            maxLength={500}
-          />
-        </div>
-
-        <Button
-          onClick={() => createMutation.mutate({ name, description: description || undefined, type })}
-          disabled={
-            !name.trim() ||
-            name.length < 2 ||
-            createMutation.isPending ||
-            (type === "specialist" && planInfo.plan === "free") ||
-            (atLimit && type === "private")
-          }
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
-        >
-          {createMutation.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          ) : (
-            <Plus className="w-4 h-4 mr-2" />
-          )}
-          CRIAR GRUPO
-        </Button>
       </div>
     </div>
   );
@@ -173,17 +179,33 @@ function InviteUserModal({
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const searchResults = trpc.groups.searchUsers.useQuery(
+  const { user } = useAuth();
+  // Determine effective role (owner viewing as another role uses window.__ownerViewingAs)
+  const effectiveRole = (window as any).__ownerViewingAs || user?.role || "user";
+  // Roles that can only invite mutual follows
+  const restrictedRoles = ["user", "critic", "specialist"];
+  const isRestricted = restrictedRoles.includes(effectiveRole);
+
+  // Use mutual follows search for restricted roles, general search for others (business/admin/owner)
+  const followsSearch = trpc.groups.searchFollowsForInvite.useQuery(
     { query },
-    { enabled: query.length >= 2 }
+    { enabled: isRestricted && query.length >= 2 }
   );
+  const generalSearch = trpc.groups.searchUsers.useQuery(
+    { query },
+    { enabled: !isRestricted && query.length >= 2 }
+  );
+  const searchResults = isRestricted ? followsSearch : generalSearch;
+
   const inviteMutation = trpc.groups.invite.useMutation({
     onSuccess: () => {
       toast.success("Convite enviado!");
       onClose();
     },
     onError: (err) => {
-      if (err.message.includes("ALREADY_MEMBER")) {
+      if (err.message.includes("MEMBER_LIMIT")) {
+        toast.error("Limite de convidados atingido, vire um especialista e crie grupos sem limites de usuários");
+      } else if (err.message.includes("ALREADY_MEMBER")) {
         toast.error("Usuário já é membro deste grupo");
       } else if (err.message.includes("ALREADY_INVITED")) {
         toast.error("Convite já enviado para este usuário");
@@ -211,7 +233,7 @@ function InviteUserModal({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por @usuário..."
+            placeholder={isRestricted ? "Buscar entre seus seguidores..." : "Buscar por @usuário..."}
             className="w-full bg-background border border-border/50 rounded-lg pl-10 pr-3 py-2 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
           />
         </div>
@@ -224,10 +246,13 @@ function InviteUserModal({
           )}
           {searchResults.data?.length === 0 && query.length >= 2 && (
             <p className="text-sm text-muted-foreground text-center py-4">
-              Nenhum usuário encontrado
+              {isRestricted
+                ? `Você não segue ninguém chamado "${query}"`
+                : "Nenhum usuário encontrado"
+              }
             </p>
           )}
-          {searchResults.data?.map((user) => (
+          {searchResults.data?.map((user: any) => (
             <div
               key={user.id}
               className="flex items-center justify-between p-3 rounded-lg bg-background border border-border/30"
@@ -293,6 +318,23 @@ function GroupDetail({
     },
   });
 
+  const broadcastLeaveMutation = trpc.broadcastGroups.leave.useMutation({
+    onSuccess: () => {
+      toast.success("Você saiu do grupo de transmissão");
+      utils.broadcastGroups.myBroadcasts.invalidate();
+      utils.broadcastGroups.hidden.invalidate();
+      onBack();
+    },
+  });
+
+  const broadcastHideMutation = trpc.broadcastGroups.toggleHide.useMutation({
+    onSuccess: (_, vars) => {
+      toast.success(vars.hide ? "Grupo silenciado" : "Grupo reativado");
+      utils.broadcastGroups.myBroadcasts.invalidate();
+      utils.broadcastGroups.hidden.invalidate();
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
@@ -314,6 +356,7 @@ function GroupDetail({
 
   const isCreator = user?.id === group.creatorId;
   const isEspecialista = group.type === "specialist";
+  const isBroadcast = group.type === "broadcast";
 
   return (
     <div>
@@ -331,16 +374,18 @@ function GroupDetail({
             <div className="flex items-center gap-2">
               <h2 className="font-display text-2xl tracking-wider text-foreground">{group.name}</h2>
               {isEspecialista && <Crown className="w-5 h-5 text-primary" />}
+              {isBroadcast && <Radio className="w-5 h-5 text-primary" />}
             </div>
             {group.description && (
               <p className="text-sm text-muted-foreground mt-1">{group.description}</p>
             )}
             <p className="text-xs text-muted-foreground mt-2">
               {group.memberCount} {group.memberCount === 1 ? "membro" : "membros"}
+              {isBroadcast && " · Canal de Transmissão"}
             </p>
           </div>
           <div className="flex gap-2">
-            {isCreator && !isEspecialista && (
+            {isCreator && !isEspecialista && !isBroadcast && (
               <Button
                 size="sm"
                 variant="outline"
@@ -350,7 +395,7 @@ function GroupDetail({
                 <UserPlus className="w-4 h-4 mr-1" /> Convidar
               </Button>
             )}
-            {isCreator && (
+            {isCreator && !isBroadcast && (
               <Button
                 size="sm"
                 variant="outline"
@@ -374,6 +419,32 @@ function GroupDetail({
                 <LogOut className="w-4 h-4 mr-1" /> Deixar de seguir
               </Button>
             )}
+            {/* Broadcast group actions for non-creators */}
+            {!isCreator && isBroadcast && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => broadcastHideMutation.mutate({ groupId, hide: true })}
+                  className="border-border/50 text-muted-foreground hover:bg-secondary"
+                  title="Silenciar (ocultar)"
+                >
+                  <EyeOff className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (confirm("Deseja sair deste grupo de transmissão?")) {
+                      broadcastLeaveMutation.mutate({ groupId });
+                    }
+                  }}
+                  className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                >
+                  <LogOut className="w-4 h-4 mr-1" /> Sair
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -382,129 +453,299 @@ function GroupDetail({
       {group.members && group.members.length > 0 && (
         <div className="mb-6">
           <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">MEMBROS</h3>
-          <div className="space-y-2">
-            {group.members.map((m: any) => (
-              <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/30">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary">
-                      {(m.userName || "?")[0]?.toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-foreground">{m.userName}</p>
-                    <p className="text-xs text-muted-foreground">@{m.username}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground capitalize">
-                  {m.role === "admin" || m.role === "creator" ? "Admin" : m.role === "follower" ? "Seguidor" : "Membro"}
+          <div className="flex flex-wrap gap-2">
+            {(group.members as any[]).map((m: any) => (
+              <Link key={m.userId} href={`/perfil/${m.username}`}>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/50 text-xs text-foreground hover:border-primary/30 transition-all cursor-pointer">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">
+                    {(m.name || m.username || "?").charAt(0).toUpperCase()}
+                  </span>
+                  {m.name || m.username}
+                  {m.userId === group.creatorId && <Crown className="w-3 h-3 text-primary" />}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Calendar Button */}
-      {!isEspecialista && group.isMember && (
-        <div className="mb-6">
-          <Link href={`/grupo/${groupId}/calendario`}>
-            <button className="w-full p-4 rounded-xl bg-primary/10 border border-primary/30 hover:border-primary/60 transition-all flex items-center justify-between group cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <CalendarDays className="w-5 h-5 text-primary" />
-                  {groupEvents && groupEvents.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {groupEvents.length}
-                    </span>
-                  )}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-foreground">Calendário de Eventos</p>
-                  <p className="text-xs text-muted-foreground">
-                    {groupEvents && groupEvents.length > 0
-                      ? `${groupEvents.length} evento${groupEvents.length > 1 ? "s" : ""} próximo${groupEvents.length > 1 ? "s" : ""}`
-                      : "Agende encontros com o grupo"}
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-            </button>
-          </Link>
         </div>
       )}
 
       {/* Group Chat */}
       {group.isMember && (
-        <GroupChat groupId={groupId} />
+        <div className="mb-6">
+          <GroupChat groupId={groupId} groupType={group.type} />
+        </div>
       )}
 
-      {/* Feed */}
-      <div>
-        <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">
-          {isEspecialista ? "PUBLICAÇÕES" : "AVALIAÇÕES COMPARTILHADAS"}
-        </h3>
-        {(!feed || feed.length === 0) ? (
-          <div className="text-center py-10 bg-background/50 rounded-xl border border-border/30">
-            <Star className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">
-              {isEspecialista
-                ? "Nenhuma publicação ainda"
-                : "Nenhuma avaliação compartilhada ainda"}
-            </p>
-            <p className="text-xs text-muted-foreground/60 mt-1">
-              {isCreator
-                ? "Compartilhe suas avaliações com o grupo!"
-                : "Aguarde os membros compartilharem avaliações"}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {feed.map((item: any) => (
-              <Link key={item.id} href={`/estabelecimento/${item.establishmentSlug}`}>
-                <div className="p-4 rounded-xl bg-background/50 border border-border/30 hover:border-primary/30 transition-all cursor-pointer">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-primary">
-                        {(item.sharerName || "?")[0]?.toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">@{item.sharerUsername}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {item.establishmentImage && (
-                      <img
-                        src={item.establishmentImage}
-                        alt=""
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {item.establishmentName}
-                      </p>
-                      {item.note && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.note}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-primary">
-                        {typeof item.overallScore === "number" ? item.overallScore.toFixed(1) : "—"}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground uppercase">{item.ratingType}</div>
-                    </div>
+      {/* Events */}
+      {groupEvents && groupEvents.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">EVENTOS</h3>
+          <div className="space-y-2">
+            {groupEvents.map((ev: any) => (
+              <Link key={ev.id} href={`/eventos/${ev.id}`}>
+                <div className="p-3 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-primary" />
+                    <span className="text-sm text-foreground">{ev.title}</span>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Feed */}
+      {feed && feed.length > 0 && (
+        <div>
+          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">ATIVIDADE</h3>
+          <div className="space-y-3">
+            {feed.map((item: any) => (
+              <div key={item.id} className="p-3 rounded-lg bg-card border border-border/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-medium text-foreground">{item.userName}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">{item.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Discover Especialista Groups ──────────────────────────────────────────────
+
+// ─── Following Tab Section (with group search) ─────────────────────────────────────
+
+function FollowingTabSection({
+  followedGroups,
+  loadingFollowed,
+  onSelectGroup,
+  onGoToPessoas,
+}: {
+  followedGroups: any[] | undefined;
+  loadingFollowed: boolean;
+  onSelectGroup: (id: number) => void;
+  onGoToPessoas: () => void;
+}) {
+  const [subTab, setSubTab] = useState<"seguindo" | "transmissoes" | "ocultos">("seguindo");
+
+  const utils = trpc.useUtils();
+  const { data: broadcastGroups, isLoading: loadingBroadcast } = trpc.broadcastGroups.myBroadcasts.useQuery();
+  const { data: hiddenGroups, isLoading: loadingHidden } = trpc.broadcastGroups.hidden.useQuery();
+
+  const leaveMutation = trpc.broadcastGroups.leave.useMutation({
+    onSuccess: () => {
+      toast.success("Você saiu do grupo");
+      utils.broadcastGroups.myBroadcasts.invalidate();
+      utils.broadcastGroups.hidden.invalidate();
+    },
+  });
+
+  const hideMutation = trpc.broadcastGroups.toggleHide.useMutation({
+    onSuccess: () => {
+      toast.success("Grupo atualizado");
+      utils.broadcastGroups.myBroadcasts.invalidate();
+      utils.broadcastGroups.hidden.invalidate();
+    },
+  });
+
+  const subTabs = [
+    { id: "seguindo" as const, label: "Grupos de quem sigo" },
+    { id: "transmissoes" as const, label: "Transmissões" },
+    { id: "ocultos" as const, label: "Ocultos" },
+  ];
+
+  return (
+    <div>
+      {/* Sub-tabs */}
+      <div className="flex gap-1 p-1 bg-secondary/30 rounded-lg border border-border/30 mb-4">
+        {subTabs.map((st) => (
+          <button
+            key={st.id}
+            onClick={() => setSubTab(st.id)}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition-all ${
+              subTab === st.id
+                ? "bg-primary/10 text-primary border border-primary/20"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {st.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sub-tab: Grupos de quem sigo */}
+      {subTab === "seguindo" && (
+        <>
+          {loadingFollowed ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : !followedGroups || followedGroups.length === 0 ? (
+            <div className="text-center py-16 bg-card/50 rounded-xl border border-border/30">
+              <Crown className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground mb-1">Nenhum grupo seguido</p>
+              <p className="text-xs text-muted-foreground/60 mb-4">
+                Siga especialistas e críticos para ver seus grupos aqui
+              </p>
+              <button
+                onClick={onGoToPessoas}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary text-sm font-medium hover:bg-primary/20 transition-all"
+              >
+                <UserSearch className="w-4 h-4" />
+                Encontre seus amigos
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {followedGroups.map((g: any) => (
+                <div
+                  key={g.id}
+                  onClick={() => onSelectGroup(g.id)}
+                  className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Crown className="w-4 h-4 text-primary flex-shrink-0" />
+                        <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        por @{g.creatorUsername} · {g.memberCount} seguidores
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Discover section */}
+          <DiscoverSection />
+        </>
+      )}
+
+      {/* Sub-tab: Grupos de Transmissões */}
+      {subTab === "transmissoes" && (
+        <>
+          {loadingBroadcast ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : !broadcastGroups || broadcastGroups.length === 0 ? (
+            <div className="text-center py-16 bg-card/50 rounded-xl border border-border/30">
+              <Radio className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground mb-1">Nenhum grupo de transmissão</p>
+              <p className="text-xs text-muted-foreground/60">
+                Salve estabelecimentos ou siga especialistas para receber transmissões
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {broadcastGroups.map((g: any) => (
+                <div
+                  key={g.id}
+                  className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => onSelectGroup(g.id)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Radio className="w-4 h-4 text-primary flex-shrink-0" />
+                        <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {g.memberCount} membros
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => hideMutation.mutate({ groupId: g.id, hide: true })}
+                        className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                        title="Ocultar grupo"
+                      >
+                        <EyeOff className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm("Deseja sair deste grupo de transmissão?")) {
+                            leaveMutation.mutate({ groupId: g.id });
+                          }
+                        }}
+                        className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-red-400"
+                        title="Sair do grupo"
+                      >
+                        <LogOut className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Sub-tab: Grupos Ocultos */}
+      {subTab === "ocultos" && (
+        <>
+          {loadingHidden ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : !hiddenGroups || hiddenGroups.length === 0 ? (
+            <div className="text-center py-16 bg-card/50 rounded-xl border border-border/30">
+              <EyeOff className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground mb-1">Nenhum grupo oculto</p>
+              <p className="text-xs text-muted-foreground/60">
+                Grupos ocultos não enviam notificações
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {hiddenGroups.map((g: any) => (
+                <div
+                  key={g.id}
+                  className="p-4 rounded-xl bg-card border border-border/50 transition-all opacity-70"
+                >
+                  <div className="flex items-center justify-between">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => onSelectGroup(g.id)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <EyeOff className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {g.memberCount} membros · Silenciado
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => hideMutation.mutate({ groupId: g.id, hide: false })}
+                      className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-primary"
+                      title="Mostrar grupo novamente"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function DiscoverSection() {
   const { data: groups, isLoading } = trpc.groups.discover.useQuery();
@@ -576,10 +817,163 @@ function DiscoverSection() {
   );
 }
 
+// ─── People Search Section ──────────────────────────────────────────────────
+
+function PeopleSearchSection() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [, navigate] = useLocation();
+
+  const handleQueryChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(value);
+    }, 400);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // "professional" maps to both critic and specialist on the backend
+  const roleParam = roleFilter === "all" ? undefined : roleFilter;
+  const { data: results, isLoading } = trpc.groups.searchPeople.useQuery(
+    { query: debouncedQuery, role: roleParam },
+    { enabled: debouncedQuery.length >= 2 }
+  );
+
+  const roleFilters = [
+    { id: "all", label: "Todos" },
+    { id: "user", label: "Usuários" },
+    { id: "professional", label: "Profissionais" },
+  ];
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case "critic":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400 font-medium">
+            <FourPointStar variant="critic" size={10} />
+            Crítico
+          </span>
+        );
+      case "specialist":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-400 font-medium">
+            <FourPointStar variant="specialist" size={10} />
+            Especialista
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border/50 text-[10px] text-muted-foreground font-medium">
+            Usuário
+          </span>
+        );
+    }
+  };
+
+  return (
+    <div>
+      {/* Search input */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          placeholder="Buscar pessoas por nome ou @usuário..."
+          className="w-full bg-background border border-border/50 rounded-lg pl-10 pr-3 py-2.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+        />
+      </div>
+
+      {/* Role filters */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+        {roleFilters.map((filter) => (
+          <button
+            key={filter.id}
+            onClick={() => setRoleFilter(filter.id)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              roleFilter === filter.id
+                ? "bg-primary/10 text-primary border border-primary/30"
+                : "bg-card text-muted-foreground border border-border/50 hover:border-border"
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Results */}
+      {debouncedQuery.length < 2 ? (
+        <div className="text-center py-12 bg-card/50 rounded-xl border border-border/30">
+          <UserSearch className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground mb-1">Encontre pessoas</p>
+          <p className="text-xs text-muted-foreground/60">
+            Busque por nome ou @usuário para encontrar críticos, especialistas e outros usuários
+          </p>
+        </div>
+      ) : isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      ) : !results || results.length === 0 ? (
+        <div className="text-center py-12 bg-card/50 rounded-xl border border-border/30">
+          <Search className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">Nenhuma pessoa encontrada</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Tente outro nome ou ajuste os filtros
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {results?.map((person: any) => (
+            <div
+              key={person.id}
+              onClick={() => person.username && navigate(`/perfil/${person.username}`)}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Avatar placeholder */}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                  person.role === "critic"
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                    : person.role === "specialist"
+                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    : "bg-primary/10 text-primary border border-primary/20"
+                }`}>
+                  {(person.name || person.username || "?").charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {person.name || person.username}
+                    </p>
+                    {getRoleBadge(person.role)}
+                  </div>
+                  {person.username && (
+                    <p className="text-xs text-muted-foreground mt-0.5">@{person.username}</p>
+                  )}
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
-export default function GruposPage() {
-  const [activeTab, setActiveTab] = useState<"meus" | "sigo">("meus");
+export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
+  const [activeTab, setActiveTab] = useState<"meus" | "sigo" | "pessoas">("meus");
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -599,14 +993,15 @@ export default function GruposPage() {
 
   const tabs = [
     { id: "meus" as const, label: "Meus Grupos", icon: Users },
-    { id: "sigo" as const, label: "Grupos que Sigo", icon: Crown },
+    { id: "sigo" as const, label: "Seguindo", icon: Crown },
+    { id: "pessoas" as const, label: "Pessoas", icon: UserSearch },
   ];
 
   // Not authenticated
   if (!authLoading && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar  />
+      <div className={embedded ? "" : "min-h-screen bg-background"}>
+        {!embedded && <Navbar hideSearch />}
         <div className="container py-20 text-center">
           <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h2 className="font-display text-2xl tracking-wider text-foreground mb-2">GRUPOS</h2>
@@ -624,8 +1019,8 @@ export default function GruposPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar  />
+    <div className={embedded ? "" : "min-h-screen bg-background"}>
+      {!embedded && <Navbar hideSearch />}
 
       {showCreate && planInfo && (
         <CreateGroupModal onClose={() => setShowCreate(false)} planInfo={planInfo} />
@@ -650,17 +1045,7 @@ export default function GruposPage() {
               </Button>
             </div>
 
-            {/* Plan info */}
-            {planInfo && planInfo.plan === "free" && (
-              <div className="mb-4 p-3 rounded-lg bg-card border border-border/50 flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-medium">{planInfo.groupCount}</span>/{planInfo.maxGroups} grupos no plano gratuito
-                </div>
-                <Link href="/conta/planos">
-                  <span className="text-xs text-primary font-medium">Upgrade</span>
-                </Link>
-              </div>
-            )}
+            {/* Plan info removed — no upgrade banner for users */}
 
             {/* Tabs */}
             <div className="flex gap-1 p-1 bg-card rounded-lg border border-border/50 mb-6">
@@ -668,14 +1053,15 @@ export default function GruposPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? "bg-primary/10 text-primary border border-primary/20"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
-                  {tab.label}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.id === "meus" ? "Meus" : tab.id === "sigo" ? "Seguindo" : "Pessoas"}</span>
                 </button>
               ))}
             </div>
@@ -704,6 +1090,18 @@ export default function GruposPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
+                    {/* Botão Criar acima da lista, justificado ao texto */}
+                    <div className="mb-1">
+                      <Button
+                        onClick={() => setShowCreate(true)}
+                        variant="outline"
+                        size="sm"
+                        className="border-primary/30 text-primary hover:bg-primary/10 font-display tracking-wider"
+                      >
+                        <Plus className="w-4 h-4 mr-1" /> CRIAR NOVO GRUPO
+                      </Button>
+                    </div>
+
                     {myGroups.map((g: any) => (
                       <div
                         key={g.id}
@@ -738,47 +1136,16 @@ export default function GruposPage() {
             )}
 
             {activeTab === "sigo" && (
-              <div>
-                {loadingFollowed ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  </div>
-                ) : !followedGroups || followedGroups.length === 0 ? (
-                  <div className="text-center py-16 bg-card/50 rounded-xl border border-border/30">
-                    <Crown className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-muted-foreground mb-1">Nenhum grupo seguido</p>
-                    <p className="text-xs text-muted-foreground/60">
-                      Siga especialistas para ver suas avaliações e recomendações
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {followedGroups.map((g: any) => (
-                      <div
-                        key={g.id}
-                        onClick={() => setSelectedGroupId(g.id)}
-                        className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <Crown className="w-4 h-4 text-primary flex-shrink-0" />
-                              <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              por @{g.creatorUsername} · {g.memberCount} seguidores
-                            </p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <FollowingTabSection
+                followedGroups={followedGroups}
+                loadingFollowed={loadingFollowed}
+                onSelectGroup={(id) => setSelectedGroupId(id)}
+                onGoToPessoas={() => setActiveTab("pessoas")}
+              />
+            )}
 
-                {/* Discover section */}
-                <DiscoverSection />
-              </div>
+            {activeTab === "pessoas" && (
+              <PeopleSearchSection />
             )}
           </>
         )}

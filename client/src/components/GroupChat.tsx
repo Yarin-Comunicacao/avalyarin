@@ -2,22 +2,35 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MessageCircle, Send, ChevronRight, MapPin, FileText, User } from "lucide-react";
+import { MessageCircle, Send, ChevronRight, MapPin, FileText, User, Radio, Lock } from "lucide-react";
 import { Link } from "wouter";
 
-export default function GroupChat({ groupId }: { groupId: number }) {
+interface GroupChatProps {
+  groupId: number;
+  groupType?: string; // "private" | "specialist" | "broadcast"
+}
+
+export default function GroupChat({ groupId, groupType }: GroupChatProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+
   const { data: messages, refetch } = trpc.groups.messages.useQuery(
     { groupId, limit: 50, offset: 0 },
     { enabled: open, refetchInterval: open ? 5000 : false }
   );
+
+  // For broadcast groups, check if user can send
+  const { data: canSendData } = trpc.broadcastGroups.canSend.useQuery(
+    { groupId },
+    { enabled: groupType === "broadcast" && open }
+  );
+
   const sendMutation = trpc.groups.sendMessage.useMutation({
     onSuccess: () => {
       setMessage("");
       refetch();
     },
-    onError: () => toast.error("Erro ao enviar mensagem"),
+    onError: (err) => toast.error(err.message || "Erro ao enviar mensagem"),
   });
 
   const handleSend = () => {
@@ -25,6 +38,9 @@ export default function GroupChat({ groupId }: { groupId: number }) {
     if (!trimmed) return;
     sendMutation.mutate({ groupId, content: trimmed });
   };
+
+  const isBroadcast = groupType === "broadcast";
+  const canSend = isBroadcast ? canSendData?.allowed : true;
 
   return (
     <div className="mb-6">
@@ -34,11 +50,19 @@ export default function GroupChat({ groupId }: { groupId: number }) {
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-            <MessageCircle className="w-5 h-5 text-primary" />
+            {isBroadcast ? (
+              <Radio className="w-5 h-5 text-primary" />
+            ) : (
+              <MessageCircle className="w-5 h-5 text-primary" />
+            )}
           </div>
           <div className="text-left">
-            <p className="text-sm font-medium text-foreground">Chat do Grupo</p>
-            <p className="text-xs text-muted-foreground">Converse com os membros</p>
+            <p className="text-sm font-medium text-foreground">
+              {isBroadcast ? "Canal de Transmissão" : "Chat do Grupo"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isBroadcast ? "Mensagens do criador" : "Converse com os membros"}
+            </p>
           </div>
         </div>
         <ChevronRight className={`w-5 h-5 text-primary transition-transform ${open ? "rotate-90" : ""}`} />
@@ -51,7 +75,9 @@ export default function GroupChat({ groupId }: { groupId: number }) {
             {(!messages || messages.length === 0) ? (
               <div className="text-center py-8">
                 <MessageCircle className="w-6 h-6 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">Nenhuma mensagem ainda. Comece a conversa!</p>
+                <p className="text-xs text-muted-foreground">
+                  {isBroadcast ? "Nenhuma transmissão ainda." : "Nenhuma mensagem ainda. Comece a conversa!"}
+                </p>
               </div>
             ) : (
               messages.map((msg: any) => (
@@ -92,29 +118,42 @@ export default function GroupChat({ groupId }: { groupId: number }) {
             )}
           </div>
 
-          {/* Input */}
-          <div className="border-t border-border/30 p-3 flex gap-2">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, 140))}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Mensagem (máx. 140 caracteres)..."
-              className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
-              maxLength={140}
-            />
-            <Button
-              size="sm"
-              onClick={handleSend}
-              disabled={!message.trim() || sendMutation.isPending}
-              className="bg-primary hover:bg-primary/80"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="px-3 pb-2">
-            <span className="text-[10px] text-muted-foreground/50">{message.length}/140</span>
-          </div>
+          {/* Input - shown only if user can send */}
+          {canSend ? (
+            <>
+              <div className="border-t border-border/30 p-3 flex gap-2">
+                <input
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value.slice(0, 140))}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  placeholder={isBroadcast ? "Enviar transmissão..." : "Mensagem (máx. 140 caracteres)..."}
+                  className="flex-1 bg-background border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+                  maxLength={140}
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSend}
+                  disabled={!message.trim() || sendMutation.isPending}
+                  className="bg-primary hover:bg-primary/80"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="px-3 pb-2">
+                <span className="text-[10px] text-muted-foreground/50">{message.length}/140</span>
+              </div>
+            </>
+          ) : (
+            <div className="border-t border-border/30 p-3 flex items-center gap-2 justify-center">
+              <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">
+                {isBroadcast && canSendData?.reason === "needs_business_pro"
+                  ? "Assine o Business Pro para enviar transmissões"
+                  : "Apenas o criador pode enviar mensagens neste canal"}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -15,6 +15,14 @@ export const users = mysqlTable("users", {
   surveyData: json("surveyData"), // Full survey answers JSON
   role: mysqlEnum("role", ["user", "admin", "owner", "business", "specialist", "critic", "support"]).default("user").notNull(),
   verified: boolean("verified").default(false).notNull(),
+  phone: varchar("phone", { length: 32 }),
+  phoneVerified: boolean("phoneVerified").default(false).notNull(),
+  profilePhotoUrl: text("profilePhotoUrl"),
+  profilePhotoKey: varchar("profilePhotoKey", { length: 512 }),
+  facebookId: varchar("facebookId", { length: 64 }),
+  googleId: varchar("googleId", { length: 128 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  emailVerified: boolean("emailVerified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),
   locationUpdatedAt: bigint("locationUpdatedAt", { mode: "number" }),
@@ -278,10 +286,14 @@ export const groups = mysqlTable("groups", {
   code: varchar("code", { length: 12 }).unique(), // Visual ID: gr000001-gr999999
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  type: mysqlEnum("type", ["private", "specialist"]).notNull(),
+  type: mysqlEnum("type", ["private", "specialist", "broadcast"]).notNull(),
   creatorId: int("creatorId").notNull(),
   image: text("image"),
   memberCount: int("memberCount").default(0).notNull(),
+  createdAsRole: varchar("createdAsRole", { length: 20 }).default("user"), // Role the owner was viewing as when creating
+  linkedEntityId: int("linkedEntityId"), // establishment ID or user ID for broadcast groups
+  linkedEntityType: mysqlEnum("linkedEntityType", ["establishment", "specialist", "critic"]), // type of linked entity
+  isFixed: boolean("isFixed").default(false).notNull(), // true = cannot be deleted by owner, only support/admin/owner
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -299,6 +311,8 @@ export const groupMembers = mysqlTable("group_members", {
   groupId: int("groupId").notNull(),
   userId: int("userId").notNull(),
   role: mysqlEnum("role", ["admin", "member", "creator", "follower"]).default("member").notNull(),
+  hidden: boolean("hidden").default(false).notNull(), // true = grupo oculto (silenciado, sem notificação)
+  leftAt: timestamp("leftAt"), // null = ativo, set = saiu do grupo
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
 });
 
@@ -442,7 +456,7 @@ export const promoCodes = mysqlTable("promo_codes", {
   value: float("value"), // valor do desconto (% ou R$), null para buy_one_get_one
   description: text("description"), // descrição visível ao usuário
   creatorId: int("creatorId").notNull(), // user id do criador
-  creatorType: mysqlEnum("creatorType", ["specialist", "business"]).notNull(),
+  creatorType: mysqlEnum("creatorType", ["specialist", "business", "critic"]).notNull(),
   establishmentId: int("establishmentId"), // estab vinculado (NULL = qualquer parceiro)
   startsAt: bigint("startsAt", { mode: "number" }), // início validade (timestamp ms)
   expiresAt: bigint("expiresAt", { mode: "number" }), // fim validade (NULL = permanente, requer plano pago)
@@ -472,6 +486,22 @@ export const promoCodeUses = mysqlTable("promo_code_uses", {
 
 export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
 export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;
+
+// ============================================================
+// Promo Code Establishments — vínculo N:N entre códigos e estabs
+// Cada estab responde individualmente: pending → accepted | on_hold
+// ============================================================
+export const promoCodeEstablishments = mysqlTable("promo_code_establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  promoCodeId: int("promoCodeId").notNull(), // FK para promo_codes.id
+  establishmentId: int("establishmentId").notNull(), // FK para establishments.id
+  status: mysqlEnum("status", ["pending", "accepted", "on_hold"]).default("pending").notNull(),
+  respondedAt: bigint("respondedAt", { mode: "number" }), // quando o business respondeu
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PromoCodeEstablishment = typeof promoCodeEstablishments.$inferSelect;
+export type InsertPromoCodeEstablishment = typeof promoCodeEstablishments.$inferInsert;
 
 // ============================================================
 // Specialist Applications — solicitações para virar specialist
@@ -591,17 +621,51 @@ export const groupEvents = mysqlTable("group_events", {
   code: varchar("code", { length: 12 }).unique(), // Visual ID: ev000001-ev999999
   groupId: int("groupId").notNull(),
   creatorId: int("creatorId").notNull(),
-  establishmentId: int("establishmentId").notNull(),
+  establishmentId: int("establishmentId"), // agora opcional: pode ser local manual ou votação
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   eventDate: timestamp("eventDate").notNull(), // data e hora do evento
   maxGuests: int("maxGuests"), // limite de pessoas (null = sem limite)
   status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
+  // Local do evento: defined = local definido, voting = em votação, decided = votação concluída
+  locationMode: mysqlEnum("locationMode", ["defined", "voting", "decided"]).default("defined").notNull(),
+  // Local manual (quando não é estabelecimento do banco)
+  manualLocationName: varchar("manualLocationName", { length: 255 }),
+  manualLocationAddress: varchar("manualLocationAddress", { length: 512 }),
+  votingClosesAt: timestamp("votingClosesAt"), // prazo da votação (opcional)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 export type GroupEvent = typeof groupEvents.$inferSelect;
 export type InsertGroupEvent = typeof groupEvents.$inferInsert;
+
+// ============================================================
+// Event Location Options — opções de local para votação (2-5 por evento)
+// ============================================================
+export const eventLocationOptions = mysqlTable("event_location_options", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  establishmentId: int("establishmentId"), // opção do banco (null = manual)
+  manualName: varchar("manualName", { length: 255 }), // nome manual
+  manualAddress: varchar("manualAddress", { length: 512 }), // endereço manual
+  isWinner: boolean("isWinner").default(false).notNull(), // opção vencedora
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EventLocationOption = typeof eventLocationOptions.$inferSelect;
+export type InsertEventLocationOption = typeof eventLocationOptions.$inferInsert;
+
+// ============================================================
+// Event Location Votes — votos dos membros (múltipla escolha permitida)
+// ============================================================
+export const eventLocationVotes = mysqlTable("event_location_votes", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  optionId: int("optionId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EventLocationVote = typeof eventLocationVotes.$inferSelect;
+export type InsertEventLocationVote = typeof eventLocationVotes.$inferInsert;
 
 // ============================================================
 // Event RSVPs — confirmações de presença nos eventos
@@ -741,6 +805,7 @@ export const userFollows = mysqlTable("user_follows", {
   id: int("id").autoincrement().primaryKey(),
   followerId: int("followerId").notNull(),
   followingId: int("followingId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted"]).default("accepted").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type UserFollow = typeof userFollows.$inferSelect;
@@ -924,3 +989,46 @@ export const roleRequests = mysqlTable("role_requests", {
 });
 export type RoleRequest = typeof roleRequests.$inferSelect;
 export type InsertRoleRequest = typeof roleRequests.$inferInsert;
+
+// ============================================================
+// Survey Skip Rules — regras de encerramento/pulo condicional do survey
+// Quando uma resposta específica é dada, perguntas listadas são puladas
+// ============================================================
+export const surveySkipRules = mysqlTable("survey_skip_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  phase: mysqlEnum("phase", ["onboarding", "explorer", "connoisseur"]).notNull(),
+  // Pergunta que dispara a regra (questionId string, ex: "role")
+  triggerQuestionId: varchar("trigger_question_id", { length: 64 }).notNull(),
+  // Valor da resposta que ativa a regra (ex: "yes")
+  triggerValue: varchar("trigger_value", { length: 255 }).notNull(),
+  // Lista de questionIds que devem ser pulados quando a regra é ativada (JSON array de strings)
+  skipQuestionIds: json("skip_question_ids").notNull(), // ["region", "frequency", "spend", ...]
+  // Descrição amigável da regra (para exibição no painel)
+  description: varchar("description", { length: 500 }),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SurveySkipRule = typeof surveySkipRules.$inferSelect;
+export type InsertSurveySkipRule = typeof surveySkipRules.$inferInsert;
+
+
+/**
+ * Subscription plans — managed by admin, visible to clients.
+ */
+export const plans = mysqlTable("plans", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  price: float("price").notNull(), // Monthly price in BRL
+  features: json("features"), // JSON array of feature strings
+  highlighted: boolean("highlighted").default(false).notNull(), // Featured plan
+  maxRatingsPerDay: int("maxRatingsPerDay").default(3).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Plan = typeof plans.$inferSelect;
+export type InsertPlan = typeof plans.$inferInsert;
+

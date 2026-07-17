@@ -75,6 +75,11 @@ import {
   getUserEvents,
   cancelGroupEvent,
   getEventsByEstablishment,
+  createGroupEventWithLocation,
+  getEventLocationOptions,
+  getEventLocationVotesForEvent,
+  voteOnEventLocation,
+  closeEventVoting,
   saveUserLocation,
   getIntegration,
   setIntegration,
@@ -106,6 +111,8 @@ import {
   shareRatingToGroup,
   getGroupFeed,
   searchUsersByUsername,
+  searchPeople,
+  searchGroups,
   discoverSpecialistGroups,
   isGroupMember,
   removeMemberFromGroup,
@@ -113,6 +120,17 @@ import {
   countUserGroups,
   updateGroup,
 } from "./db-groups";
+import {
+  getOrCreateBroadcastGroup,
+  autoJoinBroadcastGroup,
+  leaveBroadcastGroup,
+  toggleHideBroadcastGroup,
+  getBroadcastGroupForEntity,
+  getUserBroadcastGroups,
+  getUserHiddenGroups,
+  canSendBroadcastMessage,
+  canDeleteBroadcastGroup,
+} from "./db-broadcast";
 import {
   getUserNobilitySummary,
   getUserCategoryBadges,
@@ -159,6 +177,12 @@ import {
   rejectPromoCode,
   isCodeTaken,
   getPromoCodeStats,
+  createPromoCodeWithEstablishments,
+  notifyBusinessesOfPromoRequest,
+  getBusinessPromoCodeRequests,
+  respondToPromoCodeRequest,
+  getMyPromoCodeRequests,
+  getEstablishmentsForPromoSelection,
 } from "./db-promo";
 import {
   getAdminCategoriesWithCounts,
@@ -291,6 +315,8 @@ import {
   followUser, unfollowUser, isFollowing, isMutualFollow,
   getFollowers, getFollowing, getFollowCounts, getMutualFollows,
   sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
+  acceptFollowRequest, rejectFollowRequest, getPendingFollowRequests, getPendingFollowCount, getFollowStatus,
+  searchMutualFollows,
 } from "./db-follows";
 import {
   createEstablishmentEvent,
@@ -1101,6 +1127,30 @@ export const appRouter = router({
         return await businessDeleteMenuItem(ctx.user!.id, input.menuItemId);
       }),
 
+    // Business profile: get user info + establishments with menus
+    profileData: businessProcedure
+      .input(z.object({ establishmentId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        const estabs = await getBusinessEstablishments(ctx.user!.id);
+        const selectedId = input.establishmentId || (estabs.length > 0 ? estabs[0].id : null);
+        let menu: any[] = [];
+        if (selectedId) {
+          const { getDb } = await import("./db");
+          const { menuItems } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          if (db) {
+            menu = await db.select().from(menuItems).where(eq(menuItems.establishmentId, selectedId));
+          }
+        }
+        return {
+          user: { id: ctx.user!.id, name: ctx.user!.name, username: ctx.user!.username, role: ctx.user!.role },
+          establishments: estabs,
+          selectedEstablishmentId: selectedId,
+          menu,
+        };
+      }),
+
     notifications: businessProcedure.query(async ({ ctx }) => {
       return await getBusinessNotifications(ctx.user!.id);
     }),
@@ -1281,6 +1331,7 @@ export const appRouter = router({
     save: protectedProcedure
       .input(z.object({
         birthdate: z.string().optional(),
+        role: z.string().optional(), // "yes" = dono, "no" = consumidor
         region: z.string().optional(),
         frequency: z.string().optional(),
         avgSpend: z.string().optional(),
@@ -1289,11 +1340,33 @@ export const appRouter = router({
         discovery: z.array(z.string()).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // If user identified as business owner, update their role
+        if (input.role === "yes") {
+          const { getDb } = await import("./db");
+          const { users } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          await db!.update(users)
+            .set({ role: "business" })
+            .where(eq(users.id, ctx.user!.id));
+        }
         return await saveSurveyData(ctx.user!.id, input, input.birthdate);
       }),
     get: protectedProcedure.query(async ({ ctx }) => {
       return await getUserSurveyData(ctx.user!.id);
     }),
+    // Public: returns active skip rules for a phase (used by OnboardingSurvey)
+    skipRules: publicProcedure
+      .input(z.object({ phase: z.enum(["onboarding", "explorer", "connoisseur"]) }))
+      .query(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { surveySkipRules } = await import("../drizzle/schema");
+        const { eq, and } = await import("drizzle-orm");
+        const db = await getDb();
+        return await db!.select().from(surveySkipRules).where(
+          and(eq(surveySkipRules.phase, input.phase), eq(surveySkipRules.active, true))
+        );
+      }),
     // Public: list all establishments for 'establishment' type questions
     allEstablishments: publicProcedure.query(async () => {
       const { getDb } = await import("./db");
@@ -1367,6 +1440,8 @@ export const appRouter = router({
         name: z.string().min(2).max(100).optional(),
         username: z.string().min(3).max(30).optional(),
         birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        email: z.string().email().max(320).optional(),
+        phone: z.string().max(32).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await updateUserProfile(ctx.user!.id, input);
@@ -1379,6 +1454,28 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
       }),
+    uploadProfilePhoto: protectedProcedure
+      .input(z.object({
+        base64: z.string(), // base64-encoded image data
+        mimeType: z.string().regex(/^image\/(jpeg|png|webp|heic)$/),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        const buffer = Buffer.from(input.base64, "base64");
+        // Limit to 5MB
+        if (buffer.length > 5 * 1024 * 1024) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem muito grande. Máximo: 5MB." });
+        }
+        const ext = input.mimeType.split("/")[1] === "jpeg" ? "jpg" : input.mimeType.split("/")[1];
+        const key = `profile-photos/${ctx.user!.id}/photo_${Date.now()}.${ext}`;
+        const { url, key: storedKey } = await storagePut(key, buffer, input.mimeType);
+        // Update user record
+        const db = await (await import("./db")).getDb();
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await db!.update(users).set({ profilePhotoUrl: url, profilePhotoKey: storedKey }).where(eq(users.id, ctx.user!.id));
+        return { url, key: storedKey };
+      }),
     publicByUsername: publicProcedure
       .input(z.object({ username: z.string().min(1) }))
       .query(async ({ input }) => {
@@ -1389,7 +1486,7 @@ export const appRouter = router({
   groups: router({
     // Get user's own groups (private + specialist they created)
     myGroups: protectedProcedure.query(async ({ ctx }) => {
-      return await getMyGroups(ctx.user!.id);
+      return await getMyGroups(ctx.user!.id, ctx.effectiveRole);
     }),
 
     // Get specialist groups user follows
@@ -1425,9 +1522,9 @@ export const appRouter = router({
     // Create a group
     create: protectedProcedure
       .input(z.object({
-        name: z.string().min(2).max(255),
-        description: z.string().max(500).optional(),
-        type: z.enum(["private", "specialist"]),
+        name: z.string().min(5).max(50),
+        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500, 'Descrição deve ter no máximo 500 caracteres'),
+        type: z.enum(["private", "specialist", "broadcast"]),
       }))
       .mutation(async ({ ctx, input }) => {
         return await createGroup({
@@ -1435,6 +1532,7 @@ export const appRouter = router({
           description: input.description,
           type: input.type,
           creatorId: ctx.user!.id,
+          effectiveRole: ctx.effectiveRole,
         });
       }),
 
@@ -1442,8 +1540,8 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         groupId: z.number(),
-        name: z.string().min(2).max(255).optional(),
-        description: z.string().max(500).optional(),
+        name: z.string().min(5).max(50).optional(),
+        description: z.string().min(25, 'Descrição deve ter pelo menos 25 caracteres').max(500).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const group = await getGroupById(input.groupId);
@@ -1476,7 +1574,7 @@ export const appRouter = router({
         const results = await searchUsersByUsername(input.username);
         const target = results.find(u => u.username === input.username);
         if (!target) throw new Error("Usuário não encontrado");
-        return await inviteToGroup(input.groupId, ctx.user!.id, target.id);
+        return await inviteToGroup(input.groupId, ctx.user!.id, target.id, ctx.effectiveRole);
       }),
 
     // Get pending invites for current user
@@ -1535,12 +1633,37 @@ export const appRouter = router({
         return await searchUsersByUsername(input.query, ctx.user!.id);
       }),
 
+    // Search mutual follows for group invite (user/critic/specialist can only invite mutual follows)
+    searchFollowsForInvite: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ ctx, input }) => {
+        return await searchMutualFollows(ctx.user!.id, input.query);
+      }),
+
+    // Search people by name/username with role filter (for discovery in groups tab)
+    searchPeople: protectedProcedure
+      .input(z.object({ query: z.string().min(1), role: z.string().optional() }))
+      .query(async ({ ctx, input }) => {
+        return await searchPeople(input.query, input.role, ctx.user!.id);
+      }),
+
+    // Search groups by name or creator @username
+    searchGroups: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ input }) => {
+        return await searchGroups(input.query);
+      }),
+
     // Get user plan info
     myPlan: protectedProcedure.query(async ({ ctx }) => {
       const plan = await getUserPlanOrDefault(ctx.user!.id);
-      const groupCount = await countUserGroups(ctx.user!.id);
-      const planType = plan as keyof typeof PLAN_LIMITS;
-      return { plan, groupCount, maxGroups: PLAN_LIMITS[planType]?.maxGroups ?? 3 };
+      const groupCount = await countUserGroups(ctx.user!.id, ctx.effectiveRole);
+      // Use effectiveRole when owner/admin is viewing as another role
+      const role = ctx.effectiveRole || ctx.user!.role;
+      // Role-based group limits: user=10, others=unlimited
+      let maxGroups: number | null = null;
+      if (role === "user") maxGroups = 10;
+      return { plan, groupCount, maxGroups };
     }),
     // ==================== GROUP CHAT ====================
     // Send message to group chat (140 chars max)
@@ -1565,6 +1688,85 @@ export const appRouter = router({
         const isMember = await isGroupMember(input.groupId, ctx.user!.id);
         if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo" });
         return await getGroupMessages(input.groupId, input.limit, input.offset);
+      }),
+  }),
+
+  // ============ BROADCAST GROUPS (Grupos de Transmissão) ============
+  broadcastGroups: router({
+    // Get or create broadcast group for an entity
+    getOrCreate: protectedProcedure
+      .input(z.object({
+        entityId: z.number(),
+        entityType: z.enum(["establishment", "specialist", "critic"]),
+        name: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await getOrCreateBroadcastGroup({
+          entityId: input.entityId,
+          entityType: input.entityType,
+          name: input.name,
+          creatorId: ctx.user!.id,
+        });
+      }),
+
+    // Get user's broadcast groups (active, not hidden)
+    myBroadcasts: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserBroadcastGroups(ctx.user!.id, false);
+    }),
+
+    // Get user's hidden/muted broadcast groups
+    hidden: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserHiddenGroups(ctx.user!.id);
+    }),
+
+    // Get broadcast group for a specific entity
+    getForEntity: protectedProcedure
+      .input(z.object({
+        entityId: z.number(),
+        entityType: z.enum(["establishment", "specialist", "critic"]),
+      }))
+      .query(async ({ ctx, input }) => {
+        return await getBroadcastGroupForEntity(input.entityId, input.entityType);
+      }),
+
+    // Leave a broadcast group
+    leave: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await leaveBroadcastGroup(input.groupId, ctx.user!.id);
+        return { success: true };
+      }),
+
+    // Hide/unhide (mute) a broadcast group
+    toggleHide: protectedProcedure
+      .input(z.object({ groupId: z.number(), hide: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        await toggleHideBroadcastGroup(input.groupId, ctx.user!.id, input.hide);
+        return { success: true };
+      }),
+
+    // Check if user can send messages in broadcast group
+    canSend: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await canSendBroadcastMessage(input.groupId, ctx.user!.id);
+      }),
+
+    // Delete broadcast group (only support/admin/owner for fixed groups)
+    delete: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const canDelete = await canDeleteBroadcastGroup(input.groupId, ctx.user!.role || "user");
+        if (!canDelete) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Este grupo é fixo e só pode ser excluído por support, admin ou owner.",
+          });
+        }
+        // Actually delete the group
+        const { deleteGroup } = await import("./db-groups");
+        await deleteGroup(input.groupId, ctx.user!.id);
+        return { success: true };
       }),
   }),
 
@@ -1701,6 +1903,11 @@ export const appRouter = router({
         // Auto follow/unfollow business broadcasts when saving/unsaving
         if (saved) {
           await followBusiness(input.establishmentId, ctx.user!.id);
+          // Auto-join broadcast group of this establishment
+          const broadcastGroup = await getBroadcastGroupForEntity(input.establishmentId, "establishment");
+          if (broadcastGroup) {
+            await autoJoinBroadcastGroup(broadcastGroup.id, ctx.user!.id);
+          }
         } else {
           await unfollowBusiness(input.establishmentId, ctx.user!.id);
         }
@@ -1970,6 +2177,94 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         return await getPromoCodeStats(input.codeId);
       }),
+
+    // ============================================================
+    // Multi-establishment promo codes (critic/specialist)
+    // ============================================================
+
+    // List active establishments for selection when creating a code
+    establishmentsForSelection: protectedProcedure.query(async ({ ctx }) => {
+      if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem selecionar estabelecimentos.' });
+      }
+      return await getEstablishmentsForPromoSelection();
+    }),
+
+    // Critic/specialist creates a promo code linked to multiple establishments
+    createWithEstablishments: protectedProcedure
+      .input(z.object({
+        code: z.string().min(3).max(20).regex(/^[A-Z0-9]+$/i, "Código deve conter apenas letras e números"),
+        type: z.enum(["percentage", "buy_one_get_one", "free_item", "fixed_discount"]),
+        value: z.number().optional(),
+        description: z.string().max(500).optional(),
+        establishmentIds: z.array(z.number()).min(1, "Selecione ao menos 1 estabelecimento").max(20),
+        startsAt: z.number().optional(),
+        expiresAt: z.number().optional(),
+        maxUses: z.number().optional(),
+        maxUsesPerUser: z.number().optional(),
+        firstVisitOnly: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!['critic', 'specialist', 'admin', 'owner'].includes(ctx.user!.role)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Apenas críticos e especialistas podem criar códigos com múltiplos estabelecimentos.' });
+        }
+        const taken = await isCodeTaken(input.code);
+        if (taken) {
+          throw new TRPCError({ code: 'CONFLICT', message: 'Este código já está em uso.' });
+        }
+        const creatorType = ctx.user!.role === 'critic' ? 'critic' : 'specialist';
+        const id = await createPromoCodeWithEstablishments({
+          code: input.code,
+          type: input.type,
+          value: input.value,
+          description: input.description,
+          creatorId: ctx.user!.id,
+          creatorType,
+          establishmentIds: input.establishmentIds,
+          startsAt: input.startsAt,
+          expiresAt: input.expiresAt,
+          maxUses: input.maxUses,
+          maxUsesPerUser: input.maxUsesPerUser,
+          firstVisitOnly: input.firstVisitOnly,
+        });
+        // Notify business owners of each establishment
+        await notifyBusinessesOfPromoRequest({
+          promoCodeId: id,
+          code: input.code.toUpperCase().trim(),
+          creatorName: ctx.user!.name || 'Usuário',
+          creatorType,
+          establishmentIds: input.establishmentIds,
+        });
+        return { id };
+      }),
+
+    // Critic/specialist: my requests with per-establishment status
+    myRequests: protectedProcedure.query(async ({ ctx }) => {
+      return await getMyPromoCodeRequests(ctx.user!.id);
+    }),
+
+    // Business: list code requests for my establishments (all statuses)
+    businessRequests: businessProcedure.query(async ({ ctx }) => {
+      return await getBusinessPromoCodeRequests(ctx.user!.id);
+    }),
+
+    // Business: accept or put a code request on hold
+    respondToRequest: businessProcedure
+      .input(z.object({
+        linkId: z.number(),
+        action: z.enum(["accepted", "on_hold"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await respondToPromoCodeRequest({
+          userId: ctx.user!.id,
+          linkId: input.linkId,
+          action: input.action,
+        });
+        if (!result) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Você não gerencia este estabelecimento ou o pedido não existe.' });
+        }
+        return { success: true, ...result };
+      }),
   }),
 
   // ============================================================
@@ -1993,86 +2288,46 @@ export const appRouter = router({
       return await canUserRate(ctx.user!.id);
     }),
 
-    // Get all plan options (public)
-    options: publicProcedure.query(() => {
-      return {
-        user: [
-          {
-            id: "free",
-            name: "Explorador",
-            price: 0,
-            period: "",
-            limits: PLAN_LIMITS.free,
-            features: [
-              "3 avaliações por dia",
-              "Até 3 grupos",
-              "Perfil básico",
-              "Ver avaliações da comunidade",
-              "Salvar locais favoritos",
-            ],
-          },
-          {
-            id: "premium",
-            name: "Conhecedor",
-            price: 9.9,
-            period: "/mês",
-            limits: PLAN_LIMITS.premium,
-            popular: true,
-            features: [
-              "5 avaliações por dia",
-              "Grupos ilimitados",
-              "Criar grupo de specialist",
-              "\"Double\" na primeira visita",
-              "Selo Conhecedor no perfil",
-              "Filtros avançados de busca",
-            ],
-          },
-          {
-            id: "embaixador",
-            name: "Embaixador",
-            price: 19.9,
-            period: "/mês",
-            limits: PLAN_LIMITS.embaixador,
-            features: [
-              "Avaliações ilimitadas",
-              "Tudo do Conhecedor",
-              "Descontos em parceiros",
-              "Destaque nas avaliações",
-              "Convites para inaugurações",
-              "Suporte prioritário",
-              "Acesso a eventos exclusivos",
-            ],
-          },
-        ],
-        business: [
-          {
-            id: "free",
-            name: "Básico",
-            price: 0,
-            period: "",
-            limits: BUSINESS_PLAN_LIMITS.free,
-            features: [
-              "Perfil do estabelecimento",
-              "QR Code personalizado",
-              "1 código promocional ativo",
-              "Notificações de avaliações",
-            ],
-          },
-          {
-            id: "premium",
-            name: "Premium",
-            price: 29.9,
-            period: "/mês",
-            limits: BUSINESS_PLAN_LIMITS.premium,
-            features: [
-              "Códigos promocionais ilimitados",
-              "Analytics e métricas",
-              "Destaque no app",
-              "Tudo do plano Básico",
-            ],
-          },
-        ],
-      };
+    // Get all plan options (public) — pulls from DB when available, falls back to defaults
+    options: publicProcedure.query(async () => {
+      const { getDb } = await import("./db");
+      const { plans: plansTable } = await import("../drizzle/schema");
+      const db = await getDb();
+
+      // Default fallback plans (used if DB has no plans yet)
+      // Plano Free removido — todos já começam nele, não precisa exibir
+      const defaultUser = [
+        { id: "premium", name: "Conhecedor", price: 9.9, period: "/mês", limits: PLAN_LIMITS.premium, popular: true, features: ["5 avaliações por dia", "Grupos ilimitados", "Criar grupo de specialist", "\"Double\" na primeira visita", "Selo Conhecedor no perfil", "Filtros avançados de busca"] },
+        { id: "embaixador", name: "Embaixador", price: 19.9, period: "/mês", limits: PLAN_LIMITS.embaixador, features: ["Avaliações ilimitadas", "Tudo do Conhecedor", "Descontos em parceiros", "Destaque nas avaliações", "Convites para inaugurações", "Suporte prioritário", "Acesso a eventos exclusivos"] },
+      ];
+      const defaultBusiness = [
+        { id: "premium", name: "Premium", price: 29.9, period: "/mês", limits: BUSINESS_PLAN_LIMITS.premium, features: ["Códigos promocionais ilimitados", "Analytics e métricas", "Destaque no app", "Perfil do estabelecimento", "QR Code personalizado", "Notificações de avaliações"] },
+      ];
+
+      // Try to load plans from DB
+      try {
+        if (db) {
+          const dbPlans = await db.select().from(plansTable).orderBy(plansTable.sortOrder);
+          if (dbPlans && dbPlans.length > 0) {
+            // Map DB plans to the expected format
+            const mapped = dbPlans.filter((p: any) => p.active).map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              period: p.price > 0 ? "/mês" : "",
+              highlighted: p.highlighted,
+              maxRatingsPerDay: p.maxRatingsPerDay,
+              features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
+              description: p.description,
+            }));
+            return { user: mapped, business: mapped, fromDb: true };
+          }
+        }
+      } catch (e) {
+        // Fall through to defaults
+      }
+
+      return { user: defaultUser, business: defaultBusiness, fromDb: false };
     }),
 
     // Upgrade plan (simulated — no real payment yet)
@@ -2133,6 +2388,217 @@ export const appRouter = router({
       .input(z.object({ status: z.string().optional() }).optional())
       .query(async ({ input }) => {
         return await getAdminSubscriptions(input?.status);
+      }),
+
+    // ===== Admin Plan Management (CRUD from DB) =====
+
+    // List all plans from DB (admin)
+    adminListPlans: adminProcedure.query(async () => {
+      const { getDb } = await import("./db");
+      const { plans } = await import("../drizzle/schema");
+      const db = await getDb();
+      const result = await db!.select().from(plans).orderBy(plans.sortOrder);
+      return result.map((p: any) => ({
+        ...p,
+        features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
+      }));
+    }),
+
+    // Create a new plan
+    adminCreatePlan: adminProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        price: z.number().min(0),
+        features: z.array(z.string()).optional(),
+        highlighted: z.boolean().optional(),
+        maxRatingsPerDay: z.number().min(1).optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { plans } = await import("../drizzle/schema");
+        const db = await getDb();
+        await db!.insert(plans).values({
+          name: input.name,
+          description: input.description || null,
+          price: input.price,
+          features: JSON.stringify(input.features || []),
+          highlighted: input.highlighted || false,
+          maxRatingsPerDay: input.maxRatingsPerDay || 3,
+          sortOrder: input.sortOrder || 0,
+        });
+        return { success: true };
+      }),
+
+    // Update an existing plan
+    adminUpdatePlan: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        price: z.number().min(0).optional(),
+        features: z.array(z.string()).optional(),
+        highlighted: z.boolean().optional(),
+        maxRatingsPerDay: z.number().min(1).optional(),
+        sortOrder: z.number().optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { plans } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        const { id, ...updates } = input;
+        const setData: any = {};
+        if (updates.name !== undefined) setData.name = updates.name;
+        if (updates.description !== undefined) setData.description = updates.description;
+        if (updates.price !== undefined) setData.price = updates.price;
+        if (updates.features !== undefined) setData.features = JSON.stringify(updates.features);
+        if (updates.highlighted !== undefined) setData.highlighted = updates.highlighted;
+        if (updates.maxRatingsPerDay !== undefined) setData.maxRatingsPerDay = updates.maxRatingsPerDay;
+        if (updates.sortOrder !== undefined) setData.sortOrder = updates.sortOrder;
+        if (updates.active !== undefined) setData.active = updates.active;
+        await db!.update(plans).set(setData).where(eq(plans.id, id));
+        return { success: true };
+      }),
+
+    // Delete a plan
+    adminDeletePlan: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { plans } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        await db!.delete(plans).where(eq(plans.id, input.id));
+        return { success: true };
+      }),
+
+    // ===== Promo Codes Management =====
+
+    // List promo codes (admin)
+    adminListPromos: adminProcedure
+      .query(async () => {
+        const { getDb } = await import("./db");
+        const { promoCodes } = await import("../drizzle/schema");
+        const { desc } = await import("drizzle-orm");
+        const db = await getDb();
+        const rows = await db!.select().from(promoCodes).orderBy(desc(promoCodes.createdAt));
+        // Map schema fields to what frontend expects
+        return rows.map(r => ({
+          id: r.id,
+          code: r.code,
+          discountType: r.type === "fixed_discount" ? "fixed" : "percentage",
+          discountValue: r.value ?? 0,
+          description: r.description,
+          maxUses: r.maxUses,
+          currentUses: 0, // TODO: count from promo_code_uses
+          validUntil: r.expiresAt ? new Date(r.expiresAt).toISOString() : null,
+          active: r.status === "active",
+          status: r.status,
+          createdAt: r.createdAt,
+        }));
+      }),
+
+    // Create promo code
+    adminCreatePromo: adminProcedure
+      .input(z.object({
+        code: z.string().min(1).max(20),
+        discountType: z.enum(["percentage", "fixed"]),
+        discountValue: z.number().min(0),
+        maxUses: z.number().nullable().optional(),
+        validUntil: z.string().nullable().optional(),
+        description: z.string().optional(),
+        planId: z.number().nullable().optional(), // ignored, kept for frontend compat
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getDb } = await import("./db");
+        const { promoCodes } = await import("../drizzle/schema");
+        const db = await getDb();
+        const typeMap: Record<string, "percentage" | "fixed_discount"> = {
+          percentage: "percentage",
+          fixed: "fixed_discount",
+        };
+        await db!.insert(promoCodes).values({
+          code: input.code.toUpperCase(),
+          type: typeMap[input.discountType] || "percentage",
+          value: input.discountValue,
+          description: input.description || null,
+          creatorId: ctx.user.id,
+          creatorType: "specialist" as any, // admin-created promos
+          maxUses: input.maxUses || null,
+          expiresAt: input.validUntil ? new Date(input.validUntil).getTime() : null,
+          status: "active", // admin-created promos are auto-active
+        } as any);
+        return { success: true };
+      }),
+
+    // Update promo code
+    adminUpdatePromo: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        code: z.string().optional(),
+        discountType: z.enum(["percentage", "fixed"]).optional(),
+        discountValue: z.number().min(0).optional(),
+        maxUses: z.number().nullable().optional(),
+        validUntil: z.string().nullable().optional(),
+        active: z.boolean().optional(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { promoCodes } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        const { id, ...updates } = input;
+        const setData: any = {};
+        if (updates.code !== undefined) setData.code = updates.code.toUpperCase();
+        if (updates.discountType !== undefined) {
+          setData.type = updates.discountType === "fixed" ? "fixed_discount" : "percentage";
+        }
+        if (updates.discountValue !== undefined) setData.value = updates.discountValue;
+        if (updates.maxUses !== undefined) setData.maxUses = updates.maxUses;
+        if (updates.validUntil !== undefined) setData.expiresAt = updates.validUntil ? new Date(updates.validUntil).getTime() : null;
+        if (updates.active !== undefined) setData.status = updates.active ? "active" : "paused";
+        if (updates.description !== undefined) setData.description = updates.description;
+        await db!.update(promoCodes).set(setData).where(eq(promoCodes.id, id));
+        return { success: true };
+      }),
+
+    // Delete promo code
+    adminDeletePromo: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { promoCodes } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        await db!.delete(promoCodes).where(eq(promoCodes.id, input.id));
+        return { success: true };
+      }),
+
+    // Public: validate promo code
+    validatePromo: publicProcedure
+      .input(z.object({ code: z.string() }))
+      .query(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { promoCodes } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        const [promo] = await db!.select().from(promoCodes)
+          .where(eq(promoCodes.code, input.code.toUpperCase()));
+        if (!promo || !promo.active) return { valid: false, message: "Código inválido ou expirado." };
+        if (promo.maxUses && promo.currentUses >= promo.maxUses) return { valid: false, message: "Código esgotado." };
+        if (promo.validUntil && new Date(promo.validUntil) < new Date()) return { valid: false, message: "Código expirado." };
+        if (promo.validFrom && new Date(promo.validFrom) > new Date()) return { valid: false, message: "Código ainda não ativo." };
+        return {
+          valid: true,
+          discountType: promo.discountType,
+          discountValue: promo.discountValue,
+          planId: promo.planId,
+          description: promo.description,
+        };
       }),
   }),
 
@@ -2289,7 +2755,13 @@ export const appRouter = router({
         if (ctx.user!.id === input.specialistId) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Voc\u00ea n\u00e3o pode seguir a si mesmo." });
         }
-        return await followSpecialist(ctx.user!.id, input.specialistId);
+        const result = await followSpecialist(ctx.user!.id, input.specialistId);
+        // Auto-join broadcast group of this specialist
+        const broadcastGroup = await getBroadcastGroupForEntity(input.specialistId, "specialist");
+        if (broadcastGroup) {
+          await autoJoinBroadcastGroup(broadcastGroup.id, ctx.user!.id);
+        }
+        return result;
       }),
 
     // Unfollow an specialist
@@ -2865,6 +3337,107 @@ export const appRouter = router({
         }
         return await getEventsByEstablishment(input.establishmentId, input.upcoming);
       }),
+
+    // Criar evento com local definido ou votação
+    createWithLocation: protectedProcedure
+      .input(z.object({
+        groupId: z.number(),
+        title: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        eventDate: z.string(), // ISO string
+        maxGuests: z.number().min(1).max(500).optional(),
+        locationMode: z.enum(["defined", "voting"]),
+        // Modo defined: local
+        establishmentId: z.number().optional(),
+        manualLocationName: z.string().max(255).optional(),
+        manualLocationAddress: z.string().max(512).optional(),
+        // Modo voting: opções (2-5)
+        locationOptions: z.array(z.object({
+          establishmentId: z.number().optional(),
+          manualName: z.string().max(255).optional(),
+          manualAddress: z.string().max(512).optional(),
+        })).min(2).max(5).optional(),
+        votingClosesAt: z.string().optional(), // ISO string
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const isMember = await isGroupMember(input.groupId, userId);
+        if (!isMember) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        }
+
+        // Validações
+        if (input.locationMode === "defined") {
+          if (!input.establishmentId && !input.manualLocationName) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Defina um local (estabelecimento ou endereço manual)." });
+          }
+        } else if (input.locationMode === "voting") {
+          if (!input.locationOptions || input.locationOptions.length < 2) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Forneça ao menos 2 opções de local para votação." });
+          }
+        }
+
+        return await createGroupEventWithLocation({
+          groupId: input.groupId,
+          creatorId: userId,
+          title: input.title,
+          description: input.description,
+          eventDate: new Date(input.eventDate),
+          maxGuests: input.maxGuests,
+          locationMode: input.locationMode,
+          establishmentId: input.establishmentId,
+          manualLocationName: input.manualLocationName,
+          manualLocationAddress: input.manualLocationAddress,
+          locationOptions: input.locationOptions,
+          votingClosesAt: input.votingClosesAt ? new Date(input.votingClosesAt) : undefined,
+        });
+      }),
+
+    // Buscar opções de local de um evento em votação
+    locationOptions: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
+        return await getEventLocationOptions(input.eventId);
+      }),
+
+    // Buscar votos de um evento
+    locationVotes: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso." });
+        return await getEventLocationVotesForEvent(input.eventId);
+      }),
+
+    // Votar em opções de local (múltipla escolha)
+    voteLocation: protectedProcedure
+      .input(z.object({
+        eventId: z.number(),
+        optionIds: z.array(z.number()).min(1).max(5),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const event = await getEventById(input.eventId);
+        if (!event) throw new TRPCError({ code: "NOT_FOUND", message: "Evento não encontrado." });
+        if (event.locationMode !== 'voting') {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Este evento não está em modo de votação." });
+        }
+        const isMember = await isGroupMember(event.groupId, ctx.user!.id);
+        if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo." });
+        return await voteOnEventLocation(input.eventId, ctx.user!.id, input.optionIds);
+      }),
+
+    // Encerrar votação e definir vencedor
+    closeVoting: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await closeEventVoting(input.eventId, ctx.user!.id);
+      }),
   }),
 
   // ============ SOCIAL (Follows + DMs) ============
@@ -2872,8 +3445,13 @@ export const appRouter = router({
     follow: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await followUser(ctx.user!.id, input.userId);
-        return { success: true };
+        const status = await followUser(ctx.user!.id, input.userId);
+        // Auto-join broadcast group of this user (if they are a critic)
+        const criticBroadcast = await getBroadcastGroupForEntity(input.userId, "critic");
+        if (criticBroadcast) {
+          await autoJoinBroadcastGroup(criticBroadcast.id, ctx.user!.id);
+        }
+        return { success: true, status };
       }),
     unfollow: protectedProcedure
       .input(z.object({ userId: z.number() }))
@@ -2884,9 +3462,11 @@ export const appRouter = router({
     isFollowing: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const following = await isFollowing(ctx.user!.id, input.userId);
+        const status = await getFollowStatus(ctx.user!.id, input.userId);
+        const following = status === "accepted";
+        const pending = status === "pending";
         const mutual = following ? await isMutualFollow(ctx.user!.id, input.userId) : false;
-        return { following, mutual };
+        return { following, pending, mutual, status };
       }),
     followers: protectedProcedure
       .input(z.object({ userId: z.number().optional() }))
@@ -2906,6 +3486,27 @@ export const appRouter = router({
     mutuals: protectedProcedure
       .query(async ({ ctx }) => {
         return await getMutualFollows(ctx.user!.id);
+      }),
+    // Pending follow requests
+    pendingRequests: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getPendingFollowRequests(ctx.user!.id);
+      }),
+    pendingCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getPendingFollowCount(ctx.user!.id);
+      }),
+    acceptRequest: protectedProcedure
+      .input(z.object({ followId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await acceptFollowRequest(input.followId, ctx.user!.id);
+        return { success: true };
+      }),
+    rejectRequest: protectedProcedure
+      .input(z.object({ followId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await rejectFollowRequest(input.followId, ctx.user!.id);
+        return { success: true };
       }),
     // DMs
     dmConversations: protectedProcedure
@@ -3045,6 +3646,65 @@ export const appRouter = router({
         }
         return { seeded: true, count: onboardingQuestions.length + explorerQuestions.length + connoisseurQuestions.length };
       }),
+    // ─── Skip Rules (regras de encerramento condicional) ────────────────────
+    skipRules: router({
+      list: ownerProcedure
+        .input(z.object({ phase: z.enum(["onboarding", "explorer", "connoisseur"]).optional() }).optional())
+        .query(async ({ input }) => {
+          const { getDb } = await import("./db");
+          const { surveySkipRules } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          if (input?.phase) {
+            return await db!.select().from(surveySkipRules).where(eq(surveySkipRules.phase, input.phase));
+          }
+          return await db!.select().from(surveySkipRules);
+        }),
+      create: ownerProcedure
+        .input(z.object({
+          phase: z.enum(["onboarding", "explorer", "connoisseur"]),
+          triggerQuestionId: z.string().min(1).max(64),
+          triggerValue: z.string().min(1).max(255),
+          skipQuestionIds: z.array(z.string()),
+          description: z.string().max(500).optional(),
+          active: z.boolean().default(true),
+        }))
+        .mutation(async ({ input }) => {
+          const { getDb } = await import("./db");
+          const { surveySkipRules } = await import("../drizzle/schema");
+          const db = await getDb();
+          const [result] = await db!.insert(surveySkipRules).values(input);
+          return { success: true, id: result.insertId };
+        }),
+      update: ownerProcedure
+        .input(z.object({
+          id: z.number(),
+          triggerQuestionId: z.string().min(1).max(64).optional(),
+          triggerValue: z.string().min(1).max(255).optional(),
+          skipQuestionIds: z.array(z.string()).optional(),
+          description: z.string().max(500).optional(),
+          active: z.boolean().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { getDb } = await import("./db");
+          const { surveySkipRules } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          const { id, ...data } = input;
+          await db!.update(surveySkipRules).set(data).where(eq(surveySkipRules.id, id));
+          return { success: true };
+        }),
+      delete: ownerProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          const { getDb } = await import("./db");
+          const { surveySkipRules } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await getDb();
+          await db!.delete(surveySkipRules).where(eq(surveySkipRules.id, input.id));
+          return { success: true };
+        }),
+    }),
   }),
 
   // ============================================================
