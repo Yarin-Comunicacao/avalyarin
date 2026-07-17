@@ -1,26 +1,48 @@
-// Storage proxy - serves files from Cloudflare R2 via presigned URLs
 import type { Express } from "express";
-import { storageGetSignedUrl } from "../storage";
+import { ENV } from "./env";
 
 export function registerStorageProxy(app: Express) {
-  const handler = async (req: any, res: any) => {
+  app.get("/manus-storage/*", async (req, res) => {
     const key = (req.params as any)[0] as string;
     if (!key) {
       res.status(400).send("Missing storage key");
       return;
     }
 
+    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
+      res.status(500).send("Storage proxy not configured");
+      return;
+    }
+
     try {
-      const url = await storageGetSignedUrl(key);
-      res.set("Cache-Control", "private, max-age=3600");
+      const forgeUrl = new URL(
+        "v1/storage/presign/get",
+        ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
+      );
+      forgeUrl.searchParams.set("path", key);
+
+      const forgeResp = await fetch(forgeUrl, {
+        headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
+      });
+
+      if (!forgeResp.ok) {
+        const body = await forgeResp.text().catch(() => "");
+        console.error(`[StorageProxy] forge error: ${forgeResp.status} ${body}`);
+        res.status(502).send("Storage backend error");
+        return;
+      }
+
+      const { url } = (await forgeResp.json()) as { url: string };
+      if (!url) {
+        res.status(502).send("Empty signed URL from backend");
+        return;
+      }
+
+      res.set("Cache-Control", "no-store");
       res.redirect(307, url);
     } catch (err) {
       console.error("[StorageProxy] failed:", err);
       res.status(502).send("Storage proxy error");
     }
-  };
-
-  // Support both /storage/* (new) and /manus-storage/* (legacy) paths
-  app.get("/storage/*", handler);
-  app.get("/manus-storage/*", handler);
+  });
 }

@@ -8,7 +8,6 @@ import {
   UserCog, Check, X, AlertCircle, Loader2, MapPin, Link2,
   ChevronRight, TrendingUp, Award, Sparkles
 } from "lucide-react";
-import ProfilePhotoUploader from "@/components/ProfilePhotoUploader";
 import { Link } from "wouter";
 
 function ProgressionCard() {
@@ -283,10 +282,12 @@ export default function MeuUsuario() {
       <div className="pt-28 pb-24 container max-w-2xl">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <ProfilePhotoUploader size="lg" />
+          <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+            <UserCog className="w-6 h-6 text-primary" />
+          </div>
           <div>
             <h1 className="font-display text-2xl tracking-wider text-primary">MEU USUÁRIO</h1>
-            <p className="text-sm text-muted-foreground">Gerencie seu perfil, nome de usuário e preferências</p>
+            <p className="text-sm text-muted-foreground">Gerencie seu nome de usuário e preferências</p>
           </div>
         </div>
 

@@ -4,7 +4,6 @@ import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
-import { registerOwnAuthRoutes } from "../auth-own";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -34,32 +33,11 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Trust proxy (required for Render, Railway, etc. behind reverse proxy)
-  app.set("trust proxy", 1);
-  // Stripe Webhook (must be BEFORE json body parser - needs raw body)
-  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-    try {
-      const signature = req.headers["stripe-signature"] as string;
-      if (!signature) {
-        res.status(400).json({ error: "Missing stripe-signature header" });
-        return;
-      }
-      const { constructWebhookEvent, handleWebhookEvent } = await import("../stripe");
-      const event = constructWebhookEvent(req.body as Buffer, signature);
-      await handleWebhookEvent(event);
-      res.json({ received: true });
-    } catch (err: any) {
-      console.error("Stripe webhook error:", err.message);
-      res.status(400).json({ error: `Webhook Error: ${err.message}` });
-    }
-  });
-
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
-  registerOwnAuthRoutes(app);
 
   // File upload endpoint for age verification documents
   app.post("/api/upload/document", express.raw({ type: "*/*", limit: "10mb" }), async (req, res) => {

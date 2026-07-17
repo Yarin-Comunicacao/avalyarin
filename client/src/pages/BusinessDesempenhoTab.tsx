@@ -92,7 +92,7 @@ export default function BusinessDesempenhoTab({ establishmentId }: BusinessDesem
           <div className="flex items-center gap-3">
             <Crown className="w-5 h-5 text-amber-400 shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-amber-400">Plano Premium — Assine para desbloquear</p>
+              <p className="text-sm font-medium text-amber-400">Plano Pro — R$97/mês</p>
               <p className="text-xs text-muted-foreground">
                 Desbloqueie todos os insights e tenha acesso completo aos dados do seu negócio.
               </p>
