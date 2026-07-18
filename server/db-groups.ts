@@ -1,8 +1,8 @@
-import { eq, and, or, desc, sql, like } from "drizzle-orm";
+import { eq, and, or, desc, sql, like, isNull, inArray } from "drizzle-orm";
 import { getDb, generateCode } from "./db";
 import {
   groups, groupMembers, groupInvites, groupSharedRatings, userPlans,
-  users, ratings, ratingItems, establishments,
+  users, ratings, ratingItems, establishments, businessClaims,
   type Group, type GroupMember, type GroupInvite, type GroupSharedRating
 } from "../drizzle/schema";
 
@@ -98,19 +98,35 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
   const db = await getDb();
   if (!db) return [];
 
-  // Build conditions
-  const conditions = [
+  // Get user's actual role
+  const [userRow] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
+  const userRole = userRow?.role || "user";
+
+  // Build conditions: private groups + specialist groups user created + broadcast groups user created
+  const conditions: any[] = [
     eq(groupMembers.userId, userId),
+    isNull(groupMembers.leftAt),
     or(
       eq(groups.type, "private"),
-      and(eq(groups.type, "specialist"), eq(groups.creatorId, userId))
+      and(eq(groups.type, "specialist"), eq(groups.creatorId, userId)),
+      and(eq(groups.type, "broadcast"), eq(groups.creatorId, userId))
     ),
   ];
 
-  // When owner is viewing as a specific role, only show groups created under that role
-  // For real users (no effectiveRole), show ALL their groups regardless of createdAsRole
+  // When owner is viewing as a specific role, filter by createdAsRole
+  // BUT specialist/critic always keep their "user" groups too (they don't lose them on role change)
   if (effectiveRole) {
-    conditions.push(eq(groups.createdAsRole, effectiveRole));
+    if (effectiveRole === "specialist" || effectiveRole === "critic") {
+      // Show groups created as this role OR as user (specialist/critic keeps user groups)
+      conditions.push(
+        or(
+          eq(groups.createdAsRole, effectiveRole),
+          eq(groups.createdAsRole, "user")
+        )
+      );
+    } else {
+      conditions.push(eq(groups.createdAsRole, effectiveRole));
+    }
   }
 
   const rows = await db
@@ -130,6 +146,75 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
     .where(and(...conditions))
     .orderBy(desc(groups.createdAt));
+
+  // Also include broadcast groups linked to user's business claims (proprietor)
+  const claimedEstabs = await db
+    .select({ establishmentId: businessClaims.establishmentId })
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.status, "approved")
+    ));
+
+  if (claimedEstabs.length > 0) {
+    const estabIds = claimedEstabs.map((c: any) => c.establishmentId);
+    const broadcastRows = await db
+      .select({
+        id: groups.id,
+        name: groups.name,
+        description: groups.description,
+        type: groups.type,
+        creatorId: groups.creatorId,
+        image: groups.image,
+        memberCount: groups.memberCount,
+        createdAt: groups.createdAt,
+        createdAsRole: groups.createdAsRole,
+      })
+      .from(groups)
+      .where(and(
+        eq(groups.type, "broadcast"),
+        eq(groups.linkedEntityType, "establishment"),
+        inArray(groups.linkedEntityId, estabIds)
+      ));
+
+    // Merge broadcast groups that aren't already in the list
+    const existingIds = new Set(rows.map((r: any) => r.id));
+    for (const bg of broadcastRows) {
+      if (!existingIds.has(bg.id)) {
+        rows.push({ ...bg, role: "creator" });
+      }
+    }
+  }
+
+  // For specialist/critic users, include their own broadcast group (they are the proprietor)
+  if (userRole === "specialist" || userRole === "critic") {
+    const ownBroadcast = await db
+      .select({
+        id: groups.id,
+        name: groups.name,
+        description: groups.description,
+        type: groups.type,
+        creatorId: groups.creatorId,
+        image: groups.image,
+        memberCount: groups.memberCount,
+        createdAt: groups.createdAt,
+        createdAsRole: groups.createdAsRole,
+      })
+      .from(groups)
+      .where(and(
+        eq(groups.type, "broadcast"),
+        eq(groups.linkedEntityType, userRole),
+        eq(groups.linkedEntityId, userId)
+      ))
+      .limit(1);
+
+    const existingIds2 = new Set(rows.map((r: any) => r.id));
+    for (const bg of ownBroadcast) {
+      if (!existingIds2.has(bg.id)) {
+        rows.push({ ...bg, role: "creator" });
+      }
+    }
+  }
 
   return rows;
 }

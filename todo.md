@@ -1229,4 +1229,10 @@
 - [x] Fix: login com Google deve vincular conta existente (mesmo email) em vez de criar duplicata
 - [x] Fix: login com Google não deve sobrescrever role de conta existente (owner → user)
 - [x] Ajustar OAuth para deploy externo (Render) — documentar OAUTH_SERVER_URL
-- [ ] Gerar .zip do projeto para upload no GitHub
+- [x] Gerar .zip do projeto para upload no GitHub
+- [ ] Owner deve ter acesso a todas funcionalidades de todos os roles (super-role) — REVERTIDO, owner quer simular cada role fielmente
+- [ ] Grupos criados como user devem aparecer em todos os roles do mesmo usuário — REVERTIDO, mantém filtro por effectiveRole
+- [x] Grupos automáticos de broadcast (business/critic/specialist) devem aparecer em "Meus Grupos" somente para proprietários
+- [x] Permitir renomear grupos (criador pode editar nome do grupo)
+- [x] Planos: adicionar campo de seleção de roles que podem ver cada plano (impedir user de ver plano de business)
+- [x] Fix: specialist/critic devem ver os grupos criados como user em "Meus Grupos" (não perder grupos ao mudar de role)

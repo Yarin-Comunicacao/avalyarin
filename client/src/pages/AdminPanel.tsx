@@ -1814,6 +1814,7 @@ function PlanosTab() {
   const [planFeatures, setPlanFeatures] = useState("");
   const [planHighlighted, setPlanHighlighted] = useState(false);
   const [planMaxRatings, setPlanMaxRatings] = useState("3");
+  const [planVisibleRoles, setPlanVisibleRoles] = useState<string[]>([]);
 
   // Promo form state
   const [promoCode, setPromoCode] = useState("");
@@ -1825,7 +1826,7 @@ function PlanosTab() {
   const [promoValidUntil, setPromoValidUntil] = useState("");
 
   const resetPlanForm = () => {
-    setPlanName(""); setPlanDesc(""); setPlanPrice(""); setPlanFeatures(""); setPlanHighlighted(false); setPlanMaxRatings("3");
+    setPlanName(""); setPlanDesc(""); setPlanPrice(""); setPlanFeatures(""); setPlanHighlighted(false); setPlanMaxRatings("3"); setPlanVisibleRoles([]);
   };
 
   const resetPromoForm = () => {
@@ -1841,6 +1842,7 @@ function PlanosTab() {
       highlighted: planHighlighted,
       maxRatingsPerDay: parseInt(planMaxRatings) || 3,
       sortOrder: (plansData?.length || 0),
+      visibleRoles: planVisibleRoles.length > 0 ? planVisibleRoles : undefined,
     });
     resetPlanForm();
   };
@@ -1855,6 +1857,7 @@ function PlanosTab() {
       features: planFeatures.split("\n").filter(f => f.trim()),
       highlighted: planHighlighted,
       maxRatingsPerDay: parseInt(planMaxRatings) || 3,
+      visibleRoles: planVisibleRoles.length > 0 ? planVisibleRoles : null,
     });
     resetPlanForm();
   };
@@ -1867,6 +1870,7 @@ function PlanosTab() {
     setPlanFeatures((plan.features || []).join("\n"));
     setPlanHighlighted(plan.highlighted);
     setPlanMaxRatings(String(plan.maxRatingsPerDay));
+    setPlanVisibleRoles(plan.visibleRoles || []);
   };
 
   const handleCreatePromo = () => {
@@ -1932,8 +1936,13 @@ function PlanosTab() {
                 </div>
               ))}
             </div>
-            <div className="pt-3 border-t border-border/30">
+            <div className="pt-3 border-t border-border/30 space-y-1">
               <p className="text-xs text-muted-foreground">Máx. {plan.maxRatingsPerDay} avaliações/dia</p>
+              {plan.visibleRoles && plan.visibleRoles.length > 0 ? (
+                <p className="text-xs text-muted-foreground">Visível para: <span className="text-primary">{plan.visibleRoles.join(", ")}</span></p>
+              ) : (
+                <p className="text-xs text-muted-foreground/50">Visível para todos</p>
+              )}
             </div>
           </div>
         ))}
@@ -1975,6 +1984,29 @@ function PlanosTab() {
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Benefícios (um por linha)</label>
             <textarea value={planFeatures} onChange={e => setPlanFeatures(e.target.value)} rows={4} placeholder={"Até 5 avaliações por dia\nDouble no primeiro pedido\nDescontos exclusivos"} className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-foreground text-sm resize-none" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Visível para (roles)</label>
+            <p className="text-xs text-muted-foreground/60 mb-2">Se nenhum for selecionado, o plano fica visível para todos.</p>
+            <div className="flex flex-wrap gap-3">
+              {["user", "business", "specialist", "critic"].map(role => (
+                <label key={role} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={planVisibleRoles.includes(role)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setPlanVisibleRoles(prev => [...prev, role]);
+                      } else {
+                        setPlanVisibleRoles(prev => prev.filter(r => r !== role));
+                      }
+                    }}
+                    className="rounded"
+                  />
+                  <span className="capitalize">{role}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <div className="flex gap-3">
             <Button onClick={editingPlan ? handleUpdatePlan : handleCreatePlan} disabled={!planName || !planPrice} className="gap-2">

@@ -190,6 +190,13 @@
       "when": 1784303779407,
       "tag": "0026_chilly_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1784395158015,
+      "tag": "0027_slimy_kid_colt",
+      "breakpoints": true
     }
   ]
 }

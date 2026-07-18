@@ -1024,6 +1024,7 @@ export const plans = mysqlTable("plans", {
   features: json("features"), // JSON array of feature strings
   highlighted: boolean("highlighted").default(false).notNull(), // Featured plan
   maxRatingsPerDay: int("maxRatingsPerDay").default(3).notNull(),
+  visibleRoles: json("visibleRoles"), // JSON array of roles that can see this plan, e.g. ["user","business","specialist","critic"]. Null = visible to all.
   sortOrder: int("sortOrder").default(0).notNull(),
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

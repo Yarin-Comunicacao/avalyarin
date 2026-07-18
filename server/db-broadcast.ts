@@ -235,7 +235,7 @@ export async function canSendBroadcastMessage(groupId: number, userId: number): 
     .where(eq(groups.id, groupId))
     .limit(1);
 
-  if (!group[0]) return { allowed: false, reason: "Grupo não encontrado" };
+    if (!group[0]) return { allowed: false, reason: "Grupo não encontrado" };
 
   if (group[0].creatorId !== userId) {
     return { allowed: false, reason: "Apenas o dono deste grupo pode enviar mensagens" };

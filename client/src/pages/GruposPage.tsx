@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   Users, Plus, Crown, Lock, ArrowLeft, UserPlus, Search,
   ChevronRight, Star, Trash2, LogOut, X, Loader2, Eye, CalendarDays,
-  MessageCircle, Send, UserSearch, Radio, EyeOff
+  MessageCircle, Send, UserSearch, Radio, EyeOff, Pencil, Check
 } from "lucide-react";
 import { useOwnerView } from "@/contexts/OwnerViewContext";
 import { Link, useLocation } from "wouter";
@@ -298,8 +298,20 @@ function GroupDetail({
     { enabled: !!group?.isMember }
   );
   const [showInvite, setShowInvite] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newName, setNewName] = useState("");
   const utils = trpc.useUtils();
   const { user } = useAuth();
+
+  const renameMutation = trpc.groups.update.useMutation({
+    onSuccess: () => {
+      toast.success("Grupo renomeado");
+      utils.groups.getById.invalidate({ groupId });
+      utils.groups.myGroups.invalidate();
+      setIsRenaming(false);
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao renomear"),
+  });
 
   const deleteMutation = trpc.groups.delete.useMutation({
     onSuccess: () => {
@@ -372,7 +384,52 @@ function GroupDetail({
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="font-display text-2xl tracking-wider text-foreground">{group.name}</h2>
+              {isRenaming ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="bg-card border border-primary/30 rounded px-2 py-1 text-foreground font-display text-xl tracking-wider focus:outline-none focus:border-primary"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newName.trim().length >= 5) {
+                        renameMutation.mutate({ groupId, name: newName.trim() });
+                      } else if (e.key === "Escape") {
+                        setIsRenaming(false);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (newName.trim().length >= 5) {
+                        renameMutation.mutate({ groupId, name: newName.trim() });
+                      } else {
+                        toast.error("Nome deve ter pelo menos 5 caracteres");
+                      }
+                    }}
+                    className="text-primary hover:text-primary/80"
+                  >
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => setIsRenaming(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h2 className="font-display text-2xl tracking-wider text-foreground">{group.name}</h2>
+                  {isCreator && (
+                    <button
+                      onClick={() => { setNewName(group.name); setIsRenaming(true); }}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                      title="Renomear grupo"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
+              )}
               {isEspecialista && <Crown className="w-5 h-5 text-primary" />}
               {isBroadcast && <Radio className="w-5 h-5 text-primary" />}
             </div>

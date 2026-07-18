@@ -2309,7 +2309,7 @@ export const appRouter = router({
         if (db) {
           const dbPlans = await db.select().from(plansTable).orderBy(plansTable.sortOrder);
           if (dbPlans && dbPlans.length > 0) {
-            // Map DB plans to the expected format
+            // Map DB plans to the expected format, including visibleRoles
             const mapped = dbPlans.filter((p: any) => p.active).map((p: any) => ({
               id: p.id,
               name: p.name,
@@ -2319,8 +2319,12 @@ export const appRouter = router({
               maxRatingsPerDay: p.maxRatingsPerDay,
               features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
               description: p.description,
+              visibleRoles: typeof p.visibleRoles === 'string' ? JSON.parse(p.visibleRoles) : (p.visibleRoles || null),
             }));
-            return { user: mapped, business: mapped, fromDb: true };
+            // Filter: user plans = those visible to user role, business = visible to business
+            const userPlans = mapped.filter((p: any) => !p.visibleRoles || p.visibleRoles.includes("user"));
+            const businessPlans = mapped.filter((p: any) => !p.visibleRoles || p.visibleRoles.includes("business"));
+            return { user: userPlans, business: businessPlans, all: mapped, fromDb: true };
           }
         }
       } catch (e) {
@@ -2401,6 +2405,7 @@ export const appRouter = router({
       return result.map((p: any) => ({
         ...p,
         features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
+        visibleRoles: typeof p.visibleRoles === 'string' ? JSON.parse(p.visibleRoles) : (p.visibleRoles || null),
       }));
     }),
 
@@ -2414,6 +2419,7 @@ export const appRouter = router({
         highlighted: z.boolean().optional(),
         maxRatingsPerDay: z.number().min(1).optional(),
         sortOrder: z.number().optional(),
+        visibleRoles: z.array(z.string()).optional(),
       }))
       .mutation(async ({ input }) => {
         const { getDb } = await import("./db");
@@ -2427,6 +2433,7 @@ export const appRouter = router({
           highlighted: input.highlighted || false,
           maxRatingsPerDay: input.maxRatingsPerDay || 3,
           sortOrder: input.sortOrder || 0,
+          visibleRoles: input.visibleRoles ? JSON.stringify(input.visibleRoles) : null,
         });
         return { success: true };
       }),
@@ -2443,6 +2450,7 @@ export const appRouter = router({
         maxRatingsPerDay: z.number().min(1).optional(),
         sortOrder: z.number().optional(),
         active: z.boolean().optional(),
+        visibleRoles: z.array(z.string()).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         const { getDb } = await import("./db");
@@ -2459,6 +2467,7 @@ export const appRouter = router({
         if (updates.maxRatingsPerDay !== undefined) setData.maxRatingsPerDay = updates.maxRatingsPerDay;
         if (updates.sortOrder !== undefined) setData.sortOrder = updates.sortOrder;
         if (updates.active !== undefined) setData.active = updates.active;
+        if (updates.visibleRoles !== undefined) setData.visibleRoles = updates.visibleRoles ? JSON.stringify(updates.visibleRoles) : null;
         await db!.update(plans).set(setData).where(eq(plans.id, id));
         return { success: true };
       }),
