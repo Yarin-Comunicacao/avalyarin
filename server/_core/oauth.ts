@@ -24,6 +24,11 @@ export function registerOAuthRoutes(app: Express) {
     console.log("[OAuth] Using Google OAuth (no OAUTH_SERVER_URL)");
     registerGoogleOAuthRoutes(app);
   }
+  // Always register Facebook OAuth if credentials are available
+  if (ENV.facebookClientId && ENV.facebookClientSecret) {
+    console.log("[OAuth] Facebook OAuth enabled");
+    registerFacebookOAuthRoutes(app);
+  }
 }
 
 // ============================================
@@ -305,5 +310,198 @@ function registerGoogleOAuthRoutes(app: Express) {
     const cookieOptions = getSessionCookieOptions(req);
     res.clearCookie(COOKIE_NAME, cookieOptions);
     res.json({ success: true });
+  });
+}
+
+// ============================================
+// FACEBOOK OAUTH (for avalyarin.com.br / Render production)
+// ============================================
+function registerFacebookOAuthRoutes(app: Express) {
+  // Facebook OAuth login redirect
+  app.get("/api/auth/facebook", (req: Request, res: Response) => {
+    const origin = getQueryParam(req, "origin") || `${req.protocol}://${req.get("host")}`;
+    const safeOrigin = process.env.NODE_ENV === "production" && origin.startsWith("http://")
+      ? origin.replace("http://", "https://")
+      : origin;
+    const redirectUri = `${safeOrigin}/api/oauth/facebook/callback`;
+
+    const fbAuthUrl = new URL("https://www.facebook.com/v19.0/dialog/oauth");
+    fbAuthUrl.searchParams.set("client_id", ENV.facebookClientId);
+    fbAuthUrl.searchParams.set("redirect_uri", redirectUri);
+    fbAuthUrl.searchParams.set("scope", "email,public_profile");
+    fbAuthUrl.searchParams.set("state", Buffer.from(redirectUri).toString("base64"));
+    console.log("[OAuth] Login redirect to Facebook, redirectUri:", redirectUri);
+
+    res.redirect(302, fbAuthUrl.toString());
+  });
+
+  // Facebook OAuth callback
+  app.get("/api/oauth/facebook/callback", async (req: Request, res: Response) => {
+    const code = getQueryParam(req, "code");
+    const state = getQueryParam(req, "state");
+    const errorParam = getQueryParam(req, "error");
+
+    if (errorParam) {
+      console.error("[Facebook OAuth] User denied access:", errorParam);
+      res.redirect(302, "/?error=facebook_denied");
+      return;
+    }
+
+    if (!code) {
+      res.status(400).json({ error: "code is required" });
+      return;
+    }
+
+    try {
+      // Determine redirect URI from state
+      const redirectUri = state
+        ? Buffer.from(state, "base64").toString("utf-8")
+        : `${req.protocol}://${req.get("host")}/api/oauth/facebook/callback`;
+
+      // Exchange code for access token
+      const tokenUrl = new URL("https://graph.facebook.com/v19.0/oauth/access_token");
+      tokenUrl.searchParams.set("client_id", ENV.facebookClientId);
+      tokenUrl.searchParams.set("client_secret", ENV.facebookClientSecret);
+      tokenUrl.searchParams.set("redirect_uri", redirectUri);
+      tokenUrl.searchParams.set("code", code);
+
+      const tokenResp = await fetch(tokenUrl.toString());
+      if (!tokenResp.ok) {
+        const err = await tokenResp.text();
+        console.error("[Facebook OAuth] Token exchange failed:", err);
+        res.status(500).json({ error: "Token exchange failed" });
+        return;
+      }
+
+      const tokenData = (await tokenResp.json()) as { access_token: string; token_type: string };
+
+      // Get user info from Facebook Graph API
+      const userInfoUrl = new URL("https://graph.facebook.com/v19.0/me");
+      userInfoUrl.searchParams.set("fields", "id,name,email,picture.type(large)");
+      userInfoUrl.searchParams.set("access_token", tokenData.access_token);
+
+      const userInfoResp = await fetch(userInfoUrl.toString());
+      if (!userInfoResp.ok) {
+        res.status(500).json({ error: "Failed to get user info from Facebook" });
+        return;
+      }
+
+      const fbUser = (await userInfoResp.json()) as {
+        id: string;
+        name: string;
+        email?: string;
+        picture?: { data?: { url?: string } };
+      };
+
+      // ─── MERGE LOGIC (same as Google) ───────────────────────────────
+      const fbOpenId = `facebook_${fbUser.id}`;
+      const database = await db.getDb();
+      let existingUserByFacebookId: any = null;
+      let existingUserByOpenId: any = null;
+      let existingUserByEmail: any = null;
+
+      if (database) {
+        // 1. Check by facebookId field
+        existingUserByFacebookId = await database.select().from(users)
+          .where(eq(users.facebookId, fbUser.id))
+          .limit(1)
+          .then((r: any[]) => r[0] || null);
+
+        // 2. Check by openId (facebook_xxx)
+        if (!existingUserByFacebookId) {
+          existingUserByOpenId = await database.select().from(users)
+            .where(eq(users.openId, fbOpenId))
+            .limit(1)
+            .then((r: any[]) => r[0] || null);
+        }
+
+        // 3. Check by email (account merging — same email from Google/manual)
+        if (!existingUserByFacebookId && !existingUserByOpenId && fbUser.email) {
+          existingUserByEmail = await database.select().from(users)
+            .where(eq(users.email, fbUser.email))
+            .limit(1)
+            .then((r: any[]) => r[0] || null);
+        }
+      }
+
+      let sessionOpenId: string;
+      const pictureUrl = fbUser.picture?.data?.url || null;
+
+      if (existingUserByFacebookId) {
+        // User already linked via facebookId — just update lastSignedIn
+        if (database) {
+          await database.update(users)
+            .set({
+              lastSignedIn: new Date(),
+              ...(pictureUrl && !existingUserByFacebookId.profilePhotoUrl ? { profilePhotoUrl: pictureUrl } : {}),
+            })
+            .where(eq(users.id, existingUserByFacebookId.id));
+        }
+        sessionOpenId = existingUserByFacebookId.openId;
+      } else if (existingUserByOpenId) {
+        // User already has facebook openId — update lastSignedIn
+        if (database) {
+          await database.update(users)
+            .set({
+              lastSignedIn: new Date(),
+              facebookId: fbUser.id,
+              ...(pictureUrl && !existingUserByOpenId.profilePhotoUrl ? { profilePhotoUrl: pictureUrl } : {}),
+            })
+            .where(eq(users.id, existingUserByOpenId.id));
+        }
+        sessionOpenId = fbOpenId;
+      } else if (existingUserByEmail) {
+        // User exists with same email but different login method
+        // MERGE: link Facebook account to existing user, DO NOT create new user
+        if (database) {
+          await database.update(users)
+            .set({
+              facebookId: fbUser.id,
+              loginMethod: existingUserByEmail.loginMethod
+                ? `${existingUserByEmail.loginMethod},facebook`
+                : "facebook",
+              lastSignedIn: new Date(),
+              ...(pictureUrl && !existingUserByEmail.profilePhotoUrl ? { profilePhotoUrl: pictureUrl } : {}),
+              // DO NOT update: role, name, username, openId, surveyData, etc.
+            })
+            .where(eq(users.id, existingUserByEmail.id));
+        }
+        sessionOpenId = existingUserByEmail.openId;
+        console.log(`[Facebook OAuth] Merged Facebook account into existing user (id: ${existingUserByEmail.id}, email: ${fbUser.email}, role: ${existingUserByEmail.role})`);
+      } else {
+        // Brand new user — create with default role "user"
+        if (!fbUser.email) {
+          // Facebook user without email — redirect with error
+          res.redirect(302, "/?error=facebook_no_email");
+          return;
+        }
+        await db.upsertUser({
+          openId: fbOpenId,
+          name: fbUser.name || null,
+          email: fbUser.email,
+          loginMethod: "facebook",
+          lastSignedIn: new Date(),
+        });
+        // Also save facebookId
+        if (database) {
+          await database.update(users)
+            .set({ facebookId: fbUser.id, emailVerified: true })
+            .where(eq(users.openId, fbOpenId));
+        }
+        sessionOpenId = fbOpenId;
+      }
+
+      // Create session JWT
+      const sessionToken = await sdk.createSessionToken(sessionOpenId, {
+        name: fbUser.name || "",
+        expiresInMs: ONE_YEAR_MS,
+      });
+      const cookieOptions = getSessionCookieOptions(req);
+      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      res.redirect(302, "/");
+    } catch (error: any) {
+      console.error("[Facebook OAuth] Callback failed:", error?.message || error);
+      res.status(500).json({ error: "Facebook OAuth callback failed", detail: error?.message });
+    }
   });
 }

@@ -523,7 +523,10 @@ export default function EstablishmentPage() {
       )}
 
       {/* Fixed CTA at bottom — hidden for business accounts */}
-      {user?.role !== "business" && (
+      {(() => {
+        const effRole = (window as any).__ownerViewingAs || user?.role || "user";
+        return effRole !== "business";
+      })() && (
         <div className={`fixed left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-t border-primary/20 p-3 sm:p-4 ${!isAuthenticated ? 'bottom-0' : user?.role === 'owner' ? 'bottom-[8.5rem]' : 'bottom-16'}`}>
           <div className="container">
             <Link href={`/avaliar/${establishment.slug}`}>

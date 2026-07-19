@@ -25,6 +25,7 @@ export const users = mysqlTable("users", {
   emailVerified: boolean("emailVerified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),
+  locationSharing: boolean("locationSharing").default(false).notNull(),
   locationUpdatedAt: bigint("locationUpdatedAt", { mode: "number" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -696,6 +697,26 @@ export type RatingPhoto = typeof ratingPhotos.$inferSelect;
 export type InsertRatingPhoto = typeof ratingPhotos.$inferInsert;
 
 // ============================================================
+// Photo Verifications — resultados da verificação de fotos por IA
+// ============================================================
+export const photoVerifications = mysqlTable("photo_verifications", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  ratingId: int("ratingId").notNull(),
+  verified: boolean("verified").notNull().default(false),
+  confidence: varchar("confidence", { length: 20 }).notNull().default("low"), // high, medium, low
+  matchesClaimedItem: boolean("matchesClaimedItem").notNull().default(false),
+  multipleItemsDetected: boolean("multipleItemsDetected").notNull().default(false),
+  detectedItems: text("detectedItems"), // JSON array
+  suggestedItemMatches: text("suggestedItemMatches"), // JSON array
+  reason: text("reason"),
+  rawAnalysis: text("rawAnalysis"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoVerification = typeof photoVerifications.$inferSelect;
+export type InsertPhotoVerification = typeof photoVerifications.$inferInsert;
+
+// ============================================================
 // Integrations — tokens e configurações de integrações externas
 // ============================================================
 export const integrations = mysqlTable("integrations", {
@@ -1033,3 +1054,22 @@ export const plans = mysqlTable("plans", {
 export type Plan = typeof plans.$inferSelect;
 export type InsertPlan = typeof plans.$inferInsert;
 
+
+/**
+ * Special hours / exceptions for establishments.
+ * Business owners can add extended/reduced hours for specific dates (events, holidays, etc.)
+ */
+export const specialHours = mysqlTable("special_hours", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  openTime: varchar("openTime", { length: 5 }).notNull(), // HH:MM format
+  closeTime: varchar("closeTime", { length: 5 }).notNull(), // HH:MM format
+  closed: boolean("closed").default(false).notNull(), // If true, establishment is closed this day
+  reason: varchar("reason", { length: 255 }), // "Jogo do Brasil", "Evento especial", "Feriado", etc.
+  createdBy: int("createdBy").notNull(), // userId of the business owner who created it
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SpecialHours = typeof specialHours.$inferSelect;
+export type InsertSpecialHours = typeof specialHours.$inferInsert;

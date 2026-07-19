@@ -6,7 +6,7 @@ import ProfilePhotoUploader from "@/components/ProfilePhotoUploader";
 import BirthdateRoulette from "@/components/BirthdateRoulette";
 import {
   Check, X, Loader2, Upload, AlertCircle, CheckCircle, Clock,
-  Link2, LogOut, MapPin, DollarSign, Calendar, Shield, Pencil
+  Link2, LogOut, MapPin, DollarSign, Calendar, Shield, Pencil, Navigation
 } from "lucide-react";
 
 const REGION_LABELS: Record<string, string> = {
@@ -440,6 +440,9 @@ export default function EditarTab() {
         )}
       </div>
 
+      {/* Localização — toggle on/off */}
+      <LocationCard />
+
       {/* Média de Consumo */}
       <div className="p-4 rounded-xl bg-card border border-border/50">
         <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-1">
@@ -497,6 +500,107 @@ export default function EditarTab() {
         >
           <LogOut className="w-4 h-4" />
           Sair da Conta
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Location sharing card with toggle */
+function LocationCard() {
+  const { data: profile } = trpc.profile.get.useQuery();
+  const utils = trpc.useUtils();
+  const [requesting, setRequesting] = useState(false);
+
+  const locationSharing = profile?.locationSharing ?? false;
+  const hasCoords = profile?.lat != null && profile?.lng != null;
+
+  const updateLocationSharing = trpc.profile.updateLocationSharing.useMutation({
+    onSuccess: () => {
+      utils.profile.get.invalidate();
+      utils.auth.me.invalidate();
+    },
+    onError: (err) => toast.error(err.message || "Erro ao atualizar localização"),
+  });
+
+  const handleToggle = async () => {
+    if (locationSharing) {
+      // Turn OFF — clear location from DB
+      updateLocationSharing.mutate({ sharing: false });
+      toast.success("Localização desativada");
+      return;
+    }
+
+    // Turn ON — request browser geolocation and save
+    if (!navigator.geolocation) {
+      toast.error("Geolocalização não suportada neste navegador");
+      return;
+    }
+
+    setRequesting(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        updateLocationSharing.mutate({
+          sharing: true,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        // Also update localStorage cache
+        localStorage.setItem("avalyarin_user_location", JSON.stringify({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          timestamp: Date.now(),
+        }));
+        toast.success("Localização ativada e salva!");
+        setRequesting(false);
+      },
+      (error) => {
+        setRequesting(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Permissão de localização negada. Habilite nas configurações do navegador.");
+        } else {
+          toast.error("Não foi possível obter sua localização.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const isPending = updateLocationSharing.isPending || requesting;
+
+  return (
+    <div className="p-4 rounded-xl bg-card border border-border/50">
+      <label className="text-xs font-medium text-muted-foreground flex items-center gap-2 mb-2">
+        <Navigation className="w-3.5 h-3.5" /> Localização
+      </label>
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm text-foreground">
+            {locationSharing && hasCoords
+              ? "Compartilhando localização"
+              : "Localização desativada"}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            {locationSharing
+              ? "Usada para mostrar bares próximos automaticamente"
+              : "Ative para ver bares próximos sem pedir permissão toda vez"}
+          </p>
+        </div>
+        <button
+          onClick={handleToggle}
+          disabled={isPending}
+          className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
+            locationSharing ? "bg-primary" : "bg-secondary border border-border/50"
+          } ${isPending ? "opacity-50" : ""}`}
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+              locationSharing ? "translate-x-5" : "translate-x-0"
+            }`}
+          />
+          {isPending && (
+            <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-primary animate-spin" />
+          )}
         </button>
       </div>
     </div>

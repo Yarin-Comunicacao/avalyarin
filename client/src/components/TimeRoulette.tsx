@@ -9,6 +9,9 @@ const VISIBLE_ITEMS = 5; // number of visible items in viewport
 interface TimeRouletteProps {
   value?: { hours: number; minutes: number };
   onChange: (time: { hours: number; minutes: number }) => void;
+  minHour?: number; // Minimum allowed hour (establishment opens)
+  maxHour?: number; // Maximum allowed hour (establishment closes)
+  closesAfterMidnight?: boolean; // If true, hours wrap around midnight
 }
 
 // Individual drum/roulette column
@@ -178,7 +181,7 @@ function DrumColumn({ items, selectedIndex, onSelect, label }: DrumColumnProps) 
   );
 }
 
-export default function TimeRoulette({ value, onChange }: TimeRouletteProps) {
+export default function TimeRoulette({ value, onChange, minHour, maxHour, closesAfterMidnight }: TimeRouletteProps) {
   // Default to current hour rounded to nearest 5 minutes
   const now = new Date();
   const defaultHour = value?.hours ?? now.getHours();
@@ -188,15 +191,38 @@ export default function TimeRoulette({ value, onChange }: TimeRouletteProps) {
   const [selectedMinute, setSelectedMinute] = useState(defaultMinute >= 60 ? 55 : defaultMinute);
 
   // Generate hour items (0-23) with 2 blank items at the top
+  // Filter based on minHour/maxHour if provided
   const hourItems = useMemo(() => {
     const items: { label: string; value: number; blank?: boolean }[] = [];
     items.push({ label: "", value: -2, blank: true });
     items.push({ label: "", value: -1, blank: true });
     for (let h = 0; h <= 23; h++) {
-      items.push({ label: String(h).padStart(2, "0"), value: h });
+      let allowed = true;
+      if (minHour !== undefined && maxHour !== undefined) {
+        if (closesAfterMidnight) {
+          // e.g., opens at 17, closes at 2 → valid: 17-23 and 0-2
+          allowed = h >= minHour || h <= maxHour;
+        } else {
+          // Normal: opens at 11, closes at 23 → valid: 11-23
+          allowed = h >= minHour && h <= maxHour;
+        }
+      } else if (minHour !== undefined) {
+        allowed = h >= minHour;
+      } else if (maxHour !== undefined) {
+        allowed = h <= maxHour;
+      }
+      if (allowed) {
+        items.push({ label: String(h).padStart(2, "0"), value: h });
+      }
+    }
+    // If no valid hours (shouldn't happen), show all
+    if (items.length <= 2) {
+      for (let h = 0; h <= 23; h++) {
+        items.push({ label: String(h).padStart(2, "0"), value: h });
+      }
     }
     return items;
-  }, []);
+  }, [minHour, maxHour, closesAfterMidnight]);
 
   // Generate minute items (0-55, step 5) with 2 blank items at the top
   const minuteItems = useMemo(() => {

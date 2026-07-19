@@ -94,73 +94,13 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
   }, [onChoose]);
 
   // ============================================================
-  // FACEBOOK LOGIN
+  // FACEBOOK LOGIN (redirect-based OAuth)
   // ============================================================
-  const handleFacebookLogin = useCallback(async () => {
-    const fbAppId = import.meta.env.VITE_FACEBOOK_APP_ID || "";
-    if (!fbAppId) {
-      toast.info("Login com Facebook estará disponível em breve!");
-      return;
-    }
-
+  const handleFacebookLogin = useCallback(() => {
     setLoading(true);
-    try {
-      // Load Facebook SDK if not loaded
-      if (!(window as any).FB) {
-        await new Promise<void>((resolve, reject) => {
-          (window as any).fbAsyncInit = function () {
-            (window as any).FB.init({
-              appId: fbAppId,
-              cookie: true,
-              xfbml: true,
-              version: "v18.0",
-            });
-            resolve();
-          };
-          const script = document.createElement("script");
-          script.src = "https://connect.facebook.net/pt_BR/sdk.js";
-          script.onload = () => {};
-          script.onerror = () => reject(new Error("Failed to load Facebook SDK"));
-          document.head.appendChild(script);
-        });
-      }
-
-      (window as any).FB.login(
-        (response: any) => {
-          if (response.authResponse) {
-            const { accessToken } = response.authResponse;
-            fetch("/api/auth/facebook", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ accessToken }),
-              credentials: "include",
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.success) {
-                  localStorage.setItem("avalyarin_auth_flow", "login");
-                  // DO NOT set avalyarin_survey_completed here — let App.tsx check if user needs onboarding
-                  onChoose("login");
-                  window.location.reload();
-                } else {
-                  toast.error(data.error || "Erro no login com Facebook");
-                }
-              })
-              .catch(() => toast.error("Erro de conexão"))
-              .finally(() => setLoading(false));
-          } else {
-            toast.error("Login com Facebook cancelado");
-            setLoading(false);
-          }
-        },
-        { scope: "email,public_profile" }
-      );
-    } catch (err) {
-      console.error("[Auth] Facebook login error:", err);
-      toast.error("Erro ao iniciar login com Facebook");
-      setLoading(false);
-    }
-  }, [onChoose]);
+    const origin = window.location.origin;
+    window.location.href = `${origin}/api/auth/facebook?origin=${encodeURIComponent(origin)}`;
+  }, []);
 
   // ============================================================
   // EMAIL LOGIN
@@ -219,6 +159,16 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
         localStorage.setItem("avalyarin_auth_flow", "register");
         onChoose("register");
         window.location.reload();
+      } else if (data.code === "USER_ALREADY_EXISTS") {
+        toast.error("Usuário já cadastrado! Redirecionando para login...", {
+          description: data.loginMethod === "google" 
+            ? "Use sua conta Google para entrar."
+            : data.loginMethod === "facebook"
+            ? "Use sua conta Facebook para entrar."
+            : "Use seu email e senha para entrar.",
+          duration: 4000,
+        });
+        setTimeout(() => setView("email-login"), 2000);
       } else {
         toast.error(data.error || "Erro no cadastro");
       }

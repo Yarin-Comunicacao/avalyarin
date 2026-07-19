@@ -262,7 +262,7 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                   {Number(selected.overallScore).toFixed(1)}/10
                 </span>
                 <span className="text-xs text-muted-foreground ml-1">
-                  ({selected.type === "analytic" ? "Analítico" : "Direto"})
+                  ({selected.type === "analytic" ? "Analítica" : "Direta"})
                 </span>
               </div>
             )}

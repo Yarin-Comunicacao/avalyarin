@@ -36,6 +36,10 @@ import {
   getBusinessEstablishments,
   getBusinessNotifications,
   businessUpdateEstablishment,
+  getSpecialHours as getSpecialHoursDb,
+  createSpecialHours as createSpecialHoursDb,
+  updateSpecialHours as updateSpecialHoursDb,
+  deleteSpecialHours as deleteSpecialHoursDb,
   businessAddMenuItem,
   businessUpdateMenuItem,
   businessDeleteMenuItem,
@@ -81,6 +85,7 @@ import {
   voteOnEventLocation,
   closeEventVoting,
   saveUserLocation,
+  updateLocationSharing,
   getIntegration,
   setIntegration,
   getAllIntegrations,
@@ -373,6 +378,14 @@ export const appRouter = router({
         return await getEstablishmentWithMenu(input.slug);
       }),
     
+    // Public: get special hours override for a specific date
+    specialHoursForDate: publicProcedure
+      .input(z.object({ establishmentId: z.number(), date: z.string() }))
+      .query(async ({ input }) => {
+        const { getSpecialHoursForDate } = await import("./db");
+        return await getSpecialHoursForDate(input.establishmentId, input.date);
+      }),
+
     nearby: publicProcedure
       .input(z.object({
         lat: z.number(),
@@ -617,13 +630,55 @@ export const appRouter = router({
         const { storagePut } = await import("./storage");
         const { key: storageKey, url } = await storagePut(key, buffer, input.mimeType);
         const { saveRatingPhoto } = await import("./db");
-        return await saveRatingPhoto({
+        const savedPhoto = await saveRatingPhoto({
           ratingId: input.ratingId,
           userId,
           storageKey,
           url,
           taggedItemIds: input.taggedItemIds,
         });
+
+        // Trigger async photo verification (non-blocking)
+        if (savedPhoto?.id && input.taggedItemIds?.length) {
+          import("./photo-verification").then(async ({ verifyPhoto }) => {
+            try {
+              // Get menu item names for the tagged items
+              const { getDb } = await import("./db");
+              const { menuItems } = await import("../drizzle/schema");
+              const { inArray } = await import("drizzle-orm");
+              const db = await getDb();
+              const items = await db!.select({ id: menuItems.id, name: menuItems.name })
+                .from(menuItems)
+                .where(inArray(menuItems.id, input.taggedItemIds!.map(Number).filter(n => !isNaN(n))));
+              const allItemNames = items.map(i => i.name);
+              const claimedNames = input.taggedItemIds!.map(id => items.find(i => i.id === Number(id))?.name).filter(Boolean) as string[];
+
+              if (claimedNames.length === 0) return;
+
+              const result = await verifyPhoto(url, claimedNames, allItemNames);
+
+              // Save verification result
+              const { photoVerifications } = await import("../drizzle/schema");
+              await db!.insert(photoVerifications).values({
+                photoId: savedPhoto.id,
+                ratingId: input.ratingId,
+                verified: result.verified,
+                confidence: result.confidence,
+                matchesClaimedItem: result.matchesClaimedItem,
+                multipleItemsDetected: result.multipleItemsDetected,
+                detectedItems: JSON.stringify(result.detectedItems),
+                suggestedItemMatches: JSON.stringify(result.suggestedItemMatches || []),
+                reason: result.reason,
+                rawAnalysis: result.rawAnalysis,
+              });
+              console.log(`[PhotoVerification] Photo ${savedPhoto.id} verified: ${result.verified} (${result.confidence})`);
+            } catch (e) {
+              console.error("[PhotoVerification] Failed:", e);
+            }
+          }).catch(e => console.error("[PhotoVerification] Import failed:", e));
+        }
+
+        return savedPhoto;
       }),
 
     getPhotos: publicProcedure
@@ -641,6 +696,32 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const { getEstablishmentPhotos } = await import("./db");
         return await getEstablishmentPhotos(input.establishmentId, input.limit);
+      }),
+
+    getPhotoVerifications: protectedProcedure
+      .input(z.object({
+        ratingId: z.number().optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        // Only admin/owner can see verifications
+        if (ctx.user!.role !== "admin" && ctx.user!.openId !== process.env.OWNER_OPEN_ID) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso restrito" });
+        }
+        const { getDb } = await import("./db");
+        const { photoVerifications } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
+        const db = await getDb();
+        let query = db!.select()
+          .from(photoVerifications)
+          .orderBy(desc(photoVerifications.createdAt))
+          .limit(input.limit)
+          .offset(input.offset);
+        if (input.ratingId) {
+          query = query.where(eq(photoVerifications.ratingId, input.ratingId)) as any;
+        }
+        return await query;
       }),
 
     // Gallery — user's own photos
@@ -1314,6 +1395,58 @@ export const appRouter = router({
       }),
 
     getEventTypes: publicProcedure.query(() => EVENT_TYPES),
+
+    // ===== SPECIAL HOURS (schedule exceptions) =====
+    getSpecialHours: businessProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const myEstabs = await getBusinessEstablishments(ctx.user!.id);
+        const ownsEstab = myEstabs.some((e: any) => e.id === input.establishmentId);
+        if (!ownsEstab) throw new TRPCError({ code: "FORBIDDEN", message: "Você não tem acesso a este estabelecimento." });
+        return await getSpecialHoursDb(input.establishmentId);
+      }),
+
+    createSpecialHours: businessProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        openTime: z.string().regex(/^\d{2}:\d{2}$/),
+        closeTime: z.string().regex(/^\d{2}:\d{2}$/),
+        closed: z.boolean().default(false),
+        reason: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createSpecialHoursDb(ctx.user!.id, input.establishmentId, {
+          date: input.date,
+          openTime: input.openTime,
+          closeTime: input.closeTime,
+          closed: input.closed,
+          reason: input.reason,
+        });
+      }),
+
+    updateSpecialHours: businessProcedure
+      .input(z.object({
+        specialHoursId: z.number(),
+        openTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+        closeTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+        closed: z.boolean().optional(),
+        reason: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await updateSpecialHoursDb(ctx.user!.id, input.specialHoursId, {
+          openTime: input.openTime,
+          closeTime: input.closeTime,
+          closed: input.closed,
+          reason: input.reason,
+        });
+      }),
+
+    deleteSpecialHours: businessProcedure
+      .input(z.object({ specialHoursId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await deleteSpecialHoursDb(ctx.user!.id, input.specialHoursId);
+      }),
    }),
 
   // User profile & username
@@ -1453,6 +1586,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         return await saveUserLocation(ctx.user!.id, input.lat, input.lng);
+      }),
+    updateLocationSharing: protectedProcedure
+      .input(z.object({
+        sharing: z.boolean(),
+        lat: z.number().min(-90).max(90).nullable().optional(),
+        lng: z.number().min(-180).max(180).nullable().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await updateLocationSharing(ctx.user!.id, input.sharing, input.lat, input.lng);
       }),
     uploadProfilePhoto: protectedProcedure
       .input(z.object({

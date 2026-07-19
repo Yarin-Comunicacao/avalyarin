@@ -10,6 +10,7 @@ import { PUB_CRITERIA } from "@/lib/data";
 import type { MenuItem, RatingCriterion } from "@/lib/data";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useOwnerView } from "@/contexts/OwnerViewContext";
 import { getLoginUrl } from "@/const";
 import { Loader2 } from "lucide-react";
 import { useParams, Redirect } from "wouter";
@@ -23,10 +24,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ptBR } from "react-day-picker/locale";
 import TimeRoulette from "@/components/TimeRoulette";
+import { parseEstablishmentHours, isDayOpen, isTimeValid } from "@/lib/parseHours";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
-  CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X, AlertCircle
+  CalendarIcon, DollarSign, Receipt, Camera, MessageSquare, Image, X, AlertCircle, ImagePlus
 } from "lucide-react";
 
 type RatingMode = "direto" | "analitico";
@@ -413,6 +415,8 @@ function LowScoreReasons({
 export default function RatingPage() {
   const { establishmentId } = useParams<{ establishmentId: string }>();
   const { user, isAuthenticated } = useAuth();
+  const { viewingAs } = useOwnerView();
+  const effectiveRole = viewingAs || user?.role || "user";
   const saveRatingMutation = trpc.ratings.save.useMutation();
   const uploadPhotoMutation = trpc.ratings.uploadPhoto.useMutation();
   
@@ -445,6 +449,16 @@ export default function RatingPage() {
   } : null;
 
   const parentCategory = estData?.category ? { id: estData.category.slug, name: estData.category.name } : null;
+
+  // Parse establishment hours for calendar/time validation
+  const parsedHours = useMemo(() => parseEstablishmentHours(establishment?.hours), [establishment?.hours]);
+
+  // Query special hours for the selected visit date
+  const visitDateStr = visitDate ? `${visitDate.getFullYear()}-${String(visitDate.getMonth() + 1).padStart(2, "0")}-${String(visitDate.getDate()).padStart(2, "0")}` : "";
+  const { data: specialHoursOverride } = trpc.establishments.specialHoursForDate.useQuery(
+    { establishmentId: estData?.id ?? 0, date: visitDateStr },
+    { enabled: !!estData?.id && !!visitDateStr }
+  );
 
   // Check QR scan status for this establishment (determines source: presencial/hibrido/remoto)
   const { data: qrStatus } = trpc.qr.latestScan.useQuery(
@@ -624,6 +638,7 @@ export default function RatingPage() {
     setCurrentAnalyticItemIdx(0);
     setCurrentBevDirectIdx(0);
     setStep("visitDate");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleModeSelect = (selectedMode: RatingMode) => {
@@ -794,14 +809,32 @@ export default function RatingPage() {
   const isDirectItemComplete = (rating: DirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
-    if (!rating.comment || rating.comment.trim().length === 0) return false;
+    if (!rating.comment || rating.comment.trim().length < 20) return false;
+    // Photo is required
+    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
+    if (itemPhotos.length === 0) return false;
     return true;
+  };
+
+  const getDirectItemMissingFields = (rating: DirectRating): { field: string; label: string }[] => {
+    const missing: { field: string; label: string }[] = [];
+    if (rating.serves <= 0) missing.push({ field: "serves", label: "Serve quantas pessoas" });
+    if (rating.recommend === null) missing.push({ field: "recommend", label: "Recomendaria" });
+    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
+    if (itemPhotos.length === 0) missing.push({ field: "photo", label: "Foto do item" });
+    if (!rating.comment || rating.comment.trim().length < 20) missing.push({ field: "comment", label: "Comentário sobre o item (mín. 20 caracteres)" });
+    if (rating.taste <= 0) missing.push({ field: "taste", label: "Nota de Sabor" });
+    if (rating.taste > 0 && rating.taste <= 6 && rating.lowReasons.length === 0) missing.push({ field: "lowReasons", label: "Motivos da nota baixa" });
+    return missing;
   };
 
   const isBevDirectItemComplete = (rating: BevDirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
-    if (!rating.comment || rating.comment.trim().length === 0) return false;
+    if (!rating.comment || rating.comment.trim().length < 20) return false;
+    // Photo is required
+    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
+    if (itemPhotos.length === 0) return false;
     return true;
   };
 
@@ -817,7 +850,7 @@ export default function RatingPage() {
       if (score <= 0) return false;
       if (!hasValidLowReasons(score, rating.lowReasons[subId] || [], rating.lowComments[subId] || "")) return false;
     }
-    if (!rating.comment || rating.comment.trim().length === 0) return false;
+    if (!rating.comment || rating.comment.trim().length < 20) return false;
     return true;
   };
 
@@ -959,7 +992,7 @@ export default function RatingPage() {
   const scoreLabel = classification.label;
 
   const muitoBomDescription = mode === "direto"
-    ? "No modo Direto, a classificação é baseada exclusivamente na sua nota de Sabor para cada item consumido. Recomendação e quantidade de pessoas são registros qualitativos sem peso na nota."
+    ? "No modo Direta, a classificação é baseada exclusivamente na sua nota de Sabor para cada item consumido. Recomendação e quantidade de pessoas são registros qualitativos sem peso na nota."
     : "Para alcançar \"Muito Bom\", o estabelecimento precisa de boa execução em Sabor, Custo-Benefício e Ambiente — os três critérios de maior impacto na nota final.";
 
   const ItemSelector = ({ items, title }: { items: MenuItem[]; title: string }) => (
@@ -1029,6 +1062,12 @@ export default function RatingPage() {
     const item = menuItems.find((m) => m.id === rating.itemId);
     const itemType = item ? getItemType(item) : "outro";
     const tasteReasons = DIRECT_TASTE_REASONS[itemType] || DIRECT_TASTE_REASONS.outro;
+    const missingFields = validationAttempted ? getDirectItemMissingFields(rating as DirectRating) : [];
+    const isFieldMissing = (field: string) => missingFields.some(f => f.field === field);
+    const getFieldError = (field: string) => {
+      const f = missingFields.find(f => f.field === field);
+      return f ? `O campo ${f.label} é obrigatório` : null;
+    };
     return (
       <div className="p-6 rounded-xl bg-card border border-border/50">
         <h4 className="font-display text-xl tracking-wider text-foreground">{item?.name}</h4>
@@ -1038,7 +1077,7 @@ export default function RatingPage() {
         <p className="text-sm text-muted-foreground mb-6">{item?.description}</p>
 
         {/* Serves */}
-        <div className="mb-6">
+        <div data-field="serves" className={`mb-6 p-3 rounded-lg ${isFieldMissing("serves") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-primary" /> Serve quantas pessoas?
           </label>
@@ -1055,10 +1094,11 @@ export default function RatingPage() {
               </button>
             ))}
           </div>
+          {isFieldMissing("serves") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("serves")}</p>}
         </div>
 
         {/* Recommend */}
-        <div className="mb-6">
+        <div data-field="recommend" className={`mb-6 p-3 rounded-lg ${isFieldMissing("recommend") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground mb-3 block">Recomendaria?</label>
           <div className="flex gap-3">
             <button
@@ -1078,10 +1118,11 @@ export default function RatingPage() {
               <ThumbsDown className="w-4 h-4" /> Não
             </button>
           </div>
+          {isFieldMissing("recommend") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("recommend")}</p>}
         </div>
 
         {/* Photo per item */}
-        <div className="mb-4">
+        <div data-field="photo" className={`mb-4 p-3 rounded-lg ${isFieldMissing("photo") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
             <Camera className="w-4 h-4 text-primary" /> Foto do item
           </label>
@@ -1102,7 +1143,7 @@ export default function RatingPage() {
                 ))}
                 <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
                   <Camera className="w-4 h-4 text-primary/60" />
-                  <span className="text-[8px] text-primary/60 mt-0.5">Foto</span>
+                  <span className="text-[8px] text-primary/60 mt-0.5">Câmera</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -1125,13 +1166,37 @@ export default function RatingPage() {
                     }}
                   />
                 </label>
+                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                  <ImagePlus className="w-4 h-4 text-primary/60" />
+                  <span className="text-[8px] text-primary/60 mt-0.5">Galeria</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const newPhoto: PhotoWithTags = {
+                          id: `photo_${Date.now()}`,
+                          dataUrl: ev.target?.result as string,
+                          taggedItemIds: [rating.itemId],
+                        };
+                        setPhotos(prev => [...prev, newPhoto]);
+                      };
+                      reader.readAsDataURL(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
               </div>
             );
-          })()}
+                    })()}
+          {isFieldMissing("photo") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("photo")}</p>}
         </div>
-
         {/* Inline comment per item - right below photo */}
-        <div className="mb-6">
+        <div data-field="comment" className={`mb-6 p-3 rounded-lg ${isFieldMissing("comment") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
             <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
           </label>
@@ -1140,16 +1205,16 @@ export default function RatingPage() {
             onChange={(e) => updateField(idx, "comment", e.target.value.slice(0, 200))}
             placeholder={`Ex: Melhor ${item?.name || 'item'} de ${establishment?.neighborhood || 'São Paulo'}!`}
             maxLength={200}
-            className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
+            className={`w-full px-4 py-3 rounded-lg bg-secondary border text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors ${isFieldMissing("comment") ? "border-red-500" : "border-border/30"}`}
             rows={2}
           />
           <p className={`text-[10px] mt-1 text-right ${rating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
             {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
           </p>
+          {isFieldMissing("comment") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("comment")}</p>}
         </div>
-
         {/* Taste */}
-        <div>
+        <div data-field="taste" className={`p-3 rounded-lg ${isFieldMissing("taste") ? "border-2 border-red-500" : ""}`}>
           <ScoreButtons
             value={rating.taste}
             onChange={(v) => updateField(idx, "taste", v)}
@@ -1189,13 +1254,13 @@ export default function RatingPage() {
                 </p>
               </motion.div>
             )}
-          </AnimatePresence>
+                    </AnimatePresence>
+          {isFieldMissing("taste") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("taste")}</p>}
+          {isFieldMissing("lowReasons") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("lowReasons")}</p>}
         </div>
-
       </div>
     );
   };
-
   // Qualification check hooks - MUST be before any early returns (React hooks rules)
   const profileData = trpc.profile.get.useQuery(undefined, { enabled: !!user });
   const surveyInfo = trpc.survey.get.useQuery(undefined, { enabled: !!user });
@@ -1211,7 +1276,7 @@ export default function RatingPage() {
   if (!establishment) return <Redirect to="/" />;
 
   // Business accounts cannot evaluate
-  if (user?.role === "business") {
+  if (effectiveRole === "business") {
     return <Redirect to="/painel-empresarial" />;
   }
   
@@ -1269,7 +1334,7 @@ export default function RatingPage() {
   return (
     <div className="min-h-screen">
       <Navbar  />
-      <div className="pt-36 pb-24">
+      <div className="pt-36 pb-40">
         <div className="container max-w-2xl">
           {/* Progress bar — only shown for numbered steps */}
           {isNumberedStep && (
@@ -1376,7 +1441,16 @@ export default function RatingPage() {
                         onSelect={setVisitDate}
                         locale={ptBR}
                         defaultMonth={new Date()}
-                        disabled={(date) => date > new Date()}
+                        disabled={(date) => {
+                          // Can't select future dates
+                          if (date > new Date()) return true;
+                          // Block days when establishment is closed
+                          if (!parsedHours.unparseable) {
+                            const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+                            if (!isDayOpen(parsedHours, dayOfWeek)) return true;
+                          }
+                          return false;
+                        }}
                       />
                     </PopoverContent>
                   </Popover>
@@ -1385,8 +1459,89 @@ export default function RatingPage() {
                   <div className="mt-5 pt-5 border-t border-border/30">
                     <TimeRoulette
                       value={visitTime}
-                      onChange={setVisitTime}
+                      onChange={(time) => {
+                        setVisitTime(time);
+                      }}
+                      minHour={visitDate ? (() => {
+                        // Special hours override takes priority
+                        if (specialHoursOverride) {
+                          if (specialHoursOverride.closed) return undefined;
+                          return parseInt(specialHoursOverride.openTime.split(":")[0]);
+                        }
+                        if (parsedHours.unparseable) return undefined;
+                        const schedule = parsedHours.days[visitDate.getDay()];
+                        return schedule ? Math.floor(schedule.open / 60) : undefined;
+                      })() : undefined}
+                      maxHour={visitDate ? (() => {
+                        if (specialHoursOverride) {
+                          if (specialHoursOverride.closed) return undefined;
+                          return parseInt(specialHoursOverride.closeTime.split(":")[0]);
+                        }
+                        if (parsedHours.unparseable) return undefined;
+                        const schedule = parsedHours.days[visitDate.getDay()];
+                        if (!schedule) return undefined;
+                        const closeH = schedule.close > 1440 ? Math.floor((schedule.close - 1440) / 60) : Math.floor(schedule.close / 60);
+                        return closeH;
+                      })() : undefined}
+                      closesAfterMidnight={visitDate ? (() => {
+                        if (specialHoursOverride) {
+                          if (specialHoursOverride.closed) return false;
+                          const openH = parseInt(specialHoursOverride.openTime.split(":")[0]);
+                          const closeH = parseInt(specialHoursOverride.closeTime.split(":")[0]);
+                          return closeH < openH; // e.g., 17:00-02:00
+                        }
+                        if (parsedHours.unparseable) return false;
+                        const schedule = parsedHours.days[visitDate.getDay()];
+                        return schedule ? schedule.close > 1440 : false;
+                      })() : false}
                     />
+                    {visitDate && (() => {
+                      // Check special hours override first
+                      if (specialHoursOverride) {
+                        if (specialHoursOverride.closed) {
+                          return (
+                            <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              <span>Estabelecimento fechado neste dia{specialHoursOverride.reason ? ` (${specialHoursOverride.reason})` : ""}</span>
+                            </div>
+                          );
+                        }
+                        // Validate against special hours
+                        const openH = parseInt(specialHoursOverride.openTime.split(":")[0]);
+                        const openM = parseInt(specialHoursOverride.openTime.split(":")[1]);
+                        const closeH = parseInt(specialHoursOverride.closeTime.split(":")[0]);
+                        const closeM = parseInt(specialHoursOverride.closeTime.split(":")[1]);
+                        const timeInMin = visitTime.hours * 60 + visitTime.minutes;
+                        const openInMin = openH * 60 + openM;
+                        const closeInMin = closeH * 60 + closeM;
+                        let valid;
+                        if (closeInMin < openInMin) {
+                          // Crosses midnight
+                          valid = timeInMin >= openInMin || timeInMin <= closeInMin;
+                        } else {
+                          valid = timeInMin >= openInMin && timeInMin <= closeInMin;
+                        }
+                        if (!valid) {
+                          return (
+                            <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
+                              <AlertCircle className="w-3.5 h-3.5" />
+                              <span>Horário fora do funcionamento especial ({specialHoursOverride.openTime}–{specialHoursOverride.closeTime}{specialHoursOverride.reason ? ` — ${specialHoursOverride.reason}` : ""})</span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }
+                      // Fallback to regular hours
+                      if (!parsedHours.unparseable && !isTimeValid(parsedHours, visitDate.getDay(), visitTime.hours, visitTime.minutes)) {
+                        return (
+                          <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            <span>Horário fora do funcionamento do estabelecimento</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
                 <div className="flex justify-between mt-6">
@@ -1399,7 +1554,39 @@ export default function RatingPage() {
                         toast.error("Selecione a data da sua visita.");
                         return;
                       }
-                      setStep("mode");
+                      // Validate time against establishment hours (special hours override takes priority)
+                      if (specialHoursOverride) {
+                        if (specialHoursOverride.closed) {
+                          toast.error(`Estabelecimento fechado neste dia${specialHoursOverride.reason ? ` (${specialHoursOverride.reason})` : ""}.`);
+                          return;
+                        }
+                        const openH = parseInt(specialHoursOverride.openTime.split(":")[0]);
+                        const openM = parseInt(specialHoursOverride.openTime.split(":")[1]);
+                        const closeH = parseInt(specialHoursOverride.closeTime.split(":")[0]);
+                        const closeM = parseInt(specialHoursOverride.closeTime.split(":")[1]);
+                        const timeInMin = visitTime.hours * 60 + visitTime.minutes;
+                        const openInMin = openH * 60 + openM;
+                        const closeInMin = closeH * 60 + closeM;
+                        let valid;
+                        if (closeInMin < openInMin) {
+                          valid = timeInMin >= openInMin || timeInMin <= closeInMin;
+                        } else {
+                          valid = timeInMin >= openInMin && timeInMin <= closeInMin;
+                        }
+                        if (!valid) {
+                          toast.error(`Horário fora do funcionamento especial (${specialHoursOverride.openTime}–${specialHoursOverride.closeTime}).`);
+                          return;
+                        }
+                      } else if (!parsedHours.unparseable && !isTimeValid(parsedHours, visitDate.getDay(), visitTime.hours, visitTime.minutes)) {
+                        toast.error("O horário selecionado está fora do funcionamento do estabelecimento.");
+                        return;
+                      }
+                      // User só tem avaliação Direta — pular seleção de modo
+                      if (effectiveRole !== "critic" && effectiveRole !== "specialist") {
+                        handleModeSelect("direto");
+                      } else {
+                        setStep("mode");
+                      }
                     }}
                     className="font-display tracking-wider glow-amber"
                   >
@@ -1420,22 +1607,24 @@ export default function RatingPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button
-                    onClick={() => handleModeSelect("analitico")}
-                    className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
-                  >
-                    <BarChart3 className="w-8 h-8 text-accent mb-3" />
-                    <h4 className="font-display text-xl tracking-wider text-foreground">ANALÍTICO</h4>
-                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
-                    </p>
-                  </button>
+                  {(effectiveRole === "critic" || effectiveRole === "specialist") && (
+                    <button
+                      onClick={() => handleModeSelect("analitico")}
+                      className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
+                    >
+                      <BarChart3 className="w-8 h-8 text-accent mb-3" />
+                      <h4 className="font-display text-xl tracking-wider text-foreground">ANALÍTICA</h4>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                        Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
+                      </p>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleModeSelect("direto")}
                     className="p-6 rounded-xl border text-left transition-all hover:border-primary/60 border-border/30 bg-card"
                   >
                     <Zap className="w-8 h-8 text-primary mb-3" />
-                    <h4 className="font-display text-xl tracking-wider text-foreground">DIRETO</h4>
+                    <h4 className="font-display text-xl tracking-wider text-foreground">DIRETA</h4>
                     <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
                       Avaliação rápida: nota de sabor, se recomenda e para quantas pessoas serve.
                     </p>
@@ -1469,7 +1658,7 @@ export default function RatingPage() {
                 <div className="flex justify-between mt-6">
                   <Button
                     variant="outline"
-                    onClick={() => currentDirectIdx > 0 ? setCurrentDirectIdx(currentDirectIdx - 1) : setStep("mode")}
+                    onClick={() => currentDirectIdx > 0 ? setCurrentDirectIdx(currentDirectIdx - 1) : (effectiveRole !== "critic" && effectiveRole !== "specialist" ? setStep("visitDate") : setStep("mode"))}
                     className="font-display tracking-wider"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
@@ -1479,6 +1668,14 @@ export default function RatingPage() {
                       const rating = directRatings[currentDirectIdx];
                       if (!isDirectItemComplete(rating)) {
                         setValidationAttempted(true);
+                        // Scroll to first missing field
+                        const missing = getDirectItemMissingFields(rating);
+                        if (missing.length > 0) {
+                          setTimeout(() => {
+                            const el = document.querySelector(`[data-field="${missing[0].field}"]`);
+                            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                          }, 100);
+                        }
                         return;
                       }
                       setValidationAttempted(false);
@@ -1528,6 +1725,14 @@ export default function RatingPage() {
                       const rating = bevDirectRatings[currentBevDirectIdx];
                       if (!isBevDirectItemComplete(rating)) {
                         setValidationAttempted(true);
+                        // Scroll to first missing field
+                        const missing = getDirectItemMissingFields(rating as unknown as DirectRating);
+                        if (missing.length > 0) {
+                          setTimeout(() => {
+                            const el = document.querySelector(`[data-field="${missing[0].field}"]`);
+                            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                          }, 100);
+                        }
                         return;
                       }
                       setValidationAttempted(false);
@@ -1599,11 +1804,35 @@ export default function RatingPage() {
                               ))}
                               <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
                                 <Camera className="w-4 h-4 text-primary/60" />
-                                <span className="text-[8px] text-primary/60 mt-0.5">Foto</span>
+                                <span className="text-[8px] text-primary/60 mt-0.5">Câmera</span>
                                 <input
                                   type="file"
                                   accept="image/*"
                                   capture="environment"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                      const newPhoto: PhotoWithTags = {
+                                        id: `photo_${Date.now()}`,
+                                        dataUrl: ev.target?.result as string,
+                                        taggedItemIds: [itemRating.itemId],
+                                      };
+                                      setPhotos(prev => [...prev, newPhoto]);
+                                    };
+                                    reader.readAsDataURL(file);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                              <label className="w-16 h-16 rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                                <ImagePlus className="w-4 h-4 text-primary/60" />
+                                <span className="text-[8px] text-primary/60 mt-0.5">Galeria</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
                                   className="hidden"
                                   onChange={(e) => {
                                     const file = e.target.files?.[0];
@@ -2209,26 +2438,47 @@ export default function RatingPage() {
                                 </button>
                               </div>
                             ) : (
-                              <label className="w-20 h-20 rounded-lg border-2 border-dashed border-red-500/30 flex flex-col items-center justify-center cursor-pointer hover:border-red-500/60 transition-colors">
-                                <Camera className="w-5 h-5 text-red-500/60" />
-                                <span className="text-[9px] text-red-500/60 mt-0.5">Nota</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  capture="environment"
-                                  className="hidden"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => {
-                                      setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
-                                    };
-                                    reader.readAsDataURL(file);
-                                    e.target.value = '';
-                                  }}
-                                />
-                              </label>
+                              <div className="flex gap-2">
+                                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-red-500/30 flex flex-col items-center justify-center cursor-pointer hover:border-red-500/60 transition-colors">
+                                  <Camera className="w-4 h-4 text-red-500/60" />
+                                  <span className="text-[8px] text-red-500/60 mt-0.5">Câmera</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => {
+                                        setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                </label>
+                                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-red-500/30 flex flex-col items-center justify-center cursor-pointer hover:border-red-500/60 transition-colors">
+                                  <ImagePlus className="w-4 h-4 text-red-500/60" />
+                                  <span className="text-[8px] text-red-500/60 mt-0.5">Galeria</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => {
+                                        setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                </label>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -2332,26 +2582,47 @@ export default function RatingPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className="w-full max-w-[200px] aspect-[3/4] rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
-                      <Receipt className="w-8 h-8 text-primary/60 mb-2" />
-                      <span className="text-xs text-primary/60">Fotografar notinha</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = (ev) => {
-                            setReceiptPhoto(ev.target?.result as string);
-                          };
-                          reader.readAsDataURL(file);
-                          e.target.value = '';
-                        }}
-                      />
-                    </label>
+                    <div className="flex gap-3">
+                      <label className="w-[140px] aspect-[3/4] rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                        <Camera className="w-6 h-6 text-primary/60 mb-1" />
+                        <span className="text-[10px] text-primary/60">Câmera</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              setReceiptPhoto(ev.target?.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                      <label className="w-[140px] aspect-[3/4] rounded-lg border-2 border-dashed border-primary/30 flex flex-col items-center justify-center cursor-pointer hover:border-primary/60 transition-colors">
+                        <ImagePlus className="w-6 h-6 text-primary/60 mb-1" />
+                        <span className="text-[10px] text-primary/60">Galeria</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              setReceiptPhoto(ev.target?.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
                   )}
                 </div>
 
@@ -2594,24 +2865,27 @@ export default function RatingPage() {
                           }),
                         });
 
-                        // Upload photos to S3 (non-blocking, fire-and-forget)
+                        // Upload photos to S3 (truly non-blocking, fire-and-forget)
                         const savedRatingId = saveResult?.id;
                         if (savedRatingId && photos.length > 0) {
-                          for (const photo of photos) {
-                            try {
-                              const base64 = photo.dataUrl.split(",")[1];
-                              if (base64) {
-                                await uploadPhotoMutation.mutateAsync({
-                                  ratingId: savedRatingId,
-                                  base64Data: base64,
-                                  mimeType: photo.dataUrl.startsWith("data:image/png") ? "image/png" : "image/jpeg",
-                                  taggedItemIds: photo.taggedItemIds,
-                                });
+                          // Don't await — let uploads happen in background
+                          (async () => {
+                            for (const photo of photos) {
+                              try {
+                                const base64 = photo.dataUrl.split(",")[1];
+                                if (base64) {
+                                  await uploadPhotoMutation.mutateAsync({
+                                    ratingId: savedRatingId,
+                                    base64Data: base64,
+                                    mimeType: photo.dataUrl.startsWith("data:image/png") ? "image/png" : "image/jpeg",
+                                    taggedItemIds: photo.taggedItemIds,
+                                  });
+                                }
+                              } catch (e) {
+                                console.error("[Photo Upload] Failed:", e);
                               }
-                            } catch (e) {
-                              console.error("[Photo Upload] Failed:", e);
                             }
-                          }
+                          })();
                         }
 
                         // Also persist to localStorage for badge/survey tracking

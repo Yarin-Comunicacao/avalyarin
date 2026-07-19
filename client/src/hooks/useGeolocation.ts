@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
 
 interface GeolocationState {
   latitude: number | null;
@@ -15,6 +16,11 @@ export function useGeolocation() {
     error: null,
     loading: false,
     permissionDenied: false,
+  });
+
+  // Load saved location from user profile (DB)
+  const { data: profile } = trpc.profile.get.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000, // 5 min cache
   });
 
   const requestLocation = useCallback(() => {
@@ -65,8 +71,27 @@ export function useGeolocation() {
     );
   }, []);
 
-  // Try to load cached location on mount
+  // Priority: 1) DB saved location (if sharing on), 2) localStorage cache, 3) nothing
   useEffect(() => {
+    // If user has locationSharing enabled and has coords in DB, use those
+    if (profile?.locationSharing && profile?.lat != null && profile?.lng != null) {
+      setState({
+        latitude: profile.lat,
+        longitude: profile.lng,
+        error: null,
+        loading: false,
+        permissionDenied: false,
+      });
+      // Also update localStorage cache
+      localStorage.setItem("avalyarin_user_location", JSON.stringify({
+        lat: profile.lat,
+        lng: profile.lng,
+        timestamp: Date.now(),
+      }));
+      return;
+    }
+
+    // Fallback: try localStorage cache
     try {
       const cached = localStorage.getItem("avalyarin_user_location");
       if (cached) {
@@ -85,7 +110,7 @@ export function useGeolocation() {
     } catch {
       // Ignore cache errors
     }
-  }, []);
+  }, [profile?.locationSharing, profile?.lat, profile?.lng]);
 
   return { ...state, requestLocation };
 }

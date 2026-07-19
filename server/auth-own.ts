@@ -314,7 +314,12 @@ async function handleEmailRegister(req: Request, res: Response) {
       .then(r => r[0]);
 
     if (existing) {
-      return res.status(409).json({ error: "Este email já está cadastrado" });
+      return res.status(409).json({ 
+        error: "Usuário já cadastrado", 
+        code: "USER_ALREADY_EXISTS",
+        message: "Este email já está cadastrado. Faça login com sua conta existente.",
+        loginMethod: existing.loginMethod || "email"
+      });
     }
 
     // Hash password and create user

@@ -348,6 +348,9 @@ function EstablishmentCard({ est, onRequestChange, qrButton }: { est: any; onReq
         )}
       </div>
 
+      {/* Horários Extras */}
+      <SpecialHoursManager establishmentId={est.id} />
+
       {/* QR Code + Aviso de alteração via suporte */}
       <div className="mt-4 pt-3 border-t border-border/30">
         {qrButton && (
@@ -3286,6 +3289,234 @@ export function EventosEstabTab() {
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+
+/** Gerenciador de horários extras/exceções para um estabelecimento */
+function SpecialHoursManager({ establishmentId }: { establishmentId: number }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [date, setDate] = useState("");
+  const [openTime, setOpenTime] = useState("17:00");
+  const [closeTime, setCloseTime] = useState("02:00");
+  const [closed, setClosed] = useState(false);
+  const [reason, setReason] = useState("");
+
+  const utils = trpc.useUtils();
+  const { data: specialHours, isLoading } = trpc.business.getSpecialHours.useQuery({ establishmentId });
+
+  const createMutation = trpc.business.createSpecialHours.useMutation({
+    onSuccess: () => {
+      utils.business.getSpecialHours.invalidate({ establishmentId });
+      toast.success("Horário especial salvo!");
+      resetForm();
+    },
+    onError: (err) => toast.error(err.message || "Erro ao salvar"),
+  });
+
+  const deleteMutation = trpc.business.deleteSpecialHours.useMutation({
+    onSuccess: () => {
+      utils.business.getSpecialHours.invalidate({ establishmentId });
+      toast.success("Horário removido!");
+    },
+    onError: () => toast.error("Erro ao remover"),
+  });
+
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setDate("");
+    setOpenTime("17:00");
+    setCloseTime("02:00");
+    setClosed(false);
+    setReason("");
+  };
+
+  const handleSubmit = () => {
+    if (!date) {
+      toast.error("Selecione uma data");
+      return;
+    }
+    if (!closed && (!openTime || !closeTime)) {
+      toast.error("Preencha os horários");
+      return;
+    }
+    createMutation.mutate({
+      establishmentId,
+      date,
+      openTime: closed ? "00:00" : openTime,
+      closeTime: closed ? "00:00" : closeTime,
+      closed,
+      reason: reason || undefined,
+    });
+  };
+
+  const handleEdit = (entry: any) => {
+    setEditingId(entry.id);
+    setDate(entry.date);
+    setOpenTime(entry.openTime);
+    setCloseTime(entry.closeTime);
+    setClosed(entry.closed);
+    setReason(entry.reason || "");
+    setShowForm(true);
+  };
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split("-");
+    return `${d}/${m}/${y}`;
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  // Filter to show only future/today entries
+  const futureEntries = (specialHours || []).filter((e: any) => e.date >= today);
+  const pastEntries = (specialHours || []).filter((e: any) => e.date < today);
+
+  return (
+    <div className="mt-4 pt-3 border-t border-border/30">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">Horários Extras</span>
+        </div>
+        <button
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-primary/10 border border-primary/30 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+        >
+          <Plus className="w-3 h-3" />
+          {showForm ? "Cancelar" : "Adicionar"}
+        </button>
+      </div>
+
+      <p className="text-[11px] text-muted-foreground mb-3">
+        Defina horários diferentes para dias específicos (eventos, jogos, feriados).
+      </p>
+
+      {/* Form */}
+      {showForm && (
+        <div className="p-3 rounded-lg bg-secondary/30 border border-border/30 mb-3 space-y-3">
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Data</label>
+            <input
+              type="date"
+              value={date}
+              min={today}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-sm text-foreground"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`closed-${establishmentId}`}
+              checked={closed}
+              onChange={(e) => setClosed(e.target.checked)}
+              className="rounded border-border"
+            />
+            <label htmlFor={`closed-${establishmentId}`} className="text-xs text-muted-foreground">
+              Fechado neste dia
+            </label>
+          </div>
+
+          {!closed && (
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground block mb-1">Abre às</label>
+                <input
+                  type="time"
+                  value={openTime}
+                  onChange={(e) => setOpenTime(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-sm text-foreground"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground block mb-1">Fecha às</label>
+                <input
+                  type="time"
+                  value={closeTime}
+                  onChange={(e) => setCloseTime(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-sm text-foreground"
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Motivo (opcional)</label>
+            <input
+              type="text"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Ex: Jogo do Brasil, Evento especial, Feriado..."
+              maxLength={255}
+              className="w-full px-3 py-2 rounded-lg bg-background border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50"
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={createMutation.isPending}
+            className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
+            {createMutation.isPending ? "Salvando..." : editingId ? "Atualizar" : "Salvar Horário Especial"}
+          </button>
+        </div>
+      )}
+
+      {/* List of special hours */}
+      {isLoading ? (
+        <div className="text-xs text-muted-foreground">Carregando...</div>
+      ) : futureEntries.length === 0 && !showForm ? (
+        <div className="text-xs text-muted-foreground/60 italic">
+          Nenhum horário especial programado.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {futureEntries.map((entry: any) => (
+            <div key={entry.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/20 border border-border/30">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-foreground">{formatDate(entry.date)}</span>
+                  {entry.closed ? (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">FECHADO</span>
+                  ) : (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">
+                      {entry.openTime}–{entry.closeTime}
+                    </span>
+                  )}
+                </div>
+                {entry.reason && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{entry.reason}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-1 ml-2">
+                <button
+                  onClick={() => handleEdit(entry)}
+                  className="p-1 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                  title="Editar"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm("Remover este horário especial?")) {
+                      deleteMutation.mutate({ specialHoursId: entry.id });
+                    }
+                  }}
+                  className="p-1 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
+                  title="Remover"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

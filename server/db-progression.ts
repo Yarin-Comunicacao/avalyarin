@@ -35,7 +35,7 @@ async function getDb() {
  */
 export const POINT_WEIGHTS = [
   { maxMonths: 12, weight: 1.0 },   // 0–12 months: full value
-  { maxMonths: 24, weight: 0.2 },   // 12–24 months: 20%
+  { maxMonths: 24, weight: 0.5 },   // 12–24 months: 50%
   { maxMonths: 36, weight: 0.1 },   // 24–36 months: 10%
   { maxMonths: Infinity, weight: 0.025 }, // 36+ months: 2.5% (never expires)
 ] as const;
@@ -51,8 +51,8 @@ export const PROGRESSION_LEVELS = [
   { level: 3, name: "Frequentador", minPoints: 6, icon: "🍻" },
   { level: 4, name: "Conhecedor", minPoints: 10, icon: "🎯" },
   { level: 5, name: "Avaliador", minPoints: 15, icon: "📝" },
-  { level: 6, name: "Crítico", minPoints: 22, icon: "✍️" },
-  { level: 7, name: "Especialista", minPoints: 30, icon: "🔬" },
+  { level: 6, name: "Refinado", minPoints: 22, icon: "🎩" },
+  { level: 7, name: "Perito", minPoints: 30, icon: "🧪" },
   { level: 8, name: "Curador", minPoints: 40, icon: "🎨" },
   { level: 9, name: "Sommelier", minPoints: 55, icon: "🍷" },
   { level: 10, name: "Gastronomo", minPoints: 75, icon: "🍽️" },

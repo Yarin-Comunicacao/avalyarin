@@ -1706,6 +1706,9 @@ export async function getUserProfile(userId: number) {
       role: users.role,
       verified: users.verified,
       profilePhotoUrl: users.profilePhotoUrl,
+      lat: users.lat,
+      lng: users.lng,
+      locationSharing: users.locationSharing,
       createdAt: users.createdAt,
     })
     .from(users)
@@ -2336,8 +2339,30 @@ export async function saveUserLocation(userId: number, lat: number, lng: number)
   await db.update(users).set({
     lat,
     lng,
+    locationSharing: true,
     locationUpdatedAt: Date.now(),
   }).where(eq(users.id, userId));
+  return { success: true };
+}
+
+export async function updateLocationSharing(userId: number, sharing: boolean, lat?: number | null, lng?: number | null) {
+  const db = await getDb();
+  if (!db) return null;
+  if (sharing && lat != null && lng != null) {
+    await db.update(users).set({
+      locationSharing: true,
+      lat,
+      lng,
+      locationUpdatedAt: Date.now(),
+    }).where(eq(users.id, userId));
+  } else {
+    await db.update(users).set({
+      locationSharing: false,
+      lat: null,
+      lng: null,
+      locationUpdatedAt: null,
+    }).where(eq(users.id, userId));
+  }
   return { success: true };
 }
 
@@ -3221,4 +3246,153 @@ export async function closeEventVoting(eventId: number, userId: number) {
     .where(eq(groupEvents.id, eventId));
 
   return { success: true, winnerId: winner.optionId };
+}
+
+
+// ============================================================
+// SPECIAL HOURS (Business owners — schedule exceptions)
+// ============================================================
+
+import { specialHours } from "../drizzle/schema";
+
+/**
+ * Get all special hours for an establishment (future + recent past)
+ */
+export async function getSpecialHours(establishmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const { desc } = await import("drizzle-orm");
+  return await db.select()
+    .from(specialHours)
+    .where(eq(specialHours.establishmentId, establishmentId))
+    .orderBy(desc(specialHours.date));
+}
+
+/**
+ * Get special hours for a specific date (used in rating validation)
+ */
+export async function getSpecialHoursForDate(establishmentId: number, date: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const { and } = await import("drizzle-orm");
+  const [result] = await db.select()
+    .from(specialHours)
+    .where(and(
+      eq(specialHours.establishmentId, establishmentId),
+      eq(specialHours.date, date)
+    ));
+  return result || null;
+}
+
+/**
+ * Create a special hours entry (business owner only)
+ */
+export async function createSpecialHours(userId: number, establishmentId: number, data: {
+  date: string;
+  openTime: string;
+  closeTime: string;
+  closed: boolean;
+  reason?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Verify ownership
+  const { and } = await import("drizzle-orm");
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  if (!claim) return null;
+
+  // Check if there's already an entry for this date
+  const [existing] = await db.select()
+    .from(specialHours)
+    .where(and(
+      eq(specialHours.establishmentId, establishmentId),
+      eq(specialHours.date, data.date)
+    ));
+
+  if (existing) {
+    // Update existing
+    await db.update(specialHours)
+      .set({
+        openTime: data.openTime,
+        closeTime: data.closeTime,
+        closed: data.closed,
+        reason: data.reason || null,
+      })
+      .where(eq(specialHours.id, existing.id));
+    return { id: existing.id, updated: true };
+  }
+
+  // Create new
+  const [result] = await db.insert(specialHours).values({
+    establishmentId,
+    date: data.date,
+    openTime: data.openTime,
+    closeTime: data.closeTime,
+    closed: data.closed,
+    reason: data.reason || null,
+    createdBy: userId,
+  });
+  return { id: result.insertId, updated: false };
+}
+
+/**
+ * Update a special hours entry
+ */
+export async function updateSpecialHours(userId: number, specialHoursId: number, data: {
+  openTime?: string;
+  closeTime?: string;
+  closed?: boolean;
+  reason?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Verify ownership through the special hours entry
+  const { and } = await import("drizzle-orm");
+  const [entry] = await db.select().from(specialHours).where(eq(specialHours.id, specialHoursId));
+  if (!entry) return null;
+
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, entry.establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  if (!claim) return null;
+
+  await db.update(specialHours).set(data).where(eq(specialHours.id, specialHoursId));
+  return { success: true };
+}
+
+/**
+ * Delete a special hours entry
+ */
+export async function deleteSpecialHours(userId: number, specialHoursId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Verify ownership
+  const { and } = await import("drizzle-orm");
+  const [entry] = await db.select().from(specialHours).where(eq(specialHours.id, specialHoursId));
+  if (!entry) return null;
+
+  const [claim] = await db.select()
+    .from(businessClaims)
+    .where(and(
+      eq(businessClaims.userId, userId),
+      eq(businessClaims.establishmentId, entry.establishmentId),
+      eq(businessClaims.status, "approved")
+    ));
+  if (!claim) return null;
+
+  await db.delete(specialHours).where(eq(specialHours.id, specialHoursId));
+  return { success: true };
 }

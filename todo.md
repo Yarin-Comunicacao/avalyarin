@@ -1236,3 +1236,36 @@
 - [x] Permitir renomear grupos (criador pode editar nome do grupo)
 - [x] Planos: adicionar campo de seleção de roles que podem ver cada plano (impedir user de ver plano de business)
 - [x] Fix: specialist/critic devem ver os grupos criados como user em "Meus Grupos" (não perder grupos ao mudar de role)
+- [x] Foto obrigatória na avaliação (modo direto e analítico)
+- [x] Validação visual: campo não preenchido com moldura vermelha + mensagem "O campo X é obrigatório" + scroll automático para o primeiro campo faltante
+- [x] Remover label "(obrigatório)" visual da foto — todos os campos são obrigatórios
+- [x] Avaliação Analítica disponível somente para critic e specialist; user só vê Direta
+- [x] Renomear: "Direto" → "Direta", "Analítico" → "Analítica"
+- [x] Itens já avaliados ficam clicáveis para ver detalhes; badge "Direta" ou "Analítica" no canto superior direito
+- [x] Business não pode avaliar — ocultar botão de avaliação para esse role
+- [x] Salvar localização do usuário no banco (não pedir toda vez)
+- [x] Card de Localização em Perfil > Editar > Dados Pessoais com toggle on/off
+- [x] Quando toggle on: salvar lat/lng no perfil e usar como localização padrão
+- [x] Quando toggle off: remover lat/lng do perfil e parar de compartilhar
+- [x] Fix: bolinha do toggle de localização saindo para fora quando ativo (ajustar CSS)
+- [x] Avaliação: adicionar opção de buscar foto da galeria (além da câmera) para avaliações de dias anteriores
+- [x] Fix: scroll to top ao entrar no step "Data da visita" na avaliação
+- [x] Fix: comentário com menos de 20 caracteres não deveria permitir avançar (validação quebrada)
+- [x] Implementar verificação de fotos com IA (LLM visão) — validar se foto corresponde ao item avaliado
+- [x] IA de fotos: identificar quando uma foto contém múltiplos itens (ex: bebida + comida na mesma foto)
+- [x] Investigar e otimizar performance do "Salvar Avaliação" (demora para carregar nota geral)
+- [x] Mover card de Insígnias/Badge (Iniciante) da aba Avaliações para a aba Insights; na aba Avaliações só deve ter Header + menu de abas + lista
+- [x] Renomear nível 6 de "Crítico" para "Refinado" no sistema de progressão
+- [x] Renomear nível 7 de "Especialista" para "Perito" no sistema de progressão
+- [x] Alterar peso de pontuação 12-24 meses de 0.2 para 0.5
+- [x] Renomear insígnia especial "Embaixador" para "Regente"
+- [x] Data da visita: bloquear dias da semana em que o estabelecimento não funciona no calendário
+- [x] Data da visita: seletor de horário deve respeitar horário de abertura/fechamento do estabelecimento
+- [x] Business: criar tabela special_hours para horários extras/exceções de dias específicos
+- [x] Business: criar procedures tRPC para CRUD de horários extras
+- [x] Business: UI no painel Business para adicionar/editar/remover horários extras (eventos, jogos, etc.)
+- [x] Integrar horários extras na validação de data/hora da avaliação (sobrescrever horário padrão quando há exceção)
+- [x] Implementar login com Facebook OAuth (FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET)
+- [x] Prevenir duplicação de usuário: se email já existe (Google/manual), fazer login no existente
+- [x] Se tentar cadastrar com email já existente, mostrar erro "Usuário já cadastrado" e redirecionar para login
+- [ ] Gerar .zip com todas as atualizações + frase de commit

@@ -16,6 +16,10 @@ export const ENV = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 
+  // Facebook OAuth
+  facebookClientId: process.env.FACEBOOK_CLIENT_ID ?? "",
+  facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET ?? "",
+
   // Cloudflare R2 Storage
   r2AccountId: process.env.R2_ACCOUNT_ID ?? "",
   r2AccessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",

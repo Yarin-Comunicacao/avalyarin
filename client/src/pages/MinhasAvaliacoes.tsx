@@ -422,9 +422,6 @@ export default function MinhasAvaliacoes() {
           </div>
         </div>
 
-        {/* Progression Card */}
-        <ProgressionCard />
-
         {/* Tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           {tabs.map(tab => (
@@ -499,20 +496,21 @@ export default function MinhasAvaliacoes() {
                         <div key={review.id}>
                           <div
                             onClick={() => setExpandedRatingId(expandedRatingId === review.id ? null : review.id)}
-                            className="flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all cursor-pointer group"
+                            className="relative flex items-center gap-4 p-3 rounded-xl bg-card border border-border/50 hover:border-primary/20 transition-all cursor-pointer group"
                           >
+                            {/* Badge tipo de avaliação no canto superior direito */}
+                            <span className="absolute top-2 right-2 text-[9px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                              {review.type === "analytic" ? "Analítica" : "Direta"}
+                            </span>
                             <div className="w-14 h-14 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                               <Star className="w-6 h-6 text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-foreground text-sm truncate">{review.establishmentName}</p>
+                              <p className="font-medium text-foreground text-sm truncate pr-14">{review.establishmentName}</p>
                               <div className="flex items-center gap-3 mt-1">
                                 <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
                                   {review.visitDate ? new Date(review.visitDate).toLocaleDateString("pt-BR") : review.createdAt ? new Date(review.createdAt).toLocaleDateString("pt-BR") : "—"}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground">
-                                  {review.type === "analytic" ? "Analítico" : "Direto"}
                                 </span>
                               </div>
                               <span className="text-[10px] text-muted-foreground/60">{review.categoryName}</span>
@@ -1024,6 +1022,7 @@ export default function MinhasAvaliacoes() {
           {/* ============ INSÍGNIAS TAB ============ */}
           {activeTab === "insignias" && (
             <motion.div key="insignias" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <ProgressionCard />
               <InsigniasTab />
             </motion.div>
           )}
