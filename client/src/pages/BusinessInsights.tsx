@@ -12,7 +12,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown, Store } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown, Store, Cloud } from "lucide-react";
 import { ScrollableTabs } from "@/components/ScrollableTabs";
 import {
   Select,
@@ -26,15 +26,19 @@ import { useLocation, useRoute, Link } from "wouter";
 import BusinessDashboardTab from "./BusinessDashboardTab";
 import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
 import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
+import BusinessAnaliseIATab from "./BusinessAnaliseIATab";
+import BusinessNuvemIdeiasTab from "./BusinessNuvemIdeiasTab";
 import { BusinessPlanTab } from "./BusinessPanel";
 
-type TabId = "plano" | "dashboard" | "desempenho" | "plano-acao";
+type TabId = "plano" | "dashboard" | "desempenho" | "plano-acao" | "analise-ia" | "nuvem";
 
 const TABS: { id: TabId; label: string; labelFull: string; icon: React.ElementType }[] = [
   { id: "plano", label: "Meu Plano", labelFull: "Meu Plano", icon: Crown },
   { id: "dashboard", label: "Dashboard", labelFull: "Dashboard", icon: LayoutDashboard },
   { id: "desempenho", label: "Desempenho", labelFull: "Desempenho", icon: TrendingUp },
   { id: "plano-acao", label: "Plano de Ação", labelFull: "Plano de Ação", icon: Lightbulb },
+  { id: "analise-ia", label: "Análise IA", labelFull: "Análise IA", icon: BarChart3 },
+  { id: "nuvem", label: "Nuvem", labelFull: "Nuvem de Ideias", icon: Cloud },
 ];
 
 export default function BusinessInsights() {
@@ -47,6 +51,8 @@ export default function BusinessInsights() {
     if (location.includes("/business/insights/dashboard")) return "dashboard";
     if (location.includes("/business/insights/desempenho")) return "desempenho";
     if (location.includes("/business/insights/plano-acao")) return "plano-acao";
+    if (location.includes("/business/insights/analise-ia")) return "analise-ia";
+    if (location.includes("/business/insights/nuvem")) return "nuvem";
     if (location.includes("/business/insights/plano")) return "plano";
     return "plano"; // default
   };
@@ -173,6 +179,8 @@ export default function BusinessInsights() {
         {activeTab === "dashboard" && <BusinessDashboardTab establishmentId={estabId} />}
         {activeTab === "desempenho" && <BusinessDesempenhoTab establishmentId={estabId} />}
         {activeTab === "plano-acao" && <BusinessPlanoAcaoTab establishmentId={estabId} />}
+        {activeTab === "analise-ia" && <BusinessAnaliseIATab establishmentId={estabId} />}
+        {activeTab === "nuvem" && <BusinessNuvemIdeiasTab establishmentId={estabId} />}
       </div>
     </div>
   );

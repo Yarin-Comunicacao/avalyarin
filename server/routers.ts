@@ -244,6 +244,7 @@ import {
   getBusinessActions,
 } from "./db-business-insights";
 import { getDashboardData } from "./db-dashboard";
+import { processInsightsWithLLM, getPlatformInsights, getWordCloudByScoreRange } from "./insights-llm-processor";
 import {
   registerQrScan,
   getLatestQrScan,
@@ -559,6 +560,43 @@ export const appRouter = router({
             );
           });
         }
+        // Content moderation on comments (non-blocking, fire-and-forget)
+        if (result?.id && input.items?.length) {
+          import("./content-moderation").then(async ({ moderateText }) => {
+            try {
+              const { getDb } = await import("./db");
+              const { contentModeration, ratingItems } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              // Get saved rating items to get their IDs
+              const savedItems = await db!.select({ id: ratingItems.id, comment: ratingItems.comment, itemName: ratingItems.itemName })
+                .from(ratingItems)
+                .where(eq(ratingItems.ratingId, result.id));
+              for (const item of savedItems) {
+                const textToCheck = item.comment;
+                if (!textToCheck || textToCheck.trim().length < 10) continue;
+                const modResult = await moderateText(textToCheck, `Comentário sobre "${item.itemName}" em avaliação de bar/restaurante`);
+                await db!.insert(contentModeration).values({
+                  targetType: "comment",
+                  targetId: item.id,
+                  ratingId: result.id,
+                  userId,
+                  status: modResult.approved ? "approved" : (modResult.severity === "critical" || modResult.severity === "high") ? "rejected" : "flagged",
+                  categories: JSON.stringify(modResult.categories),
+                  severity: modResult.severity,
+                  confidence: modResult.confidence,
+                  reason: modResult.reason,
+                  rawAnalysis: JSON.stringify(modResult),
+                });
+                // Small delay between API calls
+                await new Promise(resolve => setTimeout(resolve, 300));
+              }
+              console.log(`[ContentModeration] Rating ${result.id}: ${savedItems.length} comments moderated`);
+            } catch (e) {
+              console.error("[ContentModeration] Text moderation failed:", e);
+            }
+          }).catch(e => console.error("[ContentModeration] Import failed:", e));
+        }
         return { ...result, levelUp, source };
       }),
 
@@ -625,7 +663,7 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const userId = ctx.user!.id;
         const buffer = Buffer.from(input.base64Data, "base64");
-        const ext = input.mimeType.includes("png") ? "png" : "jpg";
+        const ext = input.mimeType.includes("png") ? "png" : input.mimeType.includes("webp") ? "webp" : input.mimeType.includes("heic") ? "heic" : input.mimeType.includes("heif") ? "heif" : input.mimeType.includes("avif") ? "avif" : "jpg";
         const key = `ratings/${input.ratingId}/photo_${Date.now()}.${ext}`;
         const { storagePut } = await import("./storage");
         const { key: storageKey, url } = await storagePut(key, buffer, input.mimeType);
@@ -637,6 +675,33 @@ export const appRouter = router({
           url,
           taggedItemIds: input.taggedItemIds,
         });
+
+        // Trigger async content moderation on photo (non-blocking)
+        if (savedPhoto?.id) {
+          import("./content-moderation").then(async ({ moderatePhoto }) => {
+            try {
+              const result = await moderatePhoto(url);
+              const { getDb } = await import("./db");
+              const { contentModeration } = await import("../drizzle/schema");
+              const db = await getDb();
+              await db!.insert(contentModeration).values({
+                targetType: "photo",
+                targetId: savedPhoto.id,
+                ratingId: input.ratingId,
+                userId,
+                status: result.approved ? "approved" : (result.severity === "critical" || result.severity === "high") ? "rejected" : "flagged",
+                categories: JSON.stringify(result.categories),
+                severity: result.severity,
+                confidence: result.confidence,
+                reason: result.reason,
+                rawAnalysis: JSON.stringify(result),
+              });
+              console.log(`[ContentModeration] Photo ${savedPhoto.id}: ${result.approved ? "approved" : "flagged"} (${result.severity})`);
+            } catch (e) {
+              console.error("[ContentModeration] Photo moderation failed:", e);
+            }
+          }).catch(e => console.error("[ContentModeration] Import failed:", e));
+        }
 
         // Trigger async photo verification (non-blocking)
         if (savedPhoto?.id && input.taggedItemIds?.length) {
@@ -1069,6 +1134,193 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const { reviewDuplicateAlert } = await import("./db");
         await reviewDuplicateAlert(input.alertId, input.decision, ctx.user!.id, input.notes);
+        return { success: true };
+      }),
+
+    // ============ CONTENT MODERATION ============
+    moderationQueue: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "flagged", "rejected", "approved"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { contentModeration, users, ratings, establishments } = await import("../drizzle/schema");
+        const { eq, desc, sql } = await import("drizzle-orm");
+        const db = await getDb();
+        const limit = input?.limit ?? 50;
+        const offset = input?.offset ?? 0;
+        const statusFilter = input?.status;
+
+        let query = db!.select({
+          id: contentModeration.id,
+          targetType: contentModeration.targetType,
+          targetId: contentModeration.targetId,
+          ratingId: contentModeration.ratingId,
+          userId: contentModeration.userId,
+          status: contentModeration.status,
+          categories: contentModeration.categories,
+          severity: contentModeration.severity,
+          confidence: contentModeration.confidence,
+          reason: contentModeration.reason,
+          reviewedBy: contentModeration.reviewedBy,
+          reviewAction: contentModeration.reviewAction,
+          reviewNote: contentModeration.reviewNote,
+          reviewedAt: contentModeration.reviewedAt,
+          createdAt: contentModeration.createdAt,
+          userName: users.name,
+          userEmail: users.email,
+        })
+          .from(contentModeration)
+          .leftJoin(users, eq(contentModeration.userId, users.id))
+          .orderBy(desc(contentModeration.createdAt))
+          .limit(limit)
+          .offset(offset);
+
+        if (statusFilter) {
+          query = query.where(eq(contentModeration.status, statusFilter)) as any;
+        }
+
+        const items = await query;
+
+        // Get total count
+        const countResult = await db!.select({ count: sql<number>`count(*)` })
+          .from(contentModeration)
+          .where(statusFilter ? eq(contentModeration.status, statusFilter) : undefined as any);
+
+        return {
+          items,
+          total: Number(countResult[0]?.count || 0),
+        };
+      }),
+
+    moderationStats: adminProcedure.query(async () => {
+      const { getDb } = await import("./db");
+      const { contentModeration } = await import("../drizzle/schema");
+      const { sql } = await import("drizzle-orm");
+      const db = await getDb();
+      const stats = await db!.select({
+        status: contentModeration.status,
+        count: sql<number>`count(*)`,
+      })
+        .from(contentModeration)
+        .groupBy(contentModeration.status);
+      return stats;
+    }),
+
+    reviewModeration: adminProcedure
+      .input(z.object({
+        moderationId: z.number(),
+        action: z.enum(["approve", "remove", "warn", "ban"]),
+        note: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getDb } = await import("./db");
+        const { contentModeration } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        await db!.update(contentModeration)
+          .set({
+            status: input.action === "approve" ? "approved" : "rejected",
+            reviewedBy: ctx.user!.id,
+            reviewAction: input.action,
+            reviewNote: input.note || null,
+            reviewedAt: new Date(),
+          })
+          .where(eq(contentModeration.id, input.moderationId));
+        return { success: true };
+      }),
+
+    // ============ REPORTS ============
+    reportQueue: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "reviewed", "dismissed", "actioned"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { reports, users } = await import("../drizzle/schema");
+        const { eq, desc, sql } = await import("drizzle-orm");
+        const db = await getDb();
+        const limit = input?.limit ?? 50;
+        const offset = input?.offset ?? 0;
+        const statusFilter = input?.status;
+
+        let query = db!.select({
+          id: reports.id,
+          reporterId: reports.reporterId,
+          targetType: reports.targetType,
+          targetId: reports.targetId,
+          targetUserId: reports.targetUserId,
+          reason: reports.reason,
+          description: reports.description,
+          status: reports.status,
+          reviewedBy: reports.reviewedBy,
+          reviewAction: reports.reviewAction,
+          reviewNote: reports.reviewNote,
+          reviewedAt: reports.reviewedAt,
+          createdAt: reports.createdAt,
+          reporterName: users.name,
+          reporterEmail: users.email,
+        })
+          .from(reports)
+          .leftJoin(users, eq(reports.reporterId, users.id))
+          .orderBy(desc(reports.createdAt))
+          .limit(limit)
+          .offset(offset);
+
+        if (statusFilter) {
+          query = query.where(eq(reports.status, statusFilter)) as any;
+        }
+
+        const items = await query;
+
+        const countResult = await db!.select({ count: sql<number>`count(*)` })
+          .from(reports)
+          .where(statusFilter ? eq(reports.status, statusFilter) : undefined as any);
+
+        return {
+          items,
+          total: Number(countResult[0]?.count || 0),
+        };
+      }),
+
+    reportStats: adminProcedure.query(async () => {
+      const { getDb } = await import("./db");
+      const { reports } = await import("../drizzle/schema");
+      const { sql } = await import("drizzle-orm");
+      const db = await getDb();
+      const stats = await db!.select({
+        status: reports.status,
+        count: sql<number>`count(*)`,
+      })
+        .from(reports)
+        .groupBy(reports.status);
+      return stats;
+    }),
+
+    reviewReport: adminProcedure
+      .input(z.object({
+        reportId: z.number(),
+        action: z.enum(["dismiss", "warn", "remove_content", "ban_user"]),
+        note: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getDb } = await import("./db");
+        const { reports } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        await db!.update(reports)
+          .set({
+            status: input.action === "dismiss" ? "dismissed" : "actioned",
+            reviewedBy: ctx.user!.id,
+            reviewAction: input.action,
+            reviewNote: input.note || null,
+            reviewedAt: new Date(),
+          })
+          .where(eq(reports.id, input.reportId));
         return { success: true };
       }),
   }),
@@ -2837,6 +3089,39 @@ export const appRouter = router({
     myStats: protectedProcedure.query(async ({ ctx }) => {
       return await getUserStats(ctx.user!.id);
     }),
+
+    // LLM-processed insights for an establishment
+    llmInsights: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await processInsightsWithLLM(input.establishmentId);
+      }),
+
+    // Platform-wide insights (admin only)
+    platformInsights: adminProcedure.query(async () => {
+      return await getPlatformInsights();
+    }),
+
+    // Word cloud split by score range (7-10 vs 1-6)
+    wordCloud: protectedProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user!.role !== "admin" && ctx.user!.role !== "owner") {
+          const estabs = await getBusinessEstablishments(ctx.user!.id);
+          const owns = estabs.some((e: any) => e.id === input.establishmentId);
+          if (!owns) {
+            throw new TRPCError({ code: "FORBIDDEN", message: "Sem acesso a este estabelecimento." });
+          }
+        }
+        return await getWordCloudByScoreRange(input.establishmentId);
+      }),
   }),
 
   // ============================================================
@@ -3937,6 +4222,60 @@ export const appRouter = router({
       const pending = await listRoleRequests("pending");
       return { count: pending.length };
     }),
+  }),
+
+  // ============ USER REPORTS (any authenticated user) ============
+  report: router({
+    create: protectedProcedure
+      .input(z.object({
+        targetType: z.enum(["rating", "photo", "comment", "user"]),
+        targetId: z.number(),
+        targetUserId: z.number().optional(),
+        reason: z.enum([
+          "sexual_content", "hate_speech", "violence", "financial_scam",
+          "phishing", "false_identity", "cloaking", "account_integrity",
+          "misinformation", "restricted_goods", "cybersecurity", "spam", "other"
+        ]),
+        description: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        // Prevent self-reporting
+        if (input.targetUserId === userId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Voc\u00ea n\u00e3o pode denunciar seu pr\u00f3prio conte\u00fado." });
+        }
+        const { getDb } = await import("./db");
+        const { reports } = await import("../drizzle/schema");
+        const db = await getDb();
+        const [inserted] = await db!.insert(reports).values({
+          reporterId: userId,
+          targetType: input.targetType,
+          targetId: input.targetId,
+          targetUserId: input.targetUserId || null,
+          reason: input.reason,
+          description: input.description || null,
+        });
+        return { success: true, reportId: inserted.insertId };
+      }),
+
+    myReports: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(20),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        const userId = ctx.user!.id;
+        const { getDb } = await import("./db");
+        const { reports } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
+        const db = await getDb();
+        return await db!.select()
+          .from(reports)
+          .where(eq(reports.reporterId, userId))
+          .orderBy(desc(reports.createdAt))
+          .limit(input?.limit ?? 20)
+          .offset(input?.offset ?? 0);
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

@@ -454,7 +454,7 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
 
         {/* Legal text */}
         <p className="text-[11px] text-muted-foreground/50 text-center mt-6 max-w-xs leading-relaxed">
-          Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.
+          Ao continuar, você concorda com nossos <a href="/termos" className="text-primary/70 underline">Termos de Uso</a> e <a href="/privacidade" className="text-primary/70 underline">Política de Privacidade</a>.
         </p>
       </motion.div>
     </div>

@@ -799,7 +799,7 @@
 - [x] Frontend: exibir caixa de texto "O que faltou para o 10?" quando nota é 7-9
 - [x] Manter sistema atual de motivos pré-definidos para notas 1-6
 - [x] Nota 10: nenhum campo adicional (satisfação plena)
-- [ ] LLM processa respostas para extrair padrões e alimentar Insights/Ações (futuro)
+- [x] LLM processa respostas para extrair padrões e alimentar Insights/Ações
 - [x] Verificar TypeScript (0 erros), rodar testes (435 passando) e salvar checkpoint
 
 ## Fase 40 — Nova Estrutura de Insights Business (5 sub-abas + 20 insights + Ações IA)
@@ -1149,7 +1149,7 @@
 - [x] Corrigir aba Planos — não mostrar 'PLANO ATIVO' quando plano é 'free', exibir wizard de upgrade
 - [x] TemaFundoTab — apenas Diurno/Noturno + upload de imagem de fundo customizada pelo usuário
 - [x] Investigar por que alan_1927 não tem preferências — surveyData é NULL no banco (onboarding não persistiu)
-- [ ] Remover rotas antigas de /conta (dados, usuario, conectadas, planos) — futuro
+- [x] ~~Remover rotas antigas de /conta (dados, usuario, conectadas, planos)~~ — removido do escopo
 - [x] Remover botão "Editar perfil" do UserProfile
 - [x] Adicionar 4 ícones (Editar, Preferências, Planos, Temas) ao lado do botão compartilhar (fileira de ícones)
 - [x] Na fileira de tabs abaixo, manter apenas Galeria e Salvos (com ícone de bandeirola)
@@ -1230,8 +1230,8 @@
 - [x] Fix: login com Google não deve sobrescrever role de conta existente (owner → user)
 - [x] Ajustar OAuth para deploy externo (Render) — documentar OAUTH_SERVER_URL
 - [x] Gerar .zip do projeto para upload no GitHub
-- [ ] Owner deve ter acesso a todas funcionalidades de todos os roles (super-role) — REVERTIDO, owner quer simular cada role fielmente
-- [ ] Grupos criados como user devem aparecer em todos os roles do mesmo usuário — REVERTIDO, mantém filtro por effectiveRole
+- [x] ~~Owner deve ter acesso a todas funcionalidades de todos os roles (super-role)~~ — REVERTIDO por decisão do owner
+- [x] ~~Grupos criados como user devem aparecer em todos os roles do mesmo usuário~~ — REVERTIDO por decisão do owner
 - [x] Grupos automáticos de broadcast (business/critic/specialist) devem aparecer em "Meus Grupos" somente para proprietários
 - [x] Permitir renomear grupos (criador pode editar nome do grupo)
 - [x] Planos: adicionar campo de seleção de roles que podem ver cada plano (impedir user de ver plano de business)
@@ -1269,3 +1269,20 @@
 - [x] Prevenir duplicação de usuário: se email já existe (Google/manual), fazer login no existente
 - [x] Se tentar cadastrar com email já existente, mostrar erro "Usuário já cadastrado" e redirecionar para login
 - [x] Gerar .zip com todas as atualizações + frase de commit
+- [x] Criar página de Termos de Uso e Diretrizes da Comunidade no app (cobrindo os 11 pontos de segurança)
+- [x] Implementar moderação automática com IA (filtro de fotos impróprias + comentários ofensivos)
+- [x] Criar painel de moderação para admin/owner revisar denúncias e conteúdo flagrado
+- [x] Implementar sistema de denúncia (botão "reportar" em avaliações)
+
+## Nuvem de Ideias — Nova aba em Insights com sub-abas por faixa de nota
+- [x] Backend: endpoint wordCloud com separação por faixa de nota (7-10 e 1-6)
+- [x] Frontend: nova aba "Nuvem de Ideias" em Business Insights
+- [x] Sub-aba "Notas 7-10" (comentários positivos / quase perfeitos)
+- [x] Sub-aba "Notas 1-6" (comentários negativos / problemas)
+- [x] Componente WordCloud visual interativo (tamanho proporcional, cores por sentimento)
+
+## Facebook OAuth — Configuração Final
+- [x] Gerar ícone 1024x1024 PNG para o app Facebook
+- [x] Criar página de Política de Privacidade (/privacidade)
+- [x] Criar endpoint de exclusão de dados (/api/facebook/data-deletion)
+- [x] Corrigir link de Política de Privacidade no AuthChoice

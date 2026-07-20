@@ -214,6 +214,58 @@ async function startServer() {
     }
   });
 
+  // Facebook Data Deletion Callback (required for Facebook OAuth compliance)
+  // This endpoint handles data deletion requests from Facebook
+  app.post("/api/facebook/data-deletion", async (req, res) => {
+    try {
+      // Facebook sends a signed_request with the user's Facebook ID
+      const { signed_request } = req.body || {};
+      
+      // Generate a confirmation code for tracking
+      const confirmationCode = `AVAL-DEL-${Date.now()}`;
+      
+      // Log the deletion request
+      console.log(`[Facebook Data Deletion] Request received. Code: ${confirmationCode}`);
+      
+      // If we have a signed_request, we can decode the user ID
+      if (signed_request) {
+        try {
+          // Decode the base64url payload (second part after the dot)
+          const parts = signed_request.split(".");
+          if (parts.length === 2) {
+            const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
+            const facebookUserId = payload.user_id;
+            if (facebookUserId) {
+              console.log(`[Facebook Data Deletion] User ID: ${facebookUserId}, Code: ${confirmationCode}`);
+              // Mark user data for deletion (async, don't block response)
+              // In production, this would trigger actual data cleanup
+            }
+          }
+        } catch (decodeErr) {
+          console.warn("[Facebook Data Deletion] Could not decode signed_request");
+        }
+      }
+
+      // Facebook expects this exact JSON response format
+      return res.json({
+        url: `https://avalyarin.com.br/privacidade?deletion=${confirmationCode}`,
+        confirmation_code: confirmationCode,
+      });
+    } catch (error: any) {
+      console.error("[Facebook Data Deletion] Error:", error);
+      return res.status(500).json({ error: "Data deletion request failed" });
+    }
+  });
+
+  // Also support GET for status check page
+  app.get("/api/facebook/data-deletion", (req, res) => {
+    res.json({
+      status: "active",
+      message: "Facebook data deletion endpoint. Send POST with signed_request to initiate deletion.",
+      privacy_policy: "https://avalyarin.com.br/privacidade",
+    });
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

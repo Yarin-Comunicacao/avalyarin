@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import AdminEstablishments from "@/components/AdminEstablishments";
 import BrandbookTab from "@/components/BrandbookTab";
+import ModerationPanel from "@/components/ModerationPanel";
 import { useState, useEffect, useMemo } from "react";
 import { useSearch, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -30,8 +31,9 @@ export default function AdminPanel() {
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
   
   // Determine active section from path
-  const getSectionFromPath = (): "equipe" | "negocio" | "permissoes" | "config" => {
+  const getSectionFromPath = (): "equipe" | "negocio" | "permissoes" | "config" | "moderacao" => {
     const path = window.location.pathname;
+    if (path.startsWith("/admin/moderacao")) return "moderacao";
     if (path.startsWith("/admin/equipe")) return "equipe";
     if (path.startsWith("/admin/negocio")) return "negocio";
     if (path.startsWith("/admin/permissoes")) return "permissoes";
@@ -44,7 +46,7 @@ export default function AdminPanel() {
     return "equipe";
   };
 
-  const [activeSection, setActiveSection] = useState(getSectionFromPath());
+  const [activeSection, setActiveSection] = useState<"equipe" | "negocio" | "permissoes" | "config" | "moderacao">(getSectionFromPath());
   const initialCategory = searchParams.get("category") || undefined;
 
   // Sub-tab state per section
@@ -198,6 +200,9 @@ export default function AdminPanel() {
 
         {/* Config section */}
         {activeSection === "config" && configTab === "integrations" && <IntegrationsTab />}
+
+        {/* Moderação section */}
+        {activeSection === "moderacao" && <ModerationPanel />}
       </div>
     </div>
   );

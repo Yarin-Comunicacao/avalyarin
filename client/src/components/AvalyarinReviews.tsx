@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { StarRating } from "./StarRating";
 import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon, Heart, Send } from "lucide-react";
+import ReportButton from "./ReportButton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -307,13 +308,20 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
               </div>
             )}
 
-            {/* Close button */}
-            <button
-              onClick={() => setSelectedReview(null)}
-              className="w-full mt-5 py-2.5 rounded-xl border border-border/30 text-sm text-muted-foreground hover:bg-secondary/30 transition-colors"
-            >
-              Fechar
-            </button>
+            {/* Report + Close buttons */}
+            <div className="flex items-center justify-between mt-5">
+              <ReportButton
+                targetType="rating"
+                targetId={selected.id}
+                targetUserId={(selected as any).userId}
+              />
+              <button
+                onClick={() => setSelectedReview(null)}
+                className="py-2.5 px-6 rounded-xl border border-border/30 text-sm text-muted-foreground hover:bg-secondary/30 transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
           </div>
         </>
       )}

@@ -395,6 +395,16 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                     </Link>
                   </div>
                 )}
+                {(user.role === "admin" || user.role === "owner") && (
+                  <div className="px-5 py-2">
+                    <Link href="/admin/moderacao" onClick={onClose}>
+                      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary/10 transition-colors group cursor-pointer">
+                        <Shield className="w-4 h-4 text-red-400" />
+                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">Moderação</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
 
                 {/* Footer - Logout */}
                 <div className="px-5 py-4 mt-auto border-t border-border/30">

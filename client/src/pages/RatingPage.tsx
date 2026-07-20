@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ptBR } from "react-day-picker/locale";
 import TimeRoulette from "@/components/TimeRoulette";
 import { parseEstablishmentHours, isDayOpen, isTimeValid } from "@/lib/parseHours";
+import { processPhotoFile, getMimeFromDataUrl } from "@/lib/photoUtils";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
@@ -1149,19 +1150,21 @@ export default function RatingPage() {
                     accept="image/*"
                     capture="environment"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
+                      try {
+                        const dataUrl = await processPhotoFile(file);
                         const newPhoto: PhotoWithTags = {
                           id: `photo_${Date.now()}`,
-                          dataUrl: ev.target?.result as string,
+                          dataUrl,
                           taggedItemIds: [rating.itemId],
                         };
                         setPhotos(prev => [...prev, newPhoto]);
-                      };
-                      reader.readAsDataURL(file);
+                      } catch (err) {
+                        console.error("[Photo] Processing failed:", err);
+                        toast.error("Erro ao processar foto");
+                      }
                       e.target.value = '';
                     }}
                   />
@@ -1173,19 +1176,21 @@ export default function RatingPage() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
+                      try {
+                        const dataUrl = await processPhotoFile(file);
                         const newPhoto: PhotoWithTags = {
                           id: `photo_${Date.now()}`,
-                          dataUrl: ev.target?.result as string,
+                          dataUrl,
                           taggedItemIds: [rating.itemId],
                         };
                         setPhotos(prev => [...prev, newPhoto]);
-                      };
-                      reader.readAsDataURL(file);
+                      } catch (err) {
+                        console.error("[Photo] Processing failed:", err);
+                        toast.error("Erro ao processar foto");
+                      }
                       e.target.value = '';
                     }}
                   />
@@ -1810,19 +1815,21 @@ export default function RatingPage() {
                                   accept="image/*"
                                   capture="environment"
                                   className="hidden"
-                                  onChange={(e) => {
+                                  onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => {
+                                    try {
+                                      const dataUrl = await processPhotoFile(file);
                                       const newPhoto: PhotoWithTags = {
                                         id: `photo_${Date.now()}`,
-                                        dataUrl: ev.target?.result as string,
+                                        dataUrl,
                                         taggedItemIds: [itemRating.itemId],
                                       };
                                       setPhotos(prev => [...prev, newPhoto]);
-                                    };
-                                    reader.readAsDataURL(file);
+                                    } catch (err) {
+                                      console.error("[Photo] Processing failed:", err);
+                                      toast.error("Erro ao processar foto");
+                                    }
                                     e.target.value = '';
                                   }}
                                 />
@@ -1834,19 +1841,21 @@ export default function RatingPage() {
                                   type="file"
                                   accept="image/*"
                                   className="hidden"
-                                  onChange={(e) => {
+                                  onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => {
+                                    try {
+                                      const dataUrl = await processPhotoFile(file);
                                       const newPhoto: PhotoWithTags = {
                                         id: `photo_${Date.now()}`,
-                                        dataUrl: ev.target?.result as string,
+                                        dataUrl,
                                         taggedItemIds: [itemRating.itemId],
                                       };
                                       setPhotos(prev => [...prev, newPhoto]);
-                                    };
-                                    reader.readAsDataURL(file);
+                                    } catch (err) {
+                                      console.error("[Photo] Processing failed:", err);
+                                      toast.error("Erro ao processar foto");
+                                    }
                                     e.target.value = '';
                                   }}
                                 />
@@ -2447,14 +2456,16 @@ export default function RatingPage() {
                                     accept="image/*"
                                     capture="environment"
                                     className="hidden"
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                       const file = e.target.files?.[0];
                                       if (!file) return;
-                                      const reader = new FileReader();
-                                      reader.onload = (ev) => {
-                                        setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
-                                      };
-                                      reader.readAsDataURL(file);
+                                      try {
+                                        const dataUrl = await processPhotoFile(file);
+                                        setSpendData(prev => ({ ...prev, divergentPhoto: dataUrl }));
+                                      } catch (err) {
+                                        console.error("[Photo] Processing failed:", err);
+                                        toast.error("Erro ao processar foto");
+                                      }
                                       e.target.value = '';
                                     }}
                                   />
@@ -2466,14 +2477,16 @@ export default function RatingPage() {
                                     type="file"
                                     accept="image/*"
                                     className="hidden"
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                       const file = e.target.files?.[0];
                                       if (!file) return;
-                                      const reader = new FileReader();
-                                      reader.onload = (ev) => {
-                                        setSpendData(prev => ({ ...prev, divergentPhoto: ev.target?.result as string }));
-                                      };
-                                      reader.readAsDataURL(file);
+                                      try {
+                                        const dataUrl = await processPhotoFile(file);
+                                        setSpendData(prev => ({ ...prev, divergentPhoto: dataUrl }));
+                                      } catch (err) {
+                                        console.error("[Photo] Processing failed:", err);
+                                        toast.error("Erro ao processar foto");
+                                      }
                                       e.target.value = '';
                                     }}
                                   />
@@ -2591,14 +2604,16 @@ export default function RatingPage() {
                           accept="image/*"
                           capture="environment"
                           className="hidden"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              setReceiptPhoto(ev.target?.result as string);
-                            };
-                            reader.readAsDataURL(file);
+                            try {
+                              const dataUrl = await processPhotoFile(file);
+                              setReceiptPhoto(dataUrl);
+                            } catch (err) {
+                              console.error("[Photo] Processing failed:", err);
+                              toast.error("Erro ao processar foto");
+                            }
                             e.target.value = '';
                           }}
                         />
@@ -2610,14 +2625,16 @@ export default function RatingPage() {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              setReceiptPhoto(ev.target?.result as string);
-                            };
-                            reader.readAsDataURL(file);
+                            try {
+                              const dataUrl = await processPhotoFile(file);
+                              setReceiptPhoto(dataUrl);
+                            } catch (err) {
+                              console.error("[Photo] Processing failed:", err);
+                              toast.error("Erro ao processar foto");
+                            }
                             e.target.value = '';
                           }}
                         />
@@ -2877,7 +2894,7 @@ export default function RatingPage() {
                                   await uploadPhotoMutation.mutateAsync({
                                     ratingId: savedRatingId,
                                     base64Data: base64,
-                                    mimeType: photo.dataUrl.startsWith("data:image/png") ? "image/png" : "image/jpeg",
+                                    mimeType: getMimeFromDataUrl(photo.dataUrl),
                                     taggedItemIds: photo.taggedItemIds,
                                   });
                                 }

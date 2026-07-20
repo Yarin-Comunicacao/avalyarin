@@ -91,6 +91,8 @@ import AgeGate from "./components/AgeGate";
 import AuthChoice from "./components/AuthChoice";
 import LoginPage from "./pages/LoginPage";
 import HowItWorksDialog from "./components/HowItWorksDialog";
+import TermosPage from "./pages/TermosPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 
 // ============================================================
 // SURVEY LIFECYCLE HELPERS
@@ -192,6 +194,7 @@ function Router() {
       <Route path="/admin/estabs" component={AdminPanel} />
       <Route path="/admin/negocio" component={AdminPanel} />
       <Route path="/admin/permissoes" component={AdminPanel} />
+      <Route path="/admin/moderacao" component={AdminPanel} />
       <Route path="/painel-empresarial" component={BusinessPanel} />
       <Route path="/painel-empresarial/insights" component={BusinessPanel} />
       <Route path="/painel-empresarial/notificacoes" component={BusinessPanel} />
@@ -207,6 +210,8 @@ function Router() {
       <Route path="/business/insights/dashboard" component={BusinessInsights} />
       <Route path="/business/insights/desempenho" component={BusinessInsights} />
       <Route path="/business/insights/plano-acao" component={BusinessInsights} />
+      <Route path="/business/insights/analise-ia" component={BusinessInsights} />
+      <Route path="/business/insights/nuvem" component={BusinessInsights} />
       <Route path="/business/divulgacoes" component={BusinessDivulgacoes} />
       <Route path="/business/divulgacoes/destaques" component={BusinessDivulgacoes} />
       <Route path="/business/divulgacoes/codigos" component={BusinessDivulgacoes} />
@@ -245,6 +250,9 @@ function Router() {
       <Route path="/suporte/estabs">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/tickets">{() => <RoleBasedProfile />}</Route>
       {/* Fallback */}
+      <Route path="/termos" component={TermosPage} />
+      <Route path="/diretrizes" component={TermosPage} />
+      <Route path="/privacidade" component={PrivacyPolicyPage} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -1073,3 +1073,69 @@ export const specialHours = mysqlTable("special_hours", {
 });
 export type SpecialHours = typeof specialHours.$inferSelect;
 export type InsertSpecialHours = typeof specialHours.$inferInsert;
+
+// ============================================================
+// Content Moderation — AI-powered auto-moderation results
+// ============================================================
+export const contentModeration = mysqlTable("content_moderation", {
+  id: int("id").autoincrement().primaryKey(),
+  // What was moderated
+  targetType: mysqlEnum("targetType", ["photo", "comment", "rating_text"]).notNull(),
+  targetId: int("targetId").notNull(), // ratingPhotos.id or ratingItems.id or ratings.id
+  ratingId: int("ratingId"), // parent rating for context
+  userId: int("userId").notNull(), // who created the content
+  // AI analysis result
+  status: mysqlEnum("status", ["approved", "flagged", "rejected", "pending"]).default("pending").notNull(),
+  categories: text("categories"), // JSON array of violated categories (e.g. ["nudity","violence"])
+  severity: mysqlEnum("severity", ["none", "low", "medium", "high", "critical"]).default("none").notNull(),
+  confidence: float("confidence"), // 0.0-1.0
+  reason: text("reason"), // AI explanation in Portuguese
+  rawAnalysis: text("rawAnalysis"), // Full AI response JSON
+  // Admin review
+  reviewedBy: int("reviewedBy"), // admin who reviewed (null = not yet reviewed)
+  reviewAction: mysqlEnum("reviewAction", ["approve", "remove", "warn", "ban"]),
+  reviewNote: text("reviewNote"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ContentModeration = typeof contentModeration.$inferSelect;
+export type InsertContentModeration = typeof contentModeration.$inferInsert;
+
+// ============================================================
+// Reports — user-submitted reports/flags on content
+// ============================================================
+export const reports = mysqlTable("reports", {
+  id: int("id").autoincrement().primaryKey(),
+  // Reporter
+  reporterId: int("reporterId").notNull(), // user who reported
+  // Target
+  targetType: mysqlEnum("targetType", ["rating", "photo", "comment", "user"]).notNull(),
+  targetId: int("targetId").notNull(), // ID of the reported entity
+  targetUserId: int("targetUserId"), // user who owns the reported content
+  // Report details
+  reason: mysqlEnum("reason", [
+    "sexual_content",
+    "hate_speech",
+    "violence",
+    "financial_scam",
+    "phishing",
+    "false_identity",
+    "cloaking",
+    "account_integrity",
+    "misinformation",
+    "restricted_goods",
+    "cybersecurity",
+    "spam",
+    "other"
+  ]).notNull(),
+  description: text("description"), // optional user description
+  // Resolution
+  status: mysqlEnum("status", ["pending", "reviewed", "dismissed", "actioned"]).default("pending").notNull(),
+  reviewedBy: int("reviewedBy"),
+  reviewAction: mysqlEnum("reviewAction", ["dismiss", "warn", "remove_content", "ban_user"]),
+  reviewNote: text("reviewNote"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = typeof reports.$inferInsert;
