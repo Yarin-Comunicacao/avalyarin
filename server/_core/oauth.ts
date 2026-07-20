@@ -215,6 +215,14 @@ function registerGoogleOAuthRoutes(app: Express) {
       // ─── MERGE LOGIC ───────────────────────────────────────────────
       // Check if a user with this email already exists (registered via email/password or another method)
       const googleOpenId = `google_${googleUser.id}`;
+      // Google profile URLs can be extremely long (1500+ chars with signatures)
+      // Truncate to the base URL with size parameter only
+      let safeProfilePhoto = googleUser.picture || null;
+      if (safeProfilePhoto && safeProfilePhoto.length > 500) {
+        // Extract just the base photo URL (before any long signature)
+        const baseMatch = safeProfilePhoto.match(/^(https:\/\/lh3\.googleusercontent\.com\/a[^=]*)/);
+        safeProfilePhoto = baseMatch ? baseMatch[1] + "=s96-c" : safeProfilePhoto.substring(0, 500);
+      }
       const database = await db.getDb();
       
       let existingUserByEmail: any = null;
@@ -246,7 +254,7 @@ function registerGoogleOAuthRoutes(app: Express) {
             .set({ 
               lastSignedIn: new Date(),
               googleId: googleUser.id,
-              ...(googleUser.picture && !existingUserByOpenId.profilePhotoUrl ? { profilePhotoUrl: googleUser.picture } : {}),
+              ...(safeProfilePhoto && !existingUserByOpenId.profilePhotoUrl ? { profilePhotoUrl: safeProfilePhoto } : {}),
             })
             .where(eq(users.id, existingUserByOpenId.id));
         }
@@ -264,7 +272,7 @@ function registerGoogleOAuthRoutes(app: Express) {
               loginMethod: "google",
               lastSignedIn: new Date(),
               emailVerified: true, // Google email is verified
-              ...(googleUser.picture && !existingUserByEmail.profilePhotoUrl ? { profilePhotoUrl: googleUser.picture } : {}),
+              ...(safeProfilePhoto && !existingUserByEmail.profilePhotoUrl ? { profilePhotoUrl: safeProfilePhoto } : {}),
               // DO NOT update: role, name (keep existing), username, surveyData, etc.
             })
             .where(eq(users.id, existingUserByEmail.id));

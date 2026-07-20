@@ -1268,4 +1268,4 @@
 - [x] Implementar login com Facebook OAuth (FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET)
 - [x] Prevenir duplicação de usuário: se email já existe (Google/manual), fazer login no existente
 - [x] Se tentar cadastrar com email já existente, mostrar erro "Usuário já cadastrado" e redirecionar para login
-- [ ] Gerar .zip com todas as atualizações + frase de commit
+- [x] Gerar .zip com todas as atualizações + frase de commit
