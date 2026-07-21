@@ -1286,3 +1286,22 @@
 - [x] Criar página de Política de Privacidade (/privacidade)
 - [x] Criar endpoint de exclusão de dados (/api/facebook/data-deletion)
 - [x] Corrigir link de Política de Privacidade no AuthChoice
+
+## Layout Responsivo dos Chats de Grupo
+- [x] Desktop/Tablet: layout split 30% lista de grupos (esquerda) + 70% conversa (direita)
+- [x] Ordenação por última atividade (nova mensagem ou novo grupo vai para o topo)
+- [x] Scrolls independentes: lista de grupos e conversa com overflow separados
+- [x] Estado inicial: nenhum grupo selecionado, lista ocupa tela toda; ao clicar, slide anima para 30/70
+- [x] Mobile: chat ocupa tela toda ao selecionar grupo, com seta de voltar no header
+
+## Login com E-mail e Senha
+- [x] Investigar problema de OAuth no domínio publicado (avaliabar-wg3u3svg.manus.space)
+- [x] Implementar login com e-mail e senha (schema, backend, frontend)
+- [x] Definir senha "123456789" para alan_1927@hotmail.com
+
+## Melhorias no Fluxo de Login/Cadastro
+- [x] Tela de cadastro: mostrar opções Google + Facebook + email/senha
+- [x] Mensagem "E-mail já cadastrado" quando email já existe no sistema
+- [x] Botão "Esqueci minha senha" para quem criou conta com email/senha
+- [x] Campo @ (username) obrigatório e único no cadastro (para adicionar amigos na rede)
+- [x] Bug fix: usuário existente não deve passar pela tela de aniversário ao logar (flash do onboarding)

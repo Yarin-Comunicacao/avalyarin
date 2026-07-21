@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { groupMessages, supportMessages, businessBroadcasts, businessFollowers, users, establishments } from "../drizzle/schema";
+import { groupMessages, supportMessages, businessBroadcasts, businessFollowers, users, establishments, groups } from "../drizzle/schema";
 import { eq, and, or, desc, sql } from "drizzle-orm";
 
 // ==================== GROUP MESSAGES ====================
@@ -14,6 +14,8 @@ export async function sendGroupMessage(groupId: number, senderId: number, conten
     referenceId: referenceId || null,
     referenceSlug: referenceSlug || null,
   });
+  // Update group's updatedAt to sort by last activity
+  await db.update(groups).set({ updatedAt: new Date() }).where(eq(groups.id, groupId));
   return result.insertId;
 }
 

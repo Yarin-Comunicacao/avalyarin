@@ -402,7 +402,25 @@ function App() {
   }
 
   // 3) Show onboarding survey if not completed
-  if (!surveyCompleted) {
+  // Fix: if user logged in (not registered), wait for backend check before showing survey
+  const authFlow = localStorage.getItem("avalyarin_auth_flow");
+  const isLoginFlow = authFlow === "login";
+  const isSurveyCheckLoading = authChoiceMade && !surveyCompleted && !surveyCheck;
+  
+  if (!surveyCompleted && !(isLoginFlow && isSurveyCheckLoading)) {
+    // If it's a login flow and we're still loading the survey check, skip showing the survey
+    if (isLoginFlow && !surveyCheck) {
+      // Still loading — show nothing (or a brief loading state)
+      return (
+        <ErrorBoundary>
+          <ThemeProvider defaultTheme="escuro">
+            <div className="min-h-screen bg-background flex items-center justify-center">
+              <div className="animate-pulse text-primary font-display text-xl tracking-wider">AVALYARIN</div>
+            </div>
+          </ThemeProvider>
+        </ErrorBoundary>
+      );
+    }
     return (
       <ErrorBoundary>
         <ThemeProvider defaultTheme="escuro">

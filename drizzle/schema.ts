@@ -22,6 +22,8 @@ export const users = mysqlTable("users", {
   facebookId: varchar("facebookId", { length: 64 }),
   googleId: varchar("googleId", { length: 128 }),
   passwordHash: varchar("passwordHash", { length: 255 }),
+  passwordResetToken: varchar("passwordResetToken", { length: 255 }),
+  passwordResetExpires: timestamp("passwordResetExpires"),
   emailVerified: boolean("emailVerified").default(false).notNull(),
   lat: float("lat"),
   lng: float("lng"),

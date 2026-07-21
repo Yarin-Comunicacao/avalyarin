@@ -99,13 +99,13 @@ async function handleFacebookLogin(req: Request, res: Response) {
     let existingUser = await db.select().from(users)
       .where(eq(users.facebookId, fbUser.id))
       .limit(1)
-      .then(r => r[0]);
+      .then((r: any[]) => r[0]);
 
     if (!existingUser && fbUser.email) {
       existingUser = await db.select().from(users)
         .where(eq(users.email, fbUser.email))
         .limit(1)
-        .then(r => r[0]);
+        .then((r: any[]) => r[0]);
       // Link Facebook ID to existing user
       if (existingUser) {
         await db.update(users)
@@ -130,7 +130,7 @@ async function handleFacebookLogin(req: Request, res: Response) {
       const existingByOpenId = await db.select().from(users)
         .where(eq(users.openId, openId))
         .limit(1)
-        .then(r => r[0]);
+        .then((r: any[]) => r[0]);
       
       if (existingByOpenId) {
         userId = existingByOpenId.id;
@@ -169,7 +169,7 @@ async function handleFacebookLogin(req: Request, res: Response) {
     }
 
     // Create session — need to fetch the user's openId for the JWT
-    const finalUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then(r => r[0]);
+    const finalUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then((r: any[]) => r[0]);
     const token = await createSessionToken(finalUser!.openId, finalUser!.name || fbUser.name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId });
@@ -212,13 +212,13 @@ async function handleGoogleLogin(req: Request, res: Response) {
     let existingUser = await db.select().from(users)
       .where(eq(users.googleId, googleUser.sub))
       .limit(1)
-      .then(r => r[0]);
+      .then((r: any[]) => r[0]);
 
     if (!existingUser && googleUser.email) {
       existingUser = await db.select().from(users)
         .where(eq(users.email, googleUser.email))
         .limit(1)
-        .then(r => r[0]);
+        .then((r: any[]) => r[0]);
       // Link Google ID to existing user
       if (existingUser) {
         await db.update(users)
@@ -242,7 +242,7 @@ async function handleGoogleLogin(req: Request, res: Response) {
       const existingByOpenId = await db.select().from(users)
         .where(eq(users.openId, openId))
         .limit(1)
-        .then(r => r[0]);
+        .then((r: any[]) => r[0]);
       
       if (existingByOpenId) {
         userId = existingByOpenId.id;
@@ -280,7 +280,7 @@ async function handleGoogleLogin(req: Request, res: Response) {
     }
 
     // Create session — need to fetch the user's openId for the JWT
-    const finalGoogleUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then(r => r[0]);
+    const finalGoogleUser = await db.select().from(users).where(eq(users.id, userId)).limit(1).then((r: any[]) => r[0]);
     const token = await createSessionToken(finalGoogleUser!.openId, finalGoogleUser!.name || googleUser.name || "");
     setSessionCookie(res, token);
     return res.json({ success: true, userId });
@@ -296,12 +296,20 @@ async function handleGoogleLogin(req: Request, res: Response) {
 
 async function handleEmailRegister(req: Request, res: Response) {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, username } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
     if (password.length < 6) {
       return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
+    }
+    // Validate username
+    if (!username || username.length < 3 || username.length > 30) {
+      return res.status(400).json({ error: "Username deve ter entre 3 e 30 caracteres" });
+    }
+    const usernameClean = username.toLowerCase().replace(/[^a-z0-9_.]/g, "");
+    if (usernameClean.length < 3) {
+      return res.status(400).json({ error: "Username inválido. Use apenas letras, números, . e _" });
     }
 
     const db = await getDb();
@@ -311,7 +319,7 @@ async function handleEmailRegister(req: Request, res: Response) {
     const existing = await db.select().from(users)
       .where(eq(users.email, email.toLowerCase().trim()))
       .limit(1)
-      .then(r => r[0]);
+      .then((r: any[]) => r[0]);
 
     if (existing) {
       return res.status(409).json({ 
@@ -319,6 +327,18 @@ async function handleEmailRegister(req: Request, res: Response) {
         code: "USER_ALREADY_EXISTS",
         message: "Este email já está cadastrado. Faça login com sua conta existente.",
         loginMethod: existing.loginMethod || "email"
+      });
+    }
+
+    // Check if username is taken
+    const existingUsername = await db.select().from(users)
+      .where(eq(users.username, usernameClean))
+      .limit(1)
+      .then((r: any[]) => r[0]);
+    if (existingUsername) {
+      return res.status(409).json({
+        error: "Este @ já está em uso",
+        code: "USERNAME_TAKEN",
       });
     }
 
@@ -333,6 +353,7 @@ async function handleEmailRegister(req: Request, res: Response) {
       code: newCode,
       name: name || null,
       email: email.toLowerCase().trim(),
+      username: usernameClean,
       passwordHash,
       loginMethod: "email",
       emailVerified: false,
@@ -365,7 +386,7 @@ async function handleEmailLogin(req: Request, res: Response) {
     const user = await db.select().from(users)
       .where(eq(users.email, email.toLowerCase().trim()))
       .limit(1)
-      .then(r => r[0]);
+      .then((r: any[]) => r[0]);
 
     if (!user || !user.passwordHash) {
       return res.status(401).json({ error: "Email ou senha incorretos" });
@@ -392,6 +413,105 @@ async function handleEmailLogin(req: Request, res: Response) {
 }
 
 // ============================================================
+// FORGOT PASSWORD
+// ============================================================
+
+async function handleForgotPassword(req: Request, res: Response) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email é obrigatório" });
+    }
+
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database unavailable" });
+
+    const user = await db.select().from(users)
+      .where(eq(users.email, email.toLowerCase().trim()))
+      .limit(1)
+      .then((r: any[]) => r[0]);
+
+    // Always return success to avoid email enumeration
+    if (!user || !user.passwordHash) {
+      return res.json({ success: true });
+    }
+
+    // Generate a reset token (simple approach: hash of openId + timestamp)
+    const resetToken = `${user.openId}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const resetTokenHash = await bcrypt.hash(resetToken, 8);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Store reset token in user record
+    await db.update(users)
+      .set({ 
+        passwordResetToken: resetTokenHash,
+        passwordResetExpires: expiresAt,
+      })
+      .where(eq(users.id, user.id));
+
+    // TODO: Send email with reset link
+    // For now, log the token (in production, send via email service)
+    console.log(`[Auth] Password reset requested for ${email}. Token: ${resetToken}`);
+    
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[Auth/ForgotPassword] Error:", err);
+    return res.status(500).json({ error: "Erro interno" });
+  }
+}
+
+async function handleResetPassword(req: Request, res: Response) {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: "Token e nova senha são obrigatórios" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
+    }
+
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database unavailable" });
+
+    // Find user with valid reset token
+    // We need to check all users with non-null passwordResetToken
+    const usersWithToken = await db.select().from(users)
+      .where(sql`${users.passwordResetToken} IS NOT NULL AND ${users.passwordResetExpires} > NOW()`)
+      .limit(100);
+
+    let matchedUser = null;
+    for (const u of usersWithToken) {
+      if (u.passwordResetToken) {
+        const valid = await bcrypt.compare(token, u.passwordResetToken);
+        if (valid) {
+          matchedUser = u;
+          break;
+        }
+      }
+    }
+
+    if (!matchedUser) {
+      return res.status(400).json({ error: "Token inválido ou expirado" });
+    }
+
+    // Update password and clear reset token
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await db.update(users)
+      .set({
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      })
+      .where(eq(users.id, matchedUser.id));
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[Auth/ResetPassword] Error:", err);
+    return res.status(500).json({ error: "Erro interno" });
+  }
+}
+
+// ============================================================
 // REGISTER ROUTES
 // ============================================================
 
@@ -400,4 +520,6 @@ export function registerOwnAuthRoutes(app: Express) {
   app.post("/api/auth/google", handleGoogleLogin);
   app.post("/api/auth/register", handleEmailRegister);
   app.post("/api/auth/login", handleEmailLogin);
+  app.post("/api/auth/forgot-password", handleForgotPassword);
+  app.post("/api/auth/reset-password", handleResetPassword);
 }

@@ -139,13 +139,14 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
       image: groups.image,
       memberCount: groups.memberCount,
       createdAt: groups.createdAt,
+      updatedAt: groups.updatedAt,
       createdAsRole: groups.createdAsRole,
       role: groupMembers.role,
     })
     .from(groupMembers)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
     .where(and(...conditions))
-    .orderBy(desc(groups.createdAt));
+    .orderBy(desc(groups.updatedAt));
 
   // Also include broadcast groups linked to user's business claims (proprietor)
   const claimedEstabs = await db
@@ -168,6 +169,7 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
         image: groups.image,
         memberCount: groups.memberCount,
         createdAt: groups.createdAt,
+        updatedAt: groups.updatedAt,
         createdAsRole: groups.createdAsRole,
       })
       .from(groups)
@@ -198,6 +200,7 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
         image: groups.image,
         memberCount: groups.memberCount,
         createdAt: groups.createdAt,
+        updatedAt: groups.updatedAt,
         createdAsRole: groups.createdAsRole,
       })
       .from(groups)
@@ -207,7 +210,6 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
         eq(groups.linkedEntityId, userId)
       ))
       .limit(1);
-
     const existingIds2 = new Set(rows.map((r: any) => r.id));
     for (const bg of ownBroadcast) {
       if (!existingIds2.has(bg.id)) {
@@ -215,7 +217,12 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
       }
     }
   }
-
+  // Sort all groups by updatedAt descending (most recent activity first)
+  rows.sort((a: any, b: any) => {
+    const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
+    const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.createdAt).getTime();
+    return bTime - aTime;
+  });
   return rows;
 }
 
@@ -247,7 +254,7 @@ export async function getFollowedGroups(userId: number) {
         sql`${groups.creatorId} != ${userId}`
       )
     )
-    .orderBy(desc(groups.createdAt));
+    .orderBy(desc(groups.updatedAt));
 
   return rows;
 }

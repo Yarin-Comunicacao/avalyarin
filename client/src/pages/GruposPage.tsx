@@ -378,7 +378,15 @@ function GroupDetail({
 
       {/* Header */}
       <div className="mb-6">
-        <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
+        {/* Mobile: sticky header with back arrow (WhatsApp style) */}
+        <div className="md:hidden sticky top-0 z-10 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border/30 mb-4 flex items-center gap-3">
+          <button onClick={onBack} className="p-1 rounded-full hover:bg-card transition-colors">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <span className="font-display text-lg tracking-wider text-foreground truncate">{group?.name || "Grupo"}</span>
+        </div>
+        {/* Desktop: simple back link */}
+        <button onClick={onBack} className="hidden md:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
           <ArrowLeft className="w-4 h-4" /> Voltar
         </button>
         <div className="flex items-center justify-between">
@@ -1084,129 +1092,207 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
       )}
 
       <div className="container py-6 pb-24">
-        {selectedGroupId ? (
-          <GroupDetail groupId={selectedGroupId} onBack={() => setSelectedGroupId(null)} />
-        ) : (
-          <>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="font-display text-3xl tracking-wider text-primary text-glow-amber">
-                GRUPOS
-              </h1>
-              <Button
-                onClick={() => setShowCreate(true)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 mr-1" /> CRIAR
-              </Button>
-            </div>
+        {/* ═══ MOBILE LAYOUT (< md): list OR detail ═══ */}
+        <div className="md:hidden">
+          {selectedGroupId ? (
+            <GroupDetail groupId={selectedGroupId} onBack={() => setSelectedGroupId(null)} />
+          ) : (
+            <GroupListPanel
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              tabs={tabs}
+              loadingMy={loadingMy}
+              myGroups={myGroups}
+              followedGroups={followedGroups}
+              loadingFollowed={loadingFollowed}
+              selectedGroupId={selectedGroupId}
+              onSelectGroup={(id) => setSelectedGroupId(id)}
+              onGoToPessoas={() => setActiveTab("pessoas")}
+              onShowCreate={() => setShowCreate(true)}
+            />
+          )}
+        </div>
 
-            {/* Plan info removed — no upgrade banner for users */}
-
-            {/* Tabs */}
-            <div className="flex gap-1 p-1 bg-card rounded-lg border border-border/50 mb-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
-                    activeTab === tab.id
-                      ? "bg-primary/10 text-primary border border-primary/20"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.id === "meus" ? "Meus" : tab.id === "sigo" ? "Seguindo" : "Pessoas"}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Content */}
-            {activeTab === "meus" && (
-              <div>
-                {loadingMy ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  </div>
-                ) : !myGroups || myGroups.length === 0 ? (
-                  <div className="text-center py-16 bg-card/50 rounded-xl border border-border/30">
-                    <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-                    <p className="text-muted-foreground mb-1">Nenhum grupo ainda</p>
-                    <p className="text-xs text-muted-foreground/60 mb-4">
-                      Crie um grupo e convide amigos para compartilhar avaliações
-                    </p>
-                    <Button
-                      onClick={() => setShowCreate(true)}
-                      variant="outline"
-                      className="border-primary/30 text-primary hover:bg-primary/10"
-                    >
-                      <Plus className="w-4 h-4 mr-1" /> Criar meu primeiro grupo
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* Botão Criar acima da lista, justificado ao texto */}
-                    <div className="mb-1">
-                      <Button
-                        onClick={() => setShowCreate(true)}
-                        variant="outline"
-                        size="sm"
-                        className="border-primary/30 text-primary hover:bg-primary/10 font-display tracking-wider"
-                      >
-                        <Plus className="w-4 h-4 mr-1" /> CRIAR NOVO GRUPO
-                      </Button>
-                    </div>
-
-                    {myGroups.map((g: any) => (
-                      <div
-                        key={g.id}
-                        onClick={() => setSelectedGroupId(g.id)}
-                        className="p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              {g.type === "specialist" ? (
-                                <Crown className="w-4 h-4 text-primary flex-shrink-0" />
-                              ) : (
-                                <Users className="w-4 h-4 text-primary flex-shrink-0" />
-                              )}
-                              <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
-                                {g.role === "admin" || g.role === "creator" ? "Admin" : "Membro"}
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {g.memberCount} {g.memberCount === 1 ? "membro" : "membros"}
-                              {g.description && ` · ${g.description}`}
-                            </p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "sigo" && (
-              <FollowingTabSection
+        {/* ═══ DESKTOP/TABLET LAYOUT (md+): split 30/70 with slide animation ═══ */}
+        <div className="hidden md:flex h-[calc(100vh-120px)] gap-0 overflow-hidden rounded-xl border border-border/30">
+          {/* Left Panel — Group List */}
+          <div
+            className={`transition-all duration-300 ease-in-out border-r border-border/30 overflow-y-auto ${
+              selectedGroupId ? "w-[30%]" : "w-full"
+            }`}
+          >
+            <div className="p-4">
+              <GroupListPanel
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                tabs={tabs}
+                loadingMy={loadingMy}
+                myGroups={myGroups}
                 followedGroups={followedGroups}
                 loadingFollowed={loadingFollowed}
+                selectedGroupId={selectedGroupId}
                 onSelectGroup={(id) => setSelectedGroupId(id)}
                 onGoToPessoas={() => setActiveTab("pessoas")}
+                onShowCreate={() => setShowCreate(true)}
+                compact={!!selectedGroupId}
               />
-            )}
+            </div>
+          </div>
 
-            {activeTab === "pessoas" && (
-              <PeopleSearchSection />
-            )}
-          </>
-        )}
+          {/* Right Panel — Chat/Detail */}
+          {selectedGroupId && (
+            <div className="w-[70%] overflow-y-auto transition-all duration-300 ease-in-out">
+              <div className="p-6">
+                <GroupDetail groupId={selectedGroupId} onBack={() => setSelectedGroupId(null)} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// ─── Extracted Group List Panel (shared between mobile and desktop) ──────────
+function GroupListPanel({
+  activeTab,
+  setActiveTab,
+  tabs,
+  loadingMy,
+  myGroups,
+  followedGroups,
+  loadingFollowed,
+  selectedGroupId,
+  onSelectGroup,
+  onGoToPessoas,
+  onShowCreate,
+  compact,
+}: {
+  activeTab: "meus" | "sigo" | "pessoas";
+  setActiveTab: (tab: "meus" | "sigo" | "pessoas") => void;
+  tabs: { id: "meus" | "sigo" | "pessoas"; label: string; icon: any }[];
+  loadingMy: boolean;
+  myGroups: any[] | undefined;
+  followedGroups: any[] | undefined;
+  loadingFollowed: boolean;
+  selectedGroupId: number | null;
+  onSelectGroup: (id: number) => void;
+  onGoToPessoas: () => void;
+  onShowCreate: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className={`font-display tracking-wider text-primary text-glow-amber ${compact ? "text-xl" : "text-3xl"}`}>
+          GRUPOS
+        </h1>
+        <Button
+          onClick={onShowCreate}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
+          size="sm"
+        >
+          <Plus className="w-4 h-4 mr-1" /> {compact ? "" : "CRIAR"}
+        </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 bg-card rounded-lg border border-border/50 mb-4">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all ${
+              activeTab === tab.id
+                ? "bg-primary/10 text-primary border border-primary/20"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <tab.icon className="w-3.5 h-3.5" />
+            {!compact && <span className="hidden sm:inline">{tab.label}</span>}
+            {compact && <span className="text-[10px]">{tab.id === "meus" ? "Meus" : tab.id === "sigo" ? "Sigo" : "🔍"}</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {activeTab === "meus" && (
+        <div>
+          {loadingMy ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : !myGroups || myGroups.length === 0 ? (
+            <div className="text-center py-12 bg-card/50 rounded-xl border border-border/30">
+              <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground mb-1">Nenhum grupo ainda</p>
+              {!compact && (
+                <p className="text-xs text-muted-foreground/60 mb-4">
+                  Crie um grupo e convide amigos para compartilhar avaliações
+                </p>
+              )}
+              <Button
+                onClick={onShowCreate}
+                variant="outline"
+                size="sm"
+                className="border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Plus className="w-4 h-4 mr-1" /> Criar grupo
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {myGroups.map((g: any) => (
+                <div
+                  key={g.id}
+                  onClick={() => onSelectGroup(g.id)}
+                  className={`p-3 rounded-xl bg-card border transition-all cursor-pointer ${
+                    selectedGroupId === g.id
+                      ? "border-primary/60 bg-primary/5"
+                      : "border-border/50 hover:border-primary/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {g.type === "specialist" ? (
+                          <Crown className="w-4 h-4 text-primary flex-shrink-0" />
+                        ) : g.type === "broadcast" ? (
+                          <Radio className="w-4 h-4 text-primary flex-shrink-0" />
+                        ) : (
+                          <Users className="w-4 h-4 text-primary flex-shrink-0" />
+                        )}
+                        <p className="text-sm font-medium text-foreground truncate">{g.name}</p>
+                      </div>
+                      {!compact && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {g.memberCount} {g.memberCount === 1 ? "membro" : "membros"}
+                          {g.description && ` · ${g.description}`}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "sigo" && (
+        <FollowingTabSection
+          followedGroups={followedGroups}
+          loadingFollowed={loadingFollowed}
+          onSelectGroup={onSelectGroup}
+          onGoToPessoas={onGoToPessoas}
+        />
+      )}
+
+      {activeTab === "pessoas" && (
+        <PeopleSearchSection />
+      )}
+    </>
   );
 }
