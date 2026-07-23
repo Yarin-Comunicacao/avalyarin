@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import AdminEstablishments from "@/components/AdminEstablishments";
 import BrandbookTab from "@/components/BrandbookTab";
 import ModerationPanel from "@/components/ModerationPanel";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearch, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
@@ -662,7 +662,20 @@ function EstablishmentsTabLegacy() {
     phone: "",
     instagram: "",
     hours: "",
+    // Auto-filled fields (read-only)
+    lat: 0,
+    lng: 0,
+    cep: "",
+    distrito: "",
+    addressNumber: "",
   });
+  const [addressInput, setAddressInput] = useState("");
+  const [geoResolved, setGeoResolved] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<{description: string; placeId: string}[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const autocompleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const placeDetailsMutation = trpc.geo.placeDetails.useMutation();
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Tem certeza que deseja excluir "${name}"? Esta ação é irreversível.`)) return;
@@ -675,14 +688,68 @@ function EstablishmentsTabLegacy() {
     }
   };
 
+  // Debounced autocomplete search
+  const handleAddressInputChange = (value: string) => {
+    setAddressInput(value);
+    setGeoResolved(false);
+    if (autocompleteTimer.current) clearTimeout(autocompleteTimer.current);
+    if (value.length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    autocompleteTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/trpc/geo.placeAutocomplete?input=${encodeURIComponent(JSON.stringify({ input: value }))}`, { credentials: "include" });
+        const json = await res.json();
+        const preds = json?.result?.data?.predictions || [];
+        setSuggestions(preds);
+        setShowSuggestions(preds.length > 0);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 350);
+  };
+
+  // When user selects a suggestion
+  const handleSelectPlace = async (placeId: string, description: string) => {
+    setAddressInput(description);
+    setShowSuggestions(false);
+    setGeoLoading(true);
+    try {
+      const details = await placeDetailsMutation.mutateAsync({ placeId });
+      setFormData(prev => ({
+        ...prev,
+        address: details.route || description.split(",")[0] || "",
+        addressNumber: details.streetNumber || "",
+        neighborhood: details.neighborhood || prev.neighborhood,
+        region: details.regiao || prev.region,
+        lat: details.lat,
+        lng: details.lng,
+        cep: details.cep || "",
+        distrito: details.distrito || "",
+      }));
+      setGeoResolved(true);
+      toast.success("Endereço localizado! Campos preenchidos automaticamente.");
+    } catch {
+      toast.error("Erro ao buscar detalhes do endereço");
+    } finally {
+      setGeoLoading(false);
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.categoryId) {
       toast.error("Nome e categoria são obrigatórios");
       return;
     }
-    if (!formData.address || !formData.neighborhood || !formData.phone || !formData.instagram || !formData.hours) {
-      toast.error("Preencha todos os campos obrigatórios: endereço, bairro, telefone, Instagram e horário.");
+    if (!geoResolved) {
+      toast.error("Selecione um endereço da lista de sugestões para preencher automaticamente.");
+      return;
+    }
+    if (!formData.phone || !formData.instagram || !formData.hours) {
+      toast.error("Preencha todos os campos obrigatórios: telefone, Instagram e horário.");
       return;
     }
     try {
@@ -690,14 +757,19 @@ function EstablishmentsTabLegacy() {
         name: formData.name,
         categoryId: formData.categoryId,
         address: formData.address,
+        addressNumber: formData.addressNumber,
         neighborhood: formData.neighborhood,
         region: formData.region,
+        lat: formData.lat,
+        lng: formData.lng,
         phone: formData.phone,
         instagram: formData.instagram,
         hours: formData.hours,
       });
       toast.success(`"${formData.name}" cadastrado com sucesso! (ID: ${result.id})`);
-      setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "", phone: "", instagram: "", hours: "" });
+      setFormData({ name: "", categoryId: 0, address: "", neighborhood: "", region: "", phone: "", instagram: "", hours: "", lat: 0, lng: 0, cep: "", distrito: "", addressNumber: "" });
+      setAddressInput("");
+      setGeoResolved(false);
       setShowForm(false);
       utils.establishments.byCategory.invalidate();
       utils.admin.stats.invalidate();
@@ -753,43 +825,114 @@ function EstablishmentsTabLegacy() {
               </select>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-xs text-muted-foreground mb-1">Endereço completo *</label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil"
-                required
-              />
-              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Formato: Rua, nº - Bairro, São Paulo - SP, CEP, Brasil</span>
+            {/* Address Autocomplete */}
+            <div className="md:col-span-2 relative">
+              <label className="block text-xs text-muted-foreground mb-1">Buscar Endereço * <span className="text-primary">(Google Maps + GeoSampa)</span></label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={addressInput}
+                  onChange={(e) => handleAddressInputChange(e.target.value)}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm pr-10"
+                  placeholder="Digite o endereço e selecione da lista..."
+                  required
+                />
+                {geoLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                {geoResolved && !geoLoading && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">✓</div>
+                )}
+              </div>
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onMouseDown={() => handleSelectPlace(s.placeId, s.description)}
+                      className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-primary/10 border-b border-border/30 last:border-0"
+                    >
+                      {s.description}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Digite e selecione — os campos abaixo serão preenchidos automaticamente</span>
             </div>
 
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">Bairro *</label>
-              <input
-                type="text"
-                value={formData.neighborhood}
-                onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Vila Madalena"
-                required
-              />
-              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Ex: Pinheiros, Vila Madalena, Moema, Jardins</span>
-            </div>
-
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">Região <span className="text-muted-foreground/40">(opcional)</span></label>
-              <input
-                type="text"
-                value={formData.region}
-                onChange={(e) => setFormData(prev => ({ ...prev, region: e.target.value }))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-                placeholder="Zona Oeste"
-              />
-              <span className="text-[10px] text-muted-foreground/60 mt-0.5 block">Ex: Zona Oeste, Zona Sul, Centro</span>
-            </div>
+            {/* Auto-filled fields (read-only) */}
+            {geoResolved && (
+              <>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Rua <span className="text-xs text-green-500">🔒 Auto</span></label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Número <span className="text-xs text-green-500">🔒 Auto</span></label>
+                  <input
+                    type="text"
+                    value={formData.addressNumber}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Bairro <span className="text-xs text-green-500">🔒 Auto</span></label>
+                  <input
+                    type="text"
+                    value={formData.neighborhood}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Região <span className="text-xs text-green-500">🔒 GeoSampa</span></label>
+                  <input
+                    type="text"
+                    value={formData.region}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Distrito <span className="text-xs text-green-500">🔒 GeoSampa</span></label>
+                  <input
+                    type="text"
+                    value={formData.distrito}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">CEP <span className="text-xs text-green-500">🔒 Auto</span></label>
+                  <input
+                    type="text"
+                    value={formData.cep}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">Coordenadas <span className="text-xs text-green-500">🔒 Auto</span></label>
+                  <input
+                    type="text"
+                    value={`${formData.lat.toFixed(6)}, ${formData.lng.toFixed(6)}`}
+                    readOnly
+                    className="w-full px-3 py-2 bg-muted/50 border border-border/50 rounded-lg text-foreground/70 text-sm cursor-not-allowed"
+                  />
+                </div>
+              </>
+            )}
 
             <div>
               <label className="block text-xs text-muted-foreground mb-1">Telefone *</label>

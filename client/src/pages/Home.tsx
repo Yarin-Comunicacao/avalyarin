@@ -1,6 +1,6 @@
 // Design: Neon Urbano — Home page with new layout:
 // 1. Minhas Preferidas (5 categories from survey)
-// 2. Explore outros grupos (4 groups with images)
+// 2. Explore outros segmentos (category segments with images)
 // 3. Veja todas as Categorias (GIF)
 
 import Navbar from "@/components/Navbar";
@@ -199,7 +199,7 @@ export default function Home() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════
-          SECTION 2: EXPLORE OUTROS GRUPOS (4 groups with images)
+          SECTION 2: EXPLORE OUTROS SEGMENTOS (4 groups with images)
           ═══════════════════════════════════════════════════════════ */}
       <section id="categorias" className="py-16 border-t border-border/30">
         <div className="container">
@@ -211,10 +211,10 @@ export default function Home() {
             className="mb-8"
           >
             <h3 className="font-display text-3xl tracking-wider text-primary text-glow-amber">
-              EXPLORE OUTROS GRUPOS
+              EXPLORE OUTROS SEGMENTOS
             </h3>
             <p className="text-sm text-muted-foreground mt-2">
-              {categories.length} tipos de estabelecimentos organizados em {categoryGroups.length} grupos
+              {categories.length} tipos de estabelecimentos organizados em {categoryGroups.length} segmentos
             </p>
           </motion.div>
 
@@ -235,7 +235,7 @@ export default function Home() {
                   viewport={{ once: true }}
                   variants={fadeUp}
                 >
-                  <Link href={`/grupo/${group.id}`}>
+                  <Link href={`/segmento/${group.id}`}>
                     <div
                       className="group relative rounded-xl overflow-hidden border border-primary/30 hover:border-primary/60 transition-all cursor-pointer hover:glow-amber h-56"
                     >

@@ -1,8 +1,8 @@
-import { eq, and, or, desc, sql, like, isNull, inArray } from "drizzle-orm";
+import { eq, and, or, desc, sql, like, isNull } from "drizzle-orm";
 import { getDb, generateCode } from "./db";
 import {
   groups, groupMembers, groupInvites, groupSharedRatings, userPlans,
-  users, ratings, ratingItems, establishments, businessClaims,
+  users, ratings, ratingItems, establishments, userFollows,
   type Group, type GroupMember, type GroupInvite, type GroupSharedRating
 } from "../drizzle/schema";
 
@@ -22,6 +22,37 @@ export async function getUserPlanOrDefault(userId: number) {
 
 // ─── Groups CRUD ─────────────────────────────────────────────────────────────
 
+/** Check if plan is a paid/pro tier (supports both legacy 'premium' and new 'pro' values) */
+function isPaidPlan(plan: string): boolean {
+  return plan === "pro" || plan === "premium" || plan === "embaixador";
+}
+
+/**
+ * Group creation limits per role+plan:
+ * User Free: 10 | User Pro: 70 | Specialist: 150 | Critic: 150 | Business: 5 | Business Pro: 20
+ */
+function getGroupCreationLimit(role: string, plan: string): number {
+  switch (role) {
+    case "specialist": return 150;
+    case "critic": return 150;
+    case "business": return isPaidPlan(plan) ? 20 : 5;
+    default: return isPaidPlan(plan) ? 70 : 10; // user
+  }
+}
+
+/**
+ * Member limits per group (based on creator's role+plan):
+ * User Free: 75 | User Pro: 150 | Specialist: 250 | Critic: 250 | Business: 25 | Business Pro: 80
+ */
+function getMemberLimit(role: string, plan: string): number {
+  switch (role) {
+    case "specialist": return 250;
+    case "critic": return 250;
+    case "business": return isPaidPlan(plan) ? 80 : 25;
+    default: return isPaidPlan(plan) ? 150 : 75; // user
+  }
+}
+
 export async function createGroup(data: {
   name: string;
   description?: string;
@@ -34,21 +65,21 @@ export async function createGroup(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Check plan limits
-  const plan = await getUserPlanOrDefault(data.creatorId);
-  
-  if (data.type === "specialist" && plan !== "premium" && plan !== "embaixador") {
-    throw new Error("PLAN_REQUIRED: Grupos de specialist requerem plano premium");
-  }
-
-  // Limite de 10 grupos para role "user" (effectiveRole overrides for owner/admin viewing as)
+  // Get creator role and plan
   const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, data.creatorId)).limit(1);
   const creatorRole = data.effectiveRole || creator?.role || "user";
-  if (creatorRole === "user") {
-    const groupCount = await countUserGroups(data.creatorId, data.effectiveRole);
-    if (groupCount >= 10) {
-      throw new Error("PLAN_LIMIT: Limite de 10 grupos atingido");
-    }
+  const plan = await getUserPlanOrDefault(data.creatorId);
+
+  // Only specialist/critic can create specialist-type groups
+  if (data.type === "specialist" && creatorRole !== "specialist" && creatorRole !== "critic") {
+    throw new Error("PLAN_REQUIRED: Apenas especialistas e críticos podem criar grupos de specialist");
+  }
+
+  // Check group creation limit based on role + plan
+  const limit = getGroupCreationLimit(creatorRole, plan);
+  const groupCount = await countUserGroups(data.creatorId, data.effectiveRole);
+  if (groupCount >= limit) {
+    throw new Error(`PLAN_LIMIT: Limite de ${limit} grupos atingido para seu plano`);
   }
 
   // Generate code for new group
@@ -102,14 +133,15 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
   const [userRow] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId)).limit(1);
   const userRole = userRow?.role || "user";
 
-  // Build conditions: private groups + specialist groups user created + broadcast groups user created
+  // Build conditions: only groups where user is the CREATOR
   const conditions: any[] = [
     eq(groupMembers.userId, userId),
     isNull(groupMembers.leftAt),
+    eq(groups.creatorId, userId),
     or(
       eq(groups.type, "private"),
-      and(eq(groups.type, "specialist"), eq(groups.creatorId, userId)),
-      and(eq(groups.type, "broadcast"), eq(groups.creatorId, userId))
+      eq(groups.type, "specialist"),
+      eq(groups.type, "broadcast")
     ),
   ];
 
@@ -147,76 +179,6 @@ export async function getMyGroups(userId: number, effectiveRole?: string | null)
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
     .where(and(...conditions))
     .orderBy(desc(groups.updatedAt));
-
-  // Also include broadcast groups linked to user's business claims (proprietor)
-  const claimedEstabs = await db
-    .select({ establishmentId: businessClaims.establishmentId })
-    .from(businessClaims)
-    .where(and(
-      eq(businessClaims.userId, userId),
-      eq(businessClaims.status, "approved")
-    ));
-
-  if (claimedEstabs.length > 0) {
-    const estabIds = claimedEstabs.map((c: any) => c.establishmentId);
-    const broadcastRows = await db
-      .select({
-        id: groups.id,
-        name: groups.name,
-        description: groups.description,
-        type: groups.type,
-        creatorId: groups.creatorId,
-        image: groups.image,
-        memberCount: groups.memberCount,
-        createdAt: groups.createdAt,
-        updatedAt: groups.updatedAt,
-        createdAsRole: groups.createdAsRole,
-      })
-      .from(groups)
-      .where(and(
-        eq(groups.type, "broadcast"),
-        eq(groups.linkedEntityType, "establishment"),
-        inArray(groups.linkedEntityId, estabIds)
-      ));
-
-    // Merge broadcast groups that aren't already in the list
-    const existingIds = new Set(rows.map((r: any) => r.id));
-    for (const bg of broadcastRows) {
-      if (!existingIds.has(bg.id)) {
-        rows.push({ ...bg, role: "creator" });
-      }
-    }
-  }
-
-  // For specialist/critic users, include their own broadcast group (they are the proprietor)
-  if (userRole === "specialist" || userRole === "critic") {
-    const ownBroadcast = await db
-      .select({
-        id: groups.id,
-        name: groups.name,
-        description: groups.description,
-        type: groups.type,
-        creatorId: groups.creatorId,
-        image: groups.image,
-        memberCount: groups.memberCount,
-        createdAt: groups.createdAt,
-        updatedAt: groups.updatedAt,
-        createdAsRole: groups.createdAsRole,
-      })
-      .from(groups)
-      .where(and(
-        eq(groups.type, "broadcast"),
-        eq(groups.linkedEntityType, userRole),
-        eq(groups.linkedEntityId, userId)
-      ))
-      .limit(1);
-    const existingIds2 = new Set(rows.map((r: any) => r.id));
-    for (const bg of ownBroadcast) {
-      if (!existingIds2.has(bg.id)) {
-        rows.push({ ...bg, role: "creator" });
-      }
-    }
-  }
   // Sort all groups by updatedAt descending (most recent activity first)
   rows.sort((a: any, b: any) => {
     const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
@@ -230,7 +192,8 @@ export async function getFollowedGroups(userId: number) {
   const db = await getDb();
   if (!db) return [];
 
-  // Specialist groups where user is a follower (not creator)
+  // "Seguindo" tab: private/specialist groups where user is a member but NOT the creator
+  // This includes groups the user was invited to
   const rows = await db
     .select({
       id: groups.id,
@@ -250,7 +213,11 @@ export async function getFollowedGroups(userId: number) {
     .where(
       and(
         eq(groupMembers.userId, userId),
-        eq(groups.type, "specialist"),
+        isNull(groupMembers.leftAt),
+        or(
+          eq(groups.type, "private"),
+          eq(groups.type, "specialist")
+        ),
         sql`${groups.creatorId} != ${userId}`
       )
     )
@@ -310,15 +277,52 @@ export async function inviteToGroup(groupId: number, inviterId: number, inviteeI
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Check member limit (70 for user role groups)
+  // Check member limit per role+plan:
+  // User Free: 75 | User Pro: 150 | Specialist: 250 | Critic: 250 | Business: 25 | Business Pro: 80
   const [group] = await db.select({ creatorId: groups.creatorId, memberCount: groups.memberCount, type: groups.type }).from(groups).where(eq(groups.id, groupId)).limit(1);
   if (group && group.type === "private") {
     const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, group.creatorId)).limit(1);
     const creatorRole = effectiveRole || creator?.role || "user";
-    if (creatorRole === "user" && (group.memberCount || 0) >= 70) {
-      throw new Error("MEMBER_LIMIT: Limite de convidados atingido, vire um especialista e crie grupos sem limites de usu\u00e1rios");
+    const creatorPlan = await getUserPlanOrDefault(group.creatorId);
+    const memberLimit = getMemberLimit(creatorRole, creatorPlan);
+    if ((group.memberCount || 0) >= memberLimit) {
+      throw new Error(`MEMBER_LIMIT: Limite de ${memberLimit} membros atingido para este grupo`);
     }
   }
+
+  // ─── Invite restrictions based on roles ───
+  const [inviter] = await db.select({ role: users.role }).from(users).where(eq(users.id, inviterId)).limit(1);
+  const [invitee] = await db.select({ role: users.role }).from(users).where(eq(users.id, inviteeId)).limit(1);
+  const inviterRole = inviter?.role || "user";
+  const inviteeRole = invitee?.role || "user";
+
+  // Business can only invite/be invited by other business
+  if (inviterRole === "business" && inviteeRole !== "business") {
+    throw new Error("INVITE_RESTRICTED: Contas business só podem convidar outras contas business");
+  }
+  if (inviteeRole === "business" && inviterRole !== "business") {
+    throw new Error("INVITE_RESTRICTED: Contas business só podem receber convites de outras contas business");
+  }
+
+  // User (free/pro) can only invite someone with mutual follow (both follow each other)
+  if (inviterRole === "user") {
+    // Check inviter follows invitee
+    const [inviterFollowsInvitee] = await db
+      .select({ id: userFollows.id })
+      .from(userFollows)
+      .where(and(eq(userFollows.followerId, inviterId), eq(userFollows.followingId, inviteeId), eq(userFollows.status, "accepted")))
+      .limit(1);
+    // Check invitee follows inviter
+    const [inviteeFollowsInviter] = await db
+      .select({ id: userFollows.id })
+      .from(userFollows)
+      .where(and(eq(userFollows.followerId, inviteeId), eq(userFollows.followingId, inviterId), eq(userFollows.status, "accepted")))
+      .limit(1);
+    if (!inviterFollowsInvitee || !inviteeFollowsInviter) {
+      throw new Error("INVITE_RESTRICTED: Você só pode convidar amigos mútuos (seguir e ser seguido)");
+    }
+  }
+  // Specialist/Critic: no invite restrictions
 
   // Check if already a member
   const [existing] = await db
@@ -326,7 +330,7 @@ export async function inviteToGroup(groupId: number, inviterId: number, inviteeI
     .from(groupMembers)
     .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, inviteeId)))
     .limit(1);
-  if (existing) throw new Error("ALREADY_MEMBER: Usu\u00e1rio j\u00e1 \u00e9 membro deste grupo");
+  if (existing) throw new Error("ALREADY_MEMBER: Usuário já é membro deste grupo");
 
   // Check if already invited (pending)
   const [pendingInvite] = await db
@@ -394,12 +398,15 @@ export async function respondToInvite(inviteId: number, userId: number, accept: 
   if (invite.status !== "pending") throw new Error("ALREADY_RESPONDED: Convite já respondido");
 
   if (accept) {
-    // Check member limit (70 for user-owned private groups)
+    // Check member limit based on creator's role+plan
     const [group] = await db.select({ creatorId: groups.creatorId, memberCount: groups.memberCount, type: groups.type }).from(groups).where(eq(groups.id, invite.groupId)).limit(1);
     if (group && group.type === "private") {
       const [creator] = await db.select({ role: users.role }).from(users).where(eq(users.id, group.creatorId)).limit(1);
-      if (creator?.role === "user" && (group.memberCount || 0) >= 70) {
-        throw new Error("MEMBER_LIMIT: Limite de convidados atingido neste grupo");
+      const creatorRole = creator?.role || "user";
+      const creatorPlan = await getUserPlanOrDefault(group.creatorId);
+      const memberLimit = getMemberLimit(creatorRole, creatorPlan);
+      if ((group.memberCount || 0) >= memberLimit) {
+        throw new Error(`MEMBER_LIMIT: Limite de ${memberLimit} membros atingido para este grupo`);
       }
     }
   }

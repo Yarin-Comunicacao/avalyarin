@@ -279,6 +279,77 @@ function InviteUserModal({
   );
 }
 
+// ─── Members Popup (shows "XX Membros" button, click to see list) ────────────
+
+function MembersPopup({
+  members,
+  creatorId,
+  isBroadcast,
+}: {
+  members: any[];
+  creatorId: number;
+  isBroadcast: boolean;
+}) {
+  const [showPopup, setShowPopup] = useState(false);
+
+  // Sort members by joinedAt ascending (earliest first)
+  const sortedMembers = [...members].sort((a, b) => {
+    const aTime = a.joinedAt ? new Date(a.joinedAt).getTime() : 0;
+    const bTime = b.joinedAt ? new Date(b.joinedAt).getTime() : 0;
+    return aTime - bTime;
+  });
+
+  return (
+    <div className="mb-6 relative">
+      <button
+        onClick={() => setShowPopup(!showPopup)}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all cursor-pointer"
+      >
+        <Users className="w-3.5 h-3.5" />
+        <span>{members.length} {members.length === 1 ? "Membro" : "Membros"}</span>
+      </button>
+
+      {showPopup && (
+        <>
+          {/* Backdrop */}
+          <div className="fixed inset-0 z-40" onClick={() => setShowPopup(false)} />
+          {/* Popup */}
+          <div className="absolute top-10 left-0 z-50 w-72 max-h-80 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden">
+            <div className="p-3 border-b border-border/30 flex items-center justify-between">
+              <h4 className="font-display text-sm tracking-wider text-foreground">
+                {isBroadcast ? "AMIGOS QUE SEGUEM" : "MEMBROS"}
+              </h4>
+              <button onClick={() => setShowPopup(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-64 p-2 space-y-1">
+              {sortedMembers.map((m: any) => (
+                <Link key={m.userId} href={`/perfil/${m.username}`}>
+                  <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+                    <span className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary font-bold flex-shrink-0">
+                      {(m.name || m.username || "?").charAt(0).toUpperCase()}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground truncate">
+                        {m.name || m.username}
+                      </p>
+                      {m.username && (
+                        <p className="text-[10px] text-muted-foreground">@{m.username}</p>
+                      )}
+                    </div>
+                    {m.userId === creatorId && <Crown className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Group Detail View ───────────────────────────────────────────────────────
 
 function GroupDetail({
@@ -514,24 +585,9 @@ function GroupDetail({
         </div>
       </div>
 
-      {/* Members */}
+      {/* Members - show as clickable count button with popup */}
       {group.members && group.members.length > 0 && (
-        <div className="mb-6">
-          <h3 className="font-display text-sm tracking-wider text-muted-foreground mb-3">MEMBROS</h3>
-          <div className="flex flex-wrap gap-2">
-            {(group.members as any[]).map((m: any) => (
-              <Link key={m.userId} href={`/perfil/${m.username}`}>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border/50 text-xs text-foreground hover:border-primary/30 transition-all cursor-pointer">
-                  <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">
-                    {(m.name || m.username || "?").charAt(0).toUpperCase()}
-                  </span>
-                  {m.name || m.username}
-                  {m.userId === group.creatorId && <Crown className="w-3 h-3 text-primary" />}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <MembersPopup members={group.members as any[]} creatorId={group.creatorId} isBroadcast={isBroadcast} />
       )}
 
       {/* Group Chat */}
@@ -621,7 +677,7 @@ function FollowingTabSection({
   });
 
   const subTabs = [
-    { id: "seguindo" as const, label: "Grupos de quem sigo" },
+    { id: "seguindo" as const, label: "Seguindo" },
     { id: "transmissoes" as const, label: "Transmissões" },
     { id: "ocultos" as const, label: "Ocultos" },
   ];
@@ -645,7 +701,7 @@ function FollowingTabSection({
         ))}
       </div>
 
-      {/* Sub-tab: Grupos de quem sigo */}
+      {/* Sub-tab: Seguindo (grupos onde fui convidado) */}
       {subTab === "seguindo" && (
         <>
           {loadingFollowed ? (
@@ -1000,7 +1056,7 @@ function PeopleSearchSection() {
           {results?.map((person: any) => (
             <div
               key={person.id}
-              onClick={() => person.username && navigate(`/perfil/${person.username}`)}
+              onClick={() => navigate(`/perfil/${person.username || person.id}`)}
               className="flex items-center justify-between p-3.5 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -1091,7 +1147,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
         <CreateGroupModal onClose={() => setShowCreate(false)} planInfo={planInfo} />
       )}
 
-      <div className="container py-6 pb-24">
+      <div className="container pt-20 pb-24">
         {/* ═══ MOBILE LAYOUT (< md): list OR detail ═══ */}
         <div className="md:hidden">
           {selectedGroupId ? (
@@ -1114,7 +1170,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
         </div>
 
         {/* ═══ DESKTOP/TABLET LAYOUT (md+): split 30/70 with slide animation ═══ */}
-        <div className="hidden md:flex h-[calc(100vh-120px)] gap-0 overflow-hidden rounded-xl border border-border/30">
+        <div className="hidden md:flex h-[calc(100vh-200px)] gap-0 overflow-hidden rounded-xl border border-border/30">
           {/* Left Panel — Group List */}
           <div
             className={`transition-all duration-300 ease-in-out border-r border-border/30 overflow-y-auto ${

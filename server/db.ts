@@ -2621,6 +2621,13 @@ export async function deleteIntegration(key: string): Promise<void> {
 export async function getPublicProfileByUsername(username: string) {
   const db = await getDb();
   if (!db) return null;
+
+  // Support lookup by numeric ID as fallback (for users without username)
+  const isNumericId = /^\d+$/.test(username);
+  const condition = isNumericId
+    ? eq(users.id, Number(username))
+    : eq(users.username, username);
+
   const rows = await db
     .select({
       id: users.id,
@@ -2631,7 +2638,7 @@ export async function getPublicProfileByUsername(username: string) {
       createdAt: users.createdAt,
     })
     .from(users)
-    .where(eq(users.username, username))
+    .where(condition)
     .limit(1);
   return rows[0] || null;
 }

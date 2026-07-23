@@ -6,9 +6,12 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
   Crown, ClipboardList, Plus, Pencil, Trash2, GripVertical,
-  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Loader2, GitBranch
+  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Loader2, GitBranch,
+  Play, ChevronLeft, ChevronRight, Check, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import IconPicker from "@/components/IconPicker";
 // import SkipRulesManager from "@/components/SkipRulesManager";
 import {
@@ -54,6 +57,12 @@ interface QuestionData {
   triggerOption?: string | null;
   sortOrder: number;
   active: boolean;
+  // Text libre validation
+  minChars?: number;
+  maxChars?: number;
+  requireLetters?: boolean;
+  requireNumbers?: boolean;
+  requireSpecialChars?: boolean;
 }
 
 const PHASE_LABELS: Record<Phase, string> = {
@@ -81,6 +90,7 @@ export default function OwnerSurvey() {
   const [activePhase, setActivePhase] = useState<Phase>("onboarding");
   const [editingQuestion, setEditingQuestion] = useState<QuestionData | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const { data: questions, isLoading, refetch } = trpc.surveyManagement.list.useQuery(
     { phase: activePhase }
@@ -187,6 +197,12 @@ export default function OwnerSurvey() {
         triggerOption: data.triggerOption ?? null,
         sortOrder: data.sortOrder,
         active: data.active,
+        // Text libre validation
+        minChars: data.type === "text" ? data.minChars || undefined : undefined,
+        maxChars: data.type === "text" ? data.maxChars || undefined : undefined,
+        requireLetters: data.type === "text" ? data.requireLetters || undefined : undefined,
+        requireNumbers: data.type === "text" ? data.requireNumbers || undefined : undefined,
+        requireSpecialChars: data.type === "text" ? data.requireSpecialChars || undefined : undefined,
       });
     } else if (data.id) {
       updateMutation.mutate({
@@ -205,6 +221,12 @@ export default function OwnerSurvey() {
         triggerOption: data.triggerOption ?? null,
         sortOrder: data.sortOrder,
         active: data.active,
+        // Text libre validation
+        minChars: data.type === "text" ? data.minChars || undefined : undefined,
+        maxChars: data.type === "text" ? data.maxChars || undefined : undefined,
+        requireLetters: data.type === "text" ? data.requireLetters || undefined : undefined,
+        requireNumbers: data.type === "text" ? data.requireNumbers || undefined : undefined,
+        requireSpecialChars: data.type === "text" ? data.requireSpecialChars || undefined : undefined,
       });
     }
   };
@@ -313,14 +335,26 @@ export default function OwnerSurvey() {
             <p className="text-sm text-muted-foreground">
               {isLoading ? "Carregando..." : `${mainQuestions.length} perguntas principais, ${childQuestions.length} condicionais`}
             </p>
-            <Button
-              size="sm"
-              onClick={startCreate}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black w-full sm:w-auto"
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Nova Pergunta
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowPreview(true)}
+                disabled={mainQuestions.length === 0}
+                className="border-primary/30 text-primary hover:bg-primary/10 flex-1 sm:flex-initial"
+              >
+                <Play className="w-4 h-4 mr-1" />
+                Simulação
+              </Button>
+              <Button
+                size="sm"
+                onClick={startCreate}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black flex-1 sm:flex-initial"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Nova Pergunta
+              </Button>
+            </div>
           </div>
         )}
 
@@ -431,6 +465,11 @@ export default function OwnerSurvey() {
                             triggerOption: q.triggerOption || null,
                             sortOrder: q.sortOrder,
                             active: q.active,
+                            minChars: q.minChars || undefined,
+                            maxChars: q.maxChars || undefined,
+                            requireLetters: q.requireLetters || undefined,
+                            requireNumbers: q.requireNumbers || undefined,
+                            requireSpecialChars: q.requireSpecialChars || undefined,
                           })}
                           className="p-2 rounded-lg hover:bg-yellow-500/10 text-muted-foreground hover:text-yellow-500 transition-colors"
                         >
@@ -539,6 +578,11 @@ export default function OwnerSurvey() {
                                     triggerOption: child.triggerOption || null,
                                     sortOrder: child.sortOrder,
                                     active: child.active,
+                                    minChars: child.minChars || undefined,
+                                    maxChars: child.maxChars || undefined,
+                                    requireLetters: child.requireLetters || undefined,
+                                    requireNumbers: child.requireNumbers || undefined,
+                                    requireSpecialChars: child.requireSpecialChars || undefined,
                                   })}
                                   className="p-2 rounded-lg hover:bg-yellow-500/10 text-muted-foreground hover:text-yellow-500 transition-colors"
                                 >
@@ -592,7 +636,350 @@ export default function OwnerSurvey() {
           </div>
         )}
       </div>
+
+      {/* Simulation Dialog */}
+      {showPreview && (
+        <SurveySimulationDialog
+          open={showPreview}
+          onClose={() => setShowPreview(false)}
+          questions={questions || []}
+          phase={activePhase}
+        />
+      )}
     </div>
+  );
+}
+
+// ============================================================
+// SURVEY SIMULATION DIALOG (Interactive)
+// ============================================================
+
+function SurveySimulationDialog({
+  open,
+  onClose,
+  questions,
+  phase,
+}: {
+  open: boolean;
+  onClose: () => void;
+  questions: any[];
+  phase: Phase;
+}) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [textInput, setTextInput] = useState("");
+  const [scoreValue, setScoreValue] = useState<number | null>(null);
+
+  // Build ordered list with conditional logic (same as OnboardingSurvey)
+  const mainQs = questions.filter((q: any) => !q.parentQuestionId && q.active !== false).sort((a: any, b: any) => a.sortOrder - b.sortOrder);
+  const childQs = questions.filter((q: any) => !!q.parentQuestionId && q.active !== false).sort((a: any, b: any) => a.sortOrder - b.sortOrder);
+
+  const allOrdered: any[] = [];
+  for (const q of mainQs) {
+    allOrdered.push(q);
+    const children = childQs.filter((c: any) => c.parentQuestionId === q.id);
+    for (const child of children) {
+      allOrdered.push(child);
+    }
+  }
+
+  // Filter visible questions based on answers (conditional children only show if parent answer matches)
+  const visibleQuestions = allOrdered.filter((q: any) => {
+    if (!q.parentQuestionId) return true;
+    // Child question: show only if parent answer matches triggerOption
+    const parent = allOrdered.find((p: any) => p.id === q.parentQuestionId);
+    if (!parent) return false;
+    const parentAnswer = answers[parent.questionId];
+    if (!parentAnswer) return false;
+    if (typeof parentAnswer === "string") return parentAnswer === q.triggerOption;
+    if (Array.isArray(parentAnswer)) return parentAnswer.includes(q.triggerOption);
+    return false;
+  });
+
+  const totalSteps = visibleQuestions.length;
+  const question = visibleQuestions[currentStep];
+  const progress = totalSteps > 0 ? ((currentStep + 1) / totalSteps) * 100 : 0;
+
+  const currentAnswer = question ? answers[question.questionId] : undefined;
+
+  const isAnswered = (() => {
+    if (!question) return false;
+    if (question.type === "text") {
+      if (question.questionId === "username") {
+        return /^[a-zA-Z._]+$/.test(textInput) && textInput.length >= 5;
+      }
+      return textInput.length > 0;
+    }
+    if (question.type === "score") return scoreValue !== null;
+    if (question.type === "single" || question.type === "establishment" || question.type === "birthdate") {
+      return typeof currentAnswer === "string" && currentAnswer !== "";
+    }
+    return Array.isArray(currentAnswer) && currentAnswer.length > 0;
+  })();
+
+  const handleSingleSelect = (value: string) => {
+    if (!question) return;
+    setAnswers(prev => ({ ...prev, [question.questionId]: value }));
+  };
+
+  const handleMultiToggle = (value: string) => {
+    if (!question) return;
+    const current = (answers[question.questionId] as string[]) || [];
+    const maxSelect = question.maxSelect || 99;
+    if (current.includes(value)) {
+      setAnswers(prev => ({ ...prev, [question.questionId]: current.filter((v: string) => v !== value) }));
+    } else {
+      if (current.length >= maxSelect) return;
+      setAnswers(prev => ({ ...prev, [question.questionId]: [...current, value] }));
+    }
+  };
+
+  const handleNext = () => {
+    // Save text/score answers
+    if (question?.type === "text" && textInput) {
+      setAnswers(prev => ({ ...prev, [question.questionId]: textInput }));
+    }
+    if (question?.type === "score" && scoreValue !== null) {
+      setAnswers(prev => ({ ...prev, [question.questionId]: String(scoreValue) }));
+    }
+
+    if (currentStep < visibleQuestions.length - 1) {
+      setCurrentStep(currentStep + 1);
+      setTextInput("");
+      setScoreValue(null);
+    } else {
+      // Finished simulation
+      toast.success("Simulação concluída!", { description: `Você respondeu ${totalSteps} perguntas da ${PHASE_LABELS[phase]}.` });
+      onClose();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+      setTextInput("");
+      setScoreValue(null);
+    }
+  };
+
+  const opts: Option[] = question ? (Array.isArray(question.options) ? question.options : []) : [];
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent className="max-w-lg bg-card border-border/50 p-0 overflow-hidden">
+        {/* Progress bar */}
+        <div className="h-1.5 bg-secondary">
+          <div
+            className="h-full bg-primary transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <div className="px-6 pt-4 pb-2">
+          <DialogTitle className="font-display text-sm tracking-wider text-muted-foreground">
+            SIMULAÇÃO — {PHASE_LABELS[phase]}
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground/60">
+            Pergunta {currentStep + 1} de {totalSteps}
+          </DialogDescription>
+        </div>
+
+        {/* Question content */}
+        {question ? (
+          <div className="px-6 pb-6">
+            {/* Question header */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+                <Star className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h2 className="font-display text-xl tracking-wider text-primary">
+                  {question.title}
+                </h2>
+                {question.subtitle && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{question.subtitle as string}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Conditional indicator */}
+            {question.parentQuestionId && question.triggerOption && (
+              <div className="mb-3 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
+                <GitBranch className="w-3 h-3 inline mr-1" />
+                Condicional: aparece quando resposta = "{question.triggerOption}"
+              </div>
+            )}
+
+            {/* Question type rendering */}
+            {question.type === "text" ? (
+              <div className="space-y-2">
+                <Input
+                  placeholder={question.questionId === "username" ? "seu.nome_de_usuario" : "Digite sua resposta..."}
+                  value={textInput}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (question.questionId === "username") {
+                      val = val.replace(/[^a-zA-Z._]/g, "").toLowerCase();
+                    }
+                    setTextInput(val);
+                  }}
+                  className="w-full"
+                />
+                {question.questionId === "username" && (
+                  <p className="text-xs text-muted-foreground/60">
+                    Apenas letras, "." e "_" são permitidos. Mínimo 5 caracteres.
+                  </p>
+                )}
+                {question.questionId === "username" && textInput.length > 0 && textInput.length < 5 && (
+                  <p className="text-xs text-amber-400">
+                    Mínimo 5 caracteres ({textInput.length}/5)
+                  </p>
+                )}
+                {(question.minChars || question.maxChars) && question.questionId !== "username" && (
+                  <p className="text-xs text-muted-foreground">
+                    {question.minChars && `Mín: ${question.minChars}`}
+                    {question.minChars && question.maxChars && " | "}
+                    {question.maxChars && `Máx: ${question.maxChars}`}
+                    {" "}— {textInput.length} caracteres
+                  </p>
+                )}
+              </div>
+            ) : question.type === "score" ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-1">
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setScoreValue(n)}
+                      className={`w-9 h-9 rounded-lg border text-sm font-bold transition-all ${
+                        scoreValue === n
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "border-border/50 bg-card hover:border-primary/40 text-muted-foreground"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                {scoreValue !== null && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    Nota selecionada: <span className="text-primary font-bold">{scoreValue}</span>
+                    {question.lowScoreThreshold && scoreValue <= question.lowScoreThreshold && (
+                      <span className="text-red-400 ml-2">(nota baixa — pergunta de motivo seria exibida)</span>
+                    )}
+                  </p>
+                )}
+              </div>
+            ) : question.type === "birthdate" ? (
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground">
+                  [Roleta de data de nascimento seria exibida aqui]
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSingleSelect("2000-01-15")}
+                  className="mt-3"
+                >
+                  Simular: Selecionar data
+                </Button>
+                {currentAnswer && (
+                  <p className="text-xs text-primary mt-2">Data simulada: {currentAnswer as string}</p>
+                )}
+              </div>
+            ) : (
+              /* Options (single / multi) */
+              <div className={`grid gap-2 ${
+                opts.length > 8 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+              }`}>
+                {opts.map((opt: Option) => {
+                  const isSelected = question.type === "single"
+                    ? currentAnswer === opt.value
+                    : Array.isArray(currentAnswer) && currentAnswer.includes(opt.value);
+
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => question.type === "single" ? handleSingleSelect(opt.value) : handleMultiToggle(opt.value)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? "border-primary/60 bg-primary/10 shadow-sm"
+                          : "border-border/30 bg-card hover:border-border/60 hover:bg-card/80"
+                      }`}
+                    >
+                      {question.type === "multi" ? (
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected ? "bg-primary border-primary" : "border-muted-foreground/40"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                        </div>
+                      ) : (
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected ? "border-primary" : "border-muted-foreground/40"
+                        }`}>
+                          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                        </div>
+                      )}
+                      <span className={`text-sm font-medium ${
+                        isSelected ? "text-foreground" : "text-muted-foreground"
+                      }`}>
+                        {opt.label}
+                      </span>
+                      {opt.endsSurvey && (
+                        <span className="ml-auto text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">
+                          Encerra
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Multi-select counter */}
+            {question.type === "multi" && question.maxSelect && (
+              <p className="text-xs text-muted-foreground/60 mt-3 text-center">
+                {Array.isArray(currentAnswer) ? currentAnswer.length : 0} de {question.maxSelect} selecionados
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="px-6 pb-6 text-center py-8">
+            <p className="text-muted-foreground">Nenhuma pergunta ativa nesta fase.</p>
+          </div>
+        )}
+
+        {/* Navigation footer */}
+        <div className="px-6 pb-5 flex items-center justify-between border-t border-border/30 pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBack}
+            disabled={currentStep === 0}
+            className="font-display tracking-wider"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" /> VOLTAR
+          </Button>
+
+          <span className="text-xs text-muted-foreground/50">
+            {TYPE_LABELS[question?.type as QuestionType] || ""}
+          </span>
+
+          <Button
+            size="sm"
+            onClick={handleNext}
+            disabled={!isAnswered}
+            className="font-display tracking-wider"
+          >
+            {currentStep < visibleQuestions.length - 1 ? (
+              <>PRÓXIMA <ChevronRight className="w-4 h-4 ml-1" /></>
+            ) : (
+              <>CONCLUIR <Check className="w-4 h-4 ml-1" /></>
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -864,6 +1251,69 @@ function QuestionEditor({
             />
           </div>
         </div>
+
+        {/* Text Libre Validation Fields */}
+        {form.type === "text" && (
+          <div className="border border-border/30 rounded-lg p-4 bg-secondary/30">
+            <h4 className="text-sm font-medium text-foreground mb-3">Validação de Texto Livre</h4>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Caracteres Mínimos</label>
+                <input
+                  type="number"
+                  value={form.minChars || ""}
+                  onChange={(e) => updateField("minChars", e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="ex: 10"
+                  min={0}
+                  max={5000}
+                  className="w-full bg-secondary border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Caracteres Máximos</label>
+                <input
+                  type="number"
+                  value={form.maxChars || ""}
+                  onChange={(e) => updateField("maxChars", e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="ex: 500"
+                  min={1}
+                  max={10000}
+                  className="w-full bg-secondary border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-2">Tipos de caracteres obrigatórios:</p>
+            <div className="flex flex-wrap gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.requireLetters || false}
+                  onChange={(e) => updateField("requireLetters", e.target.checked)}
+                  className="w-4 h-4 rounded border-border/50 bg-secondary text-primary focus:ring-primary/50"
+                />
+                <span className="text-sm text-foreground">Letras</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.requireNumbers || false}
+                  onChange={(e) => updateField("requireNumbers", e.target.checked)}
+                  className="w-4 h-4 rounded border-border/50 bg-secondary text-primary focus:ring-primary/50"
+                />
+                <span className="text-sm text-foreground">Números</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.requireSpecialChars || false}
+                  onChange={(e) => updateField("requireSpecialChars", e.target.checked)}
+                  className="w-4 h-4 rounded border-border/50 bg-secondary text-primary focus:ring-primary/50"
+                />
+                <span className="text-sm text-foreground">Caracteres Especiais</span>
+              </label>
+            </div>
+          </div>
+        )}
 
         {/* Active toggle */}
         <div className="flex items-center gap-3">

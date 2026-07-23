@@ -1305,3 +1305,76 @@
 - [x] Botão "Esqueci minha senha" para quem criou conta com email/senha
 - [x] Campo @ (username) obrigatório e único no cadastro (para adicionar amigos na rede)
 - [x] Bug fix: usuário existente não deve passar pela tela de aniversário ao logar (flash do onboarding)
+
+## Bug Fix — Verificação de e-mail duplicado no cadastro
+- [x] Backend: verificar se email já existe antes de criar novo usuário (incluindo cadastros via Google/Facebook)
+
+## Bug Fixes — Fluxo de Cadastro/Login (reportado pelo usuário)
+- [x] Email duplicado via Google não mostra mensagem de "já cadastrado" e não salva no banco
+- [x] Cadastro por email não mostra mensagem "Cadastro realizado" ao finalizar
+- [x] Esqueci minha senha: implementar envio real de email com link de redefinição
+
+## Limpeza de Banco e Correções de Auth (2026-07-21)
+- [x] Deletar usuário duplicado criado por teste curl (rossegon@gmail.com id=1003950004)
+- [x] Deletar registro inválido (email='avalyarin' id=1003950003)
+- [x] Registrar Rose (rossegon@gmail.com) corretamente com email/senha
+- [x] Implementar "Esqueci minha senha" com código de 6 dígitos (notifica owner)
+- [x] Frontend: tela de inserção de código + nova senha (view reset-code)
+- [x] Backend: handleResetPassword aceita código + email + nova senha
+- [x] Testar fluxo completo: solicitar código → inserir código → redefinir → login com nova senha
+
+## Correções na Página de Grupos (2026-07-22)
+- [x] Fix: Margem superior cortada na página de grupos
+- [x] Fix: Listas de transmissão duplicadas em "Meus Grupos" (devem aparecer apenas em "Sigo")
+- [x] Fix: Remover card intermediário "Canal de Transmissão" — chat deve abrir direto ao clicar na lista esquerda
+- [x] Fix: Ocultar membros, mostrar apenas "XX Membros" como botão clicável com popup "Amigos que seguem" (ordenado por quem seguiu primeiro)
+- [x] Fix: Limite de 10 grupos para usuário comum não está sendo respeitado (vários grupos adicionados indevidamente)
+
+## Correções na Lógica de Grupos — Aba Sigo + Limites (2026-07-22)
+- [x] Sub-aba "Seguindo": mostrar grupos privados onde fui convidado (não sou o criador)
+- [x] Renomear sub-aba "Grupos de quem sigo" para "Seguindo"
+- [x] Implementar limite de 75 membros por grupo (74 convidados + criador)
+- [x] Garantir que "Meus Grupos" mostra APENAS grupos que eu criei
+
+## Implementação de Limites por Plano — Grupos (2026-07-22)
+- [x] Atualizar limites de criação de grupos: Free=10, Pro=70, Specialist=150, Critic=150, Business=5, BusinessPro=20
+- [x] Atualizar limites de membros por grupo: Free=75, Pro=150, Specialist=250, Critic=250, Business=25, BusinessPro=80
+- [x] Implementar restrição de convite: User (Free/Pro) só convida com amizade mútua (seguir + ser seguido)
+- [x] Implementar restrição de convite: Business só pode ser convidado/convidar outros business
+- [x] Specialist/Critic sem restrição de convite
+- [x] Broadcast: Business Free não pode enviar mensagens na transmissão
+- [x] Remover referências ao plano "embaixador" (compatibilidade mantida, migração completa pendente)
+- [x] Garantir que planos pagos são: User Pro, Specialist, Critic, Business Pro
+
+## Bug — Busca de Pessoas (2026-07-22)
+- [x] Fix: Resultado de busca em Pessoas não é clicável para ir ao perfil do usuário (ex: alan.martins specialist) — fallback por ID implementado
+
+## Survey — Texto Livre: Campos de Validação (2026-07-22)
+- [x] Adicionar campos de caracteres mínimos e máximos na criação de perguntas de texto livre
+- [x] Adicionar checkboxes para definir se é necessário letras, números ou caracteres especiais
+- [x] Backend: schema + router atualizados para aceitar/salvar os novos campos
+- [ ] Frontend: validar respostas de texto livre conforme as regras definidas (min/max, tipos de caracteres) — pendente para quando o fluxo de resposta for implementado
+
+## Survey — Botão de Pré-visualização (2026-07-22)
+- [x] Criar botão "Pré-visualização" ao lado de "+ Nova Pergunta" na OwnerSurvey
+- [x] Abrir visualização das perguntas na ordem da fase ativa (simulando o fluxo do usuário)
+- [x] Substituir pré-visualização estática por simulação interativa (pergunta por pergunta, opções clicáveis, condicionais dinâmicas)
+
+## Survey — Username na Pergunta 9 (2026-07-22)
+- [x] Fazer a pergunta 9 (nome de usuário) definir o username no banco de dados
+- [x] Validar username: apenas letras, "." e "_" (sem números, espaços, asteriscos ou outros especiais)
+- [x] Backend: ao salvar respostas da survey, atualizar o campo username do usuário (com verificação de duplicidade)
+
+## Renomeação "Grupo" → "Segmento" para Agrupamentos de Estabelecimentos (2026-07-22)
+- [x] Renomear rotas /grupo/:id para /segmento/:id no App.tsx
+- [x] Atualizar texto "EXPLORE OUTROS SEGMENTOS" e links na Home.tsx
+- [x] Atualizar texto "segmentos para explorar" na AllCategoriesPage.tsx
+- [x] Atualizar texto "Nenhuma categoria encontrada neste segmento." na CategoryGroupPage.tsx
+- [x] Verificar que referências a "Grupo" de usuários (GruposPage, GroupChat, etc.) permanecem inalteradas
+
+## Preenchimento Automático de Endereço no Cadastro de Estabelecimentos (2026-07-23)
+- [x] Criar cache local GeoJSON dos 96 distritos de SP com mapeamento distrito → região
+- [x] Implementar endpoint backend para geocoding + lookup de distrito/região (point-in-polygon)
+- [x] Integrar Google Places Autocomplete no formulário de cadastro (Admin Panel)
+- [x] Campos automáticos (CEP, bairro, distrito, região, lat/lng) ficam read-only após preenchimento
+- [x] Documentar estratégia GeoSampa + Google Maps no projeto

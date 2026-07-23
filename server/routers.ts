@@ -7,6 +7,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 import { smartSearch } from "./smart-search";
+import { lookupDistrict, getRegionByNeighborhood } from "./geo-lookup";
 import {
   getAllCategories,
   getCategoriesWithCounts,
@@ -848,6 +849,156 @@ export const appRouter = router({
   }),
 
   // ============ ADMIN PANEL ============
+  // Geo utilities (address lookup)
+  geo: router({
+    /**
+     * Geocode an address using Google Maps and enrich with GeoSampa district/region data.
+     * Used by the establishment creation form for auto-fill.
+     */
+    geocodeAddress: adminProcedure
+      .input(z.object({ address: z.string().min(3) }))
+      .mutation(async ({ input }) => {
+        const { makeRequest } = await import("./_core/map");
+        // Call Google Maps Geocoding API
+        const geocodeResult = await makeRequest<any>("/maps/api/geocode/json", {
+          address: input.address + ", São Paulo, SP, Brasil",
+          language: "pt-BR",
+        });
+        if (geocodeResult.status !== "OK" || !geocodeResult.results?.length) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Endereço não encontrado" });
+        }
+        const result = geocodeResult.results[0];
+        const lat = result.geometry.location.lat;
+        const lng = result.geometry.location.lng;
+        // Extract address components
+        const components = result.address_components || [];
+        let neighborhood = "";
+        let cep = "";
+        let streetNumber = "";
+        let route = "";
+        for (const comp of components) {
+          if (comp.types.includes("sublocality_level_1") || comp.types.includes("sublocality")) {
+            neighborhood = comp.long_name;
+          }
+          if (comp.types.includes("postal_code")) {
+            cep = comp.long_name;
+          }
+          if (comp.types.includes("street_number")) {
+            streetNumber = comp.long_name;
+          }
+          if (comp.types.includes("route")) {
+            route = comp.long_name;
+          }
+        }
+        // Use GeoSampa point-in-polygon for district/region
+        let distrito = "";
+        let regiao = "";
+        const geoResult = lookupDistrict(lat, lng);
+        if (geoResult) {
+          distrito = geoResult.distrito;
+          regiao = geoResult.regiao;
+        } else if (neighborhood) {
+          // Fallback: use neighborhood name mapping
+          regiao = getRegionByNeighborhood(neighborhood) || "";
+        }
+        return {
+          formattedAddress: result.formatted_address,
+          lat,
+          lng,
+          neighborhood,
+          distrito,
+          regiao,
+          cep,
+          streetNumber,
+          route,
+        };
+      }),
+
+    /**
+     * Place Autocomplete - returns suggestions as user types.
+     */
+    placeAutocomplete: adminProcedure
+      .input(z.object({ input: z.string().min(2) }))
+      .query(async ({ input }) => {
+        const { makeRequest } = await import("./_core/map");
+        const result = await makeRequest<any>("/maps/api/place/autocomplete/json", {
+          input: input.input,
+          location: "-23.56,-46.68", // São Paulo center
+          radius: 15000,
+          language: "pt-BR",
+          components: "country:br",
+          types: "address",
+        });
+        return {
+          predictions: (result.predictions || []).map((p: any) => ({
+            description: p.description,
+            placeId: p.place_id,
+          })),
+        };
+      }),
+
+    /**
+     * Get full details from a Place ID (after user selects from autocomplete).
+     */
+    placeDetails: adminProcedure
+      .input(z.object({ placeId: z.string() }))
+      .mutation(async ({ input }) => {
+        const { makeRequest } = await import("./_core/map");
+        const result = await makeRequest<any>("/maps/api/place/details/json", {
+          place_id: input.placeId,
+          fields: "formatted_address,geometry,address_components,name",
+          language: "pt-BR",
+        });
+        if (result.status !== "OK" || !result.result) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Local não encontrado" });
+        }
+        const place = result.result;
+        const lat = place.geometry.location.lat;
+        const lng = place.geometry.location.lng;
+        const components = place.address_components || [];
+        let neighborhood = "";
+        let cep = "";
+        let streetNumber = "";
+        let route = "";
+        for (const comp of components) {
+          if (comp.types.includes("sublocality_level_1") || comp.types.includes("sublocality")) {
+            neighborhood = comp.long_name;
+          }
+          if (comp.types.includes("postal_code")) {
+            cep = comp.long_name;
+          }
+          if (comp.types.includes("street_number")) {
+            streetNumber = comp.long_name;
+          }
+          if (comp.types.includes("route")) {
+            route = comp.long_name;
+          }
+        }
+        // GeoSampa district/region lookup
+        let distrito = "";
+        let regiao = "";
+        const geoResult = lookupDistrict(lat, lng);
+        if (geoResult) {
+          distrito = geoResult.distrito;
+          regiao = geoResult.regiao;
+        } else if (neighborhood) {
+          regiao = getRegionByNeighborhood(neighborhood) || "";
+        }
+        return {
+          formattedAddress: place.formatted_address,
+          name: place.name || "",
+          lat,
+          lng,
+          neighborhood,
+          distrito,
+          regiao,
+          cep,
+          streetNumber,
+          route,
+        };
+      }),
+  }),
+
   admin: router({
     stats: adminProcedure.query(async () => {
       return await getAdminStats();
@@ -1723,17 +1874,30 @@ export const appRouter = router({
         categories: z.array(z.string()).optional(),
         priorities: z.array(z.string()).optional(),
         discovery: z.array(z.string()).optional(),
+        username: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        const { getDb } = await import("./db");
+        const { users } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
         // If user identified as business owner, update their role
         if (input.role === "yes") {
-          const { getDb } = await import("./db");
-          const { users } = await import("../drizzle/schema");
-          const { eq } = await import("drizzle-orm");
-          const db = await getDb();
           await db!.update(users)
             .set({ role: "business" })
             .where(eq(users.id, ctx.user!.id));
+        }
+        // If username provided, validate and save it
+        if (input.username && /^[a-zA-Z._]+$/.test(input.username) && input.username.length >= 5) {
+          const usernameClean = input.username.toLowerCase();
+          // Check if username is already taken by another user
+          const existing = await db!.select({ id: users.id }).from(users)
+            .where(eq(users.username, usernameClean)).limit(1);
+          if (existing.length === 0 || existing[0].id === ctx.user!.id) {
+            await db!.update(users)
+              .set({ username: usernameClean })
+              .where(eq(users.id, ctx.user!.id));
+          }
         }
         return await saveSurveyData(ctx.user!.id, input, input.birthdate);
       }),
@@ -3997,6 +4161,12 @@ export const appRouter = router({
         triggerOption: z.string().max(500).nullable().optional(),
         sortOrder: z.number().default(0),
         active: z.boolean().default(true),
+        // Text libre validation
+        minChars: z.number().min(0).max(5000).optional(),
+        maxChars: z.number().min(1).max(10000).optional(),
+        requireLetters: z.boolean().optional(),
+        requireNumbers: z.boolean().optional(),
+        requireSpecialChars: z.boolean().optional(),
       }))
       .mutation(async ({ input }) => {
         const { createSurveyQuestion } = await import("./db");
@@ -4019,6 +4189,12 @@ export const appRouter = router({
         triggerOption: z.string().max(500).nullable().optional(),
         sortOrder: z.number().optional(),
         active: z.boolean().optional(),
+        // Text libre validation
+        minChars: z.number().min(0).max(5000).optional(),
+        maxChars: z.number().min(1).max(10000).optional(),
+        requireLetters: z.boolean().optional(),
+        requireNumbers: z.boolean().optional(),
+        requireSpecialChars: z.boolean().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

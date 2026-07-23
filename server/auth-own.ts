@@ -436,22 +436,31 @@ async function handleForgotPassword(req: Request, res: Response) {
       return res.json({ success: true });
     }
 
-    // Generate a reset token (simple approach: hash of openId + timestamp)
-    const resetToken = `${user.openId}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    const resetTokenHash = await bcrypt.hash(resetToken, 8);
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    // Generate a 6-digit reset code
+    const resetCode = String(Math.floor(100000 + Math.random() * 900000));
+    const resetCodeHash = await bcrypt.hash(resetCode, 8);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Store reset token in user record
+    // Store reset code in user record
     await db.update(users)
       .set({ 
-        passwordResetToken: resetTokenHash,
+        passwordResetToken: resetCodeHash,
         passwordResetExpires: expiresAt,
       })
       .where(eq(users.id, user.id));
 
-    // TODO: Send email with reset link
-    // For now, log the token (in production, send via email service)
-    console.log(`[Auth] Password reset requested for ${email}. Token: ${resetToken}`);
+    // Notify owner about the reset request (so they can help the user if needed)
+    try {
+      const { notifyOwner } = await import("./_core/notification");
+      await notifyOwner({
+        title: `🔑 Reset de senha solicitado`,
+        content: `Usuário: ${user.name || 'Sem nome'} (${email})\nCódigo: ${resetCode}\nExpira em 15 minutos.`,
+      });
+    } catch (notifErr) {
+      console.error("[Auth] Failed to notify owner about reset:", notifErr);
+    }
+
+    console.log(`[Auth] Password reset code generated for ${email}: ${resetCode} (expires in 15min)`);
     
     return res.json({ success: true });
   } catch (err) {
@@ -462,9 +471,10 @@ async function handleForgotPassword(req: Request, res: Response) {
 
 async function handleResetPassword(req: Request, res: Response) {
   try {
-    const { token, newPassword } = req.body;
-    if (!token || !newPassword) {
-      return res.status(400).json({ error: "Token e nova senha são obrigatórios" });
+    const { code, token, email, newPassword } = req.body;
+    const resetCode = code || token; // Accept both 'code' and 'token' field names
+    if (!resetCode || !newPassword || !email) {
+      return res.status(400).json({ error: "Email, código e nova senha são obrigatórios" });
     }
     if (newPassword.length < 6) {
       return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
@@ -473,25 +483,25 @@ async function handleResetPassword(req: Request, res: Response) {
     const db = await getDb();
     if (!db) return res.status(500).json({ error: "Database unavailable" });
 
-    // Find user with valid reset token
-    // We need to check all users with non-null passwordResetToken
-    const usersWithToken = await db.select().from(users)
-      .where(sql`${users.passwordResetToken} IS NOT NULL AND ${users.passwordResetExpires} > NOW()`)
-      .limit(100);
+    // Find user by email with valid reset token
+    const user = await db.select().from(users)
+      .where(eq(users.email, email.toLowerCase().trim()))
+      .limit(1)
+      .then((r: any[]) => r[0]);
 
-    let matchedUser = null;
-    for (const u of usersWithToken) {
-      if (u.passwordResetToken) {
-        const valid = await bcrypt.compare(token, u.passwordResetToken);
-        if (valid) {
-          matchedUser = u;
-          break;
-        }
-      }
+    if (!user || !user.passwordResetToken || !user.passwordResetExpires) {
+      return res.status(400).json({ error: "Código inválido ou expirado" });
     }
 
-    if (!matchedUser) {
-      return res.status(400).json({ error: "Token inválido ou expirado" });
+    // Check if token is expired
+    if (new Date(user.passwordResetExpires) < new Date()) {
+      return res.status(400).json({ error: "Código expirado. Solicite um novo." });
+    }
+
+    // Verify the code
+    const valid = await bcrypt.compare(resetCode, user.passwordResetToken);
+    if (!valid) {
+      return res.status(400).json({ error: "Código incorreto" });
     }
 
     // Update password and clear reset token
@@ -502,8 +512,9 @@ async function handleResetPassword(req: Request, res: Response) {
         passwordResetToken: null,
         passwordResetExpires: null,
       })
-      .where(eq(users.id, matchedUser.id));
+      .where(eq(users.id, user.id));
 
+    console.log(`[Auth] Password reset successful for ${email}`);
     return res.json({ success: true });
   } catch (err) {
     console.error("[Auth/ResetPassword] Error:", err);

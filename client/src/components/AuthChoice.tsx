@@ -13,7 +13,7 @@ interface AuthChoiceProps {
   onChoose: (type: "register" | "login") => void;
 }
 
-type AuthView = "main" | "email-login" | "email-register" | "forgot-password";
+type AuthView = "main" | "email-login" | "email-register" | "forgot-password" | "reset-code";
 
 export default function AuthChoice({ onChoose }: AuthChoiceProps) {
   const [view, setView] = useState<AuthView>("main");
@@ -28,6 +28,9 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
   const [usernameError, setUsernameError] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // ============================================================
   // USERNAME VALIDATION
@@ -176,9 +179,10 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        toast.success("Cadastro realizado com sucesso! Entrando...", { duration: 2000 });
         localStorage.setItem("avalyarin_auth_flow", "register");
         onChoose("register");
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 1200);
       } else if (data.code === "USER_ALREADY_EXISTS") {
         toast.error("E-mail já cadastrado!", {
           description: data.loginMethod === "google" 
@@ -220,9 +224,11 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
       const data = await res.json();
       if (res.ok) {
         setForgotSent(true);
-        toast.success("Se o email estiver cadastrado, você receberá um link para redefinir sua senha.");
+        toast.success("Código enviado! Verifique com o administrador do app.");
+        // Navigate to the code entry view
+        setView("reset-code");
       } else {
-        toast.error(data.error || "Erro ao enviar email");
+        toast.error(data.error || "Erro ao enviar código");
       }
     } catch {
       toast.error("Erro de conexão com o servidor");
@@ -230,6 +236,41 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
       setLoading(false);
     }
   }, [forgotEmail]);
+
+  const handleResetPassword = useCallback(async () => {
+    if (!resetCode || resetCode.length !== 6) {
+      toast.error("Informe o código de 6 dígitos");
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("A nova senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail, code: resetCode, newPassword }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Senha redefinida com sucesso! Faça login.");
+        setView("email-login");
+        setEmail(forgotEmail);
+        setPassword("");
+        setResetCode("");
+        setNewPassword("");
+        setForgotSent(false);
+      } else {
+        toast.error(data.error || "Erro ao redefinir senha");
+      }
+    } catch {
+      toast.error("Erro de conexão com o servidor");
+    } finally {
+      setLoading(false);
+    }
+  }, [forgotEmail, resetCode, newPassword]);
 
   // ============================================================
   // RENDER
@@ -608,48 +649,98 @@ export default function AuthChoice({ onChoose }: AuthChoiceProps) {
                   ESQUECI MINHA SENHA
                 </h2>
                 <p className="text-sm text-muted-foreground text-center mb-6">
-                  Informe seu email e enviaremos um link para redefinir sua senha.
+                  Informe seu email para receber um código de redefinição.
                 </p>
 
-                {!forgotSent ? (
-                  <div className="space-y-4">
+                <div className="space-y-4">
+                  <Input
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="py-5"
+                    onKeyDown={(e) => e.key === "Enter" && handleForgotPassword()}
+                  />
+                  <Button
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                    className="w-full py-6 font-display tracking-wider glow-amber"
+                    size="lg"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "ENVIAR CÓDIGO"}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ============================================ */}
+            {/* RESET CODE VIEW */}
+            {/* ============================================ */}
+            {view === "reset-code" && (
+              <motion.div
+                key="reset-code"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <button
+                  onClick={() => { setView("forgot-password"); setForgotSent(false); }}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Voltar
+                </button>
+                <h2 className="font-display text-xl tracking-wider text-primary text-center mb-2">
+                  REDEFINIR SENHA
+                </h2>
+                <p className="text-sm text-muted-foreground text-center mb-2">
+                  Digite o código de 6 dígitos e sua nova senha.
+                </p>
+                <p className="text-xs text-muted-foreground/70 text-center mb-6">
+                  O código foi enviado para o administrador. Pergunte a ele ou verifique suas notificações.
+                </p>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Código de 6 dígitos</label>
                     <Input
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      className="py-5"
-                      onKeyDown={(e) => e.key === "Enter" && handleForgotPassword()}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="000000"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      className="py-5 text-center text-2xl tracking-[0.5em] font-mono"
                     />
-                    <Button
-                      onClick={handleForgotPassword}
-                      disabled={loading}
-                      className="w-full py-6 font-display tracking-wider glow-amber"
-                      size="lg"
-                    >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "ENVIAR LINK"}
-                    </Button>
                   </div>
-                ) : (
-                  <div className="text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto">
-                      <Mail className="w-8 h-8 text-primary" />
-                    </div>
-                    <p className="text-sm text-foreground">
-                      Se o email <span className="font-medium text-primary">{forgotEmail}</span> estiver cadastrado, você receberá um link para redefinir sua senha.
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Verifique também a pasta de spam.
-                    </p>
-                    <Button
-                      onClick={() => setView("email-login")}
-                      variant="outline"
-                      className="mt-4 border-primary/40 text-primary hover:bg-primary/10"
+                  <div className="relative">
+                    <label className="text-xs text-muted-foreground mb-1 block">Nova senha</label>
+                    <Input
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="py-5 pr-12"
+                      onKeyDown={(e) => e.key === "Enter" && handleResetPassword()}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-[calc(50%+8px)] -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      Voltar ao login
-                    </Button>
+                      {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
-                )}
+                  <Button
+                    onClick={handleResetPassword}
+                    disabled={loading || resetCode.length !== 6 || newPassword.length < 6}
+                    className="w-full py-6 font-display tracking-wider glow-amber"
+                    size="lg"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "REDEFINIR SENHA"}
+                  </Button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

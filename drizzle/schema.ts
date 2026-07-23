@@ -971,6 +971,12 @@ export const surveyQuestions = mysqlTable("survey_questions", {
   triggerOption: varchar("trigger_option", { length: 500 }), // valor da opção que ativa esta sub-pergunta
   sortOrder: int("sortOrder").notNull().default(0),
   active: boolean("active").default(true).notNull(),
+  // Text libre validation fields
+  minChars: int("minChars"),
+  maxChars: int("maxChars"),
+  requireLetters: boolean("requireLetters"),
+  requireNumbers: boolean("requireNumbers"),
+  requireSpecialChars: boolean("requireSpecialChars"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -1,4 +1,4 @@
-// AllCategoriesPage — shows all categories organized by group
+// AllCategoriesPage — shows all categories organized by segment
 import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import { Link } from "wouter";
@@ -7,7 +7,7 @@ import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-re
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
 
-// Group definitions matching the Home page
+// Segment definitions matching the Home page
 const categoryGroups = [
   {
     id: "gastronomia",
@@ -67,7 +67,7 @@ export default function AllCategoriesPage() {
             TODAS AS CATEGORIAS
           </h2>
           <p className="text-lg text-foreground/80 max-w-xl leading-relaxed">
-            {categoriesData?.length || 0} categorias em {categoryGroups.length} grupos para explorar
+            {categoriesData?.length || 0} categorias em {categoryGroups.length} segmentos para explorar
           </p>
         </div>
       </section>

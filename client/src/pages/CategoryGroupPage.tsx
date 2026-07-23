@@ -1,4 +1,4 @@
-// CategoryGroupPage — shows categories within a specific group
+// CategoryGroupPage — shows categories within a specific segment
 import { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import { Link, useParams, Redirect } from "wouter";
@@ -7,7 +7,7 @@ import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-re
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
 
-// Group definitions matching the Home page
+// Segment definitions matching the Home page
 const categoryGroups = [
   {
     id: "gastronomia",
@@ -108,7 +108,7 @@ export default function CategoryGroupPage() {
             </div>
           ) : groupCategories.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhuma categoria encontrada neste grupo.</p>
+              <p className="text-muted-foreground">Nenhuma categoria encontrada neste segmento.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

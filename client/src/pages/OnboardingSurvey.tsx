@@ -239,6 +239,14 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
     if (question.type === "single" || question.type === "establishment") {
       return typeof currentAnswer === "string" && currentAnswer !== "";
     }
+    if (question.type === "text") {
+      if (typeof currentAnswer !== "string" || currentAnswer === "") return false;
+      // Username-specific validation: only letters, dot, underscore
+      if (question.id === "username") {
+        return /^[a-zA-Z._]+$/.test(currentAnswer) && currentAnswer.length >= 5;
+      }
+      return true;
+    }
     return Array.isArray(currentAnswer) && currentAnswer.length > 0;
   })();
 
@@ -612,6 +620,33 @@ export default function OnboardingSurvey({ onComplete }: OnboardingSurveyProps) 
                           </p>
                         )}
                       </div>
+                    </div>
+                  ) : question!.type === "text" ? (
+                    /* ═══════ TEXT INPUT (username, etc.) ═══════ */
+                    <div className="space-y-3">
+                      <Input
+                        placeholder={question!.id === "username" ? "seu.nome_de_usuario" : "Digite sua resposta..."}
+                        value={(currentAnswer as string) || ""}
+                        onChange={(e) => {
+                          let val = e.target.value;
+                          if (question!.id === "username") {
+                            // Only allow letters, dot, and underscore
+                            val = val.replace(/[^a-zA-Z._]/g, "").toLowerCase();
+                          }
+                          setAnswers(prev => ({ ...prev, [question!.id]: val }));
+                        }}
+                        className="text-center text-lg"
+                      />
+                      {question!.id === "username" && (
+                        <p className="text-xs text-muted-foreground/60 text-center">
+                          Apenas letras, "." e "_" são permitidos. Sem números ou espaços.
+                        </p>
+                      )}
+                      {question!.id === "username" && (currentAnswer as string)?.length > 0 && !/^[a-zA-Z._]+$/.test(currentAnswer as string) && (
+                        <p className="text-xs text-destructive text-center">
+                          Caracteres inválidos detectados
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <>

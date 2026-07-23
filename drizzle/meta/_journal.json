@@ -232,6 +232,13 @@
       "when": 1784662947622,
       "tag": "0032_mixed_landau",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1784742184169,
+      "tag": "0033_nostalgic_sasquatch",
+      "breakpoints": true
     }
   ]
 }

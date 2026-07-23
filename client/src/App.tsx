@@ -136,9 +136,9 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/" component={Home} />
       <Route path="/categoria/:id" component={CategoryPage} />
-      <Route path="/grupo/:id/calendario" component={CalendarioGrupo} />
+      <Route path="/segmento/:id/calendario" component={CalendarioGrupo} />
       <Route path="/evento/:id" component={EventoDetalhe} />
-      <Route path="/grupo/:id" component={CategoryGroupPage} />
+      <Route path="/segmento/:id" component={CategoryGroupPage} />
       <Route path="/todas-categorias" component={AllCategoriesPage} />
       <Route path="/estabelecimento/:id" component={EstablishmentPage} />
       <Route path="/avaliar/:establishmentId" component={RatingPage} />

@@ -6,7 +6,7 @@
  */
 import { eq, and, isNull } from "drizzle-orm";
 import { getDb } from "./db";
-import { groups, groupMembers, users } from "../drizzle/schema";
+import { groups, groupMembers, users, userPlans } from "../drizzle/schema";
 
 // Generate a unique group code
 function generateGroupCode(): string {
@@ -235,12 +235,13 @@ export async function canSendBroadcastMessage(groupId: number, userId: number): 
     .where(eq(groups.id, groupId))
     .limit(1);
 
-    if (!group[0]) return { allowed: false, reason: "Grupo não encontrado" };
+  if (!group[0]) return { allowed: false, reason: "Grupo não encontrado" };
 
   if (group[0].creatorId !== userId) {
     return { allowed: false, reason: "Apenas o dono deste grupo pode enviar mensagens" };
   }
 
+  // Business Free cannot send broadcast messages — only Business Pro
   if (group[0].linkedEntityType === "establishment") {
     const user = await db
       .select({ role: users.role })
@@ -249,11 +250,17 @@ export async function canSendBroadcastMessage(groupId: number, userId: number): 
       .limit(1);
 
     if (user[0]?.role === "business") {
-      // TODO: Check Business Pro plan when plans are fully implemented
+      // Check if Business Pro (supports legacy 'premium' and new 'pro')
+      const [plan] = await db.select({ plan: userPlans.plan }).from(userPlans).where(eq(userPlans.userId, userId)).limit(1);
+      const isPaid = plan && (plan.plan === "pro" || plan.plan === "premium" || plan.plan === "embaixador");
+      if (!isPaid) {
+        return { allowed: false, reason: "Envio de mensagens em transmissão requer plano Business Pro" };
+      }
       return { allowed: true };
     }
   }
 
+  // Specialist/Critic can always send
   return { allowed: true };
 }
 
