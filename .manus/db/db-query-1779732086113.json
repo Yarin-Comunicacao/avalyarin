@@ -1,0 +1,29 @@
+{
+  "query": "SELECT \n  SUM(CASE WHEN address LIKE 'R. %' OR address LIKE '% R. %' THEN 1 ELSE 0 END) as r_dot,\n  SUM(CASE WHEN address LIKE 'Av. %' OR address LIKE '% Av. %' THEN 1 ELSE 0 END) as av_dot,\n  SUM(CASE WHEN address LIKE '%Dr.%' THEN 1 ELSE 0 END) as dr_dot,\n  SUM(CASE WHEN address LIKE '%Cel.%' THEN 1 ELSE 0 END) as cel_dot,\n  SUM(CASE WHEN address LIKE '%Prof.%' THEN 1 ELSE 0 END) as prof_dot,\n  SUM(CASE WHEN address LIKE '%Gen.%' THEN 1 ELSE 0 END) as gen_dot,\n  SUM(CASE WHEN address LIKE '%Eng.%' THEN 1 ELSE 0 END) as eng_dot,\n  SUM(CASE WHEN address LIKE '%Alm.%' THEN 1 ELSE 0 END) as alm_dot,\n  SUM(CASE WHEN address LIKE '%Brig.%' THEN 1 ELSE 0 END) as brig_dot,\n  SUM(CASE WHEN address LIKE '%Min.%' THEN 1 ELSE 0 END) as min_dot,\n  SUM(CASE WHEN address LIKE '%Cap.%' THEN 1 ELSE 0 END) as cap_dot,\n  SUM(CASE WHEN address LIKE '%Mal.%' THEN 1 ELSE 0 END) as mal_dot,\n  SUM(CASE WHEN address LIKE '%Sen.%' THEN 1 ELSE 0 END) as sen_dot,\n  SUM(CASE WHEN address LIKE '%Dep.%' THEN 1 ELSE 0 END) as dep_dot,\n  SUM(CASE WHEN address LIKE '%Des.%' THEN 1 ELSE 0 END) as des_dot,\n  SUM(CASE WHEN address LIKE '%Cons.%' THEN 1 ELSE 0 END) as cons_dot,\n  SUM(CASE WHEN address LIKE '%Com.%' THEN 1 ELSE 0 END) as com_dot\nFROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  SUM(CASE WHEN address LIKE 'R. %' OR address LIKE '% R. %' THEN 1 ELSE 0 END) as r_dot,\n  SUM(CASE WHEN address LIKE 'Av. %' OR address LIKE '% Av. %' THEN 1 ELSE 0 END) as av_dot,\n  SUM(CASE WHEN address LIKE '%Dr.%' THEN 1 ELSE 0 END) as dr_dot,\n  SUM(CASE WHEN address LIKE '%Cel.%' THEN 1 ELSE 0 END) as cel_dot,\n  SUM(CASE WHEN address LIKE '%Prof.%' THEN 1 ELSE 0 END) as prof_dot,\n  SUM(CASE WHEN address LIKE '%Gen.%' THEN 1 ELSE 0 END) as gen_dot,\n  SUM(CASE WHEN address LIKE '%Eng.%' THEN 1 ELSE 0 END) as eng_dot,\n  SUM(CASE WHEN address LIKE '%Alm.%' THEN 1 ELSE 0 END) as alm_dot,\n  SUM(CASE WHEN address LIKE '%Brig.%' THEN 1 ELSE 0 END) as brig_dot,\n  SUM(CASE WHEN address LIKE '%Min.%' THEN 1 ELSE 0 END) as min_dot,\n  SUM(CASE WHEN address LIKE '%Cap.%' THEN 1 ELSE 0 END) as cap_dot,\n  SUM(CASE WHEN address LIKE '%Mal.%' THEN 1 ELSE 0 END) as mal_dot,\n  SUM(CASE WHEN address LIKE '%Sen.%' THEN 1 ELSE 0 END) as sen_dot,\n  SUM(CASE WHEN address LIKE '%Dep.%' THEN 1 ELSE 0 END) as dep_dot,\n  SUM(CASE WHEN address LIKE '%Des.%' THEN 1 ELSE 0 END) as des_dot,\n  SUM(CASE WHEN address LIKE '%Cons.%' THEN 1 ELSE 0 END) as cons_dot,\n  SUM(CASE WHEN address LIKE '%Com.%' THEN 1 ELSE 0 END) as com_dot\nFROM establishments;",
+  "rows": [
+    {
+      "r_dot": "4890",
+      "av_dot": "1264",
+      "dr_dot": "284",
+      "cel_dot": "34",
+      "prof_dot": "63",
+      "gen_dot": "26",
+      "eng_dot": "1",
+      "alm_dot": "22",
+      "brig_dot": "12",
+      "min_dot": "42",
+      "cap_dot": "5",
+      "mal_dot": "4",
+      "sen_dot": "8",
+      "dep_dot": "0",
+      "des_dot": "0",
+      "cons_dot": "0",
+      "com_dot": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "r_dot\tav_dot\tdr_dot\tcel_dot\tprof_dot\tgen_dot\teng_dot\talm_dot\tbrig_dot\tmin_dot\tcap_dot\tmal_dot\tsen_dot\tdep_dot\tdes_dot\tcons_dot\tcom_dot\n4890\t1264\t284\t34\t63\t26\t1\t22\t12\t42\t5\t4\t8\t0\t0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 401
+}

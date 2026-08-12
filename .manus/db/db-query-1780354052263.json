@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE ratings SET overallScore = CASE WHEN type = 'direct' THEN (overallScore / 25) * 10 WHEN type = 'analytic' THEN (overallScore / 100) * 10 END WHERE overallScore > 10; UPDATE rating_items SET score = (score / 100) * 10 WHERE score > 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE ratings SET overallScore = CASE WHEN type = 'direct' THEN (overallScore / 25) * 10 WHEN type = 'analytic' THEN (overallScore / 100) * 10 END WHERE overallScore > 10; UPDATE rating_items SET score = (score / 100) * 10 WHERE score > 10;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 295
+}

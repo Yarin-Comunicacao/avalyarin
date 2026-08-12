@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE users SET code = CAST(id AS CHAR) WHERE code IS NULL;\nUPDATE categories SET code = CONCAT('ca', LPAD(id, 3, '0')) WHERE code IS NULL;\nUPDATE establishments SET code = CONCAT('es', LPAD(id, 6, '0')) WHERE code IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE users SET code = CAST(id AS CHAR) WHERE code IS NULL;\nUPDATE categories SET code = CONCAT('ca', LPAD(id, 3, '0')) WHERE code IS NULL;\nUPDATE establishments SET code = CONCAT('es', LPAD(id, 6, '0')) WHERE code IS NULL;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1062 (23000) at line 2: Duplicate entry '?' for key 'categories.idx_categories_code'"
+  ]
+}

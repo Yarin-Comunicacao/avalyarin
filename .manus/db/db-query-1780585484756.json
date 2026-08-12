@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100006', 30002, 'Mini Picanha Bovina (Parrilla)', 'Mini picanha grelhada na parrilla 100g a 120g', 57.80, 'Grelhados'),\n('mi100007', 30002, 'Salmão Grelhado (Parrilla)', '180g à 200g in natura', 60.80, 'Grelhados'),\n('mi100008', 30002, 'Filé Mignon (Parrilla)', '180g à 200g in natura', 61.80, 'Grelhados'),\n('mi100009', 30002, 'Bife Ancho (Parrilla)', '230g à 250g in natura', 60.80, 'Grelhados'),\n('mi100010', 30002, 'Bife Chorizo (Parrilla)', '230g à 250g in natura', 62.80, 'Grelhados'),\n('mi100011', 30002, 'Picanha Bovina (Parrilla)', '230g à 270g in natura', 74.80, 'Grelhados');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100006', 30002, 'Mini Picanha Bovina (Parrilla)', 'Mini picanha grelhada na parrilla 100g a 120g', 57.80, 'Grelhados'),\n('mi100007', 30002, 'Salmão Grelhado (Parrilla)', '180g à 200g in natura', 60.80, 'Grelhados'),\n('mi100008', 30002, 'Filé Mignon (Parrilla)', '180g à 200g in natura', 61.80, 'Grelhados'),\n('mi100009', 30002, 'Bife Ancho (Parrilla)', '230g à 250g in natura', 60.80, 'Grelhados'),\n('mi100010', 30002, 'Bife Chorizo (Parrilla)', '230g à 250g in natura', 62.80, 'Grelhados'),\n('mi100011', 30002, 'Picanha Bovina (Parrilla)', '230g à 270g in natura', 74.80, 'Grelhados');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 274
+}

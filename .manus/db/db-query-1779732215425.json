@@ -1,0 +1,40 @@
+{
+  "query": "SELECT address FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 10;",
+  "rows": [
+    {
+      "address": "em frente ao - Av. do Pepê, 1430 - quiosque 13 - Barra da Tijuca, Rio de Janeiro - RJ, 22620-170, Brasil"
+    },
+    {
+      "address": "Rua Pedroso Alvarenga, 1088 - Unid. 13 - Itaim Bibi, São Paulo - SP, 04531-004, Brasil"
+    },
+    {
+      "address": "Rua Ten. Negrão, 97 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil"
+    },
+    {
+      "address": "Rua Ten. Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil"
+    },
+    {
+      "address": "Rua Ten. Negrão, 98 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil"
+    },
+    {
+      "address": "Edifício The Capital Flat - R. Ten. Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil"
+    },
+    {
+      "address": "Avenida Ten. Laudelino F.do Amaral - Vila Jacuí, São Paulo - SP, 08060-000, Brasil"
+    },
+    {
+      "address": "Condomínio Edifício Mansao Delacroix - Av. Brigadeiro Luís Antônio, 2662 - Jardim Paulista, São Paulo - SP, 01402-000, Brasil"
+    },
+    {
+      "address": "Pão de Açúcar - Av. Brigadeiro Luís Antônio, 2013 - Loja 04 - Bela Vista, São Paulo - SP, 01317-002, Brasil"
+    },
+    {
+      "address": "Hotel Unique - Av. Brigadeiro Luís Antônio, 4700 - Jardim Paulista, São Paulo - SP, 01402-002, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nem frente ao - Av. do Pepê, 1430 - quiosque 13 - Barra da Tijuca, Rio de Janeiro - RJ, 22620-170, Brasil\nRua Pedroso Alvarenga, 1088 - Unid. 13 - Itaim Bibi, São Paulo - SP, 04531-004, Brasil\nRua Ten. Negrão, 97 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil\nRua Ten. Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil\nRua Ten. Negrão, 98 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil\nEdifício The Capital Flat - R. Ten. Negrão, 200 - Itaim Bibi, São Paulo - SP, 04530-030, Brasil\nAvenida Ten. Laudelino F.do Amaral - Vila Jacuí, São Paulo - SP, 08060-000, Brasil\nCondomínio Edifício Mansao Delacroix - Av. Brigadeiro Luís Antônio, 2662 - Jardim Paulista, São Paulo - SP, 01402-000, Brasil\nPão de Açúcar - Av. Brigadeiro Luís Antônio, 2013 - Loja 04 - Bela Vista, São Paulo - SP, 01317-002, Brasil\nHotel Unique - Av. Brigadeiro Luís Antônio, 4700 - Jardim Paulista, São Paulo - SP, 01402-002, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

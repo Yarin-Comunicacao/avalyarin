@@ -1,0 +1,16 @@
+{
+  "query": "SELECT address FROM establishments WHERE address LIKE '%Btt.%' OR address LIKE '%Prox.%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address LIKE '%Btt.%' OR address LIKE '%Prox.%' LIMIT 5;",
+  "rows": [
+    {
+      "address": "Prox. Metrô São Joaquim - Avenida da Liberdade, 1000 - CJ.614 - 6º Andar - Liberdade, São Paulo - SP, 01502-001, Brasil"
+    },
+    {
+      "address": "Acesso por dentro do Btt. Burger - R. Araguari, 68 - Moema, São Paulo - SP, 04514-040, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nProx. Metrô São Joaquim - Avenida da Liberdade, 1000 - CJ.614 - 6º Andar - Liberdade, São Paulo - SP, 01502-001, Brasil\nAcesso por dentro do Btt. Burger - R. Araguari, 68 - Moema, São Paulo - SP, 04514-040, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 284
+}

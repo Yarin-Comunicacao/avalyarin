@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <title>AvaLyarin</title>
+    <meta name="description" content="Avalie bares, restaurantes e estabelecimentos gastronômicos com sistema analítico de pontuação." />
+    <meta name="theme-color" content="#10b981" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content=" " />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/pwa-icon-512-mbwiE9b3BVBWPYdieGLX5E.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663452670122/WG3U3sVg2ZrW6m8T99FRdE/pwa-icon-192-YUG4CTsSHcS9D5tmbRC6qR.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet" />
+    <style id="splash-style">
+      #splash-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #FDF8F0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.4s ease-out;
+      }
+      #splash-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash-screen img {
+        width: 240px;
+        height: 240px;
+        object-fit: contain;
+        margin-bottom: 24px;
+        background: transparent;
+        border: none;
+        animation: splash-pulse 1.5s ease-in-out infinite;
+      }
+      #splash-screen .splash-text {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 2rem;
+        letter-spacing: 0.3em;
+        color: #D9A64E;
+      }
+      #splash-screen .splash-sub {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.85rem;
+        color: #6B4D3A;
+        margin-top: 12px;
+        letter-spacing: 0.1em;
+      }
+      @keyframes splash-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(0.95); }
+      }
+      /* Hide splash on mobile */
+      @media (max-width: 1023px) {
+        #splash-screen { display: none !important; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Pre-React splash screen: shows IMMEDIATELY on desktop before JS loads -->
+    <div id="splash-screen">
+      <img src="/storage/logo-oficial-fundo-creme-v4_ebbf346e.png" alt="Avalyarin" />
+      <span class="splash-text">AVALYARIN</span>
+      <span class="splash-sub">Avalie seu local favorito</span>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script
+      defer
+      src="%VITE_ANALYTICS_ENDPOINT%/umami"
+      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+  </body>
+
+</html>

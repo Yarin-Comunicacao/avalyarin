@@ -1,0 +1,1 @@
+ALTER TABLE `group_events` ADD `eventType` enum('event','reservation') DEFAULT 'event' NOT NULL;

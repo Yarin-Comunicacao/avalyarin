@@ -1,0 +1,17 @@
+{
+  "query": "\nWITH duplicate_pairs AS (\n  SELECT e1.id as id1, e1.name as name1, e1.instagram as ig1, e1.address as addr1, e1.addressNumber as num1, e1.neighborhood as bairro1,\n         e2.id as id2, e2.name as name2, e2.instagram as ig2\n  FROM establishments e1\n  JOIN establishments e2 ON e1.address = e2.address \n    AND e1.addressNumber = e2.addressNumber \n    AND e1.id < e2.id\n    AND e1.address IS NOT NULL \n    AND e1.address != ''\n    AND e1.addressNumber IS NOT NULL\n    AND e1.addressNumber != ''\n    AND e1.neighborhood = e2.neighborhood\n  WHERE (\n    LOWER(e1.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e2.name, ' ', 1)), '%')\n    OR LOWER(e2.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e1.name, ' ', 1)), '%')\n  )\n)\nSELECT \n  COUNT(*) as total_pares,\n  SUM(CASE WHEN ig1 IS NULL OR ig1 = '' THEN 1 ELSE 0 END) as sem_ig1,\n  SUM(CASE WHEN ig2 IS NULL OR ig2 = '' THEN 1 ELSE 0 END) as sem_ig2,\n  SUM(CASE WHEN (ig1 IS NULL OR ig1 = '') AND (ig2 IS NULL OR ig2 = '') THEN 1 ELSE 0 END) as ambos_sem_ig,\n  SUM(CASE WHEN (ig1 IS NOT NULL AND ig1 != '') AND (ig2 IS NOT NULL AND ig2 != '') THEN 1 ELSE 0 END) as ambos_com_ig\nFROM duplicate_pairs;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nWITH duplicate_pairs AS (\n  SELECT e1.id as id1, e1.name as name1, e1.instagram as ig1, e1.address as addr1, e1.addressNumber as num1, e1.neighborhood as bairro1,\n         e2.id as id2, e2.name as name2, e2.instagram as ig2\n  FROM establishments e1\n  JOIN establishments e2 ON e1.address = e2.address \n    AND e1.addressNumber = e2.addressNumber \n    AND e1.id < e2.id\n    AND e1.address IS NOT NULL \n    AND e1.address != ''\n    AND e1.addressNumber IS NOT NULL\n    AND e1.addressNumber != ''\n    AND e1.neighborhood = e2.neighborhood\n  WHERE (\n    LOWER(e1.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e2.name, ' ', 1)), '%')\n    OR LOWER(e2.name) LIKE CONCAT('%', LOWER(SUBSTRING_INDEX(e1.name, ' ', 1)), '%')\n  )\n)\nSELECT \n  COUNT(*) as total_pares,\n  SUM(CASE WHEN ig1 IS NULL OR ig1 = '' THEN 1 ELSE 0 END) as sem_ig1,\n  SUM(CASE WHEN ig2 IS NULL OR ig2 = '' THEN 1 ELSE 0 END) as sem_ig2,\n  SUM(CASE WHEN (ig1 IS NULL OR ig1 = '') AND (ig2 IS NULL OR ig2 = '') THEN 1 ELSE 0 END) as ambos_sem_ig,\n  SUM(CASE WHEN (ig1 IS NOT NULL AND ig1 != '') AND (ig2 IS NOT NULL AND ig2 != '') THEN 1 ELSE 0 END) as ambos_com_ig\nFROM duplicate_pairs;\n",
+  "rows": [
+    {
+      "total_pares": "247",
+      "sem_ig1": "245",
+      "sem_ig2": "226",
+      "ambos_sem_ig": "224",
+      "ambos_com_ig": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_pares\tsem_ig1\tsem_ig2\tambos_sem_ig\tambos_com_ig\n247\t245\t226\t224\t0\n",
+  "stderr": "",
+  "execution_time_ms": 326
+}

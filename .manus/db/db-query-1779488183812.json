@@ -1,0 +1,135 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%(Delivery)%' OR name LIKE '%→ Delivery%' OR name LIKE '%| Delivery%' OR name LIKE '%- Delivery%' OR name LIKE '%(Delivery e Retirada)%' OR name LIKE '%Delivery -  %' OR name REGEXP 'Delivery$') AND name NOT LIKE '%Almoço%' AND name NOT LIKE '%Chopp%' AND name NOT LIKE '%Drinks%' AND name NOT LIKE '%Feijoada%' ORDER BY name LIMIT 50 OFFSET 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%(Delivery)%' OR name LIKE '%→ Delivery%' OR name LIKE '%| Delivery%' OR name LIKE '%- Delivery%' OR name LIKE '%(Delivery e Retirada)%' OR name LIKE '%Delivery -  %' OR name REGEXP 'Delivery$') AND name NOT LIKE '%Almoço%' AND name NOT LIKE '%Chopp%' AND name NOT LIKE '%Drinks%' AND name NOT LIKE '%Feijoada%' ORDER BY name LIMIT 50 OFFSET 20;",
+  "rows": [
+    {
+      "id": "1077",
+      "name": "Ms Burguer Delivery",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "5639",
+      "name": "NaNaYa Delivery",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6838",
+      "name": "Nonna Dita Pizzaria Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "1464",
+      "name": "Pastéis Takeda - Presencial e Delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6715",
+      "name": "Pizzaria Bom Retiro | Delivery de Pizza Tutti Pizza",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "6781",
+      "name": "Pizzaria Mares Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "7236",
+      "name": "Pizzaria Soggiorno - Zona Sul (Delivery)",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "6195",
+      "name": "Pompeia Pizzaria - Delivery",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "717",
+      "name": "Restaurante Caruzzo - Delivery cardápio wzap 9.3458.1818",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "2325",
+      "name": "Restaurante Itapeva Delivery",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "723",
+      "name": "Restaurante Menta Pimenta Delivery",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "4707",
+      "name": "Restaurante Mister Family - Delivery Entrega de Marmitex",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "5844",
+      "name": "Rotisseria Delivery",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "2908",
+      "name": "Route Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "5885",
+      "name": "SalaVip Delivery",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "7645",
+      "name": "Seu Sushi Delivery",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "5891",
+      "name": "Shio Eventos | Delivery | Restaurante",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "6667",
+      "name": "Shodai Sushi Delivery",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "7286",
+      "name": "Show de Rango Restaurante e Delivery",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "7678",
+      "name": "Tanaka Sushi Delivery",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "1685",
+      "name": "Tapiocaria Beju's Delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2950",
+      "name": "The Ville Lanches Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3806",
+      "name": "Yakisoba Hayaku Delivery",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4372",
+      "name": "Yakissobaria Delivery",
+      "neighborhood": "Sé"
+    },
+    {
+      "id": "6227",
+      "name": "Zé do Hamburger Delivery",
+      "neighborhood": "Perdizes"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n1077\tMs Burguer Delivery\tPerdizes\n5639\tNaNaYa Delivery\tMoema\n6838\tNonna Dita Pizzaria Delivery\tCambuci\n1464\tPastéis Takeda - Presencial e Delivery\tPinheiros\n6715\tPizzaria Bom Retiro | Delivery de Pizza Tutti Pizza\tBom Retiro\n6781\tPizzaria Mares Delivery\tCambuci\n7236\tPizzaria Soggiorno - Zona Sul (Delivery)\tCampo Belo\n6195\tPompeia Pizzaria - Delivery\tPerdizes\n717\tRestaurante Caruzzo - Delivery cardápio wzap 9.3458.1818\tJardim Paulista\n2325\tRestaurante Itapeva Delivery\tBela Vista\n723\tRestaurante Menta Pimenta Delivery\tJardim Paulista\n4707\tRestaurante Mister Family - Delivery Entrega de Marmitex\tCursino\n5844\tRotisseria Delivery\tVila Mariana\n2908\tRoute Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery\tCambuci\n5885\tSalaVip Delivery\tVila Mariana\n7645\tSeu Sushi Delivery\tSaúde\n5891\tShio Eventos | Delivery | Restaurante\tVila Mariana\n6667\tShodai Sushi Delivery\tBela Vista\n7286\tShow de Rango Restaurante e Delivery\tCursino\n7678\tTanaka Sushi Delivery\tVila Mariana\n1685\tTapiocaria Beju's Delivery\tPinheiros\n2950\tThe Ville Lanches Delivery\tCambuci\n3806\tYakisoba Hayaku Delivery\tLiberdade\n4372\tYakissobaria Delivery\tSé\n6227\tZé do Hamburger Delivery\tPerdizes\n",
+  "stderr": "",
+  "execution_time_ms": 397
+}

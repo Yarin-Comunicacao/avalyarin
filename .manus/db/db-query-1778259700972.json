@@ -1,0 +1,154 @@
+{
+  "query": "SELECT id, name, instagram, phone, hours IS NOT NULL as has_hours, rating\nFROM establishments \nWHERE categoryId = (SELECT id FROM categories WHERE name = 'Boteco Moderno')\nORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, instagram, phone, hours IS NOT NULL as has_hours, rating\nFROM establishments \nWHERE categoryId = (SELECT id FROM categories WHERE name = 'Boteco Moderno')\nORDER BY id;",
+  "rows": [
+    {
+      "id": "1177",
+      "name": "Oink Gastro Bar",
+      "instagram": "@oink_gastrobar",
+      "phone": "(11) 98266-1611",
+      "has_hours": "1",
+      "rating": "4.7"
+    },
+    {
+      "id": "1720",
+      "name": "Othê Gastrobar",
+      "instagram": "@othe.sp",
+      "phone": "(11) 3813-5921",
+      "has_hours": "1",
+      "rating": "4.4"
+    },
+    {
+      "id": "1923",
+      "name": "Botecagem SP",
+      "instagram": "@botecagem.sp",
+      "phone": "NULL",
+      "has_hours": "0",
+      "rating": "5"
+    },
+    {
+      "id": "2048",
+      "name": "Santa Maluca Gastrobar",
+      "instagram": "@santamalucagastrobar",
+      "phone": "(11) 99525-7565",
+      "has_hours": "1",
+      "rating": "4.7"
+    },
+    {
+      "id": "2086",
+      "name": "Olívio Bar e Gastronomia",
+      "instagram": "@oliviobar",
+      "phone": "(11) 4680-2967",
+      "has_hours": "1",
+      "rating": "4.6"
+    },
+    {
+      "id": "2094",
+      "name": "Cão Véio Vila Madalena (Matriz)",
+      "instagram": "@caoveiobar",
+      "phone": "(11) 4371-7434",
+      "has_hours": "1",
+      "rating": "4.6"
+    },
+    {
+      "id": "2481",
+      "name": "Aura Gastrobar",
+      "instagram": "@auraagastrobar",
+      "phone": "(11) 2361-5493",
+      "has_hours": "1",
+      "rating": "4.8"
+    },
+    {
+      "id": "3018",
+      "name": "Parada na Miguel /Gastrobar",
+      "instagram": "@parada_na_miguel",
+      "phone": "(11) 91207-5939",
+      "has_hours": "1",
+      "rating": "NULL"
+    },
+    {
+      "id": "3080",
+      "name": "Di&Gu Gastrobar",
+      "instagram": "@digugastrobar",
+      "phone": "NULL",
+      "has_hours": "1",
+      "rating": "5"
+    },
+    {
+      "id": "5164",
+      "name": "GastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento",
+      "instagram": "@dazegastrobar",
+      "phone": "(11) 96318-5020",
+      "has_hours": "1",
+      "rating": "5"
+    },
+    {
+      "id": "5257",
+      "name": "Buteco Seu Rufino - Moema",
+      "instagram": "@butecoseurufino",
+      "phone": "(21) 99901-0104",
+      "has_hours": "1",
+      "rating": "4.2"
+    },
+    {
+      "id": "5439",
+      "name": "Cão Véio - Unidade Vila Mariana",
+      "instagram": "@caoveiobar",
+      "phone": "(11) 96610-0905",
+      "has_hours": "1",
+      "rating": "4.6"
+    },
+    {
+      "id": "5499",
+      "name": "Marú Gastrobar",
+      "instagram": "@maru.gastrobar",
+      "phone": "(11) 5051-2020",
+      "has_hours": "1",
+      "rating": "4.7"
+    },
+    {
+      "id": "7048",
+      "name": "Glicério Gastrobar - Restaurante e Bar com Música ao Vivo",
+      "instagram": "@glicerio_official",
+      "phone": "(11) 96686-2658",
+      "has_hours": "1",
+      "rating": "3.6"
+    },
+    {
+      "id": "7712",
+      "name": "De Primeira",
+      "instagram": "@deprimeira.bar",
+      "phone": "(11) 3034-1556",
+      "has_hours": "1",
+      "rating": "4.1"
+    },
+    {
+      "id": "7713",
+      "name": "Melts Gastrobar",
+      "instagram": "@meltsbrasil",
+      "phone": "(11) 3208-2166",
+      "has_hours": "1",
+      "rating": "4.6"
+    },
+    {
+      "id": "7714",
+      "name": "Ministro Gastrobar",
+      "instagram": "@ministrogastrobar",
+      "phone": "(11) 99202-1360",
+      "has_hours": "1",
+      "rating": "4.6"
+    },
+    {
+      "id": "7715",
+      "name": "Fábrica Drinks | Gastrobar",
+      "instagram": "@fabricadrinks",
+      "phone": "(11) 3554-4997",
+      "has_hours": "1",
+      "rating": "4.3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tinstagram\tphone\thas_hours\trating\n1177\tOink Gastro Bar\t@oink_gastrobar\t(11) 98266-1611\t1\t4.7\n1720\tOthê Gastrobar\t@othe.sp\t(11) 3813-5921\t1\t4.4\n1923\tBotecagem SP\t@botecagem.sp\tNULL\t0\t5\n2048\tSanta Maluca Gastrobar\t@santamalucagastrobar\t(11) 99525-7565\t1\t4.7\n2086\tOlívio Bar e Gastronomia\t@oliviobar\t(11) 4680-2967\t1\t4.6\n2094\tCão Véio Vila Madalena (Matriz)\t@caoveiobar\t(11) 4371-7434\t1\t4.6\n2481\tAura Gastrobar\t@auraagastrobar\t(11) 2361-5493\t1\t4.8\n3018\tParada na Miguel /Gastrobar\t@parada_na_miguel\t(11) 91207-5939\t1\tNULL\n3080\tDi&Gu Gastrobar\t@digugastrobar\tNULL\t1\t5\n5164\tGastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento\t@dazegastrobar\t(11) 96318-5020\t1\t5\n5257\tButeco Seu Rufino - Moema\t@butecoseurufino\t(21) 99901-0104\t1\t4.2\n5439\tCão Véio - Unidade Vila Mariana\t@caoveiobar\t(11) 96610-0905\t1\t4.6\n5499\tMarú Gastrobar\t@maru.gastrobar\t(11) 5051-2020\t1\t4.7\n7048\tGlicério Gastrobar - Restaurante e Bar com Música ao Vivo\t@glicerio_official\t(11) 96686-2658\t1\t3.6\n7712\tDe Primeira\t@deprimeira.bar\t(11) 3034-1556\t1\t4.1\n7713\tMelts Gastrobar\t@meltsbrasil\t(11) 3208-2166\t1\t4.6\n7714\tMinistro Gastrobar\t@ministrogastrobar\t(11) 99202-1360\t1\t4.6\n7715\tFábrica Drinks | Gastrobar\t@fabricadrinks\t(11) 3554-4997\t1\t4.3\n",
+  "stderr": "",
+  "execution_time_ms": 331
+}

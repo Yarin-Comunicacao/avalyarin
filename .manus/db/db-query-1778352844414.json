@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, slug, address, neighborhood, phone, instagram, hours, rating, reviewCount, lat, lng, categoryId FROM establishments WHERE id = 6483;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, address, neighborhood, phone, instagram, hours, rating, reviewCount, lat, lng, categoryId FROM establishments WHERE id = 6483;",
+  "rows": [
+    {
+      "id": "6483",
+      "name": "Luiza Lafer Confeitaria",
+      "slug": "luiza-lafer-confeitaria",
+      "address": "R. Dr. Virgílio de Carvalho Pinto, 409 - Pinheiros, São Paulo - SP, 05415-030, Brasil",
+      "neighborhood": "Pinheiros",
+      "phone": "(11) 99651-6633",
+      "instagram": "@luizalaferconfeitaria",
+      "hours": "Seg: Fechado | Ter a Sex: 10:00–18:30 | Sáb: 10:00–18:00 | Dom: Fechado",
+      "rating": "4.9",
+      "reviewCount": "92",
+      "lat": "-23.562334",
+      "lng": "-46.68451",
+      "categoryId": "11"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\taddress\tneighborhood\tphone\tinstagram\thours\trating\treviewCount\tlat\tlng\tcategoryId\n6483\tLuiza Lafer Confeitaria\tluiza-lafer-confeitaria\tR. Dr. Virgílio de Carvalho Pinto, 409 - Pinheiros, São Paulo - SP, 05415-030, Brasil\tPinheiros\t(11) 99651-6633\t@luizalaferconfeitaria\tSeg: Fechado | Ter a Sex: 10:00–18:30 | Sáb: 10:00–18:00 | Dom: Fechado\t4.9\t92\t-23.562334\t-46.68451\t11\n",
+  "stderr": "",
+  "execution_time_ms": 258
+}

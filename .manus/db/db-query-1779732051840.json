@@ -1,0 +1,87 @@
+{
+  "query": "SELECT id, name, address, neighborhood, hidden FROM establishments WHERE address LIKE '%Atendimento%' OR address LIKE '%atendimento%' LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood, hidden FROM establishments WHERE address LIKE '%Atendimento%' OR address LIKE '%atendimento%' LIMIT 30;",
+  "rows": [
+    {
+      "id": "595",
+      "name": "Bem Casados Dany",
+      "address": "Degustação Agendada - Alameda Campinas, 1160 Fábrica - Rua Paschoalina 81, Atendimento - Sala 1 - São Caetano do Sul - Nova Gerti, São Paulo - SP, 01404-200, Brasil",
+      "neighborhood": "Jardim Paulista",
+      "hidden": "1"
+    },
+    {
+      "id": "1066",
+      "name": "Bar e Lanchonete Famosa de Perdizes",
+      "address": "Atendimento & Zap (55)2197105 - 8244___R. Cotoxó, 564 - Pompeia, São Paulo - SP, 05021-000, Brasil",
+      "neighborhood": "Perdizes",
+      "hidden": "1"
+    },
+    {
+      "id": "2677",
+      "name": "Retiro da Luz Lanches e Self Service",
+      "address": "Atendimento online via watssap (11)95490 - R. Ribeiro de Lima, 460 - 4194R - Bom Retiro, São Paulo - SP, 01123-020, Brasil",
+      "neighborhood": "Bom Retiro",
+      "hidden": "1"
+    },
+    {
+      "id": "3572",
+      "name": "ESTAÇÃO DO LANCHE",
+      "address": "Atendimento&Zap (55)1398194 - 8181™R. da Glória, 102 - Liberdade, São Paulo - SP, 01510-000, Brasil",
+      "neighborhood": "Liberdade",
+      "hidden": "1"
+    },
+    {
+      "id": "3996",
+      "name": "MM LANCHES",
+      "address": "Atendimento&Zap (55)319808 - 0393™R. Dom José de Barros, 74 - República, São Paulo - SP, 01038-000, Brasil",
+      "neighborhood": "República",
+      "hidden": "1"
+    },
+    {
+      "id": "4238",
+      "name": "Santa Cecília Marmitas",
+      "address": "Atendimento Via WhatsApp - Alameda Glete, 589(11 - 95690-0927 - Campos Elíseos, São Paulo - SP, 01215-000, Brasil",
+      "neighborhood": "Santa Cecília",
+      "hidden": "1"
+    },
+    {
+      "id": "5153",
+      "name": "Lanchonete Dias",
+      "address": "Atendimento&Zap (55)1398194 - 8181™R. Lima e Silva, 1061 - Ipiranga, São Paulo - SP, 04215-020, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1"
+    },
+    {
+      "id": "6629",
+      "name": "Pizzaria Ruberto's",
+      "address": "atendimento whatsapp - R. Dr. Luís Barreto, 330 (11 - 95078-6984 - Bela Vista, São Paulo - SP, 01328-020, Brasil",
+      "neighborhood": "Bela Vista",
+      "hidden": "1"
+    },
+    {
+      "id": "6955",
+      "name": "Pizzaria Roosevelt",
+      "address": "Atendimento online via whatsapp (11)32550411 - R. Gravataí, 31 - 97031-1801R - Consolação, São Paulo - SP, 01303-040, Brasil",
+      "neighborhood": "Consolação",
+      "hidden": "1"
+    },
+    {
+      "id": "7388",
+      "name": "Pizzaria do Mineiro",
+      "address": "Atendimento online via whatsapp (11)960127954 - 1801R. dos Patriotas, 737 - Ipiranga, São Paulo - SP, 04207-030, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1"
+    },
+    {
+      "id": "7395",
+      "name": "Pizzaria Tio Gino",
+      "address": "Atendimento online via whatsapp (11 - R. Labatut, 615 - 97031-1801R - Ipiranga, São Paulo - SP, 04214-000, Brasil",
+      "neighborhood": "Ipiranga",
+      "hidden": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\thidden\n595\tBem Casados Dany\tDegustação Agendada - Alameda Campinas, 1160 Fábrica - Rua Paschoalina 81, Atendimento - Sala 1 - São Caetano do Sul - Nova Gerti, São Paulo - SP, 01404-200, Brasil\tJardim Paulista\t1\n1066\tBar e Lanchonete Famosa de Perdizes\tAtendimento & Zap (55)2197105 - 8244___R. Cotoxó, 564 - Pompeia, São Paulo - SP, 05021-000, Brasil\tPerdizes\t1\n2677\tRetiro da Luz Lanches e Self Service\tAtendimento online via watssap (11)95490 - R. Ribeiro de Lima, 460 - 4194R - Bom Retiro, São Paulo - SP, 01123-020, Brasil\tBom Retiro\t1\n3572\tESTAÇÃO DO LANCHE\tAtendimento&Zap (55)1398194 - 8181™R. da Glória, 102 - Liberdade, São Paulo - SP, 01510-000, Brasil\tLiberdade\t1\n3996\tMM LANCHES\tAtendimento&Zap (55)319808 - 0393™R. Dom José de Barros, 74 - República, São Paulo - SP, 01038-000, Brasil\tRepública\t1\n4238\tSanta Cecília Marmitas\tAtendimento Via WhatsApp - Alameda Glete, 589(11 - 95690-0927 - Campos Elíseos, São Paulo - SP, 01215-000, Brasil\tSanta Cecília\t1\n5153\tLanchonete Dias\tAtendimento&Zap (55)1398194 - 8181™R. Lima e Silva, 1061 - Ipiranga, São Paulo - SP, 04215-020, Brasil\tIpiranga\t1\n6629\tPizzaria Ruberto's\tatendimento whatsapp - R. Dr. Luís Barreto, 330 (11 - 95078-6984 - Bela Vista, São Paulo - SP, 01328-020, Brasil\tBela Vista\t1\n6955\tPizzaria Roosevelt\tAtendimento online via whatsapp (11)32550411 - R. Gravataí, 31 - 97031-1801R - Consolação, São Paulo - SP, 01303-040, Brasil\tConsolação\t1\n7388\tPizzaria do Mineiro\tAtendimento online via whatsapp (11)960127954 - 1801R. dos Patriotas, 737 - Ipiranga, São Paulo - SP, 04207-030, Brasil\tIpiranga\t1\n7395\tPizzaria Tio Gino\tAtendimento online via whatsapp (11 - R. Labatut, 615 - 97031-1801R - Ipiranga, São Paulo - SP, 04214-000, Brasil\tIpiranga\t1\n",
+  "stderr": "",
+  "execution_time_ms": 2031
+}

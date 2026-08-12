@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, neighborhood, address, instagram FROM establishments WHERE (neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Pinheiros%') AND (instagram IS NULL OR instagram = '') AND hidden = 0 ORDER BY neighborhood, name LIMIT 100;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, address, instagram FROM establishments WHERE (neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Pinheiros%') AND (instagram IS NULL OR instagram = '') AND hidden = 0 ORDER BY neighborhood, name LIMIT 100;",
+  "rows": [
+    {
+      "id": "7741",
+      "name": "Bullger",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "instagram": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\taddress\tinstagram\n7741\tBullger\tPinheiros\tR. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1013
+}

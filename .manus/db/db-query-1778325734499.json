@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as no_rating FROM establishments WHERE rating IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as no_rating FROM establishments WHERE rating IS NULL;",
+  "rows": [
+    {
+      "no_rating": "589"
+    }
+  ],
+  "messages": [],
+  "stdout": "no_rating\n589\n",
+  "stderr": "",
+  "execution_time_ms": 417
+}

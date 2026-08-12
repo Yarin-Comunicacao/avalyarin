@@ -1,0 +1,90 @@
+{
+  "query": "SELECT address, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY address HAVING cnt >= 3 ORDER BY cnt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY address HAVING cnt >= 3 ORDER BY cnt DESC LIMIT 20;",
+  "rows": [
+    {
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "cnt": "25"
+    },
+    {
+      "address": "Rua Barão de Iguape, 158 - Liberdade, São Paulo - SP, 01507-000, Brasil",
+      "cnt": "11"
+    },
+    {
+      "address": "Praça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil",
+      "cnt": "11"
+    },
+    {
+      "address": "R. Augusta - Consolação, São Paulo - SP, 01304-001, Brasil",
+      "cnt": "9"
+    },
+    {
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "cnt": "7"
+    },
+    {
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil",
+      "cnt": "7"
+    },
+    {
+      "address": "R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil",
+      "cnt": "6"
+    },
+    {
+      "address": "R. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil",
+      "cnt": "6"
+    },
+    {
+      "address": "Av. Ibirapuera, 3103 - Indianópolis, São Paulo - SP, 04029-200, Brasil",
+      "cnt": "5"
+    },
+    {
+      "address": "Shopping Frei Caneca - R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil",
+      "cnt": "5"
+    },
+    {
+      "address": "R. Itapeva, 435 - Bela Vista, São Paulo - SP, 01332-000, Brasil",
+      "cnt": "5"
+    },
+    {
+      "address": "R. Nossa Sra. da Lapa, 35 - Lapa, São Paulo - SP, 05072-000, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "Praça Leonor Kaupa, 100 - Bosque da Saúde, São Paulo - SP, 04151-100, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "R. Pamplona, 1704 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "R. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "Rua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "R. Maciel Parente - Ipiranga, São Paulo - SP, 04233-300, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "R. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "Av. Paulista, 854 - Bela Vista, São Paulo - SP, 01311-100, Brasil",
+      "cnt": "4"
+    },
+    {
+      "address": "R. Dr. Amâncio de Carvalho, 259 - Vila Mariana, São Paulo - SP, 04012-090, Brasil",
+      "cnt": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\tcnt\nAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\t25\nRua Barão de Iguape, 158 - Liberdade, São Paulo - SP, 01507-000, Brasil\t11\nPraça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil\t11\nR. Augusta - Consolação, São Paulo - SP, 01304-001, Brasil\t9\nShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\t7\nR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\t7\nR. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil\t6\nR. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil\t6\nAv. Ibirapuera, 3103 - Indianópolis, São Paulo - SP, 04029-200, Brasil\t5\nShopping Frei Caneca - R. Frei Caneca, 569 - Consolação, São Paulo - SP, 01307-001, Brasil\t5\nR. Itapeva, 435 - Bela Vista, São Paulo - SP, 01332-000, Brasil\t5\nR. Nossa Sra. da Lapa, 35 - Lapa, São Paulo - SP, 05072-000, Brasil\t4\nPraça Leonor Kaupa, 100 - Bosque da Saúde, São Paulo - SP, 04151-100, Brasil\t4\nR. Pamplona, 1704 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil\t4\nR. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil\t4\nRua Bartira, 548 - Perdizes, São Paulo - SP, 05009-000, Brasil\t4\nR. Maciel Parente - Ipiranga, São Paulo - SP, 04233-300, Brasil\t4\nR. Monte Alegre, 984 - Perdizes, São Paulo - SP, 05014-001, Brasil\t4\nAv. Paulista, 854 - Bela Vista, São Paulo - SP, 01311-100, Brasil\t4\nR. Dr. Amâncio de Carvalho, 259 - Vila Mariana, São Paulo - SP, 04012-090, Brasil\t4\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

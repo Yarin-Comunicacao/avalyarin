@@ -1,0 +1,220 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name LIMIT 62 OFFSET 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name LIMIT 62 OFFSET 20;",
+  "rows": [
+    {
+      "id": "6188",
+      "name": "Diavola Pizzeria Italiana - Pizza Delivery Pompeia",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "4236",
+      "name": "Esfiha Chic Delivery",
+      "neighborhood": "Santa Cecília"
+    },
+    {
+      "id": "761",
+      "name": "Galeto’s Lapa | Delivery",
+      "neighborhood": "Lapa"
+    },
+    {
+      "id": "1617",
+      "name": "Greenjoy | Delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1302",
+      "name": "Greentable Rebouças (Unidade Delivery)",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1618",
+      "name": "Haya Falafel Pinheiros - apenas delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "7370",
+      "name": "Henna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5651",
+      "name": "Jota Oh Buffet Eventos & Delivery",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "2516",
+      "name": "Katamaru Delivery Oriental",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "5789",
+      "name": "Kris Delivery muito maisvc",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "7636",
+      "name": "La Fortunata Pizzaria: Pizza, Esfiha, Combos, Delivery em São Paulo",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "5421",
+      "name": "La Parrilla Argentina: Carnes, Vinhos, Música, Dança, Delivery, Moema SP",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "4667",
+      "name": "Lanchonete e marmitaria delivery",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "1312",
+      "name": "Mana Poke Shopping Eldorado: Restaurante, Comida Havaiana, Delivery em Pinheiros SP",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2534",
+      "name": "Mineiro Delivery - Bela Vista",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "6087",
+      "name": "Mori Ohta Sushi Delivery Jardins",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "276",
+      "name": "NKK Delivery - Itaim Bibi",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "1757",
+      "name": "NKK Delivery - Pinheiros",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1253",
+      "name": "O Boteco Argentino - Empanadas (Delivery & Takeout)",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1464",
+      "name": "Pastéis Takeda - Presencial e Delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6327",
+      "name": "Pecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "6076",
+      "name": "Pecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "4649",
+      "name": "Pecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "3894",
+      "name": "Pecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP",
+      "neighborhood": "República"
+    },
+    {
+      "id": "7571",
+      "name": "Pecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "6715",
+      "name": "Pizzaria Bom Retiro | Delivery de Pizza Tutti Pizza",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "7372",
+      "name": "Pizzaria e Delivery no Ipiranga, Pizzaria Dom Jordão",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "6195",
+      "name": "Pompeia Pizzaria - Delivery",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "6770",
+      "name": "Ranguinho Vegano - apenas delivery ou retirada",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "5801",
+      "name": "Rapchef Delivery SP - Oficial",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "5779",
+      "name": "Restaurante & Delivery Especial da China",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "717",
+      "name": "Restaurante Caruzzo - Delivery cardápio wzap 9.3458.1818",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "2325",
+      "name": "Restaurante Itapeva Delivery",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "723",
+      "name": "Restaurante Menta Pimenta Delivery",
+      "neighborhood": "Jardim Paulista"
+    },
+    {
+      "id": "4707",
+      "name": "Restaurante Mister Family - Delivery Entrega de Marmitex",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "2908",
+      "name": "Route Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "5891",
+      "name": "Shio Eventos | Delivery | Restaurante",
+      "neighborhood": "Vila Mariana"
+    },
+    {
+      "id": "7286",
+      "name": "Show de Rango Restaurante e Delivery",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "1805",
+      "name": "Shuk Delivery & Take Away",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2586",
+      "name": "Super lanches delivery",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "1026",
+      "name": "Só Delivery Tapiocas - Perdizes",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "7036",
+      "name": "️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️",
+      "neighborhood": "Liberdade"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n6188\tDiavola Pizzeria Italiana - Pizza Delivery Pompeia\tPerdizes\n4236\tEsfiha Chic Delivery\tSanta Cecília\n761\tGaleto’s Lapa | Delivery\tLapa\n1617\tGreenjoy | Delivery\tPinheiros\n1302\tGreentable Rebouças (Unidade Delivery)\tPinheiros\n1618\tHaya Falafel Pinheiros - apenas delivery\tPinheiros\n7370\tHenna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa\tIpiranga\n5651\tJota Oh Buffet Eventos & Delivery\tMoema\n2516\tKatamaru Delivery Oriental\tBela Vista\n5789\tKris Delivery muito maisvc\tSaúde\n7636\tLa Fortunata Pizzaria: Pizza, Esfiha, Combos, Delivery em São Paulo\tSaúde\n5421\tLa Parrilla Argentina: Carnes, Vinhos, Música, Dança, Delivery, Moema SP\tMoema\n4667\tLanchonete e marmitaria delivery\tCursino\n1312\tMana Poke Shopping Eldorado: Restaurante, Comida Havaiana, Delivery em Pinheiros SP\tPinheiros\n2534\tMineiro Delivery - Bela Vista\tBela Vista\n6087\tMori Ohta Sushi Delivery Jardins\tJardim Paulista\n276\tNKK Delivery - Itaim Bibi\tItaim Bibi\n1757\tNKK Delivery - Pinheiros\tPinheiros\n1253\tO Boteco Argentino - Empanadas (Delivery & Takeout)\tPerdizes\n1464\tPastéis Takeda - Presencial e Delivery\tPinheiros\n6327\tPecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP\tPinheiros\n6076\tPecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP\tJardim Paulista\n4649\tPecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP\tCursino\n3894\tPecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP\tRepública\n7571\tPecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP\tMoema\n6715\tPizzaria Bom Retiro | Delivery de Pizza Tutti Pizza\tBom Retiro\n7372\tPizzaria e Delivery no Ipiranga, Pizzaria Dom Jordão\tIpiranga\n6195\tPompeia Pizzaria - Delivery\tPerdizes\n6770\tRanguinho Vegano - apenas delivery ou retirada\tCambuci\n5801\tRapchef Delivery SP - Oficial\tSaúde\n5779\tRestaurante & Delivery Especial da China\tSaúde\n717\tRestaurante Caruzzo - Delivery cardápio wzap 9.3458.1818\tJardim Paulista\n2325\tRestaurante Itapeva Delivery\tBela Vista\n723\tRestaurante Menta Pimenta Delivery\tJardim Paulista\n4707\tRestaurante Mister Family - Delivery Entrega de Marmitex\tCursino\n2908\tRoute Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery\tCambuci\n5891\tShio Eventos | Delivery | Restaurante\tVila Mariana\n7286\tShow de Rango Restaurante e Delivery\tCursino\n1805\tShuk Delivery & Take Away\tPinheiros\n2586\tSuper lanches delivery\tBela Vista\n1026\tSó Delivery Tapiocas - Perdizes\tPerdizes\n7036\t️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️\tLiberdade\n",
+  "stderr": "",
+  "execution_time_ms": 393
+}

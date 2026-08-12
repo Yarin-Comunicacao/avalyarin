@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, address, neighborhood FROM establishments WHERE (address LIKE '%Fradique Coutinho, 986%' OR address LIKE '%Alves Guimarães, 1091%' OR address LIKE '%Alves Guimaraes, 1091%' OR address LIKE '%Cação, 51%' OR address LIKE '%Cação, 57%' OR address LIKE '%Cacao, 51%' OR address LIKE '%Cacao, 57%' OR address LIKE '%Dr. Dolzani, 638%' OR address LIKE '%Dolzani, 638%' OR address LIKE '%Lopes de Oliveira, 349%' OR address LIKE '%Dante Carraro, 94%') LIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood FROM establishments WHERE (address LIKE '%Fradique Coutinho, 986%' OR address LIKE '%Alves Guimarães, 1091%' OR address LIKE '%Alves Guimaraes, 1091%' OR address LIKE '%Cação, 51%' OR address LIKE '%Cação, 57%' OR address LIKE '%Cacao, 51%' OR address LIKE '%Cacao, 57%' OR address LIKE '%Dr. Dolzani, 638%' OR address LIKE '%Dolzani, 638%' OR address LIKE '%Lopes de Oliveira, 349%' OR address LIKE '%Dante Carraro, 94%') LIMIT 50;",
+  "rows": [
+    {
+      "id": "45",
+      "name": "Phantom Kitchen",
+      "address": "R. Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo - SP, 01152-010, Brasil",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "id": "1647",
+      "name": "DELIVERY ⚠️ Notorious Fish (restaurante não é aqui!)",
+      "address": "R. Fradique Coutinho, 986 - Pinheiros, São Paulo - SP, 05416-001, Brasil",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1653",
+      "name": "OTOTO",
+      "address": "Rua Fradique Coutinho, 986 Cozinha 5 - Pinheiros, São Paulo - SP, 05416-010, Brasil",
+      "neighborhood": "Pinheiros"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\n45\tPhantom Kitchen\tR. Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo - SP, 01152-010, Brasil\tBarra Funda\n1647\tDELIVERY ⚠️ Notorious Fish (restaurante não é aqui!)\tR. Fradique Coutinho, 986 - Pinheiros, São Paulo - SP, 05416-001, Brasil\tPinheiros\n1653\tOTOTO\tRua Fradique Coutinho, 986 Cozinha 5 - Pinheiros, São Paulo - SP, 05416-010, Brasil\tPinheiros\n",
+  "stderr": "",
+  "execution_time_ms": 2120
+}

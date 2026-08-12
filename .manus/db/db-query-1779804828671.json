@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, name, address, neighborhood FROM establishments WHERE address IS NOT NULL AND address != '' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, neighborhood FROM establishments WHERE address IS NOT NULL AND address != '' LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "address": "Rua Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil",
+      "neighborhood": "Alto da Lapa"
+    },
+    {
+      "id": "2",
+      "name": "Dona Deôla - Lapa",
+      "address": "Rua Pio XI, 1377 - Lapa, São Paulo - SP, 05468-150, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "address": "Rua Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "address": "Rua Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "address": "Rua Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "address": "Avenida Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil",
+      "neighborhood": "Alto da Lapa"
+    },
+    {
+      "id": "7",
+      "name": "Santa Etienne",
+      "address": "Avenida Diógenes Ribeiro de Lima, 2555 - Alto de Pinheiros, São Paulo - SP, 05458-002, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "address": "Avenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "address": "Avenida Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "11",
+      "name": "Amém Café",
+      "address": "Praça Coronel Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "12",
+      "name": "OAKBERRY Açaí",
+      "address": "Praça Coronel Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "13",
+      "name": "Padel Beach Panamericana",
+      "address": "Praça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "address": "Rua Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "address": "Rua Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "address": "Rua Doutor José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil",
+      "neighborhood": "Alto de Pinheiros"
+    },
+    {
+      "id": "19",
+      "name": "Bar do Zóio",
+      "address": "Rua Conselheiro Brotero, 590 - Barra Funda, São Paulo - SP, 01154-001, Brasil",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "id": "20",
+      "name": "Bolinho Verde | Restaurante Israelense Kasher",
+      "address": "Espaço And’orra - R. Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo - SP, 01232-010, Brasil",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "id": "21",
+      "name": "Boteco General",
+      "address": "Rua Conselheiro Brotero, 607 - Barra Funda, São Paulo - SP, 01154-001, Brasil",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "id": "22",
+      "name": "Boteco da Dona Tati",
+      "address": "Rua Conselheiro Brotero, 506 - Barra Funda, São Paulo - SP, 01154-001, Brasil",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "id": "23",
+      "name": "Casa Elefante Discos",
+      "address": "Rua Conselheiro Brotero, 379 - Barra Funda, São Paulo - SP, 01154-001, Brasil",
+      "neighborhood": "Barra Funda"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\n1\tBar do Alemão Lapa\tRua Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil\tAlto da Lapa\n2\tDona Deôla - Lapa\tRua Pio XI, 1377 - Lapa, São Paulo - SP, 05468-150, Brasil\tAlto de Pinheiros\n3\tQuintal da Imperatriz\tRua Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tAlto de Pinheiros\n4\tRestaurante Novo Talento\tRua Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tAlto de Pinheiros\n5\tShoyu Culinária Oriental\tRua Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tAlto de Pinheiros\n6\tPanatè Artesanal\tAvenida Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil\tAlto da Lapa\n7\tSanta Etienne\tAvenida Diógenes Ribeiro de Lima, 2555 - Alto de Pinheiros, São Paulo - SP, 05458-002, Brasil\tAlto de Pinheiros\n8\tFood Truck da Neia\tAvenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\tAlto de Pinheiros\n9\tRestaurante Lina e Max\tAvenida Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\tAlto de Pinheiros\n11\tAmém Café\tPraça Coronel Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\tAlto de Pinheiros\n12\tOAKBERRY Açaí\tPraça Coronel Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\tAlto de Pinheiros\n13\tPadel Beach Panamericana\tPraça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil\tAlto de Pinheiros\n15\tUccellino Pane\tRua Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil\tAlto de Pinheiros\n16\tFarol Kaffe\tRua Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil\tPinheiros\n17\tUehara Pastéis - (São Paulo)\tRua Doutor José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil\tAlto de Pinheiros\n19\tBar do Zóio\tRua Conselheiro Brotero, 590 - Barra Funda, São Paulo - SP, 01154-001, Brasil\tBarra Funda\n20\tBolinho Verde | Restaurante Israelense Kasher\tEspaço And’orra - R. Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo - SP, 01232-010, Brasil\tBarra Funda\n21\tBoteco General\tRua Conselheiro Brotero, 607 - Barra Funda, São Paulo - SP, 01154-001, Brasil\tBarra Funda\n22\tBoteco da Dona Tati\tRua Conselheiro Brotero, 506 - Barra Funda, São Paulo - SP, 01154-001, Brasil\tBarra Funda\n23\tCasa Elefante Discos\tRua Conselheiro Brotero, 379 - Barra Funda, São Paulo - SP, 01154-001, Brasil\tBarra Funda\n",
+  "stderr": "",
+  "execution_time_ms": 277
+}

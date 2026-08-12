@@ -1,0 +1,1 @@
+ALTER TABLE `plans` ADD `hidden` boolean DEFAULT false NOT NULL;

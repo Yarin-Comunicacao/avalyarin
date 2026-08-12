@@ -1,0 +1,20 @@
+## Expiração de Role após 35 dias sem pagamento
+
+Abordagem: Heartbeat (HTTP cron) — §4a (project-level, sem end-user)
+- Criar handler em /api/scheduled/checkRoleExpiration
+- Cron diário: "0 0 3 * * *" (3:00 UTC)
+- Lógica: buscar users com role critic/specialist cujo plano expirou há mais de 35 dias
+- Se user_plans.expiresAt + 35 dias < now → update user.role = 'user'
+
+Passos:
+1. Criar handler Express em server/_core/index.ts
+2. Criar função de lógica em server/db.ts (expireRoles)
+3. Montar rota antes do fallthrough
+4. Após deploy, criar cron via manus-heartbeat CLI
+
+Nota: precisa aplicar patches §5c para user.isCron funcionar no handler.
+Alternativa simples: verificar no login (middleware) se o plano expirou há mais de 35 dias e rebaixar nesse momento.
+
+DECISÃO: Usar abordagem híbrida:
+- Verificação no login (imediata, sem cron)
+- Heartbeat diário como backup (para quem não loga)

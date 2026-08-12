@@ -1,0 +1,86 @@
+{
+  "query": "SELECT c.name, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.categoryId = c.id GROUP BY c.id, c.name ORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT c.name, COUNT(e.id) as total FROM categories c LEFT JOIN establishments e ON e.categoryId = c.id GROUP BY c.id, c.name ORDER BY total DESC;",
+  "rows": [
+    {
+      "name": "Bar & Lanchonete",
+      "total": "1633"
+    },
+    {
+      "name": "Cozinha Brasileira",
+      "total": "1496"
+    },
+    {
+      "name": "Cozinha Internacional",
+      "total": "997"
+    },
+    {
+      "name": "Cafeteria",
+      "total": "809"
+    },
+    {
+      "name": "Padaria",
+      "total": "621"
+    },
+    {
+      "name": "Boteco Tradicional",
+      "total": "515"
+    },
+    {
+      "name": "Pizzaria",
+      "total": "396"
+    },
+    {
+      "name": "Hamburgueria",
+      "total": "299"
+    },
+    {
+      "name": "Balada",
+      "total": "209"
+    },
+    {
+      "name": "Confeitaria",
+      "total": "167"
+    },
+    {
+      "name": "Saudável",
+      "total": "120"
+    },
+    {
+      "name": "Açaí",
+      "total": "79"
+    },
+    {
+      "name": "Autoral / Contemporâneo",
+      "total": "75"
+    },
+    {
+      "name": "Cervejaria",
+      "total": "50"
+    },
+    {
+      "name": "Bar Musical",
+      "total": "31"
+    },
+    {
+      "name": "Coquetelaria",
+      "total": "26"
+    },
+    {
+      "name": "Vegan",
+      "total": "23"
+    },
+    {
+      "name": "Pub",
+      "total": "21"
+    },
+    {
+      "name": "Boteco Moderno",
+      "total": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\ttotal\nBar & Lanchonete\t1633\nCozinha Brasileira\t1496\nCozinha Internacional\t997\nCafeteria\t809\nPadaria\t621\nBoteco Tradicional\t515\nPizzaria\t396\nHamburgueria\t299\nBalada\t209\nConfeitaria\t167\nSaudável\t120\nAçaí\t79\nAutoral / Contemporâneo\t75\nCervejaria\t50\nBar Musical\t31\nCoquetelaria\t26\nVegan\t23\nPub\t21\nBoteco Moderno\t18\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

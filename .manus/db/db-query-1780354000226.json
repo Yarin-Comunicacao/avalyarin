@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, openId, role FROM users ORDER BY id ASC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, openId, role FROM users ORDER BY id ASC LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Alan Figueredo",
+      "openId": "cPtHc4oRLsNCiU53w35Wsj",
+      "role": "admin"
+    },
+    {
+      "id": "90002",
+      "name": "Yarin Agencia",
+      "openId": "bLoRRJFLDmD2UBLRyxLfoZ",
+      "role": "owner"
+    },
+    {
+      "id": "930001",
+      "name": "Alan Figueredo",
+      "openId": "6dTeCRT9UWsqeUPU8NoFpc",
+      "role": "business"
+    },
+    {
+      "id": "1320005",
+      "name": "Alan Figueredo",
+      "openId": "Fax439AjYU54mdhLrqdzj8",
+      "role": "user"
+    },
+    {
+      "id": "1470001",
+      "name": "Rosangela Gonçalves",
+      "openId": "emyZaySGn6QR8VQjfgt3zt",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\topenId\trole\n1\tAlan Figueredo\tcPtHc4oRLsNCiU53w35Wsj\tadmin\n90002\tYarin Agencia\tbLoRRJFLDmD2UBLRyxLfoZ\towner\n930001\tAlan Figueredo\t6dTeCRT9UWsqeUPU8NoFpc\tbusiness\n1320005\tAlan Figueredo\tFax439AjYU54mdhLrqdzj8\tuser\n1470001\tRosangela Gonçalves\temyZaySGn6QR8VQjfgt3zt\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

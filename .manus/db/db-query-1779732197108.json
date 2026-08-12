@@ -1,0 +1,70 @@
+{
+  "query": "UPDATE establishments SET address = REPLACE(address, 'Brg. ', 'Brigadeiro ') WHERE address LIKE '%Brg. %';\nSELECT DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(address, ' ', 2), ' ', -1) as second_word FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments SET address = REPLACE(address, 'Brg. ', 'Brigadeiro ') WHERE address LIKE '%Brg. %';\nSELECT DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(address, ' ', 2), ' ', -1) as second_word FROM establishments WHERE address REGEXP ' [A-Z][a-z]{1,4}\\\\. ' LIMIT 20;",
+  "rows": [
+    {
+      "second_word": "Vig."
+    },
+    {
+      "second_word": "do,"
+    },
+    {
+      "second_word": "frente"
+    },
+    {
+      "second_word": "Edifício"
+    },
+    {
+      "second_word": "campus"
+    },
+    {
+      "second_word": "São"
+    },
+    {
+      "second_word": "Br."
+    },
+    {
+      "second_word": "Srg."
+    },
+    {
+      "second_word": "ibirarema"
+    },
+    {
+      "second_word": "Nossa"
+    },
+    {
+      "second_word": "Shopping"
+    },
+    {
+      "second_word": "Metrópole"
+    },
+    {
+      "second_word": "Europa"
+    },
+    {
+      "second_word": "OSCAR"
+    },
+    {
+      "second_word": "por"
+    },
+    {
+      "second_word": "The"
+    },
+    {
+      "second_word": "Eldorado"
+    },
+    {
+      "second_word": "Aurora,"
+    },
+    {
+      "second_word": "Dr"
+    },
+    {
+      "second_word": "Res."
+    }
+  ],
+  "messages": [],
+  "stdout": "second_word\nVig.\ndo,\nfrente\nEdifício\ncampus\nSão\nBr.\nSrg.\nibirarema\nNossa\nShopping\nMetrópole\nEuropa\nOSCAR\npor\nThe\nEldorado\nAurora,\nDr\nRes.\n",
+  "stderr": "",
+  "execution_time_ms": 298
+}

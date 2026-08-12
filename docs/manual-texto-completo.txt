@@ -1,0 +1,2211 @@
+é
+
+Manual T cnico Operacional
+
+— Avalyarin
+
+Sistema de Avaliação Dinâmico para Bares e Restaurantes
+Versão: 2.0
+Data: 22 de Junho de 2026
+Autor: Yarin Agência
+Classificação: Documento Interno — Uso Exclusivo da Equipe
+
+Sumário
+1. Introdução e Visão Geral
+2. Objetivo do Projeto
+3. Arquitetura do Sistema
+4. Tecnologias Utilizadas
+5. Banco de Dados — Estrutura e Governança
+6. Sistema de Roles e Permissões
+7. Fluxos do Aplicativo
+8. Sistema de Avaliação — Detalhamento
+9. Galeria de Fotos e Interações Sociais
+10. Sistema de Detecção de Duplicidade
+11. Integrações Externas
+12. Segurança e Autenticação
+13. Armazenamento de Arquivos
+14. Planos e Monetização
+15. Estrutura de Navegação por Role
+16. Fases Implementadas — Histórico Completo
+17. Glossário Técnico
+18. Referências
+
+1. Introdução e Visão Geral
+O Avalyarin é uma plataforma digital desenvolvida para avaliar bares, restaurantes e
+estabelecimentos gastronômicos, com foco inicial na região de Pinheiros e Vila Madalena, em
+São Paulo. O sistema permite que usuários comuns, influenciadores gastronômicos e críticos
+profissionais avaliem suas experiências de forma estruturada, gerando dados confiáveis tanto
+para outros consumidores quanto para os próprios donos de estabelecimentos.
+O nome “Avalyarin” é uma fusão de “Avaliar” + “Yarin” (nome da agência criadora do projeto). O
+sistema foi concebido como um ecossistema completo que conecta cinco públicos distintos:
+consumidores que buscam recomendações confiáveis, influenciadores que compartilham
+suas experiências gastronômicas, críticos gastronômicos que oferecem análises profissionais,
+donos de estabelecimentos que desejam monitorar e melhorar a percepção do público sobre
+seus negócios, e agentes de suporte que garantem a qualidade dos dados e atendem
+solicitações.
+A plataforma opera como um Progressive Web App (PWA), o que significa que funciona
+diretamente no navegador do celular como se fosse um aplicativo nativo — pode ser instalado
+na tela inicial do telefone, funciona offline em funcionalidades básicas, e envia notificações
+push. Não é necessário baixar pela App Store ou Google Play.
+Estado atual do sistema (Junho 2026):
+187 estabelecimentos ativos com cardápio completo
+20 categorias gastronômicas
+7 roles de usuário (user, influencer, critic, business, support, admin, owner)
+406 testes automatizados passando
+16 fases de desenvolvimento concluídas
+
+2. Objetivo do Projeto
+O Avalyarin foi criado com os seguintes objetivos estratégicos:
+Para o consumidor final: Oferecer um sistema de avaliação mais justo e detalhado do que
+plataformas genéricas como Google Maps ou TripAdvisor. No Avalyarin, cada item consumido é
+avaliado individualmente, e a nota final é calculada com pesos dinâmicos que consideram
+critérios como atendimento, ambiente, custo-benefício e qualidade dos pratos. O sistema de
+insígnias e níveis gamifica a experiência, incentivando avaliações frequentes e detalhadas.
+Para o influenciador gastronômico: Criar uma plataforma onde suas avaliações tenham peso
+diferenciado e visibilidade, permitindo que construam uma audiência fiel e estabeleçam
+
+parcerias comerciais com estabelecimentos. Influenciadores têm avaliações ilimitadas e só
+podem avaliar presencialmente (via QR code).
+Para o crítico gastronômico: Oferecer um espaço profissional onde avaliações de críticos
+verificados recebem um selo de autenticidade (estrela azul safira) e aparecem com prioridade
+na lista de avaliações do estabelecimento quando a nota é igual ou superior a 9.
+Para o dono de estabelecimento: Fornecer um painel de gestão com insights sobre a
+percepção dos clientes, notificações em tempo real sobre novas avaliações, ferramentas de
+marketing como códigos promocionais, posts no feed do app, e lista de transmissão para
+seguidores.
+Para a empresa (Yarin Agência): Monetizar através de planos de assinatura (tanto para
+usuários quanto para estabelecimentos), parcerias com influenciadores, e dados agregados
+sobre o mercado gastronômico.
+
+3. Arquitetura do Sistema
+A arquitetura do Avalyarin segue o modelo cliente-servidor, onde o “cliente” é o que o usuário
+vê (a interface visual no celular/computador) e o “servidor” é o computador remoto que processa
+as informações e armazena os dados.
+
+3.1 Diagrama de Arquitetura
+
+O diagrama acima ilustra as quatro camadas principais do sistema: o Cliente (PWA) construído
+com React 19, Tailwind CSS 4 e tRPC Client; o Servidor com Express 4, tRPC 11, Drizzle ORM,
+Sharp para processamento de imagens e LLM API para inteligência artificial; o Armazenamento
+com TiDB/MySQL (30+ tabelas) e Amazon S3 (fotos e documentos); e as Integrações com
+Manus OAuth, Google Tag Manager, Connect Yarin e Whisper para transcrição.
+
+3.2 Frontend (Interface do Usuário)
+O frontend é tudo aquilo que o usuário vê e interage — botões, telas, formulários, animações.
+No Avalyarin, o frontend é construído com:
+React 19 — a biblioteca de interface mais popular do mundo, criada pelo Facebook (Meta)
+em 2013. React permite construir interfaces divididas em “componentes” reutilizáveis (como
+peças de LEGO). Cada botão, card de estabelecimento, ou formulário é um componente
+independente que pode ser reaproveitado em diferentes telas.
+TypeScript 5.9 — uma extensão do JavaScript (a linguagem nativa dos navegadores) que
+adiciona “tipos” ao código. Isso significa que, antes mesmo de executar o programa, o
+computador verifica se os dados estão no formato correto.
+
+Tailwind CSS 4 — um framework de estilização que permite definir cores, tamanhos,
+espaçamentos e layouts diretamente no código HTML, sem precisar criar arquivos CSS
+separados.
+Wouter — um roteador leve para React que controla qual página é exibida baseado na
+URL.
+Framer Motion — biblioteca de animações que cria transições suaves entre telas e
+elementos.
+shadcn/ui + Radix UI — componentes acessíveis e consistentes para formulários, modais,
+dropdowns e outros elementos de interface.
+
+3.3 Backend (Servidor)
+O backend é o “cérebro” invisível do sistema — processa requisições, valida dados, calcula
+notas, e se comunica com o banco de dados:
+Node.js 22 — ambiente que permite executar JavaScript fora do navegador, no servidor.
+Especialmente eficiente para aplicações em tempo real porque processa múltiplas
+requisições simultaneamente.
+Express 4 — o framework web que recebe as requisições HTTP e direciona cada uma para
+a função correta.
+tRPC 11 — tecnologia que conecta o frontend ao backend de forma “type-safe” (segura em
+tipos). Se o backend espera receber um userId do tipo número, o frontend é obrigado a
+enviar um número — qualquer erro é detectado automaticamente antes de ir ao ar.
+Drizzle ORM 0.44 — “tradutor” entre o código TypeScript e o banco de dados MySQL. Em
+vez de escrever comandos SQL manualmente, o desenvolvedor escreve código TypeScript
+legível e o Drizzle traduz para SQL automaticamente.
+Sharp 0.34 — biblioteca de alta performance para processamento de imagens. Converte
+automaticamente para WebP, redimensiona e gera thumbnails.
+
+3.4 Banco de Dados
+MySQL (hospedado via TiDB Cloud) — MySQL é o sistema de banco de dados relacional
+mais popular do mundo. O TiDB é uma versão distribuída e escalável, 100% compatível
+com MySQL, que permite crescer horizontalmente adicionando mais servidores.
+
+3.5 Armazenamento de Arquivos
+Amazon S3 (Simple Storage Service) — serviço de armazenamento de arquivos da AWS.
+Todas as fotos de avaliações, logos de estabelecimentos, documentos de verificação de
+idade, e imagens de cardápio ficam guardadas no S3 com 99,999999999% de durabilidade.
+
+4. Tecnologias Utilizadas
+Tecnologia
+
+Versão
+
+Categoria
+
+O que faz
+
+Quem criou
+
+React
+
+19.2
+
+Frontend
+
+Constrói a interface visual
+do app com componentes
+reutilizáveis
+
+Meta
+(Facebook)
+
+TypeScript
+
+5.9
+
+Linguagem
+
+Adiciona verificação de
+
+Microsoft
+
+tipos ao JavaScript,
+prevenindo erros
+Tailwind
+CSS
+
+4.1
+
+Estilização
+
+Define o visual (cores,
+tamanhos, layouts) direto
+no código
+
+Tailwind Labs
+
+Node.js
+
+22.13
+
+Runtime
+
+Executa JavaScript no
+servidor (fora do
+navegador)
+
+OpenJS
+Foundation
+
+Express
+
+4.21
+
+Framework Web
+
+Recebe e roteia
+requisições HTTP no
+
+OpenJS
+Foundation
+
+servidor
+tRPC
+
+11.6
+
+Comunicação
+
+Conecta frontend e
+backend com segurança
+de tipos
+
+Alex “KATT”
+Johansson
+
+Drizzle ORM
+
+0.44
+
+Banco de
+Dados
+
+Traduz código TypeScript
+em comandos SQL
+
+Drizzle Team
+
+MySQL /
+TiDB
+
+8.x
+
+Banco de
+Dados
+
+Armazena todos os dados
+estruturados
+
+Oracle /
+PingCAP
+
+Amazon S3
+
+—
+
+Armazenamento
+
+Guarda arquivos (fotos,
+documentos) na nuvem
+
+Amazon Web
+Services
+
+Vite
+
+7.1
+
+Build Tool
+
+Compila e empacota o
+código para produção
+
+Evan You
+
+Zod
+
+4.1
+
+Validação
+
+Valida dados de entrada
+(formulários, APIs) com
+schemas tipados
+
+Colin
+McDonnell
+
+Tecnologia
+
+Versão
+
+Categoria
+
+O que faz
+
+Quem criou
+
+Sharp
+
+0.34
+
+Imagens
+
+Redimensiona, converte e
+otimiza imagens no
+servidor
+
+Lovell Fuller
+
+TanStack
+Query
+
+5.90
+
+Cache/Estado
+
+Gerencia cache de dados
+do servidor no frontend
+
+Tanner
+Linsley
+
+Recharts
+
+2.15
+
+Gráficos
+
+Renderiza gráficos e
+visualizações de dados
+
+Recharts
+Team
+
+Framer
+Motion
+
+12.23
+
+Animações
+
+Cria animações e
+transições suaves na
+interface
+
+Framer
+
+Vitest
+
+2.1
+
+Testes
+
+Executa testes
+automatizados para
+garantir qualidade do
+código
+
+Vitest Team
+
+Radix UI
+
+—
+
+Componentes
+
+Componentes acessíveis
+(base do shadcn/ui)
+
+WorkOS
+
+html5-qrcode
+
+2.3
+
+QR Code
+
+Lê QR codes pela câmera
+do celular
+
+mebjas
+
+qrcode.react
+
+4.2
+
+QR Code
+
+Gera QR codes visuais
+para estabelecimentos
+
+zpao
+
+Superjson
+
+1.13
+
+Serialização
+
+Permite enviar tipos
+complexos (Date, Map)
+entre cliente e servidor
+
+Blitz.js Team
+
+dnd-kit
+
+—
+
+Drag & Drop
+
+Permite reordenar itens
+arrastando (categorias do
+cardápio)
+
+Claudéric
+Demers
+
+5. Banco de Dados — Estrutura e Governança
+5.1 Visão Geral
+O Avalyarin possui 35+ tabelas organizadas em 8 domínios funcionais. O banco utiliza MySQL
+hospedado via TiDB Cloud com conexão SSL obrigatória.
+
+5.2 Tabelas por Domínio
+Domínio 1 — Usuários e Autenticação
+Tabela
+
+Propósito
+
+users
+
+Dados pessoais, role, credenciais, localização,
+verificação
+
+user_plans
+
+Plano de assinatura de cada usuário (free, premium,
+embaixador)
+
+subscriptions
+
+Histórico de pagamentos e ciclo de vida das
+assinaturas
+
+age_verification_requests
+
+Solicitações de verificação de idade para menores de
+18
+
+Campos principais da tabela users :
+
+Campo
+
+Tipo
+
+Descrição
+
+id
+
+INT (auto)
+
+Identificador único interno
+
+code
+
+VARCHAR(16)
+
+Código visual para exibição (ex: “1234567”)
+
+openId
+
+VARCHAR(64)
+
+Identificador único do OAuth
+
+name
+
+TEXT
+
+Nome completo
+
+email
+
+VARCHAR(320)
+
+Email
+
+username
+
+VARCHAR(64)
+
+Nome de usuário único (@callforalan)
+
+birthdate
+
+VARCHAR(10)
+
+Data de nascimento (YYYY-MM-DD)
+
+role
+
+ENUM
+
+user, admin, owner, business, influencer, critic, support
+
+verified
+
+BOOLEAN
+
+Se passou por verificação presencial (3 QR scans)
+
+lat / lng
+
+FLOAT
+
+Coordenadas geográficas
+
+createdAt
+
+TIMESTAMP
+
+Data/hora de criação da conta
+
+Domínio 2 — Estabelecimentos e Cardápio
+Tabela
+
+Propósito
+
+categories
+
+20 tipos de estabelecimentos gastronômicos
+
+establishments
+
+Dados completos (nome, endereço, horário, telefone,
+Instagram, coordenadas, logo, cover)
+
+establishment_categories
+
+Relação N:N — um estabelecimento pode pertencer a
+múltiplas categorias
+
+menu_items
+
+Itens do cardápio (nome, preço, foto, thumbnail,
+categoria)
+
+menu_categories
+
+Categorias do cardápio com ordem de exibição
+personalizável (sortOrder)
+
+establishment_posts
+
+Posts efêmeros (stories) publicados por contas
+business
+
+business_subscriptions
+
+Planos de assinatura para estabelecimentos
+
+Campos principais da tabela establishments :
+
+Campo
+
+Tipo
+
+Descrição
+
+id
+
+INT (auto)
+
+Identificador único
+
+code
+
+VARCHAR(16)
+
+Código visual (es000001)
+
+slug
+
+VARCHAR(255)
+
+URL amigável (ex: “samba-burguer”)
+
+name
+
+VARCHAR(255)
+
+Nome do estabelecimento
+
+address
+
+TEXT
+
+Endereço (sempre por extenso: “Rua”, não “R.”)
+
+addressNumber
+
+VARCHAR(16)
+
+Número do endereço
+
+complement
+
+VARCHAR(200)
+
+Complemento (Loja, Sala, Piso)
+
+neighborhood
+
+VARCHAR(128)
+
+Bairro exato do Google Maps
+
+description
+
+VARCHAR(500)
+
+Descrição breve
+
+lat / lng
+
+FLOAT
+
+Coordenadas para mapa
+
+rating
+
+FLOAT
+
+Nota média no Google
+
+image
+
+TEXT
+
+URL da foto de capa
+
+logo
+
+TEXT
+
+URL do logo (1:1, 500x500)
+
+hours
+
+VARCHAR(255)
+
+Horário de funcionamento
+
+phone
+
+VARCHAR(64)
+
+Telefone
+
+instagram
+
+VARCHAR(128)
+
+@ do Instagram
+
+hasMenu
+
+BOOLEAN
+
+Se tem cardápio cadastrado
+
+status
+
+ENUM
+
+active, hidden, pending
+
+Domínio 3 — Avaliações
+Tabela
+
+Propósito
+
+ratings
+
+Avaliações completas (nota geral, tipo, data da visita, custos, source,
+critérios analíticos)
+
+rating_items
+
+Itens individuais avaliados (nota por item, comentário)
+
+rating_photos
+
+Fotos enviadas nas avaliações (armazenadas no S3)
+
+photo_likes
+
+Curtidas em fotos de avaliações
+
+photo_shares
+
+Compartilhamentos de fotos para grupos
+
+user_rankings
+
+Rankings pessoais (Top 10 por categoria)
+
+qr_scans
+
+Registro de scans de QR code com geolocalização
+
+Domínio 4 — Grupos e Social
+Tabela
+
+Propósito
+
+groups
+
+Grupos privados ou de influencer
+
+group_members
+
+Membros com funções (admin, member, creator, follower)
+
+group_invites
+
+Convites pendentes para grupos privados
+
+group_shared_ratings
+
+Avaliações compartilhadas dentro de grupos
+
+group_messages
+
+Chat dentro de grupos (limite 140 caracteres)
+
+group_events
+
+Eventos agendados dentro de grupos
+
+event_rsvps
+
+Confirmações de presença em eventos
+
+user_follows
+
+Relação de seguir entre usuários
+
+direct_messages
+
+Chat 1:1 entre usuários que se seguem mutuamente
+
+influencer_follows
+
+Seguidores de influenciadores
+
+Domínio 5 — Business (Estabelecimentos)
+Tabela
+
+Propósito
+
+business_claims
+
+Solicitações de donos para gerenciar um estabelecimento
+
+business_notifications
+
+Notificações para donos (nova avaliação, claim aprovado)
+
+business_broadcasts
+
+Mensagens de transmissão para seguidores (max 280
+chars)
+
+business_followers
+
+Usuários que salvaram/seguem um estabelecimento
+
+promo_codes
+
+Códigos promocionais criados por business ou influencers
+
+promo_code_uses
+
+Registro de uso de códigos promocionais
+
+Domínio 6 — Influencers e Críticos
+Tabela
+
+Propósito
+
+influencer_applications
+
+Solicitações para se tornar influencer
+
+partnerships
+
+Parcerias comerciais entre influencers e
+estabelecimentos
+
+critic_profiles
+
+Perfis de críticos gastronômicos verificados
+
+Domínio 7 — Suporte e Administração
+Tabela
+
+Propósito
+
+support_assignments
+
+Vincula estabelecimentos à carteira de um agente de suporte
+
+support_tickets
+
+Tickets de suporte com prioridade e status
+
+support_messages
+
+Chat 1:1 entre suporte e clientes
+
+integrations
+
+Tokens e configurações de integrações externas (GTM, APIs)
+
+Domínio 8 — Duplicidade e Qualidade
+Tabela
+
+Propósito
+
+duplicate_alerts
+
+Alertas de possíveis estabelecimentos duplicados
+
+5.3 Regras de Governança de Dados
+Campos obrigatórios para visibilidade: Um estabelecimento só aparece no app para os
+usuários quando possui TODOS os seguintes campos preenchidos: nome, endereço completo
+(por extenso), bairro, telefone, Instagram, horário de funcionamento, e cardápio com pelo menos
+1 item ( hasMenu = true ). Estabelecimentos que não atendem esses critérios ficam com
+status = 'pending' e são invisíveis para usuários comuns.
+Padronização de endereços: Todos os endereços devem iniciar com logradouro por extenso
+— “Rua”, “Avenida”, “Alameda”, “Travessa”, “Praça”, “Largo”, “Viela”, “Beco”, “Estrada” ou
+“Rodovia”. Abreviações como “R.”, “Av.” ou “Al.” são rejeitadas pela validação do backend.
+Complemento obrigatório para multi-inquilinos: Quando o endereço contém palavras-chave
+como “Shopping”, “Galeria”, “Food Hall”, “Mercado Municipal”, “Food Park”, “Centro Comercial”
+ou “Mall”, o campo complement passa a ser obrigatório (mínimo 2 caracteres).
+Timestamps em UTC: Todas as datas e horas são armazenadas em formato UTC como Unix
+timestamps em milissegundos. A conversão para o fuso horário local (Brasília, GMT-3) é feita
+apenas na exibição.
+Identificadores visuais (codes): Além do id interno, cada entidade possui um code legível:
+Usuários: numérico (1-200000000)
+Categorias: ca001 a ca999
+Estabelecimentos: es000001 a es999999
+Avaliações: ra000001 a ra999999
+Grupos: gr000001 a gr999999
+Itens do cardápio: mi000001 a mi999999
+
+6. Sistema de Roles e Permissões
+O Avalyarin implementa um sistema de 7 roles (funções) hierárquicas. Cada role determina o
+que o usuário pode ver e fazer no app.
+
+6.1 Diagrama de Hierarquia
+
+6.2 Tabela de Roles
+Nível
+
+Role
+
+Nome em PT
+
+Descrição
+
+Cor no App
+
+7
+
+owner
+
+Owner
+
+Proprietário do sistema. Acesso
+total + analytics globais
+
+Dourado
+
+6
+
+admin
+
+Administrador
+
+Gerencia estabelecimentos,
+usuários, aprovações
+
+Vermelho
+
+5
+
+support
+
+Suporte
+
+Atende tickets, gerencia
+
+Teal
+
+carteira de estabs, chat com
+clientes
+4
+
+business
+
+Empresarial
+
+Dono de estabelecimento.
+Gerencia seu(s) bar(es), posts,
+
+Laranja
+
+promos
+3
+
+critic
+
+Crítico
+Gastronômico
+
+Avaliações com selo de
+autenticidade e peso
+
+Azul
+Safira
+
+diferenciado
+2
+
+influencer
+
+Influencer
+
+Avaliações com destaque,
+
+Dourado
+
+parcerias, grupo de seguidores
+1
+
+user
+
+Usuário
+
+Avalia, cria grupos privados,
+segue influencers
+
+6.3 Regras de Visibilidade
+Cada role só consegue “ver” determinados outros roles no sistema:
+
+Âmbar
+
+Role do Observador
+
+Pode ver
+
+User
+
+user, influencer, critic, business
+
+Influencer
+
+user, influencer, critic, business, support
+
+Critic
+
+user, influencer, critic, business, support
+
+Business
+
+user, influencer, critic, business, support
+
+Support
+
+user, influencer, critic, business, support, admin
+
+Admin
+
+Todos
+
+Owner
+
+Todos
+
+6.4 Procedimentos de Autorização no Backend
+O backend implementa 7 níveis de procedimento que controlam o acesso a cada endpoint:
+Procedimento
+
+Quem pode acessar
+
+Uso típico
+
+publicProcedure
+
+Qualquer pessoa (mesmo sem
+login)
+
+Listagem de categorias,
+busca
+
+protectedProcedure
+
+Qualquer usuário logado
+
+Salvar avaliação, seguir
+
+businessProcedure
+
+business, admin ou owner
+
+Gerenciar estab, posts,
+promos
+
+supportProcedure
+
+support, admin ou owner
+
+Tickets, editar estabs da
+carteira
+
+criticProcedure
+
+critic, admin ou owner
+
+Painel do crítico
+
+adminProcedure
+
+admin ou owner
+
+Aprovações, gestão total
+
+ownerProcedure
+
+Apenas owner
+
+Analytics globais, gestão de
+roles
+
+6.5 Equipe Atual
+Nome
+
+Email
+
+Role
+
+Username
+
+Alan Figueredo
+
+figueredoalan@business.fb.com
+
+admin
+
+@figueredoalan
+
+Yarin Agencia
+
+yarinagencia@gmail.com
+
+owner
+
+@callforalan
+
+Rosangela
+Gonçalves
+
+rossegon@gmail.com
+
+support
+
+@gon.ro
+
+Alan Figueredo
+
+alan_1927@hotmail.com
+
+business
+
+@admin
+
+Alan Figueredo
+
+alanfm9296@gmail.com
+
+business
+
+@alan.fm
+
+Lana Dandara
+
+lanadandara@gmail.com
+
+user
+
+@lana.dandara
+
+figueredoalan
+
+figueredoalan@outpost.atmeta.com
+
+user
+
+@alan.outpost
+
+Alan Martins
+
+alan@sambaleads.com
+
+user
+
+@Alan Samba
+
+Silva Lima
+
+Leads
+cristiandosantos71
+
+cristiandosantos71@gmail.com
+
+user
+
+@jovem_mestre
+
+Denise Pelusi
+
+densehppelusi@gmail.com
+
+user
+
+@denisepelusi
+
+Arthur Muller
+
+arthurmbrazil@gmail.com
+
+user
+
+@arthurmfm
+
+7. Fluxos do Aplicativo
+7.1 Fluxo de Primeiro Acesso (Onboarding)
+
+O diagrama acima detalha o fluxo completo de primeiro acesso ao Avalyarin. As etapas são:
+Etapa 1 — Verificação de idade: O app exibe uma tela com checkbox “Tenho mais de 18
+anos”, flanqueada por imagens de restaurante diurno e bar noturno. Se o usuário for menor, é
+necessário enviar documento (RG/CPF) para aprovação do admin.
+Etapa 2 — Tela de boas-vindas: Apresenta o Avalyarin com duas opções: “Cadastre-se” (novo
+usuário → login → onboarding) e “Já Tenho Cadastro” (login → home diretamente).
+
+Etapa 3 — Autenticação OAuth: O login é feito via Manus OAuth. O usuário faz login com
+email e o sistema cria automaticamente uma conta no Avalyarin vinculada ao seu perfil.
+Etapa 4 — Pesquisa de onboarding (7 etapas): Na primeira vez, o app pergunta: data de
+nascimento (roleta dia/mês/ano), região de SP, média de consumo, categorias preferidas,
+prioridades de avaliação, frequência de visitas, e fontes de descoberta.
+Etapa 5 — Captação de geolocalização: O app solicita permissão de localização e salva as
+coordenadas no perfil do usuário para a funcionalidade “Perto de Mim”.
+Etapa 6 — Home do app: O usuário é direcionado para a Home com seções “Minhas
+Preferidas” (5 categorias da survey), “Explore outros grupos” (4 grupos com imagens), e “Veja
+todas as Categorias”.
+
+7.2 Fluxo de Avaliação
+
+O fluxo de avaliação é o core do sistema. Para avaliar, o usuário precisa atender aos critérios
+de qualificação: ter 18+ anos, nome e sobrenome preenchidos, e username definido. O
+sistema oferece dois modos de avaliação:
+Modo Direto: nota de 0 a 10 para cada item consumido
+Modo Analítico: avalia critérios específicos (atendimento, ambiente, apresentação, sabor,
+custo-benefício) e o sistema calcula a nota final com pesos dinâmicos
+Após a avaliação, o sistema classifica automaticamente o source (origem) baseado no histórico
+de QR code scan:
+
+Presencial: QR scan registrado há menos de 8 horas
+Híbrido: QR scan registrado entre 8 e 48 horas
+Remoto: sem QR scan registrado
+
+7.3 Fluxo de QR Code
+
+O diagrama de sequência acima mostra o fluxo técnico completo do scan de QR code, desde a
+abertura da câmera até o registro no banco de dados com validação de geolocalização
+(distância ≤200m do estabelecimento).
+Selo Verificado: Quando um usuário completa 3 QR scans em 3 estabelecimentos diferentes,
+recebe automaticamente o selo de verificado (critério oculto — o usuário não sabe que precisa
+de 3 scans).
+
+7.4 Fluxo do Business (Dono de Estabelecimento)
+1. O usuário com role business acessa “Meus Locais” no bottomNav
+2. Vê seus estabelecimentos vinculados com ID visível (bares são clicáveis)
+3. Pode fazer upload de logo (1:1, 500x500 WebP) e foto de capa (1200x800 WebP)
+4. Visualiza informações do estab (nome, endereço, telefone, @) em modo read-only
+5. Para alterar informações, clica em “Solicitar alteração ao suporte” que abre chat inline
+6. Pode criar posts (stories), códigos promocionais, enviar broadcasts, e ver insights
+7. Recebe notificações automáticas quando seu estabelecimento recebe uma nova avaliação
+
+7.5 Fluxo de Suporte
+1. O agente de suporte (role support ) tem uma carteira de estabelecimentos atribuídos pelo
+admin
+2. Recebe mensagens de clientes business via chat 1:1
+3. Pode criar e gerenciar tickets com prioridade (low, medium, high, urgent)
+4. Tem acesso a informações dos estabelecimentos da sua carteira para resolver solicitações
+5. Pode detectar e sinalizar duplicidade de estabelecimentos
+6. Pode editar dados dos estabelecimentos da sua carteira
+
+8. Sistema de Avaliação — Detalhamento
+8.1 Critérios de Avaliação
+O sistema utiliza critérios dinâmicos que variam conforme a categoria do estabelecimento:
+Critério
+
+Aplicável a
+
+Peso
+
+Atendimento
+
+Todas as categorias
+
+Dinâmico
+
+Ambiente
+
+Todas as categorias
+
+Dinâmico
+
+Apresentação
+
+Todas as categorias
+
+Dinâmico
+
+Sabor
+
+Todas as categorias
+
+Dinâmico
+
+Custo-
+
+Todas as categorias
+
+Dinâmico
+
+Gastrobar, Coquetelaria, Autoral, Boteco Moderno,
+
+Dinâmico
+
+benefício
+Originalidade
+
+Confeitaria, Vegan, Vegetariano
+
+8.2 Cálculo da Nota
+A nota final é calculada na escala 0 a 10:
+Modo Direto: média aritmética das notas individuais de cada item
+Modo Analítico: média ponderada dos critérios, normalizada para escala 0-10
+
+8.3 Sistema de Insígnias e Níveis
+O Avalyarin possui um sistema de gamificação com 16 níveis de progressão baseado em
+pontos:
+Pontos com peso decrescente por idade:
+Avaliações até 1 ano: peso 1.0
+Avaliações de 1 a 2 anos: peso 0.2
+Avaliações de 2 a 3 anos: peso 0.1
+Avaliações acima de 3 anos: peso 0.025
+Insígnias especiais:
+Por categoria: 52 avaliações + 15 locais diferentes em 12 meses
+Por bairro: 104 avaliações + 30 locais diferentes em 12 meses (ex: “Desbravador de
+Pinheiros”)
+Por estabelecimento: 52 avaliações em 12 meses no mesmo local
+
+8.4 Limites por Plano
+Plano
+
+Avaliações/dia
+
+Códigos Promo
+
+Free
+
+3
+
+1 ativo
+
+Premium
+
+5
+
+5 ativos
+
+Embaixador
+
+Ilimitadas
+
+Ilimitados
+
+Influencer
+
+Ilimitadas (apenas presencial)
+
+Ilimitados
+
+9. Galeria de Fotos e Interações Sociais
+9.1 Visão Geral
+A galeria de fotos é um sistema social integrado que permite aos usuários visualizar, curtir e
+compartilhar fotos de avaliações. O sistema opera em três contextos: perfil pessoal
+(MinhasAvaliacoes), perfil público (PublicProfilePage) e página do estabelecimento
+(AvalyarinReviews).
+
+9.2 Mockup — Grid de Fotos (4:5)
+
+O grid exibe fotos em proporção 4:5 com 2 colunas no mobile e 3 no desktop. Quando uma
+avaliação não possui foto, o grid mostra o logo do estabelecimento como fallback.
+
+9.3 Mockup — Foto Expandida (9:16)
+
+Ao clicar numa foto do grid, ela expande para tela cheia em proporção 9:16, exibindo:
+comentário do usuário, nome do bar, nota, data, itens tagueados, e botões de interação (curtir,
+compartilhar, salvar).
+
+9.4 Mockup — Compartilhar para Grupos
+
+O modal de compartilhamento exibe os grupos do usuário com contagem de membros e permite
+adicionar um comentário antes de compartilhar.
+
+9.5 Endpoints da Galeria
+Endpoint
+
+Tipo
+
+Descrição
+
+gallery.myGallery
+
+protectedProcedure
+
+Fotos do próprio usuário (aba
+Galeria)
+
+gallery.userGallery
+
+publicProcedure
+
+Fotos de qualquer usuário (perfil
+público)
+
+gallery.toggleLike
+
+protectedProcedure
+
+Curtir/descurtir uma foto
+
+gallery.likesBatch
+
+publicProcedure
+
+Verificar curtidas em lote (batch)
+
+gallery.shareToGroup
+
+protectedProcedure
+
+Compartilhar foto para um grupo
+
+10. Sistema de Detecção de Duplicidade
+10.1 Objetivo
+O sistema de detecção de duplicidade previne que o mesmo estabelecimento seja cadastrado
+mais de uma vez no banco de dados, especialmente em cenários de substituição (quando um
+bar fecha e outro abre no mesmo endereço).
+
+10.2 Regras de Detecção
+Critério
+
+Tipo de Alerta
+
+Ação
+
+Mesmo telefone (últimos 8 dígitos)
+
+Possível duplicata
+
+Alerta para
+revisão
+
+Mesmo endereço exato
+
+Possível duplicata
+
+Alerta para
+revisão
+
+Mesmo telefone + mesmo endereço +
+
+Forte indício de
+
+nome diferente
+
+substituição
+
+Alerta prioritário
+
+10.3 Fluxo de Resolução
+1. Detecção automática: ao cadastrar um novo estabelecimento, o sistema verifica
+automaticamente se já existe outro com mesmo telefone ou endereço
+2. Sinalização manual: agentes de suporte podem sinalizar duplicidade manualmente via
+support.flagDuplicate
+
+3. Revisão pelo admin: alertas pendentes aparecem na aba “Duplicidade” do AdminPanel
+4. Resolução: admin aprova (desativa o estabelecimento antigo) ou rejeita (descarta o alerta)
+
+10.4 Endpoints de Duplicidade
+Endpoint
+
+Tipo
+
+Descrição
+
+admin.duplicateAlerts
+
+adminProcedure
+
+Lista alertas pendentes
+
+admin.reviewDuplicate
+
+adminProcedure
+
+Aprova ou rejeita alerta
+
+support.flagDuplicate
+
+supportProcedure
+
+Sinaliza duplicidade
+manualmente
+
+support.detectDuplicates
+
+supportProcedure
+
+Busca possíveis duplicatas de um
+estab
+
+10.5 Validação de Complemento
+Para endereços em locais multi-inquilino (shoppings, galerias, food halls), o campo
+complement é obrigatório. As palavras-chave que ativam essa validação são:
+
+Shopping, Galeria, Food Hall, Mercado Municipal, Food Park, Centro Comercial, Mall
+Exemplo válido de complemento: “Loja 42”, “Piso 2, Box 15”, “Praça de Alimentação”
+
+11. Integrações Externas
+11.1 Manus OAuth
+O Avalyarin utiliza o Manus OAuth como provedor único de autenticação. O fluxo é:
+1. Usuário clica em “Entrar” no app
+
+2. É redirecionado ao portal Manus OAuth ( VITE_OAUTH_PORTAL_URL )
+3. Faz login com email (Google, Facebook, etc.)
+4. Manus OAuth retorna um código de autorização
+5. Backend troca o código por um token de sessão
+6. Sessão é armazenada em cookie HttpOnly com JWT assinado
+Vantagem: O Avalyarin nunca vê a senha do usuário nem o token bruto do provedor.
+Limitação: Se o serviço Manus ficar indisponível, nenhum usuário consegue fazer login.
+
+11.2 Google Tag Manager (GTM)
+O GTM está integrado para rastreamento de analytics. O container ID é configurado via tabela
+integrations no banco de dados, permitindo que o admin altere sem necessidade de
+deploy.
+Eventos rastreados:
+Pageviews (todas as páginas)
+Avaliações concluídas
+QR scans realizados
+Cadastros de novos usuários
+
+11.3 Connect Yarin (Link Bio)
+Integração planejada com o sistema Connect Yarin da agência para funcionar como link bio dos
+influenciadores. Atualmente aguardando token e endpoints da API.
+
+11.4 Whisper (Transcrição de Áudio)
+O sistema possui integração com a API Whisper para transcrição de áudio, permitindo que
+usuários gravem avaliações por voz que são automaticamente convertidas em texto.
+Limitações:
+Tamanho máximo: 16MB por arquivo
+Formatos suportados: webm, mp3, wav, ogg, m4a
+Idioma principal: Português (BR)
+
+11.5 LLM (Inteligência Artificial)
+O backend possui acesso a um modelo de linguagem (LLM) para funcionalidades como:
+
+Geração de descrições automáticas de estabelecimentos
+Análise de sentimento em avaliações
+Sugestões de categorização de itens do cardápio
+
+11.6 Sharp (Processamento de Imagens)
+Todas as imagens enviadas ao sistema passam por processamento automático:
+Tipo
+
+Dimensão Final
+
+Formato
+
+Qualidade
+
+Logo do estabelecimento
+
+500x500
+
+WebP
+
+85%
+
+Foto de capa
+
+1200x800
+
+WebP
+
+85%
+
+Foto de avaliação
+
+1200x1600
+
+WebP
+
+80%
+
+Thumbnail
+
+400x400
+
+WebP
+
+70%
+
+Foto de cardápio
+
+800x800
+
+WebP
+
+80%
+
+12. Segurança e Autenticação
+12.1 Diagrama de Segurança
+
+O diagrama acima ilustra a arquitetura de segurança em camadas: o frontend se comunica via
+HTTPS com cookies HttpOnly, o backend valida cada requisição através de 7 níveis de
+
+procedimento (publicProcedure até ownerProcedure), e os dados são armazenados com
+criptografia em trânsito (TLS).
+
+12.2 Camadas de Proteção
+Camada
+
+Mecanismo
+
+Descrição
+
+Transporte
+
+HTTPS/TLS
+
+Toda comunicação é criptografada em trânsito
+
+Sessão
+
+JWT + Cookie
+HttpOnly
+
+Token não acessível por JavaScript malicioso
+
+Cookie
+
+SameSite=Lax
+
+Proteção contra CSRF (Cross-Site Request
+Forgery)
+
+Autorização
+
+Middleware tRPC
+
+Cada endpoint verifica role antes de executar
+
+Validação
+
+Zod schemas
+
+Todos os inputs são validados antes de processar
+
+Banco
+
+SSL obrigatório
+
+Conexão ao TiDB sempre via SSL
+
+Storage
+
+Presigned URLs
+
+Acesso a arquivos no S3 com URLs temporárias
+assinadas
+
+12.3 Proteções Específicas
+Rate Limiting: Endpoints sensíveis possuem limitação de taxa para prevenir abuso.
+Validação de Geolocalização: O scan de QR code valida que o usuário está a no máximo 200
+metros do estabelecimento, prevenindo scans fraudulentos.
+Verificação de Idade: Menores de 18 anos precisam enviar documento para aprovação manual
+do admin. O documento é armazenado no S3 com acesso restrito.
+Dados Sensíveis: Emails e dados pessoais são armazenados no banco com acesso restrito
+por role. Apenas admin e owner podem ver emails de outros usuários.
+
+12.4 LGPD — Considerações
+O sistema atualmente opera com as seguintes medidas de conformidade parcial com a LGPD:
+Consentimento implícito via aceite dos termos no cadastro
+Dados mínimos coletados (apenas o necessário para funcionamento)
+Conexões criptografadas (TLS) em todas as camadas
+
+Acesso restrito por role a dados pessoais
+Pendências para conformidade total:
+Implementar hash de PII (dados pessoais identificáveis) em tabelas de auditoria
+Modal de consentimento LGPD explícito antes do cadastro
+Endpoint de “direito ao esquecimento” (deletar todos os dados de um usuário)
+Relatório de impacto à proteção de dados
+
+13. Armazenamento de Arquivos
+13.1 Fluxo de Upload
+1. Frontend captura o arquivo (foto, documento)
+2. Frontend envia para o backend via POST multipart
+3. Backend processa a imagem com Sharp (redimensiona, converte para WebP)
+4. Backend solicita URL presigned ao S3 via Forge API
+5. Backend faz upload do arquivo processado para o S3
+6. Backend salva a URL ( /manus-storage/{key} ) no banco de dados
+7. Frontend exibe a imagem usando a URL salva
+
+13.2 Tipos de Arquivo Armazenados
+Tipo
+
+Origem
+
+Processamento
+
+Foto de avaliação
+
+Usuário
+
+Resize 1200x1600, WebP 80%
+
+(câmera/galeria)
+Logo do
+
+Business/Admin
+
+Resize 500x500, WebP 85%
+
+Foto de capa
+
+Business/Admin
+
+Resize 1200x800, WebP 85%
+
+Foto de cardápio
+
+Admin/Support
+
+Resize 800x800, WebP 80%
+
+Documento de idade
+
+Usuário menor de 18
+
+Sem processamento (original)
+
+Foto de perfil
+
+OAuth provider
+
+Não armazenado localmente (URL
+externa)
+
+estabelecimento
+
+13.3 Política de Retenção
+Atualmente, todos os arquivos são mantidos indefinidamente no S3. Não há política de exclusão
+automática implementada.
+
+14. Planos e Monetização
+14.1 Planos de Usuário
+Plano
+
+Preço
+
+Avaliações/dia
+
+Grupos
+
+Promos
+
+Extras
+
+Free
+
+R$ 0
+
+3
+
+Ilimitados
+
+1 ativo
+
+Funcionalidades
+básicas
+
+Premium
+
+R$
+
+5
+
+Ilimitados
+
+5 ativos
+
+14,90/mês
+
+Ranking
+detalhado,
+filtros
+avançados
+
+Embaixador
+
+R$
+
+Ilimitadas
+
+Ilimitados
+
+Ilimitados
+
+29,90/mês
+
+Selo
+embaixador,
+prioridade no
+suporte
+
+14.2 Planos de Estabelecimento (Business)
+Plano
+
+Preço
+
+Benefícios
+
+Básico
+
+R$ 0
+
+Visualizar avaliações, responder, perfil básico
+
+Profissional
+
+R$ 49,90/mês
+
+Posts no feed, códigos promo, insights básicos
+
+Premium
+
+R$ 99,90/mês
+
+Insights avançados, broadcasts, destaque na busca
+
+14.3 Monetização Adicional
+Parcerias influencer-business: comissão sobre contratos de parceria
+Destaque pago: estabelecimentos podem pagar para aparecer na seção “Destaques”
+Dados agregados: relatórios de mercado para consultorias e investidores (futuro)
+
+15. Estrutura de Navegação por Role
+15.1 Bottom Navigation (Mobile)
+Posição
+
+User
+
+Influencer
+
+Critic
+
+Business
+
+1
+
+Home
+
+Home
+
+Home
+
+Home
+
+2
+
+Busca
+
+Busca
+
+Busca
+
+Busca
+
+3
+
+Scan QR
+
+Scan QR
+
+Scan QR
+
+Meus Locais
+
+4
+
+Destaques
+
+Destaques
+
+Destaques
+
+Destaques
+
+5
+
+Perfil
+
+Perfil
+
+Perfil
+
+Perfil
+
+15.2 Menu Lateral (AppMenu)
+O menu lateral é acessível pelo ícone de hambúrguer no header e contém:
+Seção Conta: Meus Dados, Meu Usuário, Contas Conectadas, Planos
+Seção Avaliações: Minhas Avaliações (com sub-abas: Avaliações, Locais Visitados, Galeria,
+Ranking)
+Seção Salvos: Meus Locais (favoritos), Influencers Favoritos, Listas Collab
+Seção Grupos: Meus Grupos, Mensagens Diretas
+Seção Extras: Notificações, Insígnias, Perto de Mim
+
+15.3 Rotas do Sistema
+Rota
+
+Componente
+
+Acesso
+
+/
+
+Home
+
+Público
+
+/categoria/:id
+
+CategoryPage
+
+Público
+
+/estabelecimento/:id
+
+EstablishmentPage
+
+Público
+
+/avaliar/:establishmentId
+
+RatingPage
+
+Logado + Qualificado
+
+/scan
+
+QRScannerPage
+
+Logado
+
+/e/:slug
+
+QRScanPage (landing)
+
+Público
+
+/minhas-avaliacoes
+
+MinhasAvaliacoes
+
+Logado
+
+/minhas-avaliacoes/:tab
+
+MinhasAvaliacoes (sub-aba)
+
+Logado
+
+/salvos/locais
+
+MeusLocais
+
+Logado
+
+/salvos/influencers
+
+InfluencersFavoritos
+
+Logado
+
+/salvos/collab
+
+ListasCollab
+
+Logado
+
+/grupos
+
+GruposPage
+
+Logado
+
+/mensagens
+
+MensagensPage
+
+Logado
+
+/perfil/:username
+
+PublicProfilePage
+
+Público
+
+/perfil
+
+RoleBasedProfile
+
+Logado
+
+/insignias
+
+BadgesPage
+
+Logado
+
+/notificacoes
+
+NotificacoesPage
+
+Logado
+
+/busca
+
+SearchResults
+
+Público
+
+/perto-de-mim
+
+NearbyPage
+
+Logado + GPS
+
+/destaques
+
+DestaquesPage
+
+Público
+
+/painel-empresarial
+
+BusinessPanel
+
+Business
+
+Rota
+
+Componente
+
+Acesso
+
+/painel-influencer
+
+InfluencerPanel
+
+Influencer
+
+/painel-critico
+
+CriticPanel
+
+Critic
+
+/admin
+
+AdminPanel
+
+Admin/Owner
+
+/owner
+
+OwnerPanel
+
+Owner
+
+/owner/sistema
+
+SystemPanel
+
+Owner
+
+16. Fases Implementadas — Histórico Completo
+O desenvolvimento do Avalyarin foi organizado em 16 fases, todas concluídas com sucesso:
+
+Fase 1 — Fundação e Design System
+Definição do design “Neon Urbano” com paleta âmbar/dourado sobre fundo escuro, tipografia
+Bebas Neue + Inter + JetBrains Mono, e implementação do tema base com Tailwind CSS 4.
+
+Fase 2 — Categorias e Estabelecimentos
+Implementação das 20 categorias gastronômicas, grid de navegação, página de categoria com
+filtros, e página individual de estabelecimento com cardápio interativo.
+
+Fase 3 — Sistema de Avaliação
+Motor de avaliação com modo Direto e Analítico, cálculo de nota com pesos dinâmicos, upload
+de fotos, registro de custos, e classificação automática de source (presencial/híbrido/remoto).
+
+Fase 4 — Autenticação e Perfis
+Integração com Manus OAuth, sistema de roles, perfis de usuário com username, onboarding
+survey de 7 etapas, e age gate com verificação de documento.
+
+Fase 5 — Grupos e Comunidade
+Grupos privados com convites, grupo de seguidores de influencer, eventos com RSVP,
+compartilhamento de avaliações, e chat em grupo (140 caracteres).
+
+Fase 6 — Business Panel
+Painel para donos de estabelecimentos com gestão de estabs, posts efêmeros, códigos
+promocionais, insights de avaliações, e notificações automáticas.
+
+Fase 7 — QR Code e Verificação Presencial
+Scanner de QR code com câmera, validação de geolocalização (≤200m), registro de scans,
+classificação de source, e selo de verificado (3 scans).
+
+Fase 8 — Insígnias e Gamificação
+Sistema de 16 níveis com pontos decrescentes por idade, insígnias por
+categoria/bairro/estabelecimento, e ranking pessoal com histórico.
+
+Fase 9 — Admin Panel
+Painel administrativo completo com gestão de usuários, estabelecimentos, aprovações de
+claims, analytics, gestão de equipe, e configurações do sistema.
+
+Fase 10 — Influencer e Critic
+Painel de influencer com parcerias, grupo de seguidores, e métricas. Painel de crítico com selo
+azul safira e avaliações com peso diferenciado.
+
+Fase 11 — Cardápio Interativo e Sub-aba Avaliações
+Cardápio com categorias reordenáveis (drag & drop), fotos e thumbnails por item, preços, e subaba “Avaliações” na página do estabelecimento com cards visuais e filtro por item.
+
+Fase 12 — Chat e Compartilhamento
+Chat em grupos (140 chars), chat support 1:1, lista de transmissão business, compartilhar para
+grupos + Web Share API, seguir users + chat 1:1 mútuo, e mensagens diretas.
+
+Fase 13 — Ajustes Business Panel
+Bares clicáveis, campos read-only com solicitação ao suporte via chat inline, renomeação de
+“Meu Bar” para “Meus Locais”, e vinculação automática de suporte.
+
+Fase 14 — Feed de Fotos (Galeria)
+Componentes PhotoGrid (4:5) e PhotoExpanded (9:16), sistema de curtidas e compartilhamento
+de fotos, integração em MinhasAvaliacoes, PublicProfilePage e AvalyarinReviews.
+
+Fase 15 — Ajustes Galeria + Logo
+Logo 1:1 na página do estab, fallback para logo quando avaliação não tem foto, endpoints de
+upload de logo (500x500) e capa (1200x800), e correção do bug “O” isolado.
+
+Fase 16 — Detecção de Duplicidade
+Tabela duplicate_alerts, detecção automática por telefone/endereço, sinalização manual pelo
+suporte, revisão pelo admin, e validação de complemento obrigatório para multi-inquilinos.
+
+17. Glossário Técnico
+Termo
+
+Significado
+
+API
+
+Application Programming Interface — interface que permite que
+sistemas conversem entre si
+
+Backend
+
+Parte do sistema que roda no servidor (invisível ao usuário)
+
+Cookie
+
+Arquivo de sessão que o navegador armazena mas JavaScript não
+
+HttpOnly
+
+consegue ler
+
+CRUD
+
+Create, Read, Update, Delete — as 4 operações básicas de dados
+
+Deploy
+
+Processo de colocar o código em produção (disponível para usuários)
+
+Endpoint
+
+URL específica que o backend disponibiliza para receber requisições
+
+Frontend
+
+Parte do sistema que o usuário vê e interage (interface visual)
+
+JWT
+
+JSON Web Token — formato de token criptografado para sessões
+
+LGPD
+
+Lei Geral de Proteção de Dados — lei brasileira de privacidade
+
+Middleware
+
+Código que executa entre a requisição e a resposta (validação, auth)
+
+OAuth
+
+Protocolo de autenticação que permite login via terceiros (Google, etc.)
+
+ORM
+
+Object-Relational Mapping — traduz código para comandos de banco
+
+PII
+
+Personally Identifiable Information — dados que identificam uma
+pessoa
+
+Presigned URL
+
+URL temporária com permissão de acesso a um arquivo no S3
+
+PWA
+
+Progressive Web App — site que funciona como app nativo
+
+Role
+
+Função/papel de um usuário no sistema (admin, user, business, etc.)
+
+S3
+
+Simple Storage Service — serviço de armazenamento de arquivos da
+AWS
+
+Schema
+
+Estrutura/definição das tabelas e campos do banco de dados
+
+Slug
+
+Versão URL-friendly de um nome (ex: “samba-burguer”)
+
+Termo
+
+Significado
+
+SSL/TLS
+
+Protocolos de criptografia para comunicação segura na internet
+
+tRPC
+
+TypeScript Remote Procedure Call — comunicação tipada entre
+frontend e backend
+
+WebP
+
+Formato de imagem moderno do Google, menor que JPEG com mesma
+qualidade
+
+18. Referências
+Manus Platform Documentation — Documentação oficial da plataforma de hospedagem
+tRPC Documentation — Documentação do framework de comunicação tipada
+Drizzle ORM — Documentação do ORM utilizado
+TiDB Cloud — Banco de dados distribuído compatível com MySQL
+React 19 — Biblioteca de interface do Facebook/Meta
+Tailwind CSS 4 — Framework de estilização utility-first
+Sharp — Biblioteca de processamento de imagens
+LGPD — Lei 13.709⁄2018 — Lei Geral de Proteção de Dados Pessoais
+Documento gerado em 22 de Junho de 2026. Versão 2.0 — atualizado com todas as 16 fases
+implementadas.
+
+

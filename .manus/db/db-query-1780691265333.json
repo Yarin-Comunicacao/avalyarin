@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_ativos,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN neighborhood IS NULL OR neighborhood = '' THEN 1 ELSE 0 END) as sem_bairro\nFROM establishments WHERE status = 'active';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  COUNT(*) as total_ativos,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN neighborhood IS NULL OR neighborhood = '' THEN 1 ELSE 0 END) as sem_bairro\nFROM establishments WHERE status = 'active';",
+  "rows": [
+    {
+      "total_ativos": "188",
+      "com_bairro": "188",
+      "sem_bairro": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_ativos\tcom_bairro\tsem_bairro\n188\t188\t0\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

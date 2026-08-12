@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, name, instagram, image, categoryId \nFROM establishments \nWHERE instagram IS NOT NULL AND instagram != '' \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, instagram, image, categoryId \nFROM establishments \nWHERE instagram IS NOT NULL AND instagram != '' \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "2",
+      "name": "Dona Deôla - Lapa",
+      "instagram": "@donadeola",
+      "image": "https://www.baressp.com.br/bares/fotos/bbd_570_Dona_Deola_Lapa_BaresSP_2.jpg",
+      "categoryId": "9"
+    },
+    {
+      "id": "7",
+      "name": "Santa Etienne",
+      "instagram": "@santaetienne",
+      "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/UdpeOPcQbrcvtUns.jpeg",
+      "categoryId": "9"
+    },
+    {
+      "id": "22",
+      "name": "Boteco da Dona Tati",
+      "instagram": "@botecodadonatati",
+      "image": "/manus-storage/ig-botecodadonatati-22_eefaab7d.jpg",
+      "categoryId": "4"
+    },
+    {
+      "id": "328",
+      "name": "Boteco São Bento Itaim Bibi",
+      "instagram": "@boteco_saobento",
+      "image": "https://www.baressp.com.br/bares/imagens/redimensionar/570/300/1/20160225_161156_79511.jpg",
+      "categoryId": "4"
+    },
+    {
+      "id": "346",
+      "name": "Z Deli Sandwich Shop",
+      "instagram": "@zdelirestaurante",
+      "image": "https://media-cdn.tripadvisor.com/media/photo-s/16/61/5c/d4/z-deli-sandwich-shop.jpg",
+      "categoryId": "16"
+    },
+    {
+      "id": "567",
+      "name": "Osteria Generale - Jardim Paulista",
+      "instagram": "@osteriagenerale",
+      "image": "https://media-cdn.tripadvisor.com/media/photo-s/0f/99/31/df/cardapio.jpg",
+      "categoryId": "17"
+    },
+    {
+      "id": "648",
+      "name": "Black Dog Paulista",
+      "instagram": "@blackdog_rede",
+      "image": "/manus-storage/ig-blackdog_rede-648_d6985a7c.jpg",
+      "categoryId": "2"
+    },
+    {
+      "id": "649",
+      "name": "Eu, tu, eles",
+      "instagram": "@eutueles.bar",
+      "image": "https://media-cdn.tripadvisor.com/media/photo-s/09/5f/d9/6e/eu-tu-eles.jpg",
+      "categoryId": "1"
+    },
+    {
+      "id": "653",
+      "name": "Prainha Paulista",
+      "instagram": "@barprainhapaulista",
+      "image": "https://www.baressp.com.br/bares/fotos/prainha_paulista_2015_baressp.jpg",
+      "categoryId": "1"
+    },
+    {
+      "id": "659",
+      "name": "Botanikafé Jardins",
+      "instagram": "@botanikafe",
+      "image": "https://media-cdn.tripadvisor.com/media/photo-o/1a/f8/8b/b3/photo0-para-um-brunch-delicioso.jpg",
+      "categoryId": "8"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tinstagram\timage\tcategoryId\n2\tDona Deôla - Lapa\t@donadeola\thttps://www.baressp.com.br/bares/fotos/bbd_570_Dona_Deola_Lapa_BaresSP_2.jpg\t9\n7\tSanta Etienne\t@santaetienne\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/UdpeOPcQbrcvtUns.jpeg\t9\n22\tBoteco da Dona Tati\t@botecodadonatati\t/manus-storage/ig-botecodadonatati-22_eefaab7d.jpg\t4\n328\tBoteco São Bento Itaim Bibi\t@boteco_saobento\thttps://www.baressp.com.br/bares/imagens/redimensionar/570/300/1/20160225_161156_79511.jpg\t4\n346\tZ Deli Sandwich Shop\t@zdelirestaurante\thttps://media-cdn.tripadvisor.com/media/photo-s/16/61/5c/d4/z-deli-sandwich-shop.jpg\t16\n567\tOsteria Generale - Jardim Paulista\t@osteriagenerale\thttps://media-cdn.tripadvisor.com/media/photo-s/0f/99/31/df/cardapio.jpg\t17\n648\tBlack Dog Paulista\t@blackdog_rede\t/manus-storage/ig-blackdog_rede-648_d6985a7c.jpg\t2\n649\tEu, tu, eles\t@eutueles.bar\thttps://media-cdn.tripadvisor.com/media/photo-s/09/5f/d9/6e/eu-tu-eles.jpg\t1\n653\tPrainha Paulista\t@barprainhapaulista\thttps://www.baressp.com.br/bares/fotos/prainha_paulista_2015_baressp.jpg\t1\n659\tBotanikafé Jardins\t@botanikafe\thttps://media-cdn.tripadvisor.com/media/photo-o/1a/f8/8b/b3/photo0-para-um-brunch-delicioso.jpg\t8\n",
+  "stderr": "",
+  "execution_time_ms": 169
+}

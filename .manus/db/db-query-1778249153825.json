@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments \nSET categoryId = 11 \nWHERE categoryId NOT IN (11, 8) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%confeitaria%' OR name LIKE '%Confeitaria%'\n    OR name LIKE '%brigadeiro%' OR name LIKE '%Brigadeiro%'\n    OR name LIKE '%cake%' OR name LIKE '%Cake%' OR name LIKE '%CAKE%'\n    OR name LIKE '%patisserie%' OR name LIKE '%Patisserie%' OR name LIKE '%Pâtisserie%'\n    OR name LIKE '%brownie%' OR name LIKE '%Brownie%'\n    OR name LIKE '%cupcake%' OR name LIKE '%Cupcake%'\n    OR name LIKE '%doceria%' OR name LIKE '%Doceria%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments \nSET categoryId = 11 \nWHERE categoryId NOT IN (11, 8) \n  AND source = 'spreadsheet'\n  AND (name LIKE '%confeitaria%' OR name LIKE '%Confeitaria%'\n    OR name LIKE '%brigadeiro%' OR name LIKE '%Brigadeiro%'\n    OR name LIKE '%cake%' OR name LIKE '%Cake%' OR name LIKE '%CAKE%'\n    OR name LIKE '%patisserie%' OR name LIKE '%Patisserie%' OR name LIKE '%Pâtisserie%'\n    OR name LIKE '%brownie%' OR name LIKE '%Brownie%'\n    OR name LIKE '%cupcake%' OR name LIKE '%Cupcake%'\n    OR name LIKE '%doceria%' OR name LIKE '%Doceria%');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 307
+}

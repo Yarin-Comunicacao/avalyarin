@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, categoryId FROM establishments WHERE name LIKE '%Black Dog%' OR name LIKE '%Pastel da Pra%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, categoryId FROM establishments WHERE name LIKE '%Black Dog%' OR name LIKE '%Pastel da Pra%';",
+  "rows": [
+    {
+      "id": "648",
+      "name": "Black Dog Paulista",
+      "categoryId": "2"
+    },
+    {
+      "id": "4117",
+      "name": "Pastel da Praça",
+      "categoryId": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcategoryId\n648\tBlack Dog Paulista\t2\n4117\tPastel da Praça\t2\n",
+  "stderr": "",
+  "execution_time_ms": 271
+}

@@ -1,0 +1,19 @@
+{
+  "query": "SELECT COUNT(*) as ativos_com_endereco_invalido FROM establishments WHERE status = 'active' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\nSELECT COUNT(*) as ativos_total FROM establishments WHERE status = 'active';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as ativos_com_endereco_invalido FROM establishments WHERE status = 'active' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\nSELECT COUNT(*) as ativos_total FROM establishments WHERE status = 'active';",
+  "rows": [
+    {
+      "ativos_com_endereco_invalido": "0"
+    },
+    {
+      "ativos_com_endereco_invalido": "ativos_total"
+    },
+    {
+      "ativos_com_endereco_invalido": "189"
+    }
+  ],
+  "messages": [],
+  "stdout": "ativos_com_endereco_invalido\n0\nativos_total\n189\n",
+  "stderr": "",
+  "execution_time_ms": 277
+}

@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_pendentes,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' THEN 1 ELSE 0 END) as com_endereco,\n  SUM(CASE WHEN address IS NULL OR address = '' THEN 1 ELSE 0 END) as sem_endereco,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN hours IS NOT NULL AND hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN hasMenu = 1 THEN 1 ELSE 0 END) as com_cardapio\nFROM establishments \nWHERE status = 'pending';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  COUNT(*) as total_pendentes,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' THEN 1 ELSE 0 END) as com_endereco,\n  SUM(CASE WHEN address IS NULL OR address = '' THEN 1 ELSE 0 END) as sem_endereco,\n  SUM(CASE WHEN addressNumber IS NOT NULL AND addressNumber != '' THEN 1 ELSE 0 END) as com_numero,\n  SUM(CASE WHEN complement IS NOT NULL AND complement != '' THEN 1 ELSE 0 END) as com_complemento,\n  SUM(CASE WHEN description IS NOT NULL AND description != '' THEN 1 ELSE 0 END) as com_descricao,\n  SUM(CASE WHEN neighborhood IS NOT NULL AND neighborhood != '' THEN 1 ELSE 0 END) as com_bairro,\n  SUM(CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 ELSE 0 END) as com_telefone,\n  SUM(CASE WHEN hours IS NOT NULL AND hours != '' THEN 1 ELSE 0 END) as com_horario,\n  SUM(CASE WHEN hasMenu = 1 THEN 1 ELSE 0 END) as com_cardapio\nFROM establishments \nWHERE status = 'pending';\n",
+  "rows": [
+    {
+      "total_pendentes": "7282",
+      "com_endereco": "7277",
+      "sem_endereco": "5",
+      "com_numero": "7031",
+      "com_complemento": "385",
+      "com_descricao": "84",
+      "com_bairro": "7282",
+      "com_telefone": "5867",
+      "com_horario": "6541",
+      "com_cardapio": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_pendentes\tcom_endereco\tsem_endereco\tcom_numero\tcom_complemento\tcom_descricao\tcom_bairro\tcom_telefone\tcom_horario\tcom_cardapio\n7282\t7277\t5\t7031\t385\t84\t7282\t5867\t6541\t0\n",
+  "stderr": "",
+  "execution_time_ms": 337
+}

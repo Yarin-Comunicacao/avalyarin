@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE categoryId = 11 AND name LIKE '%Luiza%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE categoryId = 11 AND name LIKE '%Luiza%';",
+  "rows": [
+    {
+      "id": "6483",
+      "name": "Luiza Lafer Confeitaria",
+      "neighborhood": "Pinheiros"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n6483\tLuiza Lafer Confeitaria\tPinheiros\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}

@@ -1,0 +1,190 @@
+{
+  "query": "SELECT e.name FROM establishments e WHERE e.categoryId = (SELECT id FROM categories WHERE slug = 'saudavel') ORDER BY e.name LIMIT 60;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name FROM establishments e WHERE e.categoryId = (SELECT id FROM categories WHERE slug = 'saudavel') ORDER BY e.name LIMIT 60;",
+  "rows": [
+    {
+      "name": "Acaí com Morango"
+    },
+    {
+      "name": "Açai Nattus"
+    },
+    {
+      "name": "Açai da Regis - Ipiranga"
+    },
+    {
+      "name": "Açaí 169"
+    },
+    {
+      "name": "Açaí Beach Reggae Bar"
+    },
+    {
+      "name": "Açaí Botanic Vila Mariana"
+    },
+    {
+      "name": "Açaí Dona Carmen"
+    },
+    {
+      "name": "Açaí Formosa"
+    },
+    {
+      "name": "Açaí Formosa Ipiranga"
+    },
+    {
+      "name": "Açaí Juventus - Ipiranga - VilaMariana - zona Sul"
+    },
+    {
+      "name": "Açaí Mix"
+    },
+    {
+      "name": "Açaí Pinheiros"
+    },
+    {
+      "name": "Açaí Roots Perdizes"
+    },
+    {
+      "name": "Açaí Surf e Comida Saudável - Itaim Bibi"
+    },
+    {
+      "name": "Açaí Surf e Comida Saudável - Perdizes"
+    },
+    {
+      "name": "Açaí com Cambuci"
+    },
+    {
+      "name": "Açaí da Barra - Cambuci"
+    },
+    {
+      "name": "Açaí da Barra - Praça da Árvore"
+    },
+    {
+      "name": "Açaí da Bia"
+    },
+    {
+      "name": "Açaí do Jotinha"
+    },
+    {
+      "name": "Açaí do Molina"
+    },
+    {
+      "name": "Açaí do Museu do Ipiranga"
+    },
+    {
+      "name": "Açaí express"
+    },
+    {
+      "name": "Açaíteria Ipiranga"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Poke, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sandubas, Sucos e Sobremesas"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "name": "BOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Pokes, Bowls, Burritos, Sanduíches, Sucos e Sobremesas"
+    },
+    {
+      "name": "BUUMBOX AÇAI"
+    },
+    {
+      "name": "Babilônia Vegan"
+    },
+    {
+      "name": "Baby Fruta"
+    },
+    {
+      "name": "Baita Juice Café"
+    },
+    {
+      "name": "Bar e Restaurante Do Açaí"
+    },
+    {
+      "name": "Bela Binna Café e Açaí"
+    },
+    {
+      "name": "Bobó Empório Vegano"
+    },
+    {
+      "name": "Bom Bowls Moema"
+    },
+    {
+      "name": "Brazilian Nuts - Açaí bowls, sucos e smoothies- Vila Madalena, São Paulo"
+    },
+    {
+      "name": "CJ Açaí&Tapioca"
+    },
+    {
+      "name": "Capricho Fit - Refeição Saudável"
+    },
+    {
+      "name": "Casa Fit Restaurante e Lanchonete"
+    },
+    {
+      "name": "Casa de Suco Água na boca"
+    },
+    {
+      "name": "Centro do Açaí"
+    },
+    {
+      "name": "Chef Natural Delivery Vegano"
+    },
+    {
+      "name": "Chico Mate e Açaí"
+    },
+    {
+      "name": "Cia das frutas"
+    },
+    {
+      "name": "Clean foods Moema"
+    },
+    {
+      "name": "Comendo Saudavel"
+    },
+    {
+      "name": "Conito Doces Veganos"
+    },
+    {
+      "name": "Cri Cri Cru Restaurante Vegano | Pinheiros SP"
+    },
+    {
+      "name": "Cumbuca Superfoods - Vegano"
+    },
+    {
+      "name": "Curry Natural | Indiano Vegano"
+    },
+    {
+      "name": "DaSelva Vila Nova Conceição"
+    },
+    {
+      "name": "Dale Wrap - Pinheiros"
+    },
+    {
+      "name": "Deli Freshie LivLight"
+    },
+    {
+      "name": "Delicia Da Fruta Sucos"
+    },
+    {
+      "name": "Delícia Natural Barbosa"
+    },
+    {
+      "name": "Dieta food flex"
+    },
+    {
+      "name": "Dodeco Comércio de Sucos"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\nAcaí com Morango\nAçai Nattus\nAçai da Regis - Ipiranga\nAçaí 169\nAçaí Beach Reggae Bar\nAçaí Botanic Vila Mariana\nAçaí Dona Carmen\nAçaí Formosa\nAçaí Formosa Ipiranga\nAçaí Juventus - Ipiranga - VilaMariana - zona Sul\nAçaí Mix\nAçaí Pinheiros\nAçaí Roots Perdizes\nAçaí Surf e Comida Saudável - Itaim Bibi\nAçaí Surf e Comida Saudável - Perdizes\nAçaí com Cambuci\nAçaí da Barra - Cambuci\nAçaí da Barra - Praça da Árvore\nAçaí da Bia\nAçaí do Jotinha\nAçaí do Molina\nAçaí do Museu do Ipiranga\nAçaí express\nAçaíteria Ipiranga\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Burritos, Sanduíches, Sucos e Sobremesas\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Poke, Burritos, Sanduíches, Sucos e Sobremesas\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sandubas, Sucos e Sobremesas\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Bowls, Pokes, Burritos, Sanduíches, Sucos e Sobremesas\nBOALI - Alimentação Saudável - Restaurante de Saladas, Wraps, Pokes, Bowls, Burritos, Sanduíches, Sucos e Sobremesas\nBUUMBOX AÇAI\nBabilônia Vegan\nBaby Fruta\nBaita Juice Café\nBar e Restaurante Do Açaí\nBela Binna Café e Açaí\nBobó Empório Vegano\nBom Bowls Moema\nBrazilian Nuts - Açaí bowls, sucos e smoothies- Vila Madalena, São Paulo\nCJ Açaí&Tapioca\nCapricho Fit - Refeição Saudável\nCasa Fit Restaurante e Lanchonete\nCasa de Suco Água na boca\nCentro do Açaí\nChef Natural Delivery Vegano\nChico Mate e Açaí\nCia das frutas\nClean foods Moema\nComendo Saudavel\nConito Doces Veganos\nCri Cri Cru Restaurante Vegano | Pinheiros SP\nCumbuca Superfoods - Vegano\nCurry Natural | Indiano Vegano\nDaSelva Vila Nova Conceição\nDale Wrap - Pinheiros\nDeli Freshie LivLight\nDelicia Da Fruta Sucos\nDelícia Natural Barbosa\nDieta food flex\nDodeco Comércio de Sucos\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}

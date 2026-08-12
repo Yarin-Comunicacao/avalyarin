@@ -1,0 +1,95 @@
+{
+  "query": "SELECT id, name, slug FROM categories ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug FROM categories ORDER BY name;",
+  "rows": [
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "slug": "autoral-contemporaneo"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "slug": "balada"
+    },
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "slug": "bar-lanchonete"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "slug": "bar-musical"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "slug": "boteco-moderno"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "slug": "boteco-tradicional"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "slug": "cafeteria"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "slug": "cervejaria"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "slug": "confeitaria"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "slug": "coquetelaria"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "slug": "cozinha-brasileira"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "slug": "cozinha-internacional"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria",
+      "slug": "hamburgueria"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "slug": "padaria"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "slug": "pizzaria"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "slug": "pub"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "slug": "saudavel"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n3\tAutoral / Contemporâneo\tautoral-contemporaneo\n10\tBalada\tbalada\n1\tBar & Lanchonete\tbar-lanchonete\n12\tBar Musical\tbar-musical\n5\tBoteco Moderno\tboteco-moderno\n4\tBoteco Tradicional\tboteco-tradicional\n8\tCafeteria\tcafeteria\n13\tCervejaria\tcervejaria\n11\tConfeitaria\tconfeitaria\n7\tCoquetelaria\tcoquetelaria\n2\tCozinha Brasileira\tcozinha-brasileira\n17\tCozinha Internacional\tcozinha-internacional\n16\tHamburgueria\thamburgueria\n9\tPadaria\tpadaria\n14\tPizzaria\tpizzaria\n6\tPub\tpub\n15\tSaudável\tsaudavel\n",
+  "stderr": "",
+  "execution_time_ms": 1141
+}

@@ -1,0 +1,9 @@
+{
+  "query": "SHOW COLUMNS FROM establishments WHERE Field IN ('description', 'complement', 'addressNumber');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SHOW COLUMNS FROM establishments WHERE Field IN ('description', 'complement', 'addressNumber');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 475
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO establishments (slug, name, address, neighborhood, region, lat, lng, rating, reviewCount, hours, phone, instagram, categoryId, hasMenu, source) VALUES ('eap-emporio-alto-dos-pinheiros', 'EAP Empório Alto dos Pinheiros', 'R. Vupabussu, 305 - Pinheiros, São Paulo - SP, 05429-040, Brasil', 'Pinheiros', NULL, -23.5583, -46.6927, 4.7, 1200, 'Dom a Qua: 11:00–00:00 · Qui a Sáb: 11:00–01:00', '(11) 3031-4328', '@eapsp', 13, 1, 'manual');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO establishments (slug, name, address, neighborhood, region, lat, lng, rating, reviewCount, hours, phone, instagram, categoryId, hasMenu, source) VALUES ('eap-emporio-alto-dos-pinheiros', 'EAP Empório Alto dos Pinheiros', 'R. Vupabussu, 305 - Pinheiros, São Paulo - SP, 05429-040, Brasil', 'Pinheiros', NULL, -23.5583, -46.6927, 4.7, 1200, 'Dom a Qua: 11:00–00:00 · Qui a Sáb: 11:00–01:00', '(11) 3031-4328', '@eapsp', 13, 1, 'manual');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 385
+}

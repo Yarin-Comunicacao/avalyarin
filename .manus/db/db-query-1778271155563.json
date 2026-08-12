@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name FROM categories WHERE name LIKE '%Bar%' OR name LIKE '%Lanchonete%' ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name FROM categories WHERE name LIKE '%Bar%' OR name LIKE '%Lanchonete%' ORDER BY name;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tBar & Lanchonete\n12\tBar Musical\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments SET address = REPLACE(address, 'Pres. ', 'Presidente ') WHERE address LIKE '%Pres. %';\nUPDATE establishments SET address = REPLACE(address, 'Visc. ', 'Visconde ') WHERE address LIKE '%Visc. %';\nUPDATE establishments SET address = REPLACE(address, 'Tv. ', 'Travessa ') WHERE address LIKE '%Tv. %';\nUPDATE establishments SET address = REPLACE(address, 'Estr. ', 'Estrada ') WHERE address LIKE '%Estr. %';\nUPDATE establishments SET address = REPLACE(address, 'Rod. ', 'Rodovia ') WHERE address LIKE '%Rod. %';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments SET address = REPLACE(address, 'Pres. ', 'Presidente ') WHERE address LIKE '%Pres. %';\nUPDATE establishments SET address = REPLACE(address, 'Visc. ', 'Visconde ') WHERE address LIKE '%Visc. %';\nUPDATE establishments SET address = REPLACE(address, 'Tv. ', 'Travessa ') WHERE address LIKE '%Tv. %';\nUPDATE establishments SET address = REPLACE(address, 'Estr. ', 'Estrada ') WHERE address LIKE '%Estr. %';\nUPDATE establishments SET address = REPLACE(address, 'Rod. ', 'Rodovia ') WHERE address LIKE '%Rod. %';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 382
+}

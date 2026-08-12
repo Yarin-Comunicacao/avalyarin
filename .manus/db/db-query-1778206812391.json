@@ -1,0 +1,130 @@
+{
+  "query": "SELECT e.id, e.name, e.neighborhood, c.name as category \nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE c.id IN (7, 5, 12, 6, 13, 3) \nORDER BY c.id, e.name \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.id, e.name, e.neighborhood, c.name as category \nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE c.id IN (7, 5, 12, 6, 13, 3) \nORDER BY c.id, e.name \nLIMIT 20;",
+  "rows": [
+    {
+      "id": "3820",
+      "name": "A Casa do Porco Lab - Laboratório de Ideias",
+      "neighborhood": "República",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4344",
+      "name": "Atelier Doce Sonho",
+      "neighborhood": "Sé",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "7302",
+      "name": "Atelier de Bolos Ipiranga SP",
+      "neighborhood": "Cursino",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "7581",
+      "name": "Atelier dos Pães",
+      "neighborhood": "Moema",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "1921",
+      "name": "BARU Bistrô - Iguatemi",
+      "neighborhood": "Pinheiros",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "937",
+      "name": "Bela Bistro",
+      "neighborhood": "Lapa",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "1266",
+      "name": "Bistro Aloha",
+      "neighborhood": "Perdizes",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "2456",
+      "name": "Bistrô Avanhandava",
+      "neighborhood": "Bela Vista",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "1952",
+      "name": "Bistrô Charlô",
+      "neighborhood": "Pinheiros",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4883",
+      "name": "Bistrô Creative Gastronomia",
+      "neighborhood": "Ipiranga",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "171",
+      "name": "Bistrô Enjoy It",
+      "neighborhood": "Barra Funda",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "326",
+      "name": "Bistrô Express",
+      "neighborhood": "Itaim Bibi",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "2137",
+      "name": "Bistrô Impacta",
+      "neighborhood": "Bela Vista",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "678",
+      "name": "Bistrô Nove",
+      "neighborhood": "Jardim Paulista",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4696",
+      "name": "Bistrô Oliveira",
+      "neighborhood": "Cursino",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "2351",
+      "name": "Bistrô Paim",
+      "neighborhood": "Bela Vista",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "327",
+      "name": "Bistrô Ville du Vin Itaim",
+      "neighborhood": "Itaim Bibi",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "5567",
+      "name": "Bistrô da Vila",
+      "neighborhood": "Moema",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "4697",
+      "name": "Cafeistica Lab",
+      "neighborhood": "Cursino",
+      "category": "Autoral / Contemporâneo"
+    },
+    {
+      "id": "1779",
+      "name": "Chef Apptite - Ana Junqueira - Comida Low Carb",
+      "neighborhood": "Pinheiros",
+      "category": "Autoral / Contemporâneo"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tcategory\n3820\tA Casa do Porco Lab - Laboratório de Ideias\tRepública\tAutoral / Contemporâneo\n4344\tAtelier Doce Sonho\tSé\tAutoral / Contemporâneo\n7302\tAtelier de Bolos Ipiranga SP\tCursino\tAutoral / Contemporâneo\n7581\tAtelier dos Pães\tMoema\tAutoral / Contemporâneo\n1921\tBARU Bistrô - Iguatemi\tPinheiros\tAutoral / Contemporâneo\n937\tBela Bistro\tLapa\tAutoral / Contemporâneo\n1266\tBistro Aloha\tPerdizes\tAutoral / Contemporâneo\n2456\tBistrô Avanhandava\tBela Vista\tAutoral / Contemporâneo\n1952\tBistrô Charlô\tPinheiros\tAutoral / Contemporâneo\n4883\tBistrô Creative Gastronomia\tIpiranga\tAutoral / Contemporâneo\n171\tBistrô Enjoy It\tBarra Funda\tAutoral / Contemporâneo\n326\tBistrô Express\tItaim Bibi\tAutoral / Contemporâneo\n2137\tBistrô Impacta\tBela Vista\tAutoral / Contemporâneo\n678\tBistrô Nove\tJardim Paulista\tAutoral / Contemporâneo\n4696\tBistrô Oliveira\tCursino\tAutoral / Contemporâneo\n2351\tBistrô Paim\tBela Vista\tAutoral / Contemporâneo\n327\tBistrô Ville du Vin Itaim\tItaim Bibi\tAutoral / Contemporâneo\n5567\tBistrô da Vila\tMoema\tAutoral / Contemporâneo\n4697\tCafeistica Lab\tCursino\tAutoral / Contemporâneo\n1779\tChef Apptite - Ana Junqueira - Comida Low Carb\tPinheiros\tAutoral / Contemporâneo\n",
+  "stderr": "",
+  "execution_time_ms": 194
+}

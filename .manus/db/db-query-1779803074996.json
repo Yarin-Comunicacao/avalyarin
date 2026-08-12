@@ -1,0 +1,9 @@
+{
+  "query": "SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP 'Flavio|Marcio|Julio|Livio|Laercio|Mauricio|Fabricio|Rogerio|Sergio|Virgilio|Emilio|Claudio|Horacio|Vinicius|Cicero|Atilio|Basilio|Felicio|Placido|Domicio'\nAND address NOT REGEXP 'Flávio|Márcio|Júlio|Lívio|Laércio|Maurício|Fabrício|Rogério|Sérgio|Virgílio|Emílio|Cláudio|Horácio|Vinícius|Cícero|Atílio|Basílio|Felício|Plácido|Domício'\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT \n  SUBSTRING_INDEX(SUBSTRING_INDEX(address, ',', 1), ' - ', 1) as logradouro\nFROM establishments \nWHERE address REGEXP 'Flavio|Marcio|Julio|Livio|Laercio|Mauricio|Fabricio|Rogerio|Sergio|Virgilio|Emilio|Claudio|Horacio|Vinicius|Cicero|Atilio|Basilio|Felicio|Placido|Domicio'\nAND address NOT REGEXP 'Flávio|Márcio|Júlio|Lívio|Laércio|Maurício|Fabrício|Rogério|Sérgio|Virgílio|Emílio|Cláudio|Horácio|Vinícius|Cícero|Atílio|Basílio|Felício|Plácido|Domício'\nLIMIT 20;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 266
+}

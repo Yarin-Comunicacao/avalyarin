@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name, slug, address, neighborhood, categoryId FROM establishments WHERE name LIKE '%Mocot%' OR name LIKE '%mocot%' OR name LIKE '%Mancini%' OR name LIKE '%mancini%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, address, neighborhood, categoryId FROM establishments WHERE name LIKE '%Mocot%' OR name LIKE '%mocot%' OR name LIKE '%Mancini%' OR name LIKE '%mancini%'",
+  "rows": [
+    {
+      "id": "2457",
+      "name": "Famiglia Mancini Trattoria",
+      "slug": "famiglia-mancini-trattoria",
+      "address": "Rua Avanhandava, 81, Bela Vista - Centro Histórico de São Paulo, São Paulo - SP, 01306-001, Brasil",
+      "neighborhood": "Bela Vista",
+      "categoryId": "17"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\taddress\tneighborhood\tcategoryId\n2457\tFamiglia Mancini Trattoria\tfamiglia-mancini-trattoria\tRua Avanhandava, 81, Bela Vista - Centro Histórico de São Paulo, São Paulo - SP, 01306-001, Brasil\tBela Vista\t17\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

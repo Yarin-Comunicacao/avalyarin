@@ -1,0 +1,55 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE LOWER(name) LIKE '%swing%' OR LOWER(name) LIKE '%puteiro%' OR LOWER(name) LIKE '%cabar%' OR LOWER(name) LIKE '%kabar%' OR LOWER(name) LIKE '%kibedohassib%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE LOWER(name) LIKE '%swing%' OR LOWER(name) LIKE '%puteiro%' OR LOWER(name) LIKE '%cabar%' OR LOWER(name) LIKE '%kabar%' OR LOWER(name) LIKE '%kibedohassib%';",
+  "rows": [
+    {
+      "id": "1006",
+      "name": "Bar Bacantes Casa de Swing",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1048",
+      "name": "Celebridade Swing Bar",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1129",
+      "name": "#Kibedohassib Delivery - Perdizes",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "3380",
+      "name": "Cabaret da Cecília",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "4101",
+      "name": "Love Cabaret",
+      "neighborhood": "República"
+    },
+    {
+      "id": "5354",
+      "name": "Izakabar Aoyama Karaokê",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7472",
+      "name": "ENIGMA CLUB - Casa de Swing e Balada Liberal Com Navio",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7549",
+      "name": "Hot Bar - Casa de Swing e Balada Liberal",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "7563",
+      "name": "ASHA CLUB - Casa de Swing e Balada Liberal",
+      "neighborhood": "Moema"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n1006\tBar Bacantes Casa de Swing\tPerdizes\n1048\tCelebridade Swing Bar\tPerdizes\n1129\t#Kibedohassib Delivery - Perdizes\tPerdizes\n3380\tCabaret da Cecília\tConsolação\n4101\tLove Cabaret\tRepública\n5354\tIzakabar Aoyama Karaokê\tMoema\n7472\tENIGMA CLUB - Casa de Swing e Balada Liberal Com Navio\tMoema\n7549\tHot Bar - Casa de Swing e Balada Liberal\tMoema\n7563\tASHA CLUB - Casa de Swing e Balada Liberal\tMoema\n",
+  "stderr": "",
+  "execution_time_ms": 436
+}

@@ -1,0 +1,52 @@
+{
+  "query": "SELECT id, name, instagram, image FROM establishments WHERE categoryId = (SELECT id FROM categories WHERE name = 'Boteco Moderno') AND instagram IS NOT NULL ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, instagram, image FROM establishments WHERE categoryId = (SELECT id FROM categories WHERE name = 'Boteco Moderno') AND instagram IS NOT NULL ORDER BY id;",
+  "rows": [
+    {
+      "id": "1177",
+      "name": "Oink Gastro Bar",
+      "instagram": "@oink_gastrobar",
+      "image": "https://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg"
+    },
+    {
+      "id": "1720",
+      "name": "Othê Gastrobar",
+      "instagram": "@othe.sp",
+      "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/uviPiPUyOWvqbqka.jpg"
+    },
+    {
+      "id": "5499",
+      "name": "Marú Gastrobar",
+      "instagram": "@maru.gastrobar",
+      "image": "/home/ubuntu/Downloads/maru_gastrobar_foto.webp"
+    },
+    {
+      "id": "7712",
+      "name": "De Primeira",
+      "instagram": "@deprimeira.bar",
+      "image": "/manus-storage/de-primeira_f1246ce5.jpg"
+    },
+    {
+      "id": "7713",
+      "name": "Melts Gastrobar",
+      "instagram": "@meltsbrasil",
+      "image": "https://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg"
+    },
+    {
+      "id": "7714",
+      "name": "Ministro Gastrobar",
+      "instagram": "@ministrogastrobar",
+      "image": "/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg"
+    },
+    {
+      "id": "7715",
+      "name": "Fábrica Drinks | Gastrobar",
+      "instagram": "@fabricadrinks",
+      "image": "/manus-storage/ig-fabricadrinks-7715_5a260d63.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tinstagram\timage\n1177\tOink Gastro Bar\t@oink_gastrobar\thttps://mapadacachaca.com.br/wp-content/uploads/2024/03/oink-gastrobar-1360x919.jpeg\n1720\tOthê Gastrobar\t@othe.sp\thttps://files.manuscdn.com/user_upload_by_module/session_file/310519663452670122/uviPiPUyOWvqbqka.jpg\n5499\tMarú Gastrobar\t@maru.gastrobar\t/home/ubuntu/Downloads/maru_gastrobar_foto.webp\n7712\tDe Primeira\t@deprimeira.bar\t/manus-storage/de-primeira_f1246ce5.jpg\n7713\tMelts Gastrobar\t@meltsbrasil\thttps://www.yoobite.com/wp-content/uploads/2022/07/unnamed-1-1200x800.jpg\n7714\tMinistro Gastrobar\t@ministrogastrobar\t/manus-storage/ig-ministrogastrobar-7714_1a589bf4.jpg\n7715\tFábrica Drinks | Gastrobar\t@fabricadrinks\t/manus-storage/ig-fabricadrinks-7715_5a260d63.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 897
+}

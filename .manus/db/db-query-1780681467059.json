@@ -1,0 +1,22 @@
+{
+  "query": "SELECT ec.establishmentId, ec.categoryId, ec.isPrimary, c.name as categoryName \nFROM establishment_categories ec \nJOIN categories c ON c.id = ec.categoryId \nWHERE ec.establishmentId = 30002;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT ec.establishmentId, ec.categoryId, ec.isPrimary, c.name as categoryName \nFROM establishment_categories ec \nJOIN categories c ON c.id = ec.categoryId \nWHERE ec.establishmentId = 30002;",
+  "rows": [
+    {
+      "establishmentId": "30002",
+      "categoryId": "5",
+      "isPrimary": "1",
+      "categoryName": "Boteco Moderno"
+    },
+    {
+      "establishmentId": "30002",
+      "categoryId": "60002",
+      "isPrimary": "0",
+      "categoryName": "Restaurante"
+    }
+  ],
+  "messages": [],
+  "stdout": "establishmentId\tcategoryId\tisPrimary\tcategoryName\n30002\t5\t1\tBoteco Moderno\n30002\t60002\t0\tRestaurante\n",
+  "stderr": "",
+  "execution_time_ms": 400
+}

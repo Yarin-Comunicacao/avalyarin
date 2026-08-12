@@ -1,0 +1,157 @@
+{
+  "query": "SELECT id, name, slug, icon, code FROM categories ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, icon, code FROM categories ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "slug": "bar-lanchonete",
+      "icon": "Beer",
+      "code": "ca001"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "slug": "cozinha-brasileira",
+      "icon": "UtensilsCrossed",
+      "code": "ca002"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "slug": "autoral-contemporaneo",
+      "icon": "ChefHat",
+      "code": "ca003"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "slug": "boteco-tradicional",
+      "icon": "Beer",
+      "code": "ca004"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "slug": "boteco-moderno",
+      "icon": "Sparkles",
+      "code": "ca005"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "slug": "pub",
+      "icon": "Beer",
+      "code": "ca006"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "slug": "coquetelaria",
+      "icon": "Wine",
+      "code": "ca007"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "slug": "cafeteria",
+      "icon": "Coffee",
+      "code": "ca008"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "slug": "padaria",
+      "icon": "Croissant",
+      "code": "ca009"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "slug": "balada",
+      "icon": "Music",
+      "code": "ca010"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "slug": "confeitaria",
+      "icon": "Cake",
+      "code": "ca011"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "slug": "bar-musical",
+      "icon": "Music",
+      "code": "ca012"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "slug": "cervejaria",
+      "icon": "Beer",
+      "code": "ca013"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "slug": "pizzaria",
+      "icon": "Pizza",
+      "code": "ca014"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "slug": "saudavel",
+      "icon": "Leaf",
+      "code": "ca015"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria e Lanches",
+      "slug": "hamburgueria",
+      "icon": "UtensilsCrossed",
+      "code": "ca016"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "slug": "cozinha-internacional",
+      "icon": "Globe",
+      "code": "ca017"
+    },
+    {
+      "id": "30001",
+      "name": "Vegan",
+      "slug": "vegan",
+      "icon": "Leaf",
+      "code": "ca018"
+    },
+    {
+      "id": "30002",
+      "name": "Açaí",
+      "slug": "acai",
+      "icon": "CupSoda",
+      "code": "ca019"
+    },
+    {
+      "id": "60001",
+      "name": "Vegetariano",
+      "slug": "vegetariano",
+      "icon": "NULL",
+      "code": "ca020"
+    },
+    {
+      "id": "60002",
+      "name": "Restaurante",
+      "slug": "restaurante",
+      "icon": "NULL",
+      "code": "ca021"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\ticon\tcode\n1\tBar & Lanchonete\tbar-lanchonete\tBeer\tca001\n2\tCozinha Brasileira\tcozinha-brasileira\tUtensilsCrossed\tca002\n3\tAutoral / Contemporâneo\tautoral-contemporaneo\tChefHat\tca003\n4\tBoteco Tradicional\tboteco-tradicional\tBeer\tca004\n5\tBoteco Moderno\tboteco-moderno\tSparkles\tca005\n6\tPub\tpub\tBeer\tca006\n7\tCoquetelaria\tcoquetelaria\tWine\tca007\n8\tCafeteria\tcafeteria\tCoffee\tca008\n9\tPadaria\tpadaria\tCroissant\tca009\n10\tBalada\tbalada\tMusic\tca010\n11\tConfeitaria\tconfeitaria\tCake\tca011\n12\tBar Musical\tbar-musical\tMusic\tca012\n13\tCervejaria\tcervejaria\tBeer\tca013\n14\tPizzaria\tpizzaria\tPizza\tca014\n15\tSaudável\tsaudavel\tLeaf\tca015\n16\tHamburgueria e Lanches\thamburgueria\tUtensilsCrossed\tca016\n17\tCozinha Internacional\tcozinha-internacional\tGlobe\tca017\n30001\tVegan\tvegan\tLeaf\tca018\n30002\tAçaí\tacai\tCupSoda\tca019\n60001\tVegetariano\tvegetariano\tNULL\tca020\n60002\tRestaurante\trestaurante\tNULL\tca021\n",
+  "stderr": "",
+  "execution_time_ms": 1021
+}

@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE categories SET icon = 'Leaf' WHERE id = 60001;\nUPDATE categories SET icon = 'UtensilsCrossed' WHERE id = 60002;\nSELECT ec.establishment_id, ec.category_id, ec.is_primary, c.name as category_name \nFROM establishment_categories ec \nJOIN categories c ON c.id = ec.category_id \nWHERE ec.establishment_id = 30002;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE categories SET icon = 'Leaf' WHERE id = 60001;\nUPDATE categories SET icon = 'UtensilsCrossed' WHERE id = 60002;\nSELECT ec.establishment_id, ec.category_id, ec.is_primary, c.name as category_name \nFROM establishment_categories ec \nJOIN categories c ON c.id = ec.category_id \nWHERE ec.establishment_id = 30002;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'ec.category_id' in 'on clause'"
+  ]
+}

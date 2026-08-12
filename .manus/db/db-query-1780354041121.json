@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE ratings SET overallScore = 9.8 WHERE id = 1020003; UPDATE ratings SET overallScore = 9.5 WHERE id = 990001; UPDATE ratings SET overallScore = 8.7 WHERE id = 960001; UPDATE rating_items SET score = 8.7 WHERE ratingId = 960001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE ratings SET overallScore = 9.8 WHERE id = 1020003; UPDATE ratings SET overallScore = 9.5 WHERE id = 990001; UPDATE ratings SET overallScore = 8.7 WHERE id = 960001; UPDATE rating_items SET score = 8.7 WHERE ratingId = 960001;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 312
+}

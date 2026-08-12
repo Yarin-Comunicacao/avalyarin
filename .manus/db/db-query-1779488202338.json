@@ -1,0 +1,382 @@
+{
+  "query": "SELECT id, name, neighborhood, address FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, address FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name;",
+  "rows": [
+    {
+      "id": "1129",
+      "name": "#Kibedohassib Delivery - Perdizes",
+      "neighborhood": "Perdizes",
+      "address": "R. Min. Godói, 436 - Perdizes, São Paulo - SP, 05015-000, Brasil"
+    },
+    {
+      "id": "7208",
+      "name": "Babbo Giovanni Pizzaria Delivery",
+      "neighborhood": "Campo Belo",
+      "address": "Rua Constantino de Sousa, 804 - Campo Belo, São Paulo - SP, 04605-002, Brasil"
+    },
+    {
+      "id": "6928",
+      "name": "Babbo Giovanni Pizzaria Delivery",
+      "neighborhood": "Consolação",
+      "address": "R. Fernando de Albuquerque, 270 - Consolação, São Paulo - SP, 01309-030, Brasil"
+    },
+    {
+      "id": "4621",
+      "name": "Bar do Juarez Brooklin: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP",
+      "neighborhood": "Campo Belo",
+      "address": "R. Joaquim Nabuco, 325 - Brooklin, São Paulo - SP, 04621-002, Brasil"
+    },
+    {
+      "id": "5572",
+      "name": "Bar do Juarez Moema: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP",
+      "neighborhood": "Moema",
+      "address": "Av. Jurema, 324 - Moema, Indianópolis - SP, 04079-001, Brasil"
+    },
+    {
+      "id": "4963",
+      "name": "Benjamin Ipiranga (Delivery)",
+      "neighborhood": "Ipiranga",
+      "address": "R. Clemente Pereira, 572 - Ipiranga, São Paulo - SP, 04216-060, Brasil"
+    },
+    {
+      "id": "7145",
+      "name": "Bispo Hamburgueria - Delivery",
+      "neighborhood": "Santa Cecília",
+      "address": "R. São Vicente de Paulo, 18a - Santa Cecilia, São Paulo - SP, 01229-010, Brasil"
+    },
+    {
+      "id": "2139",
+      "name": "Brejada Delivery São Paulo - (Delivery ou Take Away) Cervejas Artesanais",
+      "neighborhood": "Bela Vista",
+      "address": "Av. Paulista, 671 - cj914 - Bela Vista, São Paulo - SP, 01311-100, Brasil"
+    },
+    {
+      "id": "6300",
+      "name": "Burger 700 | Delivery",
+      "neighborhood": "Perdizes",
+      "address": "Av. Sumaré, 700 - Perdizes, São Paulo - SP, 05016-090, Brasil"
+    },
+    {
+      "id": "7605",
+      "name": "BurgerDaRua - Delivery",
+      "neighborhood": "Moema",
+      "address": "R. Cadineus, nº19 - Loja 4 - Moema, São Paulo - SP, 04087-010, Brasil"
+    },
+    {
+      "id": "6043",
+      "name": "Carú Café Pra Levar | Cafeteria Delivery | Jardins | SP",
+      "neighborhood": "Jardim Paulista",
+      "address": "R. Pamplona, 1882 - conj. 2 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil"
+    },
+    {
+      "id": "7503",
+      "name": "Casa da Pizza Delivery - Moema",
+      "neighborhood": "Moema",
+      "address": "R. Inhambu, 504 - Moema, São Paulo - SP, 04520-011, Brasil"
+    },
+    {
+      "id": "6304",
+      "name": "Casa da Pizza Delivery - Perdizes",
+      "neighborhood": "Perdizes",
+      "address": "R. Campevas, 57 - Perdizes, São Paulo - SP, 05016-010, Brasil"
+    },
+    {
+      "id": "7618",
+      "name": "Chef Natural Delivery Vegano",
+      "neighborhood": "Saúde",
+      "address": "Rua Caramuru, 497 - Chácara Inglesa, São Paulo - SP, 04138-001, Brasil"
+    },
+    {
+      "id": "1547",
+      "name": "China Pinheiros Delivery",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 739 - Cerqueira César, São Paulo - SP, 05404-011, Brasil"
+    },
+    {
+      "id": "1436",
+      "name": "Consulado Mineiro Pinheiros: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1034 - Pinheiros, São Paulo - SP, 05415-001, Brasil"
+    },
+    {
+      "id": "1765",
+      "name": "Consulado Mineiro: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery SP",
+      "neighborhood": "Pinheiros",
+      "address": "Praça Benedito Calixto, 74 - Pinheiros, São Paulo - SP, 05406-040, Brasil"
+    },
+    {
+      "id": "263",
+      "name": "Delivery Chef Pascal Valero - Gastronomia francesa",
+      "neighborhood": "Itaim Bibi",
+      "address": "R. Pedroso Alvarenga, 1101 - Jardim Paulista, São Paulo - SP, 04531-012, Brasil"
+    },
+    {
+      "id": "1290",
+      "name": "Delivery Patties",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 476 - Pinheiros, São Paulo - SP, 05422-001, Brasil"
+    },
+    {
+      "id": "6094",
+      "name": "Delivery Sassá Sushi - Jardins",
+      "neighborhood": "Jardim Paulista",
+      "address": "Alameda Franca, 149 - Jardim Paulista, São Paulo - SP, 01422-000, Brasil"
+    },
+    {
+      "id": "6188",
+      "name": "Diavola Pizzeria Italiana - Pizza Delivery Pompeia",
+      "neighborhood": "Perdizes",
+      "address": "Av. Prof. Alfonso Bovero, 724 - Pompeia, São Paulo - SP, 05019-010, Brasil"
+    },
+    {
+      "id": "4236",
+      "name": "Esfiha Chic Delivery",
+      "neighborhood": "Santa Cecília",
+      "address": "R. Martim Francisco, 149 - Vila Buarque, São Paulo - SP, 01226-001, Brasil"
+    },
+    {
+      "id": "761",
+      "name": "Galeto’s Lapa | Delivery",
+      "neighborhood": "Lapa",
+      "address": "R. Monteiro de Melo, 623 - Lapa, São Paulo - SP, 05050-000, Brasil"
+    },
+    {
+      "id": "1617",
+      "name": "Greenjoy | Delivery",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 1493 - Pinheiros, São Paulo - SP, 05407-002, Brasil"
+    },
+    {
+      "id": "1302",
+      "name": "Greentable Rebouças (Unidade Delivery)",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 2803 - Pinheiros, São Paulo - SP, 05401-350, Brasil"
+    },
+    {
+      "id": "1618",
+      "name": "Haya Falafel Pinheiros - apenas delivery",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 2939 - Pinheiros, São Paulo - SP, 05407-004, Brasil"
+    },
+    {
+      "id": "7370",
+      "name": "Henna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa",
+      "neighborhood": "Ipiranga",
+      "address": "R. Brg. Jordão, 725 - Ipiranga, São Paulo - SP, 04210-000, Brasil"
+    },
+    {
+      "id": "5651",
+      "name": "Jota Oh Buffet Eventos & Delivery",
+      "neighborhood": "Moema",
+      "address": "R. Jequitai, 62 - Indianópolis, São Paulo - SP, 04083-020, Brasil"
+    },
+    {
+      "id": "2516",
+      "name": "Katamaru Delivery Oriental",
+      "neighborhood": "Bela Vista",
+      "address": "R. Santa Madalena, 372 - Liberdade, São Paulo - SP, 01322-020, Brasil"
+    },
+    {
+      "id": "5789",
+      "name": "Kris Delivery muito maisvc",
+      "neighborhood": "Saúde",
+      "address": "Av - R. Dr. Nogueira Martins, 705 - Vila da Saúde, São Paulo - SP, 04143-020, Brasil"
+    },
+    {
+      "id": "7636",
+      "name": "La Fortunata Pizzaria: Pizza, Esfiha, Combos, Delivery em São Paulo",
+      "neighborhood": "Saúde",
+      "address": "R. Mauro, 297 - Vila da Saúde, São Paulo - SP, 04055-040, Brasil"
+    },
+    {
+      "id": "5421",
+      "name": "La Parrilla Argentina: Carnes, Vinhos, Música, Dança, Delivery, Moema SP",
+      "neighborhood": "Moema",
+      "address": "Av. Moema, 218 - Moema, São Paulo - SP, 04077-020, Brasil"
+    },
+    {
+      "id": "4667",
+      "name": "Lanchonete e marmitaria delivery",
+      "neighborhood": "Cursino",
+      "address": "Av. Fagundes Filho, 888 - Vila Monte Alegre, São Paulo - SP, 04304-001, Brasil"
+    },
+    {
+      "id": "1312",
+      "name": "Mana Poke Shopping Eldorado: Restaurante, Comida Havaiana, Delivery em Pinheiros SP",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Piso 03 - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "2534",
+      "name": "Mineiro Delivery - Bela Vista",
+      "neighborhood": "Bela Vista",
+      "address": "R. Sílvia, 229 - Bela Vista, São Paulo - SP, 01331-010, Brasil"
+    },
+    {
+      "id": "6087",
+      "name": "Mori Ohta Sushi Delivery Jardins",
+      "neighborhood": "Jardim Paulista",
+      "address": "R. Batataes, 272 - Jardim Paulista, São Paulo - SP, 01423-010, Brasil"
+    },
+    {
+      "id": "276",
+      "name": "NKK Delivery - Itaim Bibi",
+      "neighborhood": "Itaim Bibi",
+      "address": "R. Pedroso Alvarenga, 356 - Itaim Bibi, São Paulo - SP, 04531-020, Brasil"
+    },
+    {
+      "id": "1757",
+      "name": "NKK Delivery - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Simão Álvares, 444 - Pinheiros, São Paulo - SP, 05417-020, Brasil"
+    },
+    {
+      "id": "1253",
+      "name": "O Boteco Argentino - Empanadas (Delivery & Takeout)",
+      "neighborhood": "Perdizes",
+      "address": "R. Iperoig, 447 - Perdizes, São Paulo - SP, 05016-000, Brasil"
+    },
+    {
+      "id": "1464",
+      "name": "Pastéis Takeda - Presencial e Delivery",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1406 - Pinheiros, São Paulo - SP, 05422-002, Brasil"
+    },
+    {
+      "id": "6327",
+      "name": "Pecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - loja 402 R - Pinheiros, São Paulo - SP, 05402-600, Brasil"
+    },
+    {
+      "id": "6076",
+      "name": "Pecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP",
+      "neighborhood": "Jardim Paulista",
+      "address": "Alameda Joaquim Eugênio de Lima, 1706 - Jardim Paulista, São Paulo - SP, 01403-003, Brasil"
+    },
+    {
+      "id": "4649",
+      "name": "Pecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP",
+      "neighborhood": "Cursino",
+      "address": "Praça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil"
+    },
+    {
+      "id": "3894",
+      "name": "Pecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP",
+      "neighborhood": "República",
+      "address": "R. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil"
+    },
+    {
+      "id": "7571",
+      "name": "Pecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP",
+      "neighborhood": "Moema",
+      "address": "R. Jacques Félix, 696 - Vila Nova Conceição, São Paulo - SP, 04509-002, Brasil"
+    },
+    {
+      "id": "6715",
+      "name": "Pizzaria Bom Retiro | Delivery de Pizza Tutti Pizza",
+      "neighborhood": "Bom Retiro",
+      "address": "R. Guarani, 417 - Bom Retiro, São Paulo - SP, 01123-010, Brasil"
+    },
+    {
+      "id": "7372",
+      "name": "Pizzaria e Delivery no Ipiranga, Pizzaria Dom Jordão",
+      "neighborhood": "Ipiranga",
+      "address": "R. Brg. Jordão, 609 - Ipiranga, São Paulo - SP, 04210-000, Brasil"
+    },
+    {
+      "id": "6195",
+      "name": "Pompeia Pizzaria - Delivery",
+      "neighborhood": "Perdizes",
+      "address": "Av. Prof. Alfonso Bovero, 800 - Pompeia, São Paulo - SP, 05019-010, Brasil"
+    },
+    {
+      "id": "6770",
+      "name": "Ranguinho Vegano - apenas delivery ou retirada",
+      "neighborhood": "Cambuci",
+      "address": "Av. Lins de Vasconcelos, 000 - Cambuci, São Paulo - SP, 01537-000, Brasil"
+    },
+    {
+      "id": "5801",
+      "name": "Rapchef Delivery SP - Oficial",
+      "neighborhood": "Saúde",
+      "address": "R. Lourenço Geraldo Basto, 69 - Vila da Saúde, São Paulo - SP, 04132-010, Brasil"
+    },
+    {
+      "id": "5779",
+      "name": "Restaurante & Delivery Especial da China",
+      "neighborhood": "Saúde",
+      "address": "R. Maquerobi, 25 - Vila da Saúde, São Paulo - SP, 04053-030, Brasil"
+    },
+    {
+      "id": "717",
+      "name": "Restaurante Caruzzo - Delivery cardápio wzap 9.3458.1818",
+      "neighborhood": "Jardim Paulista",
+      "address": "Av. São Gabriel, 10 - Itaim Bibi, São Paulo - SP, 01435-000, Brasil"
+    },
+    {
+      "id": "2325",
+      "name": "Restaurante Itapeva Delivery",
+      "neighborhood": "Bela Vista",
+      "address": "R. Itapeva, 116 - Bela Vista, São Paulo - SP, 01332-000, Brasil"
+    },
+    {
+      "id": "723",
+      "name": "Restaurante Menta Pimenta Delivery",
+      "neighborhood": "Jardim Paulista",
+      "address": "R. José Maria Lisboa, 589 - Jardim Paulista, São Paulo - SP, 01405-005, Brasil"
+    },
+    {
+      "id": "4707",
+      "name": "Restaurante Mister Family - Delivery Entrega de Marmitex",
+      "neighborhood": "Cursino",
+      "address": "Av. Camilo Castelo Branco, 288 - Vila Gumercindo, São Paulo - SP, 04130-020, Brasil"
+    },
+    {
+      "id": "2908",
+      "name": "Route Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery",
+      "neighborhood": "Cambuci",
+      "address": "Av. Lins de Vasconcelos, 619 - Cambuci, São Paulo - SP, 01537-000, Brasil"
+    },
+    {
+      "id": "5891",
+      "name": "Shio Eventos | Delivery | Restaurante",
+      "neighborhood": "Vila Mariana",
+      "address": "R. Dr. Tirso Martins, 226 - Vila Mariana, São Paulo - SP, 04120-050, Brasil"
+    },
+    {
+      "id": "7286",
+      "name": "Show de Rango Restaurante e Delivery",
+      "neighborhood": "Cursino",
+      "address": "Av. Fagundes Filho, 900 - Vila Monte Alegre, São Paulo - SP, 04304-000, Brasil"
+    },
+    {
+      "id": "1805",
+      "name": "Shuk Delivery & Take Away",
+      "neighborhood": "Pinheiros",
+      "address": "R. Guaicuí, 42 - Pinheiros, São Paulo - SP, 05427-030, Brasil"
+    },
+    {
+      "id": "2586",
+      "name": "Super lanches delivery",
+      "neighborhood": "Bela Vista",
+      "address": "ZAP (13)99704-5637 - R. Dr. Ricardo Batista, n° 97 - Bela Vista, São Paulo - SP, 01326-040, Brasil"
+    },
+    {
+      "id": "1026",
+      "name": "Só Delivery Tapiocas - Perdizes",
+      "neighborhood": "Perdizes",
+      "address": "R. Cardoso de Almeida, 104 - conj 04 - Perdizes, São Paulo - SP, 05013-000, Brasil"
+    },
+    {
+      "id": "7036",
+      "name": "️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️",
+      "neighborhood": "Liberdade",
+      "address": "Rua Glicério, 750 - Liberdade, São Paulo - SP, 01514-001, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\taddress\n1129\t#Kibedohassib Delivery - Perdizes\tPerdizes\tR. Min. Godói, 436 - Perdizes, São Paulo - SP, 05015-000, Brasil\n7208\tBabbo Giovanni Pizzaria Delivery\tCampo Belo\tRua Constantino de Sousa, 804 - Campo Belo, São Paulo - SP, 04605-002, Brasil\n6928\tBabbo Giovanni Pizzaria Delivery\tConsolação\tR. Fernando de Albuquerque, 270 - Consolação, São Paulo - SP, 01309-030, Brasil\n4621\tBar do Juarez Brooklin: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP\tCampo Belo\tR. Joaquim Nabuco, 325 - Brooklin, São Paulo - SP, 04621-002, Brasil\n5572\tBar do Juarez Moema: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP\tMoema\tAv. Jurema, 324 - Moema, Indianópolis - SP, 04079-001, Brasil\n4963\tBenjamin Ipiranga (Delivery)\tIpiranga\tR. Clemente Pereira, 572 - Ipiranga, São Paulo - SP, 04216-060, Brasil\n7145\tBispo Hamburgueria - Delivery\tSanta Cecília\tR. São Vicente de Paulo, 18a - Santa Cecilia, São Paulo - SP, 01229-010, Brasil\n2139\tBrejada Delivery São Paulo - (Delivery ou Take Away) Cervejas Artesanais\tBela Vista\tAv. Paulista, 671 - cj914 - Bela Vista, São Paulo - SP, 01311-100, Brasil\n6300\tBurger 700 | Delivery\tPerdizes\tAv. Sumaré, 700 - Perdizes, São Paulo - SP, 05016-090, Brasil\n7605\tBurgerDaRua - Delivery\tMoema\tR. Cadineus, nº19 - Loja 4 - Moema, São Paulo - SP, 04087-010, Brasil\n6043\tCarú Café Pra Levar | Cafeteria Delivery | Jardins | SP\tJardim Paulista\tR. Pamplona, 1882 - conj. 2 - Jardim Paulista, São Paulo - SP, 01405-002, Brasil\n7503\tCasa da Pizza Delivery - Moema\tMoema\tR. Inhambu, 504 - Moema, São Paulo - SP, 04520-011, Brasil\n6304\tCasa da Pizza Delivery - Perdizes\tPerdizes\tR. Campevas, 57 - Perdizes, São Paulo - SP, 05016-010, Brasil\n7618\tChef Natural Delivery Vegano\tSaúde\tRua Caramuru, 497 - Chácara Inglesa, São Paulo - SP, 04138-001, Brasil\n1547\tChina Pinheiros Delivery\tPinheiros\tR. Artur de Azevedo, 739 - Cerqueira César, São Paulo - SP, 05404-011, Brasil\n1436\tConsulado Mineiro Pinheiros: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery\tPinheiros\tR. dos Pinheiros, 1034 - Pinheiros, São Paulo - SP, 05415-001, Brasil\n1765\tConsulado Mineiro: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery SP\tPinheiros\tPraça Benedito Calixto, 74 - Pinheiros, São Paulo - SP, 05406-040, Brasil\n263\tDelivery Chef Pascal Valero - Gastronomia francesa\tItaim Bibi\tR. Pedroso Alvarenga, 1101 - Jardim Paulista, São Paulo - SP, 04531-012, Brasil\n1290\tDelivery Patties\tPinheiros\tR. dos Pinheiros, 476 - Pinheiros, São Paulo - SP, 05422-001, Brasil\n6094\tDelivery Sassá Sushi - Jardins\tJardim Paulista\tAlameda Franca, 149 - Jardim Paulista, São Paulo - SP, 01422-000, Brasil\n6188\tDiavola Pizzeria Italiana - Pizza Delivery Pompeia\tPerdizes\tAv. Prof. Alfonso Bovero, 724 - Pompeia, São Paulo - SP, 05019-010, Brasil\n4236\tEsfiha Chic Delivery\tSanta Cecília\tR. Martim Francisco, 149 - Vila Buarque, São Paulo - SP, 01226-001, Brasil\n761\tGaleto’s Lapa | Delivery\tLapa\tR. Monteiro de Melo, 623 - Lapa, São Paulo - SP, 05050-000, Brasil\n1617\tGreenjoy | Delivery\tPinheiros\tRua Cardeal Arcoverde, 1493 - Pinheiros, São Paulo - SP, 05407-002, Brasil\n1302\tGreentable Rebouças (Unidade Delivery)\tPinheiros\tAv. Rebouças, 2803 - Pinheiros, São Paulo - SP, 05401-350, Brasil\n1618\tHaya Falafel Pinheiros - apenas delivery\tPinheiros\tRua Cardeal Arcoverde, 2939 - Pinheiros, São Paulo - SP, 05407-004, Brasil\n7370\tHenna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa\tIpiranga\tR. Brg. Jordão, 725 - Ipiranga, São Paulo - SP, 04210-000, Brasil\n5651\tJota Oh Buffet Eventos & Delivery\tMoema\tR. Jequitai, 62 - Indianópolis, São Paulo - SP, 04083-020, Brasil\n2516\tKatamaru Delivery Oriental\tBela Vista\tR. Santa Madalena, 372 - Liberdade, São Paulo - SP, 01322-020, Brasil\n5789\tKris Delivery muito maisvc\tSaúde\tAv - R. Dr. Nogueira Martins, 705 - Vila da Saúde, São Paulo - SP, 04143-020, Brasil\n7636\tLa Fortunata Pizzaria: Pizza, Esfiha, Combos, Delivery em São Paulo\tSaúde\tR. Mauro, 297 - Vila da Saúde, São Paulo - SP, 04055-040, Brasil\n5421\tLa Parrilla Argentina: Carnes, Vinhos, Música, Dança, Delivery, Moema SP\tMoema\tAv. Moema, 218 - Moema, São Paulo - SP, 04077-020, Brasil\n4667\tLanchonete e marmitaria delivery\tCursino\tAv. Fagundes Filho, 888 - Vila Monte Alegre, São Paulo - SP, 04304-001, Brasil\n1312\tMana Poke Shopping Eldorado: Restaurante, Comida Havaiana, Delivery em Pinheiros SP\tPinheiros\tAv. Rebouças, 3970 - Piso 03 - Pinheiros, São Paulo - SP, 05402-600, Brasil\n2534\tMineiro Delivery - Bela Vista\tBela Vista\tR. Sílvia, 229 - Bela Vista, São Paulo - SP, 01331-010, Brasil\n6087\tMori Ohta Sushi Delivery Jardins\tJardim Paulista\tR. Batataes, 272 - Jardim Paulista, São Paulo - SP, 01423-010, Brasil\n276\tNKK Delivery - Itaim Bibi\tItaim Bibi\tR. Pedroso Alvarenga, 356 - Itaim Bibi, São Paulo - SP, 04531-020, Brasil\n1757\tNKK Delivery - Pinheiros\tPinheiros\tR. Simão Álvares, 444 - Pinheiros, São Paulo - SP, 05417-020, Brasil\n1253\tO Boteco Argentino - Empanadas (Delivery & Takeout)\tPerdizes\tR. Iperoig, 447 - Perdizes, São Paulo - SP, 05016-000, Brasil\n1464\tPastéis Takeda - Presencial e Delivery\tPinheiros\tR. dos Pinheiros, 1406 - Pinheiros, São Paulo - SP, 05422-002, Brasil\n6327\tPecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP\tPinheiros\tAv. Rebouças, 3970 - loja 402 R - Pinheiros, São Paulo - SP, 05402-600, Brasil\n6076\tPecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP\tJardim Paulista\tAlameda Joaquim Eugênio de Lima, 1706 - Jardim Paulista, São Paulo - SP, 01403-003, Brasil\n4649\tPecorino Bar & Trattoria Plaza Sul: Massas, Vinhos, Delivery, São Paulo SP\tCursino\tPraça Leonor Kaupa, 100 - Jardim da Saúde, São Paulo - SP, 04151-100, Brasil\n3894\tPecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP\tRepública\tR. Cel. Xavier de Toledo, 23 - República, São Paulo - SP, 01048-100, Brasil\n7571\tPecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP\tMoema\tR. Jacques Félix, 696 - Vila Nova Conceição, São Paulo - SP, 04509-002, Brasil\n6715\tPizzaria Bom Retiro | Delivery de Pizza Tutti Pizza\tBom Retiro\tR. Guarani, 417 - Bom Retiro, São Paulo - SP, 01123-010, Brasil\n7372\tPizzaria e Delivery no Ipiranga, Pizzaria Dom Jordão\tIpiranga\tR. Brg. Jordão, 609 - Ipiranga, São Paulo - SP, 04210-000, Brasil\n6195\tPompeia Pizzaria - Delivery\tPerdizes\tAv. Prof. Alfonso Bovero, 800 - Pompeia, São Paulo - SP, 05019-010, Brasil\n6770\tRanguinho Vegano - apenas delivery ou retirada\tCambuci\tAv. Lins de Vasconcelos, 000 - Cambuci, São Paulo - SP, 01537-000, Brasil\n5801\tRapchef Delivery SP - Oficial\tSaúde\tR. Lourenço Geraldo Basto, 69 - Vila da Saúde, São Paulo - SP, 04132-010, Brasil\n5779\tRestaurante & Delivery Especial da China\tSaúde\tR. Maquerobi, 25 - Vila da Saúde, São Paulo - SP, 04053-030, Brasil\n717\tRestaurante Caruzzo - Delivery cardápio wzap 9.3458.1818\tJardim Paulista\tAv. São Gabriel, 10 - Itaim Bibi, São Paulo - SP, 01435-000, Brasil\n2325\tRestaurante Itapeva Delivery\tBela Vista\tR. Itapeva, 116 - Bela Vista, São Paulo - SP, 01332-000, Brasil\n723\tRestaurante Menta Pimenta Delivery\tJardim Paulista\tR. José Maria Lisboa, 589 - Jardim Paulista, São Paulo - SP, 01405-005, Brasil\n4707\tRestaurante Mister Family - Delivery Entrega de Marmitex\tCursino\tAv. Camilo Castelo Branco, 288 - Vila Gumercindo, São Paulo - SP, 04130-020, Brasil\n2908\tRoute Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery\tCambuci\tAv. Lins de Vasconcelos, 619 - Cambuci, São Paulo - SP, 01537-000, Brasil\n5891\tShio Eventos | Delivery | Restaurante\tVila Mariana\tR. Dr. Tirso Martins, 226 - Vila Mariana, São Paulo - SP, 04120-050, Brasil\n7286\tShow de Rango Restaurante e Delivery\tCursino\tAv. Fagundes Filho, 900 - Vila Monte Alegre, São Paulo - SP, 04304-000, Brasil\n1805\tShuk Delivery & Take Away\tPinheiros\tR. Guaicuí, 42 - Pinheiros, São Paulo - SP, 05427-030, Brasil\n2586\tSuper lanches delivery\tBela Vista\tZAP (13)99704-5637 - R. Dr. Ricardo Batista, n° 97 - Bela Vista, São Paulo - SP, 01326-040, Brasil\n1026\tSó Delivery Tapiocas - Perdizes\tPerdizes\tR. Cardoso de Almeida, 104 - conj 04 - Perdizes, São Paulo - SP, 05013-000, Brasil\n7036\t️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️\tLiberdade\tRua Glicério, 750 - Liberdade, São Paulo - SP, 01514-001, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

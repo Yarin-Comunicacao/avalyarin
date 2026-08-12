@@ -1,0 +1,18 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Sumarezinho%' GROUP BY neighborhood;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total FROM establishments WHERE neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Sumarezinho%' GROUP BY neighborhood;",
+  "rows": [
+    {
+      "neighborhood": "Vila Madalena",
+      "total": "114"
+    },
+    {
+      "neighborhood": "Vila Madalena/Sumarezinho",
+      "total": "32"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\nVila Madalena\t114\nVila Madalena/Sumarezinho\t32\n",
+  "stderr": "",
+  "execution_time_ms": 276
+}

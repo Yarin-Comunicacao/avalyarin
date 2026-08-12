@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as remaining_duplicates FROM (SELECT name, address, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING cnt > 1) t;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as remaining_duplicates FROM (SELECT name, address, COUNT(*) as cnt FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING cnt > 1) t;",
+  "rows": [
+    {
+      "remaining_duplicates": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "remaining_duplicates\n0\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

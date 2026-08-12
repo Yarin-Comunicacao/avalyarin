@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name = 'Adequar Assessoria Nutricional' OR name LIKE 'FF Assessoria Nutricional%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute DELETE FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name = 'Adequar Assessoria Nutricional' OR name LIKE 'FF Assessoria Nutricional%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 288
+}

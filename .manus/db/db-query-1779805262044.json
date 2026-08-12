@@ -1,0 +1,16 @@
+{
+  "query": "-- Fix ID 3527: \"ZAP (13 - Rua Vergueiro- Condomínio Edifício Vergueiro\"\nUPDATE establishments SET address = 'Rua Vergueiro', complement = 'Condomínio Edifício Vergueiro', addressNumber = '13' WHERE id = 3527;\n\n-- Fix ID 3529: \"Centro Cultural 01504-000 - Rua Vergueiro\"\nUPDATE establishments SET address = 'Rua Vergueiro', complement = 'Centro Cultural São Paulo' WHERE id = 3529;\n\n-- Fix ID 4112: \"Pc. Dom José GasparAB\" \nUPDATE establishments SET address = 'Praça Dom José Gaspar' WHERE id = 4112;\n\n-- Verificar contagem final\nSELECT COUNT(*) as total, \n  SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as ativos,\n  SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pendentes,\n  SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) as ocultos\nFROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute -- Fix ID 3527: \"ZAP (13 - Rua Vergueiro- Condomínio Edifício Vergueiro\"\nUPDATE establishments SET address = 'Rua Vergueiro', complement = 'Condomínio Edifício Vergueiro', addressNumber = '13' WHERE id = 3527;\n\n-- Fix ID 3529: \"Centro Cultural 01504-000 - Rua Vergueiro\"\nUPDATE establishments SET address = 'Rua Vergueiro', complement = 'Centro Cultural São Paulo' WHERE id = 3529;\n\n-- Fix ID 4112: \"Pc. Dom José GasparAB\" \nUPDATE establishments SET address = 'Praça Dom José Gaspar' WHERE id = 4112;\n\n-- Verificar contagem final\nSELECT COUNT(*) as total, \n  SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as ativos,\n  SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pendentes,\n  SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) as ocultos\nFROM establishments;",
+  "rows": [
+    {
+      "total": "7471",
+      "ativos": "189",
+      "pendentes": "7282",
+      "ocultos": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tativos\tpendentes\tocultos\n7471\t189\t7282\t0\n",
+  "stderr": "",
+  "execution_time_ms": 293
+}

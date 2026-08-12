@@ -1,0 +1,58 @@
+{
+  "query": "-- Verificar os estabs com nomes inválidos mencionados no contexto\nSELECT id, name, address, status FROM establishments WHERE id IN (1637, 2174, 1819, 3668, 3711, 3123, 2899, 187);\n\n-- Remover entradas inválidas (nomes genéricos sem endereço real)\nDELETE FROM establishments WHERE id IN (1637, 2174, 1819, 3668, 3711, 3123, 2899, 187);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute -- Verificar os estabs com nomes inválidos mencionados no contexto\nSELECT id, name, address, status FROM establishments WHERE id IN (1637, 2174, 1819, 3668, 3711, 3123, 2899, 187);\n\n-- Remover entradas inválidas (nomes genéricos sem endereço real)\nDELETE FROM establishments WHERE id IN (1637, 2174, 1819, 3668, 3711, 3123, 2899, 187);",
+  "rows": [
+    {
+      "id": "1637",
+      "name": "A",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "2174",
+      "name": "O",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "1819",
+      "name": "Pinheiros",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "3668",
+      "name": "Menu",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "3711",
+      "name": "Liberdade",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "3123",
+      "name": "Centro de São Paulo",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "2899",
+      "name": "Mapa",
+      "address": "NULL",
+      "status": "pending"
+    },
+    {
+      "id": "187",
+      "name": "Paulista",
+      "address": "NULL",
+      "status": "pending"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tstatus\n1637\tA\tNULL\tpending\n2174\tO\tNULL\tpending\n1819\tPinheiros\tNULL\tpending\n3668\tMenu\tNULL\tpending\n3711\tLiberdade\tNULL\tpending\n3123\tCentro de São Paulo\tNULL\tpending\n2899\tMapa\tNULL\tpending\n187\tPaulista\tNULL\tpending\n",
+  "stderr": "",
+  "execution_time_ms": 273
+}

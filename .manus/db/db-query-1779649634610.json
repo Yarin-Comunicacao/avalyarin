@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, address FROM establishments WHERE address LIKE '%Joaquim Floriano, 466%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address FROM establishments WHERE address LIKE '%Joaquim Floriano, 466%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "212",
+      "name": "+54 Parrilla - Itaim Bibi",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "215",
+      "name": "Bacio di Latte - Brascan Itaim",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "220",
+      "name": "Casa Bauducco",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "221",
+      "name": "Casa do Pão de Queijo",
+      "address": "R. Joaquim Floriano, 466 - loja 19 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "222",
+      "name": "Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi)",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "229",
+      "name": "Greenjoy | Brascan Open Mall",
+      "address": "R. Joaquim Floriano, 466 - Piso Térreo - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "233",
+      "name": "Madero Steak House Brascan",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "234",
+      "name": "Manirê",
+      "address": "Brascam - R. Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo - SP, 04534-011, Brasil"
+    },
+    {
+      "id": "247",
+      "name": "Rizzo Gourmet",
+      "address": "R. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    },
+    {
+      "id": "251",
+      "name": "Temperani Trattoria: Restaurante italiano Itaim Bibi - SP",
+      "address": "R. Joaquim Floriano, 466 - Loja 09, 10A e 10B - Itaim Bibi, São Paulo - SP, 04534-002, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n212\t+54 Parrilla - Itaim Bibi\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n215\tBacio di Latte - Brascan Itaim\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n220\tCasa Bauducco\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n221\tCasa do Pão de Queijo\tR. Joaquim Floriano, 466 - loja 19 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n222\tChef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi)\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n229\tGreenjoy | Brascan Open Mall\tR. Joaquim Floriano, 466 - Piso Térreo - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n233\tMadero Steak House Brascan\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n234\tManirê\tBrascam - R. Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo - SP, 04534-011, Brasil\n247\tRizzo Gourmet\tR. Joaquim Floriano, 466 - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n251\tTemperani Trattoria: Restaurante italiano Itaim Bibi - SP\tR. Joaquim Floriano, 466 - Loja 09, 10A e 10B - Itaim Bibi, São Paulo - SP, 04534-002, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 414
+}

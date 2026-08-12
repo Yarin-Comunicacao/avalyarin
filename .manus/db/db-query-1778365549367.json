@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, slug, address, neighborhood, categoryId, hasMenu FROM establishments WHERE name LIKE '%Raw%' OR name LIKE '%raw%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, address, neighborhood, categoryId, hasMenu FROM establishments WHERE name LIKE '%Raw%' OR name LIKE '%raw%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "5058",
+      "name": "Grawleria Aleluia",
+      "slug": "grawleria-aleluia",
+      "address": "R. Cisplatina, 321 - Ipiranga, São Paulo - SP, 04211-040, Brasil",
+      "neighborhood": "Ipiranga",
+      "categoryId": "1",
+      "hasMenu": "0"
+    },
+    {
+      "id": "6500",
+      "name": "Raw Burger N Bar",
+      "slug": "raw-burger-n-bar",
+      "address": "R. Aspicuelta, 176 - Vila Madalena, São Paulo - SP, 05433-010, Brasil",
+      "neighborhood": "Vila Madalena",
+      "categoryId": "16",
+      "hasMenu": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\taddress\tneighborhood\tcategoryId\thasMenu\n5058\tGrawleria Aleluia\tgrawleria-aleluia\tR. Cisplatina, 321 - Ipiranga, São Paulo - SP, 04211-040, Brasil\tIpiranga\t1\t0\n6500\tRaw Burger N Bar\traw-burger-n-bar\tR. Aspicuelta, 176 - Vila Madalena, São Paulo - SP, 05433-010, Brasil\tVila Madalena\t16\t0\n",
+  "stderr": "",
+  "execution_time_ms": 399
+}

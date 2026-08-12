@@ -1,0 +1,190 @@
+{
+  "query": "SELECT name, address, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING cnt > 1 ORDER BY cnt DESC LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT name, address, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING cnt > 1 ORDER BY cnt DESC LIMIT 30;",
+  "rows": [
+    {
+      "name": "OAKBERRY Açaí",
+      "address": "Alameda dos Arapanés, 1006 - Moema, São Paulo - SP, 04524-001, Brasil",
+      "cnt": "6",
+      "ids": "5202,5279,5316,5359,5372,5592"
+    },
+    {
+      "name": "McDonald's",
+      "address": "Av. Paulista, 1811 - Bela Vista, São Paulo - SP, 01311-200, Brasil",
+      "cnt": "5",
+      "ids": "515,564,2168,2169,4347"
+    },
+    {
+      "name": "Santino Trattoria",
+      "address": "Rua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil",
+      "cnt": "4",
+      "ids": "424,425,426,427"
+    },
+    {
+      "name": "McDonald's",
+      "address": "Alameda dos Pamaris, 291 - Moema, São Paulo - SP, 04086-020, Brasil",
+      "cnt": "4",
+      "ids": "5197,5487,5517,5625"
+    },
+    {
+      "name": "Casa Bauducco",
+      "address": "R. Treze de Maio, 1947 - Bela Vista, São Paulo - SP, 04849-529, Brasil",
+      "cnt": "3",
+      "ids": "2144,2145,2146"
+    },
+    {
+      "name": "McDonald's",
+      "address": "Av. da Liberdade, 774 - Liberdade, São Paulo - SP, 01502-001, Brasil",
+      "cnt": "3",
+      "ids": "3550,3619,3620"
+    },
+    {
+      "name": "OAKBERRY Açaí",
+      "address": "R. dos Pinheiros, 466 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "cnt": "3",
+      "ids": "1391,1463,1521"
+    },
+    {
+      "name": "McDonald's",
+      "address": "Av. Nazaré, 1.674 - Ipiranga, São Paulo - SP, 04262-200, Brasil",
+      "cnt": "3",
+      "ids": "4753,4853,5055"
+    },
+    {
+      "name": "美食坊",
+      "address": "R. Galvão Bueno, 555 - Liberdade, São Paulo - SP, 01506-000, Brasil",
+      "cnt": "3",
+      "ids": "3521,3522,3523"
+    },
+    {
+      "name": "Casa do Shawarma",
+      "address": "R. Alm. Lobo, 203 - Ipiranga, São Paulo - SP, 04212-000, Brasil",
+      "cnt": "3",
+      "ids": "4923,4924,4925"
+    },
+    {
+      "name": "Burger King",
+      "address": "R. Periquito, 1615 - Vila Nova Conceição, São Paulo - SP, 04514-050, Brasil",
+      "cnt": "3",
+      "ids": "7436,7555,7607"
+    },
+    {
+      "name": "McDonald's",
+      "address": "R. Princesa Isabel, 606 - Cidade Monções, São Paulo - SP, 04601-001, Brasil",
+      "cnt": "3",
+      "ids": "4445,4547,4586"
+    },
+    {
+      "name": "Nanica Pompeia",
+      "address": "Rua Coronel Melo de Oliveira, 160 - R. Caraíbas, 762 - Pompeia, São Paulo - SP, 05011-040, Brasil",
+      "cnt": "2",
+      "ids": "987,1245"
+    },
+    {
+      "name": "Violeta Bar e Restaurante",
+      "address": "R. Augusta, 1343 - Consolação, São Paulo - SP, 01305-100, Brasil",
+      "cnt": "2",
+      "ids": "1486,3193"
+    },
+    {
+      "name": "Z Deli Sandwich Shop",
+      "address": "R. Francisco Leitão, 16 - Pinheiros, São Paulo - SP, 05414-020, Brasil",
+      "cnt": "2",
+      "ids": "346,1897"
+    },
+    {
+      "name": "Império 262",
+      "address": "Rua Barão de Jundiaí - R. Domingos Rodrigues, 262 - Lapa, São Paulo - SP, 05073-000, Brasil",
+      "cnt": "2",
+      "ids": "869,880"
+    },
+    {
+      "name": "FFJ Restaurante e Lanchonete",
+      "address": "Rua Arruda Alvim 418 - Av. Dr. Arnaldo, 1227 - Pinheiros, São Paulo - SP, 05410-020, Brasil",
+      "cnt": "2",
+      "ids": "1997,2008"
+    },
+    {
+      "name": "mug.sp - Casarão Pamplona",
+      "address": "R. Pamplona, 145 - Cerqueira César, São Paulo - SP, 01405-100, Brasil",
+      "cnt": "2",
+      "ids": "588,7721"
+    },
+    {
+      "name": "Santino trattoria",
+      "address": "Rua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil",
+      "cnt": "2",
+      "ids": "428,429"
+    },
+    {
+      "name": "Bar e Lanches Rav",
+      "address": "Rua John Harrison - Entrada com a - R. Doze de Outubro, 19 - Lapa, São Paulo - SP, 05073-000, Brasil",
+      "cnt": "2",
+      "ids": "801,920"
+    },
+    {
+      "name": "Pirajá",
+      "address": "R. dos Pinheiros, 209 - Pinheiros, São Paulo - SP, 05422-010, Brasil",
+      "cnt": "2",
+      "ids": "1332,1468"
+    },
+    {
+      "name": "Bar e Restaurante Trida",
+      "address": "Rua Barão de Jundiaí - Travessa com a - R. Dom João V, 650 - Lapa, São Paulo - SP, 05073-010, Brasil",
+      "cnt": "2",
+      "ids": "879,934"
+    },
+    {
+      "name": "St. Chico",
+      "address": "R. Fernão Dias, 461 - Pinheiros, São Paulo - SP, 05427-011, Brasil",
+      "cnt": "2",
+      "ids": "1723,1744"
+    },
+    {
+      "name": "My Baker",
+      "address": "R. Pedroso Alvarenga, 655 - Itaim Bibi, São Paulo - SP, 04531-011, Brasil",
+      "cnt": "2",
+      "ids": "275,2431"
+    },
+    {
+      "name": "Restaurante Pamplona",
+      "address": "R. Pamplona, 315 - Jardim Paulista, São Paulo - SP, 01405-000, Brasil",
+      "cnt": "2",
+      "ids": "576,577"
+    },
+    {
+      "name": "OAKBERRY Açaí",
+      "address": "R. Treze de Maio, 1974 - Bela Vista, São Paulo - SP, 01327-002, Brasil",
+      "cnt": "2",
+      "ids": "2175,2432"
+    },
+    {
+      "name": "Rei do Mate",
+      "address": "Av. Paulista, 2064 - Bela Vista, São Paulo - SP, 01310-928, Brasil",
+      "cnt": "2",
+      "ids": "2179,2583"
+    },
+    {
+      "name": "mug.sp - Avenida Paulista",
+      "address": "Av. Paulista, 1079 - Bela Vista, São Paulo - SP, 01311-200, Brasil",
+      "cnt": "2",
+      "ids": "2196,7720"
+    },
+    {
+      "name": "Lilo Café",
+      "address": "R. Carlos Sampaio, 148 - Bela Vista, São Paulo - SP, 01333-020, Brasil",
+      "cnt": "2",
+      "ids": "2450,2451"
+    },
+    {
+      "name": "Giba's Bar e Restaurante",
+      "address": "Av. Lins de Vasconcelos, 1113 - ou R. Amarante, 46, Av. Lins de Vasconcelos, 1125 - Cambuci, São Paulo - SP, 01537-000, Brasil",
+      "cnt": "2",
+      "ids": "2893,3049"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\taddress\tcnt\tids\nOAKBERRY Açaí\tAlameda dos Arapanés, 1006 - Moema, São Paulo - SP, 04524-001, Brasil\t6\t5202,5279,5316,5359,5372,5592\nMcDonald's\tAv. Paulista, 1811 - Bela Vista, São Paulo - SP, 01311-200, Brasil\t5\t515,564,2168,2169,4347\nSantino Trattoria\tRua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil\t4\t424,425,426,427\nMcDonald's\tAlameda dos Pamaris, 291 - Moema, São Paulo - SP, 04086-020, Brasil\t4\t5197,5487,5517,5625\nCasa Bauducco\tR. Treze de Maio, 1947 - Bela Vista, São Paulo - SP, 04849-529, Brasil\t3\t2144,2145,2146\nMcDonald's\tAv. da Liberdade, 774 - Liberdade, São Paulo - SP, 01502-001, Brasil\t3\t3550,3619,3620\nOAKBERRY Açaí\tR. dos Pinheiros, 466 - Pinheiros, São Paulo - SP, 05422-000, Brasil\t3\t1391,1463,1521\nMcDonald's\tAv. Nazaré, 1.674 - Ipiranga, São Paulo - SP, 04262-200, Brasil\t3\t4753,4853,5055\n美食坊\tR. Galvão Bueno, 555 - Liberdade, São Paulo - SP, 01506-000, Brasil\t3\t3521,3522,3523\nCasa do Shawarma\tR. Alm. Lobo, 203 - Ipiranga, São Paulo - SP, 04212-000, Brasil\t3\t4923,4924,4925\nBurger King\tR. Periquito, 1615 - Vila Nova Conceição, São Paulo - SP, 04514-050, Brasil\t3\t7436,7555,7607\nMcDonald's\tR. Princesa Isabel, 606 - Cidade Monções, São Paulo - SP, 04601-001, Brasil\t3\t4445,4547,4586\nNanica Pompeia\tRua Coronel Melo de Oliveira, 160 - R. Caraíbas, 762 - Pompeia, São Paulo - SP, 05011-040, Brasil\t2\t987,1245\nVioleta Bar e Restaurante\tR. Augusta, 1343 - Consolação, São Paulo - SP, 01305-100, Brasil\t2\t1486,3193\nZ Deli Sandwich Shop\tR. Francisco Leitão, 16 - Pinheiros, São Paulo - SP, 05414-020, Brasil\t2\t346,1897\nImpério 262\tRua Barão de Jundiaí - R. Domingos Rodrigues, 262 - Lapa, São Paulo - SP, 05073-000, Brasil\t2\t869,880\nFFJ Restaurante e Lanchonete\tRua Arruda Alvim 418 - Av. Dr. Arnaldo, 1227 - Pinheiros, São Paulo - SP, 05410-020, Brasil\t2\t1997,2008\nmug.sp - Casarão Pamplona\tR. Pamplona, 145 - Cerqueira César, São Paulo - SP, 01405-100, Brasil\t2\t588,7721\nSantino trattoria\tRua Adolfo Tabacow, 173 - Itaim Bibi, São Paulo - SP, 01453-040, Brasil\t2\t428,429\nBar e Lanches Rav\tRua John Harrison - Entrada com a - R. Doze de Outubro, 19 - Lapa, São Paulo - SP, 05073-000, Brasil\t2\t801,920\nPirajá\tR. dos Pinheiros, 209 - Pinheiros, São Paulo - SP, 05422-010, Brasil\t2\t1332,1468\nBar e Restaurante Trida\tRua Barão de Jundiaí - Travessa com a - R. Dom João V, 650 - Lapa, São Paulo - SP, 05073-010, Brasil\t2\t879,934\nSt. Chico\tR. Fernão Dias, 461 - Pinheiros, São Paulo - SP, 05427-011, Brasil\t2\t1723,1744\nMy Baker\tR. Pedroso Alvarenga, 655 - Itaim Bibi, São Paulo - SP, 04531-011, Brasil\t2\t275,2431\nRestaurante Pamplona\tR. Pamplona, 315 - Jardim Paulista, São Paulo - SP, 01405-000, Brasil\t2\t576,577\nOAKBERRY Açaí\tR. Treze de Maio, 1974 - Bela Vista, São Paulo - SP, 01327-002, Brasil\t2\t2175,2432\nRei do Mate\tAv. Paulista, 2064 - Bela Vista, São Paulo - SP, 01310-928, Brasil\t2\t2179,2583\nmug.sp - Avenida Paulista\tAv. Paulista, 1079 - Bela Vista, São Paulo - SP, 01311-200, Brasil\t2\t2196,7720\nLilo Café\tR. Carlos Sampaio, 148 - Bela Vista, São Paulo - SP, 01333-020, Brasil\t2\t2450,2451\nGiba's Bar e Restaurante\tAv. Lins de Vasconcelos, 1113 - ou R. Amarante, 46, Av. Lins de Vasconcelos, 1125 - Cambuci, São Paulo - SP, 01537-000, Brasil\t2\t2893,3049\n",
+  "stderr": "",
+  "execution_time_ms": 296
+}

@@ -1,0 +1,105 @@
+{
+  "query": "SELECT id, name, code FROM categories ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, code FROM categories ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar & Lanchonete",
+      "code": "ca001"
+    },
+    {
+      "id": "2",
+      "name": "Cozinha Brasileira",
+      "code": "ca002"
+    },
+    {
+      "id": "3",
+      "name": "Autoral / Contemporâneo",
+      "code": "ca003"
+    },
+    {
+      "id": "4",
+      "name": "Boteco Tradicional",
+      "code": "ca004"
+    },
+    {
+      "id": "5",
+      "name": "Boteco Moderno",
+      "code": "ca005"
+    },
+    {
+      "id": "6",
+      "name": "Pub",
+      "code": "ca006"
+    },
+    {
+      "id": "7",
+      "name": "Coquetelaria",
+      "code": "ca007"
+    },
+    {
+      "id": "8",
+      "name": "Cafeteria",
+      "code": "ca008"
+    },
+    {
+      "id": "9",
+      "name": "Padaria",
+      "code": "ca009"
+    },
+    {
+      "id": "10",
+      "name": "Balada",
+      "code": "ca010"
+    },
+    {
+      "id": "11",
+      "name": "Confeitaria",
+      "code": "ca011"
+    },
+    {
+      "id": "12",
+      "name": "Bar Musical",
+      "code": "ca012"
+    },
+    {
+      "id": "13",
+      "name": "Cervejaria",
+      "code": "ca013"
+    },
+    {
+      "id": "14",
+      "name": "Pizzaria",
+      "code": "ca014"
+    },
+    {
+      "id": "15",
+      "name": "Saudável",
+      "code": "ca015"
+    },
+    {
+      "id": "16",
+      "name": "Hamburgueria e Lanches",
+      "code": "ca016"
+    },
+    {
+      "id": "17",
+      "name": "Cozinha Internacional",
+      "code": "ca017"
+    },
+    {
+      "id": "30001",
+      "name": "Vegan",
+      "code": "ca018"
+    },
+    {
+      "id": "30002",
+      "name": "Açaí",
+      "code": "ca019"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcode\n1\tBar & Lanchonete\tca001\n2\tCozinha Brasileira\tca002\n3\tAutoral / Contemporâneo\tca003\n4\tBoteco Tradicional\tca004\n5\tBoteco Moderno\tca005\n6\tPub\tca006\n7\tCoquetelaria\tca007\n8\tCafeteria\tca008\n9\tPadaria\tca009\n10\tBalada\tca010\n11\tConfeitaria\tca011\n12\tBar Musical\tca012\n13\tCervejaria\tca013\n14\tPizzaria\tca014\n15\tSaudável\tca015\n16\tHamburgueria e Lanches\tca016\n17\tCozinha Internacional\tca017\n30001\tVegan\tca018\n30002\tAçaí\tca019\n",
+  "stderr": "",
+  "execution_time_ms": 393
+}

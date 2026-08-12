@@ -1,0 +1,82 @@
+{
+  "query": "SELECT id, name, address, phone, hours, rating, reviewCount FROM establishments WHERE id IN (1,2,3,4,5,6,7,8) ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, phone, hours, rating, reviewCount FROM establishments WHERE id IN (1,2,3,4,5,6,7,8) ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "address": "R. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil",
+      "phone": "(11) 3834-3888",
+      "hours": "Todos os dias: 11:30–23:00",
+      "rating": "3.9",
+      "reviewCount": "207"
+    },
+    {
+      "id": "2",
+      "name": "Dona Deôla - Lapa",
+      "address": "R. Pio XI, 1377 - Lapa, São Paulo - SP, 05468-150, Brasil",
+      "phone": "(11) 3022-5640",
+      "hours": "24 horas",
+      "rating": "4.2",
+      "reviewCount": "12530"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "address": "Rua Pio XI, 2061 - Alto de Pinheiros, São Paulo",
+      "phone": "(11) 3022-5267",
+      "hours": "Seg: Fechado | Ter a Sáb: 12:00–23:00 | Dom: 12:00–17:00",
+      "rating": "4.7",
+      "reviewCount": "891"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "address": "Rua Pio XI, 2301 - Alto de Pinheiros, São Paulo",
+      "phone": "(11) 99498-1844",
+      "hours": "Seg a Sáb: 11:30–14:30 | Dom: Fechado",
+      "rating": "4.6",
+      "reviewCount": "133"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "address": "Rua Pio XI, 2174 - Alto de Pinheiros, São Paulo",
+      "phone": "(11) 99944-6636",
+      "hours": "Seg: Fechado | Ter a Qui: 18:00–22:30 | Sex: 12:00–15:00, 18:00–22:30 | Sáb: 12:00–15:30, 18:00–22:30 | Dom: 12:00–16:00",
+      "rating": "4.6",
+      "reviewCount": "617"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "address": "Av. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil",
+      "phone": "(11) 3641-8248",
+      "hours": "Seg: Fechado | Ter a Sáb: 10:00–19:00 | Dom: Fechado",
+      "rating": "4.9",
+      "reviewCount": "75"
+    },
+    {
+      "id": "7",
+      "name": "Santa Etienne",
+      "address": "Av. Diógenes Ribeiro de Lima, 2555 - Alto de Pinheiros, São Paulo - SP, 05458-002, Brasil",
+      "phone": "(11) 3021-1200",
+      "hours": "24h",
+      "rating": "4.3",
+      "reviewCount": "9440"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "address": "Avenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo",
+      "phone": "(11) 94774-5571",
+      "hours": "Seg a Sex: 06:00–16:00 | Sáb a Dom: Fechado",
+      "rating": "4.4",
+      "reviewCount": "19"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tphone\thours\trating\treviewCount\n1\tBar do Alemão Lapa\tR. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil\t(11) 3834-3888\tTodos os dias: 11:30–23:00\t3.9\t207\n2\tDona Deôla - Lapa\tR. Pio XI, 1377 - Lapa, São Paulo - SP, 05468-150, Brasil\t(11) 3022-5640\t24 horas\t4.2\t12530\n3\tQuintal da Imperatriz\tRua Pio XI, 2061 - Alto de Pinheiros, São Paulo\t(11) 3022-5267\tSeg: Fechado | Ter a Sáb: 12:00–23:00 | Dom: 12:00–17:00\t4.7\t891\n4\tRestaurante Novo Talento\tRua Pio XI, 2301 - Alto de Pinheiros, São Paulo\t(11) 99498-1844\tSeg a Sáb: 11:30–14:30 | Dom: Fechado\t4.6\t133\n5\tShoyu Culinária Oriental\tRua Pio XI, 2174 - Alto de Pinheiros, São Paulo\t(11) 99944-6636\tSeg: Fechado | Ter a Qui: 18:00–22:30 | Sex: 12:00–15:00, 18:00–22:30 | Sáb: 12:00–15:30, 18:00–22:30 | Dom: 12:00–16:00\t4.6\t617\n6\tPanatè Artesanal\tAv. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil\t(11) 3641-8248\tSeg: Fechado | Ter a Sáb: 10:00–19:00 | Dom: Fechado\t4.9\t75\n7\tSanta Etienne\tAv. Diógenes Ribeiro de Lima, 2555 - Alto de Pinheiros, São Paulo - SP, 05458-002, Brasil\t(11) 3021-1200\t24h\t4.3\t9440\n8\tFood Truck da Neia\tAvenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo\t(11) 94774-5571\tSeg a Sex: 06:00–16:00 | Sáb a Dom: Fechado\t4.4\t19\n",
+  "stderr": "",
+  "execution_time_ms": 258
+}

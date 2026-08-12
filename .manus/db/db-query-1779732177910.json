@@ -1,0 +1,27 @@
+{
+  "query": "SELECT \n  SUM(CASE WHEN address LIKE '%Pres. %' THEN 1 ELSE 0 END) as pres,\n  SUM(CASE WHEN address LIKE '%Visc. %' THEN 1 ELSE 0 END) as visc,\n  SUM(CASE WHEN address LIKE '%Bar. %' THEN 1 ELSE 0 END) as bar,\n  SUM(CASE WHEN address LIKE '%Cde. %' THEN 1 ELSE 0 END) as cde,\n  SUM(CASE WHEN address LIKE '%Mq. %' THEN 1 ELSE 0 END) as mq,\n  SUM(CASE WHEN address LIKE '%Gov. %' THEN 1 ELSE 0 END) as gov,\n  SUM(CASE WHEN address LIKE '%Trav. %' THEN 1 ELSE 0 END) as trav,\n  SUM(CASE WHEN address LIKE '%Tv. %' THEN 1 ELSE 0 END) as tv,\n  SUM(CASE WHEN address LIKE '%Estr. %' THEN 1 ELSE 0 END) as estr,\n  SUM(CASE WHEN address LIKE '%Rod. %' THEN 1 ELSE 0 END) as rod,\n  SUM(CASE WHEN address LIKE '%Vd. %' THEN 1 ELSE 0 END) as vd,\n  SUM(CASE WHEN address LIKE '%Com. %' THEN 1 ELSE 0 END) as com,\n  SUM(CASE WHEN address LIKE '%Cons. %' THEN 1 ELSE 0 END) as cons,\n  SUM(CASE WHEN address LIKE '%Des. %' THEN 1 ELSE 0 END) as des,\n  SUM(CASE WHEN address LIKE '%Dep. %' THEN 1 ELSE 0 END) as dep\nFROM establishments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  SUM(CASE WHEN address LIKE '%Pres. %' THEN 1 ELSE 0 END) as pres,\n  SUM(CASE WHEN address LIKE '%Visc. %' THEN 1 ELSE 0 END) as visc,\n  SUM(CASE WHEN address LIKE '%Bar. %' THEN 1 ELSE 0 END) as bar,\n  SUM(CASE WHEN address LIKE '%Cde. %' THEN 1 ELSE 0 END) as cde,\n  SUM(CASE WHEN address LIKE '%Mq. %' THEN 1 ELSE 0 END) as mq,\n  SUM(CASE WHEN address LIKE '%Gov. %' THEN 1 ELSE 0 END) as gov,\n  SUM(CASE WHEN address LIKE '%Trav. %' THEN 1 ELSE 0 END) as trav,\n  SUM(CASE WHEN address LIKE '%Tv. %' THEN 1 ELSE 0 END) as tv,\n  SUM(CASE WHEN address LIKE '%Estr. %' THEN 1 ELSE 0 END) as estr,\n  SUM(CASE WHEN address LIKE '%Rod. %' THEN 1 ELSE 0 END) as rod,\n  SUM(CASE WHEN address LIKE '%Vd. %' THEN 1 ELSE 0 END) as vd,\n  SUM(CASE WHEN address LIKE '%Com. %' THEN 1 ELSE 0 END) as com,\n  SUM(CASE WHEN address LIKE '%Cons. %' THEN 1 ELSE 0 END) as cons,\n  SUM(CASE WHEN address LIKE '%Des. %' THEN 1 ELSE 0 END) as des,\n  SUM(CASE WHEN address LIKE '%Dep. %' THEN 1 ELSE 0 END) as dep\nFROM establishments;",
+  "rows": [
+    {
+      "pres": "6",
+      "visc": "4",
+      "bar": "0",
+      "cde": "0",
+      "mq": "0",
+      "gov": "0",
+      "trav": "0",
+      "tv": "3",
+      "estr": "3",
+      "rod": "2",
+      "vd": "0",
+      "com": "0",
+      "cons": "0",
+      "des": "0",
+      "dep": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "pres\tvisc\tbar\tcde\tmq\tgov\ttrav\ttv\testr\trod\tvd\tcom\tcons\tdes\tdep\n6\t4\t0\t0\t0\t0\t0\t3\t3\t2\t0\t0\t0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 388
+}

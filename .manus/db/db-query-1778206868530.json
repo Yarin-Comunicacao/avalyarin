@@ -1,0 +1,85 @@
+{
+  "query": "SELECT e.name, e.neighborhood, e.address\nFROM establishments e \nWHERE e.source = 'spreadsheet' AND e.categoryId = 2\nORDER BY RAND()\nLIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name, e.neighborhood, e.address\nFROM establishments e \nWHERE e.source = 'spreadsheet' AND e.categoryId = 2\nORDER BY RAND()\nLIMIT 15;",
+  "rows": [
+    {
+      "name": "Marvel Burguer",
+      "neighborhood": "Ipiranga",
+      "address": "Rua Maciel Parente, 51 - Ipiranga, São Paulo"
+    },
+    {
+      "name": "SOB",
+      "neighborhood": "Moema",
+      "address": "Avenida Ibirapuera, 3103 - 270 - Indianópolis, São Paulo"
+    },
+    {
+      "name": "De Mello's deli",
+      "neighborhood": "Perdizes",
+      "address": "Rua Caraíbas, 758 - Pompeia, São Paulo"
+    },
+    {
+      "name": "Moquecaria A Brasileira",
+      "neighborhood": "Perdizes",
+      "address": "Rua Cotoxó, 690 - Perdizes, São Paulo"
+    },
+    {
+      "name": "Culinária Orient",
+      "neighborhood": "Moema",
+      "address": "Alameda Jauaperi, 1437 - Moema, São Paulo"
+    },
+    {
+      "name": "Sol Da Barra",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 730 - Barra Funda, São Paulo"
+    },
+    {
+      "name": "Restaurante Luz do Sol",
+      "neighborhood": "República",
+      "address": "Rua Marconi, 140 - Jardim Palanque, São Paulo"
+    },
+    {
+      "name": "Incêndio Restaurante",
+      "neighborhood": "Pinheiros",
+      "address": "Rua dos Pinheiros, 808 - Pinheiros, São Paulo"
+    },
+    {
+      "name": "The Steak Factory - Shop. Ibirapuera",
+      "neighborhood": "Moema",
+      "address": "Piso Jurupis, Avenida Ibirapuera, 3103 - Indianópolis, São Paulo"
+    },
+    {
+      "name": "Restaurante Jura",
+      "neighborhood": "Moema",
+      "address": "Avenida Aratãs, 728 - Indianópolis, São Paulo"
+    },
+    {
+      "name": "Rei Dos Espetinhos",
+      "neighborhood": "Bom Retiro",
+      "address": "Rua Guarani, 162 - Bom Retiro, São Paulo"
+    },
+    {
+      "name": "Sauce Burgers",
+      "neighborhood": "Campo Belo",
+      "address": "Rua João de Sousa Dias, 475 - Campo Belo, São Paulo"
+    },
+    {
+      "name": "Flor de Sal",
+      "neighborhood": "Santa Cecília",
+      "address": "Rua Rosa e Silva, 163 - Higienópolis, São Paulo"
+    },
+    {
+      "name": "Restaurante Pepe legal",
+      "neighborhood": "Perdizes",
+      "address": "Rua Diana - Pompeia, São Paulo"
+    },
+    {
+      "name": "Nova Art",
+      "neighborhood": "Consolação",
+      "address": "Rua da Consolação, 1975 - Consolação, São Paulo"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tneighborhood\taddress\nMarvel Burguer\tIpiranga\tRua Maciel Parente, 51 - Ipiranga, São Paulo\nSOB\tMoema\tAvenida Ibirapuera, 3103 - 270 - Indianópolis, São Paulo\nDe Mello's deli\tPerdizes\tRua Caraíbas, 758 - Pompeia, São Paulo\nMoquecaria A Brasileira\tPerdizes\tRua Cotoxó, 690 - Perdizes, São Paulo\nCulinária Orient\tMoema\tAlameda Jauaperi, 1437 - Moema, São Paulo\nSol Da Barra\tBarra Funda\tRua Barra Funda, 730 - Barra Funda, São Paulo\nRestaurante Luz do Sol\tRepública\tRua Marconi, 140 - Jardim Palanque, São Paulo\nIncêndio Restaurante\tPinheiros\tRua dos Pinheiros, 808 - Pinheiros, São Paulo\nThe Steak Factory - Shop. Ibirapuera\tMoema\tPiso Jurupis, Avenida Ibirapuera, 3103 - Indianópolis, São Paulo\nRestaurante Jura\tMoema\tAvenida Aratãs, 728 - Indianópolis, São Paulo\nRei Dos Espetinhos\tBom Retiro\tRua Guarani, 162 - Bom Retiro, São Paulo\nSauce Burgers\tCampo Belo\tRua João de Sousa Dias, 475 - Campo Belo, São Paulo\nFlor de Sal\tSanta Cecília\tRua Rosa e Silva, 163 - Higienópolis, São Paulo\nRestaurante Pepe legal\tPerdizes\tRua Diana - Pompeia, São Paulo\nNova Art\tConsolação\tRua da Consolação, 1975 - Consolação, São Paulo\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}

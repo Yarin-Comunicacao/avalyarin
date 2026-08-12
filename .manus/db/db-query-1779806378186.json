@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as invalidos\nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT COUNT(*) as invalidos\nFROM establishments \nWHERE status = 'pending' \n  AND address IS NOT NULL AND address != '' \n  AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ';\n",
+  "rows": [
+    {
+      "invalidos": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "invalidos\n0\n",
+  "stderr": "",
+  "execution_time_ms": 268
+}

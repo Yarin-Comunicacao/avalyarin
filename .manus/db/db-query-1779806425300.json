@@ -1,0 +1,9 @@
+{
+  "query": "\n-- BARU Bistrô: endereço correto é Av. Brigadeiro Faria Lima, complemento Shopping Iguatemi\nUPDATE establishments \nSET address = 'Avenida Brigadeiro Faria Lima', \n    complement = 'Shopping Iguatemi',\n    addressNumber = '2232'\nWHERE id = 1921;\n\n-- HASHI Tea: extrair complemento\nUPDATE establishments \nSET address = 'Rua dos Aflitos',\n    complement = 'Galeria Pingo Doce, loja F-02'\nWHERE id = 4352;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \n-- BARU Bistrô: endereço correto é Av. Brigadeiro Faria Lima, complemento Shopping Iguatemi\nUPDATE establishments \nSET address = 'Avenida Brigadeiro Faria Lima', \n    complement = 'Shopping Iguatemi',\n    addressNumber = '2232'\nWHERE id = 1921;\n\n-- HASHI Tea: extrair complemento\nUPDATE establishments \nSET address = 'Rua dos Aflitos',\n    complement = 'Galeria Pingo Doce, loja F-02'\nWHERE id = 4352;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 275
+}

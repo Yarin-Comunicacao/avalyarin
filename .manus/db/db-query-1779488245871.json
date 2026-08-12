@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name LIMIT 10 OFFSET 44;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%Delivery%' OR name LIKE '%delivery%') ORDER BY name LIMIT 10 OFFSET 44;",
+  "rows": [
+    {
+      "id": "7286",
+      "name": "Show de Rango Restaurante e Delivery",
+      "neighborhood": "Cursino"
+    },
+    {
+      "id": "7036",
+      "name": "️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️",
+      "neighborhood": "Liberdade"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n7286\tShow de Rango Restaurante e Delivery\tCursino\n7036\t️Famiglia Franciulli - Padaria Italiana - Padaria em Liberdade - Pão Italiano - Baguete - Padaria Delivery ️\tLiberdade\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

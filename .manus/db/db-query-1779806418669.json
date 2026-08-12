@@ -1,0 +1,20 @@
+{
+  "query": "\nSELECT id, name, address\nFROM establishments \nWHERE status = 'pending' \n  AND (complement IS NULL OR complement = '')\n  AND (\n    address LIKE '%Shopping%' OR address LIKE '%Galeria%' \n    OR address LIKE '% Lj %' OR address LIKE '% Lj.%' OR address LIKE '%- Lj%'\n    OR address LIKE '%, conj%' OR address LIKE '%, bloco%'\n  );\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, name, address\nFROM establishments \nWHERE status = 'pending' \n  AND (complement IS NULL OR complement = '')\n  AND (\n    address LIKE '%Shopping%' OR address LIKE '%Galeria%' \n    OR address LIKE '% Lj %' OR address LIKE '% Lj.%' OR address LIKE '%- Lj%'\n    OR address LIKE '%, conj%' OR address LIKE '%, bloco%'\n  );\n",
+  "rows": [
+    {
+      "id": "1921",
+      "name": "BARU Bistrô - Iguatemi",
+      "address": "Avenida - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Avenida Brigadeiro Faria Lima"
+    },
+    {
+      "id": "4352",
+      "name": "HASHI Tea & Dim Sum",
+      "address": "Rua dos Aflitos, Galeria Pingo Doce, loja F-02"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\n1921\tBARU Bistrô - Iguatemi\tAvenida - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Avenida Brigadeiro Faria Lima\n4352\tHASHI Tea & Dim Sum\tRua dos Aflitos, Galeria Pingo Doce, loja F-02\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

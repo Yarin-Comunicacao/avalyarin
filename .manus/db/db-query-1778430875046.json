@@ -1,0 +1,55 @@
+{
+  "query": "SELECT \n  e.id,\n  e.name,\n  e.address,\n  e.neighborhood,\n  e.hours,\n  c.name as category_name,\n  CASE WHEN EXISTS (SELECT 1 FROM menu_items m WHERE m.establishmentId = e.id) THEN 'Sim' ELSE 'Não' END as tem_cardapio\nFROM establishments e\nLEFT JOIN categories c ON e.categoryId = c.id\nORDER BY c.name, e.name\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  e.id,\n  e.name,\n  e.address,\n  e.neighborhood,\n  e.hours,\n  c.name as category_name,\n  CASE WHEN EXISTS (SELECT 1 FROM menu_items m WHERE m.establishmentId = e.id) THEN 'Sim' ELSE 'Não' END as tem_cardapio\nFROM establishments e\nLEFT JOIN categories c ON e.categoryId = c.id\nORDER BY c.name, e.name\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "4099",
+      "name": "A Casa do Porco Bar",
+      "address": "R. Araújo, 124 - República, São Paulo - SP, 01220-020, Brasil",
+      "neighborhood": "República",
+      "hours": "Seg a Sáb: 12:00–23:00 | Dom: 12:00–17:00",
+      "category_name": "Autoral / Contemporâneo",
+      "tem_cardapio": "Não"
+    },
+    {
+      "id": "3820",
+      "name": "A Casa do Porco Lab - Laboratório de Ideias",
+      "address": "Av. Ipiranga, 200 - Centro Histórico de São Paulo, São Paulo - SP, 01046-030, Brasil",
+      "neighborhood": "República",
+      "hours": "Seg a Sáb: 12:00–23:00 | Dom: 12:00–17:00",
+      "category_name": "Autoral / Contemporâneo",
+      "tem_cardapio": "Não"
+    },
+    {
+      "id": "5825",
+      "name": "AE! Cozinha",
+      "address": "R. Áurea, 343 - Vila Mariana, São Paulo - SP, 04015-070, Brasil",
+      "neighborhood": "Vila Mariana",
+      "hours": "Seg a Ter: Fechado | Qua: 19:00–22:00 | Qui a Sex: 12:00–15:00, 19:00–22:00 | Sáb: 12:00–16:00, 19:30–22:30 | Dom: 12:00–17:00",
+      "category_name": "Autoral / Contemporâneo",
+      "tem_cardapio": "Não"
+    },
+    {
+      "id": "1749",
+      "name": "Altar Cozinha Afro Pop Ancestral - São Paulo",
+      "address": "R. Simão Álvares, 445 - Pinheiros, São Paulo - SP, 05417-030, Brasil",
+      "neighborhood": "Pinheiros",
+      "hours": "Seg a Ter: Fechado | Qua a Sáb: 12:00–16:00, 18:00–22:00 | Dom: 00:00–18:00",
+      "category_name": "Autoral / Contemporâneo",
+      "tem_cardapio": "Não"
+    },
+    {
+      "id": "3089",
+      "name": "Assanhadxs: Nu Erotic Food Augusta",
+      "address": "R. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil",
+      "neighborhood": "Consolação",
+      "hours": "Seg a Ter: Fechado | Qua a Qui: 18:00–21:45 | Sex: 18:00–23:45 | Sáb: 15:00–23:45 | Dom: 15:00–21:45",
+      "category_name": "Autoral / Contemporâneo",
+      "tem_cardapio": "Não"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tneighborhood\thours\tcategory_name\ttem_cardapio\n4099\tA Casa do Porco Bar\tR. Araújo, 124 - República, São Paulo - SP, 01220-020, Brasil\tRepública\tSeg a Sáb: 12:00–23:00 | Dom: 12:00–17:00\tAutoral / Contemporâneo\tNão\n3820\tA Casa do Porco Lab - Laboratório de Ideias\tAv. Ipiranga, 200 - Centro Histórico de São Paulo, São Paulo - SP, 01046-030, Brasil\tRepública\tSeg a Sáb: 12:00–23:00 | Dom: 12:00–17:00\tAutoral / Contemporâneo\tNão\n5825\tAE! Cozinha\tR. Áurea, 343 - Vila Mariana, São Paulo - SP, 04015-070, Brasil\tVila Mariana\tSeg a Ter: Fechado | Qua: 19:00–22:00 | Qui a Sex: 12:00–15:00, 19:00–22:00 | Sáb: 12:00–16:00, 19:30–22:30 | Dom: 12:00–17:00\tAutoral / Contemporâneo\tNão\n1749\tAltar Cozinha Afro Pop Ancestral - São Paulo\tR. Simão Álvares, 445 - Pinheiros, São Paulo - SP, 05417-030, Brasil\tPinheiros\tSeg a Ter: Fechado | Qua a Sáb: 12:00–16:00, 18:00–22:00 | Dom: 00:00–18:00\tAutoral / Contemporâneo\tNão\n3089\tAssanhadxs: Nu Erotic Food Augusta\tR. Augusta, 1291 - Consolação, São Paulo - SP, 01305-100, Brasil\tConsolação\tSeg a Ter: Fechado | Qua a Qui: 18:00–21:45 | Sex: 18:00–23:45 | Sáb: 15:00–23:45 | Dom: 15:00–21:45\tAutoral / Contemporâneo\tNão\n",
+  "stderr": "",
+  "execution_time_ms": 460
+}

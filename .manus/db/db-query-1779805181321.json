@@ -1,0 +1,43 @@
+{
+  "query": "SELECT COUNT(*) as remaining FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\nSELECT id, name, address, complement FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as remaining FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\nSELECT id, name, address, complement FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)' LIMIT 20;",
+  "rows": [
+    {
+      "remaining": "9"
+    },
+    {
+      "remaining": "id\tname\taddress\tcomplement"
+    },
+    {
+      "remaining": "2244\tCentral Bela Vista\tChácara de Recreio Jardim Alvorada, Botucatu - SP, Brasil\tNULL"
+    },
+    {
+      "remaining": "4345\tGaúcho do Bras\tVia 16 Rua Direita/65\tNULL"
+    },
+    {
+      "remaining": "4371\tLANCHONETE CENTRO\tViaduto Nove de Julho\tNULL"
+    },
+    {
+      "remaining": "4626\tLimeira SP\tJardim Residencial Campo Belo, Limeira - SP, Brasil\tNULL"
+    },
+    {
+      "remaining": "5021\tMortais Roots Bar\trua 16 de dezembro 132 Rua pires de Camargo viela parda\tNULL"
+    },
+    {
+      "remaining": "5555\tBar do Peixe\tAv Macucocom Al Arapanes787\tNULL"
+    },
+    {
+      "remaining": "5685\tSol Nascente\tquadra 501 área especial 02 trecho 01 - SH Sol Nascente Chácara 203 Conjunto B - Sol Nascente/Pôr do Sol, Brasília - DF, Brasil\tNULL"
+    },
+    {
+      "remaining": "6322\tFrutaria Fit\tShopping Eldorado Avenida Rebouças2°subsolo - Bodytech\tNULL"
+    },
+    {
+      "remaining": "6784\tFrancescolli Pizzaria\tATENDIMENTO & WHTSAPP (21) 97105 - 8244___Av. Lacerda Franco\tNULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "remaining\n9\nid\tname\taddress\tcomplement\n2244\tCentral Bela Vista\tChácara de Recreio Jardim Alvorada, Botucatu - SP, Brasil\tNULL\n4345\tGaúcho do Bras\tVia 16 Rua Direita/65\tNULL\n4371\tLANCHONETE CENTRO\tViaduto Nove de Julho\tNULL\n4626\tLimeira SP\tJardim Residencial Campo Belo, Limeira - SP, Brasil\tNULL\n5021\tMortais Roots Bar\trua 16 de dezembro 132 Rua pires de Camargo viela parda\tNULL\n5555\tBar do Peixe\tAv Macucocom Al Arapanes787\tNULL\n5685\tSol Nascente\tquadra 501 área especial 02 trecho 01 - SH Sol Nascente Chácara 203 Conjunto B - Sol Nascente/Pôr do Sol, Brasília - DF, Brasil\tNULL\n6322\tFrutaria Fit\tShopping Eldorado Avenida Rebouças2°subsolo - Bodytech\tNULL\n6784\tFrancescolli Pizzaria\tATENDIMENTO & WHTSAPP (21) 97105 - 8244___Av. Lacerda Franco\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

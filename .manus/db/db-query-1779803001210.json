@@ -1,0 +1,13 @@
+{
+  "query": "SELECT DISTINCT address FROM establishments WHERE address LIKE '%Eugenio%' OR address LIKE '%Americo%' OR address LIKE '%Olimpio%' OR address LIKE '%Jeronimo%' OR address LIKE '%Candido%' OR address LIKE '%Alvaro%' OR address LIKE '%Otavio%' OR address LIKE '%Lucio%' OR address LIKE '%Decio%' OR address LIKE '%Tulio%' LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT address FROM establishments WHERE address LIKE '%Eugenio%' OR address LIKE '%Americo%' OR address LIKE '%Olimpio%' OR address LIKE '%Jeronimo%' OR address LIKE '%Candido%' OR address LIKE '%Alvaro%' OR address LIKE '%Otavio%' OR address LIKE '%Lucio%' OR address LIKE '%Decio%' OR address LIKE '%Tulio%' LIMIT 30;",
+  "rows": [
+    {
+      "address": "Alameda Joaquim Eugenio de Lima - Vila Marta, 1674 - casa 12 - Jardim Paulista, São Paulo - SP, 01403-002, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nAlameda Joaquim Eugenio de Lima - Vila Marta, 1674 - casa 12 - Jardim Paulista, São Paulo - SP, 01403-002, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 338
+}

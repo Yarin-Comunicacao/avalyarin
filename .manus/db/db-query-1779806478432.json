@@ -1,0 +1,70 @@
+{
+  "query": "\nSELECT id, name FROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND LENGTH(name) > 50\nORDER BY LENGTH(name) DESC\nLIMIT 15;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, name FROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND LENGTH(name) > 50\nORDER BY LENGTH(name) DESC\nLIMIT 15;\n",
+  "rows": [
+    {
+      "id": "6759",
+      "name": "Bolo da Madre Aclimação: Bolos, Pudins, Mousse de Chocolate, Mousse de Maracuja, Doces, Bolo de Pote, Tortas em São Paulo SP"
+    },
+    {
+      "id": "6135",
+      "name": "Forneria Flora, Restaurante Bar, Gastronomia Artesanal, Pizzaria Na Lapa, Hamburgueria Na Lapa e Restaurante Bar Na Lapa"
+    },
+    {
+      "id": "7245",
+      "name": "Bar Dois Irmãos - O melhor bar da zona sul de São Paulo, música ao vivo, pizza crocante e chopp gelado"
+    },
+    {
+      "id": "4665",
+      "name": "Dindos Assados - Almoço, Espetinhos, Assados, Massas e Guarnições, hambúrgueres."
+    },
+    {
+      "id": "7571",
+      "name": "Pecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP"
+    },
+    {
+      "id": "7656",
+      "name": "Magrana Confeitaria Sem Glúten, Leite e opções sem Açúcar - Chef Pri Lorente"
+    },
+    {
+      "id": "6889",
+      "name": "Bolo da Madre Shopping Frei: Bolos, Doces, Bolo de Pote, Tortas emm São Paulo SP"
+    },
+    {
+      "id": "5289",
+      "name": "البيك للشاورما والأكلات العربية Al Baik Comida Árabe"
+    },
+    {
+      "id": "7142",
+      "name": "Bolo da Madre Higienópolis: Bolos, Doces, Bolo de Pote, Tortas em São Paulo SP"
+    },
+    {
+      "id": "1436",
+      "name": "Consulado Mineiro Pinheiros: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery"
+    },
+    {
+      "id": "7442",
+      "name": "Pecorino Bar & Trattoria Shopping Ibirapuera: Massas, Risoto, Pizza, Vinho, SP"
+    },
+    {
+      "id": "4621",
+      "name": "Bar do Juarez Brooklin: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP"
+    },
+    {
+      "id": "3894",
+      "name": "Pecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP"
+    },
+    {
+      "id": "6327",
+      "name": "Pecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP"
+    },
+    {
+      "id": "6076",
+      "name": "Pecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n6759\tBolo da Madre Aclimação: Bolos, Pudins, Mousse de Chocolate, Mousse de Maracuja, Doces, Bolo de Pote, Tortas em São Paulo SP\n6135\tForneria Flora, Restaurante Bar, Gastronomia Artesanal, Pizzaria Na Lapa, Hamburgueria Na Lapa e Restaurante Bar Na Lapa\n7245\tBar Dois Irmãos - O melhor bar da zona sul de São Paulo, música ao vivo, pizza crocante e chopp gelado\n4665\tDindos Assados - Almoço, Espetinhos, Assados, Massas e Guarnições, hambúrgueres.\n7571\tPecorino Bar & Trattoria Vila Nova Conceição: Massas, Risoto, Pizza, Delivery SP\n7656\tMagrana Confeitaria Sem Glúten, Leite e opções sem Açúcar - Chef Pri Lorente\n6889\tBolo da Madre Shopping Frei: Bolos, Doces, Bolo de Pote, Tortas emm São Paulo SP\n5289\tالبيك للشاورما والأكلات العربية Al Baik Comida Árabe\n7142\tBolo da Madre Higienópolis: Bolos, Doces, Bolo de Pote, Tortas em São Paulo SP\n1436\tConsulado Mineiro Pinheiros: Feijoada, Carne de Sol, Feijão Tropeiro, Delivery\n7442\tPecorino Bar & Trattoria Shopping Ibirapuera: Massas, Risoto, Pizza, Vinho, SP\n4621\tBar do Juarez Brooklin: Chopp, Picanha, Feijoada, Almoço, Drinks, Delivery SP\n3894\tPecorino Bar & Trattoria Shopping Light: Massas, Risotto, Vinho, Delivery, SP\n6327\tPecorino Bar & Trattoria Eldorado: Massas, Risoto, Pizza, Vinho, Delivery SP\n6076\tPecorino Bar & Trattoria Jardins: Massas, Risoto, Pizza, Vinho, Delivery SP\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

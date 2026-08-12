@@ -1,0 +1,25 @@
+{
+  "query": "SELECT neighborhood, COUNT(*) as total,\n  SUM(CASE WHEN instagram IS NULL OR instagram = '' THEN 1 ELSE 0 END) as without_instagram\nFROM establishments \nWHERE neighborhood IN ('Vila Madalena', 'Pinheiros', 'Alto de Pinheiros')\nGROUP BY neighborhood\nORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT neighborhood, COUNT(*) as total,\n  SUM(CASE WHEN instagram IS NULL OR instagram = '' THEN 1 ELSE 0 END) as without_instagram\nFROM establishments \nWHERE neighborhood IN ('Vila Madalena', 'Pinheiros', 'Alto de Pinheiros')\nGROUP BY neighborhood\nORDER BY total DESC;",
+  "rows": [
+    {
+      "neighborhood": "Pinheiros",
+      "total": "941",
+      "without_instagram": "905"
+    },
+    {
+      "neighborhood": "Vila Madalena",
+      "total": "115",
+      "without_instagram": "102"
+    },
+    {
+      "neighborhood": "Alto de Pinheiros",
+      "total": "23",
+      "without_instagram": "20"
+    }
+  ],
+  "messages": [],
+  "stdout": "neighborhood\ttotal\twithout_instagram\nPinheiros\t941\t905\nVila Madalena\t115\t102\nAlto de Pinheiros\t23\t20\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

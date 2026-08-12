@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as remaining FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\n-- Fix ID 137: \"133 - Rua Professor Wilfrides Alves de Lima\" → número no início\nUPDATE establishments SET addressNumber = '133', address = 'Rua Professor Wilfrides Alves de Lima' WHERE id = 137;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as remaining FROM establishments WHERE address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela)';\n\n-- Fix ID 137: \"133 - Rua Professor Wilfrides Alves de Lima\" → número no início\nUPDATE establishments SET addressNumber = '133', address = 'Rua Professor Wilfrides Alves de Lima' WHERE id = 137;",
+  "rows": [
+    {
+      "remaining": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "remaining\n1\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

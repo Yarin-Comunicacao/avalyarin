@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total_duplicates FROM establishments e INNER JOIN (SELECT name, address, MIN(id) as keep_id FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING COUNT(*) > 1) d ON e.name = d.name AND e.address = d.address AND e.id != d.keep_id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total_duplicates FROM establishments e INNER JOIN (SELECT name, address, MIN(id) as keep_id FROM establishments WHERE address IS NOT NULL AND address != '' GROUP BY name, address HAVING COUNT(*) > 1) d ON e.name = d.name AND e.address = d.address AND e.id != d.keep_id;",
+  "rows": [
+    {
+      "total_duplicates": "112"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_duplicates\n112\n",
+  "stderr": "",
+  "execution_time_ms": 292
+}

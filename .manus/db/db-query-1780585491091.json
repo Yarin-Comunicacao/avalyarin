@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100012', 30002, 'Hambúrguer Quebec (Brioche)', 'Hambúrguer especial da casa no pão brioche', 40.90, 'Hambúrguers'),\n('mi100013', 30002, 'Hambúrguer Toronto', 'Hambúrguer especial Toronto', 35.80, 'Hambúrguers'),\n('mi100014', 30002, 'Hambúrguer Montreal', 'Hambúrguer especial Montreal', 36.80, 'Hambúrguers'),\n('mi100015', 30002, 'Hambúrguer Canadense', 'Hambúrguer especial Canadense', 36.80, 'Hambúrguers');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute INSERT INTO menu_items (code, establishmentId, name, description, price, category) VALUES\n('mi100012', 30002, 'Hambúrguer Quebec (Brioche)', 'Hambúrguer especial da casa no pão brioche', 40.90, 'Hambúrguers'),\n('mi100013', 30002, 'Hambúrguer Toronto', 'Hambúrguer especial Toronto', 35.80, 'Hambúrguers'),\n('mi100014', 30002, 'Hambúrguer Montreal', 'Hambúrguer especial Montreal', 36.80, 'Hambúrguers'),\n('mi100015', 30002, 'Hambúrguer Canadense', 'Hambúrguer especial Canadense', 36.80, 'Hambúrguers');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 276
+}

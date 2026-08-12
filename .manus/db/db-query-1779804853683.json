@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, name FROM establishments WHERE name LIKE '%-%' AND LENGTH(name) > 40 LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name FROM establishments WHERE name LIKE '%-%' AND LENGTH(name) > 40 LIMIT 20;",
+  "rows": [
+    {
+      "id": "92",
+      "name": "PILOTTO - Restaurante de frutos do mar e bar de ostras"
+    },
+    {
+      "id": "157",
+      "name": "Lanchonete Portal da Barra Ltda Me - Naldo e Edílson's Bar."
+    },
+    {
+      "id": "188",
+      "name": "Casa Tão Longe, Tão Perto - Barra Funda"
+    },
+    {
+      "id": "222",
+      "name": "Chef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi)"
+    },
+    {
+      "id": "251",
+      "name": "Temperani Trattoria: Restaurante italiano Itaim Bibi - SP"
+    },
+    {
+      "id": "331",
+      "name": "DELIAMAZON - Restaurante e emporio amazônico"
+    },
+    {
+      "id": "342",
+      "name": "Piadino - Restaurante (antiga Piadina Romagnola)"
+    },
+    {
+      "id": "434",
+      "name": "Restaurante DOK Daily Original Kitchen - Radisson"
+    },
+    {
+      "id": "604",
+      "name": "Mister Sanduba - Restaurante e Lanchonete"
+    },
+    {
+      "id": "717",
+      "name": "Restaurante Caruzzo - Delivery cardápio wzap 9.3458.1818"
+    },
+    {
+      "id": "908",
+      "name": "Ragazzo Express VestCasa - Marginal Tietê"
+    },
+    {
+      "id": "983",
+      "name": "Frutos de Goiás - Perdizes (Quintal Palestra)"
+    },
+    {
+      "id": "1033",
+      "name": "China In Box - Restaurante de Comida Chinesa"
+    },
+    {
+      "id": "1063",
+      "name": "Sou Ice Perdizes - Sorvete Picole e Congelados"
+    },
+    {
+      "id": "1100",
+      "name": "Sabor de Família Perdizes - Comida Congelada"
+    },
+    {
+      "id": "1179",
+      "name": "Santa Fé A Costela - Cupim Do Netão (Restaurante Churrascaria Bar)"
+    },
+    {
+      "id": "1253",
+      "name": "O Boteco Argentino - Empanadas (Delivery & Takeout)"
+    },
+    {
+      "id": "1279",
+      "name": "Bacio di Latte - Shopping Eldorado (Quiosque)"
+    },
+    {
+      "id": "1316",
+      "name": "Montana Grill Express - Shopping Eldorado"
+    },
+    {
+      "id": "1340",
+      "name": "Restaurante Mei Mei - Culinária Asiática"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n92\tPILOTTO - Restaurante de frutos do mar e bar de ostras\n157\tLanchonete Portal da Barra Ltda Me - Naldo e Edílson's Bar.\n188\tCasa Tão Longe, Tão Perto - Barra Funda\n222\tChef Erick Jacquin - Ça-Va Bistrô (Itaim Bibi)\n251\tTemperani Trattoria: Restaurante italiano Itaim Bibi - SP\n331\tDELIAMAZON - Restaurante e emporio amazônico\n342\tPiadino - Restaurante (antiga Piadina Romagnola)\n434\tRestaurante DOK Daily Original Kitchen - Radisson\n604\tMister Sanduba - Restaurante e Lanchonete\n717\tRestaurante Caruzzo - Delivery cardápio wzap 9.3458.1818\n908\tRagazzo Express VestCasa - Marginal Tietê\n983\tFrutos de Goiás - Perdizes (Quintal Palestra)\n1033\tChina In Box - Restaurante de Comida Chinesa\n1063\tSou Ice Perdizes - Sorvete Picole e Congelados\n1100\tSabor de Família Perdizes - Comida Congelada\n1179\tSanta Fé A Costela - Cupim Do Netão (Restaurante Churrascaria Bar)\n1253\tO Boteco Argentino - Empanadas (Delivery & Takeout)\n1279\tBacio di Latte - Shopping Eldorado (Quiosque)\n1316\tMontana Grill Express - Shopping Eldorado\n1340\tRestaurante Mei Mei - Culinária Asiática\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

@@ -1,0 +1,1301 @@
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json, date, bigint, unique } from "drizzle-orm/mysql-core";
+
+/**
+ * Core user table backing auth flow.
+ */
+export const users = mysqlTable("users", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 16 }).unique(), // Visual ID: numeric (1-200000000)
+  openId: varchar("openId", { length: 64 }).notNull().unique(),
+  name: text("name"),
+  email: varchar("email", { length: 320 }),
+  loginMethod: varchar("loginMethod", { length: 64 }),
+  username: varchar("username", { length: 64 }).unique(),
+  birthdate: varchar("birthdate", { length: 10 }), // YYYY-MM-DD
+  surveyData: json("surveyData"), // Full survey answers JSON
+  role: mysqlEnum("role", ["user", "admin", "owner", "business", "specialist", "critic", "support"]).default("user").notNull(),
+  verified: boolean("verified").default(false).notNull(),
+  phone: varchar("phone", { length: 32 }),
+  phoneVerified: boolean("phoneVerified").default(false).notNull(),
+  gender: mysqlEnum("gender", ["masculino", "feminino", "prefiro_nao_informar"]),
+  description: varchar("description", { length: 120 }),
+  profilePhotoUrl: text("profilePhotoUrl"),
+  profilePhotoKey: varchar("profilePhotoKey", { length: 512 }),
+  facebookId: varchar("facebookId", { length: 64 }),
+  googleId: varchar("googleId", { length: 128 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  passwordResetToken: varchar("passwordResetToken", { length: 255 }),
+  passwordResetExpires: timestamp("passwordResetExpires"),
+  emailVerified: boolean("emailVerified").default(false).notNull(),
+  lat: float("lat"),
+  lng: float("lng"),
+  locationSharing: boolean("locationSharing").default(false).notNull(),
+  locationUpdatedAt: bigint("locationUpdatedAt", { mode: "number" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  ownerUsernames: json("ownerUsernames"), // { user: "alan_1927", specialist: "specalan", critic: "criticalan" } — only for owners
+});
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+
+/**
+ * Categories table - types of establishments (Bar & Lanchonete, Cozinha Brasileira, etc.)
+ */
+export const categories = mysqlTable("categories", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 8 }).unique(), // Visual ID: ca001-ca999
+  slug: varchar("slug", { length: 128 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 64 }),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = typeof categories.$inferInsert;
+
+/**
+ * Establishments table - bars, restaurants, cafes, etc.
+ */
+export const establishments = mysqlTable("establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: es000001-es999999
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: text("address"),
+  neighborhood: varchar("neighborhood", { length: 128 }),
+  region: varchar("region", { length: 64 }),
+  lat: float("lat"),
+  lng: float("lng"),
+  rating: float("rating"),
+  reviewCount: int("reviewCount"),
+  image: text("image"),
+  logo: text("logo"),
+  hours: varchar("hours", { length: 255 }),
+  phone: varchar("phone", { length: 64 }),
+  instagram: varchar("instagram", { length: 128 }),
+  categoryId: int("categoryId").notNull(),
+  description: text("description"),
+  complement: varchar("complement", { length: 255 }),
+  addressNumber: varchar("addressNumber", { length: 20 }),
+  hasMenu: boolean("hasMenu").default(false).notNull(),
+  status: mysqlEnum("status", ["active", "hidden", "pending"]).default("active").notNull(),
+  source: varchar("source", { length: 32 }).default("spreadsheet"),
+  tags: json("tags").$type<string[]>(),
+  // Reservation configuration
+  acceptsReservations: boolean("acceptsReservations").default(true).notNull(),
+  reservationMinAdvanceMinutes: int("reservationMinAdvanceMinutes").default(30), // 30min, 60min, 1440min (1 dia)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Establishment = typeof establishments.$inferSelect;
+export type InsertEstablishment = typeof establishments.$inferInsert;
+
+/**
+ * Menu items table - dishes, drinks, etc. belonging to an establishment
+ */
+export const menuItems = mysqlTable("menu_items", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: mi000001-mi999999
+  establishmentId: int("establishmentId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  price: float("price"),
+  category: varchar("category", { length: 64 }),
+  imageUrl: text("imageUrl"),
+  imageKey: varchar("imageKey", { length: 512 }),
+  imageThumbUrl: text("imageThumbUrl"),
+  imageThumbKey: varchar("imageThumbKey", { length: 512 }),
+  tags: json("tags").$type<string[]>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MenuItemRow = typeof menuItems.$inferSelect;
+export type InsertMenuItem = typeof menuItems.$inferInsert;
+
+/**
+ * Ratings table - user ratings for establishments
+ */
+export const ratings = mysqlTable("ratings", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: ra000001-ra999999
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  type: mysqlEnum("type", ["direct", "analytic"]).notNull(),
+  visitDate: timestamp("visitDate"),
+  overallScore: float("overallScore"),
+  // Cost breakdown
+  subtotal: float("subtotal"),
+  servicePercent: float("servicePercent"),
+  couvert: float("couvert"),
+  valet: float("valet"),
+  parking: float("parking"),
+  totalCost: float("totalCost"),
+  // Analytic criteria scores (JSON for flexibility)
+  criteriaScores: json("criteriaScores"),
+  // Bonus criteria scores
+  bonusScores: json("bonusScores"),
+    source: mysqlEnum("source", ["presencial", "hibrido", "remoto"]).default("remoto").notNull(),
+  relevanceScore: int("relevanceScore"), // 0-100, LLM-calculated comment depth/utility score
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Rating = typeof ratings.$inferSelect;
+export type InsertRating = typeof ratings.$inferInsert;
+
+/**
+ * Rating items table - individual item ratings within a rating
+ */
+export const ratingItems = mysqlTable("rating_items", {
+  id: int("id").autoincrement().primaryKey(),
+  ratingId: int("ratingId").notNull(),
+  menuItemId: int("menuItemId"),
+  itemName: varchar("itemName", { length: 255 }).notNull(),
+  score: float("score").notNull(),
+  comment: text("comment"),
+  quantity: int("quantity").default(1),
+  price: float("price"),
+  lowScoreReasons: json("lowScoreReasons"), // Array of selected reasons when score 1-6
+  whatMissedForTen: text("whatMissedForTen"), // Free text: "O que faltou para o 10?" when score 7-9
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RatingItem = typeof ratingItems.$inferSelect;
+export type InsertRatingItem = typeof ratingItems.$inferInsert;
+
+/**
+ * Business claims table - requests from business owners to manage an establishment
+ */
+export const businessClaims = mysqlTable("business_claims", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  businessRole: mysqlEnum("businessRole", ["owner", "manager", "staff"]).default("owner").notNull(),
+  invitedBy: int("invitedBy"),
+  // Proof of ownership
+  businessName: varchar("businessName", { length: 255 }),
+  contactPhone: varchar("contactPhone", { length: 32 }),
+  contactEmail: varchar("contactEmail", { length: 320 }),
+  proofDescription: text("proofDescription"),
+  // Admin response
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BusinessClaim = typeof businessClaims.$inferSelect;
+export type InsertBusinessClaim = typeof businessClaims.$inferInsert;
+
+/**
+ * User rankings table - personal top 10 (or top 3) per category
+ * Each row represents one establishment in a user's ranking for a specific category.
+ * Position 1 = best, position 10 = 10th best.
+ */
+export const userRankings = mysqlTable("user_rankings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  position: int("position").notNull(), // 1-10
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserRanking = typeof userRankings.$inferSelect;
+export type InsertUserRanking = typeof userRankings.$inferInsert;
+
+/**
+ * Age verification requests table — when a user wants to set birthdate that makes them <18,
+ * they must upload an identity document (RG/CPF) for admin review.
+ */
+export const ageVerificationRequests = mysqlTable("age_verification_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  documentUrl: text("documentUrl").notNull(), // S3 storage URL
+  documentKey: varchar("documentKey", { length: 512 }).notNull(), // S3 key
+  requestedBirthdate: varchar("requestedBirthdate", { length: 10 }).notNull(), // YYYY-MM-DD
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AgeVerificationRequest = typeof ageVerificationRequests.$inferSelect;
+export type InsertAgeVerificationRequest = typeof ageVerificationRequests.$inferInsert;
+
+/**
+ * User plans table — tracks subscription tier per user.
+ * free = default (3 avaliações/dia, 3 groups max)
+ * premium = R$9,90/mês (5 avaliações/dia, grupos ilimitados, Double na 1ª visita)
+ * embaixador = R$19,90/mês (avaliações ilimitadas, descontos parceiros, destaque)
+ */
+export const userPlans = mysqlTable("user_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  plan: mysqlEnum("plan", ["free", "premium", "embaixador"]).default("free").notNull(),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserPlan = typeof userPlans.$inferSelect;
+export type InsertUserPlan = typeof userPlans.$inferInsert;
+
+/**
+ * Subscriptions table — tracks payment history and subscription lifecycle.
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  plan: mysqlEnum("plan", ["premium", "embaixador"]).notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "expired", "past_due"]).default("active").notNull(),
+  priceMonthly: float("priceMonthly").notNull(), // valor em R$
+  paymentMethod: mysqlEnum("paymentMethod", ["pix", "credit_card", "admin_grant"]).default("admin_grant").notNull(),
+  startsAt: timestamp("startsAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+  cancelledAt: timestamp("cancelledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Business subscriptions — plans for establishments.
+ * free = 1 código promo ativo, perfil básico
+ * premium = códigos ilimitados, analytics, destaque no app
+ */
+export const businessSubscriptions = mysqlTable("business_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(), // business owner
+  plan: mysqlEnum("plan", ["free", "premium"]).default("free").notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "expired"]).default("active").notNull(),
+  priceMonthly: float("priceMonthly"), // null = free
+  missedPayments: int("missedPayments").default(0).notNull(), // histórico de inadimplência (1ª=20d, 2ª=15d, 3ª+=5d)
+  startsAt: timestamp("startsAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type BusinessSubscription = typeof businessSubscriptions.$inferSelect;
+export type InsertBusinessSubscription = typeof businessSubscriptions.$inferInsert;
+
+/**
+ * Groups table — two types:
+ * - "private": user shares ratings with chosen members (Meus Grupos)
+ * - "specialist": creator publishes reviews/notes, followers can view (Grupos que Sigo)
+ */
+export const groups = mysqlTable("groups", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: gr000001-gr999999
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["private", "specialist", "broadcast"]).notNull(),
+  creatorId: int("creatorId").notNull(),
+  image: text("image"),
+  memberCount: int("memberCount").default(0).notNull(),
+  createdAsRole: varchar("createdAsRole", { length: 20 }).default("user"), // Role the owner was viewing as when creating
+  linkedEntityId: int("linkedEntityId"), // establishment ID or user ID for broadcast groups
+  linkedEntityType: mysqlEnum("linkedEntityType", ["establishment", "specialist", "critic"]), // type of linked entity
+  isFixed: boolean("isFixed").default(false).notNull(), // true = cannot be deleted by owner, only support/admin/owner
+  pinnedMessageId: int("pinnedMessageId"), // ID da mensagem fixada no topo do chat (apenas uma por vez)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Group = typeof groups.$inferSelect;
+export type InsertGroup = typeof groups.$inferInsert;
+
+/**
+ * Group members table — tracks membership in groups.
+ * For private groups: role is "member" or "admin" (creator)
+ * For specialist groups: role is "creator" or "follower"
+ */
+export const groupMembers = mysqlTable("group_members", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["admin", "member", "creator", "follower"]).default("member").notNull(),
+  hidden: boolean("hidden").default(false).notNull(), // true = grupo oculto (silenciado, sem notificação)
+  leftAt: timestamp("leftAt"), // null = ativo, set = saiu do grupo
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+});
+
+export type GroupMember = typeof groupMembers.$inferSelect;
+export type InsertGroupMember = typeof groupMembers.$inferInsert;
+
+/**
+ * Group invites table — pending invitations for private groups.
+ * Inviter sends to invitee via @username; invitee accepts/rejects.
+ */
+export const groupInvites = mysqlTable("group_invites", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  inviterId: int("inviterId").notNull(),
+  inviteeId: int("inviteeId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GroupInvite = typeof groupInvites.$inferSelect;
+export type InsertGroupInvite = typeof groupInvites.$inferInsert;
+
+/**
+ * Group shared ratings — links a rating to a group so members can see it.
+ * For private groups: any member can share their rating.
+ * For specialist groups: only the creator shares ratings (as "posts").
+ */
+export const groupSharedRatings = mysqlTable("group_shared_ratings", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  ratingId: int("ratingId").notNull(),
+  sharedById: int("sharedById").notNull(),
+  note: text("note"), // Optional note/annotation from the sharer
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GroupSharedRating = typeof groupSharedRatings.$inferSelect;
+export type InsertGroupSharedRating = typeof groupSharedRatings.$inferInsert;
+
+/**
+ * Establishment posts table — ephemeral 9:16 vertical content (Stories-like)
+ * Posted by business accounts, shown in carousels on Home.
+ * Types: event, promotion, brand, menu_daily
+ */
+export const establishmentPosts = mysqlTable("establishment_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(), // who posted (business account)
+  type: mysqlEnum("type", ["event", "promotion", "brand", "menu_daily", "new_item", "collab"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  imageUrl: text("imageUrl").notNull(), // 9:16 vertical image
+  imageKey: varchar("imageKey", { length: 512 }), // S3 key
+  linkUrl: text("linkUrl"), // optional external link
+  // Scheduling and expiration
+  startsAt: timestamp("startsAt").notNull(), // when post becomes visible
+  expiresAt: timestamp("expiresAt").notNull(), // when post disappears
+  // Metrics
+  viewCount: int("viewCount").default(0).notNull(),
+  tapCount: int("tapCount").default(0).notNull(), // taps/clicks
+  // Status
+  status: mysqlEnum("status", ["draft", "active", "expired", "removed"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EstablishmentPost = typeof establishmentPosts.$inferSelect;
+export type InsertEstablishmentPost = typeof establishmentPosts.$inferInsert;
+
+/**
+ * User saved establishments — "following" an establishment for the Salvos carousel
+ */
+export const userSavedEstablishments = mysqlTable("user_saved_establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserSavedEstablishment = typeof userSavedEstablishments.$inferSelect;
+export type InsertUserSavedEstablishment = typeof userSavedEstablishments.$inferInsert;
+
+/**
+ * Establishment categories (N:N) — allows multiple categories per establishment.
+ * isPrimary = true means the original/main category.
+ */
+export const establishmentCategories = mysqlTable("establishment_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  isPrimary: boolean("isPrimary").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EstablishmentCategory = typeof establishmentCategories.$inferSelect;
+export type InsertEstablishmentCategory = typeof establishmentCategories.$inferInsert;
+
+/**
+ * Menu categories table — tracks category names and their display order per establishment.
+ * Allows drag-and-drop reordering of menu categories.
+ */
+export const menuCategories = mysqlTable("menu_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MenuCategory = typeof menuCategories.$inferSelect;
+export type InsertMenuCategory = typeof menuCategories.$inferInsert;
+
+
+// ============================================================
+// Business Notifications (persistent, e.g. new ratings received)
+// ============================================================
+export const businessNotifications = mysqlTable("business_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // business owner
+  establishmentId: int("establishmentId").notNull(),
+  type: varchar("type", { length: 64 }).notNull(), // 'new_rating', 'claim_approved', etc.
+  title: varchar("title", { length: 256 }).notNull(),
+  message: text("message"),
+  ratingId: int("ratingId"), // optional reference to the rating
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BusinessNotification = typeof businessNotifications.$inferSelect;
+export type InsertBusinessNotification = typeof businessNotifications.$inferInsert;
+
+
+// ============================================================
+// Promo Codes — códigos promocionais criados por estabs ou specialists
+// ============================================================
+export const promoCodes = mysqlTable("promo_codes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 20 }).notNull().unique(), // ex: YARIN10, SAMBA20
+  type: mysqlEnum("type", ["percentage", "buy_one_get_one", "free_item", "fixed_discount"]).notNull(),
+  value: float("value"), // valor do desconto (% ou R$), null para buy_one_get_one
+  description: text("description"), // descrição visível ao usuário
+  creatorId: int("creatorId").notNull(), // user id do criador
+  creatorType: mysqlEnum("creatorType", ["specialist", "business", "critic"]).notNull(),
+  establishmentId: int("establishmentId"), // estab vinculado (NULL = qualquer parceiro)
+  startsAt: bigint("startsAt", { mode: "number" }), // início validade (timestamp ms)
+  expiresAt: bigint("expiresAt", { mode: "number" }), // fim validade (NULL = permanente, requer plano pago)
+  maxUses: int("maxUses"), // limite total (NULL = ilimitado)
+  maxUsesPerUser: int("maxUsesPerUser").default(1), // limite por usuário
+  firstVisitOnly: boolean("firstVisitOnly").default(false).notNull(), // só na primeira visita
+  status: mysqlEnum("status", ["pending_approval", "active", "rejected", "expired", "paused"]).default("pending_approval").notNull(),
+  adminNotes: text("adminNotes"), // notas do admin ao aprovar/rejeitar
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type InsertPromoCode = typeof promoCodes.$inferInsert;
+
+// ============================================================
+// Promo Code Uses — registro de uso de códigos por usuários
+// ============================================================
+export const promoCodeUses = mysqlTable("promo_code_uses", {
+  id: int("id").autoincrement().primaryKey(),
+  codeId: int("codeId").notNull(), // FK para promo_codes.id
+  userId: int("userId").notNull(), // usuário que usou
+  establishmentId: int("establishmentId").notNull(), // estab onde foi usado
+  discountApplied: float("discountApplied"), // valor real do desconto aplicado
+  usedAt: timestamp("usedAt").defaultNow().notNull(),
+});
+
+export type PromoCodeUse = typeof promoCodeUses.$inferSelect;
+export type InsertPromoCodeUse = typeof promoCodeUses.$inferInsert;
+
+// ============================================================
+// Promo Code Establishments — vínculo N:N entre códigos e estabs
+// Cada estab responde individualmente: pending → accepted | on_hold
+// ============================================================
+export const promoCodeEstablishments = mysqlTable("promo_code_establishments", {
+  id: int("id").autoincrement().primaryKey(),
+  promoCodeId: int("promoCodeId").notNull(), // FK para promo_codes.id
+  establishmentId: int("establishmentId").notNull(), // FK para establishments.id
+  status: mysqlEnum("status", ["pending", "accepted", "on_hold"]).default("pending").notNull(),
+  respondedAt: bigint("respondedAt", { mode: "number" }), // quando o business respondeu
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PromoCodeEstablishment = typeof promoCodeEstablishments.$inferSelect;
+export type InsertPromoCodeEstablishment = typeof promoCodeEstablishments.$inferInsert;
+
+// ============================================================
+// Specialist Applications — solicitações para virar specialist
+// ============================================================
+export const specialistApplications = mysqlTable("specialist_applications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // quem está solicitando
+  selectedRatingIds: json("selectedRatingIds").notNull(), // array de IDs de ratings selecionadas
+  totalRatings: int("totalRatings").notNull(), // total de avaliações do usuário no momento
+  qualifiedRatings: int("qualifiedRatings").notNull(), // quantas das selecionadas são qualificadas
+  motivation: text("motivation"), // texto opcional de motivação
+  socialMedia: text("socialMedia"), // links de redes sociais (Instagram, TikTok, etc.)
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"), // notas do admin ao aprovar/rejeitar
+  reviewedAt: bigint("reviewedAt", { mode: "number" }), // quando foi revisado
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SpecialistApplication = typeof specialistApplications.$inferSelect;
+export type InsertSpecialistApplication = typeof specialistApplications.$inferInsert;
+
+// ============================================================
+// Partnerships — parcerias entre specialists e estabelecimentos
+// ============================================================
+export const partnerships = mysqlTable("partnerships", {
+  id: int("id").autoincrement().primaryKey(),
+  partnershipType: mysqlEnum("partnershipType", ["specialist", "business"]).default("specialist").notNull(), // tipo de parceria
+  specialistId: int("specialistId"), // user id do specialist (NULL se B2B)
+  partnerEstablishmentId: int("partnerEstablishmentId"), // estab parceiro no B2B (NULL se specialist)
+  establishmentId: int("establishmentId").notNull(), // estab que propõe/recebe
+  promoCodeId: int("promoCodeId"), // código vinculado à parceria (opcional)
+  proposedBy: mysqlEnum("proposedBy", ["specialist", "establishment"]).notNull(),
+  status: mysqlEnum("status", ["pending_estab", "pending_support", "active", "rejected_estab", "rejected_support", "cancelled", "expired"]).default("pending_estab").notNull(),
+  terms: text("terms"), // termos da parceria (desconto oferecido, condições)
+  estabNotes: text("estabNotes"), // notas do estab ao aceitar/rejeitar
+  supportNotes: text("supportNotes"), // notas do support ao aprovar/rejeitar
+  startsAt: bigint("startsAt", { mode: "number" }), // início da parceria
+  expiresAt: bigint("expiresAt", { mode: "number" }), // fim da parceria (NULL = indefinido)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Partnership = typeof partnerships.$inferSelect;
+export type InsertPartnership = typeof partnerships.$inferInsert;
+
+
+// ============================================================
+// QR Scans — registro de scans de QR code com geolocalização
+// ============================================================
+export const qrScans = mysqlTable("qr_scans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  latitude: float("latitude"),
+  longitude: float("longitude"),
+  scannedAt: bigint("scannedAt", { mode: "number" }).notNull(), // Unix timestamp ms
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type QrScan = typeof qrScans.$inferSelect;
+export type InsertQrScan = typeof qrScans.$inferInsert;
+
+// ============================================================
+// Specialist Follows — usuários seguindo specialists
+// ============================================================
+export const specialistFollows = mysqlTable("specialist_follows", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // quem segue
+  specialistId: int("specialistId").notNull(), // specialist seguido
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SpecialistFollow = typeof specialistFollows.$inferSelect;
+export type InsertSpecialistFollow = typeof specialistFollows.$inferInsert;
+
+// ============================================================
+// Support Assignments — vincula estabs à carteira de um suporte
+// ============================================================
+export const supportAssignments = mysqlTable("support_assignments", {
+  id: int("id").autoincrement().primaryKey(),
+  supportUserId: int("supportUserId").notNull(), // user com role 'support'
+  establishmentId: int("establishmentId").notNull(),
+  assignedBy: int("assignedBy").notNull(), // admin que fez a atribuição
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+});
+
+export type SupportAssignment = typeof supportAssignments.$inferSelect;
+export type InsertSupportAssignment = typeof supportAssignments.$inferInsert;
+
+// ============================================================
+// Support Tickets — tickets de suporte vinculados a estabs
+// ============================================================
+export const supportTickets = mysqlTable("support_tickets", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: st000001-st999999
+  establishmentId: int("establishmentId").notNull(),
+  supportUserId: int("supportUserId"), // suporte atribuído (null = não atribuído)
+  createdById: int("createdById").notNull(), // quem criou (business, support ou admin)
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  resolution: text("resolution"), // notas de resolução
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = typeof supportTickets.$inferInsert;
+
+// ============================================================
+// Group Events — eventos agendados dentro de grupos
+// ============================================================
+export const groupEvents = mysqlTable("group_events", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 12 }).unique(), // Visual ID: ev000001-ev999999
+  groupId: int("groupId").notNull(),
+  creatorId: int("creatorId").notNull(),
+  establishmentId: int("establishmentId"), // agora opcional: pode ser local manual ou votação
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  eventDate: timestamp("eventDate").notNull(), // data e hora do evento
+  maxGuests: int("maxGuests"), // limite de pessoas (null = sem limite)
+  eventType: mysqlEnum("eventType", ["event", "reservation"]).default("event").notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
+  // Local do evento: defined = local definido, voting = em votação, decided = votação concluída
+  locationMode: mysqlEnum("locationMode", ["defined", "voting", "decided"]).default("defined").notNull(),
+  // Local manual (quando não é estabelecimento do banco)
+  manualLocationName: varchar("manualLocationName", { length: 255 }),
+  manualLocationAddress: varchar("manualLocationAddress", { length: 512 }),
+  votingClosesAt: timestamp("votingClosesAt"), // prazo da votação (opcional)
+  // RSVP deadline: data limite para responder (padrão: 30min antes do evento)
+  rsvpDeadline: timestamp("rsvpDeadline"),
+  // Business management fields
+  businessStatus: mysqlEnum("businessStatus", ["pending", "confirmed", "rejected"]).default("pending").notNull(),
+  businessNote: text("businessNote"), // observação do business para o grupo
+  businessRejectionReason: varchar("businessRejectionReason", { length: 500 }),
+  // Promotion fields
+  promoCode: varchar("promoCode", { length: 100 }),
+  promoDescription: text("promoDescription"),
+  suggestedMenu: text("suggestedMenu"), // sugestão de cardápio especial
+  // Cancellation
+  cancelReason: text("cancelReason"),
+  cancelledBy: mysqlEnum("cancelledBy", ["creator", "business"]),
+  // Rescheduling
+  originalDate: timestamp("originalDate"), // data original antes de reagendar
+  rescheduledBy: mysqlEnum("rescheduledBy", ["creator", "business"]),
+  // Attendance tracking
+  attendanceMarked: boolean("attendanceMarked").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type GroupEvent = typeof groupEvents.$inferSelect;
+export type InsertGroupEvent = typeof groupEvents.$inferInsert;
+
+// ============================================================
+// Event Location Options — opções de local para votação (2-5 por evento)
+// ============================================================
+export const eventLocationOptions = mysqlTable("event_location_options", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  establishmentId: int("establishmentId"), // opção do banco (null = manual)
+  manualName: varchar("manualName", { length: 255 }), // nome manual
+  manualAddress: varchar("manualAddress", { length: 512 }), // endereço manual
+  isWinner: boolean("isWinner").default(false).notNull(), // opção vencedora
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EventLocationOption = typeof eventLocationOptions.$inferSelect;
+export type InsertEventLocationOption = typeof eventLocationOptions.$inferInsert;
+
+// ============================================================
+// Event Location Votes — votos dos membros (múltipla escolha permitida)
+// ============================================================
+export const eventLocationVotes = mysqlTable("event_location_votes", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  optionId: int("optionId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EventLocationVote = typeof eventLocationVotes.$inferSelect;
+export type InsertEventLocationVote = typeof eventLocationVotes.$inferInsert;
+
+// ============================================================
+// Event RSVPs — confirmações de presença nos eventos
+// ============================================================
+export const eventRsvps = mysqlTable("event_rsvps", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  userId: int("userId").notNull(),
+  status: mysqlEnum("status", ["confirmed", "maybe", "declined"]).default("confirmed").notNull(),
+  respondedAt: timestamp("respondedAt").defaultNow().notNull(),
+});
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = typeof eventRsvps.$inferInsert;
+
+// ============================================================
+// Event Attendance — presença real no evento (marcada pelo business)
+// ============================================================
+export const eventAttendance = mysqlTable("event_attendance", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  userId: int("userId").notNull(),
+  attended: boolean("attended").default(true).notNull(),
+  markedBy: int("markedBy").notNull(), // business user who marked
+  markedAt: timestamp("markedAt").defaultNow().notNull(),
+});
+export type EventAttendance = typeof eventAttendance.$inferSelect;
+export type InsertEventAttendance = typeof eventAttendance.$inferInsert;
+
+// ============================================================
+// Rating Photos — fotos enviadas nas avaliações
+// ============================================================
+export const ratingPhotos = mysqlTable("rating_photos", {
+  id: int("id").autoincrement().primaryKey(),
+  ratingId: int("ratingId").notNull(),
+  userId: int("userId").notNull(),
+  storageKey: varchar("storageKey", { length: 512 }).notNull(),
+  url: varchar("url", { length: 512 }).notNull(),
+  taggedItemIds: text("taggedItemIds"), // JSON array of menu item IDs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type RatingPhoto = typeof ratingPhotos.$inferSelect;
+export type InsertRatingPhoto = typeof ratingPhotos.$inferInsert;
+
+// ============================================================
+// Photo Verifications — resultados da verificação de fotos por IA
+// ============================================================
+export const photoVerifications = mysqlTable("photo_verifications", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  ratingId: int("ratingId").notNull(),
+  verified: boolean("verified").notNull().default(false),
+  confidence: varchar("confidence", { length: 20 }).notNull().default("low"), // high, medium, low
+  matchesClaimedItem: boolean("matchesClaimedItem").notNull().default(false),
+  multipleItemsDetected: boolean("multipleItemsDetected").notNull().default(false),
+  detectedItems: text("detectedItems"), // JSON array
+  suggestedItemMatches: text("suggestedItemMatches"), // JSON array
+  reason: text("reason"),
+  rawAnalysis: text("rawAnalysis"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoVerification = typeof photoVerifications.$inferSelect;
+export type InsertPhotoVerification = typeof photoVerifications.$inferInsert;
+
+// ============================================================
+// Integrations — tokens e configurações de integrações externas
+// ============================================================
+export const integrations = mysqlTable("integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(),
+  value: text("value"),
+  label: varchar("label", { length: 255 }),
+  updatedBy: int("updatedBy"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = typeof integrations.$inferInsert;
+
+// ============================================================
+// Critic Profiles — perfis de críticos gastronômicos verificados
+// ============================================================
+export const criticProfiles = mysqlTable("critic_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  displayName: varchar("displayName", { length: 255 }),
+  bio: text("bio"),
+  publication: varchar("publication", { length: 255 }), // Veículo: "Folha de S.Paulo", "Blog Gastro SP", etc.
+  publicationUrl: varchar("publicationUrl", { length: 512 }),
+  specialty: varchar("specialty", { length: 255 }), // Ex: "Cozinha Japonesa", "Bares de Coquetelaria"
+  verified: boolean("verified").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CriticProfile = typeof criticProfiles.$inferSelect;
+export type InsertCriticProfile = typeof criticProfiles.$inferInsert;
+
+// ============================================================
+// Chat — Mensagens de grupo, suporte 1:1, transmissões business
+// ============================================================
+
+/**
+ * Group messages — chat dentro de grupos (limite 140 chars).
+ * Qualquer membro (user, specialist, critic) pode enviar.
+ */
+export const groupMessages = mysqlTable("group_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  senderId: int("senderId").notNull(),
+  content: varchar("content", { length: 140 }).notNull(),
+  // Tipo especial para compartilhamentos (avaliação, estabelecimento, perfil, enquete)
+  type: mysqlEnum("type", ["text", "share_rating", "share_establishment", "share_profile", "poll", "event", "reservation"]).default("text").notNull(),
+  referenceId: int("referenceId"), // ID do item compartilhado (ratingId, establishmentId, userId, pollId)
+  referenceSlug: varchar("referenceSlug", { length: 255 }), // slug para link direto
+  replyToId: int("replyToId"), // ID da mensagem sendo respondida
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type GroupMessage = typeof groupMessages.$inferSelect;
+export type InsertGroupMessage = typeof groupMessages.$inferInsert;
+
+/**
+ * Support messages — chat 1:1 entre support e clientes.
+ * Support pode enviar para qualquer role; cliente responde no mesmo thread.
+ */
+export const supportMessages = mysqlTable("support_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  establishmentId: int("establishmentId"), // Thread key: conversa separada por estab (null = conversa geral)
+  content: text("content").notNull(),
+  read: boolean("read").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SupportMessage = typeof supportMessages.$inferSelect;
+export type InsertSupportMessage = typeof supportMessages.$inferInsert;
+
+/**
+ * Business broadcasts — mensagens de transmissão do business para seguidores.
+ * Apenas o business envia; seguidores (quem salvou) apenas leem.
+ */
+export const businessBroadcasts = mysqlTable("business_broadcasts", {
+  id: int("id").autoincrement().primaryKey(),
+  businessUserId: int("businessUserId").notNull(), // userId do dono do business
+  establishmentId: int("establishmentId").notNull(),
+  content: varchar("content", { length: 280 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BusinessBroadcast = typeof businessBroadcasts.$inferSelect;
+export type InsertBusinessBroadcast = typeof businessBroadcasts.$inferInsert;
+
+/**
+ * Business followers — quem salvou o business entra automaticamente no canal.
+ * Read-only para o follower; o business envia broadcasts.
+ */
+export const businessFollowers = mysqlTable("business_followers", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BusinessFollower = typeof businessFollowers.$inferSelect;
+export type InsertBusinessFollower = typeof businessFollowers.$inferInsert;
+
+
+/**
+ * User follows — relação de seguir entre usuários.
+ */
+export const userFollows = mysqlTable("user_follows", {
+  id: int("id").autoincrement().primaryKey(),
+  followerId: int("followerId").notNull(),
+  followingId: int("followingId").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted"]).default("accepted").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type UserFollow = typeof userFollows.$inferSelect;
+export type InsertUserFollow = typeof userFollows.$inferInsert;
+
+/**
+ * Direct messages — chat 1:1 entre users que se seguem mutuamente.
+ */
+export const directMessages = mysqlTable("direct_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("senderId").notNull(),
+  recipientId: int("recipientId").notNull(),
+  content: varchar("content", { length: 500 }).notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DirectMessage = typeof directMessages.$inferSelect;
+export type InsertDirectMessage = typeof directMessages.$inferInsert;
+
+// ============================================================
+// Photo Likes — curtidas em fotos de avaliações
+// ============================================================
+export const photoLikes = mysqlTable("photo_likes", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoLike = typeof photoLikes.$inferSelect;
+export type InsertPhotoLike = typeof photoLikes.$inferInsert;
+
+// ============================================================
+// Photo Shares — compartilhamentos de fotos para grupos
+// ============================================================
+export const photoShares = mysqlTable("photo_shares", {
+  id: int("id").autoincrement().primaryKey(),
+  photoId: int("photoId").notNull(),
+  userId: int("userId").notNull(),
+  groupId: int("groupId").notNull(),
+  comment: varchar("comment", { length: 280 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PhotoShare = typeof photoShares.$inferSelect;
+export type InsertPhotoShare = typeof photoShares.$inferInsert;
+
+// ============================================================
+// Duplicate Alerts — alertas de estabelecimentos duplicados
+// ============================================================
+export const duplicateAlerts = mysqlTable("duplicate_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  existingEstablishmentId: int("existingEstablishmentId").notNull(),
+  newEstablishmentId: int("newEstablishmentId").notNull(),
+  reason: varchar("reason", { length: 50 }).notNull(), // same_address, same_phone, same_address_phone, manual
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, approved, rejected
+  flaggedBy: int("flaggedBy").notNull(),
+  reviewedBy: int("reviewedBy"),
+  notes: varchar("notes", { length: 500 }),
+  reviewNotes: varchar("reviewNotes", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+});
+export type DuplicateAlert = typeof duplicateAlerts.$inferSelect;
+export type InsertDuplicateAlert = typeof duplicateAlerts.$inferInsert;
+
+// ============================================================
+// Establishment Events — eventos criados por business accounts
+// ============================================================
+export const establishmentEvents = mysqlTable("establishment_events", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  createdById: int("createdById").notNull(), // userId do business
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(), // 200-550 chars
+  coverImageUrl: text("coverImageUrl").notNull(), // URL da imagem de capa
+  coverImageKey: varchar("coverImageKey", { length: 512 }), // S3 key
+  // Datas e horários
+  startDate: bigint("startDate", { mode: "number" }).notNull(), // Unix timestamp ms - início do evento
+  endDate: bigint("endDate", { mode: "number" }).notNull(), // Unix timestamp ms - fim do evento
+  // Local
+  locationType: mysqlEnum("locationType", ["establishment", "custom"]).default("establishment").notNull(),
+  customAddress: text("customAddress"), // endereço customizado (se locationType = custom)
+  customAddressNumber: varchar("customAddressNumber", { length: 20 }),
+  customNeighborhood: varchar("customNeighborhood", { length: 128 }),
+  customCity: varchar("customCity", { length: 128 }),
+  // Entrada
+  entryType: mysqlEnum("entryType", ["free", "paid"]).notNull(),
+  paidType: mysqlEnum("paidType", ["single", "batches"]).default("single"), // tipo de pagamento
+  singlePrice: float("singlePrice"), // preço único (se paidType = single)
+  hasDoorPrice: boolean("hasDoorPrice").default(false), // valor diferente na porta
+  doorPrice: float("doorPrice"), // preço na porta
+  // Tipo de atração
+  eventType: mysqlEnum("eventType", [
+    "esporte", "show", "festa", "gastronomia", "cultural",
+    "stand_up", "quiz", "degustacao", "workshop", "karaoke",
+    "dj", "sertanejo", "pagode", "forro", "samba", "outro"
+  ]).notNull(),
+  // Link de ingresso (apenas plano pago)
+  ticketUrl: varchar("ticketUrl", { length: 500 }), // URL para compra de ingresso
+  // Status
+  status: mysqlEnum("status", ["active", "cancelled", "completed"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EstablishmentEvent = typeof establishmentEvents.$inferSelect;
+export type InsertEstablishmentEvent = typeof establishmentEvents.$inferInsert;
+
+// ============================================================
+// Event Batches — lotes de pagamento para eventos
+// ============================================================
+export const eventBatches = mysqlTable("event_batches", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  batchNumber: int("batchNumber").notNull(), // 1, 2, 3... até 10
+  batchName: varchar("batchName", { length: 64 }).notNull(), // "1º Lote", "2º Lote"...
+  price: float("price").notNull(), // valor do lote em R$
+  expiresAt: bigint("expiresAt", { mode: "number" }), // data de virada do lote (timestamp ms)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EventBatch = typeof eventBatches.$inferSelect;
+export type InsertEventBatch = typeof eventBatches.$inferInsert;
+
+// ============================================================
+// Survey Questions — perguntas editáveis pelo Owner
+// ============================================================
+export const surveyQuestions = mysqlTable("survey_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  phase: mysqlEnum("phase", ["onboarding", "explorer", "connoisseur"]).notNull(), // qual survey
+  questionId: varchar("questionId", { length: 64 }).notNull(), // identificador único da pergunta (ex: "birthdate", "region")
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: text("subtitle"),
+  type: mysqlEnum("type", ["single", "multi", "score", "text", "birthdate", "establishment"]).notNull(),
+  icon: varchar("icon", { length: 64 }), // nome do ícone lucide-react
+  maxSelect: int("maxSelect"), // para tipo multi
+  lowScoreThreshold: int("lowScoreThreshold"), // para tipo score
+  options: json("options"), // array de { label, value }
+  lowScoreReasons: json("lowScoreReasons"), // array de { label, value } para notas baixas
+  parentQuestionId: int("parent_question_id"), // ID da pergunta pai (para perguntas condicionais)
+  triggerOption: varchar("trigger_option", { length: 500 }), // valor da opção que ativa esta sub-pergunta
+  sortOrder: int("sortOrder").notNull().default(0),
+  active: boolean("active").default(true).notNull(),
+  // Text libre validation fields
+  minChars: int("minChars"),
+  maxChars: int("maxChars"),
+  requireLetters: boolean("requireLetters"),
+  requireNumbers: boolean("requireNumbers"),
+  requireSpecialChars: boolean("requireSpecialChars"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SurveyQuestion = typeof surveyQuestions.$inferSelect;
+export type InsertSurveyQuestion = typeof surveyQuestions.$inferInsert;
+
+// ============================================================
+// Establishment Badges — selos visuais (Vegetariano, Vegano, Sem Glúten)
+// ============================================================
+export const establishmentBadges = mysqlTable("establishment_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  badgeType: mysqlEnum("badgeType", ["vegetariano", "vegano", "sem_gluten"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EstablishmentBadge = typeof establishmentBadges.$inferSelect;
+export type InsertEstablishmentBadge = typeof establishmentBadges.$inferInsert;
+
+// ============================================================
+// Role Requests — solicitações de usuários para virar Critic ou Specialist
+// ============================================================
+export const roleRequests = mysqlTable("role_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  requestedRole: mysqlEnum("requestedRole", ["critic", "specialist"]).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  // Dados do formulário de solicitação
+  message: text("message"), // Mensagem do usuário explicando por que quer o role
+  experience: text("experience"), // Experiência profissional/gastronômica
+  portfolio: text("portfolio"), // Links de portfólio, redes sociais, certificações
+  specialties: text("specialties"), // Áreas de especialidade (para specialist)
+  // Revisão pelo admin
+  reviewedBy: int("reviewedBy"), // userId do admin que revisou
+  reviewNote: text("reviewNote"), // Nota do admin sobre a decisão
+  reviewedAt: timestamp("reviewedAt"),
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type RoleRequest = typeof roleRequests.$inferSelect;
+export type InsertRoleRequest = typeof roleRequests.$inferInsert;
+
+// ============================================================
+// Survey Skip Rules — regras de encerramento/pulo condicional do survey
+// Quando uma resposta específica é dada, perguntas listadas são puladas
+// ============================================================
+export const surveySkipRules = mysqlTable("survey_skip_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  phase: mysqlEnum("phase", ["onboarding", "explorer", "connoisseur"]).notNull(),
+  // Pergunta que dispara a regra (questionId string, ex: "role")
+  triggerQuestionId: varchar("trigger_question_id", { length: 64 }).notNull(),
+  // Valor da resposta que ativa a regra (ex: "yes")
+  triggerValue: varchar("trigger_value", { length: 255 }).notNull(),
+  // Lista de questionIds que devem ser pulados quando a regra é ativada (JSON array de strings)
+  skipQuestionIds: json("skip_question_ids").notNull(), // ["region", "frequency", "spend", ...]
+  // Descrição amigável da regra (para exibição no painel)
+  description: varchar("description", { length: 500 }),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SurveySkipRule = typeof surveySkipRules.$inferSelect;
+export type InsertSurveySkipRule = typeof surveySkipRules.$inferInsert;
+
+
+/**
+ * Subscription plans — managed by admin, visible to clients.
+ */
+export const plans = mysqlTable("plans", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  price: float("price").notNull(), // Monthly price in BRL
+  features: json("features"), // JSON array of feature strings
+  highlighted: boolean("highlighted").default(false).notNull(), // Featured plan
+  maxRatingsPerDay: int("maxRatingsPerDay").default(3).notNull(),
+  visibleRoles: json("visibleRoles"), // JSON array of roles that can see this plan, e.g. ["user","business","specialist","critic"]. Null = visible to all.
+  hidden: boolean("hidden").default(false).notNull(), // If true, plan is hidden from all roles
+  sortOrder: int("sortOrder").default(0).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Plan = typeof plans.$inferSelect;
+export type InsertPlan = typeof plans.$inferInsert;
+
+
+/**
+ * Special hours / exceptions for establishments.
+ * Business owners can add extended/reduced hours for specific dates (events, holidays, etc.)
+ */
+export const specialHours = mysqlTable("special_hours", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  openTime: varchar("openTime", { length: 5 }).notNull(), // HH:MM format
+  closeTime: varchar("closeTime", { length: 5 }).notNull(), // HH:MM format
+  closed: boolean("closed").default(false).notNull(), // If true, establishment is closed this day
+  reason: varchar("reason", { length: 255 }), // "Jogo do Brasil", "Evento especial", "Feriado", etc.
+  createdBy: int("createdBy").notNull(), // userId of the business owner who created it
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SpecialHours = typeof specialHours.$inferSelect;
+export type InsertSpecialHours = typeof specialHours.$inferInsert;
+
+// ============================================================
+// Content Moderation — AI-powered auto-moderation results
+// ============================================================
+export const contentModeration = mysqlTable("content_moderation", {
+  id: int("id").autoincrement().primaryKey(),
+  // What was moderated
+  targetType: mysqlEnum("targetType", ["photo", "comment", "rating_text"]).notNull(),
+  targetId: int("targetId").notNull(), // ratingPhotos.id or ratingItems.id or ratings.id
+  ratingId: int("ratingId"), // parent rating for context
+  userId: int("userId").notNull(), // who created the content
+  // AI analysis result
+  status: mysqlEnum("status", ["approved", "flagged", "rejected", "pending"]).default("pending").notNull(),
+  categories: text("categories"), // JSON array of violated categories (e.g. ["nudity","violence"])
+  severity: mysqlEnum("severity", ["none", "low", "medium", "high", "critical"]).default("none").notNull(),
+  confidence: float("confidence"), // 0.0-1.0
+  reason: text("reason"), // AI explanation in Portuguese
+  rawAnalysis: text("rawAnalysis"), // Full AI response JSON
+  // Admin review
+  reviewedBy: int("reviewedBy"), // admin who reviewed (null = not yet reviewed)
+  reviewAction: mysqlEnum("reviewAction", ["approve", "remove", "warn", "ban"]),
+  reviewNote: text("reviewNote"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ContentModeration = typeof contentModeration.$inferSelect;
+export type InsertContentModeration = typeof contentModeration.$inferInsert;
+
+// ============================================================
+// Reports — user-submitted reports/flags on content
+// ============================================================
+export const reports = mysqlTable("reports", {
+  id: int("id").autoincrement().primaryKey(),
+  // Reporter
+  reporterId: int("reporterId").notNull(), // user who reported
+  // Target
+  targetType: mysqlEnum("targetType", ["rating", "photo", "comment", "user"]).notNull(),
+  targetId: int("targetId").notNull(), // ID of the reported entity
+  targetUserId: int("targetUserId"), // user who owns the reported content
+  // Report details
+  reason: mysqlEnum("reason", [
+    "sexual_content",
+    "hate_speech",
+    "violence",
+    "financial_scam",
+    "phishing",
+    "false_identity",
+    "cloaking",
+    "account_integrity",
+    "misinformation",
+    "restricted_goods",
+    "cybersecurity",
+    "spam",
+    "other"
+  ]).notNull(),
+  description: text("description"), // optional user description
+  // Resolution
+  status: mysqlEnum("status", ["pending", "reviewed", "dismissed", "actioned"]).default("pending").notNull(),
+  reviewedBy: int("reviewedBy"),
+  reviewAction: mysqlEnum("reviewAction", ["dismiss", "warn", "remove_content", "ban_user"]),
+  reviewNote: text("reviewNote"),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = typeof reports.$inferInsert;
+
+
+/**
+ * Message reactions — emojis em mensagens de grupo.
+ */
+export const messageReactions = mysqlTable("message_reactions", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  userId: int("userId").notNull(),
+  emoji: varchar("emoji", { length: 32 }).notNull(), // emoji unicode
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MessageReaction = typeof messageReactions.$inferSelect;
+
+/**
+ * Group lists — listas nomeadas dentro de grupos (ex: "Bares", "Brunchs").
+ * Somente o owner do grupo pode criar listas.
+ * Todos os membros podem adicionar itens.
+ */
+export const groupLists = mysqlTable("group_lists", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  createdBy: int("createdBy").notNull(), // userId do criador (owner do grupo)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type GroupList = typeof groupLists.$inferSelect;
+
+/**
+ * Group list items — estabelecimentos adicionados a uma lista de grupo.
+ */
+export const groupListItems = mysqlTable("group_list_items", {
+  id: int("id").autoincrement().primaryKey(),
+  listId: int("listId").notNull(),
+  establishmentId: int("establishmentId").notNull(),
+  addedBy: int("addedBy").notNull(), // userId de quem adicionou
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type GroupListItem = typeof groupListItems.$inferSelect;
+
+/**
+ * Polls — enquetes dentro de grupos.
+ */
+export const polls = mysqlTable("polls", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("groupId").notNull(),
+  createdBy: int("createdBy").notNull(),
+  question: varchar("question", { length: 255 }).notNull(),
+  description: text("description"),
+  pollType: mysqlEnum("pollType", ["texto", "data", "estab", "total"]).default("texto").notNull(),
+  multipleChoice: boolean("multipleChoice").default(false).notNull(),
+  closed: boolean("closed").default(false).notNull(),
+  // Campos extras para tipo "total" (local extra)
+  customAddress: varchar("customAddress", { length: 255 }),
+  customNumber: varchar("customNumber", { length: 20 }),
+  customComplement: varchar("customComplement", { length: 255 }),
+  messageId: int("messageId"), // ID da mensagem no chat vinculada a esta enquete
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Poll = typeof polls.$inferSelect;
+
+/**
+ * Poll options — opções de resposta de uma enquete.
+ */
+export const pollOptions = mysqlTable("poll_options", {
+  id: int("id").autoincrement().primaryKey(),
+  pollId: int("pollId").notNull(),
+  text: varchar("text", { length: 200 }).notNull(),
+  // Para tipo "data": armazena a data como string ISO
+  dateValue: varchar("dateValue", { length: 10 }), // YYYY-MM-DD
+  // Para tipo "estab" e "total": referência ao estabelecimento
+  establishmentId: int("establishmentId"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+});
+export type PollOption = typeof pollOptions.$inferSelect;
+
+/**
+ * Poll votes — votos dos usuários nas opções de enquete.
+ */
+export const pollVotes = mysqlTable("poll_votes", {
+  id: int("id").autoincrement().primaryKey(),
+  pollOptionId: int("pollOptionId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  uniqueVote: unique("unique_poll_vote").on(table.pollOptionId, table.userId),
+}));
+export type PollVote = typeof pollVotes.$inferSelect;
+
+
+/**
+ * System Logs — histórico cronológico de todas as alterações feitas no sistema.
+ * Registra ações de admin/owner como criação, edição, exclusão de registros.
+ */
+export const systemLogs = mysqlTable("system_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // Quem fez a ação
+  action: varchar("action", { length: 100 }).notNull(), // Ex: "create_establishment", "update_plan", "change_role"
+  entity: varchar("entity", { length: 100 }).notNull(), // Ex: "establishment", "plan", "user", "survey"
+  entityId: varchar("entityId", { length: 100 }), // ID do registro afetado
+  description: text("description").notNull(), // Descrição legível da ação
+  metadata: text("metadata"), // JSON com dados extras (valores antigos/novos)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SystemLog = typeof systemLogs.$inferSelect;
+export type InsertSystemLog = typeof systemLogs.$inferInsert;

@@ -1,0 +1,170 @@
+{
+  "query": "SELECT id, name, neighborhood, instagram, image, categoryId \nFROM establishments \nWHERE instagram IS NULL OR instagram = '' \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, instagram, image, categoryId \nFROM establishments \nWHERE instagram IS NULL OR instagram = '' \nLIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "4"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "17"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "9"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "10",
+      "name": "Rockafé Santa Cruz",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "11",
+      "name": "Amém Café",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "8"
+    },
+    {
+      "id": "12",
+      "name": "OAKBERRY Açaí",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "15"
+    },
+    {
+      "id": "13",
+      "name": "Padel Beach Panamericana",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "1"
+    },
+    {
+      "id": "14",
+      "name": "OAKBERRY Açaí",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "15"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "8"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "18",
+      "name": "Tarta Basca → Delivery",
+      "neighborhood": "Alto de Pinheiros",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "9"
+    },
+    {
+      "id": "19",
+      "name": "Bar do Zóio",
+      "neighborhood": "Barra Funda",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "4"
+    },
+    {
+      "id": "20",
+      "name": "Bolinho Verde | Restaurante Israelense Kasher",
+      "neighborhood": "Barra Funda",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "2"
+    },
+    {
+      "id": "21",
+      "name": "Boteco General",
+      "neighborhood": "Barra Funda",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "4"
+    },
+    {
+      "id": "23",
+      "name": "Casa Elefante Discos",
+      "neighborhood": "Barra Funda",
+      "instagram": "NULL",
+      "image": "NULL",
+      "categoryId": "8"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tinstagram\timage\tcategoryId\n1\tBar do Alemão Lapa\tAlto de Pinheiros\tNULL\tNULL\t4\n3\tQuintal da Imperatriz\tAlto de Pinheiros\tNULL\tNULL\t2\n4\tRestaurante Novo Talento\tAlto de Pinheiros\tNULL\tNULL\t2\n5\tShoyu Culinária Oriental\tAlto de Pinheiros\tNULL\tNULL\t17\n6\tPanatè Artesanal\tAlto de Pinheiros\tNULL\tNULL\t9\n8\tFood Truck da Neia\tAlto de Pinheiros\tNULL\tNULL\t2\n9\tRestaurante Lina e Max\tAlto de Pinheiros\tNULL\tNULL\t2\n10\tRockafé Santa Cruz\tAlto de Pinheiros\tNULL\tNULL\t2\n11\tAmém Café\tAlto de Pinheiros\tNULL\tNULL\t8\n12\tOAKBERRY Açaí\tAlto de Pinheiros\tNULL\tNULL\t15\n13\tPadel Beach Panamericana\tAlto de Pinheiros\tNULL\tNULL\t1\n14\tOAKBERRY Açaí\tAlto de Pinheiros\tNULL\tNULL\t15\n15\tUccellino Pane\tAlto de Pinheiros\tNULL\tNULL\t2\n16\tFarol Kaffe\tAlto de Pinheiros\tNULL\tNULL\t8\n17\tUehara Pastéis - (São Paulo)\tAlto de Pinheiros\tNULL\tNULL\t2\n18\tTarta Basca → Delivery\tAlto de Pinheiros\tNULL\tNULL\t9\n19\tBar do Zóio\tBarra Funda\tNULL\tNULL\t4\n20\tBolinho Verde | Restaurante Israelense Kasher\tBarra Funda\tNULL\tNULL\t2\n21\tBoteco General\tBarra Funda\tNULL\tNULL\t4\n23\tCasa Elefante Discos\tBarra Funda\tNULL\tNULL\t8\n",
+  "stderr": "",
+  "execution_time_ms": 133
+}

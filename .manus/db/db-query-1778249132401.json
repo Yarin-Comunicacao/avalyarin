@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments \nSET categoryId = 14 \nWHERE categoryId != 14 \n  AND source = 'spreadsheet'\n  AND (name LIKE '%pizza%' OR name LIKE '%Pizza%' OR name LIKE '%PIZZA%'\n    OR name LIKE '%pizzaria%' OR name LIKE '%Pizzaria%'\n    OR name LIKE '%forneria%' OR name LIKE '%Forneria%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments \nSET categoryId = 14 \nWHERE categoryId != 14 \n  AND source = 'spreadsheet'\n  AND (name LIKE '%pizza%' OR name LIKE '%Pizza%' OR name LIKE '%PIZZA%'\n    OR name LIKE '%pizzaria%' OR name LIKE '%Pizzaria%'\n    OR name LIKE '%forneria%' OR name LIKE '%Forneria%');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 451
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  (SELECT COUNT(*) FROM menu_items WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as menu_items,\n  (SELECT COUNT(*) FROM ratings WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as ratings,\n  (SELECT COUNT(*) FROM user_rankings WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as rankings;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT \n  (SELECT COUNT(*) FROM menu_items WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as menu_items,\n  (SELECT COUNT(*) FROM ratings WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as ratings,\n  (SELECT COUNT(*) FROM user_rankings WHERE establishmentId IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579)) as rankings;",
+  "rows": [
+    {
+      "menu_items": "0",
+      "ratings": "0",
+      "rankings": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "menu_items\tratings\trankings\n0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1041
+}

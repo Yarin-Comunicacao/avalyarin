@@ -1,0 +1,40 @@
+{
+  "query": "SELECT address FROM establishments WHERE address LIKE '%Vig. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Br. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Srg. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Res. %' LIMIT 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address LIKE '%Vig. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Br. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Srg. %' LIMIT 2;\nSELECT address FROM establishments WHERE address LIKE '%Res. %' LIMIT 2;",
+  "rows": [
+    {
+      "address": "Rua Vig. João Álvares, 211 - Vila Monumento, São Paulo - SP, 01551-040, Brasil"
+    },
+    {
+      "address": "Rua Vig. Albernaz, 454 - Vila Gumercindo, São Paulo - SP, 04134-021, Brasil"
+    },
+    {
+      "address": "address"
+    },
+    {
+      "address": "Rua Br. de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "Rua Br. de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil"
+    },
+    {
+      "address": "address"
+    },
+    {
+      "address": "Avenida Srg. Mario Kozel Filho, 221 - Paraíso, São Paulo - SP, 04094-050, Brasil"
+    },
+    {
+      "address": "address"
+    },
+    {
+      "address": "Jardim Res. Campo Belo, Limeira - SP, Brasil"
+    },
+    {
+      "address": "Rua Adail J. Duclos, 233 - Res. Casa Grande II, Francisco Morato - SP, 07906-060, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nRua Vig. João Álvares, 211 - Vila Monumento, São Paulo - SP, 01551-040, Brasil\nRua Vig. Albernaz, 454 - Vila Gumercindo, São Paulo - SP, 04134-021, Brasil\naddress\nRua Br. de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil\nRua Br. de Itapetininga, 255 - República, São Paulo - SP, 01042-001, Brasil\naddress\nAvenida Srg. Mario Kozel Filho, 221 - Paraíso, São Paulo - SP, 04094-050, Brasil\naddress\nJardim Res. Campo Belo, Limeira - SP, Brasil\nRua Adail J. Duclos, 233 - Res. Casa Grande II, Francisco Morato - SP, 07906-060, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 321
+}

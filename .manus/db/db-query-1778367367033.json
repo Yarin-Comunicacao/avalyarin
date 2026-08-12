@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE menu_items SET category = 'hamburguer' WHERE establishmentId = 6500 AND category = 'Raw Wagyu Burgers';\nUPDATE menu_items SET category = 'petisco' WHERE establishmentId = 6500 AND category = 'Raw Snacks';\nUPDATE menu_items SET category = 'petisco' WHERE establishmentId = 6500 AND category = 'Maionese da Casa';\nUPDATE menu_items SET category = 'sobremesa' WHERE establishmentId = 6500 AND category = 'Sweets N Shakes';\nUPDATE menu_items SET category = 'cerveja' WHERE establishmentId = 6500 AND category = 'Fucking Cold Beer';\nUPDATE menu_items SET category = 'destilado' WHERE establishmentId = 6500 AND category = 'Highballs';\nUPDATE menu_items SET category = 'bebida' WHERE establishmentId = 6500 AND category = 'Soft Drinks';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE menu_items SET category = 'hamburguer' WHERE establishmentId = 6500 AND category = 'Raw Wagyu Burgers';\nUPDATE menu_items SET category = 'petisco' WHERE establishmentId = 6500 AND category = 'Raw Snacks';\nUPDATE menu_items SET category = 'petisco' WHERE establishmentId = 6500 AND category = 'Maionese da Casa';\nUPDATE menu_items SET category = 'sobremesa' WHERE establishmentId = 6500 AND category = 'Sweets N Shakes';\nUPDATE menu_items SET category = 'cerveja' WHERE establishmentId = 6500 AND category = 'Fucking Cold Beer';\nUPDATE menu_items SET category = 'destilado' WHERE establishmentId = 6500 AND category = 'Highballs';\nUPDATE menu_items SET category = 'bebida' WHERE establishmentId = 6500 AND category = 'Soft Drinks';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 337
+}

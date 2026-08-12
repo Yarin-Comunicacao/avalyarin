@@ -1,0 +1,40 @@
+{
+  "query": "\n-- Verificar que os IDs removidos não existem mais\nSELECT COUNT(*) as removidos_existem FROM establishments WHERE id IN (2051, 7709, 7072, 1536, 5856, 5027, 3038, 4555, 7184, 797, 3999);\n\n-- Verificar que os bairros foram corrigidos\nSELECT id, name, neighborhood FROM establishments WHERE id IN (1820, 6529, 5609, 5438, 5981);\n\n-- Contar total de registros ativos e pendentes\nSELECT status, COUNT(*) as total FROM establishments GROUP BY status;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \n-- Verificar que os IDs removidos não existem mais\nSELECT COUNT(*) as removidos_existem FROM establishments WHERE id IN (2051, 7709, 7072, 1536, 5856, 5027, 3038, 4555, 7184, 797, 3999);\n\n-- Verificar que os bairros foram corrigidos\nSELECT id, name, neighborhood FROM establishments WHERE id IN (1820, 6529, 5609, 5438, 5981);\n\n-- Contar total de registros ativos e pendentes\nSELECT status, COUNT(*) as total FROM establishments GROUP BY status;\n",
+  "rows": [
+    {
+      "removidos_existem": "0"
+    },
+    {
+      "removidos_existem": "id\tname\tneighborhood"
+    },
+    {
+      "removidos_existem": "1820\tQuitandinha\tVila Madalena"
+    },
+    {
+      "removidos_existem": "6529\tBOALI - Alimentação Saudável\tConsolação"
+    },
+    {
+      "removidos_existem": "5609\tBottega Bernacca Ibirapuera\tJardim Luzitânia"
+    },
+    {
+      "removidos_existem": "5438\tBoteco da Villa\tVila Mariana"
+    },
+    {
+      "removidos_existem": "5981\tBOALI - Alimentação Saudável\tVila Nova Conceição"
+    },
+    {
+      "removidos_existem": "status\ttotal"
+    },
+    {
+      "removidos_existem": "active\t187"
+    },
+    {
+      "removidos_existem": "pending\t7268"
+    }
+  ],
+  "messages": [],
+  "stdout": "removidos_existem\n0\nid\tname\tneighborhood\n1820\tQuitandinha\tVila Madalena\n6529\tBOALI - Alimentação Saudável\tConsolação\n5609\tBottega Bernacca Ibirapuera\tJardim Luzitânia\n5438\tBoteco da Villa\tVila Mariana\n5981\tBOALI - Alimentação Saudável\tVila Nova Conceição\nstatus\ttotal\nactive\t187\npending\t7268\n",
+  "stderr": "",
+  "execution_time_ms": 613
+}

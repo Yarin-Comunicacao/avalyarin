@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%(Delivery)%' OR name LIKE '%→ Delivery%' OR name LIKE '%| Delivery%' OR name LIKE '%- Delivery%' OR name LIKE '%(Delivery e Retirada)%' OR name LIKE '%Delivery -  %' OR name REGEXP 'Delivery$') AND name NOT LIKE '%Almoço%' AND name NOT LIKE '%Chopp%' AND name NOT LIKE '%Drinks%' AND name NOT LIKE '%Feijoada%' ORDER BY name LIMIT 10 OFFSET 40;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE (name LIKE '%(Delivery)%' OR name LIKE '%→ Delivery%' OR name LIKE '%| Delivery%' OR name LIKE '%- Delivery%' OR name LIKE '%(Delivery e Retirada)%' OR name LIKE '%Delivery -  %' OR name REGEXP 'Delivery$') AND name NOT LIKE '%Almoço%' AND name NOT LIKE '%Chopp%' AND name NOT LIKE '%Drinks%' AND name NOT LIKE '%Feijoada%' ORDER BY name LIMIT 10 OFFSET 40;",
+  "rows": [
+    {
+      "id": "1685",
+      "name": "Tapiocaria Beju's Delivery",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2950",
+      "name": "The Ville Lanches Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3806",
+      "name": "Yakisoba Hayaku Delivery",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4372",
+      "name": "Yakissobaria Delivery",
+      "neighborhood": "Sé"
+    },
+    {
+      "id": "6227",
+      "name": "Zé do Hamburger Delivery",
+      "neighborhood": "Perdizes"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n1685\tTapiocaria Beju's Delivery\tPinheiros\n2950\tThe Ville Lanches Delivery\tCambuci\n3806\tYakisoba Hayaku Delivery\tLiberdade\n4372\tYakissobaria Delivery\tSé\n6227\tZé do Hamburger Delivery\tPerdizes\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

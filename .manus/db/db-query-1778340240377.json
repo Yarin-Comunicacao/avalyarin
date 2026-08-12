@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM establishments WHERE id IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute DELETE FROM establishments WHERE id IN (506, 557, 1668, 1761, 1803, 2053, 2584, 2927, 3198, 3679, 3951, 4376, 4656, 4674, 5083, 5579);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 321
+}

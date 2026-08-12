@@ -1,0 +1,22 @@
+{
+  "query": "SELECT 'acai' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15 AND (LOWER(name) LIKE '%açaí%' OR LOWER(name) LIKE '%acai%' OR LOWER(name) LIKE '%açai%') UNION ALL SELECT 'vegan' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15 AND (LOWER(name) LIKE '%vegan%' OR LOWER(name) LIKE '%vegano%' OR LOWER(name) LIKE '%vegana%' OR LOWER(name) LIKE '%vegetarian%' OR LOWER(name) LIKE '%vegetariano%') UNION ALL SELECT 'total' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT 'acai' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15 AND (LOWER(name) LIKE '%açaí%' OR LOWER(name) LIKE '%acai%' OR LOWER(name) LIKE '%açai%') UNION ALL SELECT 'vegan' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15 AND (LOWER(name) LIKE '%vegan%' OR LOWER(name) LIKE '%vegano%' OR LOWER(name) LIKE '%vegana%' OR LOWER(name) LIKE '%vegetarian%' OR LOWER(name) LIKE '%vegetariano%') UNION ALL SELECT 'total' as tipo, COUNT(*) as total FROM establishments WHERE categoryId = 15;",
+  "rows": [
+    {
+      "tipo": "total",
+      "total": "222"
+    },
+    {
+      "tipo": "acai",
+      "total": "79"
+    },
+    {
+      "tipo": "vegan",
+      "total": "23"
+    }
+  ],
+  "messages": [],
+  "stdout": "tipo\ttotal\ntotal\t222\nacai\t79\nvegan\t23\n",
+  "stderr": "",
+  "execution_time_ms": 271
+}

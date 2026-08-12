@@ -1,0 +1,400 @@
+{
+  "query": "SELECT e.name, e.neighborhood, c.name as category \nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE c.id IN (5, 6, 7, 12, 13) \nORDER BY c.id, e.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name, e.neighborhood, c.name as category \nFROM establishments e \nJOIN categories c ON e.categoryId = c.id \nWHERE c.id IN (5, 6, 7, 12, 13) \nORDER BY c.id, e.name;",
+  "rows": [
+    {
+      "name": "Aura Gastrobar",
+      "neighborhood": "Bela Vista",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "De Primeira",
+      "neighborhood": "Vila Madalena",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Di&Gu Gastrobar",
+      "neighborhood": "Cambuci",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Fábrica Drinks | Gastrobar",
+      "neighborhood": "Consolação",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Fábrica Drinks | Gastrobar | Galeria",
+      "neighborhood": "Consolação",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "GastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento",
+      "neighborhood": "Ipiranga",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Glicério Gastrobar - Restaurante e Bar com Música ao Vivo",
+      "neighborhood": "Liberdade",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Marú Gastrobar",
+      "neighborhood": "Moema",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Melts Gastrobar",
+      "neighborhood": "Liberdade",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Melts Gastrobar | Restaurante, Burgers, Drinks e Karaokê",
+      "neighborhood": "Liberdade",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Ministro Gastrobar",
+      "neighborhood": "Perdizes",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Oink Gastro Bar",
+      "neighborhood": "Perdizes",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Othê Gastrobar",
+      "neighborhood": "Pinheiros",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Parada na Miguel /Gastrobar",
+      "neighborhood": "Cambuci",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Santa Maluca Gastrobar",
+      "neighborhood": "Vila Madalena",
+      "category": "Boteco Moderno"
+    },
+    {
+      "name": "Aimbeer 850 PUB",
+      "neighborhood": "Perdizes",
+      "category": "Pub"
+    },
+    {
+      "name": "Aimbeer 850 PUB - Cervejaria em Perdizes",
+      "neighborhood": "Perdizes",
+      "category": "Pub"
+    },
+    {
+      "name": "BOMBER Pub",
+      "neighborhood": "Pinheiros",
+      "category": "Pub"
+    },
+    {
+      "name": "Barba Jack Sports Pub",
+      "neighborhood": "Ipiranga",
+      "category": "Pub"
+    },
+    {
+      "name": "Bear pub",
+      "neighborhood": "Pinheiros",
+      "category": "Pub"
+    },
+    {
+      "name": "Cardeal Pizza Pub",
+      "neighborhood": "Pinheiros",
+      "category": "Pub"
+    },
+    {
+      "name": "Go Pub & Restaurante - Brooklin",
+      "neighborhood": "Campo Belo",
+      "category": "Pub"
+    },
+    {
+      "name": "Go Pub & Restaurante - Brooklin",
+      "neighborhood": "Campo Belo",
+      "category": "Pub"
+    },
+    {
+      "name": "Keito (Pub Kei)",
+      "neighborhood": "Bela Vista",
+      "category": "Pub"
+    },
+    {
+      "name": "Nova Boveros Pub",
+      "neighborhood": "Perdizes",
+      "category": "Pub"
+    },
+    {
+      "name": "OUTS PUB",
+      "neighborhood": "Consolação",
+      "category": "Pub"
+    },
+    {
+      "name": "PUB",
+      "neighborhood": "Moema",
+      "category": "Pub"
+    },
+    {
+      "name": "Partisans Pub",
+      "neighborhood": "Vila Madalena",
+      "category": "Pub"
+    },
+    {
+      "name": "Pub Cheers",
+      "neighborhood": "Bom Retiro",
+      "category": "Pub"
+    },
+    {
+      "name": "Republic English Pub",
+      "neighborhood": "Vila Madalena",
+      "category": "Pub"
+    },
+    {
+      "name": "Silver Dollar Pub",
+      "neighborhood": "Bela Vista",
+      "category": "Pub"
+    },
+    {
+      "name": "Simone's Pub. Lanchonete Ldta.",
+      "neighborhood": "Bela Vista",
+      "category": "Pub"
+    },
+    {
+      "name": "St. Paul's Pub",
+      "neighborhood": "Pinheiros",
+      "category": "Pub"
+    },
+    {
+      "name": "São Paulo Tap House - O maior Brewpub do Brasil",
+      "neighborhood": "Vila Madalena",
+      "category": "Pub"
+    },
+    {
+      "name": "The Blue Pub",
+      "neighborhood": "Bela Vista",
+      "category": "Pub"
+    },
+    {
+      "name": "The Blue Pub - Itaim",
+      "neighborhood": "Itaim Bibi",
+      "category": "Pub"
+    },
+    {
+      "name": "華府中餐厅 HUAFU | PUB | Comida Chinesa | Restaurante & Bar Chinês | Avenida Liberdade São Paulo",
+      "neighborhood": "Liberdade",
+      "category": "Pub"
+    },
+    {
+      "name": "Class Bar - Alta Coquetelaria",
+      "neighborhood": "Moema",
+      "category": "Coquetelaria"
+    },
+    {
+      "name": "Frigobar Speakeasy",
+      "neighborhood": "Perdizes",
+      "category": "Coquetelaria"
+    },
+    {
+      "name": "Quincho Cozinha & Coquetelaria",
+      "neighborhood": "Pinheiros",
+      "category": "Coquetelaria"
+    },
+    {
+      "name": "Santana Bar",
+      "neighborhood": "Vila Madalena",
+      "category": "Coquetelaria"
+    },
+    {
+      "name": "Alma São Paulo",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Fino da Bossa",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Galeria Musical Julinho Clube",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Boulangerie",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Brasserie",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Brasserie",
+      "neighborhood": "Santa Cecília",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Brasserie",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Brasserie - Higienópolis",
+      "neighborhood": "Santa Cecília",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Petit",
+      "neighborhood": "Pinheiros",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Le Jazz Shopping Higienópolis",
+      "neighborhood": "Santa Cecília",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Lord Byron Bar Music",
+      "neighborhood": "República",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Miles Wine & Jazz Bar",
+      "neighborhood": "Campo Belo",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Mitocôndria Bar e Music",
+      "neighborhood": "Cambuci",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Tonton Jazz & Music Bar",
+      "neighborhood": "Moema",
+      "category": "Bar Musical"
+    },
+    {
+      "name": "Asterix Cervejaria",
+      "neighborhood": "Jardim Paulista",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria",
+      "neighborhood": "Moema",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Central Barra Funda",
+      "neighborhood": "Barra Funda",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Dinastia",
+      "neighborhood": "Perdizes",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Dogma - Itaim",
+      "neighborhood": "Itaim Bibi",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Dogma - Tasting Room Jardins",
+      "neighborhood": "Jardins",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Hettwer Ipiranga",
+      "neighborhood": "Ipiranga",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Lote",
+      "neighborhood": "Lapa",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Nacional",
+      "neighborhood": "Pinheiros",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Oak",
+      "neighborhood": "Pinheiros",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Oak - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Perdizes",
+      "neighborhood": "Perdizes",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria Perdizes Cerveja Artesanal",
+      "neighborhood": "Perdizes",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria e Hamburgueria Ducabra",
+      "neighborhood": "Cursino",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria e Hamburgueria Ducabra",
+      "neighborhood": "Cursino",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Cervejaria, Bar e Restaurante Hettwer Ipiranga",
+      "neighborhood": "Ipiranga",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Nosso Lastro - Parrilla Cervejaria",
+      "neighborhood": "Moema",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Nosso Lastro - Parrilla Cervejaria e Drinks",
+      "neighborhood": "Moema",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "RESTAURANTE CERVEJARIA & CACHAÇARIA TOCA DO COELHO SÃO PAULO",
+      "neighborhood": "Pinheiros",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Sambá - Cervejaria e Gastronomia - Pompeia",
+      "neighborhood": "Perdizes",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "TRILHA Cervejaria - Itaim",
+      "neighborhood": "Itaim Bibi",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "TRILHA Cervejaria - Itaim",
+      "neighborhood": "Itaim Bibi",
+      "category": "Cervejaria"
+    },
+    {
+      "name": "Tap Tap Bar e Cervejaria",
+      "neighborhood": "Consolação",
+      "category": "Cervejaria"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tneighborhood\tcategory\nAura Gastrobar\tBela Vista\tBoteco Moderno\nDe Primeira\tVila Madalena\tBoteco Moderno\nDi&Gu Gastrobar\tCambuci\tBoteco Moderno\nFábrica Drinks | Gastrobar\tConsolação\tBoteco Moderno\nFábrica Drinks | Gastrobar | Galeria\tConsolação\tBoteco Moderno\nGastroBar Da Zê lanchonete | Bar e Restaurante em Vila Monumento\tIpiranga\tBoteco Moderno\nGlicério Gastrobar - Restaurante e Bar com Música ao Vivo\tLiberdade\tBoteco Moderno\nMarú Gastrobar\tMoema\tBoteco Moderno\nMelts Gastrobar\tLiberdade\tBoteco Moderno\nMelts Gastrobar | Restaurante, Burgers, Drinks e Karaokê\tLiberdade\tBoteco Moderno\nMinistro Gastrobar\tPerdizes\tBoteco Moderno\nOink Gastro Bar\tPerdizes\tBoteco Moderno\nOthê Gastrobar\tPinheiros\tBoteco Moderno\nParada na Miguel /Gastrobar\tCambuci\tBoteco Moderno\nSanta Maluca Gastrobar\tVila Madalena\tBoteco Moderno\nAimbeer 850 PUB\tPerdizes\tPub\nAimbeer 850 PUB - Cervejaria em Perdizes\tPerdizes\tPub\nBOMBER Pub\tPinheiros\tPub\nBarba Jack Sports Pub\tIpiranga\tPub\nBear pub\tPinheiros\tPub\nCardeal Pizza Pub\tPinheiros\tPub\nGo Pub & Restaurante - Brooklin\tCampo Belo\tPub\nGo Pub & Restaurante - Brooklin\tCampo Belo\tPub\nKeito (Pub Kei)\tBela Vista\tPub\nNova Boveros Pub\tPerdizes\tPub\nOUTS PUB\tConsolação\tPub\nPUB\tMoema\tPub\nPartisans Pub\tVila Madalena\tPub\nPub Cheers\tBom Retiro\tPub\nRepublic English Pub\tVila Madalena\tPub\nSilver Dollar Pub\tBela Vista\tPub\nSimone's Pub. Lanchonete Ldta.\tBela Vista\tPub\nSt. Paul's Pub\tPinheiros\tPub\nSão Paulo Tap House - O maior Brewpub do Brasil\tVila Madalena\tPub\nThe Blue Pub\tBela Vista\tPub\nThe Blue Pub - Itaim\tItaim Bibi\tPub\n華府中餐厅 HUAFU | PUB | Comida Chinesa | Restaurante & Bar Chinês | Avenida Liberdade São Paulo\tLiberdade\tPub\nClass Bar - Alta Coquetelaria\tMoema\tCoquetelaria\nFrigobar Speakeasy\tPerdizes\tCoquetelaria\nQuincho Cozinha & Coquetelaria\tPinheiros\tCoquetelaria\nSantana Bar\tVila Madalena\tCoquetelaria\nAlma São Paulo\tPinheiros\tBar Musical\nFino da Bossa\tPinheiros\tBar Musical\nGaleria Musical Julinho Clube\tPinheiros\tBar Musical\nLe Jazz Boulangerie\tPinheiros\tBar Musical\nLe Jazz Brasserie\tPinheiros\tBar Musical\nLe Jazz Brasserie\tSanta Cecília\tBar Musical\nLe Jazz Brasserie\tPinheiros\tBar Musical\nLe Jazz Brasserie - Higienópolis\tSanta Cecília\tBar Musical\nLe Jazz Petit\tPinheiros\tBar Musical\nLe Jazz Shopping Higienópolis\tSanta Cecília\tBar Musical\nLord Byron Bar Music\tRepública\tBar Musical\nMiles Wine & Jazz Bar\tCampo Belo\tBar Musical\nMitocôndria Bar e Music\tCambuci\tBar Musical\nTonton Jazz & Music Bar\tMoema\tBar Musical\nAsterix Cervejaria\tJardim Paulista\tCervejaria\nCervejaria\tMoema\tCervejaria\nCervejaria Central Barra Funda\tBarra Funda\tCervejaria\nCervejaria Dinastia\tPerdizes\tCervejaria\nCervejaria Dogma - Itaim\tItaim Bibi\tCervejaria\nCervejaria Dogma - Tasting Room Jardins\tJardins\tCervejaria\nCervejaria Hettwer Ipiranga\tIpiranga\tCervejaria\nCervejaria Lote\tLapa\tCervejaria\nCervejaria Nacional\tPinheiros\tCervejaria\nCervejaria Oak\tPinheiros\tCervejaria\nCervejaria Oak - Pinheiros\tPinheiros\tCervejaria\nCervejaria Perdizes\tPerdizes\tCervejaria\nCervejaria Perdizes Cerveja Artesanal\tPerdizes\tCervejaria\nCervejaria e Hamburgueria Ducabra\tCursino\tCervejaria\nCervejaria e Hamburgueria Ducabra\tCursino\tCervejaria\nCervejaria, Bar e Restaurante Hettwer Ipiranga\tIpiranga\tCervejaria\nNosso Lastro - Parrilla Cervejaria\tMoema\tCervejaria\nNosso Lastro - Parrilla Cervejaria e Drinks\tMoema\tCervejaria\nRESTAURANTE CERVEJARIA & CACHAÇARIA TOCA DO COELHO SÃO PAULO\tPinheiros\tCervejaria\nSambá - Cervejaria e Gastronomia - Pompeia\tPerdizes\tCervejaria\nTRILHA Cervejaria - Itaim\tItaim Bibi\tCervejaria\nTRILHA Cervejaria - Itaim\tItaim Bibi\tCervejaria\nTap Tap Bar e Cervejaria\tConsolação\tCervejaria\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

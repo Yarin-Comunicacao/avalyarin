@@ -1,0 +1,22 @@
+{
+  "query": "SELECT categoryId, COUNT(*) as total FROM establishments WHERE categoryId IN (15, 30001, 30002) GROUP BY categoryId;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT categoryId, COUNT(*) as total FROM establishments WHERE categoryId IN (15, 30001, 30002) GROUP BY categoryId;",
+  "rows": [
+    {
+      "categoryId": "15",
+      "total": "120"
+    },
+    {
+      "categoryId": "30001",
+      "total": "23"
+    },
+    {
+      "categoryId": "30002",
+      "total": "79"
+    }
+  ],
+  "messages": [],
+  "stdout": "categoryId\ttotal\n15\t120\n30001\t23\n30002\t79\n",
+  "stderr": "",
+  "execution_time_ms": 294
+}

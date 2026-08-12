@@ -1,0 +1,25 @@
+{
+  "query": "SELECT DISTINCT category FROM menu_items WHERE establishmentId = 6483",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT DISTINCT category FROM menu_items WHERE establishmentId = 6483",
+  "rows": [
+    {
+      "category": "Tortas"
+    },
+    {
+      "category": "Bolos"
+    },
+    {
+      "category": "Doces"
+    },
+    {
+      "category": "Presenteáveis"
+    },
+    {
+      "category": "Challah"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\nTortas\nBolos\nDoces\nPresenteáveis\nChallah\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

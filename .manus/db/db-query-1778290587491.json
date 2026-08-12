@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, hours FROM establishments WHERE hours IS NOT NULL AND hours != '' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, hours FROM establishments WHERE hours IS NOT NULL AND hours != '' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "hours": "Todos os dias: 11:30–23:00"
+    },
+    {
+      "id": "2",
+      "name": "Dona Deôla - Lapa",
+      "hours": "24 horas"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "hours": "Seg: Fechado | Ter a Sáb: 12:00–23:00 | Dom: 12:00–17:00"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "hours": "Seg a Sáb: 11:30–14:30 | Dom: Fechado"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "hours": "Seg: Fechado | Ter a Qui: 18:00–22:30 | Sex: 12:00–15:00, 18:00–22:30 | Sáb: 12:00–15:30, 18:00–22:30 | Dom: 12:00–16:00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\thours\n1\tBar do Alemão Lapa\tTodos os dias: 11:30–23:00\n2\tDona Deôla - Lapa\t24 horas\n3\tQuintal da Imperatriz\tSeg: Fechado | Ter a Sáb: 12:00–23:00 | Dom: 12:00–17:00\n4\tRestaurante Novo Talento\tSeg a Sáb: 11:30–14:30 | Dom: Fechado\n5\tShoyu Culinária Oriental\tSeg: Fechado | Ter a Qui: 18:00–22:30 | Sex: 12:00–15:00, 18:00–22:30 | Sáb: 12:00–15:30, 18:00–22:30 | Dom: 12:00–16:00\n",
+  "stderr": "",
+  "execution_time_ms": 364
+}

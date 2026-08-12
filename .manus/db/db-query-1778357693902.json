@@ -1,0 +1,160 @@
+{
+  "query": "SELECT id, name, neighborhood, categoryId FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name LIKE '%Assessoria%' ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, categoryId FROM establishments WHERE name LIKE '%Herbalife%' OR name LIKE '%nutricion%' OR name LIKE '%Nutricion%' OR name LIKE '%Assessoria%' ORDER BY name;",
+  "rows": [
+    {
+      "id": "108",
+      "name": "Adequar Assessoria Nutricional",
+      "neighborhood": "Barra Funda",
+      "categoryId": "15"
+    },
+    {
+      "id": "3530",
+      "name": "Consultor Herbalife - Diego",
+      "neighborhood": "Liberdade",
+      "categoryId": "15"
+    },
+    {
+      "id": "6543",
+      "name": "EVS Delícias Fit | Herbalife",
+      "neighborhood": "Bela Vista",
+      "categoryId": "15"
+    },
+    {
+      "id": "3689",
+      "name": "Espaço Herbalife",
+      "neighborhood": "Liberdade",
+      "categoryId": "8"
+    },
+    {
+      "id": "2890",
+      "name": "Espaço Herbalife - Evs point Cris",
+      "neighborhood": "Cambuci",
+      "categoryId": "15"
+    },
+    {
+      "id": "4510",
+      "name": "Espaço Herbalife Campo Belo",
+      "neighborhood": "Campo Belo",
+      "categoryId": "15"
+    },
+    {
+      "id": "3609",
+      "name": "Espaço Herbalife Liberdade Carol Yan",
+      "neighborhood": "Liberdade",
+      "categoryId": "15"
+    },
+    {
+      "id": "4778",
+      "name": "Espaço Herbalife Nutrition Bom Pastor Ipiranga",
+      "neighborhood": "Ipiranga",
+      "categoryId": "15"
+    },
+    {
+      "id": "6544",
+      "name": "Espaço Herbalife Shake Av. Paulista BRIGADEIRO EVS, 807 - Conj. 706 - Jardim Paulista - Consultor Independente",
+      "neighborhood": "Bela Vista",
+      "categoryId": "11"
+    },
+    {
+      "id": "6342",
+      "name": "Espaço de Vida Saudável Herbalife Pinheiros Metro Clinicas",
+      "neighborhood": "Pinheiros",
+      "categoryId": "15"
+    },
+    {
+      "id": "1152",
+      "name": "Evs Espaço Herbalife PERDIZES",
+      "neighborhood": "Perdizes",
+      "categoryId": "15"
+    },
+    {
+      "id": "2817",
+      "name": "Evs Herbalife Bom Retiro-SP",
+      "neighborhood": "Bom Retiro",
+      "categoryId": "15"
+    },
+    {
+      "id": "488",
+      "name": "Evs Herbalife Itaim Bibi - Shake Gourmet Itaim",
+      "neighborhood": "Itaim Bibi",
+      "categoryId": "15"
+    },
+    {
+      "id": "504",
+      "name": "FF Assessoria Nutricional | Segurança Alimentar | Licença Vigilância Sanitária São Paulo",
+      "neighborhood": "Jardim Paulista",
+      "categoryId": "2"
+    },
+    {
+      "id": "2420",
+      "name": "Herbalife",
+      "neighborhood": "Bela Vista",
+      "categoryId": "15"
+    },
+    {
+      "id": "2591",
+      "name": "Herbalife Bela Vista",
+      "neighborhood": "Bela Vista",
+      "categoryId": "15"
+    },
+    {
+      "id": "2716",
+      "name": "Herbalife Bom Retiro sp",
+      "neighborhood": "Bom Retiro",
+      "categoryId": "15"
+    },
+    {
+      "id": "556",
+      "name": "Herbalife Nutrition Pamplona Premium",
+      "neighborhood": "Jardim Paulista",
+      "categoryId": "15"
+    },
+    {
+      "id": "7501",
+      "name": "Herbalife- Espaço de vida saudável metrô paraíso",
+      "neighborhood": "Moema",
+      "categoryId": "15"
+    },
+    {
+      "id": "3234",
+      "name": "Nutricionista de idosos (geriatria) - Glaucia Rodrigues",
+      "neighborhood": "Consolação",
+      "categoryId": "9"
+    },
+    {
+      "id": "608",
+      "name": "Produtos Herbalife - Jardim Paulista",
+      "neighborhood": "Jardim Paulista",
+      "categoryId": "15"
+    },
+    {
+      "id": "5206",
+      "name": "Produtos Herbalife - Parque Ibirapuera",
+      "neighborhood": "Moema",
+      "categoryId": "15"
+    },
+    {
+      "id": "2406",
+      "name": "Produtos para Emagrecer Herbalife - Bela Vista",
+      "neighborhood": "Bela Vista",
+      "categoryId": "2"
+    },
+    {
+      "id": "529",
+      "name": "Shake Point Herbalife Nutrition",
+      "neighborhood": "Jardim Paulista",
+      "categoryId": "15"
+    },
+    {
+      "id": "249",
+      "name": "Shake Point Itaim - Espaço Herbalife EVS Joaquim Floriano",
+      "neighborhood": "Itaim Bibi",
+      "categoryId": "15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tcategoryId\n108\tAdequar Assessoria Nutricional\tBarra Funda\t15\n3530\tConsultor Herbalife - Diego\tLiberdade\t15\n6543\tEVS Delícias Fit | Herbalife\tBela Vista\t15\n3689\tEspaço Herbalife\tLiberdade\t8\n2890\tEspaço Herbalife - Evs point Cris\tCambuci\t15\n4510\tEspaço Herbalife Campo Belo\tCampo Belo\t15\n3609\tEspaço Herbalife Liberdade Carol Yan\tLiberdade\t15\n4778\tEspaço Herbalife Nutrition Bom Pastor Ipiranga\tIpiranga\t15\n6544\tEspaço Herbalife Shake Av. Paulista BRIGADEIRO EVS, 807 - Conj. 706 - Jardim Paulista - Consultor Independente\tBela Vista\t11\n6342\tEspaço de Vida Saudável Herbalife Pinheiros Metro Clinicas\tPinheiros\t15\n1152\tEvs Espaço Herbalife PERDIZES\tPerdizes\t15\n2817\tEvs Herbalife Bom Retiro-SP\tBom Retiro\t15\n488\tEvs Herbalife Itaim Bibi - Shake Gourmet Itaim\tItaim Bibi\t15\n504\tFF Assessoria Nutricional | Segurança Alimentar | Licença Vigilância Sanitária São Paulo\tJardim Paulista\t2\n2420\tHerbalife\tBela Vista\t15\n2591\tHerbalife Bela Vista\tBela Vista\t15\n2716\tHerbalife Bom Retiro sp\tBom Retiro\t15\n556\tHerbalife Nutrition Pamplona Premium\tJardim Paulista\t15\n7501\tHerbalife- Espaço de vida saudável metrô paraíso\tMoema\t15\n3234\tNutricionista de idosos (geriatria) - Glaucia Rodrigues\tConsolação\t9\n608\tProdutos Herbalife - Jardim Paulista\tJardim Paulista\t15\n5206\tProdutos Herbalife - Parque Ibirapuera\tMoema\t15\n2406\tProdutos para Emagrecer Herbalife - Bela Vista\tBela Vista\t2\n529\tShake Point Herbalife Nutrition\tJardim Paulista\t15\n249\tShake Point Itaim - Espaço Herbalife EVS Joaquim Floriano\tItaim Bibi\t15\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, slug, categoryId, hasMenu FROM establishments WHERE slug LIKE '%mancini%' OR name LIKE '%Mancini%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, slug, categoryId, hasMenu FROM establishments WHERE slug LIKE '%mancini%' OR name LIKE '%Mancini%'",
+  "rows": [
+    {
+      "id": "2457",
+      "name": "Famiglia Mancini Trattoria",
+      "slug": "famiglia-mancini-trattoria",
+      "categoryId": "17",
+      "hasMenu": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\tcategoryId\thasMenu\n2457\tFamiglia Mancini Trattoria\tfamiglia-mancini-trattoria\t17\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1127
+}

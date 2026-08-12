@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, userId, overallScore, type FROM ratings WHERE overallScore > 10 LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, userId, overallScore, type FROM ratings WHERE overallScore > 10 LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "userId": "99",
+      "overallScore": "30",
+      "type": "direct"
+    },
+    {
+      "id": "3",
+      "userId": "99",
+      "overallScore": "30",
+      "type": "direct"
+    },
+    {
+      "id": "5",
+      "userId": "99",
+      "overallScore": "30",
+      "type": "direct"
+    },
+    {
+      "id": "7",
+      "userId": "99",
+      "overallScore": "30",
+      "type": "direct"
+    },
+    {
+      "id": "30001",
+      "userId": "99",
+      "overallScore": "30",
+      "type": "direct"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\toverallScore\ttype\n1\t99\t30\tdirect\n3\t99\t30\tdirect\n5\t99\t30\tdirect\n7\t99\t30\tdirect\n30001\t99\t30\tdirect\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

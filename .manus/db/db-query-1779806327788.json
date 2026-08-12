@@ -1,0 +1,14 @@
+{
+  "query": "\nSELECT \n  SUM(CASE WHEN address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_invalido\nFROM establishments \nWHERE status = 'pending' AND address IS NOT NULL AND address != '';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT \n  SUM(CASE WHEN address REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_valido,\n  SUM(CASE WHEN address IS NOT NULL AND address != '' AND address NOT REGEXP '^(Rua|Avenida|Alameda|Praça|Travessa|Largo|Estrada|Rodovia|Viela|Beco|Viaduto|Passagem|Vila|Ladeira|Parque|Ponte|Marginal|Acesso) ' THEN 1 ELSE 0 END) as endereco_invalido\nFROM establishments \nWHERE status = 'pending' AND address IS NOT NULL AND address != '';\n",
+  "rows": [
+    {
+      "endereco_valido": "7182",
+      "endereco_invalido": "95"
+    }
+  ],
+  "messages": [],
+  "stdout": "endereco_valido\tendereco_invalido\n7182\t95\n",
+  "stderr": "",
+  "execution_time_ms": 282
+}

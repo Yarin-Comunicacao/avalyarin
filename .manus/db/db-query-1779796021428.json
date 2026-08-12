@@ -1,0 +1,150 @@
+{
+  "query": "SELECT id, name, neighborhood FROM establishments WHERE LOWER(name) LIKE '%marmita%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood FROM establishments WHERE LOWER(name) LIKE '%marmita%';",
+  "rows": [
+    {
+      "id": "1047",
+      "name": "Bibi Marmitas",
+      "neighborhood": "Perdizes"
+    },
+    {
+      "id": "1560",
+      "name": "Marmis Congelados - Marmitas e outras delícias",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "1855",
+      "name": "Marmita motoboy",
+      "neighborhood": "Pinheiros"
+    },
+    {
+      "id": "2447",
+      "name": "Espaço Da Marmita (Não fornecemos almoço, somente esquentamos marmitas)",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2511",
+      "name": "Marmitas da Lê",
+      "neighborhood": "Bela Vista"
+    },
+    {
+      "id": "2776",
+      "name": "Marmitaria Autêntico Sabor",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "2788",
+      "name": "Mar's Ribeiro Marmitaria",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "2793",
+      "name": "Frango assado e marmita",
+      "neighborhood": "Bom Retiro"
+    },
+    {
+      "id": "2908",
+      "name": "Route Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3023",
+      "name": "DTRUE - Comida de verdade, Marmita congelada",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3056",
+      "name": "Marmitaria da Dalva",
+      "neighborhood": "Cambuci"
+    },
+    {
+      "id": "3200",
+      "name": "marmitas do Ryu, the Runner",
+      "neighborhood": "Consolação"
+    },
+    {
+      "id": "3464",
+      "name": "Marmitaria Ajeum",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "3814",
+      "name": "Feijoada da Tatá - Marmita e Marmitex (iFood)",
+      "neighborhood": "Liberdade"
+    },
+    {
+      "id": "4136",
+      "name": "Marmitaria Paraense",
+      "neighborhood": "República"
+    },
+    {
+      "id": "4480",
+      "name": "Na Marmita",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "4560",
+      "name": "Marmitas Nailza",
+      "neighborhood": "Campo Belo"
+    },
+    {
+      "id": "4818",
+      "name": "Marmitas bar",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "4980",
+      "name": "Quero Marmita",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5028",
+      "name": "Prato Feito Comedoria e Marmitaria",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5051",
+      "name": "MARMITARIA RESTAURANTE",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5105",
+      "name": "Marmitaria Do Gordinho",
+      "neighborhood": "Ipiranga"
+    },
+    {
+      "id": "5314",
+      "name": "Marmitas Memórias de Mãe",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5380",
+      "name": "KITN Marmita Personalizada",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5473",
+      "name": "Marmitas e Lanches Dalu",
+      "neighborhood": "Moema"
+    },
+    {
+      "id": "5783",
+      "name": "Marmitaria Dona Elsa",
+      "neighborhood": "Saúde"
+    },
+    {
+      "id": "6009",
+      "name": "Marmitas Fitness Congeladas",
+      "neighborhood": "Itaim Bibi"
+    },
+    {
+      "id": "6573",
+      "name": "Lets Fit Marmitas SP",
+      "neighborhood": "Bela Vista"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\n1047\tBibi Marmitas\tPerdizes\n1560\tMarmis Congelados - Marmitas e outras delícias\tPinheiros\n1855\tMarmita motoboy\tPinheiros\n2447\tEspaço Da Marmita (Não fornecemos almoço, somente esquentamos marmitas)\tBela Vista\n2511\tMarmitas da Lê\tBela Vista\n2776\tMarmitaria Autêntico Sabor\tBom Retiro\n2788\tMar's Ribeiro Marmitaria\tBom Retiro\n2793\tFrango assado e marmita\tBom Retiro\n2908\tRoute Lins 619 - Marmitas - Refeições Caseiras - Marmitex Delivery\tCambuci\n3023\tDTRUE - Comida de verdade, Marmita congelada\tCambuci\n3056\tMarmitaria da Dalva\tCambuci\n3200\tmarmitas do Ryu, the Runner\tConsolação\n3464\tMarmitaria Ajeum\tLiberdade\n3814\tFeijoada da Tatá - Marmita e Marmitex (iFood)\tLiberdade\n4136\tMarmitaria Paraense\tRepública\n4480\tNa Marmita\tCampo Belo\n4560\tMarmitas Nailza\tCampo Belo\n4818\tMarmitas bar\tIpiranga\n4980\tQuero Marmita\tIpiranga\n5028\tPrato Feito Comedoria e Marmitaria\tIpiranga\n5051\tMARMITARIA RESTAURANTE\tIpiranga\n5105\tMarmitaria Do Gordinho\tIpiranga\n5314\tMarmitas Memórias de Mãe\tMoema\n5380\tKITN Marmita Personalizada\tMoema\n5473\tMarmitas e Lanches Dalu\tMoema\n5783\tMarmitaria Dona Elsa\tSaúde\n6009\tMarmitas Fitness Congeladas\tItaim Bibi\n6573\tLets Fit Marmitas SP\tBela Vista\n",
+  "stderr": "",
+  "execution_time_ms": 850
+}

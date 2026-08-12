@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `gender` enum('masculino','feminino','prefiro_nao_informar');

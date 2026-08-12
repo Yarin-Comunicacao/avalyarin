@@ -1,0 +1,1 @@
+ALTER TABLE `poll_votes` ADD CONSTRAINT `unique_poll_vote` UNIQUE(`pollOptionId`,`userId`);

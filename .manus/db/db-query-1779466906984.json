@@ -1,0 +1,1610 @@
+{
+  "query": "SELECT id, name, neighborhood, address, instagram, hidden FROM establishments WHERE (neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Pinheiros%') AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY neighborhood, name LIMIT 200;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, address, instagram, hidden FROM establishments WHERE (neighborhood LIKE '%Vila Madalena%' OR neighborhood LIKE '%Pinheiros%') AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY neighborhood, name LIMIT 200;",
+  "rows": [
+    {
+      "id": "11",
+      "name": "Amém Café",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "5903",
+      "name": "Armazém dos Pães",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Diógenes Ribeiro de Lima, 3490 - Vila Leopoldina, São Paulo - SP, 05083-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "5901",
+      "name": "Café Pio XI",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 1598 - Alto de Pinheiros, São Paulo - SP, 05468-150, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "12",
+      "name": "OAKBERRY Açaí",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "13",
+      "name": "Padel Beach Panamericana",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Praça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "5902",
+      "name": "Pizzaria Manzalli - Loja 2",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 2326 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "10",
+      "name": "Rockafé Santa Cruz",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Arruda Botelho - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "18",
+      "name": "Tarta Basca → Delivery",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Murajuba, 450 - Alto de Pinheiros, São Paulo - SP, 05467-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "R. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "5904",
+      "name": "VILLA DI ROMA - Restaurante e Cafeteria",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Av. Diógenes Ribeiro de Lima, 2411 - Alto de Pinheiros, São Paulo - SP, 05458-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6449",
+      "name": "4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Guaicuí, 29 - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1488",
+      "name": "448 PARK",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 696 - Pinheiros, São Paulo - SP, 05427-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1662",
+      "name": "520 Bar lanchonete",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1637",
+      "name": "A",
+      "neighborhood": "Pinheiros",
+      "address": "Pinheiros, São Paulo - SP, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1533",
+      "name": "A Casa da Vovó",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 299 - Cerqueira César, São Paulo - SP, 05404-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1534",
+      "name": "A Esfiha da Cito",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 750 - Cerqueira César, São Paulo - SP, 05404-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1357",
+      "name": "A Favorita - Bar e Restaurante",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 1976 - Pinheiros, São Paulo - SP, 05406-050, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1706",
+      "name": "A Moqueca 564 Capixaba",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 615 - Pinheiros, São Paulo - SP, 05425-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1931",
+      "name": "A TORTA - Tortas e Quiches, Receita de Vó diretamente para a sua casa!",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Amália de Noronha, 339 - Sumaré, São Paulo - SP, 05410-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6375",
+      "name": "A2 café especial",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 616 - Cerqueira César, São Paulo - SP, 05404-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1416",
+      "name": "AJ Lanches",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 184 - Pinheiros, São Paulo - SP, 04522-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6467",
+      "name": "AJ Padaria",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cônego Eugênio Leite - Pinheiros, São Paulo - SP, 05414-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1489",
+      "name": "AJF Lanches & Sucos",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 824 - Pinheiros, São Paulo - SP, 05427-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1747",
+      "name": "ARA Restaurante de Sobremesas",
+      "neighborhood": "Pinheiros",
+      "address": "R. Simão Álvares, 421 - Pinheiros, São Paulo - SP, 05417-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1707",
+      "name": "ASIAN KITCHEN",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 601 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1417",
+      "name": "AVLA BAR E COZINHA",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1308 - Pinheiros, São Paulo - SP, 05422-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1358",
+      "name": "Acaí com Morango",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 315 - Jardim Paulista, São Paulo - SP, 05406-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1947",
+      "name": "Adara Café",
+      "neighborhood": "Pinheiros",
+      "address": "R. Dr. Virgílio de Carvalho Pinto, 179 - Pinheiros, São Paulo - SP, 05415-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1958",
+      "name": "Adega Cardeal",
+      "neighborhood": "Pinheiros",
+      "address": "R. Baltazar Carrasco, 60 - Pinheiros, São Paulo - SP, 05426-060, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1966",
+      "name": "Adega Pau no Gato Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Martim Carrasco, 100 - Pinheiros, São Paulo - SP, 05426-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1748",
+      "name": "Aguzzo Cucina Italiana - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Simão Álvares, 325 - Pinheiros, São Paulo - SP, 05417-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6432",
+      "name": "Ai Sushi + Poke",
+      "neighborhood": "Pinheiros",
+      "address": "R. Simão Álvares, 297 - Pinheiros, São Paulo - SP, 05417-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1418",
+      "name": "Akkan",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 300 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6473",
+      "name": "Al Capizza 24h - Pinheiros/SP",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Henrique Schaumann, 395 - Pinheiros, São Paulo - SP, 05413-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1535",
+      "name": "Al Árabe - Cozinha Árabe",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 1919 - Pinheiros, São Paulo - SP, 05404-015, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1274",
+      "name": "Almanara - Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1749",
+      "name": "Altar Cozinha Afro Pop Ancestral - São Paulo",
+      "neighborhood": "Pinheiros",
+      "address": "R. Simão Álvares, 445 - Pinheiros, São Paulo - SP, 05417-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "2012",
+      "name": "Aluap Lanchonete",
+      "neighborhood": "Pinheiros",
+      "address": "Largo dos Pinheiros, 81 - Pinheiros, São Paulo - SP, 05424-050, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1536",
+      "name": "Amarelinho",
+      "neighborhood": "Pinheiros",
+      "address": "R. Iaiá, 199 - Itaim Bibi, São Paulo - SP, 04542-060, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1663",
+      "name": "Ambar Cervejas Artesanais",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cunha Gago, 129 - Pinheiros, São Paulo - SP, 05421-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1638",
+      "name": "Amici di amici",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 282 - Pinheiros, São Paulo - SP, 05416-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1275",
+      "name": "Amor aos Pedaços",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Loja 401a - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1276",
+      "name": "Andiamo Ristorante & Pizzeria Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1791",
+      "name": "Anexo Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Guaicuí, 82 - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1537",
+      "name": "Antonietta Cucina",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 542 - Pinheiros, São Paulo - SP, 05404-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1419",
+      "name": "Atlântico 212",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 70 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1490",
+      "name": "Atmosfera Bar Galeria",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 749 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1708",
+      "name": "Ayê Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 540 - Pinheiros, São Paulo - SP, 05410-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1848",
+      "name": "Açaí Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 127 - Pinheiros, São Paulo - SP, 05425-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6311",
+      "name": "B.LEM Padaria Portuguesa - Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1881",
+      "name": "BAR DE TAPAS",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cônego Eugênio Leite, 727 - Pinheiros, São Paulo - SP, 05414-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1538",
+      "name": "BARK BBQ",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 657 - Cerqueira César, São Paulo - SP, 05404-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1921",
+      "name": "BARU Bistrô - Iguatemi",
+      "neighborhood": "Pinheiros",
+      "address": "Avenidade - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Av. Brig. Faria Lima, 2232 - Jardim Paulistano, São Paulo - SP, 01489-900, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1939",
+      "name": "BEC Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Garcia Velho, 72 - Pinheiros, São Paulo - SP, 05421-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6422",
+      "name": "BREAK LAB BURGER PINHEIROS",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 583 - Pinheiros, São Paulo - SP, 05422-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1277",
+      "name": "BUBBLE KILL",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1420",
+      "name": "Bacio di Latte",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 404 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1278",
+      "name": "Bacio di Latte - Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1279",
+      "name": "Bacio di Latte - Shopping Eldorado (Quiosque)",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3829 - Pinheiros, São Paulo - SP, 05401-450, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1870",
+      "name": "Backyard - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mateus Grou, 132 - Pinheiros, São Paulo - SP, 05415-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1491",
+      "name": "Baixo Largo Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 644 - Pinheiros, São Paulo - SP, 05427-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1792",
+      "name": "Baixo Pinheiros Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Guaicuí, 62 - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1639",
+      "name": "Baião Cozinha Nordestina",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 888 - Vila Madalena, São Paulo - SP, 05416-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1492",
+      "name": "Bakebun Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 97 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1280",
+      "name": "Baked Potato",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1359",
+      "name": "Balaio Restaurante",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 776 - Pinheiros, São Paulo - SP, 05406-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1793",
+      "name": "Balcón",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cristiano Viana, 370 - Cerqueira César, São Paulo - SP, 05411-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1776",
+      "name": "Bambaras",
+      "neighborhood": "Pinheiros",
+      "address": "R. Eugênio de Medeiros, 198 - Pinheiros, São Paulo - SP, 05425-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "2019",
+      "name": "Banca da tia sula",
+      "neighborhood": "Pinheiros",
+      "address": "R. Ofélia, 230 - Pinheiros, São Paulo - SP, 05423-110, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1709",
+      "name": "Bar Belle Époque",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 575 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6333",
+      "name": "Bar Café Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 593 - Pinheiros, São Paulo - SP, 05405-050, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1725",
+      "name": "Bar Do Freddy",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fernão Dias - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1809",
+      "name": "Bar Filial",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fidalga, 254 - Vila Madalena, São Paulo - SP, 05432-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1794",
+      "name": "Bar Long Neck",
+      "neighborhood": "Pinheiros",
+      "address": "R. Guaicuí, 10 - Pinheiros, São Paulo - SP, 05427-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1640",
+      "name": "Bar Porto Madalena",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1100 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1641",
+      "name": "Bar Samba",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho - Pinheiros, São Paulo - SP, 05416-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1493",
+      "name": "Bar Sao paulo",
+      "neighborhood": "Pinheiros",
+      "address": "Rua dos Pinheiros, 1179 - Av. Pedroso de Morais, 510 - Pinheiros, São Paulo - SP, 05422-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1990",
+      "name": "Bar Vermelho",
+      "neighborhood": "Pinheiros",
+      "address": "R. Capote Valente, 539 - Pinheiros, São Paulo - SP, 05409-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6393",
+      "name": "Bar café pombal",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 29 - Pinheiros, São Paulo - SP, 05407-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1922",
+      "name": "Bar da Terezinha",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Brig. Faria Lima, 858 - Pinheiros, São Paulo - SP, 05426-200, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1710",
+      "name": "Bar da fila",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 595 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1726",
+      "name": "Bar da Árvore",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fernão Dias, 352 - Pinheiros, São Paulo - SP, 05427-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1607",
+      "name": "Bar do Ceara",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 2777 - Pinheiros, São Paulo - SP, 05407-004, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6474",
+      "name": "Bar do Clube",
+      "neighborhood": "Pinheiros",
+      "address": "R. Angelina Maffei Vita, 103 - Pinheiros, São Paulo - SP, 01455-070, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1974",
+      "name": "Bar do Corno",
+      "neighborhood": "Pinheiros",
+      "address": "R. Belmiro Braga, 220 - Pinheiros, São Paulo - SP, 05432-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1608",
+      "name": "Bar do Gonzaga",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 2865 - Pinheiros, São Paulo - SP, 05407-004, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1360",
+      "name": "Bar do Jeová",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 1065 - Pinheiros, São Paulo - SP, 05405-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1967",
+      "name": "Bar do Jone",
+      "neighborhood": "Pinheiros",
+      "address": "R. Martim Carrasco, 114 - Pinheiros, São Paulo - SP, 05426-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1849",
+      "name": "Bar do Julião",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 419 - Pinheiros, São Paulo - SP, 05425-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1932",
+      "name": "Bar do Louco",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Amália de Noronha, 1303 - Pinheiros, São Paulo - SP, 05410-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1539",
+      "name": "Bar do Mário",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 1162 - Pinheiros, São Paulo - SP, 05404-003, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1727",
+      "name": "Bar do Sacha",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fernão Dias, 318 - Pinheiros, São Paulo - SP, 05428-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1728",
+      "name": "Bar do Sacha - Picanharia",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Tucambira, 15 Rua Fernão Dias, 318 - R. Tucambira, 15 - Pinheiros, São Paulo - SP, 05428-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1971",
+      "name": "Bar do Tutu",
+      "neighborhood": "Pinheiros",
+      "address": "R. Alves Guimarães, 527 - Pinheiros, São Paulo - SP, 05410-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6394",
+      "name": "Bar e Café Rosário",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 422 - Pinheiros, São Paulo - SP, 88802-570, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1609",
+      "name": "Bar e Lanches Cardeal",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 2281 - Pinheiros, São Paulo - SP, 05407-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1495",
+      "name": "Bar e Lanches Conquista",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 715 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1610",
+      "name": "Bar e Lanchonete",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1421",
+      "name": "Bar e Restaurante Donna Carolina Ltda",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1205 - Pinheiros, São Paulo - SP, 05422-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1422",
+      "name": "Bar e Restaurante Rebouças",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1103 - Pinheiros, São Paulo - SP, 05422-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1850",
+      "name": "Bar e restaurante cavalheiro mineiro",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 100 - Pinheiros, São Paulo - SP, 05425-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1891",
+      "name": "Barbatana Amarela",
+      "neighborhood": "Pinheiros",
+      "address": "R. Francisco Leitão, 266 - Pinheiros, São Paulo - SP, 05414-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1540",
+      "name": "Bark n'Crust",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 657 - Cerqueira César, São Paulo - SP, 05404-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1423",
+      "name": "Barnabeh Bar e Drinks",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1290 - Pinheiros, São Paulo - SP, 05422-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1611",
+      "name": "Barraca da Lu Lu",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 455 - Pinheiros, São Paulo - SP, 05407-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1711",
+      "name": "Bartopia - Musica & Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 609 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6366",
+      "name": "Baz Sushi",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 696 - Loja 03 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6460",
+      "name": "Be Happy Café Afeto e Comida",
+      "neighborhood": "Pinheiros",
+      "address": "R. João Moura, 627 - Pinheiros, São Paulo - SP, 05412-911, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6403",
+      "name": "Bear pub",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1064 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1712",
+      "name": "Bella Jaú",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 861 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6437",
+      "name": "BemDito grills Restaurante e hamburgueria",
+      "neighborhood": "Pinheiros",
+      "address": "Praça Benedito Calixto, 179 - Pinheiros, São Paulo - SP, 05406-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1763",
+      "name": "Bendita Sangria drinks artesanais",
+      "neighborhood": "Pinheiros",
+      "address": "Praça Benedito Calixto, 158 - Pinheiros, São Paulo - SP, 05406-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6423",
+      "name": "Benjamin a Padaria",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 15 - Pinheiros, São Paulo - SP, 05417-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1940",
+      "name": "Benê Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Garcia Velho, 158 - Pinheiros, São Paulo - SP, 05421-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1361",
+      "name": "Big Salgados",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 2130 - Pinheiros, São Paulo - SP, 05406-150, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1362",
+      "name": "Big Salgados Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 2130 - Pinheiros, São Paulo - SP, 05406-150, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1777",
+      "name": "Bigode Bar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Eugênio de Medeiros, 676 - Pinheiros, São Paulo - SP, 05425-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6334",
+      "name": "Bio Café & Co. - Almoço Natural",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 2550/2534 - Loja 36 - Pinheiros, São Paulo - SP, 05406-200, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1991",
+      "name": "Biondella Massas",
+      "neighborhood": "Pinheiros",
+      "address": "R. Capote Valente, 386 Fundos - Jardim Paulista, São Paulo - SP, 05409-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1851",
+      "name": "Birds House SP",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 168 - Pinheiros, São Paulo - SP, 05425-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1281",
+      "name": "Biscoitê A Biscoiteria",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Quiosque Biscoitê - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1952",
+      "name": "Bistrô Charlô",
+      "neighborhood": "Pinheiros",
+      "address": "R. Henrique Monteiro, 154 - Pinheiros, São Paulo - SP, 05423-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1729",
+      "name": "Black Princess House",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fernão Dias, 640 - Pinheiros, São Paulo - SP, 05427-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1912",
+      "name": "BlackBar",
+      "neighborhood": "Pinheiros",
+      "address": "R. Sumidouro, 215 - Pinheiros, São Paulo - SP, 05628-070, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1953",
+      "name": "Blog – EGG",
+      "neighborhood": "Pinheiros",
+      "address": "R. Henrique Monteiro, 121 - Pinheiros, São Paulo - SP, 05423-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6312",
+      "name": "Bob's Burger - Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Piso 3 LJ 409 L2 - Pinheiros, São Paulo - SP, 05402-054, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1882",
+      "name": "Boca de Ouro",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cônego Eugênio Leite, 1121 - Pinheiros, São Paulo - SP, 05414-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1424",
+      "name": "Bodega Pepito",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 320 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6424",
+      "name": "Bollywoodlanchonete e pizzaria",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mourato Coelho, 601 - Pinheiros, São Paulo - SP, 05417-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6313",
+      "name": "Bolo da Madre em Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6367",
+      "name": "Bolo à Toa",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 103 - Pinheiros, São Paulo - SP, 05427-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6314",
+      "name": "Bom Beef Burgers",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1425",
+      "name": "Bom Sucesso Comida Raiz",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 327 - Pinheiros, São Paulo - SP, 05422-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1282",
+      "name": "Bombay Herbs & Spices (no Shopping Eldorado)",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3.970 - Pinheiros, São Paulo - SP, 05401-450, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6386",
+      "name": "Bon Sucre - Confeitaria Artesanal",
+      "neighborhood": "Pinheiros",
+      "address": "R. Ferreira de Araújo, 490 - Pinheiros, São Paulo - SP, 05428-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1898",
+      "name": "Bora-Bora",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Henrique Schaumann, 675 - Pinheiros, São Paulo - SP, 05413-021, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6451",
+      "name": "Borcelles sushi",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fidalga - Pinheiros, São Paulo - SP, 05434-080, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1664",
+      "name": "Borda",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cunha Gago, 664 - Pinheiros, São Paulo - SP, 05421-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6482",
+      "name": "Borger Burger (Hamburgueria)",
+      "neighborhood": "Pinheiros",
+      "address": "R. Dr. Virgílio de Carvalho Pinto, 211 - Pinheiros, São Paulo - SP, 05415-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1860",
+      "name": "Bosco Restaurante",
+      "neighborhood": "Pinheiros",
+      "address": "R. João Moura, 976 - Pinheiros, São Paulo - SP, 05412-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1496",
+      "name": "Bot&Co",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 681 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1941",
+      "name": "Botanikafé Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Garcia Velho, 56 - Pinheiros, São Paulo - SP, 05421-030, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1426",
+      "name": "Boteco Mano Do Céu",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1314 - Pinheiros, São Paulo - SP, 05422-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1363",
+      "name": "Boteco Oscar Freire",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 454 - Pinheiros, São Paulo - SP, 05406-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1427",
+      "name": "Boteco Paramount",
+      "neighborhood": "Pinheiros",
+      "address": "Rua dos Pinheiros, 1179 - Av. Pedroso de Morais, 510 - Pinheiros, São Paulo - SP, 05422-012, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1541",
+      "name": "Boteco Seo Artur",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 2079 - Pinheiros, São Paulo - SP, 05404-015, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1364",
+      "name": "Boteco Sodeboa SP",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 2272 - Pinheiros, São Paulo - SP, 05406-150, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1571",
+      "name": "Boteco do meio",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cunha Gago, 581 - Pinheiros, São Paulo - SP, 05421-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6315",
+      "name": "Boutique Nespresso Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "address": "Avenida Rebouças, 3970 - Piso Térreo; loja N Q-0011 - Pinheiros, São Paulo - SP, 05401-450, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1871",
+      "name": "Brasa Charrúa",
+      "neighborhood": "Pinheiros",
+      "address": "R. Mateus Grou, 182 - Pinheiros, São Paulo - SP, 05415-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6335",
+      "name": "Brazilian Coffee",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 346 - Pinheiros, São Paulo - SP, 05406-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1642",
+      "name": "Brazilian Nuts - Açaí bowls, sucos e smoothies- Vila Madalena, São Paulo",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1002 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6368",
+      "name": "Brigadeiro Doceria & Café - Matriz",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 91 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6354",
+      "name": "Brigadeiro Doceria & Café - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 230 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1688",
+      "name": "Bronx011",
+      "neighborhood": "Pinheiros",
+      "address": "R. Inácio Pereira da Rocha, 359 - Pinheiros, São Paulo - SP, 05432-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6461",
+      "name": "Broto Pizza",
+      "neighborhood": "Pinheiros",
+      "address": "R. João Moura, 591 - Pinheiros, São Paulo - SP, 05412-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1428",
+      "name": "Bráz Elettrica",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 220 - Pinheiros, São Paulo - SP, 05422-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1429",
+      "name": "Bráz Trattoria - Unidade Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 412 - Pinheiros, São Paulo - SP, 05415-020, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1892",
+      "name": "Bubbeleh",
+      "neighborhood": "Pinheiros",
+      "address": "R. Francisco Leitão, 77 - Pinheiros, São Paulo - SP, 05414-025, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6336",
+      "name": "Buffet Corporativo em SP | Via Sorrento Coffee Break SP",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 2387 - Pinheiros, São Paulo - SP, 05405-250, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "7741",
+      "name": "Bullger",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "0"
+    },
+    {
+      "id": "1497",
+      "name": "Bunker 741",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 741 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1430",
+      "name": "Burg.",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 1072 - Pinheiros, São Paulo - SP, 05422-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6316",
+      "name": "Burger King",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Pedroso de Morais, 1556 - Pinheiros, São Paulo - SP, 05420-002, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6452",
+      "name": "Burgercue Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Pedroso de Morais, 777 - Pinheiros, São Paulo - SP, 05419-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1643",
+      "name": "Butiquim da cidade",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fradique Coutinho, 1127 - Pinheiros, São Paulo - SP, 05416-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6369",
+      "name": "Buzina Burgers",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 30 - Pinheiros, São Paulo - SP, 05429-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6458",
+      "name": "Bâtard Padaria Artesanal - Baixo Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 77 - Pinheiros, São Paulo - SP, 05425-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6487",
+      "name": "Bâtard Padaria Artesanal - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Alves Guimarães, 105 - Pinheiros, São Paulo - SP, 05410-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1613",
+      "name": "CASA NALATAXSTRAAT",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Cardeal Arcoverde, 2910 - Pinheiros, São Paulo - SP, 05427-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1542",
+      "name": "CASA VITROLA",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 1902 - Pinheiros, São Paulo - SP, 05404-005, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1431",
+      "name": "CLAUDIO CLEO NASCIMENTO CARVALHO",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 98 - Pinheiros, São Paulo - SP, 02326-005, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1852",
+      "name": "COMIDA CASEIRA - Restaurante",
+      "neighborhood": "Pinheiros",
+      "address": "R. Amaro Cavalheiro, 481 - Pinheiros, São Paulo - SP, 05425-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1899",
+      "name": "CREAM café",
+      "neighborhood": "Pinheiros",
+      "address": "Rua Henrique Schaumann, 170 - Pinheiros, São Paulo - SP, 05413-010, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1883",
+      "name": "CRN 932",
+      "neighborhood": "Pinheiros",
+      "address": "R. Cônego Eugênio Leite, 932 - Pinheiros, São Paulo - SP, 05414-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1979",
+      "name": "CUBE",
+      "neighborhood": "Pinheiros",
+      "address": "R. Angelina Maffei Vita, 103 - Pinheiros, São Paulo - SP, 01455-070, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6355",
+      "name": "Cabana Burger",
+      "neighborhood": "Pinheiros",
+      "address": "R. dos Pinheiros, 877 - Pinheiros, São Paulo - SP, 05422-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6318",
+      "name": "Cabana Burger (Shop. Eldorado)",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Loja 412, 3º Piso - Pinheiros, São Paulo - SP, 05402-918, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6370",
+      "name": "Cacau Vanilla Café - Confeitaria Saudável",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 117 - Pinheiros, São Paulo - SP, 05427-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1543",
+      "name": "Caco",
+      "neighborhood": "Pinheiros",
+      "address": "R. Artur de Azevedo, 496 - Cerqueira César, São Paulo - SP, 05404-001, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1498",
+      "name": "Cadena & Cammarota Penthouse",
+      "neighborhood": "Pinheiros",
+      "address": "R. Padre Carvalho, 408 - Pinheiros, São Paulo - SP, 05427, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6485",
+      "name": "Cafe La Bamba | Boate em pinheiros | Casa noturna Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "R. Baltazar Carrasco, 46 - Pinheiros, São Paulo - SP, 05426-060, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6486",
+      "name": "Cafe monik",
+      "neighborhood": "Pinheiros",
+      "address": "R. Baltazar Carrasco, 46 - Pinheiros, São Paulo - SP, 05426-060, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6337",
+      "name": "Cafeteria Inverno D'Italia Pinheiros",
+      "neighborhood": "Pinheiros",
+      "address": "Centro Empresarial Pinheiros - R. Teodoro Sampaio, 1020 - loja 01 - Jardim Paulista, São Paulo - SP, 05406-050, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6319",
+      "name": "Café Do Ponto",
+      "neighborhood": "Pinheiros",
+      "address": "Shopping Eldorado - Av. Rebouças, 3970 - quiosque 38 - Jardim Paulista, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6475",
+      "name": "Café Estrela",
+      "neighborhood": "Pinheiros",
+      "address": "R. Joaquim Antunes, 523 - Pinheiros, São Paulo - SP, 05415-011, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6320",
+      "name": "Café Ponto Alpha Franquia - Oscar Freire",
+      "neighborhood": "Pinheiros",
+      "address": "ESTACÃO OSCAR FREIRE - Av. Rebouças, 1064 - PISO TERREO - Pinheiros, São Paulo - SP, 05402-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6438",
+      "name": "Café Souto",
+      "neighborhood": "Pinheiros",
+      "address": "Praça Benedito Calixto, 162 - Pinheiros, São Paulo - SP, 05406-040, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "6338",
+      "name": "Café do Bira",
+      "neighborhood": "Pinheiros",
+      "address": "R. Teodoro Sampaio, 1248 - Pinheiros, São Paulo - SP, 05406-100, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1283",
+      "name": "Caipira Express (Shopping Eldorado)",
+      "neighborhood": "Pinheiros",
+      "address": "Av. Rebouças, 3970 - Piso L3 Loja, 401B - Pinheiros, São Paulo - SP, 05402-600, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    },
+    {
+      "id": "1810",
+      "name": "Cais Restaurant",
+      "neighborhood": "Pinheiros",
+      "address": "R. Fidalga, 314 - Vila Madalena, São Paulo - SP, 05432-000, Brasil",
+      "instagram": "NULL",
+      "hidden": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\taddress\tinstagram\thidden\n11\tAmém Café\tAlto de Pinheiros\tPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\tNULL\t1\n5903\tArmazém dos Pães\tAlto de Pinheiros\tAv. Diógenes Ribeiro de Lima, 3490 - Vila Leopoldina, São Paulo - SP, 05083-010, Brasil\tNULL\t1\n1\tBar do Alemão Lapa\tAlto de Pinheiros\tR. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil\tNULL\t1\n5901\tCafé Pio XI\tAlto de Pinheiros\tR. Pio XI, 1598 - Alto de Pinheiros, São Paulo - SP, 05468-150, Brasil\tNULL\t1\n16\tFarol Kaffe\tAlto de Pinheiros\tR. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil\tNULL\t1\n8\tFood Truck da Neia\tAlto de Pinheiros\tAv. Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\tNULL\t1\n12\tOAKBERRY Açaí\tAlto de Pinheiros\tPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\tNULL\t1\n13\tPadel Beach Panamericana\tAlto de Pinheiros\tPraça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil\tNULL\t1\n6\tPanatè Artesanal\tAlto de Pinheiros\tAv. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil\tNULL\t1\n5902\tPizzaria Manzalli - Loja 2\tAlto de Pinheiros\tR. Pio XI, 2326 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tNULL\t1\n3\tQuintal da Imperatriz\tAlto de Pinheiros\tR. Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tNULL\t1\n9\tRestaurante Lina e Max\tAlto de Pinheiros\tAv. Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\tNULL\t1\n4\tRestaurante Novo Talento\tAlto de Pinheiros\tR. Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tNULL\t1\n10\tRockafé Santa Cruz\tAlto de Pinheiros\tAv. Arruda Botelho - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\tNULL\t1\n5\tShoyu Culinária Oriental\tAlto de Pinheiros\tR. Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\tNULL\t1\n18\tTarta Basca → Delivery\tAlto de Pinheiros\tR. Murajuba, 450 - Alto de Pinheiros, São Paulo - SP, 05467-010, Brasil\tNULL\t1\n15\tUccellino Pane\tAlto de Pinheiros\tR. Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil\tNULL\t1\n17\tUehara Pastéis - (São Paulo)\tAlto de Pinheiros\tR. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil\tNULL\t1\n5904\tVILLA DI ROMA - Restaurante e Cafeteria\tAlto de Pinheiros\tAv. Diógenes Ribeiro de Lima, 2411 - Alto de Pinheiros, São Paulo - SP, 05458-001, Brasil\tNULL\t1\n6449\t4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros\tPinheiros\tR. Guaicuí, 29 - Pinheiros, São Paulo - SP, 05427-030, Brasil\tNULL\t1\n1488\t448 PARK\tPinheiros\tR. Padre Carvalho, 696 - Pinheiros, São Paulo - SP, 05427-020, Brasil\tNULL\t1\n1662\t520 Bar lanchonete\tPinheiros\tR. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil\tNULL\t1\n1637\tA\tPinheiros\tPinheiros, São Paulo - SP, Brasil\tNULL\t1\n1533\tA Casa da Vovó\tPinheiros\tR. Artur de Azevedo, 299 - Cerqueira César, São Paulo - SP, 05404-010, Brasil\tNULL\t1\n1534\tA Esfiha da Cito\tPinheiros\tR. Artur de Azevedo, 750 - Cerqueira César, São Paulo - SP, 05404-001, Brasil\tNULL\t1\n1357\tA Favorita - Bar e Restaurante\tPinheiros\tR. Teodoro Sampaio, 1976 - Pinheiros, São Paulo - SP, 05406-050, Brasil\tNULL\t1\n1706\tA Moqueca 564 Capixaba\tPinheiros\tR. Mourato Coelho, 615 - Pinheiros, São Paulo - SP, 05425-001, Brasil\tNULL\t1\n1931\tA TORTA - Tortas e Quiches, Receita de Vó diretamente para a sua casa!\tPinheiros\tRua Amália de Noronha, 339 - Sumaré, São Paulo - SP, 05410-010, Brasil\tNULL\t1\n6375\tA2 café especial\tPinheiros\tR. Artur de Azevedo, 616 - Cerqueira César, São Paulo - SP, 05404-001, Brasil\tNULL\t1\n1416\tAJ Lanches\tPinheiros\tR. dos Pinheiros, 184 - Pinheiros, São Paulo - SP, 04522-000, Brasil\tNULL\t1\n6467\tAJ Padaria\tPinheiros\tR. Cônego Eugênio Leite - Pinheiros, São Paulo - SP, 05414-012, Brasil\tNULL\t1\n1489\tAJF Lanches & Sucos\tPinheiros\tR. Padre Carvalho, 824 - Pinheiros, São Paulo - SP, 05427-020, Brasil\tNULL\t1\n1747\tARA Restaurante de Sobremesas\tPinheiros\tR. Simão Álvares, 421 - Pinheiros, São Paulo - SP, 05417-030, Brasil\tNULL\t1\n1707\tASIAN KITCHEN\tPinheiros\tR. Mourato Coelho, 601 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n1417\tAVLA BAR E COZINHA\tPinheiros\tR. dos Pinheiros, 1308 - Pinheiros, São Paulo - SP, 05422-002, Brasil\tNULL\t1\n1358\tAcaí com Morango\tPinheiros\tR. Teodoro Sampaio, 315 - Jardim Paulista, São Paulo - SP, 05406-000, Brasil\tNULL\t1\n1947\tAdara Café\tPinheiros\tR. Dr. Virgílio de Carvalho Pinto, 179 - Pinheiros, São Paulo - SP, 05415-030, Brasil\tNULL\t1\n1958\tAdega Cardeal\tPinheiros\tR. Baltazar Carrasco, 60 - Pinheiros, São Paulo - SP, 05426-060, Brasil\tNULL\t1\n1966\tAdega Pau no Gato Pinheiros\tPinheiros\tR. Martim Carrasco, 100 - Pinheiros, São Paulo - SP, 05426-030, Brasil\tNULL\t1\n1748\tAguzzo Cucina Italiana - Pinheiros\tPinheiros\tR. Simão Álvares, 325 - Pinheiros, São Paulo - SP, 05417-030, Brasil\tNULL\t1\n6432\tAi Sushi + Poke\tPinheiros\tR. Simão Álvares, 297 - Pinheiros, São Paulo - SP, 05417-030, Brasil\tNULL\t1\n1418\tAkkan\tPinheiros\tR. dos Pinheiros, 300 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n6473\tAl Capizza 24h - Pinheiros/SP\tPinheiros\tRua Henrique Schaumann, 395 - Pinheiros, São Paulo - SP, 05413-020, Brasil\tNULL\t1\n1535\tAl Árabe - Cozinha Árabe\tPinheiros\tR. Artur de Azevedo, 1919 - Pinheiros, São Paulo - SP, 05404-015, Brasil\tNULL\t1\n1274\tAlmanara - Shopping Eldorado\tPinheiros\tShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1749\tAltar Cozinha Afro Pop Ancestral - São Paulo\tPinheiros\tR. Simão Álvares, 445 - Pinheiros, São Paulo - SP, 05417-030, Brasil\tNULL\t1\n2012\tAluap Lanchonete\tPinheiros\tLargo dos Pinheiros, 81 - Pinheiros, São Paulo - SP, 05424-050, Brasil\tNULL\t1\n1536\tAmarelinho\tPinheiros\tR. Iaiá, 199 - Itaim Bibi, São Paulo - SP, 04542-060, Brasil\tNULL\t1\n1663\tAmbar Cervejas Artesanais\tPinheiros\tR. Cunha Gago, 129 - Pinheiros, São Paulo - SP, 05421-000, Brasil\tNULL\t1\n1638\tAmici di amici\tPinheiros\tR. Fradique Coutinho, 282 - Pinheiros, São Paulo - SP, 05416-000, Brasil\tNULL\t1\n1275\tAmor aos Pedaços\tPinheiros\tAv. Rebouças, 3970 - Loja 401a - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1276\tAndiamo Ristorante & Pizzeria Eldorado\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1791\tAnexo Pinheiros\tPinheiros\tR. Guaicuí, 82 - Pinheiros, São Paulo - SP, 05427-030, Brasil\tNULL\t1\n1537\tAntonietta Cucina\tPinheiros\tR. Artur de Azevedo, 542 - Pinheiros, São Paulo - SP, 05404-001, Brasil\tNULL\t1\n1419\tAtlântico 212\tPinheiros\tR. dos Pinheiros, 70 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n1490\tAtmosfera Bar Galeria\tPinheiros\tR. Padre Carvalho, 749 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1708\tAyê Bar\tPinheiros\tR. Mourato Coelho, 540 - Pinheiros, São Paulo - SP, 05410-020, Brasil\tNULL\t1\n1848\tAçaí Pinheiros\tPinheiros\tR. Amaro Cavalheiro, 127 - Pinheiros, São Paulo - SP, 05425-010, Brasil\tNULL\t1\n6311\tB.LEM Padaria Portuguesa - Shopping Eldorado\tPinheiros\tShopping Eldorado - Av. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1881\tBAR DE TAPAS\tPinheiros\tR. Cônego Eugênio Leite, 727 - Pinheiros, São Paulo - SP, 05414-011, Brasil\tNULL\t1\n1538\tBARK BBQ\tPinheiros\tR. Artur de Azevedo, 657 - Cerqueira César, São Paulo - SP, 05404-011, Brasil\tNULL\t1\n1921\tBARU Bistrô - Iguatemi\tPinheiros\tAvenidade - Rom Concept Torre Frutas 9 andas Shopping Iguatemi - Av. Brig. Faria Lima, 2232 - Jardim Paulistano, São Paulo - SP, 01489-900, Brasil\tNULL\t1\n1939\tBEC Bar\tPinheiros\tR. Padre Garcia Velho, 72 - Pinheiros, São Paulo - SP, 05421-030, Brasil\tNULL\t1\n6422\tBREAK LAB BURGER PINHEIROS\tPinheiros\tR. Mourato Coelho, 583 - Pinheiros, São Paulo - SP, 05422-002, Brasil\tNULL\t1\n1277\tBUBBLE KILL\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1420\tBacio di Latte\tPinheiros\tR. dos Pinheiros, 404 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n1278\tBacio di Latte - Shopping Eldorado\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1279\tBacio di Latte - Shopping Eldorado (Quiosque)\tPinheiros\tAv. Rebouças, 3829 - Pinheiros, São Paulo - SP, 05401-450, Brasil\tNULL\t1\n1870\tBackyard - Pinheiros\tPinheiros\tR. Mateus Grou, 132 - Pinheiros, São Paulo - SP, 05415-040, Brasil\tNULL\t1\n1491\tBaixo Largo Bar\tPinheiros\tR. Padre Carvalho, 644 - Pinheiros, São Paulo - SP, 05427-020, Brasil\tNULL\t1\n1792\tBaixo Pinheiros Bar\tPinheiros\tR. Guaicuí, 62 - Pinheiros, São Paulo - SP, 05427-030, Brasil\tNULL\t1\n1639\tBaião Cozinha Nordestina\tPinheiros\tR. Fradique Coutinho, 888 - Vila Madalena, São Paulo - SP, 05416-000, Brasil\tNULL\t1\n1492\tBakebun Pinheiros\tPinheiros\tR. Padre Carvalho, 97 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1280\tBaked Potato\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1359\tBalaio Restaurante\tPinheiros\tR. Teodoro Sampaio, 776 - Pinheiros, São Paulo - SP, 05406-000, Brasil\tNULL\t1\n1793\tBalcón\tPinheiros\tR. Cristiano Viana, 370 - Cerqueira César, São Paulo - SP, 05411-000, Brasil\tNULL\t1\n1776\tBambaras\tPinheiros\tR. Eugênio de Medeiros, 198 - Pinheiros, São Paulo - SP, 05425-000, Brasil\tNULL\t1\n2019\tBanca da tia sula\tPinheiros\tR. Ofélia, 230 - Pinheiros, São Paulo - SP, 05423-110, Brasil\tNULL\t1\n1709\tBar Belle Époque\tPinheiros\tR. Mourato Coelho, 575 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n6333\tBar Café Pinheiros\tPinheiros\tR. Teodoro Sampaio, 593 - Pinheiros, São Paulo - SP, 05405-050, Brasil\tNULL\t1\n1725\tBar Do Freddy\tPinheiros\tR. Fernão Dias - Pinheiros, São Paulo - SP, 05427-030, Brasil\tNULL\t1\n1809\tBar Filial\tPinheiros\tR. Fidalga, 254 - Vila Madalena, São Paulo - SP, 05432-000, Brasil\tNULL\t1\n1794\tBar Long Neck\tPinheiros\tR. Guaicuí, 10 - Pinheiros, São Paulo - SP, 05427-030, Brasil\tNULL\t1\n1640\tBar Porto Madalena\tPinheiros\tR. Fradique Coutinho, 1100 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tNULL\t1\n1641\tBar Samba\tPinheiros\tR. Fradique Coutinho - Pinheiros, São Paulo - SP, 05416-011, Brasil\tNULL\t1\n1493\tBar Sao paulo\tPinheiros\tRua dos Pinheiros, 1179 - Av. Pedroso de Morais, 510 - Pinheiros, São Paulo - SP, 05422-012, Brasil\tNULL\t1\n1990\tBar Vermelho\tPinheiros\tR. Capote Valente, 539 - Pinheiros, São Paulo - SP, 05409-001, Brasil\tNULL\t1\n6393\tBar café pombal\tPinheiros\tRua Cardeal Arcoverde, 29 - Pinheiros, São Paulo - SP, 05407-002, Brasil\tNULL\t1\n1922\tBar da Terezinha\tPinheiros\tAv. Brig. Faria Lima, 858 - Pinheiros, São Paulo - SP, 05426-200, Brasil\tNULL\t1\n1710\tBar da fila\tPinheiros\tR. Mourato Coelho, 595 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n1726\tBar da Árvore\tPinheiros\tR. Fernão Dias, 352 - Pinheiros, São Paulo - SP, 05427-010, Brasil\tNULL\t1\n1607\tBar do Ceara\tPinheiros\tRua Cardeal Arcoverde, 2777 - Pinheiros, São Paulo - SP, 05407-004, Brasil\tNULL\t1\n6474\tBar do Clube\tPinheiros\tR. Angelina Maffei Vita, 103 - Pinheiros, São Paulo - SP, 01455-070, Brasil\tNULL\t1\n1974\tBar do Corno\tPinheiros\tR. Belmiro Braga, 220 - Pinheiros, São Paulo - SP, 05432-020, Brasil\tNULL\t1\n1608\tBar do Gonzaga\tPinheiros\tRua Cardeal Arcoverde, 2865 - Pinheiros, São Paulo - SP, 05407-004, Brasil\tNULL\t1\n1360\tBar do Jeová\tPinheiros\tR. Teodoro Sampaio, 1065 - Pinheiros, São Paulo - SP, 05405-100, Brasil\tNULL\t1\n1967\tBar do Jone\tPinheiros\tR. Martim Carrasco, 114 - Pinheiros, São Paulo - SP, 05426-030, Brasil\tNULL\t1\n1849\tBar do Julião\tPinheiros\tR. Amaro Cavalheiro, 419 - Pinheiros, São Paulo - SP, 05425-011, Brasil\tNULL\t1\n1932\tBar do Louco\tPinheiros\tRua Amália de Noronha, 1303 - Pinheiros, São Paulo - SP, 05410-002, Brasil\tNULL\t1\n1539\tBar do Mário\tPinheiros\tR. Artur de Azevedo, 1162 - Pinheiros, São Paulo - SP, 05404-003, Brasil\tNULL\t1\n1727\tBar do Sacha\tPinheiros\tR. Fernão Dias, 318 - Pinheiros, São Paulo - SP, 05428-020, Brasil\tNULL\t1\n1728\tBar do Sacha - Picanharia\tPinheiros\tRua Tucambira, 15 Rua Fernão Dias, 318 - R. Tucambira, 15 - Pinheiros, São Paulo - SP, 05428-020, Brasil\tNULL\t1\n1971\tBar do Tutu\tPinheiros\tR. Alves Guimarães, 527 - Pinheiros, São Paulo - SP, 05410-000, Brasil\tNULL\t1\n6394\tBar e Café Rosário\tPinheiros\tRua Cardeal Arcoverde, 422 - Pinheiros, São Paulo - SP, 88802-570, Brasil\tNULL\t1\n1609\tBar e Lanches Cardeal\tPinheiros\tRua Cardeal Arcoverde, 2281 - Pinheiros, São Paulo - SP, 05407-000, Brasil\tNULL\t1\n1495\tBar e Lanches Conquista\tPinheiros\tR. Padre Carvalho, 715 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1610\tBar e Lanchonete\tPinheiros\tR. Cunha Gago, 520 - Pinheiros, São Paulo - SP, 05421-001, Brasil\tNULL\t1\n1421\tBar e Restaurante Donna Carolina Ltda\tPinheiros\tR. dos Pinheiros, 1205 - Pinheiros, São Paulo - SP, 05422-012, Brasil\tNULL\t1\n1422\tBar e Restaurante Rebouças\tPinheiros\tR. dos Pinheiros, 1103 - Pinheiros, São Paulo - SP, 05422-012, Brasil\tNULL\t1\n1850\tBar e restaurante cavalheiro mineiro\tPinheiros\tR. Amaro Cavalheiro, 100 - Pinheiros, São Paulo - SP, 05425-010, Brasil\tNULL\t1\n1891\tBarbatana Amarela\tPinheiros\tR. Francisco Leitão, 266 - Pinheiros, São Paulo - SP, 05414-020, Brasil\tNULL\t1\n1540\tBark n'Crust\tPinheiros\tR. Artur de Azevedo, 657 - Cerqueira César, São Paulo - SP, 05404-011, Brasil\tNULL\t1\n1423\tBarnabeh Bar e Drinks\tPinheiros\tR. dos Pinheiros, 1290 - Pinheiros, São Paulo - SP, 05422-002, Brasil\tNULL\t1\n1611\tBarraca da Lu Lu\tPinheiros\tRua Cardeal Arcoverde, 455 - Pinheiros, São Paulo - SP, 05407-000, Brasil\tNULL\t1\n1711\tBartopia - Musica & Bar\tPinheiros\tR. Mourato Coelho, 609 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n6366\tBaz Sushi\tPinheiros\tR. Padre Carvalho, 696 - Loja 03 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n6460\tBe Happy Café Afeto e Comida\tPinheiros\tR. João Moura, 627 - Pinheiros, São Paulo - SP, 05412-911, Brasil\tNULL\t1\n6403\tBear pub\tPinheiros\tR. Fradique Coutinho, 1064 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tNULL\t1\n1712\tBella Jaú\tPinheiros\tR. Mourato Coelho, 861 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n6437\tBemDito grills Restaurante e hamburgueria\tPinheiros\tPraça Benedito Calixto, 179 - Pinheiros, São Paulo - SP, 05406-040, Brasil\tNULL\t1\n1763\tBendita Sangria drinks artesanais\tPinheiros\tPraça Benedito Calixto, 158 - Pinheiros, São Paulo - SP, 05406-040, Brasil\tNULL\t1\n6423\tBenjamin a Padaria\tPinheiros\tR. Mourato Coelho, 15 - Pinheiros, São Paulo - SP, 05417-010, Brasil\tNULL\t1\n1940\tBenê Bar\tPinheiros\tR. Padre Garcia Velho, 158 - Pinheiros, São Paulo - SP, 05421-030, Brasil\tNULL\t1\n1361\tBig Salgados\tPinheiros\tR. Teodoro Sampaio, 2130 - Pinheiros, São Paulo - SP, 05406-150, Brasil\tNULL\t1\n1362\tBig Salgados Pinheiros\tPinheiros\tR. Teodoro Sampaio, 2130 - Pinheiros, São Paulo - SP, 05406-150, Brasil\tNULL\t1\n1777\tBigode Bar\tPinheiros\tR. Eugênio de Medeiros, 676 - Pinheiros, São Paulo - SP, 05425-001, Brasil\tNULL\t1\n6334\tBio Café & Co. - Almoço Natural\tPinheiros\tR. Teodoro Sampaio, 2550/2534 - Loja 36 - Pinheiros, São Paulo - SP, 05406-200, Brasil\tNULL\t1\n1991\tBiondella Massas\tPinheiros\tR. Capote Valente, 386 Fundos - Jardim Paulista, São Paulo - SP, 05409-001, Brasil\tNULL\t1\n1851\tBirds House SP\tPinheiros\tR. Amaro Cavalheiro, 168 - Pinheiros, São Paulo - SP, 05425-010, Brasil\tNULL\t1\n1281\tBiscoitê A Biscoiteria\tPinheiros\tAv. Rebouças, 3970 - Quiosque Biscoitê - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1952\tBistrô Charlô\tPinheiros\tR. Henrique Monteiro, 154 - Pinheiros, São Paulo - SP, 05423-020, Brasil\tNULL\t1\n1729\tBlack Princess House\tPinheiros\tR. Fernão Dias, 640 - Pinheiros, São Paulo - SP, 05427-000, Brasil\tNULL\t1\n1912\tBlackBar\tPinheiros\tR. Sumidouro, 215 - Pinheiros, São Paulo - SP, 05628-070, Brasil\tNULL\t1\n1953\tBlog – EGG\tPinheiros\tR. Henrique Monteiro, 121 - Pinheiros, São Paulo - SP, 05423-020, Brasil\tNULL\t1\n6312\tBob's Burger - Shopping Eldorado\tPinheiros\tAv. Rebouças, 3970 - Piso 3 LJ 409 L2 - Pinheiros, São Paulo - SP, 05402-054, Brasil\tNULL\t1\n1882\tBoca de Ouro\tPinheiros\tR. Cônego Eugênio Leite, 1121 - Pinheiros, São Paulo - SP, 05414-012, Brasil\tNULL\t1\n1424\tBodega Pepito\tPinheiros\tR. dos Pinheiros, 320 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n6424\tBollywoodlanchonete e pizzaria\tPinheiros\tR. Mourato Coelho, 601 - Pinheiros, São Paulo - SP, 05417-011, Brasil\tNULL\t1\n6313\tBolo da Madre em Shopping Eldorado\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n6367\tBolo à Toa\tPinheiros\tR. Padre Carvalho, 103 - Pinheiros, São Paulo - SP, 05427-020, Brasil\tNULL\t1\n6314\tBom Beef Burgers\tPinheiros\tAv. Rebouças, 3970 - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1425\tBom Sucesso Comida Raiz\tPinheiros\tR. dos Pinheiros, 327 - Pinheiros, São Paulo - SP, 05422-010, Brasil\tNULL\t1\n1282\tBombay Herbs & Spices (no Shopping Eldorado)\tPinheiros\tAv. Rebouças, 3.970 - Pinheiros, São Paulo - SP, 05401-450, Brasil\tNULL\t1\n6386\tBon Sucre - Confeitaria Artesanal\tPinheiros\tR. Ferreira de Araújo, 490 - Pinheiros, São Paulo - SP, 05428-001, Brasil\tNULL\t1\n1898\tBora-Bora\tPinheiros\tRua Henrique Schaumann, 675 - Pinheiros, São Paulo - SP, 05413-021, Brasil\tNULL\t1\n6451\tBorcelles sushi\tPinheiros\tR. Fidalga - Pinheiros, São Paulo - SP, 05434-080, Brasil\tNULL\t1\n1664\tBorda\tPinheiros\tR. Cunha Gago, 664 - Pinheiros, São Paulo - SP, 05421-000, Brasil\tNULL\t1\n6482\tBorger Burger (Hamburgueria)\tPinheiros\tR. Dr. Virgílio de Carvalho Pinto, 211 - Pinheiros, São Paulo - SP, 05415-030, Brasil\tNULL\t1\n1860\tBosco Restaurante\tPinheiros\tR. João Moura, 976 - Pinheiros, São Paulo - SP, 05412-002, Brasil\tNULL\t1\n1496\tBot&Co\tPinheiros\tR. Padre Carvalho, 681 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1941\tBotanikafé Pinheiros\tPinheiros\tR. Padre Garcia Velho, 56 - Pinheiros, São Paulo - SP, 05421-030, Brasil\tNULL\t1\n1426\tBoteco Mano Do Céu\tPinheiros\tR. dos Pinheiros, 1314 - Pinheiros, São Paulo - SP, 05422-002, Brasil\tNULL\t1\n1363\tBoteco Oscar Freire\tPinheiros\tR. Teodoro Sampaio, 454 - Pinheiros, São Paulo - SP, 05406-000, Brasil\tNULL\t1\n1427\tBoteco Paramount\tPinheiros\tRua dos Pinheiros, 1179 - Av. Pedroso de Morais, 510 - Pinheiros, São Paulo - SP, 05422-012, Brasil\tNULL\t1\n1541\tBoteco Seo Artur\tPinheiros\tR. Artur de Azevedo, 2079 - Pinheiros, São Paulo - SP, 05404-015, Brasil\tNULL\t1\n1364\tBoteco Sodeboa SP\tPinheiros\tR. Teodoro Sampaio, 2272 - Pinheiros, São Paulo - SP, 05406-150, Brasil\tNULL\t1\n1571\tBoteco do meio\tPinheiros\tR. Cunha Gago, 581 - Pinheiros, São Paulo - SP, 05421-000, Brasil\tNULL\t1\n6315\tBoutique Nespresso Shopping Eldorado\tPinheiros\tAvenida Rebouças, 3970 - Piso Térreo; loja N Q-0011 - Pinheiros, São Paulo - SP, 05401-450, Brasil\tNULL\t1\n1871\tBrasa Charrúa\tPinheiros\tR. Mateus Grou, 182 - Pinheiros, São Paulo - SP, 05415-040, Brasil\tNULL\t1\n6335\tBrazilian Coffee\tPinheiros\tR. Teodoro Sampaio, 346 - Pinheiros, São Paulo - SP, 05406-000, Brasil\tNULL\t1\n1642\tBrazilian Nuts - Açaí bowls, sucos e smoothies- Vila Madalena, São Paulo\tPinheiros\tR. Fradique Coutinho, 1002 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tNULL\t1\n6368\tBrigadeiro Doceria & Café - Matriz\tPinheiros\tR. Padre Carvalho, 91 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n6354\tBrigadeiro Doceria & Café - Pinheiros\tPinheiros\tR. dos Pinheiros, 230 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n1688\tBronx011\tPinheiros\tR. Inácio Pereira da Rocha, 359 - Pinheiros, São Paulo - SP, 05432-011, Brasil\tNULL\t1\n6461\tBroto Pizza\tPinheiros\tR. João Moura, 591 - Pinheiros, São Paulo - SP, 05412-001, Brasil\tNULL\t1\n1428\tBráz Elettrica\tPinheiros\tR. dos Pinheiros, 220 - Pinheiros, São Paulo - SP, 05422-000, Brasil\tNULL\t1\n1429\tBráz Trattoria - Unidade Pinheiros\tPinheiros\tR. dos Pinheiros, 412 - Pinheiros, São Paulo - SP, 05415-020, Brasil\tNULL\t1\n1892\tBubbeleh\tPinheiros\tR. Francisco Leitão, 77 - Pinheiros, São Paulo - SP, 05414-025, Brasil\tNULL\t1\n6336\tBuffet Corporativo em SP | Via Sorrento Coffee Break SP\tPinheiros\tR. Teodoro Sampaio, 2387 - Pinheiros, São Paulo - SP, 05405-250, Brasil\tNULL\t1\n7741\tBullger\tPinheiros\tR. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001, Brasil\tNULL\t0\n1497\tBunker 741\tPinheiros\tR. Padre Carvalho, 741 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1430\tBurg.\tPinheiros\tR. dos Pinheiros, 1072 - Pinheiros, São Paulo - SP, 05422-002, Brasil\tNULL\t1\n6316\tBurger King\tPinheiros\tAv. Pedroso de Morais, 1556 - Pinheiros, São Paulo - SP, 05420-002, Brasil\tNULL\t1\n6452\tBurgercue Pinheiros\tPinheiros\tAv. Pedroso de Morais, 777 - Pinheiros, São Paulo - SP, 05419-000, Brasil\tNULL\t1\n1643\tButiquim da cidade\tPinheiros\tR. Fradique Coutinho, 1127 - Pinheiros, São Paulo - SP, 05416-011, Brasil\tNULL\t1\n6369\tBuzina Burgers\tPinheiros\tR. Padre Carvalho, 30 - Pinheiros, São Paulo - SP, 05429-040, Brasil\tNULL\t1\n6458\tBâtard Padaria Artesanal - Baixo Pinheiros\tPinheiros\tR. Amaro Cavalheiro, 77 - Pinheiros, São Paulo - SP, 05425-010, Brasil\tNULL\t1\n6487\tBâtard Padaria Artesanal - Pinheiros\tPinheiros\tR. Alves Guimarães, 105 - Pinheiros, São Paulo - SP, 05410-000, Brasil\tNULL\t1\n1613\tCASA NALATAXSTRAAT\tPinheiros\tRua Cardeal Arcoverde, 2910 - Pinheiros, São Paulo - SP, 05427-001, Brasil\tNULL\t1\n1542\tCASA VITROLA\tPinheiros\tR. Artur de Azevedo, 1902 - Pinheiros, São Paulo - SP, 05404-005, Brasil\tNULL\t1\n1431\tCLAUDIO CLEO NASCIMENTO CARVALHO\tPinheiros\tR. dos Pinheiros, 98 - Pinheiros, São Paulo - SP, 02326-005, Brasil\tNULL\t1\n1852\tCOMIDA CASEIRA - Restaurante\tPinheiros\tR. Amaro Cavalheiro, 481 - Pinheiros, São Paulo - SP, 05425-011, Brasil\tNULL\t1\n1899\tCREAM café\tPinheiros\tRua Henrique Schaumann, 170 - Pinheiros, São Paulo - SP, 05413-010, Brasil\tNULL\t1\n1883\tCRN 932\tPinheiros\tR. Cônego Eugênio Leite, 932 - Pinheiros, São Paulo - SP, 05414-001, Brasil\tNULL\t1\n1979\tCUBE\tPinheiros\tR. Angelina Maffei Vita, 103 - Pinheiros, São Paulo - SP, 01455-070, Brasil\tNULL\t1\n6355\tCabana Burger\tPinheiros\tR. dos Pinheiros, 877 - Pinheiros, São Paulo - SP, 05422-011, Brasil\tNULL\t1\n6318\tCabana Burger (Shop. Eldorado)\tPinheiros\tAv. Rebouças, 3970 - Loja 412, 3º Piso - Pinheiros, São Paulo - SP, 05402-918, Brasil\tNULL\t1\n6370\tCacau Vanilla Café - Confeitaria Saudável\tPinheiros\tR. Padre Carvalho, 117 - Pinheiros, São Paulo - SP, 05427-100, Brasil\tNULL\t1\n1543\tCaco\tPinheiros\tR. Artur de Azevedo, 496 - Cerqueira César, São Paulo - SP, 05404-001, Brasil\tNULL\t1\n1498\tCadena & Cammarota Penthouse\tPinheiros\tR. Padre Carvalho, 408 - Pinheiros, São Paulo - SP, 05427, Brasil\tNULL\t1\n6485\tCafe La Bamba | Boate em pinheiros | Casa noturna Pinheiros\tPinheiros\tR. Baltazar Carrasco, 46 - Pinheiros, São Paulo - SP, 05426-060, Brasil\tNULL\t1\n6486\tCafe monik\tPinheiros\tR. Baltazar Carrasco, 46 - Pinheiros, São Paulo - SP, 05426-060, Brasil\tNULL\t1\n6337\tCafeteria Inverno D'Italia Pinheiros\tPinheiros\tCentro Empresarial Pinheiros - R. Teodoro Sampaio, 1020 - loja 01 - Jardim Paulista, São Paulo - SP, 05406-050, Brasil\tNULL\t1\n6319\tCafé Do Ponto\tPinheiros\tShopping Eldorado - Av. Rebouças, 3970 - quiosque 38 - Jardim Paulista, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n6475\tCafé Estrela\tPinheiros\tR. Joaquim Antunes, 523 - Pinheiros, São Paulo - SP, 05415-011, Brasil\tNULL\t1\n6320\tCafé Ponto Alpha Franquia - Oscar Freire\tPinheiros\tESTACÃO OSCAR FREIRE - Av. Rebouças, 1064 - PISO TERREO - Pinheiros, São Paulo - SP, 05402-000, Brasil\tNULL\t1\n6438\tCafé Souto\tPinheiros\tPraça Benedito Calixto, 162 - Pinheiros, São Paulo - SP, 05406-040, Brasil\tNULL\t1\n6338\tCafé do Bira\tPinheiros\tR. Teodoro Sampaio, 1248 - Pinheiros, São Paulo - SP, 05406-100, Brasil\tNULL\t1\n1283\tCaipira Express (Shopping Eldorado)\tPinheiros\tAv. Rebouças, 3970 - Piso L3 Loja, 401B - Pinheiros, São Paulo - SP, 05402-600, Brasil\tNULL\t1\n1810\tCais Restaurant\tPinheiros\tR. Fidalga, 314 - Vila Madalena, São Paulo - SP, 05432-000, Brasil\tNULL\t1\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

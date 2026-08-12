@@ -1,0 +1,64 @@
+{
+  "query": "SELECT id, name, category, price FROM menu_items WHERE establishmentId = 6500 AND category = 'hamburguer';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, category, price FROM menu_items WHERE establishmentId = 6500 AND category = 'hamburguer';",
+  "rows": [
+    {
+      "id": "120001",
+      "name": "Rustic",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120002",
+      "name": "Onion",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120003",
+      "name": "Roadside",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120004",
+      "name": "Salad",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120005",
+      "name": "Bacon",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120006",
+      "name": "Raw 176",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120007",
+      "name": "Blue Chaos",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120008",
+      "name": "Carbonero",
+      "category": "hamburguer",
+      "price": "67"
+    },
+    {
+      "id": "120009",
+      "name": "Tartufo Nero",
+      "category": "hamburguer",
+      "price": "67"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcategory\tprice\n120001\tRustic\thamburguer\t67\n120002\tOnion\thamburguer\t67\n120003\tRoadside\thamburguer\t67\n120004\tSalad\thamburguer\t67\n120005\tBacon\thamburguer\t67\n120006\tRaw 176\thamburguer\t67\n120007\tBlue Chaos\thamburguer\t67\n120008\tCarbonero\thamburguer\t67\n120009\tTartufo Nero\thamburguer\t67\n",
+  "stderr": "",
+  "execution_time_ms": 428
+}

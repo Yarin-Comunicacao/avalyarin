@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total FROM establishment_categories;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT COUNT(*) as total FROM establishment_categories;",
+  "rows": [
+    {
+      "total": "188"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n188\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}

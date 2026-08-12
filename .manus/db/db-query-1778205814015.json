@@ -1,0 +1,310 @@
+{
+  "query": "SELECT id, name, neighborhood, categoryId \nFROM establishments \nWHERE (neighborhood IN ('Vila Madalena', 'Pinheiros', 'Alto de Pinheiros'))\n  AND (instagram IS NULL OR instagram = '')\nORDER BY neighborhood ASC, name ASC\nLIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, categoryId \nFROM establishments \nWHERE (neighborhood IN ('Vila Madalena', 'Pinheiros', 'Alto de Pinheiros'))\n  AND (instagram IS NULL OR instagram = '')\nORDER BY neighborhood ASC, name ASC\nLIMIT 50;",
+  "rows": [
+    {
+      "id": "11",
+      "name": "Amém Café",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "5903",
+      "name": "Armazém dos Pães",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "9"
+    },
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "4"
+    },
+    {
+      "id": "5901",
+      "name": "Café Pio XI",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "12",
+      "name": "OAKBERRY Açaí",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "15"
+    },
+    {
+      "id": "14",
+      "name": "OAKBERRY Açaí",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "15"
+    },
+    {
+      "id": "13",
+      "name": "Padel Beach Panamericana",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "9"
+    },
+    {
+      "id": "5902",
+      "name": "Pizzaria Manzalli - Loja 2",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "14"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "10",
+      "name": "Rockafé Santa Cruz",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "17"
+    },
+    {
+      "id": "18",
+      "name": "Tarta Basca → Delivery",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "9"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "5904",
+      "name": "VILLA DI ROMA - Restaurante e Cafeteria",
+      "neighborhood": "Alto de Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "6449",
+      "name": "4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros",
+      "neighborhood": "Pinheiros",
+      "categoryId": "16"
+    },
+    {
+      "id": "1488",
+      "name": "448 PARK",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1662",
+      "name": "520 Bar lanchonete",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "1637",
+      "name": "A",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1533",
+      "name": "A Casa da Vovó",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1534",
+      "name": "A Esfiha da Cito",
+      "neighborhood": "Pinheiros",
+      "categoryId": "17"
+    },
+    {
+      "id": "1357",
+      "name": "A Favorita - Bar e Restaurante",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1706",
+      "name": "A Moqueca 564 Capixaba",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1931",
+      "name": "A TORTA - Tortas e Quiches, Receita de Vó diretamente para a sua casa!",
+      "neighborhood": "Pinheiros",
+      "categoryId": "9"
+    },
+    {
+      "id": "6375",
+      "name": "A2 café especial",
+      "neighborhood": "Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "1416",
+      "name": "AJ Lanches",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "6467",
+      "name": "AJ Padaria",
+      "neighborhood": "Pinheiros",
+      "categoryId": "9"
+    },
+    {
+      "id": "1489",
+      "name": "AJF Lanches & Sucos",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "1747",
+      "name": "ARA Restaurante de Sobremesas",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1707",
+      "name": "ASIAN KITCHEN",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1417",
+      "name": "AVLA BAR E COZINHA",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1358",
+      "name": "Acaí com Morango",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1947",
+      "name": "Adara Café",
+      "neighborhood": "Pinheiros",
+      "categoryId": "8"
+    },
+    {
+      "id": "1958",
+      "name": "Adega Cardeal",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "1966",
+      "name": "Adega Pau no Gato Pinheiros",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "1748",
+      "name": "Aguzzo Cucina Italiana - Pinheiros",
+      "neighborhood": "Pinheiros",
+      "categoryId": "17"
+    },
+    {
+      "id": "6432",
+      "name": "Ai Sushi + Poke",
+      "neighborhood": "Pinheiros",
+      "categoryId": "17"
+    },
+    {
+      "id": "1418",
+      "name": "Akkan",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "6473",
+      "name": "Al Capizza 24h - Pinheiros/SP",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1535",
+      "name": "Al Árabe - Cozinha Árabe",
+      "neighborhood": "Pinheiros",
+      "categoryId": "17"
+    },
+    {
+      "id": "1274",
+      "name": "Almanara - Shopping Eldorado",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1749",
+      "name": "Altar Cozinha Afro Pop Ancestral - São Paulo",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "2012",
+      "name": "Aluap Lanchonete",
+      "neighborhood": "Pinheiros",
+      "categoryId": "1"
+    },
+    {
+      "id": "1536",
+      "name": "Amarelinho",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    },
+    {
+      "id": "1663",
+      "name": "Ambar Cervejas Artesanais",
+      "neighborhood": "Pinheiros",
+      "categoryId": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\tcategoryId\n11\tAmém Café\tAlto de Pinheiros\t8\n5903\tArmazém dos Pães\tAlto de Pinheiros\t9\n1\tBar do Alemão Lapa\tAlto de Pinheiros\t4\n5901\tCafé Pio XI\tAlto de Pinheiros\t8\n16\tFarol Kaffe\tAlto de Pinheiros\t8\n8\tFood Truck da Neia\tAlto de Pinheiros\t2\n12\tOAKBERRY Açaí\tAlto de Pinheiros\t15\n14\tOAKBERRY Açaí\tAlto de Pinheiros\t15\n13\tPadel Beach Panamericana\tAlto de Pinheiros\t1\n6\tPanatè Artesanal\tAlto de Pinheiros\t9\n5902\tPizzaria Manzalli - Loja 2\tAlto de Pinheiros\t14\n3\tQuintal da Imperatriz\tAlto de Pinheiros\t2\n9\tRestaurante Lina e Max\tAlto de Pinheiros\t2\n4\tRestaurante Novo Talento\tAlto de Pinheiros\t2\n10\tRockafé Santa Cruz\tAlto de Pinheiros\t2\n5\tShoyu Culinária Oriental\tAlto de Pinheiros\t17\n18\tTarta Basca → Delivery\tAlto de Pinheiros\t9\n15\tUccellino Pane\tAlto de Pinheiros\t2\n17\tUehara Pastéis - (São Paulo)\tAlto de Pinheiros\t2\n5904\tVILLA DI ROMA - Restaurante e Cafeteria\tAlto de Pinheiros\t8\n6449\t4 Eat Burger Bar -Restaurante , Hamburgueria e Bar -Pinheiros\tPinheiros\t16\n1488\t448 PARK\tPinheiros\t2\n1662\t520 Bar lanchonete\tPinheiros\t1\n1637\tA\tPinheiros\t2\n1533\tA Casa da Vovó\tPinheiros\t2\n1534\tA Esfiha da Cito\tPinheiros\t17\n1357\tA Favorita - Bar e Restaurante\tPinheiros\t2\n1706\tA Moqueca 564 Capixaba\tPinheiros\t2\n1931\tA TORTA - Tortas e Quiches, Receita de Vó diretamente para a sua casa!\tPinheiros\t9\n6375\tA2 café especial\tPinheiros\t8\n1416\tAJ Lanches\tPinheiros\t1\n6467\tAJ Padaria\tPinheiros\t9\n1489\tAJF Lanches & Sucos\tPinheiros\t1\n1747\tARA Restaurante de Sobremesas\tPinheiros\t2\n1707\tASIAN KITCHEN\tPinheiros\t2\n1417\tAVLA BAR E COZINHA\tPinheiros\t2\n1358\tAcaí com Morango\tPinheiros\t2\n1947\tAdara Café\tPinheiros\t8\n1958\tAdega Cardeal\tPinheiros\t1\n1966\tAdega Pau no Gato Pinheiros\tPinheiros\t1\n1748\tAguzzo Cucina Italiana - Pinheiros\tPinheiros\t17\n6432\tAi Sushi + Poke\tPinheiros\t17\n1418\tAkkan\tPinheiros\t2\n6473\tAl Capizza 24h - Pinheiros/SP\tPinheiros\t2\n1535\tAl Árabe - Cozinha Árabe\tPinheiros\t17\n1274\tAlmanara - Shopping Eldorado\tPinheiros\t2\n1749\tAltar Cozinha Afro Pop Ancestral - São Paulo\tPinheiros\t2\n2012\tAluap Lanchonete\tPinheiros\t1\n1536\tAmarelinho\tPinheiros\t2\n1663\tAmbar Cervejas Artesanais\tPinheiros\t2\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}

@@ -1,0 +1,38 @@
+{
+  "query": "SELECT category, COUNT(*) as qtd FROM menu_items WHERE establishmentId = 6500 GROUP BY category ORDER BY category;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT category, COUNT(*) as qtd FROM menu_items WHERE establishmentId = 6500 GROUP BY category ORDER BY category;",
+  "rows": [
+    {
+      "category": "Fucking Cold Beer",
+      "qtd": "11"
+    },
+    {
+      "category": "Highballs",
+      "qtd": "5"
+    },
+    {
+      "category": "Maionese da Casa",
+      "qtd": "2"
+    },
+    {
+      "category": "Raw Snacks",
+      "qtd": "3"
+    },
+    {
+      "category": "Raw Wagyu Burgers",
+      "qtd": "9"
+    },
+    {
+      "category": "Soft Drinks",
+      "qtd": "5"
+    },
+    {
+      "category": "Sweets N Shakes",
+      "qtd": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\tqtd\nFucking Cold Beer\t11\nHighballs\t5\nMaionese da Casa\t2\nRaw Snacks\t3\nRaw Wagyu Burgers\t9\nSoft Drinks\t5\nSweets N Shakes\t5\n",
+  "stderr": "",
+  "execution_time_ms": 268
+}

@@ -1,0 +1,50 @@
+{
+  "query": "\nSELECT id, name FROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND (\n    name LIKE '% - Restaurante%' OR name LIKE '% - Bar %' OR name LIKE '% - Café%'\n    OR name LIKE '% - Pizzaria%' OR name LIKE '% - Hamburgueria%' OR name LIKE '% - Padaria%'\n    OR name LIKE '% - Lanchonete%' OR name LIKE '% - Confeitaria%' OR name LIKE '% - Sorveteria%'\n  )\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT id, name FROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND (\n    name LIKE '% - Restaurante%' OR name LIKE '% - Bar %' OR name LIKE '% - Café%'\n    OR name LIKE '% - Pizzaria%' OR name LIKE '% - Hamburgueria%' OR name LIKE '% - Padaria%'\n    OR name LIKE '% - Lanchonete%' OR name LIKE '% - Confeitaria%' OR name LIKE '% - Sorveteria%'\n  )\nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "331",
+      "name": "DELIAMAZON - Restaurante e emporio amazônico"
+    },
+    {
+      "id": "342",
+      "name": "Piadino - Restaurante (antiga Piadina Romagnola)"
+    },
+    {
+      "id": "497",
+      "name": "Atithi - Restaurante Indiano"
+    },
+    {
+      "id": "604",
+      "name": "Mister Sanduba - Restaurante e Lanchonete"
+    },
+    {
+      "id": "1009",
+      "name": "Chopp Time - Restaurante e Choperia"
+    },
+    {
+      "id": "1329",
+      "name": "Piadina Romagnola - Restaurante"
+    },
+    {
+      "id": "1357",
+      "name": "A Favorita - Bar e Restaurante"
+    },
+    {
+      "id": "1413",
+      "name": "Villa Pinheiros - Bar & Restaurante"
+    },
+    {
+      "id": "1449",
+      "name": "Lanchonete - Bar do Gaúcho"
+    },
+    {
+      "id": "1461",
+      "name": "Nour - Restaurante Árabe"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n331\tDELIAMAZON - Restaurante e emporio amazônico\n342\tPiadino - Restaurante (antiga Piadina Romagnola)\n497\tAtithi - Restaurante Indiano\n604\tMister Sanduba - Restaurante e Lanchonete\n1009\tChopp Time - Restaurante e Choperia\n1329\tPiadina Romagnola - Restaurante\n1357\tA Favorita - Bar e Restaurante\n1413\tVilla Pinheiros - Bar & Restaurante\n1449\tLanchonete - Bar do Gaúcho\n1461\tNour - Restaurante Árabe\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}

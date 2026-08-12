@@ -1,0 +1,143 @@
+{
+  "query": "SELECT id, name, address, lat, lng FROM establishments WHERE neighborhood = 'Alto de Pinheiros' AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, address, lat, lng FROM establishments WHERE neighborhood = 'Alto de Pinheiros' AND (instagram IS NULL OR instagram = '' OR instagram = 'NULL') ORDER BY name;",
+  "rows": [
+    {
+      "id": "11",
+      "name": "Amém Café",
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "lat": "-23.55356",
+      "lng": "-46.70296"
+    },
+    {
+      "id": "5903",
+      "name": "Armazém dos Pães",
+      "address": "Av. Diógenes Ribeiro de Lima, 3490 - Vila Leopoldina, São Paulo - SP, 05083-010, Brasil",
+      "lat": "-23.529942",
+      "lng": "-46.719658"
+    },
+    {
+      "id": "1",
+      "name": "Bar do Alemão Lapa",
+      "address": "R. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil",
+      "lat": "-23.534142",
+      "lng": "-46.71365"
+    },
+    {
+      "id": "5901",
+      "name": "Café Pio XI",
+      "address": "R. Pio XI, 1598 - Alto de Pinheiros, São Paulo - SP, 05468-150, Brasil",
+      "lat": "-23.537056",
+      "lng": "-46.71433"
+    },
+    {
+      "id": "16",
+      "name": "Farol Kaffe",
+      "address": "R. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil",
+      "lat": "-23.561447",
+      "lng": "-46.704136"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "address": "Av. Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "lat": "-23.553337",
+      "lng": "-46.71906"
+    },
+    {
+      "id": "12",
+      "name": "OAKBERRY Açaí",
+      "address": "Praça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil",
+      "lat": "-23.553602",
+      "lng": "-46.70202"
+    },
+    {
+      "id": "13",
+      "name": "Padel Beach Panamericana",
+      "address": "Praça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil",
+      "lat": "-23.556244",
+      "lng": "-46.710922"
+    },
+    {
+      "id": "6",
+      "name": "Panatè Artesanal",
+      "address": "Av. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil",
+      "lat": "-23.533606",
+      "lng": "-46.71848"
+    },
+    {
+      "id": "5902",
+      "name": "Pizzaria Manzalli - Loja 2",
+      "address": "R. Pio XI, 2326 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "lat": "-23.540726",
+      "lng": "-46.716553"
+    },
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "address": "R. Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "lat": "-23.540688",
+      "lng": "-46.71378"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "address": "Av. Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "lat": "-23.548256",
+      "lng": "-46.718056"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "address": "R. Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "lat": "-23.540941",
+      "lng": "-46.71633"
+    },
+    {
+      "id": "10",
+      "name": "Rockafé Santa Cruz",
+      "address": "Av. Arruda Botelho - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil",
+      "lat": "-23.550436",
+      "lng": "-46.71742"
+    },
+    {
+      "id": "5",
+      "name": "Shoyu Culinária Oriental",
+      "address": "R. Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil",
+      "lat": "-23.540588",
+      "lng": "-46.71508"
+    },
+    {
+      "id": "18",
+      "name": "Tarta Basca → Delivery",
+      "address": "R. Murajuba, 450 - Alto de Pinheiros, São Paulo - SP, 05467-010, Brasil",
+      "lat": "-23.543982",
+      "lng": "-46.714474"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "address": "R. Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil",
+      "lat": "-23.541172",
+      "lng": "-46.713116"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "address": "R. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil",
+      "lat": "-23.551224",
+      "lng": "-46.720345"
+    },
+    {
+      "id": "5904",
+      "name": "VILLA DI ROMA - Restaurante e Cafeteria",
+      "address": "Av. Diógenes Ribeiro de Lima, 2411 - Alto de Pinheiros, São Paulo - SP, 05458-001, Brasil",
+      "lat": "-23.539303",
+      "lng": "-46.718872"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\taddress\tlat\tlng\n11\tAmém Café\tPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\t-23.55356\t-46.70296\n5903\tArmazém dos Pães\tAv. Diógenes Ribeiro de Lima, 3490 - Vila Leopoldina, São Paulo - SP, 05083-010, Brasil\t-23.529942\t-46.719658\n1\tBar do Alemão Lapa\tR. Pio XI, 1221 - Alto da Lapa, São Paulo - SP, 05060-001, Brasil\t-23.534142\t-46.71365\n5901\tCafé Pio XI\tR. Pio XI, 1598 - Alto de Pinheiros, São Paulo - SP, 05468-150, Brasil\t-23.537056\t-46.71433\n16\tFarol Kaffe\tR. Carlos Rath, 129 - Pinheiros, São Paulo - SP, 05462-030, Brasil\t-23.561447\t-46.704136\n8\tFood Truck da Neia\tAv. Arruda Botelho, 605 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\t-23.553337\t-46.71906\n12\tOAKBERRY Açaí\tPraça Cel. Custódio Fernandes Pinheiro, 334 - Alto de Pinheiros, São Paulo - SP, 05463-090, Brasil\t-23.553602\t-46.70202\n13\tPadel Beach Panamericana\tPraça Arcipreste Anselmo de Oliveira, 285 B - Alto de Pinheiros, São Paulo - SP, 05463-080, Brasil\t-23.556244\t-46.710922\n6\tPanatè Artesanal\tAv. Diógenes Ribeiro de Lima, 3074 - Alto da Lapa, São Paulo - SP, 05083-010, Brasil\t-23.533606\t-46.71848\n5902\tPizzaria Manzalli - Loja 2\tR. Pio XI, 2326 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\t-23.540726\t-46.716553\n3\tQuintal da Imperatriz\tR. Pio XI, 2061 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\t-23.540688\t-46.71378\n9\tRestaurante Lina e Max\tAv. Arruda Botelho, 170 - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\t-23.548256\t-46.718056\n4\tRestaurante Novo Talento\tR. Pio XI, 2301 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\t-23.540941\t-46.71633\n10\tRockafé Santa Cruz\tAv. Arruda Botelho - Alto de Pinheiros, São Paulo - SP, 05466-000, Brasil\t-23.550436\t-46.71742\n5\tShoyu Culinária Oriental\tR. Pio XI, 2174 - Alto de Pinheiros, São Paulo - SP, 05468-140, Brasil\t-23.540588\t-46.71508\n18\tTarta Basca → Delivery\tR. Murajuba, 450 - Alto de Pinheiros, São Paulo - SP, 05467-010, Brasil\t-23.543982\t-46.714474\n15\tUccellino Pane\tR. Berlioz, 710 - Alto de Pinheiros, São Paulo - SP, 05467-000, Brasil\t-23.541172\t-46.713116\n17\tUehara Pastéis - (São Paulo)\tR. Dr. José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo - SP, 05466-040, Brasil\t-23.551224\t-46.720345\n5904\tVILLA DI ROMA - Restaurante e Cafeteria\tAv. Diógenes Ribeiro de Lima, 2411 - Alto de Pinheiros, São Paulo - SP, 05458-001, Brasil\t-23.539303\t-46.718872\n",
+  "stderr": "",
+  "execution_time_ms": 286
+}

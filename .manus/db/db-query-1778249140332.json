@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE establishments \nSET categoryId = 13 \nWHERE categoryId != 13 \n  AND source = 'spreadsheet'\n  AND (name LIKE '%cervejaria%' OR name LIKE '%Cervejaria%'\n    OR name LIKE '%cervejas artesanais%' OR name LIKE '%Cervejas Artesanais%'\n    OR name LIKE '%cerveja artesanal%' OR name LIKE '%Cerveja Artesanal%'\n    OR name LIKE '%brewery%' OR name LIKE '%Brewery%'\n    OR name LIKE '%brewpub%' OR name LIKE '%Brewpub%' OR name LIKE '%BrewPub%'\n    OR name LIKE '%brew house%' OR name LIKE '%Brew House%'\n    OR name LIKE '%taphouse%' OR name LIKE '%Tap House%');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute UPDATE establishments \nSET categoryId = 13 \nWHERE categoryId != 13 \n  AND source = 'spreadsheet'\n  AND (name LIKE '%cervejaria%' OR name LIKE '%Cervejaria%'\n    OR name LIKE '%cervejas artesanais%' OR name LIKE '%Cervejas Artesanais%'\n    OR name LIKE '%cerveja artesanal%' OR name LIKE '%Cerveja Artesanal%'\n    OR name LIKE '%brewery%' OR name LIKE '%Brewery%'\n    OR name LIKE '%brewpub%' OR name LIKE '%Brewpub%' OR name LIKE '%BrewPub%'\n    OR name LIKE '%brew house%' OR name LIKE '%Brew House%'\n    OR name LIKE '%taphouse%' OR name LIKE '%Tap House%');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 306
+}

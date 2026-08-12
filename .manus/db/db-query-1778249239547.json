@@ -1,0 +1,610 @@
+{
+  "query": "SELECT id, name, neighborhood, address\nFROM establishments \nWHERE categoryId = 2 AND source = 'spreadsheet'\nORDER BY id\nLIMIT 100;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT id, name, neighborhood, address\nFROM establishments \nWHERE categoryId = 2 AND source = 'spreadsheet'\nORDER BY id\nLIMIT 100;",
+  "rows": [
+    {
+      "id": "3",
+      "name": "Quintal da Imperatriz",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Rua Pio XI, 2061 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "4",
+      "name": "Restaurante Novo Talento",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Rua Pio XI, 2301 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "8",
+      "name": "Food Truck da Neia",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Avenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "9",
+      "name": "Restaurante Lina e Max",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Avenida Arruda Botelho, 170 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "10",
+      "name": "Rockafé Santa Cruz",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Avenida Arruda Botelho - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "15",
+      "name": "Uccellino Pane",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Rua Berlioz, 710 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "17",
+      "name": "Uehara Pastéis - (São Paulo)",
+      "neighborhood": "Alto de Pinheiros",
+      "address": "Rua Doutor José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo"
+    },
+    {
+      "id": "20",
+      "name": "Bolinho Verde | Restaurante Israelense Kasher",
+      "neighborhood": "Barra Funda",
+      "address": "Espaço And’orra - Rua Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "28",
+      "name": "Maria Comida Caseira",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Conselheiro Brotero, 292 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "29",
+      "name": "Marmiteria da Boa",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Conselheiro Brotero, 543 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "31",
+      "name": "Rei DO Beirute",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Conselheiro Brotero, 200 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "32",
+      "name": "Tambo Ateliê Comida Latina",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Conselheiro Brotero, 931 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "35",
+      "name": "Bar Dois Primos",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 440 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "39",
+      "name": "Cantinho da Tapioca",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 691 - Loja 2 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "40",
+      "name": "Casa da Coxinha JLM",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 661 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "43",
+      "name": "Nova Roma Comida Caseira",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 244 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "45",
+      "name": "Phantom Kitchen",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "46",
+      "name": "Porão da Cerveja",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 610 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "47",
+      "name": "Restaurante Grill",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 448 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "49",
+      "name": "Vivi Espetod",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes de Oliveira, 700 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "50",
+      "name": "Arte na Cozinha",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 555 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "51",
+      "name": "Bar e Restaurante Tradicional da Barra",
+      "neighborhood": "Barra Funda",
+      "address": "R. Barra Funda, 1042 - Barra Funda, São Paulo - SP, 01152-000, Brasil"
+    },
+    {
+      "id": "54",
+      "name": "Deep Bar 611",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 611 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "56",
+      "name": "Fogão á Lenha",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda - Assad Alcici, São Paulo"
+    },
+    {
+      "id": "57",
+      "name": "Giotto Sorvetes",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 720 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "60",
+      "name": "PolloLoko Barra Funda",
+      "neighborhood": "Barra Funda",
+      "address": "01152-000, Rua Barra Funda, 606 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "61",
+      "name": "Restaurante Casa do Norte",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 341 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "62",
+      "name": "SOUL BRASIL",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 717 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "64",
+      "name": "Sol Da Barra",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Barra Funda, 730 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "69",
+      "name": "Bar e Restaurante do Bigode",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão, 576 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "71",
+      "name": "Casa Do Pão De Queijo Bicel",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão, 596 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "74",
+      "name": "MOZZAICCO RESTAURANTES DE EMPRESAS",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão, 555 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "75",
+      "name": "Mania de acarajé",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão, 672 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "78",
+      "name": "Restaurante do Catarino",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão, 718 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "80",
+      "name": "T-Burguer",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Brigadeiro Galvão - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "88",
+      "name": "El Bodegon Barra Funda",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Sousa Lima, 43 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "90",
+      "name": "Mescla Restaurante",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Sousa Lima, 305 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "92",
+      "name": "PILOTTO - Restaurante de frutos do mar e bar de ostras",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Sousa Lima, 299 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "97",
+      "name": "Pontto Certto",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Anhanguera, 561 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "98",
+      "name": "Raizes da Jô",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Anhanguera, 374 - Loja 04 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "99",
+      "name": "Restaurante CozinhaZ",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Anhanguera, 645 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "100",
+      "name": "Restaurante Nosso Tempero",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Anhanguera, 585 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "101",
+      "name": "Virou Mania",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Anhanguera, 645 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "104",
+      "name": "Burguer Fun",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Doutor Ribeiro de Almeida, 360 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "105",
+      "name": "Cantinho Da Barra Funda",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Doutor Ribeiro de Almeida, 278 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "106",
+      "name": "Casa Bertasi",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Doutor Ribeiro de Almeida, 33 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "107",
+      "name": "Tatá Espetinhos",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Doutor Ribeiro de Almeida, 149 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "108",
+      "name": "Adequar Assessoria Nutricional",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Tagipuru, 235 - Sala 105 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "111",
+      "name": "Barra Foods",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Tagipuru, 282A - Barra Funda, São Paulo"
+    },
+    {
+      "id": "112",
+      "name": "FoodTrue",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Tagipuru, 235 - Pacaembu, São Paulo"
+    },
+    {
+      "id": "114",
+      "name": "Korn dog barra funda",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Tagipuru, 282B - Barra Funda, São Paulo"
+    },
+    {
+      "id": "117",
+      "name": "Dai-me Sabor",
+      "neighborhood": "Barra Funda",
+      "address": "Rua do Bosque, 136 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "125",
+      "name": "Ponto dos Assados",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Camerino, 72 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "126",
+      "name": "Quintal Nordestino",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Camerino, 72 - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "128",
+      "name": "mc donald",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Camerino, 33a - Santa Cecilia, São Paulo"
+    },
+    {
+      "id": "129",
+      "name": "A Lancheirinha",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lavradio, 105 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "138",
+      "name": "Bar E Restaurante Tilapia",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes Chaves, 215 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "140",
+      "name": "Restaurante Existência",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes Chaves, 204 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "141",
+      "name": "Vanderale",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Lopes Chaves, 495 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "146",
+      "name": "Dagi",
+      "neighborhood": "Barra Funda",
+      "address": "Alameda Olga, 288 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "147",
+      "name": "Restaurante Dona Olga",
+      "neighborhood": "Barra Funda",
+      "address": "Alameda Olga, 349 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "148",
+      "name": "Restaurante Mercure",
+      "neighborhood": "Barra Funda",
+      "address": "Alameda Olga - Barra Funda, São Paulo"
+    },
+    {
+      "id": "149",
+      "name": "Sabores da Vida",
+      "neighborhood": "Barra Funda",
+      "address": "Alameda Olga, 190 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "150",
+      "name": "La Casa Bar",
+      "neighborhood": "Barra Funda",
+      "address": "Avenida Doutor Adolpho Pinto, 132 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "151",
+      "name": "Lara Park",
+      "neighborhood": "Barra Funda",
+      "address": "Avenida Doutor Adolpho Pinto, 50a - Barra Funda, São Paulo"
+    },
+    {
+      "id": "154",
+      "name": "Big pastel",
+      "neighborhood": "Barra Funda",
+      "address": "Avenida Thomas Edison, 732 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "159",
+      "name": "Cruzeiros Bar",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Cruzeiro, 952 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "162",
+      "name": "Restaurante Don Bibo - Barra Funda",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Cruzeiro, 780 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "163",
+      "name": "Calle 54 (West Plaza)",
+      "neighborhood": "Barra Funda",
+      "address": "Avenida Antártica, 408 - Água Branca, São Paulo"
+    },
+    {
+      "id": "168",
+      "name": "Pastel diferente",
+      "neighborhood": "Barra Funda",
+      "address": "Rua dos Americanos, 660 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "169",
+      "name": "Porque a Vovó é quem Faz",
+      "neighborhood": "Barra Funda",
+      "address": "Rua dos Americanos, 699 - C1 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "174",
+      "name": "Dona Adeláide",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Joaquim Manuel de Macedo, 329 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "175",
+      "name": "Restaurante Top da Barra",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Joaquim Manuel de Macedo - Barra Funda, São Paulo"
+    },
+    {
+      "id": "179",
+      "name": "Restaurante Recanto du Lar",
+      "neighborhood": "Barra Funda",
+      "address": "Alameda Eduardo prado 734, Rua Vitorino Carmilo, 562 - Campos Elíseos, São Paulo"
+    },
+    {
+      "id": "182",
+      "name": "Ponto Chic Perdizes",
+      "neighborhood": "Barra Funda",
+      "address": "Largo Padre Péricles, 139 - Perdizes, São Paulo"
+    },
+    {
+      "id": "186",
+      "name": "DJ Churras",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Cônego Vicente Miguel Marino, 179 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "196",
+      "name": "Bob's Shakes - Barra Funda",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Mário de Andrade, 664 - Loja B - Barra Funda, São Paulo"
+    },
+    {
+      "id": "200",
+      "name": "Fofocas Bar",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Norma Pieruccini Giannotti, 366 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "201",
+      "name": "NinoSnackHunger",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Norma Pieruccini Giannotti, 367 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "203",
+      "name": "Food Truck da Ruiva",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Fuad Naufel, 210 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "207",
+      "name": "Emporio Mascaro",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Solimões, 349 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "209",
+      "name": "Sapore Di Italia Massas Artesanais",
+      "neighborhood": "Barra Funda",
+      "address": "Rua das Perdizes, 57 - loja 04 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "210",
+      "name": "Pastel e caldo toda quarta-feira",
+      "neighborhood": "Barra Funda",
+      "address": "Rua Júlio Gonzalez, 98 - Barra Funda, São Paulo"
+    },
+    {
+      "id": "214",
+      "name": "Aspargus Grill",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 760 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "216",
+      "name": "Bar Ouro Preto",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 347 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "217",
+      "name": "Basic Gourmet",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 485 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "219",
+      "name": "Carambola’s",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 896 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "224",
+      "name": "Churrasco da Joaquim",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 1087 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "226",
+      "name": "Escritório - Temakeria e Cia",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 101 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "227",
+      "name": "Fome de festa",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 708 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "228",
+      "name": "GUA.CO Itaim Bibi",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 800 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "229",
+      "name": "Greenjoy | Brascan Open Mall",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 466 - Piso Térreo - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "232",
+      "name": "Joakin's",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 163 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "233",
+      "name": "Madero Steak House Brascan",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 466 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "234",
+      "name": "Manirê",
+      "neighborhood": "Itaim Bibi",
+      "address": "Brascam - Rua Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "237",
+      "name": "McDonald's",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 466 Lojas 25 26 e 27, Rua Joaquim Floriano, 466 - Lojas 25 26 e 27 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "238",
+      "name": "Milló Churrasco Na Brasa",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 473 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "239",
+      "name": "Nova Grill Bar e Gastronomia",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 717 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "241",
+      "name": "Oazi Restaurante",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 123 - Itaim Bibi, São Paulo"
+    },
+    {
+      "id": "242",
+      "name": "PF do Will",
+      "neighborhood": "Itaim Bibi",
+      "address": "Rua Joaquim Floriano, 190 - Itaim Bibi, São Paulo"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tneighborhood\taddress\n3\tQuintal da Imperatriz\tAlto de Pinheiros\tRua Pio XI, 2061 - Alto de Pinheiros, São Paulo\n4\tRestaurante Novo Talento\tAlto de Pinheiros\tRua Pio XI, 2301 - Alto de Pinheiros, São Paulo\n8\tFood Truck da Neia\tAlto de Pinheiros\tAvenida Arruda Botelho, 605 - Alto de Pinheiros, São Paulo\n9\tRestaurante Lina e Max\tAlto de Pinheiros\tAvenida Arruda Botelho, 170 - Alto de Pinheiros, São Paulo\n10\tRockafé Santa Cruz\tAlto de Pinheiros\tAvenida Arruda Botelho - Alto de Pinheiros, São Paulo\n15\tUccellino Pane\tAlto de Pinheiros\tRua Berlioz, 710 - Alto de Pinheiros, São Paulo\n17\tUehara Pastéis - (São Paulo)\tAlto de Pinheiros\tRua Doutor José Rodrigues Alves Sobrinho, 112 - Alto de Pinheiros, São Paulo\n20\tBolinho Verde | Restaurante Israelense Kasher\tBarra Funda\tEspaço And’orra - Rua Conselheiro Brotero, 888 - Loja 11 do - Santa Cecilia, São Paulo\n28\tMaria Comida Caseira\tBarra Funda\tRua Conselheiro Brotero, 292 - Barra Funda, São Paulo\n29\tMarmiteria da Boa\tBarra Funda\tRua Conselheiro Brotero, 543 - Barra Funda, São Paulo\n31\tRei DO Beirute\tBarra Funda\tRua Conselheiro Brotero, 200 - Barra Funda, São Paulo\n32\tTambo Ateliê Comida Latina\tBarra Funda\tRua Conselheiro Brotero, 931 - Santa Cecilia, São Paulo\n35\tBar Dois Primos\tBarra Funda\tRua Lopes de Oliveira, 440 - Barra Funda, São Paulo\n39\tCantinho da Tapioca\tBarra Funda\tRua Lopes de Oliveira, 691 - Loja 2 - Santa Cecilia, São Paulo\n40\tCasa da Coxinha JLM\tBarra Funda\tRua Lopes de Oliveira, 661 - Barra Funda, São Paulo\n43\tNova Roma Comida Caseira\tBarra Funda\tRua Lopes de Oliveira, 244 - Barra Funda, São Paulo\n45\tPhantom Kitchen\tBarra Funda\tRua Lopes de Oliveira, 349 - 395 - Barra Funda, São Paulo\n46\tPorão da Cerveja\tBarra Funda\tRua Lopes de Oliveira, 610 - Barra Funda, São Paulo\n47\tRestaurante Grill\tBarra Funda\tRua Lopes de Oliveira, 448 - Santa Cecilia, São Paulo\n49\tVivi Espetod\tBarra Funda\tRua Lopes de Oliveira, 700 - Barra Funda, São Paulo\n50\tArte na Cozinha\tBarra Funda\tRua Barra Funda, 555 - Barra Funda, São Paulo\n51\tBar e Restaurante Tradicional da Barra\tBarra Funda\tR. Barra Funda, 1042 - Barra Funda, São Paulo - SP, 01152-000, Brasil\n54\tDeep Bar 611\tBarra Funda\tRua Barra Funda, 611 - Santa Cecilia, São Paulo\n56\tFogão á Lenha\tBarra Funda\tRua Barra Funda - Assad Alcici, São Paulo\n57\tGiotto Sorvetes\tBarra Funda\tRua Barra Funda, 720 - Barra Funda, São Paulo\n60\tPolloLoko Barra Funda\tBarra Funda\t01152-000, Rua Barra Funda, 606 - Barra Funda, São Paulo\n61\tRestaurante Casa do Norte\tBarra Funda\tRua Barra Funda, 341 - Barra Funda, São Paulo\n62\tSOUL BRASIL\tBarra Funda\tRua Barra Funda, 717 - Barra Funda, São Paulo\n64\tSol Da Barra\tBarra Funda\tRua Barra Funda, 730 - Barra Funda, São Paulo\n69\tBar e Restaurante do Bigode\tBarra Funda\tRua Brigadeiro Galvão, 576 - Barra Funda, São Paulo\n71\tCasa Do Pão De Queijo Bicel\tBarra Funda\tRua Brigadeiro Galvão, 596 - Barra Funda, São Paulo\n74\tMOZZAICCO RESTAURANTES DE EMPRESAS\tBarra Funda\tRua Brigadeiro Galvão, 555 - Barra Funda, São Paulo\n75\tMania de acarajé\tBarra Funda\tRua Brigadeiro Galvão, 672 - Barra Funda, São Paulo\n78\tRestaurante do Catarino\tBarra Funda\tRua Brigadeiro Galvão, 718 - Barra Funda, São Paulo\n80\tT-Burguer\tBarra Funda\tRua Brigadeiro Galvão - Santa Cecilia, São Paulo\n88\tEl Bodegon Barra Funda\tBarra Funda\tRua Sousa Lima, 43 - Barra Funda, São Paulo\n90\tMescla Restaurante\tBarra Funda\tRua Sousa Lima, 305 - Barra Funda, São Paulo\n92\tPILOTTO - Restaurante de frutos do mar e bar de ostras\tBarra Funda\tRua Sousa Lima, 299 - Barra Funda, São Paulo\n97\tPontto Certto\tBarra Funda\tRua Anhanguera, 561 - Barra Funda, São Paulo\n98\tRaizes da Jô\tBarra Funda\tRua Anhanguera, 374 - Loja 04 - Barra Funda, São Paulo\n99\tRestaurante CozinhaZ\tBarra Funda\tRua Anhanguera, 645 - Barra Funda, São Paulo\n100\tRestaurante Nosso Tempero\tBarra Funda\tRua Anhanguera, 585 - Barra Funda, São Paulo\n101\tVirou Mania\tBarra Funda\tRua Anhanguera, 645 - Barra Funda, São Paulo\n104\tBurguer Fun\tBarra Funda\tRua Doutor Ribeiro de Almeida, 360 - Barra Funda, São Paulo\n105\tCantinho Da Barra Funda\tBarra Funda\tRua Doutor Ribeiro de Almeida, 278 - Barra Funda, São Paulo\n106\tCasa Bertasi\tBarra Funda\tRua Doutor Ribeiro de Almeida, 33 - Barra Funda, São Paulo\n107\tTatá Espetinhos\tBarra Funda\tRua Doutor Ribeiro de Almeida, 149 - Barra Funda, São Paulo\n108\tAdequar Assessoria Nutricional\tBarra Funda\tRua Tagipuru, 235 - Sala 105 - Barra Funda, São Paulo\n111\tBarra Foods\tBarra Funda\tRua Tagipuru, 282A - Barra Funda, São Paulo\n112\tFoodTrue\tBarra Funda\tRua Tagipuru, 235 - Pacaembu, São Paulo\n114\tKorn dog barra funda\tBarra Funda\tRua Tagipuru, 282B - Barra Funda, São Paulo\n117\tDai-me Sabor\tBarra Funda\tRua do Bosque, 136 - Barra Funda, São Paulo\n125\tPonto dos Assados\tBarra Funda\tRua Camerino, 72 - Santa Cecilia, São Paulo\n126\tQuintal Nordestino\tBarra Funda\tRua Camerino, 72 - Santa Cecilia, São Paulo\n128\tmc donald\tBarra Funda\tRua Camerino, 33a - Santa Cecilia, São Paulo\n129\tA Lancheirinha\tBarra Funda\tRua Lavradio, 105 - Barra Funda, São Paulo\n138\tBar E Restaurante Tilapia\tBarra Funda\tRua Lopes Chaves, 215 - Barra Funda, São Paulo\n140\tRestaurante Existência\tBarra Funda\tRua Lopes Chaves, 204 - Barra Funda, São Paulo\n141\tVanderale\tBarra Funda\tRua Lopes Chaves, 495 - Barra Funda, São Paulo\n146\tDagi\tBarra Funda\tAlameda Olga, 288 - Barra Funda, São Paulo\n147\tRestaurante Dona Olga\tBarra Funda\tAlameda Olga, 349 - Barra Funda, São Paulo\n148\tRestaurante Mercure\tBarra Funda\tAlameda Olga - Barra Funda, São Paulo\n149\tSabores da Vida\tBarra Funda\tAlameda Olga, 190 - Barra Funda, São Paulo\n150\tLa Casa Bar\tBarra Funda\tAvenida Doutor Adolpho Pinto, 132 - Barra Funda, São Paulo\n151\tLara Park\tBarra Funda\tAvenida Doutor Adolpho Pinto, 50a - Barra Funda, São Paulo\n154\tBig pastel\tBarra Funda\tAvenida Thomas Edison, 732 - Barra Funda, São Paulo\n159\tCruzeiros Bar\tBarra Funda\tRua Cruzeiro, 952 - Barra Funda, São Paulo\n162\tRestaurante Don Bibo - Barra Funda\tBarra Funda\tRua Cruzeiro, 780 - Barra Funda, São Paulo\n163\tCalle 54 (West Plaza)\tBarra Funda\tAvenida Antártica, 408 - Água Branca, São Paulo\n168\tPastel diferente\tBarra Funda\tRua dos Americanos, 660 - Barra Funda, São Paulo\n169\tPorque a Vovó é quem Faz\tBarra Funda\tRua dos Americanos, 699 - C1 - Barra Funda, São Paulo\n174\tDona Adeláide\tBarra Funda\tRua Joaquim Manuel de Macedo, 329 - Barra Funda, São Paulo\n175\tRestaurante Top da Barra\tBarra Funda\tRua Joaquim Manuel de Macedo - Barra Funda, São Paulo\n179\tRestaurante Recanto du Lar\tBarra Funda\tAlameda Eduardo prado 734, Rua Vitorino Carmilo, 562 - Campos Elíseos, São Paulo\n182\tPonto Chic Perdizes\tBarra Funda\tLargo Padre Péricles, 139 - Perdizes, São Paulo\n186\tDJ Churras\tBarra Funda\tRua Cônego Vicente Miguel Marino, 179 - Barra Funda, São Paulo\n196\tBob's Shakes - Barra Funda\tBarra Funda\tRua Mário de Andrade, 664 - Loja B - Barra Funda, São Paulo\n200\tFofocas Bar\tBarra Funda\tRua Norma Pieruccini Giannotti, 366 - Barra Funda, São Paulo\n201\tNinoSnackHunger\tBarra Funda\tRua Norma Pieruccini Giannotti, 367 - Barra Funda, São Paulo\n203\tFood Truck da Ruiva\tBarra Funda\tRua Fuad Naufel, 210 - Barra Funda, São Paulo\n207\tEmporio Mascaro\tBarra Funda\tRua Solimões, 349 - Barra Funda, São Paulo\n209\tSapore Di Italia Massas Artesanais\tBarra Funda\tRua das Perdizes, 57 - loja 04 - Barra Funda, São Paulo\n210\tPastel e caldo toda quarta-feira\tBarra Funda\tRua Júlio Gonzalez, 98 - Barra Funda, São Paulo\n214\tAspargus Grill\tItaim Bibi\tRua Joaquim Floriano, 760 - Itaim Bibi, São Paulo\n216\tBar Ouro Preto\tItaim Bibi\tRua Joaquim Floriano, 347 - Itaim Bibi, São Paulo\n217\tBasic Gourmet\tItaim Bibi\tRua Joaquim Floriano, 485 - Itaim Bibi, São Paulo\n219\tCarambola’s\tItaim Bibi\tRua Joaquim Floriano, 896 - Itaim Bibi, São Paulo\n224\tChurrasco da Joaquim\tItaim Bibi\tRua Joaquim Floriano, 1087 - Itaim Bibi, São Paulo\n226\tEscritório - Temakeria e Cia\tItaim Bibi\tRua Joaquim Floriano, 101 - Itaim Bibi, São Paulo\n227\tFome de festa\tItaim Bibi\tRua Joaquim Floriano, 708 - Itaim Bibi, São Paulo\n228\tGUA.CO Itaim Bibi\tItaim Bibi\tRua Joaquim Floriano, 800 - Itaim Bibi, São Paulo\n229\tGreenjoy | Brascan Open Mall\tItaim Bibi\tRua Joaquim Floriano, 466 - Piso Térreo - Itaim Bibi, São Paulo\n232\tJoakin's\tItaim Bibi\tRua Joaquim Floriano, 163 - Itaim Bibi, São Paulo\n233\tMadero Steak House Brascan\tItaim Bibi\tRua Joaquim Floriano, 466 - Itaim Bibi, São Paulo\n234\tManirê\tItaim Bibi\tBrascam - Rua Joaquim Floriano, 466 - Loja 5 - Itaim Bibi, São Paulo\n237\tMcDonald's\tItaim Bibi\tRua Joaquim Floriano, 466 Lojas 25 26 e 27, Rua Joaquim Floriano, 466 - Lojas 25 26 e 27 - Itaim Bibi, São Paulo\n238\tMilló Churrasco Na Brasa\tItaim Bibi\tRua Joaquim Floriano, 473 - Itaim Bibi, São Paulo\n239\tNova Grill Bar e Gastronomia\tItaim Bibi\tRua Joaquim Floriano, 717 - Itaim Bibi, São Paulo\n241\tOazi Restaurante\tItaim Bibi\tRua Joaquim Floriano, 123 - Itaim Bibi, São Paulo\n242\tPF do Will\tItaim Bibi\tRua Joaquim Floriano, 190 - Itaim Bibi, São Paulo\n",
+  "stderr": "",
+  "execution_time_ms": 273
+}

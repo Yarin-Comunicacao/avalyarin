@@ -1,0 +1,40 @@
+{
+  "query": "SELECT address FROM establishments WHERE address IS NOT NULL ORDER BY RAND() LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT address FROM establishments WHERE address IS NOT NULL ORDER BY RAND() LIMIT 10;",
+  "rows": [
+    {
+      "address": "Avenida Ver. José Diniz, 3179 - Campo Belo, São Paulo - SP, 04603-002, Brasil"
+    },
+    {
+      "address": "Largo do Arouche, 150 - República, São Paulo - SP, 01219-903, Brasil"
+    },
+    {
+      "address": "Praça Alberto Lion, 100 - Cambuci, São Paulo - SP, 01515-000, Brasil"
+    },
+    {
+      "address": "Rua Maurício Francisco Klabin, 473 - Vila Mariana, São Paulo - SP, 04120-020, Brasil"
+    },
+    {
+      "address": "Rua dos Sorocabanos, 297 - Ipiranga, São Paulo - SP, 04202-000, Brasil"
+    },
+    {
+      "address": "Rua Tuim, 950 - Moema, São Paulo - SP, 04514-103, Brasil"
+    },
+    {
+      "address": "Avenida Lins de Vasconcelos, 1177 - H - Cambuci, São Paulo - SP, 01537-000, Brasil"
+    },
+    {
+      "address": "Rua Cunha Gago, 425 - Pinheiros, São Paulo - SP, 05421-001, Brasil"
+    },
+    {
+      "address": "Avenida Doutor Gentil de Moura, 301 - Ipiranga, São Paulo - SP, 04278-080, Brasil"
+    },
+    {
+      "address": "Avenida Sabiá, 348 - Moema, São Paulo - SP, 04515-000, Brasil"
+    }
+  ],
+  "messages": [],
+  "stdout": "address\nAvenida Ver. José Diniz, 3179 - Campo Belo, São Paulo - SP, 04603-002, Brasil\nLargo do Arouche, 150 - República, São Paulo - SP, 01219-903, Brasil\nPraça Alberto Lion, 100 - Cambuci, São Paulo - SP, 01515-000, Brasil\nRua Maurício Francisco Klabin, 473 - Vila Mariana, São Paulo - SP, 04120-020, Brasil\nRua dos Sorocabanos, 297 - Ipiranga, São Paulo - SP, 04202-000, Brasil\nRua Tuim, 950 - Moema, São Paulo - SP, 04514-103, Brasil\nAvenida Lins de Vasconcelos, 1177 - H - Cambuci, São Paulo - SP, 01537-000, Brasil\nRua Cunha Gago, 425 - Pinheiros, São Paulo - SP, 05421-001, Brasil\nAvenida Doutor Gentil de Moura, 301 - Ipiranga, São Paulo - SP, 04278-080, Brasil\nAvenida Sabiá, 348 - Moema, São Paulo - SP, 04515-000, Brasil\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

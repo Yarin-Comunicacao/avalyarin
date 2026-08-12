@@ -1,0 +1,18 @@
+{
+  "query": "SELECT r.id, r.userId, r.overallScore, r.type, r.establishmentId, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.id=1020003;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT r.id, r.userId, r.overallScore, r.type, r.establishmentId, e.name as estabName FROM ratings r LEFT JOIN establishments e ON e.id=r.establishmentId WHERE r.id=1020003;",
+  "rows": [
+    {
+      "id": "1020003",
+      "userId": "90002",
+      "overallScore": "25",
+      "type": "direct",
+      "establishmentId": "1313",
+      "estabName": "Mania de Churrasco"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\toverallScore\ttype\testablishmentId\testabName\n1020003\t90002\t25\tdirect\t1313\tMania de Churrasco\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

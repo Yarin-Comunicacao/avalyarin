@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT COUNT(*) as com_descricao_no_nome\nFROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND (\n    name LIKE '%|%' \n    OR name LIKE '% - Restaurante%' OR name LIKE '% - Bar%' OR name LIKE '% - Café%'\n    OR name LIKE '% - Pizzaria%' OR name LIKE '% - Hamburgueria%' OR name LIKE '% - Padaria%'\n    OR name LIKE '% - Lanchonete%' OR name LIKE '% - Confeitaria%' OR name LIKE '% - Sorveteria%'\n  );\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute \nSELECT COUNT(*) as com_descricao_no_nome\nFROM establishments \nWHERE status = 'pending' \n  AND (description IS NULL OR description = '')\n  AND (\n    name LIKE '%|%' \n    OR name LIKE '% - Restaurante%' OR name LIKE '% - Bar%' OR name LIKE '% - Café%'\n    OR name LIKE '% - Pizzaria%' OR name LIKE '% - Hamburgueria%' OR name LIKE '% - Padaria%'\n    OR name LIKE '% - Lanchonete%' OR name LIKE '% - Confeitaria%' OR name LIKE '% - Sorveteria%'\n  );\n",
+  "rows": [
+    {
+      "com_descricao_no_nome": "129"
+    }
+  ],
+  "messages": [],
+  "stdout": "com_descricao_no_nome\n129\n",
+  "stderr": "",
+  "execution_time_ms": 300
+}

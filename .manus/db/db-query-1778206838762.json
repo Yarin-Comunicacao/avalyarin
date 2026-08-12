@@ -1,0 +1,90 @@
+{
+  "query": "SELECT e.name, e.neighborhood\nFROM establishments e \nWHERE e.categoryId = 2 \n  AND (e.name LIKE '%bar%' OR e.name LIKE '%Bar%' OR e.name LIKE '%boteco%' OR e.name LIKE '%Boteco%')\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LUtXE4vPqQU3CD.root --database WG3U3sVg2ZrW6m8T99FRdE --execute SELECT e.name, e.neighborhood\nFROM establishments e \nWHERE e.categoryId = 2 \n  AND (e.name LIKE '%bar%' OR e.name LIKE '%Bar%' OR e.name LIKE '%boteco%' OR e.name LIKE '%Boteco%')\nLIMIT 20;",
+  "rows": [
+    {
+      "name": "Bar Dois Primos",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Bar e Restaurante Tradicional da Barra",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Deep Bar 611",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "PolloLoko Barra Funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Sol Da Barra",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Bar e Restaurante do Bigode",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "El Bodegon Barra Funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "PILOTTO - Restaurante de frutos do mar e bar de ostras",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Cantinho Da Barra Funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Barra Foods",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Korn dog barra funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Bar E Restaurante Tilapia",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "La Casa Bar",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Cruzeiros Bar",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Restaurante Don Bibo - Barra Funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Restaurante Top da Barra",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Armazém Garnizé – Bar e Drinks em São Paulo",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Bob's Shakes - Barra Funda",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Fofocas Bar",
+      "neighborhood": "Barra Funda"
+    },
+    {
+      "name": "Bar Ouro Preto",
+      "neighborhood": "Itaim Bibi"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tneighborhood\nBar Dois Primos\tBarra Funda\nBar e Restaurante Tradicional da Barra\tBarra Funda\nDeep Bar 611\tBarra Funda\nPolloLoko Barra Funda\tBarra Funda\nSol Da Barra\tBarra Funda\nBar e Restaurante do Bigode\tBarra Funda\nEl Bodegon Barra Funda\tBarra Funda\nPILOTTO - Restaurante de frutos do mar e bar de ostras\tBarra Funda\nCantinho Da Barra Funda\tBarra Funda\nBarra Foods\tBarra Funda\nKorn dog barra funda\tBarra Funda\nBar E Restaurante Tilapia\tBarra Funda\nLa Casa Bar\tBarra Funda\nCruzeiros Bar\tBarra Funda\nRestaurante Don Bibo - Barra Funda\tBarra Funda\nRestaurante Top da Barra\tBarra Funda\nArmazém Garnizé – Bar e Drinks em São Paulo\tBarra Funda\nBob's Shakes - Barra Funda\tBarra Funda\nFofocas Bar\tBarra Funda\nBar Ouro Preto\tItaim Bibi\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}
