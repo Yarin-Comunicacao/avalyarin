@@ -414,7 +414,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
                       if (window.innerWidth >= 1024) {
                         localStorage.removeItem("avalyarin_auth_flow");
                         localStorage.removeItem("avalyarin_survey_completed");
-                        window.location.href = "/busca";
+                        window.location.href = "/";
                         return;
                       }
                       onClose();

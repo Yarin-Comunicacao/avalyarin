@@ -419,7 +419,7 @@ function App() {
   const [splashDone, setSplashDone] = useState(false);
 
   // Desktop: verify auth with backend during splash
-  const { data: desktopAuthCheck, isSuccess: desktopAuthDone } = trpc.auth.me.useQuery(undefined, {
+  const { data: desktopAuthCheck, isFetched: desktopAuthDone } = trpc.auth.me.useQuery(undefined, {
     enabled: isDesktop && showSplash,
     retry: false,
     staleTime: 0,
@@ -434,19 +434,34 @@ function App() {
     return () => clearTimeout(timer);
   }, [showSplash]);
 
-  // When both splash timer AND auth check are done, hide the HTML splash and update state
+  // Libera o root apenas quando a primeira decisão de navegação terminou.
+  // O index.html mantém o root invisível até este ponto, evitando qualquer flash.
+  const revealNativeSplash = useCallback(() => {
+    const rootEl = document.getElementById("root");
+    const splashEl = document.getElementById("splash-screen");
+    if (rootEl) rootEl.classList.add("app-ready");
+    if (!splashEl) return;
+    requestAnimationFrame(() => {
+      splashEl.classList.add("fade-out");
+      window.setTimeout(() => splashEl.remove(), 400);
+    });
+  }, []);
+
+  // Desktop: remove o splash após o timer e a verificação de autenticação.
   useEffect(() => {
-    if (!isDesktop) return;
-    if (!splashDone) return;
-    if (!desktopAuthDone) return;
-    // Fade out the HTML splash screen
-    const splashEl = document.getElementById('splash-screen');
-    if (splashEl) {
-      splashEl.classList.add('fade-out');
-      setTimeout(() => splashEl.remove(), 400);
-    }
+    if (!isDesktop || !showSplash) return;
+    if (!splashDone || !desktopAuthDone) return;
+    revealNativeSplash();
     setShowSplash(false);
-  }, [isDesktop, splashDone, desktopAuthDone]);
+  }, [isDesktop, showSplash, splashDone, desktopAuthDone, revealNativeSplash]);
+
+  // Mobile e retorno do OAuth não passam pelo timer desktop, mas ainda precisam
+  // revelar o React somente depois que ele montou para evitar o flash inicial.
+  useEffect(() => {
+    if (isDesktop && showSplash) return;
+    const frame = requestAnimationFrame(() => revealNativeSplash());
+    return () => cancelAnimationFrame(frame);
+  }, [isDesktop, showSplash, revealNativeSplash]);
 
   // Determine if landing should show (after splash resolves)
   const [showLanding, setShowLanding] = useState<boolean>(() => {
