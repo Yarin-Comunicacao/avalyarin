@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { trpc } from "@/lib/trpc";
-import { CategoryIcon } from "@/lib/categoryIcons";
+import { CategoryIcon, getCategoryColor } from "@/lib/categoryIcons";
 import {
   LocateFixed,
   Loader2,
@@ -11,10 +11,15 @@ import {
   Star,
   X,
   Utensils,
+  Beer,
+  Coffee,
+  ChefHat,
+  Filter,
 } from "lucide-react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { MapView } from "@/components/Map";
+import { cn } from "@/lib/utils";
 
 // Pinheiros / Vila Madalena center
 const SP_CENTER = { lat: -23.5613, lng: -46.6917 };
@@ -261,9 +266,17 @@ export default function MapaPage() {
   const [showSearchArea, setShowSearchArea] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const { data: establishments, isLoading } = trpc.establishments.mapEstablishments.useQuery();
   const dbPlaces = (establishments || []) as MapDbPlace[];
+
+  // Define the 3 main groups
+  const CATEGORY_GROUPS = useMemo(() => [
+    { id: "gastronomia", label: "Gastronomia", icon: ChefHat, color: "text-amber-500", slugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "veg-vegan", "natural", "vegetariano", "casa-de-carnes", "casual-dining", "restaurante"] },
+    { id: "bares", label: "Bares & Noite", icon: Beer, color: "text-violet-400", slugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada", "bar-balada", "gastrobar"] },
+    { id: "cafes", label: "Cafés & Doces", icon: Coffee, color: "text-orange-400", slugs: ["cafeteria", "padaria", "confeitaria", "acai", "lanches"] },
+  ], []);
 
   const activeCategorySlugs = useMemo(() => {
     const slugs = new Set<string>();
@@ -271,6 +284,25 @@ export default function MapaPage() {
     externalPlaces.forEach((place) => slugs.add(place.categorySlug));
     return Array.from(slugs).sort();
   }, [dbPlaces, externalPlaces]);
+
+  // Filtered places based on selection
+  const filteredDbPlaces = useMemo(() => {
+    if (!selectedCategory) return dbPlaces;
+    const group = CATEGORY_GROUPS.find(g => g.id === selectedCategory);
+    if (group) {
+      return dbPlaces.filter(p => group.slugs.includes(p.categorySlug));
+    }
+    return dbPlaces.filter(p => p.categorySlug === selectedCategory);
+  }, [dbPlaces, selectedCategory, CATEGORY_GROUPS]);
+
+  const filteredExternalPlaces = useMemo(() => {
+    if (!selectedCategory) return externalPlaces;
+    const group = CATEGORY_GROUPS.find(g => g.id === selectedCategory);
+    if (group) {
+      return externalPlaces.filter(p => group.slugs.includes(p.categorySlug));
+    }
+    return externalPlaces.filter(p => p.categorySlug === selectedCategory);
+  }, [externalPlaces, selectedCategory, CATEGORY_GROUPS]);
 
   const handleMapReady = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -437,12 +469,12 @@ export default function MapaPage() {
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
-    renderMarkers(mapRef.current, dbPlaces, externalPlaces);
+    renderMarkers(mapRef.current, filteredDbPlaces, filteredExternalPlaces);
     return () => {
       clustererRef.current?.clearMarkers();
       clustererRef.current?.setMap(null);
     };
-  }, [mapReady, dbPlaces, externalPlaces, renderMarkers]);
+  }, [mapReady, filteredDbPlaces, filteredExternalPlaces, renderMarkers]);
 
   const handleLocateUser = useCallback(() => {
     if (!navigator.geolocation || !mapRef.current) {
@@ -542,19 +574,49 @@ export default function MapaPage() {
           )}
         </div>
 
-        {/* Legenda dinâmica com os ícones oficiais */}
+        {/* Filtros de Categoria no Topo */}
+        <div className="absolute top-3 left-0 right-0 z-30 px-3 flex justify-center pointer-events-none">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 max-w-full pointer-events-auto">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shadow-md backdrop-blur-md whitespace-nowrap border",
+                !selectedCategory
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card/90 text-muted-foreground border-border/30 hover:bg-card"
+              )}
+            >
+              <Filter className="w-3.5 h-3.5" />
+              Todos
+            </button>
+            {CATEGORY_GROUPS.map((group) => (
+              <button
+                key={group.id}
+                onClick={() => setSelectedCategory(selectedCategory === group.id ? null : group.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shadow-md backdrop-blur-md whitespace-nowrap border",
+                  selectedCategory === group.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card/90 text-muted-foreground border-border/30 hover:bg-card"
+                )}
+              >
+                <group.icon className={cn("w-3.5 h-3.5", selectedCategory === group.id ? "text-primary-foreground" : group.color)} />
+                {group.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Legenda dinâmica (agora apenas informativa) */}
         {activeCategorySlugs.length > 0 && (
-          <div className="absolute top-3 right-3 z-20 bg-card/90 backdrop-blur-sm border border-border/30 rounded-lg p-2.5 text-[10px] max-h-[50vh] overflow-y-auto shadow-sm">
-            <p className="font-medium text-foreground/80 mb-1.5">Categorias</p>
+          <div className="absolute top-16 right-3 z-20 bg-card/90 backdrop-blur-sm border border-border/30 rounded-lg p-2.5 text-[10px] max-h-[40vh] overflow-y-auto shadow-sm hidden md:block">
+            <p className="font-medium text-foreground/80 mb-1.5">Legenda</p>
             {activeCategorySlugs.map((slug) => (
               <div key={slug} className="flex items-center gap-1.5 mb-1">
                 <CategoryIcon slug={slug} size={13} />
                 <span className="text-muted-foreground">{getCategoryLabel(slug)}</span>
               </div>
             ))}
-            <div className="mt-2 pt-2 border-t border-border/30 text-[9px] text-muted-foreground">
-              Pins coloridos = locais cadastrados e Google Places
-            </div>
           </div>
         )}
 
