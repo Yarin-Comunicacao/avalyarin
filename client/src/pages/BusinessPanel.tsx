@@ -2306,7 +2306,7 @@ function ReservationConfigSection({ establishmentId }: { establishmentId: number
     onError: () => toast.error("Erro ao atualizar configuração."),
   });
 
-  const [acceptsReservations, setAcceptsReservations] = useState(true);
+  const [acceptsReservations, setAcceptsReservations] = useState(false);
   const [minAdvance, setMinAdvance] = useState(30);
   const [initialized, setInitialized] = useState(false);
 
