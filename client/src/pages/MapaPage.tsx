@@ -575,7 +575,7 @@ export default function MapaPage() {
         </div>
 
         {/* Filtros de Categoria no Topo */}
-        <div className="absolute top-3 left-0 right-0 z-30 px-3 flex justify-center pointer-events-none">
+        <div className="absolute top-20 left-0 right-0 z-30 px-3 flex justify-center pointer-events-none">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2 max-w-full pointer-events-auto">
             <button
               onClick={() => setSelectedCategory(null)}
