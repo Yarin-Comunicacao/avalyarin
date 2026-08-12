@@ -278,6 +278,8 @@ export default function MapaPage() {
     { id: "cafes", label: "Cafés & Doces", icon: Coffee, color: "text-orange-400", slugs: ["cafeteria", "padaria", "confeitaria", "acai", "lanches"] },
   ], []);
 
+  const APP_VERSION = "1.0.5"; // Versão para conferir o deploy
+
   const activeCategorySlugs = useMemo(() => {
     const slugs = new Set<string>();
     dbPlaces.forEach((place) => slugs.add(place.categorySlug));
@@ -557,6 +559,7 @@ export default function MapaPage() {
               <MapPin className="w-3 h-3 inline mr-1 text-primary" />
               {dbPlaces.length + externalPlaces.length} locais no mapa
             </span>
+            <span className="text-[8px] text-muted-foreground/30 block text-right">v{APP_VERSION}</span>
           </div>
           <button
             type="button"
