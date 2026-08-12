@@ -110,6 +110,7 @@ interface MapViewProps {
   initialCenter?: google.maps.LatLngLiteral;
   initialZoom?: number;
   onMapReady?: (map: google.maps.Map) => void;
+  onMapIdle?: (map: google.maps.Map) => void;
   /** Custom map styles to hide/show features */
   styles?: google.maps.MapTypeStyle[];
 }
@@ -119,6 +120,7 @@ export function MapView({
   initialCenter = { lat: 37.7749, lng: -122.4194 },
   initialZoom = 12,
   onMapReady,
+  onMapIdle,
   styles,
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -142,6 +144,9 @@ export function MapView({
     });
     if (onMapReady) {
       onMapReady(map.current);
+    }
+    if (onMapIdle) {
+      map.current.addListener("idle", () => onMapIdle(map.current!));
     }
   });
 

@@ -3123,6 +3123,7 @@ export async function getAllEstablishmentsForMap() {
     rating: establishments.rating,
     reviewCount: establishments.reviewCount,
     image: establishments.image,
+    hasMenu: establishments.hasMenu,
     categoryId: establishments.categoryId,
   })
     .from(establishments)
