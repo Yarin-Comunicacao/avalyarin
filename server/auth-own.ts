@@ -31,7 +31,7 @@ function setSessionCookie(res: Response, token: string, req?: Request) {
   const cookieOptions = req ? getSessionCookieOptions(req) : {
     httpOnly: true,
     secure: true,
-    sameSite: "none" as const,
+    sameSite: "lax" as const,
     path: "/",
   };
   res.cookie(COOKIE_NAME, token, {
@@ -406,7 +406,7 @@ async function handleEmailLogin(req: Request, res: Response) {
       .where(eq(users.id, user.id));
 
     // Create session
-    const token = await createSessionToken(user.openId, user.name || "");
+    const token = await createSessionToken(user.openId, user.name || user.email || "Usuário");
     setSessionCookie(res, token, req);
     return res.json({ success: true, userId: user.id });
   } catch (err) {

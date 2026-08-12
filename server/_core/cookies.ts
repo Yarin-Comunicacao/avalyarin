@@ -42,7 +42,9 @@ export function getSessionCookieOptions(
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
+    // O frontend e a API usam o mesmo domínio; Lax evita que navegadores
+    // rejeitem o cookie quando a aplicação estiver em HTTP local ou atrás do proxy.
+    sameSite: "lax",
     secure: isSecureRequest(req),
   };
 }

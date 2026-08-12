@@ -42,6 +42,10 @@ export default function LoginPage() {
         return;
       }
       toast.success(mode === "register" ? "Conta criada!" : "Login realizado!");
+      // Esta página pode ser acessada diretamente, fora do AuthChoice.
+      // Persistimos o fluxo para que o App não reabra a tela de autenticação após o reload.
+      localStorage.setItem("avalyarin_auth_flow", mode);
+      localStorage.setItem("avalyarin_age_confirmed", "true");
       navigate("/busca");
       window.location.reload();
     } catch {

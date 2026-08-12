@@ -71,10 +71,16 @@ class SDKServer {
         algorithms: ["HS256"],
       });
       const { openId, appId, name } = payload as Record<string, unknown>;
-      if (!isNonEmptyString(openId) || !isNonEmptyString(appId) || !isNonEmptyString(name)) {
+      // `name` é opcional no cadastro/login por e-mail. A sessão deve ser
+      // identificada pelo openId, não pela existência de um nome preenchido.
+      if (!isNonEmptyString(openId)) {
         return null;
       }
-      return { openId, appId, name };
+      return {
+        openId,
+        appId: typeof appId === "string" ? appId : "",
+        name: typeof name === "string" ? name : "",
+      };
     } catch (error) {
       console.warn("[Auth] Session verification failed", String(error));
       return null;
