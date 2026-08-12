@@ -54,7 +54,7 @@ export default function ReservarPage() {
   }
 
   // Check if establishment accepts reservations
-  const acceptsReservations = (establishment as any).acceptsReservations !== false;
+  const acceptsReservations = (establishment as any).acceptsReservations === true;
   if (!acceptsReservations) {
     return (
       <div className="min-h-screen bg-background">

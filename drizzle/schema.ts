@@ -86,7 +86,7 @@ export const establishments = mysqlTable("establishments", {
   source: varchar("source", { length: 32 }).default("spreadsheet"),
   tags: json("tags").$type<string[]>(),
   // Reservation configuration
-  acceptsReservations: boolean("acceptsReservations").default(true).notNull(),
+  acceptsReservations: boolean("acceptsReservations").default(false).notNull(),
   reservationMinAdvanceMinutes: int("reservationMinAdvanceMinutes").default(30), // 30min, 60min, 1440min (1 dia)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

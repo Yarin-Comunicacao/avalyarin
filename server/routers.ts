@@ -2095,7 +2095,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Você não gerencia este estabelecimento." });
         }
         const config = await getEstablishmentReservationConfig(input.establishmentId);
-        return config || { acceptsReservations: true, reservationMinAdvanceMinutes: 30 };
+        return config || { acceptsReservations: false, reservationMinAdvanceMinutes: 30 };
       }),
 
     // Reservation config: update
@@ -5089,7 +5089,7 @@ export const appRouter = router({
 
         // Check establishment accepts reservations
         const estabConfig = await getEstablishmentReservationConfig(input.establishmentId);
-        if (estabConfig && !estabConfig.acceptsReservations) {
+        if (!estabConfig?.acceptsReservations) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "Este estabelecimento não aceita reservas." });
         }
 

@@ -144,6 +144,7 @@ export default function EstablishmentPage() {
   }
 
   const establishment = estData;
+  const acceptsReservations = establishment.acceptsReservations === true;
   const menu = establishment.menu || [];
 
   // Dynamic menu categories from database (respects menu_categories table order)
@@ -512,12 +513,14 @@ export default function EstablishmentPage() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Link href={`/reservar/${establishment.slug}`} className="flex-1">
-              <Button size="lg" variant="outline" className="w-full font-display text-lg tracking-wider border-primary/40 text-primary hover:bg-primary/10">
-                RESERVAR
-                <CalendarDays className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+            {acceptsReservations && (
+              <Link href={`/reservar/${establishment.slug}`} className="flex-1">
+                <Button size="lg" variant="outline" className="w-full font-display text-lg tracking-wider border-primary/40 text-primary hover:bg-primary/10">
+                  RESERVAR
+                  <CalendarDays className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       )}

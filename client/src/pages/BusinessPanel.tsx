@@ -212,9 +212,14 @@ export function MyEstablishmentsTab({ qrButton }: { qrButton?: (est: any) => Rea
 function EstablishmentCard({ est, onRequestChange, qrButton }: { est: any; onRequestChange: (est: any) => void; qrButton?: (est: any) => React.ReactNode }) {
   const [logoUploading, setLogoUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
+  const [acceptsReservations, setAcceptsReservations] = useState(Boolean(est.acceptsReservations));
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const utils = trpc.useUtils();
+  useEffect(() => {
+    setAcceptsReservations(Boolean(est.acceptsReservations));
+  }, [est.acceptsReservations]);
+
   const updateMutation = trpc.business.updateEstablishment.useMutation({
     onSuccess: () => {
       utils.business.myEstablishments.invalidate();
@@ -222,6 +227,27 @@ function EstablishmentCard({ est, onRequestChange, qrButton }: { est: any; onReq
     },
     onError: () => toast.error("Erro ao atualizar"),
   });
+
+  const reservationMutation = trpc.business.updateReservationConfig.useMutation({
+    onSuccess: () => {
+      utils.business.myEstablishments.invalidate();
+      toast.success("Configuração de reservas atualizada!");
+    },
+    onError: (error) => {
+      setAcceptsReservations(!acceptsReservations);
+      toast.error(error.message || "Erro ao atualizar reservas");
+    },
+  });
+
+  const handleReservationToggle = () => {
+    const nextValue = !acceptsReservations;
+    setAcceptsReservations(nextValue);
+    reservationMutation.mutate({
+      establishmentId: est.id,
+      acceptsReservations: nextValue,
+      reservationMinAdvanceMinutes: est.reservationMinAdvanceMinutes ?? 30,
+    });
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -353,13 +379,39 @@ function EstablishmentCard({ est, onRequestChange, qrButton }: { est: any; onReq
       {/* Horários Extras */}
       <SpecialHoursManager establishmentId={est.id} />
 
-      {/* QR Code + Aviso de alteração via suporte */}
+      {/* QR Code + Reserva + Aviso de alteração via suporte */}
       <div className="mt-4 pt-3 border-t border-border/30">
-        {qrButton && (
-          <div className="mb-3">
-            {qrButton(est)}
+        <div className="flex items-center gap-3 flex-wrap mb-3">
+          {qrButton && qrButton(est)}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/30 border border-border/50">
+            <div className="flex flex-col leading-tight">
+              <span className="text-xs font-medium text-foreground">Reserva</span>
+              <span className="text-[10px] text-muted-foreground">
+                {acceptsReservations ? "Ativada" : "Desativada"}
+              </span>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={acceptsReservations}
+              aria-label={`${acceptsReservations ? "Desativar" : "Ativar"} reservas para ${est.name}`}
+              onClick={handleReservationToggle}
+              disabled={reservationMutation.isPending}
+              className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
+                acceptsReservations ? "bg-primary" : "bg-secondary border border-border/50"
+              } ${reservationMutation.isPending ? "opacity-50" : ""}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                  acceptsReservations ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+              {reservationMutation.isPending && (
+                <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-primary animate-spin" />
+              )}
+            </button>
           </div>
-        )}
+        </div>
         <div className="flex items-center gap-2 text-xs text-yellow-400/80">
           <HelpCircle className="w-3.5 h-3.5 shrink-0" />
           <span>Para alterar nome, endereço, telefone ou @, solicite ao suporte.</span>
