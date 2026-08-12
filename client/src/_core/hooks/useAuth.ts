@@ -14,8 +14,18 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
-    refetchOnWindowFocus: false,
+    // Acordar o Render ou reabrir a conexão do TiDB pode falhar uma vez.
+    // Só abandonamos imediatamente quando o servidor confirma 401/403.
+    retry: (failureCount, error) => {
+      if (error instanceof TRPCClientError && error.data?.code === "UNAUTHORIZED") {
+        return false;
+      }
+      return failureCount < 4;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    staleTime: 30_000,
   });
 
   const logoutMutation = trpc.auth.logout.useMutation({

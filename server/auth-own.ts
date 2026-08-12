@@ -13,7 +13,7 @@ import { storagePut } from "./storage";
 import { ENV } from "./_core/env";
 import { sdk } from "./_core/sdk";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { COOKIE_NAME } from "../shared/const";
+import { COOKIE_NAME, SESSION_DURATION_MS } from "../shared/const";
 
 // ============================================================
 // HELPERS
@@ -24,7 +24,7 @@ import { COOKIE_NAME } from "../shared/const";
  * This ensures compatibility with the verifySession/authenticateRequest flow.
  */
 async function createSessionToken(openId: string, name: string): Promise<string> {
-  return await sdk.createSessionToken(openId, { name, expiresInMs: 30 * 24 * 60 * 60 * 1000 });
+  return await sdk.createSessionToken(openId, { name, expiresInMs: SESSION_DURATION_MS });
 }
 
 function setSessionCookie(res: Response, token: string, req?: Request) {
@@ -36,7 +36,7 @@ function setSessionCookie(res: Response, token: string, req?: Request) {
   };
   res.cookie(COOKIE_NAME, token, {
     ...cookieOptions,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: SESSION_DURATION_MS, // persistent session
   });
 }
 

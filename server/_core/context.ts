@@ -1,5 +1,6 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
+import { HttpError } from "@shared/_core/errors";
 import { sdk } from "./sdk";
 import { checkAndExpireUserRole, checkAndExpireBusinessRole } from "../db-plans";
 
@@ -34,8 +35,15 @@ export async function createContext(
       // No role change — business remains business, just loses premium features
     }
   } catch (error) {
-    // Authentication is optional for public procedures.
-    user = null;
+    // A cookie inválido é um estado anônimo esperado nas procedures públicas.
+    // Falhas de banco/rede precisam subir para o cliente, que fará retry;
+    // engoli-las aqui faria uma sessão válida parecer um logout permanente.
+    if (error instanceof HttpError && error.statusCode === 403) {
+      user = null;
+    } else {
+      console.error("[Auth] Session lookup temporarily unavailable:", error);
+      throw error;
+    }
   }
 
   // Owner/admin can simulate another role's limits via x-viewing-as header
