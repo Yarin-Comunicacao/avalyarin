@@ -2360,15 +2360,11 @@ function ReservationConfigSection({ establishmentId }: { establishmentId: number
             role="switch"
             aria-checked={acceptsReservations}
             onClick={() => setAcceptsReservations(!acceptsReservations)}
-            className={`relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 p-0.5 ${
-              acceptsReservations ? "bg-primary" : "bg-secondary border border-border/50"
+            className={`flex items-center w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 p-1 ${
+              acceptsReservations ? "bg-primary justify-end" : "bg-secondary border border-border/50 justify-start"
             }`}
           >
-            <span
-              className={`block w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                acceptsReservations ? "translate-x-6" : "translate-x-0"
-              }`}
-            />
+            <span className="block w-4 h-4 rounded-full bg-white shadow-sm" />
           </button>
         </div>
 
