@@ -4,15 +4,13 @@ import { Link } from "wouter";
 import {
   Store, BarChart3, ChevronDown, Plus, Bell,
   UtensilsCrossed, MapPin, Phone, Clock, Instagram,
-  Pencil, Heart, Crown,  Flag, Share2, CalendarDays
+  Pencil, Heart, Crown, CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { getConnectYarinUrl } from "@shared/const";
 import ProfileEditarTab from "@/components/profile-tabs/EditarTab";
 import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
 import PlanosTab from "@/components/profile-tabs/PlanosTab";
-import SalvosTab from "@/components/profile-tabs/SalvosTab";
 import CalendarioTab from "@/components/profile-tabs/CalendarioTab";
 
 /** Clean hours string from JSON artifacts like {"" */
@@ -21,7 +19,7 @@ function cleanHours(hours: string | null | undefined): string {
   return hours.replace(/[{}"\\]/g, "").replace(/,/g, ", ").trim();
 }
 
-type TabId = "cardapio" | "salvos" | "calendario" | "editar" | "preferencias" | "planos" ;
+type TabId = "cardapio" | "calendario" | "editar" | "preferencias" | "planos";
 
 export default function BusinessProfile() {
   const { user } = useAuth();
@@ -79,12 +77,12 @@ export default function BusinessProfile() {
                 <p className="text-[11px] text-muted-foreground">avaliações</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-foreground">0</span>
-                <p className="text-[11px] text-muted-foreground">seguidores</p>
+                <span className="text-lg font-bold text-foreground">{insights?.overview?.avgScore?.toFixed?.(1) ?? "—"}</span>
+                <p className="text-[11px] text-muted-foreground">nota média</p>
               </div>
               <div>
-                <span className="text-lg font-bold text-foreground">0</span>
-                <p className="text-[11px] text-muted-foreground">seguindo</p>
+                <span className="text-lg font-bold text-foreground">{establishments.length}</span>
+                <p className="text-[11px] text-muted-foreground">locais</p>
               </div>
             </div>
           </div>
@@ -212,18 +210,6 @@ export default function BusinessProfile() {
               <span className="text-[10px] font-medium">{action.label}</span>
             </button>
           ))}
-          <button
-            onClick={() => {
-              navigator.share?.({
-                title: currentEstab?.name || "Estabelecimento",
-                url: window.location.href,
-              }).catch(() => {});
-            }}
-            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            <span className="text-[10px] font-medium">Enviar</span>
-          </button>
         </div>
       </div>
 
@@ -232,7 +218,6 @@ export default function BusinessProfile() {
         <div className="flex">
           {([
             { id: "cardapio" as TabId, label: "Cardápio", icon: UtensilsCrossed },
-            { id: "salvos" as TabId, label: "Salvos", icon: Flag },
             { id: "calendario" as TabId, label: "Calendário", icon: CalendarDays },
           ]).map((tab) => {
             const Icon = tab.icon;
@@ -257,9 +242,6 @@ export default function BusinessProfile() {
       <div className="px-4 pt-4">
         {activeTab === "cardapio" && (
           <MenuTab menu={menu} menuByCategory={menuByCategory} />
-        )}
-        {activeTab === "salvos" && (
-          <SalvosTab />
         )}
         {activeTab === "calendario" && (
           <CalendarioTab />
