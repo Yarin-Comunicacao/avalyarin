@@ -2911,6 +2911,7 @@ export async function getPublicProfileByUsername(username: string) {
       name: users.name,
       username: users.username,
       description: users.description,
+      profilePhotoUrl: users.profilePhotoUrl,
       role: users.role,
       verified: users.verified,
       createdAt: users.createdAt,
@@ -2920,7 +2921,13 @@ export async function getPublicProfileByUsername(username: string) {
     .where(condition)
     .limit(1);
   
-  if (rows[0]) return rows[0];
+  if (rows[0]) {
+    const [ratingCount] = await db
+      .select({ totalRatings: sql<number>`COUNT(*)` })
+      .from(ratings)
+      .where(eq(ratings.userId, rows[0].id));
+    return { ...rows[0], totalRatings: Number(ratingCount?.totalRatings || 0) };
+  }
 
   // If not found by main username, search owner role-specific usernames
   if (!isNumericId) {
@@ -2930,6 +2937,7 @@ export async function getPublicProfileByUsername(username: string) {
         name: users.name,
         username: users.username,
         description: users.description,
+        profilePhotoUrl: users.profilePhotoUrl,
         role: users.role,
         verified: users.verified,
         createdAt: users.createdAt,
@@ -2950,6 +2958,10 @@ export async function getPublicProfileByUsername(username: string) {
     
     if (ownerRows[0]) {
       const owner = ownerRows[0];
+      const [ratingCount] = await db
+        .select({ totalRatings: sql<number>`COUNT(*)` })
+        .from(ratings)
+        .where(eq(ratings.userId, owner.id));
       const usernames = owner.ownerUsernames as { user?: string; specialist?: string; critic?: string } | null;
       // Determine which role this username belongs to
       let displayRole = "user";
@@ -2957,7 +2969,7 @@ export async function getPublicProfileByUsername(username: string) {
         if (usernames.specialist === username) displayRole = "specialist";
         else if (usernames.critic === username) displayRole = "critic";
       }
-      return { ...owner, username, role: displayRole };
+      return { ...owner, username, role: displayRole, totalRatings: Number(ratingCount?.totalRatings || 0) };
     }
   }
 

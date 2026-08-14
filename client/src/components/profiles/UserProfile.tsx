@@ -3,7 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import {
-  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown,  Bookmark, Flag, X, Users, CalendarDays
+  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Flag, X, Users, UserSearch, Star, CalendarDays
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
 import { getConnectYarinUrl } from "@shared/const";
@@ -21,6 +21,7 @@ export default function UserProfile() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
   const [followListType, setFollowListType] = useState<"followers" | "following" | null>(null);
+  const [showTopRatings, setShowTopRatings] = useState(false);
 
   // Followers/following lists
   const { data: followersList } = trpc.social.followers.useQuery(
@@ -86,6 +87,16 @@ export default function UserProfile() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+            <div className="p-3 border-b border-border/30">
+              <Link
+                href="/grupos?tab=pessoas"
+                onClick={() => setFollowListType(null)}
+                className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+              >
+                <UserSearch className="w-4 h-4" />
+                Encontrar meus amigos
+              </Link>
+            </div>
             <div className="overflow-y-auto flex-1 p-3 space-y-2">
               {(followListType === "followers" ? followersList : followingList)?.map((person: any) => (
                 <Link
@@ -122,9 +133,9 @@ export default function UserProfile() {
       {/* Profile Header */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">
-          {/* Avatar */}
+          {/* Avatar — enlarged to occupy the full profile summary height */}
           <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center overflow-hidden border-2 border-amber-500/30">
+            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center overflow-hidden border-2 border-amber-500/30">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -132,57 +143,63 @@ export default function UserProfile() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-2xl font-bold text-foreground">
+                <span className="text-4xl font-bold text-foreground">
                   {initials}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Metrics row */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-around text-center">
-              <div>
-                <span className="text-lg font-bold text-foreground">{totalRatings}</span>
-                <p className="text-[11px] text-muted-foreground">avaliações</p>
+          <div className="flex-1 min-w-0 pt-1">
+            {/* Name and username stay at the top, beside the photo */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h2 className="font-semibold text-base sm:text-lg text-foreground leading-tight">
+                  {profile?.name || user?.name || "Usuário"}
+                  {profile?.username && (
+                    <span className="text-sm font-medium text-primary"> - @{profile.username}</span>
+                  )}
+                </h2>
+                {(profile as any)?.description && (
+                  <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{(profile as any).description}</p>
+                )}
               </div>
-              <button onClick={() => setFollowListType("followers")} className="hover:bg-secondary/50 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-lg font-bold text-foreground">{followCounts?.followers ?? 0}</span>
-                <p className="text-[11px] text-muted-foreground">seguidores</p>
+
+              {/* Notification bell */}
+              <Link href="/notificacoes" className="p-1.5 -mr-1 rounded-full hover:bg-secondary/50 transition-colors relative flex-shrink-0">
+                <Bell className="w-5 h-5 text-muted-foreground" />
+                {totalNotifs > 0 ? (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-foreground flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
+                ) : null}
+              </Link>
+            </div>
+
+            {/* Metrics below the name */}
+            <div className="grid grid-cols-3 gap-1 mt-4 text-center">
+              <button onClick={() => setShowTopRatings(!showTopRatings)} className="rounded-lg px-1 py-1 hover:bg-secondary/50 transition-colors">
+                <span className="text-base font-bold text-foreground">{totalRatings}</span>
+                <p className="text-[10px] text-muted-foreground">avaliações</p>
               </button>
-              <button onClick={() => setFollowListType("following")} className="hover:bg-secondary/50 rounded-lg px-2 py-1 transition-colors">
-                <span className="text-lg font-bold text-foreground">{followCounts?.following ?? 0}</span>
-                <p className="text-[11px] text-muted-foreground">seguindo</p>
+              <button onClick={() => setFollowListType("followers")} className="rounded-lg px-1 py-1 hover:bg-secondary/50 transition-colors">
+                <span className="text-base font-bold text-foreground">{followCounts?.followers ?? 0}</span>
+                <p className="text-[10px] text-muted-foreground">seguidores</p>
+              </button>
+              <button onClick={() => setFollowListType("following")} className="rounded-lg px-1 py-1 hover:bg-secondary/50 transition-colors">
+                <span className="text-base font-bold text-foreground">{followCounts?.following ?? 0}</span>
+                <p className="text-[10px] text-muted-foreground">seguindo</p>
               </button>
             </div>
+
+            <p className="text-xs text-muted-foreground mt-2">
+              {uniqueEstabs} locais visitados
+            </p>
           </div>
-
-          {/* Notification bell */}
-          <Link href="/notificacoes" className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
-            <Bell className="w-5 h-5 text-muted-foreground" />
-            {totalNotifs > 0 ? (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full bg-red-500 text-foreground flex items-center justify-center">{totalNotifs > 9 ? '9+' : totalNotifs}</span>
-            ) : null}
-          </Link>
         </div>
-
-        {/* Name + username */}
-        <div className="mt-3">
-          <h2 className="font-semibold text-base text-foreground">
-            {profile?.name || user?.name || "Usuário"}
-          </h2>
-          {profile?.username && (
-            <p className="text-sm text-primary font-medium">@{profile.username}</p>
-          )}
-          {(profile as any)?.description && (
-            <p className="text-sm text-muted-foreground mt-1 italic">{(profile as any).description}</p>
-          )}
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {uniqueEstabs} locais visitados
-          </p>
-        </div>
-
       </div>
+
+      {showTopRatings && (
+        <TopRatingsSection ratings={myRatings} />
+      )}
 
       {/* Tabs Navigation — Galeria, Salvos e Calendário */}
       <div className="border-t border-border/50">
@@ -273,6 +290,38 @@ export default function UserProfile() {
         {activeTab === "planos" && <PlanosTab />}
       </div>
     </div>
+  );
+}
+
+function TopRatingsSection({ ratings }: { ratings: any[] | undefined }) {
+  const topRatings = [...(ratings || [])]
+    .sort((a: any, b: any) => Number(b.overallScore ?? 0) - Number(a.overallScore ?? 0))
+    .slice(0, 3);
+
+  return (
+    <section className="px-4 pb-4" aria-label="Minhas três melhores avaliações">
+      <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <Star className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Minhas 3 melhores avaliações</h3>
+        </div>
+        {topRatings.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Você ainda não tem avaliações feitas.</p>
+        ) : (
+          <div className="space-y-2">
+            {topRatings.map((rating: any) => (
+              <Link key={rating.id} href={`/estabelecimento/${rating.establishmentSlug || rating.establishmentId}`} className="flex items-center gap-3 rounded-lg bg-background/60 p-2.5 hover:bg-background transition-colors">
+                <div className="flex items-center gap-1 min-w-[3.5rem] text-primary">
+                  <Star className="w-3.5 h-3.5 fill-current" />
+                  <span className="text-sm font-bold">{Number(rating.overallScore ?? 0).toFixed(1)}</span>
+                </div>
+                <span className="text-sm text-foreground truncate">{rating.establishmentName || "Estabelecimento"}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

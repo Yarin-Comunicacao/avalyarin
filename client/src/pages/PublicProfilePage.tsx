@@ -2,7 +2,7 @@ import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Calendar, Award, Share2, UserPlus, UserCheck, MessageCircle, Image, Clock, ShieldAlert, Camera } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Award, UserPlus, UserCheck, MessageCircle, Image, Clock, ShieldAlert, Camera, Star, UserSearch } from "lucide-react";
 import { toast } from "sonner";
 import { FourPointStar } from "@/components/FourPointStar";
 import PhotoGrid from "@/components/PhotoGrid";
@@ -10,13 +10,13 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import ShareToGroup from "@/components/ShareToGroup";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { getConnectYarinUrl } from "@shared/const";
 
 export default function PublicProfilePage() {
-  const { username } = useParams<{ username: string }>();
+  const [username] = useParams<{ username: string }>();
 
   const { user } = useAuth();
   const utils = trpc.useUtils();
+  const [showTopRatings, setShowTopRatings] = useState(false);
 
   const { data: profile, isLoading } = trpc.profile.publicByUsername.useQuery(
     { username: username || "" },
@@ -24,7 +24,7 @@ export default function PublicProfilePage() {
   );
 
   const { data: ratings } = trpc.ratings.publicUserRatings.useQuery(
-    { userId: profile?.id || 0, limit: 20, offset: 0 },
+    { userId: profile?.id || 0, limit: 50, offset: 0 },
     { enabled: !!profile?.id }
   );
 
@@ -85,7 +85,9 @@ export default function PublicProfilePage() {
 
   const isCritic = profile.role === "critic";
   const isEspecialista = profile.role === "specialist";
-  const connectYarinUrl = profile.username ? getConnectYarinUrl(profile.username) : null;
+  const totalRatings = Number((profile as any).totalRatings ?? ratings?.length ?? 0);
+  const avatarUrl = (profile as any).profilePhotoUrl as string | null | undefined;
+  const initials = (profile.name || "Usuário").charAt(0).toUpperCase();
 
   // Extract badges from nobility summary
   const allBadges: { title: string; subtitle: string }[] = [];
@@ -117,120 +119,125 @@ export default function PublicProfilePage() {
         </button>
 
         {/* Profile Header */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="relative mb-4">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold ${
-              isCritic
-                ? "bg-blue-500/10 border-2 border-blue-400 text-blue-400"
-                : isEspecialista
-                ? "bg-amber-500/10 border-2 border-amber-400 text-amber-400"
-                : "bg-primary/10 border-2 border-primary text-primary"
-            }`}>
-              {profile.name?.charAt(0)?.toUpperCase() || "?"}
-            </div>
-            {isCritic && (
-              <div className="absolute -top-1 -right-1">
-                <FourPointStar variant="critic" size={20} glow />
+        <div className="mb-8 px-1">
+          <div className="flex items-start gap-4">
+            <div className="relative flex-shrink-0">
+              <div className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold ${
+                isCritic
+                  ? "bg-blue-500/10 border-2 border-blue-400 text-blue-400"
+                  : isEspecialista
+                  ? "bg-amber-500/10 border-2 border-amber-400 text-amber-400"
+                  : "bg-primary/10 border-2 border-primary text-primary"
+              }`}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={`Foto de ${profile.name || "usuário"}`} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
-            )}
-            {isEspecialista && (
-              <div className="absolute -top-1 -right-1">
-                <FourPointStar variant="specialist" size={20} glow />
-              </div>
-            )}
-          </div>
-
-          <h1 className="font-display text-2xl tracking-wider text-foreground mb-1">
-            {profile.name || "Usuário"}
-          </h1>
-          <p className="text-sm text-primary font-medium">@{profile.username}</p>
-          {profile.description && (
-            <p className="text-sm text-muted-foreground mt-1 italic">{profile.description}</p>
-          )}
-
-          {/* Role badge */}
-          {isCritic && (
-            <span className="mt-2 text-[11px] px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-medium">
-              CRÍTICO GASTRONÔMICO
-            </span>
-          )}
-          {isEspecialista && (
-            <span className="mt-2 text-[11px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">
-              INFLUENCER
-            </span>
-          )}
-
-          {/* Follow counts */}
-          {followCounts && (
-            <div className="flex items-center gap-4 mt-3">
-              <span className="text-xs text-muted-foreground">
-                <strong className="text-foreground">{followCounts.followers}</strong> seguidores
-              </span>
-              <span className="text-xs text-muted-foreground">
-                <strong className="text-foreground">{followCounts.following}</strong> seguindo
-              </span>
+              {isCritic && (
+                <div className="absolute -top-1 -right-1">
+                  <FourPointStar variant="critic" size={20} glow />
+                </div>
+              )}
+              {isEspecialista && (
+                <div className="absolute -top-1 -right-1">
+                  <FourPointStar variant="specialist" size={20} glow />
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Follow + DM buttons */}
-          {user && !isOwnProfile && (
-            <div className="flex items-center gap-2 mt-3">
-              {followStatus?.following ? (
-                <button
-                  onClick={() => unfollowMutation.mutate({ userId: profile.id })}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
-                >
-                  <UserCheck className="w-3.5 h-3.5" />
-                  Seguindo
+            <div className="flex-1 min-w-0 pt-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="font-display text-lg sm:text-xl tracking-wide text-foreground leading-tight">
+                    {profile.name || "Usuário"}
+                    {profile.username && <span className="text-sm font-medium text-primary"> - @{profile.username}</span>}
+                  </h1>
+                  {profile.description && (
+                    <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{profile.description}</p>
+                  )}
+                  {isCritic && (
+                    <span className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-medium">CRÍTICO GASTRONÔMICO</span>
+                  )}
+                  {isEspecialista && (
+                    <span className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">INFLUENCER</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-1 mt-5 text-center max-w-md">
+                <button onClick={() => setShowTopRatings(!showTopRatings)} className="rounded-lg px-1 py-1 hover:bg-secondary/50 transition-colors">
+                  <span className="text-base font-bold text-foreground">{totalRatings}</span>
+                  <p className="text-[10px] text-muted-foreground">avaliações</p>
                 </button>
-              ) : followStatus?.pending ? (
-                <button
-                  onClick={() => {
-                    unfollowMutation.mutate({ userId: profile.id });
-                    toast("Solicitação cancelada");
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-muted-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  Pendente
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    // Show privacy alert for regular users
-                    const isPublicProfile = profile.role === "critic" || profile.role === "specialist";
-                    if (!isPublicProfile) {
-                      toast(
-                        "Solicitação de seguir enviada",
-                        {
-                          description: "Por segurança, o usuário precisa aceitar sua solicitação. Dados de localização e lugares frequentados são informações pessoais protegidas.",
-                          icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
-                          duration: 5000,
+                <div className="rounded-lg px-1 py-1">
+                  <span className="text-base font-bold text-foreground">{followCounts?.followers ?? 0}</span>
+                  <p className="text-[10px] text-muted-foreground">seguidores</p>
+                </div>
+                <div className="rounded-lg px-1 py-1">
+                  <span className="text-base font-bold text-foreground">{followCounts?.following ?? 0}</span>
+                  <p className="text-[10px] text-muted-foreground">seguindo</p>
+                </div>
+              </div>
+
+              <Link href="/grupos?tab=pessoas" className="inline-flex items-center gap-1.5 mt-3 text-xs text-primary hover:text-primary/80 transition-colors">
+                <UserSearch className="w-3.5 h-3.5" />
+                Encontrar meus amigos
+              </Link>
+
+              {user && !isOwnProfile && (
+                <div className="flex items-center gap-2 mt-3">
+                  {followStatus?.following ? (
+                    <button
+                      onClick={() => unfollowMutation.mutate({ userId: profile.id })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      Seguindo
+                    </button>
+                  ) : followStatus?.pending ? (
+                    <button
+                      onClick={() => { unfollowMutation.mutate({ userId: profile.id }); toast("Solicitação cancelada"); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-muted-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                      Pendente
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        const isPublicProfile = profile.role === "critic" || profile.role === "specialist";
+                        if (!isPublicProfile) {
+                          toast("Solicitação de seguir enviada", {
+                            description: "Por segurança, o usuário precisa aceitar sua solicitação. Dados de localização e lugares frequentados são informações pessoais protegidas.",
+                            icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
+                            duration: 5000,
+                          });
                         }
-                      );
-                    }
-                    followMutation.mutate({ userId: profile.id });
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  Seguir
-                </button>
-              )}
-              {followStatus?.mutual && (
-                <Link href={`/mensagens/${profile.username}`}>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-foreground text-xs font-medium hover:bg-secondary/80 transition-colors">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    Mensagem
-                  </button>
-                </Link>
+                        followMutation.mutate({ userId: profile.id });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      Seguir
+                    </button>
+                  )}
+                  {followStatus?.mutual && (
+                    <Link href={`/mensagens/${profile.username}`}>
+                      <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-foreground text-xs font-medium hover:bg-secondary/80 transition-colors">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        Mensagem
+                      </button>
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
-          )}
-
-          {/* Share profile button */}
-
+          </div>
         </div>
+
+        {showTopRatings && <PublicTopRatingsSection ratings={ratings} />}
 
         {/* Nobility badges */}
         {allBadges.length > 0 && (
@@ -254,6 +261,36 @@ export default function PublicProfilePage() {
         <ProfileTabs profile={profile} ratings={ratings} />
       </div>
     </div>
+  );
+}
+
+function PublicTopRatingsSection({ ratings }: { ratings: any[] | undefined }) {
+  const topRatings = [...(ratings || [])]
+    .sort((a: any, b: any) => Number(b.overallScore ?? 0) - Number(a.overallScore ?? 0))
+    .slice(0, 3);
+
+  return (
+    <section className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-3" aria-label="Três melhores avaliações">
+      <div className="flex items-center gap-2 mb-3">
+        <Star className="w-4 h-4 text-primary" />
+        <h2 className="text-sm font-semibold text-foreground">3 melhores avaliações</h2>
+      </div>
+      {topRatings.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Este perfil ainda não tem avaliações.</p>
+      ) : (
+        <div className="space-y-2">
+          {topRatings.map((rating: any) => (
+            <Link key={rating.id} href={`/estabelecimento/${rating.establishmentSlug || rating.establishmentId}`} className="flex items-center gap-3 rounded-lg bg-background/60 p-2.5 hover:bg-background transition-colors">
+              <div className="flex items-center gap-1 min-w-[3.5rem] text-primary">
+                <Star className="w-3.5 h-3.5 fill-current" />
+                <span className="text-sm font-bold">{Number(rating.overallScore ?? 0).toFixed(1)}</span>
+              </div>
+              <span className="text-sm text-foreground truncate">{rating.establishmentName || "Estabelecimento"}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -2194,7 +2194,10 @@ function PeopleSearchSection() {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
-  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">("particular");
+  const initialTab = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tab") === "pessoas"
+    ? "pessoas" as const
+    : "particular" as const;
+  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">(initialTab);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
