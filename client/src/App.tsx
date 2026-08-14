@@ -643,7 +643,7 @@ function AppGateWithRouteCheck({
   renderContent: () => React.ReactNode;
 }) {
   const [currentPath] = useLocation();
-  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/") || currentPath.startsWith("/reservar/") || currentPath === "/login" || currentPath === "/" || currentPath.startsWith("/categoria/") || currentPath.startsWith("/todas-categorias") || currentPath.startsWith("/termos") || currentPath.startsWith("/privacidade");
+  const isPublicRoute = currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/") || currentPath.startsWith("/reservar/") || currentPath === "/login" || currentPath === "/" || currentPath.startsWith("/categoria/") || currentPath.startsWith("/todas-categorias") || currentPath.startsWith("/termos") || currentPath.startsWith("/privacidade") || currentPath === "/perfil" || currentPath.startsWith("/perfil/");
 
   if (isPublicRoute) {
     return <>{renderContent()}</>;

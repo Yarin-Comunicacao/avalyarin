@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import AuthChoice from "@/components/AuthChoice";
 import type { AppRole } from "@shared/role-visibility";
 import { useOwnerView } from "@/contexts/OwnerViewContext";
 import UserProfile from "./UserProfile";
@@ -22,6 +23,16 @@ export default function RoleBasedProfile() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // When a user logs out while remaining on /perfil, never render a fake empty profile.
+  // Open the same provider-selection screen used by the app entry flow instead.
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AuthChoice initialView="main" onChoose={() => undefined} />
       </div>
     );
   }

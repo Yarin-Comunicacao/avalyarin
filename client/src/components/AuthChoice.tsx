@@ -10,14 +10,16 @@ import { toast } from "sonner";
 const DAY_IMAGE = "/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
 const NIGHT_IMAGE = "/storage/age-gate-night-TGrHgM2B6Cr3AosUR4maEJ.webp";
 
-interface AuthChoiceProps {
-  onChoose: (type: "register" | "login") => void;
-}
-
 type AuthView = "choice" | "main" | "email-login" | "email-register" | "forgot-password" | "reset-code";
 
-export default function AuthChoice({ onChoose }: AuthChoiceProps) {
-  const [view, setView] = useState<AuthView>("choice");
+interface AuthChoiceProps {
+  onChoose: (type: "register" | "login") => void;
+  /** Opens directly on the provider selection screen when requested by a protected route. */
+  initialView?: Extract<AuthView, "choice" | "main">;
+}
+
+export default function AuthChoice({ onChoose, initialView = "choice" }: AuthChoiceProps) {
+  const [view, setView] = useState<AuthView>(initialView);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
