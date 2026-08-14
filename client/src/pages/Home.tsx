@@ -22,7 +22,7 @@ const categoryGroups = [
     title: "Gastronomia",
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
-    image: "/storage/group-gastronomia_6a589f64.jpg",
+    image: "/storage/category-optimized/group-gastronomia.webp",
     categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "veg-vegan", "acai", "natural", "vegetariano"],
   },
   {
@@ -30,7 +30,7 @@ const categoryGroups = [
     title: "Bares & Vida Noturna",
     subtitle: "Drinks, socialização e entretenimento",
     icon: PartyPopper,
-    image: "/storage/group-bares-vida-noturna_ea06ba71.jpg",
+    image: "/storage/category-optimized/group-bares-vida-noturna.webp",
     categorySlugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada"],
   },
   {
@@ -38,7 +38,7 @@ const categoryGroups = [
     title: "Cafés & Doces",
     subtitle: "Experiências diurnas, café e confeitaria",
     icon: CakeSlice,
-    image: "/storage/group-cafe-doces_648b4dd3.jpg",
+    image: "/storage/category-optimized/group-cafe-doces.webp",
     categorySlugs: ["cafeteria", "padaria", "confeitaria"],
   },
 ];
@@ -323,6 +323,7 @@ export default function Home() {
                             alt={group.title}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
+                            decoding="async"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
                           <div className="relative h-full flex flex-col justify-end p-6">
