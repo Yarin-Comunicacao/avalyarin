@@ -2359,6 +2359,7 @@ export const appRouter = router({
         email: z.string().email().max(320).optional(),
         phone: z.string().max(32).optional(),
         description: z.string().max(120).optional(),
+        gender: z.enum(["masculino", "feminino", "prefiro_nao_informar"]).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await updateUserProfile(ctx.user!.id, input);

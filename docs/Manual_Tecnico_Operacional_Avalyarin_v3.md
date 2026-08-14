@@ -373,7 +373,7 @@ As etapas do primeiro acesso ao Avalyarin são:
 3. **Autenticação OAuth:** O login é feito via Manus OAuth. O usuário faz login com email e o sistema cria automaticamente uma conta no Avalyarin vinculada ao seu perfil.
 4. **Pesquisa de onboarding (7 etapas):** Na primeira vez, o app pergunta: data de nascimento (roleta dia/mês/ano), região de SP, média de consumo, categorias preferidas, prioridades de avaliação, frequência de visitas, e fontes de descoberta.
 5. **Captação de geolocalização:** O app solicita permissão de localização e salva as coordenadas no perfil do usuário para a funcionalidade "Perto de Mim".
-6. **Home do app:** O usuário é direcionado para a Home com seções "Minhas Preferidas" (5 categorias da survey), "Explore outros grupos" (4 grupos com imagens), e "Veja todas as Categorias".
+6. **Home do app:** O usuário é direcionado para a Home com seções "Minhas Preferidas" (5 categorias da survey), "Explore outros grupos" (3 grupos com imagens), e "Veja todas as Categorias".
 
 ### 7.2 Fluxo de Avaliação
 

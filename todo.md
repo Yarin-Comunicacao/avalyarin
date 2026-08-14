@@ -23,7 +23,7 @@
 - [x] Remove "Entrar" button from navbar left side (keep login only in menu)
 - [x] Query establishments with Instagram links and report count (195 found)
 - [x] Fetch Instagram profile photos and update establishment images (71 updated)
-- [x] Apply 4-group category division on home page (Gastronomia, Bares & Vida Noturna, Café & Doces, Saudável & Bem-estar)
+- [x] Apply 3-group category division on home page (Gastronomia, Bares & Vida Noturna, Café & Doces)
 - [x] Update "Como Funciona" step 1: title "Escolha uma das categorias", desc "Selecione o estabelecimento cadastrado que você visitou."
 - [x] Design and create user_rankings DB table (userId, categoryId, establishmentId, position, updatedAt)
 - [x] Create tRPC procedures for rankings (getRanking, saveRanking, getUserRatedEstablishments)
@@ -120,7 +120,7 @@
 - [x] Dividir categoria Saudável em 3: Vegan, Açaí e Saudável (geral)
 - [x] Criar novas categorias Vegan e Açaí no banco de dados
 - [x] Redistribuir estabelecimentos da categoria Saudável para Vegan e Açaí conforme tipo
-- [x] Atualizar frontend para exibir as 3 categorias no grupo Saudável & Bem-estar
+- [x] Atualizar frontend para exibir as 3 categorias no grupo Gastronomia
 - [x] Nova imagem de capa para Balada: grupo de pessoas estilosas posando com drinks (água, caipirinha, negroni, champagne, whiskey), paleta quente
 - [x] Remover texto da splash screen do PWA — deixar apenas o logo, sem palavras
 - [x] Endereço com bottom sheet: copiar, abrir no Maps, abrir no Uber ao clicar no endereço do estabelecimento
@@ -258,11 +258,11 @@
 - [x] Criar categoria "Gastrobar" e reclassificar 6 estabs (Melts, Marú, Ministro, Oink, Othê, Fábrica Drinks)
 - [x] Criar categoria "Lanches" e mover Black Dog Paulista + Pastel da Praça para ela
 - [x] Redesenhar tela inicial: seção "Minhas Preferidas" (5 categorias da survey)
-- [x] Redesenhar tela inicial: seção "Explore outros grupos" (4 grupos com imagens)
-- [x] Renomear grupo "Saudável e Bem-estar" para "Saudável & Natural"
+- [x] Redesenhar tela inicial: seção "Explore outros grupos" (3 grupos com imagens)
+- [x] Mesclar categorias de "Saudável & Bem-estar" para dentro do grupo Gastronomia (3 grupos totais)
 - [x] Redesenhar tela inicial: seção "Veja todas as Categorias" com GIF animado
 - [x] Criar GIF animado alternando entre imagens de categorias
-- [x] Gerar imagens para os 4 grupos de categorias
+- [x] Gerar imagens para os 3 grupos de categorias
 - [x] Corrigir fluxo: categorias individuais não devem aparecer na Home — devem abrir apenas ao clicar em um grupo na seção "Explore outros grupos"
 - [x] Adicionar tipos de destaque: "Novidade" (new_item) e "Parceria" (collab) ao sistema
 - [x] Implementar durações diferenciadas por tipo: brand=30d, menu_daily=até fechar, promotion=7d, event=15d ou até data do evento, new_item=30d, collab=21d

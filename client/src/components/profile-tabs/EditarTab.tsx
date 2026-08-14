@@ -181,6 +181,7 @@ export default function EditarTab() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
+  const [gender, setGender] = useState<string>("");
 
   // Birthdate editing
   const [showBirthdateEdit, setShowBirthdateEdit] = useState(false);
@@ -206,6 +207,7 @@ export default function EditarTab() {
       setEmail(profile.email || "");
       setPhone(profile.phone || "");
       setDescription((profile as any).description || "");
+      setGender((profile as any).gender || "");
     }
   }, [profile]);
 
@@ -268,17 +270,19 @@ export default function EditarTab() {
     username !== (profile.username || "") ||
     email !== (profile.email || "") ||
     phone !== (profile.phone || "") ||
-    description !== ((profile as any).description || "")
+    description !== ((profile as any).description || "") ||
+    gender !== ((profile as any).gender || "")
   );
 
   const canSave = hasChanges && hasValidUsername && usernameAvailable;
 
   const handleSave = () => {
-    const data: { username?: string; email?: string; phone?: string; description?: string } = {};
+    const data: { username?: string; email?: string; phone?: string; description?: string; gender?: any } = {};
     if (username !== (profile?.username || "")) data.username = username;
     if (email !== (profile?.email || "")) data.email = email.trim();
     if (phone !== (profile?.phone || "")) data.phone = phone.trim();
     if (description !== ((profile as any)?.description || "")) data.description = description.trim();
+    if (gender !== ((profile as any)?.gender || "")) data.gender = gender;
     updateProfile.mutate(data);
   };
 
@@ -441,6 +445,21 @@ export default function EditarTab() {
           placeholder="(11) 99999-9999"
           className="w-full px-3 py-2.5 rounded-lg bg-card border border-border/50 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
         />
+      </div>
+
+      {/* Gênero */}
+      <div>
+        <label className="text-xs text-muted-foreground mb-1 block">Gênero</label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-lg bg-card border border-border/50 text-sm text-foreground focus:outline-none focus:border-primary/50"
+        >
+          <option value="">Selecione...</option>
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="prefiro_nao_informar">Prefiro não informar</option>
+        </select>
       </div>
 
       {/* Save Button */}

@@ -1884,13 +1884,14 @@ export async function getUserProfile(userId: number) {
   return rows[0] || null;
 }
 
-export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string; email?: string; phone?: string; description?: string }) {
+export async function updateUserProfile(userId: number, data: { name?: string; username?: string; birthdate?: string; email?: string; phone?: string; description?: string; gender?: "masculino" | "feminino" | "prefiro_nao_informar" }) {
   const db = await getDb();
   if (!db) return null;
   
   const updateData: Record<string, any> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description;
+  if (data.gender !== undefined) updateData.gender = data.gender;
   if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
   if (data.email !== undefined) updateData.email = data.email;
   if (data.phone !== undefined) {
