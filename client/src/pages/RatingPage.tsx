@@ -2823,7 +2823,7 @@ export default function RatingPage() {
                         <label className="text-sm font-medium text-foreground">Fila de espera</label>
                         <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                           <Camera className="w-4 h-4" />
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                               setVenuePhotos(prev => ({ ...prev, filaEspera: file }));
@@ -2926,7 +2926,7 @@ export default function RatingPage() {
                       <label className="text-sm font-medium text-foreground">Conforto do ambiente</label>
                       <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                         <Camera className="w-4 h-4" />
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setVenuePhotos(prev => ({ ...prev, conforto: file }));
@@ -2965,7 +2965,7 @@ export default function RatingPage() {
                       <label className="text-sm font-medium text-foreground">Limpeza</label>
                       <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                         <Camera className="w-4 h-4" />
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setVenuePhotos(prev => ({ ...prev, limpeza: file }));
@@ -3004,7 +3004,7 @@ export default function RatingPage() {
                       <label className="text-sm font-medium text-foreground">Banheiros</label>
                       <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                         <Camera className="w-4 h-4" />
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setVenuePhotos(prev => ({ ...prev, banheiros: file }));
@@ -3043,7 +3043,7 @@ export default function RatingPage() {
                       <label className="text-sm font-medium text-foreground">Acessibilidade</label>
                       <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                         <Camera className="w-4 h-4" />
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setVenuePhotos(prev => ({ ...prev, acessibilidade: file }));
@@ -3082,7 +3082,7 @@ export default function RatingPage() {
                       <label className="text-sm font-medium text-foreground">Iluminação</label>
                       <label className="cursor-pointer flex items-center gap-1 text-xs text-primary hover:text-primary/80">
                         <Camera className="w-4 h-4" />
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setVenuePhotos(prev => ({ ...prev, iluminacao: file }));
