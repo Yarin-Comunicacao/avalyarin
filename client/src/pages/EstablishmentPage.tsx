@@ -8,7 +8,6 @@ import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCi
 import ShareToGroup from "@/components/ShareToGroup";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
-import { AvalyarinReviews } from "@/components/AvalyarinReviews";
 import { FourPointStar, ItemStars } from "@/components/FourPointStar";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -375,19 +374,6 @@ export default function EstablishmentPage() {
       </section>
 
       {/* CTA - inline removed, now fixed at bottom */}
-
-      {/* Ratings Section: Google + Avalyarin side by side */}
-      <section className="py-4">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Avalyarin Reviews */}
-            <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20">
-              <h4 className="font-display text-sm tracking-wider text-primary mb-3">AVALYARIN</h4>
-              <AvalyarinReviews establishmentId={establishment.id} />
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Claim Establishment */}
       <section className="pb-4">
