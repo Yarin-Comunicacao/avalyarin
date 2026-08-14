@@ -2194,10 +2194,23 @@ function PeopleSearchSection() {
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
-  const initialTab = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tab") === "pessoas"
-    ? "pessoas" as const
-    : "particular" as const;
-  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">(initialTab);
+  const [location, navigate] = useLocation();
+  const getTabFromUrl = useCallback((path: string) => {
+    const tab = new URLSearchParams(path.split("?")[1] || "").get("tab");
+    return tab === "meus" || tab === "sigo" || tab === "pessoas" ? tab : "particular";
+  }, []);
+  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">(() => getTabFromUrl(location));
+
+  useEffect(() => {
+    const tabFromUrl = getTabFromUrl(location);
+    setActiveTab((currentTab) => currentTab === tabFromUrl ? currentTab : tabFromUrl);
+  }, [location, getTabFromUrl]);
+
+  const changeTab = useCallback((tab: "particular" | "meus" | "sigo" | "pessoas") => {
+    setActiveTab(tab);
+    const nextPath = tab === "particular" ? "/grupos" : `/grupos?tab=${tab}`;
+    if (location !== nextPath) navigate(nextPath);
+  }, [location, navigate]);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -2259,7 +2272,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
           ) : (
             <GroupListPanel
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={changeTab}
               tabs={tabs}
               loadingMy={loadingMy}
               myGroups={myGroups}
@@ -2267,7 +2280,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
               loadingFollowed={loadingFollowed}
               selectedGroupId={selectedGroupId}
               onSelectGroup={(id) => setSelectedGroupId(id)}
-              onGoToPessoas={() => setActiveTab("pessoas")}
+              onGoToPessoas={() => changeTab("pessoas")}
               onShowCreate={() => setShowCreate(true)}
             />
           )}
@@ -2284,7 +2297,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
             <div className="p-4">
               <GroupListPanel
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={changeTab}
                 tabs={tabs}
                 loadingMy={loadingMy}
                 myGroups={myGroups}
@@ -2292,7 +2305,7 @@ export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
                 loadingFollowed={loadingFollowed}
                 selectedGroupId={selectedGroupId}
                 onSelectGroup={(id) => setSelectedGroupId(id)}
-                onGoToPessoas={() => setActiveTab("pessoas")}
+                onGoToPessoas={() => changeTab("pessoas")}
                 onShowCreate={() => setShowCreate(true)}
                 compact={!!selectedGroupId}
               />
