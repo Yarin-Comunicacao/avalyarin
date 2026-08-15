@@ -218,11 +218,15 @@ export default function EstablishmentPage() {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 100; // Sticky nav offset
+      // Keep the category title below the fixed anchor bar. The bar's height
+      // can change between mobile and desktop, so calculate it dynamically.
+      const anchorBar = document.querySelector<HTMLElement>('[data-menu-anchors]');
+      const anchorBarHeight = anchorBar?.offsetHeight ?? 64;
+      const offset = 72 + anchorBarHeight + 20; // fixed header + anchor bar + breathing room
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
+      const offsetPosition = Math.max(0, elementPosition - offset);
 
       window.scrollTo({
         top: offsetPosition,
@@ -232,7 +236,7 @@ export default function EstablishmentPage() {
   };
 
   const MenuSection = ({ items, title, id }: { items: typeof menu; title: string; id: string }) => (
-    <div id={id} className="space-y-2 scroll-mt-24 mb-8">
+    <div id={id} className="space-y-2 scroll-mt-40 mb-8">
       <h4 className="font-display text-xl tracking-wider text-primary mb-4 border-b border-primary/10 pb-2">{title.toUpperCase()}</h4>
       {items.map((item: any) => (
         <div
@@ -517,7 +521,7 @@ export default function EstablishmentPage() {
             {activeSection === "cardapio" && menu.length > 0 && (
               <div className="space-y-6">
                 {/* Big Blocks Navigation - Sticky */}
-                <div className="sticky top-[72px] z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-primary/10 overflow-x-auto no-scrollbar">
+                <div data-menu-anchors className="sticky top-[72px] z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-primary/10 overflow-x-auto no-scrollbar">
                   <div className="flex gap-2 min-w-max">
                     {activeBigBlocks.map(block => (
                       <button
