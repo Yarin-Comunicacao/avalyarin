@@ -150,21 +150,28 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
 
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FDF8F0]/90 backdrop-blur-md border-b border-[#EDE5D8]">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 shrink-0">
             <img src="/storage/logo-oficial-transparente-v4_bbd5c26e.png" alt="Avalyarin" className="w-8 h-8 object-contain" />
-            <span className="font-display text-lg tracking-wider text-[#D9A64E]">AVALYARIN</span>
+            <span className="hidden sm:inline font-display text-lg tracking-wider text-[#D9A64E] whitespace-nowrap">AVALYARIN</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-[#6B4D3A] hover:text-[#2D1B0E]" onClick={handleLogin}>
+          <div className="flex items-center justify-end gap-1 sm:gap-2 shrink-0">
+            <Button variant="ghost" size="sm" className="h-9 px-2 sm:px-3 text-xs sm:text-sm text-[#6B4D3A] hover:text-[#2D1B0E] whitespace-nowrap" onClick={handleLogin}>
               Entrar
             </Button>
-            <Button size="sm" className="bg-[#D9A64E] hover:bg-[#C4922F] text-white font-semibold" onClick={handleEnter}>
+            <Button size="sm" className="h-9 px-2.5 sm:px-3 text-xs sm:text-sm bg-[#D9A64E] hover:bg-[#C4922F] text-white font-semibold whitespace-nowrap" onClick={handleEnter}>
               Criar Conta
             </Button>
-            <Button variant="outline" size="sm" className="border-[#2B132A] text-[#2B132A] hover:bg-[#2B132A] hover:text-white font-semibold" onClick={handleBusiness}>
-              <Building2 className="w-4 h-4 mr-1" />
-              Tenho um Negócio
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label="Tenho um Negócio"
+              title="Tenho um Negócio"
+              className="h-9 px-2 sm:px-3 border-[#2B132A] text-[#2B132A] hover:bg-[#2B132A] hover:text-white font-semibold whitespace-nowrap"
+              onClick={handleBusiness}
+            >
+              <Building2 className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Tenho um Negócio</span>
             </Button>
           </div>
         </div>
