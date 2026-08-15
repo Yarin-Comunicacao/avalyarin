@@ -183,11 +183,17 @@ export default function EstablishmentPage() {
     { name: "Porções", keywords: ["porções", "entradas", "petiscos", "tábuas", "adicional"] },
     { name: "Lanches", keywords: ["lanches", "hamburguer", "hambúrguer", "sanduíches"] },
     { name: "Alcoólicos", keywords: ["cervejas", "chopp", "chope", "drinks", "whiskys", "doses", "caipirinhas", "gin", "vodkas", "cachaças", "licor"] },
-    { name: "Não alcoólicos", keywords: ["bebidas sem álcool", "água", "suco", "refrigerante", "café", "chá"] }
+    { name: "Não alcoólicos", keywords: ["bebidas sem álcool", "água", "suco", "refrigerante", "café", "chá", "cerveja sem álcool", "cerveja zero"] }
   ];
 
   const getBigBlockForCategory = (catName: string) => {
     const lowerCat = catName.toLowerCase();
+    
+    // Priority: Non-alcoholic beers go to Non-alcoholic block
+    if (lowerCat.includes("cerveja") && (lowerCat.includes("sem álcool") || lowerCat.includes("zero"))) {
+      return BIG_BLOCKS.find(b => b.name === "Não alcoólicos");
+    }
+
     return BIG_BLOCKS.find(block => 
       block.keywords.some(kw => lowerCat.includes(kw))
     );
