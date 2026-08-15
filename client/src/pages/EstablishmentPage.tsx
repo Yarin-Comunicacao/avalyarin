@@ -177,15 +177,61 @@ export default function EstablishmentPage() {
 
   // Filter to only categories with items
   const activeCategories = orderedCategoryNames.filter(c => (menuByCategory.get(c)?.length || 0) > 0);
-  const defaultTab = activeCategories.length > 0 ? activeCategories[0] : "";
+  
+  // Big blocks logic for anchor navigation
+  const BIG_BLOCKS = [
+    { name: "Porções", keywords: ["porções", "entradas", "petiscos", "tábuas", "adicional"] },
+    { name: "Lanches", keywords: ["lanches", "hamburguer", "hambúrguer", "sanduíches"] },
+    { name: "Alcoólicos", keywords: ["cervejas", "chopp", "chope", "drinks", "whiskys", "doses", "caipirinhas", "gin", "vodkas", "cachaças", "licor"] },
+    { name: "Não alcoólicos", keywords: ["bebidas sem álcool", "água", "suco", "refrigerante", "café", "chá"] }
+  ];
 
-  const MenuSection = ({ items, title }: { items: typeof menu; title: string }) => (
-    <div className="space-y-2">
-      <h4 className="font-display text-xl tracking-wider text-primary mb-3">{title}</h4>
+  const getBigBlockForCategory = (catName: string) => {
+    const lowerCat = catName.toLowerCase();
+    return BIG_BLOCKS.find(block => 
+      block.keywords.some(kw => lowerCat.includes(kw))
+    );
+  };
+
+  // Group categories into big blocks
+  const categoriesByBlock = new Map<string, string[]>();
+  const categoriesWithoutBlock: string[] = [];
+
+  activeCategories.forEach(cat => {
+    const block = getBigBlockForCategory(cat);
+    if (block) {
+      if (!categoriesByBlock.has(block.name)) categoriesByBlock.set(block.name, []);
+      categoriesByBlock.get(block.name)!.push(cat);
+    } else {
+      categoriesWithoutBlock.push(cat);
+    }
+  });
+
+  const activeBigBlocks = BIG_BLOCKS.filter(b => categoriesByBlock.has(b.name));
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; // Sticky nav offset
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const MenuSection = ({ items, title, id }: { items: typeof menu; title: string; id: string }) => (
+    <div id={id} className="space-y-2 scroll-mt-24 mb-8">
+      <h4 className="font-display text-xl tracking-wider text-primary mb-4 border-b border-primary/10 pb-2">{title.toUpperCase()}</h4>
       {items.map((item: any) => (
         <div
           key={item.id}
-          onClick={() => { setFilterItem(item.name); setActiveSection("avaliacoes"); }}
+          onClick={() => { setFilterItem(item.name); setActiveSection("avaliacoes"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/30 hover:border-primary/20 transition-colors cursor-pointer"
         >
           {(item.imageThumbUrl || item.imageUrl) && (
@@ -463,24 +509,63 @@ export default function EstablishmentPage() {
 
             {/* Cardápio Section */}
             {activeSection === "cardapio" && menu.length > 0 && (
-            <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
-            <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-6">CARDÁPIO</h3>
+              <div className="space-y-6">
+                {/* Big Blocks Navigation - Sticky */}
+                <div className="sticky top-[72px] z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-primary/10 overflow-x-auto no-scrollbar">
+                  <div className="flex gap-2 min-w-max">
+                    {activeBigBlocks.map(block => (
+                      <button
+                        key={block.name}
+                        onClick={() => {
+                          const firstCat = categoriesByBlock.get(block.name)?.[0];
+                          if (firstCat) scrollToSection(`cat-${firstCat.replace(/\s+/g, '-')}`);
+                        }}
+                        className="px-4 py-2 rounded-full bg-secondary border border-border/50 text-xs font-display tracking-wider text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95"
+                      >
+                        {block.name.toUpperCase()}
+                      </button>
+                    ))}
+                    {categoriesWithoutBlock.length > 0 && (
+                      <button
+                        onClick={() => scrollToSection(`cat-${categoriesWithoutBlock[0].replace(/\s+/g, '-')}`)}
+                        className="px-4 py-2 rounded-full bg-secondary border border-border/50 text-xs font-display tracking-wider text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95"
+                      >
+                        OUTROS
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-            <Tabs defaultValue={defaultTab} className="w-full">
-              <TabsList className="bg-secondary border border-border/50 mb-6 flex-wrap h-auto gap-1 p-1">
-                {activeCategories.map(catName => (
-                  <TabsTrigger key={catName} value={catName} className="font-display tracking-wider text-xs">
-                    {catName.toUpperCase()}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {activeCategories.map(catName => (
-                <TabsContent key={catName} value={catName}>
-                  <MenuSection items={menuByCategory.get(catName) || []} title={catName.toUpperCase()} />
-                </TabsContent>
-              ))}
-            </Tabs>
-            </div>
+                <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
+                  <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-8 text-center">CARDÁPIO</h3>
+
+                  <div className="space-y-12">
+                    {/* Render by Big Blocks to maintain logical order */}
+                    {activeBigBlocks.map(block => (
+                      <div key={block.name} className="space-y-8">
+                        {categoriesByBlock.get(block.name)?.map(catName => (
+                          <MenuSection 
+                            key={catName} 
+                            id={`cat-${catName.replace(/\s+/g, '-')}`}
+                            items={menuByCategory.get(catName) || []} 
+                            title={catName} 
+                          />
+                        ))}
+                      </div>
+                    ))}
+                    
+                    {/* Render remaining categories */}
+                    {categoriesWithoutBlock.map(catName => (
+                      <MenuSection 
+                        key={catName} 
+                        id={`cat-${catName.replace(/\s+/g, '-')}`}
+                        items={menuByCategory.get(catName) || []} 
+                        title={catName} 
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </section>
