@@ -2,7 +2,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import SupportChat from "@/components/SupportChat";
 
 function SupportChatSection() {
@@ -27,7 +28,19 @@ const PRIORITY_COLORS = {
 
 export default function SupportProfile() {
   const { user } = useAuth();
+  const [location] = useLocation();
   const [activeTab, setActiveTab] = useState<TabId>("estabs");
+
+  // Sync tab with URL path
+  useEffect(() => {
+    if (location.includes("/suporte/tickets")) {
+      setActiveTab("tickets");
+    } else if (location.includes("/suporte/estabs")) {
+      setActiveTab("estabs");
+    } else if (location.includes("/suporte/chat")) {
+      setActiveTab("chat");
+    }
+  }, [location]);
 
   const { data: stats } = trpc.support.myStats.useQuery(undefined, { enabled: !!user });
   const { data: assignments } = trpc.support.myAssignments.useQuery(undefined, { enabled: !!user });
