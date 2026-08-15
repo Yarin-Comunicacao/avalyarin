@@ -3165,10 +3165,31 @@ export async function getAllEstablishmentsForMap() {
     }
   }
 
+  // Older/manual establishment records may have only the legacy categoryId
+  // populated and no row in establishment_categories. Keep them visible on
+  // the map instead of classifying them as "Outros" and hiding them from the
+  // three main category filters.
+  const primaryCategoryIds = Array.from(new Set(
+    result.map(est => est.categoryId).filter((categoryId): categoryId is number => categoryId != null)
+  ));
+  const primaryCategoryRows = primaryCategoryIds.length > 0
+    ? await db.select({
+        id: categories.id,
+        name: categories.name,
+        slug: categories.slug,
+      })
+        .from(categories)
+        .where(inArray(categories.id, primaryCategoryIds))
+    : [];
+  const primaryCategoryMap: Record<number, { name: string; slug: string }> = {};
+  for (const row of primaryCategoryRows) {
+    primaryCategoryMap[row.id] = { name: row.name, slug: row.slug };
+  }
+
   return result.map(est => ({
     ...est,
-    categoryName: catMap[est.id]?.name || "Outros",
-    categorySlug: catMap[est.id]?.slug || "outros",
+    categoryName: catMap[est.id]?.name || primaryCategoryMap[est.categoryId]?.name || "Outros",
+    categorySlug: catMap[est.id]?.slug || primaryCategoryMap[est.categoryId]?.slug || "outros",
   }));
 }
 
