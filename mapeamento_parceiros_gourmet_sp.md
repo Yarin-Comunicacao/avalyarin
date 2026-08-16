@@ -1,6 +1,6 @@
 # Mapeamento Massivo de Parceiros Gourmet - São Paulo (2026)
 
-Total de estabelecimentos mapeados: **1191**
+Total de estabelecimentos mapeados: **1245**
 
 Este documento contém a lista consolidada de parceiros dos principais programas de benefícios gastronômicos em São Paulo. Um arquivo CSV completo foi gerado para análise detalhada.
 
@@ -215,6 +215,70 @@ Este documento contém a lista consolidada de parceiros dos principais programas
 | Travessa Do Bruxo | São Paulo/Região | Travessa Do Bruxo |
 | O Burguer | São Paulo/Região | O Burguer |
 | ... e mais 357 outros | Ver CSV completo | |
+
+## Clube Folha Gourmet (34 parceiros)
+
+| Nome | Bairro | Categoria |
+| :--- | :--- | :--- |
+| Aguzzo | Indianópolis | Italiana |
+| Axado Drinks | Pinheiros | Portuguesa/Drinks |
+| Barak Culinária Árabe | Moema | Árabe |
+| La Braciera Pizza | Higienópolis | Pizzaria |
+| Casa Capim Santo | Pinheiros | Brasileira |
+| Criminal Burger | Vila Leopoldina | Hamburgueria |
+| Era Uma Vez Um Chalezinho | Vila Andrade | Fondue |
+| A Fantástica Torta da Maria | Vila Leopoldina | Doces/Tortas |
+| Forneria San Paolo | Vila Olímpia | Italiana |
+| Fuentes | Cerqueira César | Espanhola |
+| Handz by Rodrigo Einsfeld | Casa Verde | Italiana |
+| Kiaora Bar & Grill | Itaim Bibi | Bar/Australiana |
+| Kiichi | Vila Mariana | Japonesa |
+| Lolla Meets Fire | Itaim Bibi | Parrilla |
+| Lujul Cozinha Consciente | Vila Madalena | Vegetariana/Vegana |
+| Meime Pizzaria | Água Fria | Pizzaria |
+| Micheluccio | Aclimação | Pizzaria |
+| Mici Restaurante | Perdizes | Contemporânea |
+| La Pasta Gialla | Vila Mascote | Italiana |
+| Pecorino Mediterrâneo | Vila Clementino | Mediterrânea |
+| Rota do Acarajé | Vila Buarque | Brasileira/Baiana |
+| Sargento Garcia | Jardim França | Mediterrânea |
+| Tantra Mongolian Grill | Vila Olímpia | Asiática |
+| The Bowl | Itaim Bibi | Asiática/Poke |
+| Aizomê | Paraíso | Japonesa |
+| Mocotó | Vila Medeiros | Brasileira/Sertaneja |
+| Moela | Santa Cecília | Bar/Petiscos |
+| Paul's | Pinheiros | Pizzaria |
+| Portofino | Ilhabela/SP | Italiana |
+| Mef's Café & Brunch | Pinheiros | Brunch |
+| Cakess | Higienópolis | Cafeteria |
+| Canopy by Hilton | Jardim Paulista | Hotel/Brunch |
+| Délices d'Paris | Vila Leopoldina | Cafeteria |
+| The Westin | Itaim Bibi | Hotel/Brunch |
+
+## Vale Bônus / ChefsClub (20 parceiros)
+
+| Nome | Bairro | Categoria |
+| :--- | :--- | :--- |
+| Outback Steakhouse | Diversas Unidades | Steakhouse |
+| Pizza Hut | Diversas Unidades | Pizzaria |
+| Pecorino | Diversas Unidades | Italiana |
+| Rubaiyat | Diversas Unidades | Carnes |
+| Coco Bambu | Diversas Unidades | Frutos do Mar |
+| Madero | Diversas Unidades | Hamburgueria |
+| Kopenhagen | Diversas Unidades | Chocolates |
+| Gendai | Diversas Unidades | Japonesa |
+| China in Box | Diversas Unidades | Chinesa |
+| Mistral | Diversas Unidades | Vinhos |
+| T.T. Burger | Pinheiros/Diversos | Hamburgueria |
+| Nestor Pizzaria | Diversas Unidades | Pizzaria |
+| Fogo de Chão | Diversas Unidades | Churrascaria |
+| Si Señor | Diversas Unidades | Tex-Mex |
+| Applebee's | Diversas Unidades | Americana |
+| Bacio di Latte | Diversas Unidades | Gelateria |
+| Camarada Camarão | Diversas Unidades | Frutos do Mar |
+| L'Entrecôte de Paris | Diversas Unidades | Francesa |
+| Paris 6 | Diversas Unidades | Bistrô |
+| Bullguer | Diversas Unidades | Hamburgueria |
 
 ## Análise de Lacunas e Oportunidades
 
