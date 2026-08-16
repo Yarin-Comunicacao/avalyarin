@@ -32,10 +32,10 @@ export default function PrivacyPolicyPage() {
         <section>
           <h3 className="font-display text-lg tracking-wider text-foreground mb-2">1. Dados que Coletamos</h3>
           <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
-            <p><strong className="text-foreground">1.1 Dados de Conta:</strong> Ao fazer login via Facebook ou outro provedor OAuth, coletamos seu nome, e-mail e foto de perfil pública.</p>
-            <p><strong className="text-foreground">1.2 Dados de Uso:</strong> Avaliações, comentários, fotos enviadas, preferências de categoria e histórico de interações no aplicativo.</p>
-            <p><strong className="text-foreground">1.3 Dados Técnicos:</strong> Endereço IP, tipo de navegador, sistema operacional, páginas visitadas e horários de acesso para fins de segurança e análise.</p>
-            <p><strong className="text-foreground">1.4 Dados de Localização:</strong> Quando autorizado, coletamos dados de geolocalização para verificação de presença em estabelecimentos (check-in via QR Code).</p>
+            <p><strong className="text-foreground">1.1 Dados de Conta:</strong> Ao fazer login via redes sociais ou email, coletamos seu nome, e-mail e foto de perfil pública.</p>
+            <p><strong className="text-foreground">1.2 Dados de Uso e Interação:</strong> Avaliações, comentários, fotos enviadas, preferências, histórico de reservas e planos contratados.</p>
+            <p><strong className="text-foreground">1.3 Mensagens e Grupos:</strong> Textos, mídias e imagens trocadas em chats de grupos ou mensagens diretas dentro da plataforma são armazenados para permitir a comunicação social, estando sujeitos a moderação em caso de denúncias de abuso ou violação dos termos.</p>
+            <p><strong className="text-foreground">1.4 Dados Técnicos e Localização:</strong> Endereço IP, dados de dispositivo e geolocalização (quando autorizada) para exibição de rotas e mapas.</p>
           </div>
         </section>
 
