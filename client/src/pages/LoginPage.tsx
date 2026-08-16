@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -24,6 +26,10 @@ export default function LoginPage() {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Preencha email e senha");
+      return;
+    }
+    if (mode === "register" && (!acceptedTerms || !isAdult)) {
+      toast.error("Você deve aceitar os Termos e confirmar que tem mais de 18 anos.");
       return;
     }
     setLoading(true);
@@ -161,7 +167,35 @@ export default function LoginPage() {
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <Button type="submit" className="w-full h-12" disabled={loading}>
+          {mode === "register" && (
+            <div className="space-y-2 pt-2 text-xs text-muted-foreground">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isAdult}
+                  onChange={(e) => setIsAdult(e.target.checked)}
+                  className="mt-0.5 rounded border-border accent-primary"
+                />
+                <span>Confirmo que tenho <strong>18 anos de idade ou mais</strong>.</span>
+              </label>
+
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-0.5 rounded border-border accent-primary"
+                />
+                <span>
+                  Li e concordo com os{" "}
+                  <a href="/termos" target="_blank" className="text-primary underline hover:text-primary/80">Termos de Serviço</a> e a{" "}
+                  <a href="/privacidade" target="_blank" className="text-primary underline hover:text-primary/80">Política de Privacidade</a>.
+                </span>
+              </label>
+            </div>
+          )}
+
+          <Button type="submit" className="w-full h-12 mt-2" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
               <>
                 <Mail className="w-4 h-4 mr-2" />
