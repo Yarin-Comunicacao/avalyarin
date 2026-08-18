@@ -15,7 +15,18 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const sslOptions = DATABASE_URL.includes('tidbcloud.com')
+let databaseHost;
+try {
+  databaseHost = new URL(DATABASE_URL).hostname.toLowerCase();
+} catch (err) {
+  console.error('Invalid DATABASE_URL:', err);
+  process.exit(1);
+}
+
+const isTiDBCloudHost =
+  databaseHost === 'tidbcloud.com' || databaseHost.endsWith('.tidbcloud.com');
+
+const sslOptions = isTiDBCloudHost
   ? { ssl: { rejectUnauthorized: true } }
   : {};
 
