@@ -65,7 +65,17 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">4. Segurança dos Dados</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">4. Central de Privacidade Social</h3>
+          <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+            <p>O Avalyarin oferece uma Central de Privacidade Social dentro de Perfil &gt; Preferências para que você controle, separadamente, a visibilidade da localização, fotos e avaliações, busca de amigos, mensagens de voz, alertas e check-in automático.</p>
+            <p>Essas chaves representam preferências do aplicativo e funcionam como uma camada adicional às permissões do Android ou iOS. Quando uma chave é desligada, o Avalyarin interrompe o uso do recurso correspondente e não inicia nova captação, leitura ou armazenamento relacionado àquele recurso, mesmo que a permissão do sistema continue autorizada.</p>
+            <p>Desligar uma chave no Avalyarin não revoga automaticamente a permissão concedida nas configurações do aparelho. Para revogar também a autorização do sistema, utilize o link de configurações exibido na própria Central de Privacidade Social ou as configurações de privacidade do dispositivo.</p>
+            <p>A preferência de localização controla a visibilidade social e o armazenamento da posição associada ao perfil. Ao desativá-la, o Avalyarin deixa de compartilhar a localização no perfil e remove as coordenadas de localização social armazenadas, sem impedir que você conceda temporariamente acesso à localização para recursos específicos do mapa quando necessário.</p>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">5. Segurança dos Dados</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Implementamos medidas de segurança técnicas e organizacionais para proteger seus dados, incluindo criptografia 
             em trânsito (HTTPS/TLS), controle de acesso baseado em roles, e moderação automática de conteúdo. No entanto, 
@@ -74,7 +84,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">5. Retenção de Dados</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">6. Retenção de Dados</h3>
           <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
             <p>Mantemos seus dados pessoais enquanto sua conta estiver ativa. Após exclusão da conta:</p>
             <ul className="list-disc pl-5 space-y-1">
@@ -86,7 +96,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">6. Seus Direitos (LGPD)</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">7. Seus Direitos (LGPD)</h3>
           <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
             <p>Conforme a Lei Geral de Proteção de Dados (LGPD), você tem direito a:</p>
             <ul className="list-disc pl-5 space-y-1">
@@ -102,7 +112,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">7. Exclusão de Dados (Facebook)</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">8. Exclusão de Dados (Facebook)</h3>
           <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
             <p>
               Se você fez login usando o Facebook e deseja excluir seus dados, pode solicitar a exclusão diretamente 
@@ -120,7 +130,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">8. Cookies e Tecnologias</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">9. Cookies e Tecnologias</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Utilizamos cookies de sessão para manter sua autenticação e preferências. Não utilizamos cookies de rastreamento 
             de terceiros para publicidade. Cookies analíticos são usados apenas para melhorar o Serviço.
@@ -128,7 +138,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">9. Menores de Idade</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">10. Menores de Idade</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             O Avalyarin é destinado a maiores de 18 anos, conforme verificação de idade na entrada do aplicativo. 
             Não coletamos intencionalmente dados de menores de 18 anos. Se tomarmos conhecimento de que coletamos 
@@ -137,7 +147,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">10. Alterações nesta Política</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">11. Alterações nesta Política</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Podemos atualizar esta Política periodicamente. Notificaremos sobre alterações significativas por meio do 
             aplicativo. O uso continuado do Serviço após alterações constitui aceitação da política atualizada.
@@ -145,7 +155,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
-          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">11. Contato</h3>
+          <h3 className="font-display text-lg tracking-wider text-foreground mb-2">12. Contato</h3>
           <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
             <p><strong className="text-foreground">Controlador:</strong> Yarin Agência</p>
             <p><strong className="text-foreground">E-mail:</strong> yarinagencia@gmail.com</p>

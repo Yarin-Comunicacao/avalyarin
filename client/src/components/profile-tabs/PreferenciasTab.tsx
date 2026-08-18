@@ -1,6 +1,15 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ComponentType } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Camera } from "@capacitor/camera";
+import { Geolocation } from "@capacitor/geolocation";
+import { PushNotifications } from "@capacitor/push-notifications";
+import { Contacts } from "@capacitor-community/contacts";
 import { trpc } from "@/lib/trpc";
-import { Loader2, User, Pencil, Check, X } from "lucide-react";
+import {
+  Loader2, User, Pencil, Check, X, MapPin, Camera as CameraIcon,
+  Users, Mic, Bell, Activity, ShieldCheck, ExternalLink
+} from "lucide-react";
 import { toast } from "sonner";
 
 // Helper to parse options from DB (same as OnboardingSurvey)
@@ -40,6 +49,295 @@ const FIELD_LABELS: Record<string, string> = {
   priorities: "Prioridades",
   discovery: "Como Descobre",
 };
+
+type SocialPreferenceKey = "photos" | "contacts" | "microphone" | "notifications" | "activity";
+
+type SocialPreferences = Record<SocialPreferenceKey, boolean>;
+
+const SOCIAL_PREFERENCES_STORAGE_KEY = "avalyarin_social_privacy_preferences";
+const DEFAULT_SOCIAL_PREFERENCES: SocialPreferences = {
+  photos: false,
+  contacts: false,
+  microphone: false,
+  notifications: false,
+  activity: false,
+};
+
+interface SocialPreferenceRowProps {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  enabled: boolean;
+  pending?: boolean;
+  onToggle: () => void;
+}
+
+function SocialPreferenceRow({ icon: Icon, title, description, enabled, pending, onToggle }: SocialPreferenceRowProps) {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-background/40 border border-border/30">
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${enabled ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="text-[11px] text-muted-foreground leading-relaxed">{description}</p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        aria-label={`${enabled ? "Desativar" : "Ativar"} ${title}`}
+        onClick={onToggle}
+        disabled={pending}
+        className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+          enabled ? "bg-primary" : "bg-secondary border border-border/50"
+        } ${pending ? "opacity-60" : ""}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? "translate-x-5" : "translate-x-0"}`} />
+        {pending && <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-primary animate-spin" />}
+      </button>
+    </div>
+  );
+}
+
+function CentralPrivacidadeSocial() {
+  const { data: profile } = trpc.profile.get.useQuery();
+  const utils = trpc.useUtils();
+  const [preferences, setPreferences] = useState<SocialPreferences>(DEFAULT_SOCIAL_PREFERENCES);
+  const [locationEnabled, setLocationEnabled] = useState(false);
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+
+  const updateLocationSharing = trpc.profile.updateLocationSharing.useMutation({
+    onSuccess: () => {
+      utils.profile.get.invalidate();
+      utils.auth.me.invalidate();
+    },
+    onError: (err) => toast.error(err.message || "Erro ao atualizar localização"),
+  });
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SOCIAL_PREFERENCES_STORAGE_KEY);
+      if (stored) {
+        setPreferences({ ...DEFAULT_SOCIAL_PREFERENCES, ...JSON.parse(stored) });
+      }
+    } catch {
+      // Mantém os padrões quando o armazenamento local estiver indisponível.
+    }
+  }, []);
+
+  useEffect(() => {
+    setLocationEnabled(Boolean(profile?.locationSharing));
+  }, [profile?.locationSharing]);
+
+  const persistPreference = (key: SocialPreferenceKey, value: boolean) => {
+    setPreferences((current) => {
+      const next = { ...current, [key]: value };
+      localStorage.setItem(SOCIAL_PREFERENCES_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const requestPermission = async (key: SocialPreferenceKey): Promise<boolean> => {
+    if (key === "photos") {
+      if (Capacitor.isNativePlatform()) {
+        const result = await Camera.requestPermissions();
+        return result.camera === "granted" || result.photos === "granted";
+      }
+      if (navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach((track) => track.stop());
+        return true;
+      }
+      return true;
+    }
+
+    if (key === "microphone") {
+      if (navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+        return true;
+      }
+      return false;
+    }
+
+    if (key === "notifications") {
+      if (Capacitor.isNativePlatform()) {
+        const result = await PushNotifications.requestPermissions();
+        return result.receive === "granted";
+      }
+      if ("Notification" in window) {
+        return (await Notification.requestPermission()) === "granted";
+      }
+      return false;
+    }
+
+    if (key === "contacts") {
+      if (Capacitor.isNativePlatform()) {
+        const permission = await Contacts.checkPermissions();
+        if (permission.contacts === "granted" || permission.contacts === "limited") return true;
+        const requested = await Contacts.requestPermissions();
+        return requested.contacts === "granted" || requested.contacts === "limited";
+      }
+      // Na versão web, a agenda só será acessada por um fluxo explícito quando disponível.
+      return true;
+    }
+
+    // O reconhecimento de atividade fica desativado até o recurso de check-in automático ser usado.
+    if (key === "activity") return true;
+
+    return false;
+  };
+
+  const toggleLocation = async () => {
+    setPendingKey("location");
+    try {
+      if (locationEnabled) {
+        updateLocationSharing.mutate({ sharing: false });
+        setLocationEnabled(false);
+        toast.success("Visibilidade no mapa desativada");
+        return;
+      }
+
+      if (Capacitor.isNativePlatform()) {
+        const permission = await Geolocation.checkPermissions();
+        if (permission.location !== "granted") {
+          const requested = await Geolocation.requestPermissions();
+          if (requested.location !== "granted") throw new Error("PERMISSION_DENIED");
+        }
+      }
+
+      const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+      updateLocationSharing.mutate({
+        sharing: true,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
+      setLocationEnabled(true);
+      localStorage.setItem("avalyarin_user_location", JSON.stringify({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: Date.now(),
+      }));
+      toast.success("Visibilidade no mapa ativada");
+    } catch (error: any) {
+      setLocationEnabled(false);
+      if (error?.message === "PERMISSION_DENIED" || error?.code === 1) {
+        toast.error("Permissão negada. Habilite a localização nas configurações do celular.");
+      } else {
+        toast.error("Não foi possível obter sua localização.");
+      }
+    } finally {
+      setPendingKey(null);
+    }
+  };
+
+  const togglePreference = async (key: SocialPreferenceKey) => {
+    const enabled = preferences[key];
+    if (enabled) {
+      persistPreference(key, false);
+      toast.success(`${key === "photos" ? "Fotos" : key === "contacts" ? "Encontrar amigos" : key === "microphone" ? "Mensagens de voz" : key === "notifications" ? "Alertas" : "Check-in automático"} desativado`);
+      return;
+    }
+
+    setPendingKey(key);
+    try {
+      const allowed = await requestPermission(key);
+      if (!allowed) {
+        throw new Error("PERMISSION_DENIED");
+      }
+      persistPreference(key, true);
+      if (key === "contacts") {
+        toast.success("Encontrar amigos ativado. Seus contatos só serão usados quando você iniciar a busca.");
+      } else if (key === "activity") {
+        toast.success("Check-in automático ativado para quando o recurso estiver disponível.");
+      } else {
+        toast.success("Preferência ativada");
+      }
+    } catch {
+      persistPreference(key, false);
+      toast.error("Permissão não concedida. Você pode alterar isso nas configurações do celular.");
+    } finally {
+      setPendingKey(null);
+    }
+  };
+
+  return (
+    <section className="p-4 rounded-xl bg-card border border-primary/25 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Central de Privacidade Social</h3>
+          <p className="text-[11px] text-muted-foreground leading-relaxed mt-1">
+            Controle como os recursos sociais do Avalyarin usam as permissões do seu dispositivo. Desligar uma chave interrompe o uso do recurso pelo app, mesmo que a permissão do sistema continue concedida.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <SocialPreferenceRow
+          icon={MapPin}
+          title="Visibilidade no mapa"
+          description="Permite compartilhar sua localização com a rede e exibir locais próximos. A localização não é captada quando esta chave está desligada."
+          enabled={locationEnabled}
+          pending={pendingKey === "location" || updateLocationSharing.isPending}
+          onToggle={toggleLocation}
+        />
+        <SocialPreferenceRow
+          icon={CameraIcon}
+          title="Fotos e avaliações"
+          description="Autoriza câmera e galeria para publicar fotos de pratos, drinks e momentos gastronômicos."
+          enabled={preferences.photos}
+          pending={pendingKey === "photos"}
+          onToggle={() => togglePreference("photos")}
+        />
+        <SocialPreferenceRow
+          icon={Users}
+          title="Encontrar amigos"
+          description="Guarda sua preferência para usar a agenda somente quando você iniciar a busca por amigos."
+          enabled={preferences.contacts}
+          pending={pendingKey === "contacts"}
+          onToggle={() => togglePreference("contacts")}
+        />
+        <SocialPreferenceRow
+          icon={Mic}
+          title="Mensagens de voz"
+          description="Permite usar o microfone para gravar áudios. Com a chave desligada, o Avalyarin não inicia a captação."
+          enabled={preferences.microphone}
+          pending={pendingKey === "microphone"}
+          onToggle={() => togglePreference("microphone")}
+        />
+        <SocialPreferenceRow
+          icon={Bell}
+          title="Alertas de reservas e promoções"
+          description="Controla notificações de reservas, promoções e interações. Você também pode alterar isso nas configurações do sistema."
+          enabled={preferences.notifications}
+          pending={pendingKey === "notifications"}
+          onToggle={() => togglePreference("notifications")}
+        />
+        <SocialPreferenceRow
+          icon={Activity}
+          title="Check-in automático"
+          description="Guarda sua preferência para facilitar check-ins quando essa função for utilizada; nenhum movimento é monitorado enquanto estiver desligado."
+          enabled={preferences.activity}
+          pending={pendingKey === "activity"}
+          onToggle={() => togglePreference("activity")}
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => toast.info("Abra as configurações do celular para gerenciar permissões do Avalyarin.")}
+        className="w-full flex items-center justify-center gap-2 text-xs text-primary hover:underline pt-1"
+      >
+        <ExternalLink className="w-3.5 h-3.5" />
+        Gerenciar permissões nas configurações do celular
+      </button>
+    </section>
+  );
+}
 
 export default function PreferenciasTab() {
   const { data: surveyData, isLoading, error } = trpc.survey.get.useQuery();
@@ -189,6 +487,8 @@ export default function PreferenciasTab() {
 
   return (
     <div className="space-y-3">
+      <CentralPrivacidadeSocial />
+
       <p className="text-xs text-muted-foreground mb-4">
         Suas preferências gastronômicas — toque em <Pencil className="w-3 h-3 inline" /> para editar
       </p>
