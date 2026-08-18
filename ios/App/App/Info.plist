@@ -87,5 +87,7 @@
 	<string>O Avalyarin usa sua localização para mostrar os bares e restaurantes mais próximos de você no mapa.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>O Avalyarin usa sua localização para sugerir estabelecimentos próximos mesmo em segundo plano.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O Avalyarin precisa de acesso ao microfone para que você possa gravar e enviar áudios nos chats e grupos.</string>
 </dict>
 </plist>
