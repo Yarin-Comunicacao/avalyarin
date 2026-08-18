@@ -33,7 +33,9 @@ const soulHopsMenu = [
 async function main() {
   const uri = process.env.DATABASE_URL;
   if (!uri) throw new Error('DATABASE_URL ausente');
-  const ssl: any = uri.includes('tidbcloud.com') ? { rejectUnauthorized: true } : undefined;
+  const hostname = new URL(uri).hostname.toLowerCase();
+  const isTiDbCloudHost = hostname === 'tidbcloud.com' || hostname.endsWith('.tidbcloud.com');
+  const ssl: any = isTiDbCloudHost ? { rejectUnauthorized: true } : undefined;
   const connection = await mysql.createConnection({ uri, ssl });
 
   try {

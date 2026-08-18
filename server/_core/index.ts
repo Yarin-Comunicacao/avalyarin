@@ -115,11 +115,13 @@ async function startServer() {
       const fileName = String(req.headers["x-file-name"] || `rating-${Date.now()}`)
         .replace(/[^a-zA-Z0-9._-]/g, "-")
         .slice(0, 120);
-      const data = req.body as Buffer;
+      const rawBody = req.body;
+      if (!Buffer.isBuffer(rawBody) || rawBody.length === 0) {return res.status(400).json({error: "Nenhum arquivo enviado",});
+      }
+      const  data  =  rawBody ;
       const validType = mediaType === "image" || mediaType === "video";
       const validContentType = validType && (mediaType === "image" ? contentType.startsWith("image/") : contentType.startsWith("video/"));
       const maxBytes = mediaType === "video" ? 60 * 1024 * 1024 : 12 * 1024 * 1024;
-      if (!data || data.length === 0) return res.status(400).json({ error: "Nenhum arquivo enviado" });
       if (!validContentType) return res.status(415).json({ error: "Formato de mídia não suportado" });
       if (data.length > maxBytes) return res.status(413).json({ error: "Arquivo maior que o limite permitido" });
       if (mediaType === "video" && durationHeader > 61) return res.status(422).json({ error: "Vídeos de avaliações devem ter até 60 segundos" });

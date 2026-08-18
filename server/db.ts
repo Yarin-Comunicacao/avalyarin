@@ -70,8 +70,15 @@ export async function getDb() {
       const sslOptions: any = {};
       if (sslCa && fs.existsSync(sslCa)) {
         sslOptions.ssl = { ca: fs.readFileSync(sslCa) };
-      } else if (process.env.DATABASE_URL.includes("tidbcloud.com")) {
-        sslOptions.ssl = { rejectUnauthorized: true };
+      } else {
+        try {
+          const dbHost = new URL(process.env.DATABASE_URL).hostname.toLowerCase();
+          if (dbHost === "tidbcloud.com" || dbHost.endsWith(".tidbcloud.com")) {
+            sslOptions.ssl = { rejectUnauthorized: true };
+          }
+        } catch {
+          // Ignore invalid DATABASE_URL here; connection creation will surface the error.
+        }
       }
       const pool = mysql.createPool({
         uri: process.env.DATABASE_URL,

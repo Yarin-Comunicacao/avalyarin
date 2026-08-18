@@ -5,9 +5,13 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required to run drizzle commands");
 }
 
+const { hostname } = new URL(connectionString);
+const isTiDBCloudHost =
+  hostname === "tidbcloud.com" || hostname.endsWith(".tidbcloud.com");
+
 // TiDB Cloud requires SSL - append ssl parameter if not already present
 let dbUrl = connectionString;
-if (connectionString.includes("tidbcloud.com") && !connectionString.includes("ssl=")) {
+if (isTiDBCloudHost && !connectionString.includes("ssl=")) {
   const separator = connectionString.includes("?") ? "&" : "?";
   dbUrl = `${connectionString}${separator}ssl={"rejectUnauthorized":true}`;
 }
