@@ -748,11 +748,48 @@ export const appRouter = router({
         return await getUserRatings(input.userId, input.limit, input.offset);
       }),
 
+    tagFriends: protectedProcedure
+      .input(z.object({ ratingId: z.number(), taggedUserIds: z.array(z.number()).max(20) }))
+      .mutation(async ({ ctx, input }) => {
+        const { tagUsersInRating } = await import("./db");
+        return await tagUsersInRating(input.ratingId, ctx.user!.id, input.taggedUserIds);
+      }),
+
+    pendingTagNotifications: protectedProcedure
+      .input(z.object({ limit: z.number().min(1).max(100).default(50), status: z.enum(["pending", "accepted", "hidden"]).default("pending") }).optional())
+      .query(async ({ ctx, input }) => {
+        const { getPendingRatingTags } = await import("./db");
+        return await getPendingRatingTags(ctx.user!.id, input?.limit || 50, input?.status || "pending");
+      }),
+
+    respondToTag: protectedProcedure
+      .input(z.object({ tagId: z.number(), response: z.enum(["accepted", "declined", "hidden", "removed"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const { respondToRatingTag } = await import("./db");
+        return await respondToRatingTag(input.tagId, ctx.user!.id, input.response);
+      }),
+
+    ratingParticipants: publicProcedure
+      .input(z.object({ ratingId: z.number() }))
+      .query(async ({ input }) => {
+        const { getRatingParticipants } = await import("./db");
+        return await getRatingParticipants(input.ratingId);
+      }),
+
+    participantSuggestions: protectedProcedure
+      .input(z.object({ ratingId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { getRatingParticipantSuggestions } = await import("./db");
+        return await getRatingParticipantSuggestions(input.ratingId, ctx.user!.id);
+      }),
+
     uploadPhoto: protectedProcedure
       .input(z.object({
         ratingId: z.number(),
         base64Data: z.string(), // base64-encoded image
         mimeType: z.string().default("image/jpeg"),
+        mediaType: z.enum(["image", "video"]).default("image"),
+        durationSeconds: z.number().min(0).max(60).optional(),
         taggedItemIds: z.array(z.string()).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -763,11 +800,17 @@ export const appRouter = router({
         const { storagePut } = await import("./storage");
         const { key: storageKey, url } = await storagePut(key, buffer, input.mimeType);
         const { saveRatingPhoto } = await import("./db");
+        if (input.mediaType === "video" && (input.durationSeconds || 0) > 60) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Vídeos de avaliações devem ter até 60 segundos." });
+        }
         const savedPhoto = await saveRatingPhoto({
           ratingId: input.ratingId,
           userId,
           storageKey,
           url,
+          mediaType: input.mediaType,
+          durationSeconds: input.durationSeconds,
+          mimeType: input.mimeType,
           taggedItemIds: input.taggedItemIds,
         });
 
@@ -844,6 +887,44 @@ export const appRouter = router({
         }
 
         return savedPhoto;
+      }),
+
+    registerUploadedMedia: protectedProcedure
+      .input(z.object({
+        ratingId: z.number(),
+        url: z.string().url(),
+        storageKey: z.string().max(512),
+        mediaType: z.enum(["image", "video"]),
+        mimeType: z.string().max(100),
+        durationSeconds: z.number().min(0).max(60).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (input.mediaType === "video" && (input.durationSeconds || 0) > 60) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Vídeos de avaliações devem ter até 60 segundos." });
+        }
+        const { getDb, saveRatingPhoto } = await import("./db");
+        const { ratings } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = await getDb();
+        const [rating] = await db!.select({ userId: ratings.userId }).from(ratings).where(eq(ratings.id, input.ratingId)).limit(1);
+        if (!rating) throw new TRPCError({ code: "NOT_FOUND", message: "Avaliação não encontrada." });
+        if (rating.userId !== ctx.user!.id) throw new TRPCError({ code: "FORBIDDEN", message: "Apenas o autor pode adicionar mídia." });
+        return await saveRatingPhoto({
+          ratingId: input.ratingId,
+          userId: ctx.user!.id,
+          storageKey: input.storageKey,
+          url: input.url,
+          mediaType: input.mediaType,
+          mimeType: input.mimeType,
+          durationSeconds: input.durationSeconds,
+        });
+      }),
+
+    reorderPhotos: protectedProcedure
+      .input(z.object({ ratingId: z.number(), photoIds: z.array(z.number()).min(1).max(30) }))
+      .mutation(async ({ ctx, input }) => {
+        const { reorderRatingPhotos } = await import("./db");
+        return await reorderRatingPhotos(input.ratingId, ctx.user!.id, input.photoIds);
       }),
 
     uploadVenuePhoto: protectedProcedure
@@ -2696,14 +2777,27 @@ export const appRouter = router({
       .input(z.object({
         groupId: z.number(),
         content: z.string().min(1).max(140),
-        type: z.enum(["text", "share_rating", "share_establishment", "share_profile", "event", "reservation"]).default("text"),
+        type: z.enum(["text", "audio", "image", "video", "share_rating", "share_establishment", "share_profile", "event", "reservation"]).default("text"),
+        mediaUrl: z.string().url().optional(),
+        mediaStorageKey: z.string().max(512).optional(),
+        mediaMimeType: z.string().max(100).optional(),
+        mediaDurationSeconds: z.number().min(0).max(180).optional(),
+        mediaSizeBytes: z.number().int().positive().max(60 * 1024 * 1024).optional(),
+        mediaThumbnailUrl: z.string().url().optional(),
         referenceId: z.number().optional(),
         referenceSlug: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const isMember = await isGroupMember(input.groupId, ctx.user!.id);
         if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo" });
-        const msgId = await sendGroupMessage(input.groupId, ctx.user!.id, input.content, input.type, input.referenceId, input.referenceSlug);
+        const msgId = await sendGroupMessage(input.groupId, ctx.user!.id, input.content, input.type, input.referenceId, input.referenceSlug, {
+          mediaUrl: input.mediaUrl,
+          mediaStorageKey: input.mediaStorageKey,
+          mediaMimeType: input.mediaMimeType,
+          mediaDurationSeconds: input.mediaDurationSeconds,
+          mediaSizeBytes: input.mediaSizeBytes,
+          mediaThumbnailUrl: input.mediaThumbnailUrl,
+        });
         return { id: msgId };
       }),
     // List messages from group chat
@@ -2728,14 +2822,27 @@ export const appRouter = router({
         groupId: z.number(),
         content: z.string().min(1).max(140),
         replyToId: z.number().optional(),
-        type: z.enum(["text", "share_rating", "share_establishment", "share_profile", "event", "reservation"]).default("text"),
+        type: z.enum(["text", "audio", "image", "video", "share_rating", "share_establishment", "share_profile", "event", "reservation"]).default("text"),
+        mediaUrl: z.string().url().optional(),
+        mediaStorageKey: z.string().max(512).optional(),
+        mediaMimeType: z.string().max(100).optional(),
+        mediaDurationSeconds: z.number().min(0).max(180).optional(),
+        mediaSizeBytes: z.number().int().positive().max(60 * 1024 * 1024).optional(),
+        mediaThumbnailUrl: z.string().url().optional(),
         referenceId: z.number().optional(),
         referenceSlug: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const isMember = await isGroupMember(input.groupId, ctx.user!.id);
         if (!isMember) throw new TRPCError({ code: "FORBIDDEN", message: "Você não é membro deste grupo" });
-        const msgId = await sendGroupMessageWithReply(input.groupId, ctx.user!.id, input.content, input.replyToId, input.type, input.referenceId, input.referenceSlug);
+        const msgId = await sendGroupMessageWithReply(input.groupId, ctx.user!.id, input.content, input.replyToId, input.type, input.referenceId, input.referenceSlug, {
+          mediaUrl: input.mediaUrl,
+          mediaStorageKey: input.mediaStorageKey,
+          mediaMimeType: input.mediaMimeType,
+          mediaDurationSeconds: input.mediaDurationSeconds,
+          mediaSizeBytes: input.mediaSizeBytes,
+          mediaThumbnailUrl: input.mediaThumbnailUrl,
+        });
         return { id: msgId };
       }),
     // React to a message
@@ -5245,11 +5352,29 @@ export const appRouter = router({
         return await getDirectMessages(ctx.user!.id, input.partnerId, input.limit, input.offset);
       }),
     dmSend: protectedProcedure
-      .input(z.object({ recipientId: z.number(), content: z.string().min(1).max(500) }))
+      .input(z.object({
+        recipientId: z.number(),
+        content: z.string().min(1).max(500),
+        type: z.enum(["text", "audio", "image", "video"]).default("text"),
+        mediaUrl: z.string().url().optional(),
+        mediaStorageKey: z.string().max(512).optional(),
+        mediaMimeType: z.string().max(100).optional(),
+        mediaDurationSeconds: z.number().min(0).max(180).optional(),
+        mediaSizeBytes: z.number().int().positive().max(60 * 1024 * 1024).optional(),
+        mediaThumbnailUrl: z.string().url().optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         const mutual = await isMutualFollow(ctx.user!.id, input.recipientId);
         if (!mutual) throw new TRPCError({ code: "FORBIDDEN", message: "Chat disponível apenas entre seguidores mútuos." });
-        const id = await sendDirectMessage(ctx.user!.id, input.recipientId, input.content);
+        const id = await sendDirectMessage(ctx.user!.id, input.recipientId, input.content, {
+          type: input.type,
+          mediaUrl: input.mediaUrl,
+          mediaStorageKey: input.mediaStorageKey,
+          mediaMimeType: input.mediaMimeType,
+          mediaDurationSeconds: input.mediaDurationSeconds,
+          mediaSizeBytes: input.mediaSizeBytes,
+          mediaThumbnailUrl: input.mediaThumbnailUrl,
+        });
         return { id };
       }),
     dmMarkRead: protectedProcedure

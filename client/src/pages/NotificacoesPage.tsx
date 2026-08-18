@@ -102,7 +102,7 @@ const PREFERENCE_SURVEYS = [
   },
 ];
 
-type Tab = "badges" | "pesquisas" | "solicitacoes" | "convites" | "mensagens";
+type Tab = "badges" | "pesquisas" | "solicitacoes" | "marcacoes" | "convites" | "mensagens";
 
 // ─── Group Notifications Tab ─────────────────────────────────────────────────
 function GroupNotificationsTab() {
@@ -211,6 +211,66 @@ function GroupNotificationsTab() {
   );
 }
 
+function RatingTagNotificationsTab() {
+  const { data: tags, isLoading } = trpc.ratings.pendingTagNotifications.useQuery({ status: "pending", limit: 50 });
+  const { data: acceptedTags } = trpc.ratings.pendingTagNotifications.useQuery({ status: "accepted", limit: 50 });
+  const utils = trpc.useUtils();
+  const respondMutation = trpc.ratings.respondToTag.useMutation({
+    onSuccess: (_data, variables) => {
+      toast.success(variables.response === "accepted" ? "Avaliação adicionada à sua galeria!" : variables.response === "removed" ? "Seu nome foi retirado da avaliação." : "Marcação ocultada.");
+      utils.ratings.pendingTagNotifications.invalidate();
+      utils.ratings.myGallery.invalidate();
+      utils.ratings.userGallery.invalidate();
+    },
+    onError: (error) => toast.error(error.message || "Não foi possível atualizar a marcação."),
+  });
+
+  return (
+    <motion.div key="marcacoes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">Avaliações compartilhadas</h3>
+        <p className="text-xs text-muted-foreground">Você decide individualmente se uma avaliação em que foi marcado aparece na sua galeria.</p>
+      </div>
+      {isLoading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div> : !tags || tags.length === 0 ? (
+        <div className="text-center py-10 bg-secondary/20 rounded-xl border border-border/20"><Users className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" /><p className="text-sm text-muted-foreground">Nenhuma marcação pendente</p></div>
+      ) : (
+        <div className="space-y-3">
+          {tags.map((tag: any) => (
+            <div key={tag.id} className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0"><Users className="w-5 h-5 text-primary" /></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground"><strong>{tag.taggedByName || "Um amigo"}</strong> marcou você em uma avaliação</p>
+                  <p className="text-xs text-primary mt-1">{tag.establishmentName}</p>
+                  {tag.visitDate && <p className="text-[11px] text-muted-foreground mt-1">Visita em {new Date(tag.visitDate).toLocaleDateString("pt-BR")}</p>}
+                </div>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <Button size="sm" onClick={() => respondMutation.mutate({ tagId: tag.id, response: "accepted" })} disabled={respondMutation.isPending}><Check className="w-4 h-4 mr-1" /> Aceitar e adicionar</Button>
+                <Button size="sm" variant="outline" onClick={() => respondMutation.mutate({ tagId: tag.id, response: "hidden" })} disabled={respondMutation.isPending}><X className="w-4 h-4 mr-1" /> Ocultar</Button>
+                <Link href={`/estabelecimento/${tag.establishmentSlug}`}><Button size="sm" variant="ghost">Ver local</Button></Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {acceptedTags && acceptedTags.length > 0 && (
+        <div className="pt-4 border-t border-border/30">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">Compartilhamentos aceitos</h3>
+          <div className="space-y-2">
+            {acceptedTags.map((tag: any) => (
+              <div key={tag.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-card border border-border/40">
+                <p className="text-xs text-foreground"><strong>{tag.establishmentName}</strong> · marcado por {tag.taggedByName || "um amigo"}</p>
+                <Button size="sm" variant="outline" onClick={() => respondMutation.mutate({ tagId: tag.id, response: "removed" })} disabled={respondMutation.isPending}>Retirar meu nome</Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 export default function NotificacoesPage() {
   const { user, loading: authLoading } = useAuth();
   const utils = trpc.useUtils();
@@ -261,6 +321,8 @@ export default function NotificacoesPage() {
   // Group invites count
   const { data: groupInvites } = trpc.groups.pendingInvites.useQuery();
   const groupInviteCount = groupInvites?.length || 0;
+  const { data: pendingRatingTags } = trpc.ratings.pendingTagNotifications.useQuery({ status: "pending", limit: 50 });
+  const ratingTagCount = pendingRatingTags?.length || 0;
 
   // DM unread count
   const { data: dmConversations } = trpc.social.dmConversations.useQuery();
@@ -322,6 +384,7 @@ export default function NotificacoesPage() {
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { id: "solicitacoes", label: "Solicitações", icon: <UserPlus className="w-4 h-4" />, badge: pendingCount || 0 },
+    { id: "marcacoes", label: "Avaliações", icon: <Star className="w-4 h-4" />, badge: ratingTagCount },
     { id: "convites", label: "Grupos", icon: <Users className="w-4 h-4" />, badge: groupInviteCount },
     { id: "mensagens", label: "Mensagens", icon: <MessageSquare className="w-4 h-4" />, badge: unreadDMCount },
     { id: "badges", label: "Badges", icon: <Trophy className="w-4 h-4" /> },
@@ -367,6 +430,8 @@ export default function NotificacoesPage() {
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
+          {activeTab === "marcacoes" && <RatingTagNotificationsTab />}
+
           {activeTab === "solicitacoes" && (
             <motion.div
               key="solicitacoes"

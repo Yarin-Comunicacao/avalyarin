@@ -8,6 +8,8 @@ import {
   MoreHorizontal, Reply, Smile, Pin, X, PinOff, BarChart3, Check
 } from "lucide-react";
 import { Link } from "wouter";
+import ChatMediaControls from "@/components/ChatMediaControls";
+import type { ChatMediaKind, UploadedChatMedia } from "@/lib/chat-media";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
@@ -102,6 +104,22 @@ export default function GroupChat({ groupId, groupType }: GroupChatProps) {
       content: trimmed,
       replyToId: replyTo?.id,
     });
+  };
+
+  const handleSendMedia = async (kind: ChatMediaKind, media: UploadedChatMedia) => {
+    const labels: Record<ChatMediaKind, string> = { audio: "Áudio", image: "Foto", video: "Vídeo" };
+    await sendMutation.mutateAsync({
+      groupId,
+      content: `📎 ${labels[kind]}`,
+      type: kind,
+      replyToId: replyTo?.id,
+      mediaUrl: media.url,
+      mediaStorageKey: media.key,
+      mediaMimeType: media.mimeType,
+      mediaDurationSeconds: media.durationSeconds || undefined,
+      mediaSizeBytes: media.sizeBytes,
+    });
+    setReplyTo(null);
   };
 
   const handleReact = (messageId: number, emoji: string) => {
@@ -269,7 +287,15 @@ export default function GroupChat({ groupId, groupType }: GroupChatProps) {
                     )}
 
                     {/* Content */}
-                    {msg.type === "poll" && msg.referenceId ? (
+                    {msg.type === "image" && msg.mediaUrl ? (
+                      <a href={msg.mediaUrl} target="_blank" rel="noreferrer" className="block">
+                        <img src={msg.mediaUrl} alt="Imagem enviada no chat" className="max-w-full max-h-64 rounded-lg object-cover" loading="lazy" />
+                      </a>
+                    ) : msg.type === "video" && msg.mediaUrl ? (
+                      <video src={msg.mediaUrl} controls playsInline className="max-w-full max-h-72 rounded-lg" />
+                    ) : msg.type === "audio" && msg.mediaUrl ? (
+                      <audio src={msg.mediaUrl} controls className="max-w-full" />
+                    ) : msg.type === "poll" && msg.referenceId ? (
                       <InlinePollCard pollId={msg.referenceId} />
                     ) : (msg.type === "event" || msg.type === "reservation") && msg.referenceId ? (
                       <InlineEventCard eventId={msg.referenceId} type={msg.type} />
@@ -413,7 +439,8 @@ export default function GroupChat({ groupId, groupType }: GroupChatProps) {
       {/* Input */}
       {canSend ? (
         <>
-          <div className="border-t border-border/30 p-3 flex gap-2">
+          <div className="border-t border-border/30 p-3 flex items-center gap-2">
+            <ChatMediaControls onSendMedia={handleSendMedia} disabled={sendMutation.isPending} videoMaxSeconds={90} />
             <input
               type="text"
               value={message}

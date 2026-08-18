@@ -337,6 +337,13 @@
       "when": 1786560769677,
       "tag": "0047_parallel_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "5",
+      "when": 1787015000000,
+      "tag": "0048_social_media_and_rating_tags",
+      "breakpoints": true
     }
   ]
 }

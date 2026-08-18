@@ -4,7 +4,17 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 
 // ==================== GROUP MESSAGES ====================
 
-export async function sendGroupMessage(groupId: number, senderId: number, content: string, type: "text" | "share_rating" | "share_establishment" | "share_profile" | "event" | "reservation" = "text", referenceId?: number, referenceSlug?: string) {
+type GroupMessageType = "text" | "audio" | "image" | "video" | "share_rating" | "share_establishment" | "share_profile" | "event" | "reservation";
+type MessageMediaInput = {
+  mediaUrl?: string;
+  mediaStorageKey?: string;
+  mediaMimeType?: string;
+  mediaDurationSeconds?: number;
+  mediaSizeBytes?: number;
+  mediaThumbnailUrl?: string;
+};
+
+export async function sendGroupMessage(groupId: number, senderId: number, content: string, type: GroupMessageType = "text", referenceId?: number, referenceSlug?: string, media?: MessageMediaInput) {
   const db = (await getDb())!;
   const [result] = await db.insert(groupMessages).values({
     groupId,
@@ -13,6 +23,12 @@ export async function sendGroupMessage(groupId: number, senderId: number, conten
     type,
     referenceId: referenceId || null,
     referenceSlug: referenceSlug || null,
+    mediaUrl: media?.mediaUrl || null,
+    mediaStorageKey: media?.mediaStorageKey || null,
+    mediaMimeType: media?.mediaMimeType || null,
+    mediaDurationSeconds: media?.mediaDurationSeconds || null,
+    mediaSizeBytes: media?.mediaSizeBytes || null,
+    mediaThumbnailUrl: media?.mediaThumbnailUrl || null,
   });
   // Update group's updatedAt to sort by last activity
   await db.update(groups).set({ updatedAt: new Date() }).where(eq(groups.id, groupId));
@@ -31,6 +47,12 @@ export async function getGroupMessages(groupId: number, limit = 50, offset = 0) 
       senderRole: users.role,
       content: groupMessages.content,
       type: groupMessages.type,
+      mediaUrl: groupMessages.mediaUrl,
+      mediaStorageKey: groupMessages.mediaStorageKey,
+      mediaMimeType: groupMessages.mediaMimeType,
+      mediaDurationSeconds: groupMessages.mediaDurationSeconds,
+      mediaSizeBytes: groupMessages.mediaSizeBytes,
+      mediaThumbnailUrl: groupMessages.mediaThumbnailUrl,
       referenceId: groupMessages.referenceId,
       referenceSlug: groupMessages.referenceSlug,
       createdAt: groupMessages.createdAt,

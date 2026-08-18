@@ -736,11 +736,35 @@ export const ratingPhotos = mysqlTable("rating_photos", {
   userId: int("userId").notNull(),
   storageKey: varchar("storageKey", { length: 512 }).notNull(),
   url: varchar("url", { length: 512 }).notNull(),
+  mediaType: mysqlEnum("mediaType", ["image", "video"]).default("image").notNull(),
+  position: int("position").default(0).notNull(),
+  durationSeconds: int("durationSeconds"),
+  mimeType: varchar("mimeType", { length: 100 }),
   taggedItemIds: text("taggedItemIds"), // JSON array of menu item IDs
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type RatingPhoto = typeof ratingPhotos.$inferSelect;
 export type InsertRatingPhoto = typeof ratingPhotos.$inferInsert;
+
+// ============================================================
+// Rating Tags — marcações de pessoas presentes na avaliação
+// ============================================================
+export const ratingTags = mysqlTable("rating_tags", {
+  id: int("id").autoincrement().primaryKey(),
+  ratingId: int("ratingId").notNull(),
+  taggedUserId: int("taggedUserId").notNull(),
+  taggedById: int("taggedById").notNull(),
+  status: mysqlEnum("status", ["pending", "accepted", "declined", "hidden", "removed"]).default("pending").notNull(),
+  visibleOnProfile: boolean("visibleOnProfile").default(false).notNull(),
+  notifiedAt: timestamp("notifiedAt"),
+  respondedAt: timestamp("respondedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  ratingTaggedUserUnique: unique("ratingTagsRatingUserUnique").on(table.ratingId, table.taggedUserId),
+}));
+export type RatingTag = typeof ratingTags.$inferSelect;
+export type InsertRatingTag = typeof ratingTags.$inferInsert;
 
 // ============================================================
 // Photo Verifications — resultados da verificação de fotos por IA
@@ -812,8 +836,14 @@ export const groupMessages = mysqlTable("group_messages", {
   groupId: int("groupId").notNull(),
   senderId: int("senderId").notNull(),
   content: varchar("content", { length: 140 }).notNull(),
-  // Tipo especial para compartilhamentos (avaliação, estabelecimento, perfil, enquete)
-  type: mysqlEnum("type", ["text", "share_rating", "share_establishment", "share_profile", "poll", "event", "reservation"]).default("text").notNull(),
+  // Texto, mídia ou compartilhamento estruturado.
+  type: mysqlEnum("type", ["text", "audio", "image", "video", "share_rating", "share_establishment", "share_profile", "poll", "event", "reservation"]).default("text").notNull(),
+  mediaUrl: text("mediaUrl"),
+  mediaStorageKey: varchar("mediaStorageKey", { length: 512 }),
+  mediaMimeType: varchar("mediaMimeType", { length: 100 }),
+  mediaDurationSeconds: int("mediaDurationSeconds"),
+  mediaSizeBytes: int("mediaSizeBytes"),
+  mediaThumbnailUrl: text("mediaThumbnailUrl"),
   referenceId: int("referenceId"), // ID do item compartilhado (ratingId, establishmentId, userId, pollId)
   referenceSlug: varchar("referenceSlug", { length: 255 }), // slug para link direto
   replyToId: int("replyToId"), // ID da mensagem sendo respondida
@@ -887,6 +917,13 @@ export const directMessages = mysqlTable("direct_messages", {
   senderId: int("senderId").notNull(),
   recipientId: int("recipientId").notNull(),
   content: varchar("content", { length: 500 }).notNull(),
+  type: mysqlEnum("type", ["text", "audio", "image", "video"]).default("text").notNull(),
+  mediaUrl: text("mediaUrl"),
+  mediaStorageKey: varchar("mediaStorageKey", { length: 512 }),
+  mediaMimeType: varchar("mediaMimeType", { length: 100 }),
+  mediaDurationSeconds: int("mediaDurationSeconds"),
+  mediaSizeBytes: int("mediaSizeBytes"),
+  mediaThumbnailUrl: text("mediaThumbnailUrl"),
   isRead: boolean("isRead").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

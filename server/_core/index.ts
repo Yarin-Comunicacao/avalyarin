@@ -10,6 +10,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
+import { sdk } from "./sdk";
 import sharp from "sharp";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -60,6 +61,77 @@ async function startServer() {
       return res.status(500).json({ error: "Upload failed" });
     }
   });
+  // Chat media upload — raw binary for audio, images and short videos.
+  // The client supplies duration metadata; limits are enforced again here.
+  app.post("/api/upload-chat-media", express.raw({ type: "*/*", limit: "60mb" }), async (req, res) => {
+    try {
+      try { await sdk.authenticateRequest(req); } catch { return res.status(401).json({ error: "Login necessário para enviar mídia" }); }
+      const mediaType = String(req.headers["x-media-type"] || "");
+      const contentType = String(req.headers["content-type"] || "application/octet-stream");
+      const durationHeader = Number(req.headers["x-media-duration"] || 0);
+      const fileName = String(req.headers["x-file-name"] || `chat-${Date.now()}`)
+        .replace(/[^a-zA-Z0-9._-]/g, "-")
+        .slice(0, 120);
+      const data = req.body as Buffer;
+      const allowedTypes: Record<string, string[]> = {
+        audio: ["audio/", "video/webm", "video/mp4"],
+        image: ["image/"],
+        video: ["video/"],
+      };
+      const validMediaType = mediaType === "audio" || mediaType === "image" || mediaType === "video";
+      const validContentType = validMediaType && allowedTypes[mediaType].some((prefix) => contentType.startsWith(prefix));
+      const maxBytes = mediaType === "video" ? 60 * 1024 * 1024 : mediaType === "image" ? 12 * 1024 * 1024 : 15 * 1024 * 1024;
+      const maxDuration = mediaType === "video" ? 90 : mediaType === "audio" ? 180 : 0;
+
+      if (!data || data.length === 0) return res.status(400).json({ error: "Nenhum arquivo enviado" });
+      if (!validContentType) return res.status(415).json({ error: "Formato de mídia não suportado" });
+      if (data.length > maxBytes) return res.status(413).json({ error: "Arquivo maior que o limite permitido" });
+      if (maxDuration > 0 && durationHeader > maxDuration + 1) {
+        return res.status(422).json({ error: `A duração máxima é de ${maxDuration} segundos` });
+      }
+
+      const key = `chat-media/${mediaType}/${Date.now()}-${fileName}`;
+      const result = await storagePut(key, data, contentType);
+      return res.json({
+        url: result.url,
+        key: result.key,
+        mimeType: contentType,
+        durationSeconds: durationHeader || null,
+        sizeBytes: data.length,
+      });
+    } catch (error: any) {
+      console.error("[Chat Media Upload] Error:", error);
+      return res.status(500).json({ error: "Não foi possível enviar a mídia" });
+    }
+  });
+
+  // Rating media upload — images and videos up to 60 seconds.
+  app.post("/api/upload-rating-media", express.raw({ type: "*/*", limit: "60mb" }), async (req, res) => {
+    try {
+      try { await sdk.authenticateRequest(req); } catch { return res.status(401).json({ error: "Login necessário para enviar mídia" }); }
+      const mediaType = String(req.headers["x-media-type"] || "");
+      const contentType = String(req.headers["content-type"] || "application/octet-stream");
+      const durationHeader = Number(req.headers["x-media-duration"] || 0);
+      const fileName = String(req.headers["x-file-name"] || `rating-${Date.now()}`)
+        .replace(/[^a-zA-Z0-9._-]/g, "-")
+        .slice(0, 120);
+      const data = req.body as Buffer;
+      const validType = mediaType === "image" || mediaType === "video";
+      const validContentType = validType && (mediaType === "image" ? contentType.startsWith("image/") : contentType.startsWith("video/"));
+      const maxBytes = mediaType === "video" ? 60 * 1024 * 1024 : 12 * 1024 * 1024;
+      if (!data || data.length === 0) return res.status(400).json({ error: "Nenhum arquivo enviado" });
+      if (!validContentType) return res.status(415).json({ error: "Formato de mídia não suportado" });
+      if (data.length > maxBytes) return res.status(413).json({ error: "Arquivo maior que o limite permitido" });
+      if (mediaType === "video" && durationHeader > 61) return res.status(422).json({ error: "Vídeos de avaliações devem ter até 60 segundos" });
+      const key = `ratings/media/${Date.now()}-${fileName}`;
+      const result = await storagePut(key, data, contentType);
+      return res.json({ url: result.url, key: result.key, mimeType: contentType, durationSeconds: durationHeader || null, sizeBytes: data.length });
+    } catch (error: any) {
+      console.error("[Rating Media Upload] Error:", error);
+      return res.status(500).json({ error: "Não foi possível enviar a mídia da avaliação" });
+    }
+  });
+
   // Menu image upload endpoint — converts to WebP (thumbnail 400x400 + full 1200x1200)
   app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
     try {

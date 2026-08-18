@@ -27,6 +27,7 @@ import { ptBR } from "react-day-picker/locale";
 import TimeRoulette from "@/components/TimeRoulette";
 import { parseEstablishmentHours, isDayOpen, isTimeValid } from "@/lib/parseHours";
 import { processPhotoFile, getMimeFromDataUrl } from "@/lib/photoUtils";
+import { getMediaDuration, uploadRatingMedia } from "@/lib/chat-media";
 import {
   Check, ChevronRight, ChevronLeft, Star, Zap, BarChart3,
   ShoppingBag, ClipboardCheck, ThumbsUp, ThumbsDown, Users,
@@ -46,6 +47,9 @@ interface PhotoWithTags {
   id: string;
   dataUrl: string;
   taggedItemIds: string[];
+  file?: File;
+  mediaType?: "image" | "video";
+  durationSeconds?: number;
 }
 
 interface SpendData {
@@ -425,7 +429,9 @@ export default function RatingPage() {
   const utils = trpc.useUtils();
   const saveRatingMutation = trpc.ratings.save.useMutation();
   const uploadPhotoMutation = trpc.ratings.uploadPhoto.useMutation();
+  const registerUploadedMediaMutation = trpc.ratings.registerUploadedMedia.useMutation();
   const uploadVenuePhotoMutation = trpc.ratings.uploadVenuePhoto.useMutation();
+  const tagFriendsMutation = trpc.ratings.tagFriends.useMutation();
   
   const { data: estData, isLoading: estLoading } = trpc.establishments.getWithMenu.useQuery(
     { slug: establishmentId || "" },
@@ -610,6 +616,35 @@ export default function RatingPage() {
   const [itemComments, setItemComments] = useState<ItemComment[]>([]);
   const [photos, setPhotos] = useState<PhotoWithTags[]>([]);
   const [receiptPhoto, setReceiptPhoto] = useState<string | null>(null);
+  const [friendSearch, setFriendSearch] = useState("");
+  const [taggedFriendIds, setTaggedFriendIds] = useState<number[]>([]);
+  const { data: friendResults } = trpc.groups.searchFollowsForInvite.useQuery(
+    { query: friendSearch.trim() },
+    { enabled: friendSearch.trim().length >= 2 }
+  );
+
+  const addRatingMedia = useCallback(async (file: File, taggedItemIds: string[]) => {
+    try {
+      const isVideo = file.type.startsWith("video/");
+      const durationSeconds = isVideo ? await getMediaDuration(file) : 0;
+      if (isVideo && durationSeconds > 60.5) {
+        toast.error("Os vídeos das avaliações devem ter até 60 segundos.");
+        return;
+      }
+      const dataUrl = isVideo ? URL.createObjectURL(file) : await processPhotoFile(file);
+      setPhotos((previous) => [...previous, {
+        id: `media_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        dataUrl,
+        file: isVideo ? file : undefined,
+        mediaType: isVideo ? "video" : "image",
+        durationSeconds,
+        taggedItemIds,
+      }]);
+    } catch (error) {
+      console.error("[Rating Media] Processing failed:", error);
+      toast.error("Não foi possível processar esta mídia.");
+    }
+  }, []);
   const [photoTaggingId, setPhotoTaggingId] = useState<string | null>(null); // which photo is being tagged
   const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({}); // item id -> quantity
   const [venuePhotos, setVenuePhotos] = useState<Record<string, File | null>>({}); // criterion key -> photo file
@@ -1227,7 +1262,7 @@ export default function RatingPage() {
               <div className="flex gap-2 flex-wrap">
                 {itemPhotos.map((photo) => (
                   <div key={photo.id} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border/50">
-                    <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                    {photo.mediaType === "video" ? <video src={photo.dataUrl} muted playsInline className="w-full h-full object-cover" /> : <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />}
                     <button
                       onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
                       className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full flex items-center justify-center"
@@ -1248,13 +1283,7 @@ export default function RatingPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       try {
-                        const dataUrl = await processPhotoFile(file);
-                        const newPhoto: PhotoWithTags = {
-                          id: `photo_${Date.now()}`,
-                          dataUrl,
-                          taggedItemIds: [rating.itemId],
-                        };
-                        setPhotos(prev => [...prev, newPhoto]);
+                        await addRatingMedia(file, [rating.itemId]);
                       } catch (err) {
                         console.error("[Photo] Processing failed:", err);
                         toast.error("Erro ao processar foto");
@@ -1274,13 +1303,7 @@ export default function RatingPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       try {
-                        const dataUrl = await processPhotoFile(file);
-                        const newPhoto: PhotoWithTags = {
-                          id: `photo_${Date.now()}`,
-                          dataUrl,
-                          taggedItemIds: [rating.itemId],
-                        };
-                        setPhotos(prev => [...prev, newPhoto]);
+                        await addRatingMedia(file, [rating.itemId]);
                       } catch (err) {
                         console.error("[Photo] Processing failed:", err);
                         toast.error("Erro ao processar foto");
@@ -2012,7 +2035,7 @@ export default function RatingPage() {
                             <div className="flex gap-2 flex-wrap">
                               {itemPhotos.map((photo) => (
                                 <div key={photo.id} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border/50">
-                                  <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
+                                  {photo.mediaType === "video" ? <video src={photo.dataUrl} muted playsInline className="w-full h-full object-cover" /> : <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />}
                                   <button
                                     onClick={() => setPhotos(prev => prev.filter(p => p.id !== photo.id))}
                                     className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full flex items-center justify-center"
@@ -2026,20 +2049,14 @@ export default function RatingPage() {
                                 <span className="text-[8px] text-primary/60 mt-0.5">Câmera</span>
                                 <input
                                   type="file"
-                                  accept="image/*"
+                                  accept="image/*,video/*"
                                   capture="environment"
                                   className="hidden"
                                   onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     try {
-                                      const dataUrl = await processPhotoFile(file);
-                                      const newPhoto: PhotoWithTags = {
-                                        id: `photo_${Date.now()}`,
-                                        dataUrl,
-                                        taggedItemIds: [itemRating.itemId],
-                                      };
-                                      setPhotos(prev => [...prev, newPhoto]);
+                                      await addRatingMedia(file, [itemRating.itemId]);
                                     } catch (err) {
                                       console.error("[Photo] Processing failed:", err);
                                       toast.error("Erro ao processar foto");
@@ -2053,19 +2070,13 @@ export default function RatingPage() {
                                 <span className="text-[8px] text-primary/60 mt-0.5">Galeria</span>
                                 <input
                                   type="file"
-                                  accept="image/*"
+                                  accept="image/*,video/*"
                                   className="hidden"
                                   onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     try {
-                                      const dataUrl = await processPhotoFile(file);
-                                      const newPhoto: PhotoWithTags = {
-                                        id: `photo_${Date.now()}`,
-                                        dataUrl,
-                                        taggedItemIds: [itemRating.itemId],
-                                      };
-                                      setPhotos(prev => [...prev, newPhoto]);
+                                      await addRatingMedia(file, [itemRating.itemId]);
                                     } catch (err) {
                                       console.error("[Photo] Processing failed:", err);
                                       toast.error("Erro ao processar foto");
@@ -3256,6 +3267,47 @@ export default function RatingPage() {
                   </div>
                 </div>
 
+                {/* Friends shared on the review */}
+                <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="w-4 h-4 text-primary" />
+                    <h4 className="font-display text-lg tracking-wider text-foreground">QUEM ESTAVA COM VOCÊ?</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">Marque amigos que participaram da visita. Cada pessoa receberá um convite e decidirá se quer compartilhar esta avaliação no próprio perfil.</p>
+                  {taggedFriendIds.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {taggedFriendIds.map((id) => {
+                        const person = (friendResults || []).find((candidate: any) => candidate.id === id);
+                        return (
+                          <button key={id} type="button" onClick={() => setTaggedFriendIds((current) => current.filter((value) => value !== id))} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/15 border border-primary/30 text-xs text-primary">
+                            {person?.name || person?.username || `Pessoa ${id}`} <X className="w-3 h-3" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <input
+                    value={friendSearch}
+                    onChange={(event) => setFriendSearch(event.target.value)}
+                    placeholder="Buscar amigos pelo nome ou @username"
+                    className="w-full px-3 py-2.5 rounded-lg bg-background border border-border/40 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
+                  />
+                  {friendSearch.trim().length >= 2 && (friendResults?.length ?? 0) > 0 && (
+                    <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                      {friendResults!.slice(0, 8).map((person: any) => {
+                        const selected = taggedFriendIds.includes(person.id);
+                        return (
+                          <button key={person.id} type="button" onClick={() => setTaggedFriendIds((current) => selected ? current.filter((id) => id !== person.id) : [...current, person.id].slice(0, 20))} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-sm transition-colors ${selected ? "bg-primary/15 text-primary" : "bg-background/70 text-foreground hover:bg-primary/10"}`}>
+                            <span>{person.name || "Usuário"} <span className="text-muted-foreground">{person.username ? `@${person.username.replace(/^@/, "")}` : ""}</span></span>
+                            {selected && <Check className="w-4 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {friendSearch.trim().length >= 2 && friendResults && friendResults.length === 0 && <p className="text-xs text-muted-foreground mt-2">Nenhum amigo mútuo encontrado.</p>}
+                </div>
+
                 {/* Receipt Photo Section */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
@@ -3636,17 +3688,31 @@ export default function RatingPage() {
                           // Actually upload photos
                           for (const photo of photos) {
                             try {
-                              const base64 = photo.dataUrl.split(",")[1];
-                              if (base64) {
-                                await uploadPhotoMutation.mutateAsync({
+                              if (photo.file && photo.mediaType === "video") {
+                                const uploaded = await uploadRatingMedia(photo.file, "video", photo.durationSeconds || 0);
+                                await registerUploadedMediaMutation.mutateAsync({
                                   ratingId: savedRatingId,
-                                  base64Data: base64,
-                                  mimeType: getMimeFromDataUrl(photo.dataUrl),
-                                  taggedItemIds: photo.taggedItemIds,
+                                  url: uploaded.url,
+                                  storageKey: uploaded.key,
+                                  mediaType: "video",
+                                  mimeType: uploaded.mimeType,
+                                  durationSeconds: photo.durationSeconds,
                                 });
+                              } else {
+                                const base64 = photo.dataUrl.split(",")[1];
+                                if (base64) {
+                                  await uploadPhotoMutation.mutateAsync({
+                                    ratingId: savedRatingId,
+                                    base64Data: base64,
+                                    mimeType: getMimeFromDataUrl(photo.dataUrl),
+                                    mediaType: "image",
+                                    taggedItemIds: photo.taggedItemIds,
+                                  });
+                                }
                               }
                             } catch (e) {
-                              console.error("[Photo Upload] Failed:", e);
+                              console.error("[Rating Media Upload] Failed:", e);
+                              toast.error("Uma das mídias não pôde ser enviada.");
                             }
                           }
 
@@ -3681,6 +3747,15 @@ export default function RatingPage() {
                                 console.error(`[VenuePhoto] Failed to upload ${criterion}:`, e);
                               }
                             }
+                          }
+                        }
+
+                        if (savedRatingId && taggedFriendIds.length > 0) {
+                          try {
+                            await tagFriendsMutation.mutateAsync({ ratingId: savedRatingId, taggedUserIds: taggedFriendIds });
+                          } catch (error) {
+                            console.error("[Rating Tags] Failed:", error);
+                            toast.error("A avaliação foi salva, mas não foi possível enviar todas as marcações.");
                           }
                         }
 

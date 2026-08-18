@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import { ArrowLeft, Loader2, Send, MessageCircle, UserCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ChatMediaControls from "@/components/ChatMediaControls";
+import type { ChatMediaKind, UploadedChatMedia } from "@/lib/chat-media";
 
 // ============ DATE SEPARATOR HELPER ============
 function getDateLabel(date: Date): string {
@@ -220,6 +222,21 @@ function ChatPanel({ partnerUsername }: { partnerUsername: string }) {
     sendDM.mutate({ recipientId: partnerProfile.id, content: message.trim() });
   };
 
+  const handleSendMedia = async (kind: ChatMediaKind, media: UploadedChatMedia) => {
+    if (!partnerProfile?.id) return;
+    const labels: Record<ChatMediaKind, string> = { audio: "Áudio", image: "Foto", video: "Vídeo" };
+    await sendDM.mutateAsync({
+      recipientId: partnerProfile.id,
+      content: `📎 ${labels[kind]}`,
+      type: kind,
+      mediaUrl: media.url,
+      mediaStorageKey: media.key,
+      mediaMimeType: media.mimeType,
+      mediaDurationSeconds: media.durationSeconds || undefined,
+      mediaSizeBytes: media.sizeBytes,
+    });
+  };
+
   return (
     <>
       {/* Header */}
@@ -271,7 +288,15 @@ function ChatPanel({ partnerUsername }: { partnerUsername: string }) {
                       ? "bg-primary text-primary-foreground rounded-br-sm"
                       : "bg-secondary border border-border/30 text-foreground rounded-bl-sm"
                   }`}>
-                    <p className="break-words">{msg.content}</p>
+                    {msg.type === "image" && msg.mediaUrl ? (
+                      <a href={msg.mediaUrl} target="_blank" rel="noreferrer"><img src={msg.mediaUrl} alt="Imagem enviada" className="max-w-full max-h-64 rounded-lg object-cover" loading="lazy" /></a>
+                    ) : msg.type === "video" && msg.mediaUrl ? (
+                      <video src={msg.mediaUrl} controls playsInline className="max-w-full max-h-72 rounded-lg" />
+                    ) : msg.type === "audio" && msg.mediaUrl ? (
+                      <audio src={msg.mediaUrl} controls className="max-w-full" />
+                    ) : (
+                      <p className="break-words">{msg.content}</p>
+                    )}
                     <span className={`text-[9px] mt-0.5 block ${isMe ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
                       {msgDate ? msgDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
                     </span>
@@ -285,7 +310,8 @@ function ChatPanel({ partnerUsername }: { partnerUsername: string }) {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border/30 p-3 flex gap-2">
+      <div className="border-t border-border/30 p-3 flex items-center gap-2">
+        <ChatMediaControls onSendMedia={handleSendMedia} disabled={sendDM.isPending} videoMaxSeconds={90} />
         <input
           type="text"
           value={message}
@@ -436,6 +462,21 @@ function MobileDirectChat({ partnerUsername }: { partnerUsername: string }) {
     sendDM.mutate({ recipientId: partnerProfile.id, content: message.trim() });
   };
 
+  const handleSendMedia = async (kind: ChatMediaKind, media: UploadedChatMedia) => {
+    if (!partnerProfile?.id) return;
+    const labels: Record<ChatMediaKind, string> = { audio: "Áudio", image: "Foto", video: "Vídeo" };
+    await sendDM.mutateAsync({
+      recipientId: partnerProfile.id,
+      content: `📎 ${labels[kind]}`,
+      type: kind,
+      mediaUrl: media.url,
+      mediaStorageKey: media.key,
+      mediaMimeType: media.mimeType,
+      mediaDurationSeconds: media.durationSeconds || undefined,
+      mediaSizeBytes: media.sizeBytes,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -492,7 +533,15 @@ function MobileDirectChat({ partnerUsername }: { partnerUsername: string }) {
                         ? "bg-primary text-primary-foreground rounded-br-sm"
                         : "bg-secondary border border-border/30 text-foreground rounded-bl-sm"
                     }`}>
-                      <p className="break-words">{msg.content}</p>
+                      {msg.type === "image" && msg.mediaUrl ? (
+                        <a href={msg.mediaUrl} target="_blank" rel="noreferrer"><img src={msg.mediaUrl} alt="Imagem enviada" className="max-w-full max-h-64 rounded-lg object-cover" loading="lazy" /></a>
+                      ) : msg.type === "video" && msg.mediaUrl ? (
+                        <video src={msg.mediaUrl} controls playsInline className="max-w-full max-h-72 rounded-lg" />
+                      ) : msg.type === "audio" && msg.mediaUrl ? (
+                        <audio src={msg.mediaUrl} controls className="max-w-full" />
+                      ) : (
+                        <p className="break-words">{msg.content}</p>
+                      )}
                       <span className={`text-[9px] mt-0.5 block ${isMe ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
                         {msgDate ? msgDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
                       </span>
@@ -506,7 +555,8 @@ function MobileDirectChat({ partnerUsername }: { partnerUsername: string }) {
         </div>
 
         {/* Input - fixed at bottom above owner bottomnav */}
-        <div className="fixed bottom-[160px] left-0 right-0 z-40 bg-background border-t border-border/30 px-4 py-3 flex gap-2">
+        <div className="fixed bottom-[160px] left-0 right-0 z-40 bg-background border-t border-border/30 px-4 py-3 flex items-center gap-2">
+          <ChatMediaControls onSendMedia={handleSendMedia} disabled={sendDM.isPending} videoMaxSeconds={90} />
           <input
             type="text"
             value={message}

@@ -2,7 +2,7 @@ import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { logDbError } from "./dbErrorLogger";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories, ratingTags, userFollows } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2651,15 +2651,26 @@ export async function saveRatingPhoto(data: {
   userId: number;
   storageKey: string;
   url: string;
+  mediaType?: "image" | "video";
+  durationSeconds?: number;
+  mimeType?: string;
+  position?: number;
   taggedItemIds?: string[];
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  const [lastPosition] = await db.select({ maxPosition: sql<number>`COALESCE(MAX(${ratingPhotos.position}), -1)` })
+    .from(ratingPhotos)
+    .where(eq(ratingPhotos.ratingId, data.ratingId));
   const result = await db.insert(ratingPhotos).values({
     ratingId: data.ratingId,
     userId: data.userId,
     storageKey: data.storageKey,
     url: data.url,
+    mediaType: data.mediaType || "image",
+    durationSeconds: data.durationSeconds || null,
+    mimeType: data.mimeType || null,
+    position: data.position ?? Number(lastPosition?.maxPosition ?? -1) + 1,
     taggedItemIds: data.taggedItemIds ? JSON.stringify(data.taggedItemIds) : null,
   });
   return { id: Number(result[0].insertId) };
@@ -2668,7 +2679,25 @@ export async function saveRatingPhoto(data: {
 export async function getRatingPhotos(ratingId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.select().from(ratingPhotos).where(eq(ratingPhotos.ratingId, ratingId));
+  return await db.select().from(ratingPhotos)
+    .where(eq(ratingPhotos.ratingId, ratingId))
+    .orderBy(asc(ratingPhotos.position), asc(ratingPhotos.createdAt));
+}
+
+export async function reorderRatingPhotos(ratingId: number, userId: number, photoIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [rating] = await db.select({ userId: ratings.userId }).from(ratings).where(eq(ratings.id, ratingId)).limit(1);
+  if (!rating || rating.userId !== userId) throw new Error("Você não pode reordenar esta avaliação");
+  const photos = await db.select({ id: ratingPhotos.id }).from(ratingPhotos).where(eq(ratingPhotos.ratingId, ratingId));
+  const existingIds = new Set(photos.map((photo) => photo.id));
+  if (photoIds.length !== photos.length || photoIds.some((id) => !existingIds.has(id))) {
+    throw new Error("A lista de mídia da avaliação está incompleta ou inválida");
+  }
+  for (let position = 0; position < photoIds.length; position++) {
+    await db.update(ratingPhotos).set({ position }).where(and(eq(ratingPhotos.id, photoIds[position]), eq(ratingPhotos.ratingId, ratingId)));
+  }
+  return await getRatingPhotos(ratingId);
 }
 
 export async function getEstablishmentPhotos(establishmentId: number, limit = 20) {
@@ -2678,6 +2707,9 @@ export async function getEstablishmentPhotos(establishmentId: number, limit = 20
     id: ratingPhotos.id,
     url: ratingPhotos.url,
     taggedItemIds: ratingPhotos.taggedItemIds,
+    mediaType: ratingPhotos.mediaType,
+    durationSeconds: ratingPhotos.durationSeconds,
+    position: ratingPhotos.position,
     createdAt: ratingPhotos.createdAt,
     userName: users.name,
   })
@@ -2685,7 +2717,7 @@ export async function getEstablishmentPhotos(establishmentId: number, limit = 20
     .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
     .innerJoin(users, eq(ratingPhotos.userId, users.id))
     .where(eq(ratings.establishmentId, establishmentId))
-    .orderBy(desc(ratingPhotos.createdAt))
+    .orderBy(asc(ratingPhotos.position), desc(ratingPhotos.createdAt))
     .limit(limit);
 }
 
@@ -2761,16 +2793,119 @@ export async function sharePhotoToGroup(data: { photoId: number; userId: number;
   return { id: Number(result[0].insertId) };
 }
 
+export async function tagUsersInRating(ratingId: number, taggedById: number, taggedUserIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [rating] = await db.select({ userId: ratings.userId }).from(ratings).where(eq(ratings.id, ratingId)).limit(1);
+  if (!rating || rating.userId !== taggedById) throw new Error("Apenas o autor pode marcar pessoas nesta avaliação");
+  const uniqueIds = Array.from(new Set(taggedUserIds)).filter((id) => id > 0 && id !== taggedById).slice(0, 20);
+  for (const taggedUserId of uniqueIds) {
+    await db.insert(ratingTags).values({
+      ratingId,
+      taggedUserId,
+      taggedById,
+      status: "pending",
+      visibleOnProfile: false,
+    }).onDuplicateKeyUpdate({ set: { status: "pending", visibleOnProfile: false, respondedAt: null } });
+  }
+  return { count: uniqueIds.length };
+}
+
+export async function getPendingRatingTags(userId: number, limit = 50, status: "pending" | "accepted" | "hidden" = "pending") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db.select({
+    id: ratingTags.id,
+    ratingId: ratingTags.ratingId,
+    status: ratingTags.status,
+    createdAt: ratingTags.createdAt,
+    taggedById: ratingTags.taggedById,
+    taggedByName: users.name,
+    taggedByUsername: users.username,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    visitDate: ratings.visitDate,
+  })
+    .from(ratingTags)
+    .innerJoin(users, eq(ratingTags.taggedById, users.id))
+    .innerJoin(ratings, eq(ratingTags.ratingId, ratings.id))
+    .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
+    .where(and(eq(ratingTags.taggedUserId, userId), eq(ratingTags.status, status)))
+    .orderBy(desc(ratingTags.createdAt))
+    .limit(limit);
+}
+
+export async function respondToRatingTag(tagId: number, userId: number, response: "accepted" | "declined" | "hidden" | "removed") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [tag] = await db.select().from(ratingTags).where(and(eq(ratingTags.id, tagId), eq(ratingTags.taggedUserId, userId))).limit(1);
+  if (!tag) throw new Error("Marcação não encontrada");
+  const visibleOnProfile = response === "accepted";
+  await db.update(ratingTags).set({
+    status: response,
+    visibleOnProfile,
+    respondedAt: new Date(),
+  }).where(eq(ratingTags.id, tagId));
+  return { success: true, status: response, visibleOnProfile };
+}
+
+export async function getRatingParticipants(ratingId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [ratingOwner] = await db.select({ id: users.id, name: users.name, username: users.username })
+    .from(ratings)
+    .innerJoin(users, eq(ratings.userId, users.id))
+    .where(eq(ratings.id, ratingId)).limit(1);
+  const accepted = await db.select({
+    id: users.id,
+    name: users.name,
+    username: users.username,
+    status: ratingTags.status,
+  })
+    .from(ratingTags)
+    .innerJoin(users, eq(ratingTags.taggedUserId, users.id))
+    .where(and(eq(ratingTags.ratingId, ratingId), eq(ratingTags.status, "accepted")));
+  return ratingOwner ? [{ ...ratingOwner, status: "author" as const }, ...accepted] : accepted;
+}
+
+export async function getRatingParticipantSuggestions(ratingId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const participants = await getRatingParticipants(ratingId);
+  const participantIds: number[] = participants.map((participant: any) => Number(participant.id)).filter((id: number) => id > 0 && id !== userId);
+  if (participantIds.length === 0) return [];
+  const connections = await db.select({ followerId: userFollows.followerId, followingId: userFollows.followingId })
+    .from(userFollows)
+    .where(or(
+      and(eq(userFollows.followerId, userId), inArray(userFollows.followingId, participantIds)),
+      and(eq(userFollows.followingId, userId), inArray(userFollows.followerId, participantIds)),
+    ));
+  const connected = new Set<number>();
+  connections.forEach((connection: any) => {
+    connected.add(Number(connection.followerId));
+    connected.add(Number(connection.followingId));
+  });
+  return participants.filter((participant: any) => participant.id !== userId && !connected.has(Number(participant.id)));
+}
+
 /** Get user's gallery — all photos from their ratings with context + item comments */
 export async function getUserGallery(userId: number, limit = 50, offset = 0) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  const acceptedShared = await db.select({ ratingId: ratingTags.ratingId }).from(ratingTags)
+    .where(and(eq(ratingTags.taggedUserId, userId), eq(ratingTags.status, "accepted")));
+  const acceptedSharedIds: number[] = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
   const photos = await db.select({
     id: ratingPhotos.id,
     url: ratingPhotos.url,
     taggedItemIds: ratingPhotos.taggedItemIds,
+    mediaType: ratingPhotos.mediaType,
+    durationSeconds: ratingPhotos.durationSeconds,
+    position: ratingPhotos.position,
     createdAt: ratingPhotos.createdAt,
     ratingId: ratingPhotos.ratingId,
+    authorUserId: ratingPhotos.userId,
+    isShared: sql<boolean>`CASE WHEN ${ratingPhotos.userId} = ${userId} THEN false ELSE true END`,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
     establishmentLogo: establishments.logo,
@@ -2780,13 +2915,13 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
     .from(ratingPhotos)
     .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
-    .where(eq(ratingPhotos.userId, userId))
-    .orderBy(desc(ratingPhotos.createdAt))
+    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId))
+    .orderBy(asc(ratingPhotos.position), desc(ratingPhotos.createdAt))
     .limit(limit)
     .offset(offset);
 
   // Fetch item comments + scores for each photo's tagged items
-  const ratingIds = Array.from(new Set(photos.map(p => p.ratingId)));
+  const ratingIds = Array.from(new Set(photos.map((p: any) => Number(p.ratingId))));
   let itemComments: Record<number, { itemName: string; comment: string | null; score: number | null }[]> = {};
   if (ratingIds.length > 0) {
     const items = await db.select({
@@ -2803,7 +2938,7 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
     }
   }
 
-  return photos.map(p => ({
+  return photos.map((p: any) => ({
     ...p,
     itemComments: itemComments[p.ratingId] || [],
   }));
@@ -2813,12 +2948,20 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
 export async function getPublicUserGallery(userId: number, limit = 50, offset = 0) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  const acceptedShared = await db.select({ ratingId: ratingTags.ratingId }).from(ratingTags)
+    .where(and(eq(ratingTags.taggedUserId, userId), eq(ratingTags.status, "accepted")));
+  const acceptedSharedIds: number[] = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
   const photos = await db.select({
     id: ratingPhotos.id,
     url: ratingPhotos.url,
     taggedItemIds: ratingPhotos.taggedItemIds,
+    mediaType: ratingPhotos.mediaType,
+    durationSeconds: ratingPhotos.durationSeconds,
+    position: ratingPhotos.position,
     createdAt: ratingPhotos.createdAt,
     ratingId: ratingPhotos.ratingId,
+    authorUserId: ratingPhotos.userId,
+    isShared: sql<boolean>`CASE WHEN ${ratingPhotos.userId} = ${userId} THEN false ELSE true END`,
     establishmentName: establishments.name,
     establishmentSlug: establishments.slug,
     establishmentLogo: establishments.logo,
@@ -2831,13 +2974,13 @@ export async function getPublicUserGallery(userId: number, limit = 50, offset = 
     .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
     .innerJoin(users, eq(ratingPhotos.userId, users.id))
-    .where(eq(ratingPhotos.userId, userId))
-    .orderBy(desc(ratingPhotos.createdAt))
+    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId))
+    .orderBy(asc(ratingPhotos.position), desc(ratingPhotos.createdAt))
     .limit(limit)
     .offset(offset);
 
   // Fetch item comments + scores for each photo's tagged items
-  const ratingIds = Array.from(new Set(photos.map(p => p.ratingId)));
+  const ratingIds = Array.from(new Set(photos.map((p: any) => Number(p.ratingId))));
   let itemComments: Record<number, { itemName: string; comment: string | null; score: number | null }[]> = {};
   if (ratingIds.length > 0) {
     const items = await db.select({
@@ -2854,7 +2997,7 @@ export async function getPublicUserGallery(userId: number, limit = 50, offset = 
     }
   }
 
-  return photos.map(p => ({
+  return photos.map((p: any) => ({
     ...p,
     itemComments: itemComments[p.ratingId] || [],
   }));

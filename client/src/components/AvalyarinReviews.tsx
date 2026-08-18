@@ -2,13 +2,15 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { StarRating } from "./StarRating";
-import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon, Heart, Send } from "lucide-react";
+import { X, User, Calendar, ShoppingBag, BadgeCheck, ChevronLeft, ChevronRight, ImageIcon, Heart, Send, Users } from "lucide-react";
 import ReportButton from "./ReportButton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 import { toast } from "sonner";
 import PhotoExpanded from "./PhotoExpanded";
+import RatingMediaManager from "./RatingMediaManager";
 
 interface AvalyarinReviewsProps {
   establishmentId: number;
@@ -29,6 +31,14 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
   const { data: reviewPhotos } = trpc.ratings.getPhotos.useQuery(
     { ratingId: selectedReview! },
     { enabled: !!selectedReview }
+  );
+  const { data: participants } = trpc.ratings.ratingParticipants.useQuery(
+    { ratingId: selectedReview! },
+    { enabled: !!selectedReview }
+  );
+  const { data: participantSuggestions } = trpc.ratings.participantSuggestions.useQuery(
+    { ratingId: selectedReview! },
+    { enabled: !!selectedReview && !!user }
   );
 
   if (isLoading) {
@@ -161,19 +171,55 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
               </button>
             </div>
 
+            {participants && participants.length > 1 && (
+              <div className="mb-4 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                <div className="flex items-center gap-1.5 mb-2"><Users className="w-4 h-4 text-primary" /><span className="text-sm font-medium text-foreground">Pessoas nesta visita</span></div>
+                <div className="flex flex-wrap gap-2">
+                  {participants.map((participant: any) => (
+                    <Link key={participant.id} href={`/perfil/${participant.username || participant.id}`}>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/70 border border-border/30 text-xs text-foreground hover:border-primary/40 hover:text-primary transition-colors cursor-pointer">
+                        {participant.name || `@${participant.username}`} {participant.status === "author" && <span className="text-[10px] text-primary">(autor)</span>}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {participantSuggestions && participantSuggestions.length > 0 && (
+              <div className="mb-4 p-3 rounded-xl bg-secondary/20 border border-border/20">
+                <p className="text-xs text-muted-foreground mb-2">Sugestões de amizade da mesma visita</p>
+                <div className="flex flex-wrap gap-2">
+                  {participantSuggestions.slice(0, 5).map((participant: any) => (
+                    <Link key={participant.id} href={`/perfil/${participant.username || participant.id}`}>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-primary/20 text-xs text-primary hover:bg-primary/10 transition-colors cursor-pointer"><User className="w-3 h-3" />{participant.name || `@${participant.username}`}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Photo Carousel */}
             {reviewPhotos && reviewPhotos.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 mb-2">
                   <ImageIcon className="w-4 h-4 text-primary/60" />
-                  <span className="text-sm font-medium text-foreground">Fotos ({reviewPhotos.length})</span>
+                  <span className="text-sm font-medium text-foreground">Mídias ({reviewPhotos.length})</span>
                 </div>
                 <div className="relative rounded-xl overflow-hidden bg-foreground/20 border border-border/30">
-                  <img
-                    src={reviewPhotos[photoIndex].url}
-                    alt={`Foto ${photoIndex + 1}`}
-                    className="w-full h-48 object-contain"
-                  />
+                  {reviewPhotos[photoIndex].mediaType === "video" ? (
+                    <video
+                      src={reviewPhotos[photoIndex].url}
+                      controls
+                      playsInline
+                      className="w-full h-48 object-contain bg-black"
+                    />
+                  ) : (
+                    <img
+                      src={reviewPhotos[photoIndex].url}
+                      alt={`Foto ${photoIndex + 1}`}
+                      className="w-full h-48 object-contain"
+                    />
+                  )}
                   {/* Navigation arrows */}
                   {reviewPhotos.length > 1 && (
                     <>
@@ -222,9 +268,9 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                 {/* Like & Share & Expand buttons */}
                 <div className="flex items-center gap-3 mt-2">
                   <PhotoLikeButton photoId={reviewPhotos[photoIndex].id} />
-                  <button
-                    onClick={() => {
-                      const photo = reviewPhotos[photoIndex];
+                    {reviewPhotos[photoIndex].mediaType !== "video" && <button
+                      onClick={() => {
+                        const photo = reviewPhotos[photoIndex];
                       let taggedNames: string[] = [];
                       try {
                         if (photo.taggedItemIds) {
@@ -250,8 +296,14 @@ export function AvalyarinReviews({ establishmentId }: AvalyarinReviewsProps) {
                     className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
                   >
                     <ImageIcon className="w-3.5 h-3.5" /> Expandir
-                  </button>
+                    </button>}
                 </div>
+                <RatingMediaManager
+                  ratingId={selected.id}
+                  media={reviewPhotos}
+                  canEdit={Boolean(user && Number((selected as any).userId) === user.id)}
+                  onSaved={() => setPhotoIndex(0)}
+                />
               </div>
             )}
 

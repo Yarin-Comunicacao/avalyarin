@@ -198,9 +198,30 @@ export async function getMutualFollows(userId: number) {
 
 // ============ DIRECT MESSAGES ============
 
-export async function sendDirectMessage(senderId: number, recipientId: number, content: string) {
+type DirectMessageMediaInput = {
+  type?: "text" | "audio" | "image" | "video";
+  mediaUrl?: string;
+  mediaStorageKey?: string;
+  mediaMimeType?: string;
+  mediaDurationSeconds?: number;
+  mediaSizeBytes?: number;
+  mediaThumbnailUrl?: string;
+};
+
+export async function sendDirectMessage(senderId: number, recipientId: number, content: string, media?: DirectMessageMediaInput) {
   const db = (await getDb())!;
-  const [result] = await db.insert(directMessages).values({ senderId, recipientId, content }).$returningId();
+  const [result] = await db.insert(directMessages).values({
+    senderId,
+    recipientId,
+    content,
+    type: media?.type || "text",
+    mediaUrl: media?.mediaUrl || null,
+    mediaStorageKey: media?.mediaStorageKey || null,
+    mediaMimeType: media?.mediaMimeType || null,
+    mediaDurationSeconds: media?.mediaDurationSeconds || null,
+    mediaSizeBytes: media?.mediaSizeBytes || null,
+    mediaThumbnailUrl: media?.mediaThumbnailUrl || null,
+  }).$returningId();
   return result.id;
 }
 
@@ -212,6 +233,13 @@ export async function getDirectMessages(userA: number, userB: number, limit = 50
       senderId: directMessages.senderId,
       recipientId: directMessages.recipientId,
       content: directMessages.content,
+      type: directMessages.type,
+      mediaUrl: directMessages.mediaUrl,
+      mediaStorageKey: directMessages.mediaStorageKey,
+      mediaMimeType: directMessages.mediaMimeType,
+      mediaDurationSeconds: directMessages.mediaDurationSeconds,
+      mediaSizeBytes: directMessages.mediaSizeBytes,
+      mediaThumbnailUrl: directMessages.mediaThumbnailUrl,
       isRead: directMessages.isRead,
       createdAt: directMessages.createdAt,
     })
