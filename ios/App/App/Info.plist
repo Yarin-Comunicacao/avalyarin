@@ -22,6 +22,17 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>br.com.avalyarin.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>avalyarin</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -66,5 +77,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>O Avalyarin precisa de acesso à câmera para você tirar fotos dos pratos e escanear QR Codes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O Avalyarin precisa de acesso à sua galeria para você selecionar fotos de pratos e do seu perfil.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>O Avalyarin precisa de permissão para salvar fotos na sua galeria.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O Avalyarin usa sua localização para mostrar os bares e restaurantes mais próximos de você no mapa.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>O Avalyarin usa sua localização para sugerir estabelecimentos próximos mesmo em segundo plano.</string>
 </dict>
 </plist>
