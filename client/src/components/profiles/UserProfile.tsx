@@ -3,9 +3,10 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
 import {
-  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Flag, X, Users, UserSearch, Star, CalendarDays
+  Camera, Share2, Loader2, Bell, Pencil, Heart, Crown, Flag, X, Users, UserSearch, Star, CalendarDays, Bug
 } from "lucide-react";
 import PhotoGrid from "@/components/PhotoGrid";
+import BugReportButton from "@/components/BugReportButton";
 import { getConnectYarinUrl } from "@shared/const";
 
 // Import tab content components
@@ -257,6 +258,7 @@ export default function UserProfile() {
               <span className="text-[10px] font-medium">{action.label}</span>
             </button>
           ))}
+          <BugReportButton inline />
           <button
             onClick={() => {
               if (profile?.username) {

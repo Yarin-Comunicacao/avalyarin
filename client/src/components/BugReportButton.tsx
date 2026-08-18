@@ -22,7 +22,7 @@ const SEVERITIES = [
   { value: "critical", label: "Crítica", description: "Bloqueia o aplicativo" },
 ] as const;
 
-export default function BugReportButton() {
+export default function BugReportButton({ inline = false }: { inline?: boolean }) {
   const { user } = useAuth();
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
@@ -80,15 +80,27 @@ export default function BugReportButton() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-[70] flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-card/95 text-primary shadow-lg backdrop-blur-sm transition hover:scale-105 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        aria-label="Reportar bug ou problema"
-        title="Reportar bug ou problema"
-      >
-        <Bug className="h-5 w-5" />
-      </button>
+      {inline ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs bg-secondary border border-border/50 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Reportar bug ou problema"
+        >
+          <Bug className="w-4 h-4" />
+          <span className="text-[10px] font-medium">Suporte</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="fixed bottom-20 right-4 z-[70] flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-card/95 text-primary shadow-lg backdrop-blur-sm transition hover:scale-105 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label="Reportar bug ou problema"
+          title="Reportar bug ou problema"
+        >
+          <Bug className="h-5 w-5" />
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-foreground/60 p-4 backdrop-blur-sm" onClick={() => setOpen(false)}>

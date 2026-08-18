@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import BugReportButton from "@/components/BugReportButton";
 
 const iconMap: Record<string, React.ElementType> = {
   Home, Megaphone, Users, Search, User, Store, BarChart3, Settings,
@@ -285,7 +284,6 @@ export default function BottomNav() {
           </DialogContent>
         </Dialog>
 
-        <BugReportButton />
         <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
           {/* Active role username indicator */}
           {activeOwnerRole && activeUsername && (
@@ -424,7 +422,6 @@ export default function BottomNav() {
 
   return (
     <>
-      <BugReportButton />
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50 pb-safe">
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
         {navItems.map((item) => {
