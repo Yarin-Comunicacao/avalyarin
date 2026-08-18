@@ -115,8 +115,9 @@ async function startServer() {
       const fileName = String(req.headers["x-file-name"] || `rating-${Date.now()}`)
         .replace(/[^a-zA-Z0-9._-]/g, "-")
         .slice(0, 120);
-      const  rawBody  =  req.body ;​​
-      if  ( ! Buffer . isBuffer ( rawBody )  ||  rawBody . length  ===  0 )  retorna  res . estado ( 400 ) . json ( {  erro : "Nenhum arquivo enviado"  } ) ;
+      const rawBody = req.body;
+      if (!Buffer.isBuffer(rawBody) || rawBody.length === 0) {return res.status(400).json({error: "Nenhum arquivo enviado",});
+      }
       const  data  =  rawBody ;
       const validType = mediaType === "image" || mediaType === "video";
       const validContentType = validType && (mediaType === "image" ? contentType.startsWith("image/") : contentType.startsWith("video/"));
