@@ -12,6 +12,20 @@ function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
   return typeof value === "string" ? value : undefined;
 }
+function getSafeRedirectPath(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  if (!value.startsWith("/")) return undefined;
+  if (value.startsWith("//")) return undefined;
+  if (value.includes("\\")) return undefined;
+
+  try {
+    const parsed = new URL(value, "http://localhost");
+    if (parsed.origin !== "http://localhost") return undefined;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return undefined;
+  }
+}
 
 // Detect which auth mode to use based on environment variables
 const useManusOAuth = Boolean(ENV.oAuthServerUrl && ENV.oAuthServerUrl.length > 5);
@@ -94,11 +108,13 @@ function registerManusOAuthRoutes(app: Express) {
       if (state) {
         try {
           const parsed = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
-          if (parsed.returnPath) redirectTo = parsed.returnPath;
+          const safeReturnPath = getSafeRedirectPath(parsed?.returnPath);
+          if (safeReturnPath) redirectTo = safeReturnPath;
         } catch {
           // If state is just a URL, use it
           const decoded = Buffer.from(state, "base64").toString("utf-8");
-          if (decoded.startsWith("/")) redirectTo = decoded;
+          const safeDecoded = getSafeRedirectPath(decoded);
+          if (safeDecoded) redirectTo = safeDecoded;
         }
       }
       res.redirect(302, redirectTo);
