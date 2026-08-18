@@ -628,6 +628,36 @@ export type SupportTicket = typeof supportTickets.$inferSelect;
 export type InsertSupportTicket = typeof supportTickets.$inferInsert;
 
 // ============================================================
+// Bug Reports — reportes universais de bugs e problemas da plataforma
+// ============================================================
+export const bugReports = mysqlTable("bug_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 16 }).unique(), // Visual ID: bug000001
+  createdById: int("createdById").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  category: mysqlEnum("category", ["bug", "broken_route", "performance", "content", "account", "other"]).default("bug").notNull(),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  status: mysqlEnum("status", ["open", "triaged", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  routePath: varchar("routePath", { length: 512 }),
+  platform: varchar("platform", { length: 32 }),
+  userAgent: varchar("userAgent", { length: 512 }),
+  viewport: varchar("viewport", { length: 32 }),
+  online: boolean("online"),
+  appVersion: varchar("appVersion", { length: 64 }),
+  errorMessage: text("errorMessage"),
+  contextJson: text("contextJson"),
+  assignedToId: int("assignedToId"),
+  resolution: text("resolution"),
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BugReport = typeof bugReports.$inferSelect;
+export type InsertBugReport = typeof bugReports.$inferInsert;
+
+// ============================================================
 // Group Events — eventos agendados dentro de grupos
 // ============================================================
 export const groupEvents = mysqlTable("group_events", {

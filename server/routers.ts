@@ -311,6 +311,12 @@ import {
   getSupportAssignmentCounts,
 } from "./db-support";
 import {
+  createBugReport,
+  getUserBugReports,
+  getAllBugReports,
+  updateBugReport,
+} from "./db-bug-reports";
+import {
   sendGroupMessage,
   getGroupMessages,
   sendSupportMessage,
@@ -4307,6 +4313,23 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Universal bug reports inbox for support, admin and owner
+    listBugReports: supportProcedure.query(async () => {
+      return await getAllBugReports();
+    }),
+
+    updateBugReport: supportProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["open", "triaged", "in_progress", "resolved", "closed"]).optional(),
+        severity: z.enum(["low", "medium", "high", "critical"]).optional(),
+        assignedToId: z.number().nullable().optional(),
+        resolution: z.string().max(5000).nullable().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await updateBugReport(input);
+      }),
+
     // Check access to estab
     hasAccess: supportProcedure
       .input(z.object({ establishmentId: z.number() }))
@@ -5645,6 +5668,31 @@ export const appRouter = router({
     pendingCount: adminProcedure.query(async () => {
       const pending = await listRoleRequests("pending");
       return { count: pending.length };
+    }),
+  }),
+
+  // ============ UNIVERSAL BUG REPORTS (any authenticated user) ============
+  bugReports: router({
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1).max(255),
+        description: z.string().min(5).max(5000),
+        category: z.enum(["bug", "broken_route", "performance", "content", "account", "other"]).default("bug"),
+        severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+        routePath: z.string().max(512).optional(),
+        platform: z.string().max(32).optional(),
+        userAgent: z.string().max(512).optional(),
+        viewport: z.string().max(32).optional(),
+        online: z.boolean().optional(),
+        appVersion: z.string().max(64).optional(),
+        errorMessage: z.string().max(2000).optional(),
+        contextJson: z.string().max(10000).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createBugReport({ ...input, createdById: ctx.user!.id });
+      }),
+    myReports: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserBugReports(ctx.user!.id);
     }),
   }),
 

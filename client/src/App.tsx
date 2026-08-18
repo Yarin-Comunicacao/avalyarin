@@ -11,7 +11,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { BackgroundProvider } from "./contexts/BackgroundContext";
 import { OwnerViewProvider } from "./contexts/OwnerViewContext";
-import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
 import CategoryGroupPage from "./pages/CategoryGroupPage";
 import AllCategoriesPage from "./pages/AllCategoriesPage";
@@ -137,7 +136,6 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/para-negocios">{() => <ParaNegociosPage />}</Route>
       <Route path="/home">{() => <LandingPage />}</Route>
-      <Route path="/busca" component={Home} />
       <Route path="/">{() => <LandingPage />}</Route>
       <Route path="/categoria/:id" component={CategoryPage} />
       <Route path="/segmento/:id/calendario" component={CalendarioGrupo} />
@@ -258,8 +256,12 @@ function Router() {
       <Route path="/mensagens" component={MensagensPage} />
       <Route path="/perfil/:username" component={PublicProfilePage} />
       <Route path="/perfil">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/estabs">{() => <RoleBasedProfile />}</Route>
       <Route path="/suporte/tickets">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte/resolvidos">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte/chat">{() => <RoleBasedProfile />}</Route>
+      <Route path="/suporte/bugs">{() => <RoleBasedProfile />}</Route>
       {/* Fallback */}
       <Route path="/termos" component={TermosPage} />
       <Route path="/diretrizes" component={TermosPage} />

@@ -1,22 +1,24 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle } from "lucide-react";
+import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle, Bug, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import SupportChat from "@/components/SupportChat";
+import { toast } from "sonner";
 
 function SupportChatSection() {
   return <SupportChat />;
 }
 
-type TabId = "estabs" | "tickets" | "resolvidos" | "chat";
+type TabId = "estabs" | "tickets" | "resolvidos" | "chat" | "bugs";
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "estabs", label: "Meus Estabs", icon: Store },
   { id: "tickets", label: "Tickets", icon: Ticket },
   { id: "resolvidos", label: "Resolvidos", icon: CheckCircle2 },
   { id: "chat", label: "Chat", icon: MessageCircle },
+  { id: "bugs", label: "Bugs", icon: Bug },
 ];
 
 const PRIORITY_COLORS = {
@@ -28,23 +30,28 @@ const PRIORITY_COLORS = {
 
 export default function SupportProfile() {
   const { user } = useAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<TabId>("estabs");
 
   // Sync tab with URL path
   useEffect(() => {
     if (location.includes("/suporte/tickets")) {
       setActiveTab("tickets");
-    } else if (location.includes("/suporte/estabs")) {
-      setActiveTab("estabs");
+    } else if (location.includes("/suporte/resolvidos")) {
+      setActiveTab("resolvidos");
     } else if (location.includes("/suporte/chat")) {
       setActiveTab("chat");
+    } else if (location.includes("/suporte/bugs")) {
+      setActiveTab("bugs");
+    } else if (location.includes("/suporte/estabs")) {
+      setActiveTab("estabs");
     }
   }, [location]);
 
   const { data: stats } = trpc.support.myStats.useQuery(undefined, { enabled: !!user });
   const { data: assignments } = trpc.support.myAssignments.useQuery(undefined, { enabled: !!user });
   const { data: tickets } = trpc.support.myTickets.useQuery(undefined, { enabled: !!user });
+  const { data: bugReports } = trpc.support.listBugReports.useQuery(undefined, { enabled: !!user });
 
   return (
     <div className="pb-20">
@@ -115,7 +122,7 @@ export default function SupportProfile() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => navigate(`/suporte/${tab.id}`)}
                 className={cn(
                   "flex-1 flex flex-col items-center gap-1 py-3 border-b-2 transition-colors",
                   isActive ? "border-teal-500 text-teal-500" : "border-transparent text-muted-foreground"
@@ -135,6 +142,7 @@ export default function SupportProfile() {
         {activeTab === "tickets" && <TicketsList tickets={(tickets ?? []).filter((t: any) => t.status !== "resolved")} />}
         {activeTab === "resolvidos" && <TicketsList tickets={(tickets ?? []).filter((t: any) => t.status === "resolved")} />}
         {activeTab === "chat" && <SupportChatSection />}
+        {activeTab === "bugs" && <BugReportsList reports={bugReports ?? []} />}
       </div>
     </div>
   );
@@ -163,6 +171,102 @@ function EstabsList({ assignments }: { assignments: any[] }) {
           </span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function BugReportsList({ reports }: { reports: any[] }) {
+  const utils = trpc.useUtils();
+  const [draftResolution, setDraftResolution] = useState<Record<number, string>>({});
+  const updateMutation = trpc.support.updateBugReport.useMutation({
+    onSuccess: () => {
+      toast.success("Reporte atualizado");
+      utils.support.listBugReports.invalidate();
+    },
+    onError: (error) => toast.error(error.message || "Não foi possível atualizar o reporte"),
+  });
+
+  if (reports.length === 0) {
+    return <div className="text-center text-muted-foreground py-8">Nenhum reporte de bug recebido</div>;
+  }
+
+  const statusLabels: Record<string, string> = {
+    open: "Aberto",
+    triaged: "Triado",
+    in_progress: "Em andamento",
+    resolved: "Resolvido",
+    closed: "Fechado",
+  };
+  const severityLabels: Record<string, string> = {
+    low: "Baixa",
+    medium: "Média",
+    high: "Alta",
+    critical: "Crítica",
+  };
+
+  return (
+    <div className="space-y-3">
+      {reports.map((report: any) => {
+        const resolution = draftResolution[report.id] ?? report.resolution ?? "";
+        return (
+          <article key={report.id} className="rounded-xl border border-border/50 bg-card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[10px] text-primary">{report.code}</span>
+                  <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", report.severity === "critical" || report.severity === "high" ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400")}>
+                    {severityLabels[report.severity] || report.severity}
+                  </span>
+                </div>
+                <h3 className="mt-1 text-sm font-semibold text-foreground">{report.title}</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">{report.reporterName || "Usuário"}{report.reporterUsername ? ` · @${report.reporterUsername}` : ""} · {new Date(report.createdAt).toLocaleString("pt-BR")}</p>
+              </div>
+              <select
+                value={report.status}
+                onChange={(event) => updateMutation.mutate({ id: report.id, status: event.target.value as any })}
+                className="rounded-lg border border-border/50 bg-secondary/40 px-2 py-1 text-[10px] text-foreground"
+                aria-label={`Status do ${report.code}`}
+              >
+                {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </div>
+
+            <p className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-foreground/90">{report.description}</p>
+
+            <details className="mt-3 rounded-lg bg-secondary/30 p-2">
+              <summary className="cursor-pointer text-[11px] font-medium text-primary">Ver contexto técnico</summary>
+              <div className="mt-2 space-y-1 text-[10px] text-muted-foreground">
+                <p><strong>Rota:</strong> {report.routePath || "não informada"}</p>
+                <p><strong>Plataforma:</strong> {report.platform || "não informada"} · <strong>Viewport:</strong> {report.viewport || "não informado"}</p>
+                <p><strong>Online:</strong> {report.online === null || report.online === undefined ? "não informado" : report.online ? "sim" : "não"} · <strong>Versão:</strong> {report.appVersion || "não informada"}</p>
+                <p className="break-all"><strong>User-Agent:</strong> {report.userAgent || "não informado"}</p>
+                {report.errorMessage && <p className="break-words"><strong>Erro:</strong> {report.errorMessage}</p>}
+                {report.contextJson && <pre className="max-h-24 overflow-auto whitespace-pre-wrap break-words rounded bg-background/50 p-2">{report.contextJson}</pre>}
+              </div>
+            </details>
+
+            <div className="mt-3 space-y-2">
+              <textarea
+                value={resolution}
+                onChange={(event) => setDraftResolution((current) => ({ ...current, [report.id]: event.target.value }))}
+                placeholder="Notas da triagem ou resolução..."
+                maxLength={5000}
+                rows={2}
+                className="w-full resize-none rounded-lg border border-border/40 bg-secondary/30 px-2.5 py-2 text-xs text-foreground outline-none focus:border-primary/60"
+              />
+              <button
+                type="button"
+                onClick={() => updateMutation.mutate({ id: report.id, resolution: resolution || null, status: report.status })}
+                disabled={updateMutation.isPending}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/10 disabled:opacity-60"
+              >
+                <Save className="h-3.5 w-3.5" />
+                Salvar triagem
+              </button>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
