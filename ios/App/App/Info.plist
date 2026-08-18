@@ -89,5 +89,9 @@
 	<string>O Avalyarin usa sua localização para sugerir estabelecimentos próximos mesmo em segundo plano.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>O Avalyarin precisa de acesso ao microfone para que você possa gravar e enviar áudios nos chats e grupos.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>O Avalyarin sincroniza seus contatos para ajudar você a encontrar amigos que já estão na plataforma.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>O Avalyarin utiliza o reconhecimento de atividade para facilitar seu check-in automático ao chegar em um estabelecimento.</string>
 </dict>
 </plist>
