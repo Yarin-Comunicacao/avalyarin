@@ -34,6 +34,7 @@ import NotificacoesPage from "./pages/NotificacoesPage";
 // Grupos
 import GruposPage from "./pages/GruposPage";
 // Search
+import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 // Admin & Business
 import AdminPanel from "./pages/AdminPanel";
@@ -136,6 +137,8 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/para-negocios">{() => <ParaNegociosPage />}</Route>
       <Route path="/home">{() => <LandingPage />}</Route>
+      {/* Busca pública: mantém a experiência completa de mapa, categorias e filtros */}
+      <Route path="/busca" component={Home} />
       <Route path="/">{() => <LandingPage />}</Route>
       <Route path="/categoria/:id" component={CategoryPage} />
       <Route path="/segmento/:id/calendario" component={CalendarioGrupo} />
