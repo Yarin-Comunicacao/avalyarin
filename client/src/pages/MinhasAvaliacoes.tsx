@@ -1,6 +1,6 @@
 // Design: AvaLyarin — Minhas Avaliações (unified page with 4 tabs)
 // Tabs: Avaliações, Meu Ranking, Locais Visitados, Galeria
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, Link, Redirect } from "wouter";
 import Navbar from "@/components/Navbar";
 import { trpc } from "@/lib/trpc";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { MapView } from "@/components/Map";
 import PhotoExpanded from "@/components/PhotoExpanded";
 import {
-  Star, MapPin, Calendar, ChevronRight, Trophy, Crown, Medal,
+  Star, MapPin, Calendar, ChevronRight, ChevronLeft, ChevronDown, Trophy, Crown, Medal,
   ArrowRight, GripVertical, Save, Compass, Image, Camera, X,
   Coffee, Beer, UtensilsCrossed, ChefHat, Sparkles, Cake,
   Wine, CupSoda, Croissant, Music, Leaf, Globe, Pizza,
@@ -120,6 +120,99 @@ function ProgressionCard() {
 }
 
 type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats" | "insignias";
+
+type EvaluationTab = { id: Tab; label: string; icon: React.ReactNode };
+
+function EvaluationTabs({
+  tabs,
+  activeTab,
+  onSelect,
+}: {
+  tabs: EvaluationTab[];
+  activeTab: Tab;
+  onSelect: (tab: Tab) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    setCanScrollLeft(element.scrollLeft > 4);
+    setCanScrollRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    updateScrollState();
+    element?.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      element?.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [tabs.length, updateScrollState]);
+
+  const scrollTabs = (direction: "left" | "right") => {
+    scrollRef.current?.scrollBy({
+      left: direction === "left" ? -220 : 220,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <div className="relative mb-8 -mx-4 px-4">
+      <div
+        ref={scrollRef}
+        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth"
+        role="tablist"
+        aria-label="Seções das minhas avaliações"
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => onSelect(tab.id)}
+            className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all active:scale-[0.98] ${
+              activeTab === tab.id
+                ? "bg-primary/20 border border-primary/40 text-primary"
+                : "bg-secondary/30 border border-border/30 text-muted-foreground hover:bg-secondary/50"
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => scrollTabs("left")}
+        disabled={!canScrollLeft}
+        aria-label="Mostrar abas anteriores"
+        className={`absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/95 shadow-md backdrop-blur-sm transition ${
+          canScrollLeft ? "text-primary hover:bg-primary/10" : "cursor-not-allowed text-muted-foreground/30"
+        }`}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => scrollTabs("right")}
+        disabled={!canScrollRight}
+        aria-label="Mostrar próximas abas"
+        className={`absolute right-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/95 shadow-md backdrop-blur-sm transition ${
+          canScrollRight ? "text-primary hover:bg-primary/10" : "cursor-not-allowed text-muted-foreground/30"
+        }`}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 const iconMap: Record<string, React.ElementType> = {
   Beer, Coffee, UtensilsCrossed, ChefHat, Sparkles, Cake,
@@ -395,7 +488,7 @@ export default function MinhasAvaliacoes() {
     return <Redirect to={getLoginUrl()} />;
   }
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  const tabs: EvaluationTab[] = [
     { id: "avaliacoes", label: "Avaliações", icon: <Star className="w-4 h-4" /> },
     { id: "ranking", label: "Meu Ranking", icon: <Trophy className="w-4 h-4" /> },
     { id: "locais", label: "Locais Visitados", icon: <MapPin className="w-4 h-4" /> },
@@ -423,22 +516,7 @@ export default function MinhasAvaliacoes() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
-                activeTab === tab.id
-                  ? "bg-primary/20 border border-primary/40 text-primary"
-                  : "bg-secondary/30 border border-border/30 text-muted-foreground hover:bg-secondary/50"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <EvaluationTabs tabs={tabs} activeTab={activeTab} onSelect={setActiveTab} />
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
