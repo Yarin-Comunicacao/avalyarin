@@ -4,7 +4,10 @@ import mysql from 'mysql2/promise';
 async function main() {
   const uri = process.env.DATABASE_URL;
   if (!uri) throw new Error('DATABASE_URL ausente');
-  const ssl: any = uri.includes('tidbcloud.com') ? { rejectUnauthorized: true } : undefined;
+  const parsedUri = new URL(uri);
+  const hostname = parsedUri.hostname.toLowerCase();
+  const isTiDBCloudHost = hostname === 'tidbcloud.com' || hostname.endsWith('.tidbcloud.com');
+  const ssl: any = isTiDBCloudHost ? { rejectUnauthorized: true } : undefined;
   const connection = await mysql.createConnection({ uri, ssl });
 
   try {
