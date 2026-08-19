@@ -61,14 +61,16 @@ const fadeIn = {
   },
 };
 
-type HomeTab = "descobertas" | "busca";
+type HomeTab = "descobertas" | "buscas" | "perto-de-mim";
 type SearchMode = "search" | "tags";
 
 export default function Home() {
   // Restore state from sessionStorage on mount
   const [activeTab, setActiveTab] = useState<HomeTab>(() => {
     const saved = sessionStorage.getItem('home_activeTab');
-    return (saved === 'busca' ? 'busca' : 'descobertas') as HomeTab;
+    if (saved === 'buscas' || saved === 'busca') return 'buscas';
+    if (saved === 'perto-de-mim') return 'perto-de-mim';
+    return 'descobertas';
   });
   const [searchMode, setSearchMode] = useState<SearchMode>(() => {
     const saved = sessionStorage.getItem('home_searchMode');
@@ -184,14 +186,24 @@ export default function Home() {
             DESCOBERTAS
           </button>
           <button
-            onClick={() => setActiveTab("busca")}
+            onClick={() => setActiveTab("buscas")}
             className={`flex-1 py-3 text-center font-display text-sm tracking-wider transition-all ${
-              activeTab === "busca"
+              activeTab === "buscas"
                 ? "text-primary border-b-2 border-primary"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            BUSCA
+            BUSCAS
+          </button>
+          <button
+            onClick={() => setActiveTab("perto-de-mim")}
+            className={`flex-1 py-3 text-center font-display text-sm tracking-wider transition-all ${
+              activeTab === "perto-de-mim"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            PERTO DE MIM
           </button>
         </div>
       </div>
@@ -418,9 +430,9 @@ export default function Home() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════
-          TAB: BUSCA
+          TAB: BUSCAS
           ═══════════════════════════════════════════════════════════ */}
-      {activeTab === "busca" && (
+      {activeTab === "buscas" && (
         <div className="pt-6 pb-24">
           <div className="container">
           {/* Radio buttons for search mode */}
@@ -715,8 +727,14 @@ export default function Home() {
             </div>
           )}
           </div>
+        </div>
+      )}
 
-          {/* Nearby Establishments */}
+      {/* ═══════════════════════════════════════════════════════════
+          TAB: PERTO DE MIM
+          ═══════════════════════════════════════════════════════════ */}
+      {activeTab === "perto-de-mim" && (
+        <div className="pb-24">
           <NearbyEstablishments />
         </div>
       )}
