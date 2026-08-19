@@ -110,7 +110,7 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">
-              <img src="/storage/logo-oficial-transparente-v4_bbd5c26e.png" alt="Avalyarin" className="w-16 h-16 mx-auto mb-3 object-contain" />
+              <img src="/logo-brand.png" alt="Avalyarin" className="w-16 h-16 mx-auto mb-3 object-contain" />
               <h3 className="font-['Playfair_Display'] text-xl font-bold text-[#2D1B0E]">
                 {showAuthModal === "login" ? "Entrar" : showAuthModal === "business" ? "Cadastro para Negócios" : "Criar Conta"}
               </h3>
@@ -149,10 +149,10 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
       )}
 
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FDF8F0]/90 backdrop-blur-md border-b border-[#EDE5D8]">
+      <header className="safe-area-header fixed top-0 left-0 right-0 z-50 bg-[#FDF8F0]/95 backdrop-blur-md border-b border-[#EDE5D8]">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 shrink-0">
-            <img src="/storage/logo-oficial-transparente-v4_bbd5c26e.png" alt="Avalyarin" className="w-8 h-8 object-contain" />
+            <img src="/logo-brand.png" alt="Avalyarin" className="w-8 h-8 object-contain" />
             <span className="hidden sm:inline font-display text-lg tracking-wider text-[#D9A64E] whitespace-nowrap">AVALYARIN</span>
           </div>
           <div className="flex items-center justify-end gap-1 sm:gap-2 shrink-0">
@@ -178,7 +178,7 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
       </header>
 
       {/* HERO */}
-      <section className="relative min-h-[90vh] flex items-center pt-16">
+      <section className="safe-area-page-top relative min-h-[90vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FDF8F0] via-[#F7F0E5] to-[#FDF8F0]" />
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-[#D9A64E]/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 left-0 w-72 h-72 bg-[#2B132A]/3 rounded-full blur-3xl" />
@@ -312,7 +312,7 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <img src="/storage/logo-oficial-transparente-v4_bbd5c26e.png" alt="Avalyarin" className="w-6 h-6 object-contain" />
+              <img src="/logo-brand.png" alt="Avalyarin" className="w-6 h-6 object-contain" />
               <span className="font-display text-sm tracking-wider text-[#D9A64E]">AVALYARIN</span>
             </div>
             <div className="flex items-center gap-6 text-xs text-[#6B4D3A]/60">

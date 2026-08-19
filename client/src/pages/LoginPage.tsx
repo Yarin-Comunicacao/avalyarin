@@ -80,11 +80,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="safe-area-screen min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-6">
         {/* Logo */}
         <div className="text-center">
-          <img src="/storage/logo-oficial-transparente-v4_bbd5c26e.png" alt="Avalyarin" className="w-12 h-12 object-contain mx-auto" />
+          <img src="/logo-brand.png" alt="Avalyarin" className="w-12 h-12 object-contain mx-auto" />
           <h1 className="font-display text-3xl tracking-wider text-primary mt-2">AVALYARIN</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {mode === "login" ? "Entre na sua conta" : "Crie sua conta"}

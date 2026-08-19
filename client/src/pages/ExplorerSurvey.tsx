@@ -453,8 +453,13 @@ export default function ExplorerSurvey({ onComplete }: ExplorerSurveyProps) {
   // Loading state
   if (questionsLoading || allQuestions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center px-6">
+          <img
+            src="/logo-brand.png"
+            alt="Avalyarin"
+            className="w-24 h-24 object-contain mx-auto mb-6"
+          />
           <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">Carregando pesquisa...</p>
         </div>

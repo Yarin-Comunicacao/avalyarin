@@ -275,7 +275,7 @@ export default function AuthChoice({ onChoose, initialView = "choice" }: AuthCho
   // RENDER
   // ============================================================
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="safe-area-screen min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background images */}
       <div className="absolute inset-0 flex pointer-events-none">
         <div className="w-1/2 h-full relative">
@@ -311,7 +311,7 @@ export default function AuthChoice({ onChoose, initialView = "choice" }: AuthCho
         <div className="flex items-center gap-2 mb-8">
           <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden p-0.5">
             <img
-              src="/storage/logo-oficial-transparente-v4_bbd5c26e.png"
+              src="/logo-brand.png"
               alt="AvaLyarin"
               className="w-full h-full object-contain"
             />

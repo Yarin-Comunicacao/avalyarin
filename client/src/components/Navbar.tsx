@@ -7,7 +7,7 @@ export default function Navbar() {
   const isHome = location === "/";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
+    <nav className="safe-area-header fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/95">
       <div className="container flex items-center h-16 gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
           {!isHome && (
@@ -21,7 +21,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center glow-amber overflow-hidden p-1">
               <img
-                src="/storage/logo-oficial-transparente-v4_bbd5c26e.png"
+                src="/logo-brand.png"
                 alt="AvaLyarin Y logo"
                 className="w-full h-full object-contain"
               />

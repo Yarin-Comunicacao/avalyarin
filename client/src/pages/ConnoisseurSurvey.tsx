@@ -222,8 +222,13 @@ export default function ConnoisseurSurvey({ onComplete }: ConnoisseurSurveyProps
   // Loading state
   if (questionsLoading || QUESTIONS.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center px-6">
+          <img
+            src="/logo-brand.png"
+            alt="Avalyarin"
+            className="w-24 h-24 object-contain mx-auto mb-6"
+          />
           <Loader2 className="w-8 h-8 animate-spin text-accent mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">Carregando pesquisa...</p>
         </div>
