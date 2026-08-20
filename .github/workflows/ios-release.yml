@@ -1,0 +1,137 @@
+name: iOS - release TestFlight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-ios:
+    name: Archive and upload to TestFlight
+    runs-on: macos-15
+
+    env:
+      APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+      APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+      APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+      VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Configure pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create frontend environment file
+        run: |
+          : > .env
+          if [ -n "$VITE_GOOGLE_MAPS_API_KEY" ]; then
+            printf 'VITE_GOOGLE_MAPS_API_KEY=%s\n' "$VITE_GOOGLE_MAPS_API_KEY" >> .env
+          fi
+
+      - name: Build web bundle
+        run: pnpm build
+
+      - name: Synchronize Capacitor iOS
+        run: pnpm exec cap sync ios
+
+      - name: Resolve Swift packages
+        run: xcodebuild -project ios/App/App.xcodeproj -scheme App -resolvePackageDependencies
+
+      - name: Prepare App Store Connect API key
+        run: |
+          test -n "$APPSTORE_ISSUER_ID"
+          test -n "$APPSTORE_KEY_ID"
+          test -n "$APPSTORE_PRIVATE_KEY"
+          test -n "$APPLE_TEAM_ID"
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${APPSTORE_KEY_ID}.p8"
+          printf '%s' "$APPSTORE_PRIVATE_KEY" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          echo "KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Archive signed iOS app
+        run: |
+          set -o pipefail
+          BUNDLE_ID="${IOS_BUNDLE_ID:-br.com.avalyarin.app}"
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/Avalyarin.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            archive
+
+      - name: Create export options
+        run: |
+          BUNDLE_ID="${IOS_BUNDLE_ID:-br.com.avalyarin.app}"
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>compileBitcode</key>
+            <false/>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+
+      - name: Export signed IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Avalyarin.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$APPSTORE_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: avalyarin-ios-release
+          path: ${{ runner.temp }}/export/*.ipa
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ runner.temp }}/export/App.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
