@@ -306,8 +306,13 @@ function App() {
       const splashEl = document.getElementById('splash-screen');
       if (splashEl) splashEl.remove();
       // Clean URL params without reload
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, "", cleanUrl);
+      // OAuth callbacks currently return to `/`; that route is intentionally public
+      // and would render the Landing Page before the authenticated gate runs.
+      // Normalize social-login returns to the authenticated search entry instead.
+      const cleanPath = window.location.pathname === "/" || window.location.pathname === "/login"
+        ? "/busca"
+        : window.location.pathname;
+      window.history.replaceState({}, "", cleanPath);
       return true;
     }
     const flow = localStorage.getItem("avalyarin_auth_flow");
@@ -497,7 +502,9 @@ function App() {
   }, [isDesktop, showSplash, desktopAuthDone, desktopAuthCheck]);
 
   // Public routes that bypass all gates (landing, para-negocios)
-  const publicPaths = ["/", "/home", "/para-negocios"];
+  // Login is intentionally public so the Landing Page header can open the
+  // dedicated email/social login screen without the intermediate auth chooser.
+  const publicPaths = ["/", "/home", "/para-negocios", "/login"];
   const currentPath = window.location.pathname;
   if (publicPaths.includes(currentPath)) {
     return (

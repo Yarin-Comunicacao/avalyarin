@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
+import { getLoginUrl } from "@/const";
 
 export default function LoginPage() {
   const [, navigate] = useLocation();
@@ -67,7 +68,10 @@ export default function LoginPage() {
   const handleFacebookLogin = () => {
     setLoading(true);
     const origin = window.location.origin;
-    window.location.href = `${origin}/api/auth/facebook?origin=${encodeURIComponent(origin)}`;
+    const facebookUrl = new URL(`${origin}/api/auth/facebook`);
+    facebookUrl.searchParams.set("origin", origin);
+    facebookUrl.searchParams.set("returnPath", "/busca");
+    window.location.href = facebookUrl.toString();
   };
 
   // ============================================================
@@ -75,8 +79,7 @@ export default function LoginPage() {
   // ============================================================
   const handleGoogleLogin = () => {
     setLoading(true);
-    const origin = window.location.origin;
-    window.location.href = `${origin}/api/auth/login?origin=${encodeURIComponent(origin)}`;
+    window.location.href = getLoginUrl("/busca");
   };
 
   return (

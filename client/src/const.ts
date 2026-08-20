@@ -14,6 +14,9 @@ export const getLoginUrl = (returnPath?: string) => {
     return `${MANUS_PORTAL_URL}/login?app_id=${APP_ID}&state=${state}&redirect_uri=${encodeURIComponent(origin + "/api/oauth/callback")}`;
   }
 
-  // Otherwise, redirect to our backend which handles Google OAuth
-  return `${origin}/api/auth/login?origin=${encodeURIComponent(origin)}`;
+  // Otherwise, redirect to our backend which handles Google OAuth.
+  const loginUrl = new URL(`${origin}/api/auth/login`);
+  loginUrl.searchParams.set("origin", origin);
+  loginUrl.searchParams.set("returnPath", returnPath || "/busca");
+  return loginUrl.toString();
 };

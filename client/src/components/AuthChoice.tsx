@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Mail, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { getLoginUrl } from "@/const";
 
 
 const DAY_IMAGE = "/storage/age-gate-day-L5iDZ7EiwgNVQfD5ihnqAL.webp";
@@ -68,8 +69,7 @@ export default function AuthChoice({ onChoose, initialView = "choice" }: AuthCho
       const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
       if (!clientId) {
         // Fallback: use redirect-based OAuth
-        const origin = window.location.origin;
-        window.location.href = `${origin}/api/auth/login?origin=${encodeURIComponent(origin)}`;
+        window.location.href = getLoginUrl("/busca");
         return;
       }
 
@@ -102,14 +102,12 @@ export default function AuthChoice({ onChoose, initialView = "choice" }: AuthCho
       (window as any).google.accounts.id.prompt((notification: any) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
           setLoading(false);
-          const origin = window.location.origin;
-          window.location.href = `${origin}/api/auth/login?origin=${encodeURIComponent(origin)}`;
+          window.location.href = getLoginUrl("/busca");
         }
       });
     } catch (err) {
       console.error("[Auth] Google login error:", err);
-      const origin = window.location.origin;
-      window.location.href = `${origin}/api/auth/login?origin=${encodeURIComponent(origin)}`;
+      window.location.href = getLoginUrl("/busca");
     }
   }, [onChoose]);
 
@@ -119,7 +117,10 @@ export default function AuthChoice({ onChoose, initialView = "choice" }: AuthCho
   const handleFacebookLogin = useCallback(() => {
     setLoading(true);
     const origin = window.location.origin;
-    window.location.href = `${origin}/api/auth/facebook?origin=${encodeURIComponent(origin)}`;
+    const facebookUrl = new URL(`${origin}/api/auth/facebook`);
+    facebookUrl.searchParams.set("origin", origin);
+    facebookUrl.searchParams.set("returnPath", "/busca");
+    window.location.href = facebookUrl.toString();
   }, []);
 
 
