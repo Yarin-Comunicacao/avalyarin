@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,6 +7,11 @@ import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
 import "./index.css";
+
+// Safe Area is a native-app concern. Chrome/PWA must keep its normal browser layout.
+if (typeof document !== "undefined") {
+  document.documentElement.classList.toggle("native-app", Capacitor.isNativePlatform());
+}
 
 const queryClient = new QueryClient();
 

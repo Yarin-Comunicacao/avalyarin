@@ -181,31 +181,33 @@
   }
 
   /* Android/iOS safe areas: keep fixed headers below the system status bar. */
-  .safe-area-header {
+  /* Safe Area is enabled only inside the native Capacitor WebView.
+     Chrome/PWA already owns its browser chrome and must not receive this inset. */
+  .native-app .safe-area-header {
     padding-top: env(safe-area-inset-top, 0px);
   }
 
-  .safe-area-screen {
+  .native-app .safe-area-screen {
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  .safe-area-page-top {
+  .native-app .safe-area-page-top {
     padding-top: max(4rem, calc(4rem + env(safe-area-inset-top, 0px)));
   }
 
   @media (max-width: 639px) {
     /* Android WebView may report a zero inset while drawing edge-to-edge. */
-    .safe-area-header {
+    .native-app .safe-area-header {
       padding-top: max(env(safe-area-inset-top, 0px), 24px);
     }
 
-    .safe-area-screen {
+    .native-app .safe-area-screen {
       padding-top: max(env(safe-area-inset-top, 0px), 24px);
       padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
     }
 
-    .safe-area-page-top {
+    .native-app .safe-area-page-top {
       padding-top: max(calc(4rem + env(safe-area-inset-top, 0px)), 80px);
     }
   }
