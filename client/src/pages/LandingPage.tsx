@@ -75,7 +75,7 @@ export default function LandingPage({ onEnter }: LandingPageProps = {}) {
   const [showAuthModal, setShowAuthModal] = useState<"login" | "register" | "business" | null>(null);
 
   const handleEnter = () => setShowAuthModal("register");
-  const handleLogin = () => setShowAuthModal("login");
+  const handleLogin = () => navigate("/login");
   const handleBusiness = () => navigate("/para-negocios");
 
   const goToGoogle = () => {
