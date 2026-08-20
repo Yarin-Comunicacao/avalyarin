@@ -146,7 +146,7 @@ export default function OwnerSurvey() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
       </div>
     );
@@ -154,7 +154,7 @@ export default function OwnerSurvey() {
 
   if (!user || user.role !== "owner") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
@@ -276,7 +276,7 @@ export default function OwnerSurvey() {
     childQuestions.filter(q => q.parentQuestionId === parentId);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="safe-area-screen min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20 px-4 pt-6 pb-4">
         <div className="container">

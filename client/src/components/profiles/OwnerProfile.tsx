@@ -8,7 +8,7 @@ export default function OwnerProfile() {
   const { data: adminStats } = trpc.admin.stats.useQuery(undefined, { enabled: !!user });
 
   return (
-    <div className="pb-20">
+    <div className="safe-area-screen pb-20">
       {/* Profile Info */}
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-start gap-4">

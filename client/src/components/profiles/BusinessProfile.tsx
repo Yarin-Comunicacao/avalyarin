@@ -54,7 +54,7 @@ export default function BusinessProfile() {
   });
 
   return (
-    <div className="pb-20">
+    <div className="safe-area-screen pb-20">
       {/* Profile Header — Left aligned */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">

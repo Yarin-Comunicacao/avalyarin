@@ -43,7 +43,7 @@ export default function SpecialistProfile() {
   const activePartnerships = partnerships?.filter((p: any) => p.status === "active")?.length ?? 0;
 
   return (
-    <div className="pb-20">
+    <div className="safe-area-screen pb-20">
       {/* Profile Header — Gold especialista style */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">

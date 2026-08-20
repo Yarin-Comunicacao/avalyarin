@@ -10,7 +10,7 @@ export default function BusinessEquipe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
@@ -18,7 +18,7 @@ export default function BusinessEquipe() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center px-6">
           <Building2 className="w-16 h-16 text-primary mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">EQUIPE LOCAL</h1>
@@ -32,7 +32,7 @@ export default function BusinessEquipe() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="safe-area-screen min-h-screen pb-24">
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center h-14">
           <div className="flex items-center gap-2">

@@ -1,0 +1,37 @@
+--- Direct Safe Area in role shells ---
+client/src/components/profiles/AdminProfile.tsx
+client/src/components/profiles/BusinessProfile.tsx
+client/src/components/profiles/CriticProfile.tsx
+client/src/components/profiles/OwnerProfile.tsx
+client/src/components/profiles/SpecialistProfile.tsx
+client/src/components/profiles/SupportProfile.tsx
+client/src/components/profiles/UserProfile.tsx
+client/src/components/profiles/index.tsx
+client/src/pages/AdminEstabDetail.tsx
+client/src/pages/AdminPanel.tsx
+client/src/pages/BusinessDivulgacoes.tsx
+client/src/pages/BusinessEquipe.tsx
+client/src/pages/BusinessInsights.tsx
+client/src/pages/BusinessLocais.tsx
+client/src/pages/BusinessPanel.tsx
+client/src/pages/CriticPanel.tsx
+client/src/pages/OwnerLogsPage.tsx
+client/src/pages/OwnerPanel.tsx
+client/src/pages/OwnerSurvey.tsx
+client/src/pages/SpecialistPanel.tsx
+client/src/pages/SpecialistProfilePage.tsx
+client/src/pages/SystemPanel.tsx
+
+--- Remaining unwrapped full-screen states in role shells ---
+client/src/pages/BusinessPlanos.tsx:82:    <div className="min-h-screen">
+client/src/pages/CriticPanel.tsx:56:    <div className="min-h-screen bg-background">
+client/src/pages/ProfessionalPlanos.tsx:72:    <div className="min-h-screen">
+client/src/pages/SpecialistApplicationPage.tsx:152:    <div className="min-h-screen bg-background">
+client/src/pages/SpecialistApplicationPage.tsx:97:      <div className="min-h-screen bg-background">
+client/src/pages/SpecialistPanel.tsx:61:    <div className="min-h-screen bg-background">
+client/src/pages/SpecialistProfilePage.tsx:64:      <div className="min-h-screen bg-background">
+client/src/pages/SpecialistProfilePage.tsx:78:    <div className="min-h-screen bg-background">
+client/src/pages/SpecialistsFavoritos.tsx:63:    <div className="min-h-screen">
+
+--- Shared Navbar coverage ---
+10:    <nav className="safe-area-header fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/95">

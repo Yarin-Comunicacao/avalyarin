@@ -60,7 +60,7 @@ export default function PublicProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
@@ -108,7 +108,7 @@ export default function PublicProfilePage() {
     <div className="min-h-screen bg-background">
       <Navbar  />
 
-      <div className="container pt-20 pb-12">
+      <div className="container safe-area-page-top pb-12">
         {/* Back button */}
         <button
           onClick={() => window.history.back()}

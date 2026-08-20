@@ -75,7 +75,7 @@ export default function BusinessInsights() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
       </div>
     );
@@ -83,7 +83,7 @@ export default function BusinessInsights() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center px-6">
           <BarChart3 className="w-16 h-16 text-primary mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">INSIGHTS</h1>
@@ -106,7 +106,7 @@ export default function BusinessInsights() {
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="safe-area-screen min-h-screen pb-24">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-14">

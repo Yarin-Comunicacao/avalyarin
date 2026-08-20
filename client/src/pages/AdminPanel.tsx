@@ -69,7 +69,7 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
       </div>
     );
@@ -77,7 +77,7 @@ export default function AdminPanel() {
 
   if (!user || (user.role !== "admin" && user.role !== "owner")) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
@@ -91,7 +91,7 @@ export default function AdminPanel() {
   // Block admin from accessing /owner/ routes
   if (user.role === "admin" && window.location.pathname.startsWith("/owner/")) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
@@ -103,7 +103,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="safe-area-screen min-h-screen pb-24">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">

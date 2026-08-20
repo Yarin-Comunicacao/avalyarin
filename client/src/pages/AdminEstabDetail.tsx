@@ -149,7 +149,7 @@ export default function AdminEstabDetail() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
       </div>
     );
@@ -157,7 +157,7 @@ export default function AdminEstabDetail() {
 
   if (!user || (user.role !== "admin" && user.role !== "owner")) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
@@ -169,7 +169,7 @@ export default function AdminEstabDetail() {
 
   if (!estab) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-30" />
           <h1 className="font-display text-xl text-foreground mb-2">Estabelecimento não encontrado</h1>
@@ -206,7 +206,7 @@ export default function AdminEstabDetail() {
     : (menuByCategory[filterCategory] || []);
 
   return (
-    <div className="min-h-screen">
+    <div className="safe-area-screen min-h-screen">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">

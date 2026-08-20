@@ -21,7 +21,7 @@ export default function RoleBasedProfile() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="safe-area-screen flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -31,7 +31,7 @@ export default function RoleBasedProfile() {
   // Open the same provider-selection screen used by the app entry flow instead.
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="safe-area-screen min-h-screen bg-background">
         <AuthChoice initialView="main" onChoose={() => undefined} />
       </div>
     );

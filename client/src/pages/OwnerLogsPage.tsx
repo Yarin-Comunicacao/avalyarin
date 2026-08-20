@@ -116,7 +116,7 @@ export default function OwnerLogsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -124,7 +124,7 @@ export default function OwnerLogsPage() {
 
   if (!user || user.role !== "owner") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="safe-area-screen min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Acesso restrito ao Owner.</p>
       </div>
     );
@@ -144,7 +144,7 @@ export default function OwnerLogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="safe-area-screen min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20 px-4 pt-6 pb-4">
         <div className="container">

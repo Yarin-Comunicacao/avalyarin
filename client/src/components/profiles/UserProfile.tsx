@@ -75,7 +75,7 @@ export default function UserProfile() {
   ];
 
   return (
-    <div className="pb-28">
+    <div className="safe-area-screen pb-28">
       {/* Followers/Following Modal */}
       {followListType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/70 backdrop-blur-sm p-4" onClick={() => setFollowListType(null)}>

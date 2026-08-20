@@ -1,0 +1,738 @@
+===== client/src/pages/AdminPanel.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import AdminEstablishments from "@/components/AdminEstablishments";
+4:import BrandbookTab from "@/components/BrandbookTab";
+5:import ModerationPanel from "@/components/ModerationPanel";
+6:import { useState, useEffect, useMemo, useRef } from "react";
+7:import { useSearch, useLocation } from "wouter";
+8:import { toast } from "sonner";
+9:import {
+15:import { Button } from "@/components/ui/button";
+16:import {
+25:export default function AdminPanel() {
+70:  if (loading) {
+72:      <div className="min-h-screen flex items-center justify-center">
+73:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+78:  if (!user || (user.role !== "admin" && user.role !== "owner")) {
+80:      <div className="min-h-screen flex items-center justify-center">
+81:        <div className="text-center">
+82:          <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
+83:          <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
+84:          <p className="text-muted-foreground">Você não tem permissão para acessar esta página.</p>
+85:          <button onClick={() => window.history.back()} className="text-primary hover:underline mt-4 inline-block">Voltar</button>
+92:  if (user.role === "admin" && window.location.pathname.startsWith("/owner/")) {
+94:      <div className="min-h-screen flex items-center justify-center">
+95:        <div className="text-center">
+96:          <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
+97:          <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
+98:          <p className="text-muted-foreground">Apenas o Owner pode acessar esta página.</p>
+99:          <button onClick={() => window.history.back()} className="text-primary hover:underline mt-4 inline-block">Voltar</button>
+105:  return (
+106:    <div className="min-h-screen pb-24">
+108:      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+109:        <div className="container flex items-center justify-between h-16">
+110:          <div className="flex items-center gap-4">
+112:            <div className="flex items-center gap-2">
+113:              <Crown className="w-5 h-5 text-primary" />
+114:              <h1 className="font-display text-xl tracking-wider text-primary">{window.location.pathname.startsWith("/owner/") ? "AVALYARIN" : "PAINEL ADMIN"}</h1>
+===== client/src/pages/AdminEstabDetail.tsx =====
+10:import { useAuth } from "@/_core/hooks/useAuth";
+11:import { trpc } from "@/lib/trpc";
+12:import { useState, useRef, useMemo } from "react";
+13:import { Link, useParams, useLocation, useSearch } from "wouter";
+14:import { toast } from "sonner";
+15:import {
+19:import {
+28:import {
+35:import { CSS } from "@dnd-kit/utilities";
+43:function capitalize(str: string): string {
+44:  if (!str) return str;
+45:  return str.charAt(0).toUpperCase() + str.slice(1);
+48:export default function AdminEstabDetail() {
+===== client/src/pages/OwnerPanel.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Link, useLocation } from "wouter";
+4:import {
+9:import { useState } from "react";
+10:import { toast } from "sonner";
+11:import BrandbookTab from "@/components/BrandbookTab";
+15:export default function OwnerPanel() {
+34:  if (loading) {
+36:      <div className="min-h-screen flex items-center justify-center">
+37:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+42:  if (!user || user.role !== "owner") {
+44:      <div className="min-h-screen flex items-center justify-center">
+45:        <div className="text-center">
+46:          <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+47:          <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
+48:          <p className="text-muted-foreground">Apenas o Owner pode acessar esta página.</p>
+50:            <span className="text-primary hover:underline mt-4 inline-block">Voltar ao início</span>
+72:  return (
+73:    <div className="min-h-screen bg-background pb-24">
+75:      <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20 px-4 pt-6 pb-4">
+76:        <div className="container">
+77:          <div className="flex items-center gap-3 mb-2">
+78:            <div className="w-10 h-10 rounded-full bg-yellow-500/20 border-2 border-yellow-500 flex items-center justify-center">
+79:              <Crown className="w-5 h-5 text-yellow-500" />
+82:              <h1 className="font-display text-2xl tracking-wider text-yellow-500">PAINEL OWNER</h1>
+83:              <p className="text-xs text-muted-foreground">Visão estratégica da plataforma Avalyarin</p>
+90:      <div className="border-b border-border/50 sticky top-0 bg-background/95 backdrop-blur z-10">
+91:        <div className="container flex overflow-x-auto scrollbar-hide">
+108:                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+114:                <Icon className="w-4 h-4" />
+===== client/src/pages/OwnerLogsPage.tsx =====
+1:import { trpc } from "@/lib/trpc";
+2:import { useAuth } from "@/_core/hooks/useAuth";
+3:import { ArrowLeft, FileText, User, Settings, ClipboardList, Shield, Crown, Loader2, Rocket, Plus, X, ChevronDown, ChevronUp, Search, ArrowUpDown } from "lucide-react";
+4:import { Link } from "wouter";
+5:import { useState, useMemo } from "react";
+6:import { toast } from "sonner";
+26:function getActionCategory(action: string): string {
+27:  if (action === "system_update") return "system_update";
+28:  if (action.startsWith("create")) return "create";
+29:  if (action.startsWith("update") || action.startsWith("edit")) return "update";
+30:  if (action.startsWith("delete") || action.startsWith("remove")) return "delete";
+31:  if (action.includes("role")) return "change_role";
+32:  return "default";
+35:function formatDate(date: Date | string) {
+37:  return d.toLocaleDateString("pt-BR", {
+46:export default function OwnerLogsPage() {
+===== client/src/pages/SystemPanel.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Link } from "wouter";
+4:import {
+9:import { useState } from "react";
+11:function formatUptime(seconds: number): string {
+15:  if (days > 0) return `${days}d ${hours}h ${mins}m`;
+16:  if (hours > 0) return `${hours}h ${mins}m`;
+17:  return `${mins}m`;
+20:function formatBytes(bytes: number): string {
+22:  return `${mb.toFixed(1)} MB`;
+25:export default function SystemPanel() {
+32:  if (loading) {
+34:      <div className="min-h-screen flex items-center justify-center">
+35:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+40:  if (!user || user.role !== "owner") {
+42:      <div className="min-h-screen flex items-center justify-center">
+43:        <div className="text-center">
+44:          <Crown className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+45:          <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
+46:          <p className="text-muted-foreground">Apenas o Owner pode acessar esta página.</p>
+48:            <span className="text-primary hover:underline mt-4 inline-block">Voltar ao início</span>
+62:  return (
+63:    <div className="min-h-screen bg-background pb-24">
+65:      <div className="bg-gradient-to-b from-blue-900/20 to-background border-b border-blue-500/20 px-4 pt-6 pb-4">
+66:        <div className="container">
+67:          <div className="flex items-center justify-between">
+68:            <div className="flex items-center gap-3">
+69:              <div className="w-10 h-10 rounded-full bg-blue-500/20 border-2 border-blue-500 flex items-center justify-center">
+70:                <Server className="w-5 h-5 text-blue-500" />
+73:                <h1 className="font-display text-2xl tracking-wider text-blue-400">SISTEMA</h1>
+74:                <p className="text-xs text-muted-foreground">Monitoramento e saúde da infraestrutura</p>
+79:              className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/40 transition-colors"
+82:              <RefreshCw className="w-4 h-4 text-blue-400" />
+90:        <div className={`px-4 py-2 ${health.database.status === "healthy" ? "bg-green-500/10" : "bg-red-500/10"}`}>
+91:          <div className="container flex items-center gap-2">
+94:                <CheckCircle2 className="w-4 h-4 text-green-400" />
+95:                <span className="text-sm text-green-400 font-medium">Todos os sistemas operacionais</span>
+99:                <XCircle className="w-4 h-4 text-red-400" />
+100:                <span className="text-sm text-red-400 font-medium">Problemas detectados</span>
+108:      <div className="border-b border-border/50 sticky top-0 bg-background/95 backdrop-blur z-10">
+109:        <div className="container flex overflow-x-auto scrollbar-hide">
+===== client/src/pages/SpecialistPanel.tsx =====
+9:import { useEffect, useState } from "react";
+10:import { useAuth } from "@/_core/hooks/useAuth";
+11:import { trpc } from "@/lib/trpc";
+12:import Navbar from "@/components/Navbar";
+13:import { Redirect, Link, useLocation } from "wouter";
+14:import { Loader2, BarChart3, Handshake, Tag, UserCircle, Users, Star, TrendingUp, MapPin, BadgeCheck, CalendarDays, Clock, CheckCircle, XCircle, HelpCircle, ExternalLink, Crown } from "lucide-react";
+15:import { getConnectYarinUrl } from "@shared/const";
+16:import { FourPointStar } from "@/components/FourPointStar";
+17:import { PromoCodeCreator } from "@/components/PromoCodeCreator";
+18:import { toast } from "sonner";
+22:export default function SpecialistPanel() {
+41:  if (loading) {
+43:      <div className="min-h-screen bg-background flex items-center justify-center">
+44:        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+49:  if (!user || (user.role !== "specialist" && user.role !== "owner")) {
+60:  return (
+61:    <div className="min-h-screen bg-background">
+62:      <Navbar  />
+64:      <div className="container pt-24 pb-24">
+66:        <div className="flex items-center gap-3 mb-6">
+67:          <div className="relative">
+68:            <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+69:              <BadgeCheck className="w-6 h-6 text-primary" />
+72:            <div className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center">
+77:            <h1 className="font-display text-2xl tracking-wider text-primary">PAINEL INFLUENCER</h1>
+78:            <p className="text-sm text-muted-foreground">Olá, {user.name || user.username}!</p>
+83:        <div className="flex gap-1 overflow-x-auto pb-2 mb-6 border-b border-border/30">
+101:                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
+107:                <Icon className="w-4 h-4" />
+===== client/src/pages/CriticPanel.tsx =====
+6:import { useState, useEffect } from "react";
+7:import { useAuth } from "@/_core/hooks/useAuth";
+8:import { trpc } from "@/lib/trpc";
+9:import Navbar from "@/components/Navbar";
+10:import { Redirect, Link, useLocation } from "wouter";
+11:import { toast } from "sonner";
+12:import {
+17:import { getConnectYarinUrl } from "@shared/const";
+18:import { FourPointStar } from "@/components/FourPointStar";
+19:import { PromoCodeCreator } from "@/components/PromoCodeCreator";
+23:export default function CriticPanel() {
+36:  if (loading) {
+38:      <div className="min-h-screen bg-background flex items-center justify-center">
+39:        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+44:  if (!user || (user.role !== "critic" && user.role !== "owner")) {
+55:  return (
+56:    <div className="min-h-screen bg-background">
+57:      <Navbar  />
+59:      <div className="container pt-24 pb-24">
+61:        <div className="flex items-center gap-3 mb-6">
+62:          <div className="relative">
+63:            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+64:              <Newspaper className="w-6 h-6 text-foreground" />
+67:            <div className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center">
+72:            <h1 className="font-display text-2xl tracking-wider text-blue-400">PAINEL CRÍTICO</h1>
+73:            <p className="text-sm text-muted-foreground">Olá, {user.name || user.username}!</p>
+78:        <div className="flex gap-1 overflow-x-auto pb-2 mb-6 border-b border-border/30">
+96:                className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium whitespace-nowrap transition-all ${
+102:                <Icon className="w-4 h-4" />
+===== client/src/pages/BusinessPanel.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { QRCodeCanvas } from "qrcode.react";
+4:import { useState, useRef, useEffect } from "react";
+5:import { Link } from "wouter";
+6:import { toast } from "sonner";
+7:import { getLoginUrl } from "@/const";
+8:import {
+13:import BusinessBroadcast from "@/components/BusinessBroadcast";
+14:import BusinessEventActions from "@/components/BusinessEventActions";
+15:import { getConnectYarinUrl } from "@shared/const";
+16:import { validateAddress, VALID_LOGRADOUROS } from "@shared/address-validation";
+18:export default function BusinessPanel() {
+39:  if (loading) {
+41:      <div className="min-h-screen flex items-center justify-center">
+42:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+47:  if (!isAuthenticated) {
+49:      <div className="min-h-screen flex items-center justify-center">
+50:        <div className="text-center px-6">
+51:          <Building2 className="w-16 h-16 text-primary mx-auto mb-4" />
+52:          <h1 className="font-display text-2xl text-foreground mb-2">PAINEL EMPRESARIAL</h1>
+53:          <p className="text-muted-foreground mb-6">
+58:            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+67:  return (
+68:    <div className="min-h-screen pb-24">
+70:      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+71:        <div className="container flex items-center justify-between h-16">
+72:          <div className="flex items-center gap-4">
+74:            <div className="flex items-center gap-2">
+75:              <Building2 className="w-5 h-5 text-primary" />
+76:              <h1 className="font-display text-xl tracking-wider text-primary">PAINEL EMPRESARIAL</h1>
+79:          <div className="flex items-center gap-3">
+85:                className="inline-flex items-center gap-1 text-xs text-primary/80 hover:text-primary transition-colors"
+87:                <ExternalLink className="w-3 h-3" />
+91:            <span className="text-xs text-muted-foreground">{user?.name}</span>
+97:      <div className="border-b border-border/30">
+98:        <div className="container overflow-x-auto scrollbar-hide">
+99:          <div className="flex gap-0 min-w-max">
+===== client/src/pages/BusinessLocais.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { useState, useRef, useEffect } from "react";
+3:import { useLocation } from "wouter";
+4:import { getLoginUrl } from "@/const";
+5:import {
+9:import { cn } from "@/lib/utils";
+10:import { trpc } from "@/lib/trpc";
+11:import { ScrollableTabs } from "@/components/ScrollableTabs";
+12:import { QRCodeCanvas } from "qrcode.react";
+13:import { toast } from "sonner";
+16:import {
+39:function CardapioWithNotificationsTab() {
+52:  return (
+55:      <div className="flex gap-1 mb-4 border-b border-border/30 pb-0">
+58:          className={cn(
+69:          className={cn(
+76:          <Bell className="w-3.5 h-3.5" />
+79:            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-[10px] font-bold">
+94:function QRCodePopup({ est, onClose }: { est: any; onClose: () => void }) {
+113:  return (
+114:    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/60 backdrop-blur-sm p-4" onClick={onClose}>
+===== client/src/pages/BusinessInsights.tsx =====
+11:import { useAuth } from "@/_core/hooks/useAuth";
+12:import { useState, useEffect } from "react";
+13:import { getLoginUrl } from "@/const";
+14:import { trpc } from "@/lib/trpc";
+15:import { LayoutDashboard, TrendingUp, Lightbulb, BarChart3, Crown, Store, Cloud } from "lucide-react";
+16:import { ScrollableTabs } from "@/components/ScrollableTabs";
+17:import {
+24:import { useLocation, useRoute, Link } from "wouter";
+26:import BusinessDashboardTab from "./BusinessDashboardTab";
+27:import BusinessDesempenhoTab from "./BusinessDesempenhoTab";
+28:import BusinessPlanoAcaoTab from "./BusinessPlanoAcaoTab";
+29:import BusinessAnaliseIATab from "./BusinessAnaliseIATab";
+30:import BusinessNuvemIdeiasTab from "./BusinessNuvemIdeiasTab";
+31:import { BusinessPlanTab } from "./BusinessPanel";
+44:export default function BusinessInsights() {
+76:  if (loading) {
+78:      <div className="min-h-screen flex items-center justify-center">
+79:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+84:  if (!isAuthenticated) {
+86:      <div className="min-h-screen flex items-center justify-center">
+87:        <div className="text-center px-6">
+88:          <BarChart3 className="w-16 h-16 text-primary mx-auto mb-4" />
+89:          <h1 className="font-display text-2xl text-foreground mb-2">INSIGHTS</h1>
+90:          <p className="text-muted-foreground mb-6">
+95:            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+108:  return (
+109:    <div className="min-h-screen pb-24">
+111:      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+112:        <div className="container flex items-center justify-between h-14">
+113:          <div className="flex items-center gap-2">
+114:            <BarChart3 className="w-5 h-5 text-primary" />
+115:            <h1 className="font-display text-lg tracking-wider text-primary">INSIGHTS</h1>
+===== client/src/pages/BusinessDivulgacoes.tsx =====
+11:import { useAuth } from "@/_core/hooks/useAuth";
+12:import { useEffect } from "react";
+13:import { getLoginUrl } from "@/const";
+14:import {
+17:import { ScrollableTabs } from "@/components/ScrollableTabs";
+18:import { useLocation } from "wouter";
+20:import {
+27:import { BusinessPromoRequests } from "@/components/BusinessPromoRequests";
+28:import GruposPage from "./GruposPage";
+41:export default function BusinessDivulgacoes() {
+65:  if (loading) {
+67:      <div className="min-h-screen flex items-center justify-center">
+68:        <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
+73:  if (!isAuthenticated) {
+75:      <div className="min-h-screen flex items-center justify-center">
+76:        <div className="text-center px-6">
+77:          <Megaphone className="w-16 h-16 text-primary mx-auto mb-4" />
+78:          <h1 className="font-display text-2xl text-foreground mb-2">DIVULGAÇÃO</h1>
+79:          <p className="text-muted-foreground mb-6">
+84:            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+97:  return (
+98:    <div className="min-h-screen pb-24">
+100:      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+101:        <div className="container flex items-center justify-between h-14">
+102:          <div className="flex items-center gap-2">
+103:            <Megaphone className="w-5 h-5 text-primary" />
+104:            <h1 className="font-display text-lg tracking-wider text-primary">DIVULGAÇÃO</h1>
+106:          <span className="text-xs text-muted-foreground">{user?.name}</span>
+===== client/src/pages/BusinessEquipe.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { useState } from "react";
+3:import { getLoginUrl } from "@/const";
+4:import { Users, Building2, Plus, Trash2, Send, Loader2 } from "lucide-react";
+5:import { trpc } from "@/lib/trpc";
+6:import { toast } from "sonner";
+8:export default function BusinessEquipe() {
+11:  if (loading) {
+13:      <div className="min-h-screen flex items-center justify-center">
+14:        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+19:  if (!isAuthenticated) {
+21:      <div className="min-h-screen flex items-center justify-center">
+22:        <div className="text-center px-6">
+23:          <Building2 className="w-16 h-16 text-primary mx-auto mb-4" />
+24:          <h1 className="font-display text-2xl text-foreground mb-2">EQUIPE LOCAL</h1>
+25:          <p className="text-muted-foreground mb-6">Faça login para gerenciar sua equipe.</p>
+26:          <a href={getLoginUrl()} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+34:  return (
+35:    <div className="min-h-screen pb-24">
+36:      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+37:        <div className="container flex items-center h-14">
+38:          <div className="flex items-center gap-2">
+39:            <Users className="w-5 h-5 text-primary" />
+40:            <h1 className="font-display text-lg tracking-wider text-primary">EQUIPE LOCAL</h1>
+44:      <div className="container py-6">
+51:function EquipeLocalContent() {
+91:  if (loadingEstabs) {
+92:    return <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+95:  if (!establishments || establishments.length === 0) {
+97:      <div className="text-center py-12">
+98:        <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+99:        <p className="text-muted-foreground">Você não possui estabelecimentos aprovados.</p>
+100:        <p className="text-xs text-muted-foreground mt-2">Vá até "Meus Locais" para reivindicar um estabelecimento.</p>
+111:  return (
+112:    <div className="space-y-6">
+115:        <div className="flex items-center gap-3">
+===== client/src/pages/ProfessionalPlanos.tsx =====
+7:import Navbar from "@/components/Navbar";
+8:import { Crown, Check, ArrowLeft, CreditCard, Zap, Shield, Star, Calendar, Clock } from "lucide-react";
+9:import { Button } from "@/components/ui/button";
+10:import { trpc } from "@/lib/trpc";
+11:import { useAuth } from "@/_core/hooks/useAuth";
+12:import { Link, useLocation, Redirect } from "wouter";
+13:import { FourPointStar } from "@/components/FourPointStar";
+14:import { toast } from "@/components/ui/sonner";
+16:export default function ProfessionalPlanos() {
+41:  if (!loading && isAuthenticated && user?.role !== requestedRole) {
+71:  return (
+72:    <div className="min-h-screen">
+73:      <Navbar />
+74:      <div className="pt-28 pb-24">
+75:        <div className="container max-w-2xl">
+78:            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer">
+79:              <ArrowLeft className="w-4 h-4" />
+85:          <div className="flex items-center gap-3 mb-8">
+86:            <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${
+94:              <h2 className={`font-display text-2xl tracking-wider ${isCritic ? "text-blue-400" : "text-amber-400"}`}>
+97:              <p className="text-sm text-muted-foreground">Perfil de {roleLabel}</p>
+102:          <div className={`p-6 rounded-2xl border ${
+106:            <div className="flex items-center justify-between mb-6">
+107:              <div className="flex items-center gap-3">
+108:                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+114:                    <Zap className={`w-5 h-5 ${isCritic ? "text-blue-500" : "text-amber-500"}`} />
+===== client/src/pages/BusinessPlanos.tsx =====
+6:import { useState } from "react";
+7:import Navbar from "@/components/Navbar";
+8:import { toast } from "@/components/ui/sonner";
+9:import { Crown, Check, Loader2, Building2, ArrowLeft } from "lucide-react";
+10:import { Button } from "@/components/ui/button";
+11:import { trpc } from "@/lib/trpc";
+12:import { useAuth } from "@/_core/hooks/useAuth";
+13:import { Link } from "wouter";
+14:import {
+23:export default function BusinessPlanos() {
+81:  return (
+82:    <div className="min-h-screen">
+83:      <Navbar />
+84:      <div className="pt-28 pb-24">
+85:        <div className="container max-w-3xl">
+88:            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer">
+89:              <ArrowLeft className="w-4 h-4" />
+94:          <div className="flex items-center gap-3 mb-4">
+95:            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+96:              <Building2 className="w-6 h-6 text-primary" />
+99:              <h2 className="font-display text-2xl tracking-wider text-primary">PLANOS EMPRESARIAIS</h2>
+100:              <p className="text-sm text-muted-foreground">Para estabelecimentos parceiros</p>
+106:            <div className="mb-8 p-4 rounded-xl bg-primary/5 border border-primary/20">
+107:              <div className="flex items-center justify-between">
+109:                  <p className="text-sm text-muted-foreground">Seu plano atual</p>
+110:                  <p className="font-display text-lg tracking-wider text-primary">
+===== client/src/components/profiles/UserProfile.tsx =====
+1:import { useState } from "react";
+2:import { useAuth } from "@/_core/hooks/useAuth";
+3:import { trpc } from "@/lib/trpc";
+4:import { Link, useLocation } from "wouter";
+5:import {
+8:import PhotoGrid from "@/components/PhotoGrid";
+9:import BugReportButton from "@/components/BugReportButton";
+10:import { getConnectYarinUrl } from "@shared/const";
+13:import EditarTab from "@/components/profile-tabs/EditarTab";
+14:import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+15:import PlanosTab from "@/components/profile-tabs/PlanosTab";
+16:import SalvosTab from "@/components/profile-tabs/SalvosTab";
+17:import CalendarioTab from "@/components/profile-tabs/CalendarioTab";
+21:export default function UserProfile() {
+77:  return (
+78:    <div className="pb-28">
+81:        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/70 backdrop-blur-sm p-4" onClick={() => setFollowListType(null)}>
+82:          <div className="bg-card border border-border/50 rounded-xl w-full max-w-md max-h-[70vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+83:            <div className="flex items-center justify-between p-4 border-b border-border/30">
+84:              <h2 className="font-display text-lg tracking-wider text-primary">
+87:              <button onClick={() => setFollowListType(null)} className="text-muted-foreground hover:text-foreground">
+88:                <X className="w-5 h-5" />
+91:            <div className="p-3 border-b border-border/30">
+95:                className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+97:                <UserSearch className="w-4 h-4" />
+101:            <div className="overflow-y-auto flex-1 p-3 space-y-2">
+107:                  className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border/30 hover:border-primary/30 transition-colors"
+109:                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
+110:                    <span className="text-sm font-bold text-primary">{(person.name || "?")[0].toUpperCase()}</span>
+112:                  <div className="flex-1 min-w-0">
+113:                    <p className="text-sm font-medium text-foreground truncate">{person.name}</p>
+114:                    <p className="text-xs text-muted-foreground">@{person.username}</p>
+===== client/src/components/profiles/BusinessProfile.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Link } from "wouter";
+4:import {
+9:import { cn } from "@/lib/utils";
+10:import { useState } from "react";
+11:import ProfileEditarTab from "@/components/profile-tabs/EditarTab";
+12:import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+13:import PlanosTab from "@/components/profile-tabs/PlanosTab";
+14:import CalendarioTab from "@/components/profile-tabs/CalendarioTab";
+17:function cleanHours(hours: string | null | undefined): string {
+18:  if (!hours) return "";
+19:  return hours.replace(/[{}"\\]/g, "").replace(/,/g, ", ").trim();
+24:export default function BusinessProfile() {
+56:  return (
+57:    <div className="pb-20">
+59:      <div className="px-4 pt-4 pb-4">
+60:        <div className="flex items-start gap-4">
+62:          <div className="relative flex-shrink-0">
+63:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center overflow-hidden border-2 border-orange-500/30">
+65:                <img src={currentEstab.logo} alt={currentEstab.name} className="w-full h-full object-cover" />
+67:                <Store className="w-8 h-8 text-foreground" />
+73:          <div className="flex-1 min-w-0">
+74:            <div className="flex items-center justify-around text-center">
+76:                <span className="text-lg font-bold text-foreground">{insights?.overview?.totalRatings ?? 0}</span>
+77:                <p className="text-[11px] text-muted-foreground">avaliações</p>
+80:                <span className="text-lg font-bold text-foreground">{insights?.overview?.avgScore?.toFixed?.(1) ?? "—"}</span>
+81:                <p className="text-[11px] text-muted-foreground">nota média</p>
+84:                <span className="text-lg font-bold text-foreground">{establishments.length}</span>
+85:                <p className="text-[11px] text-muted-foreground">locais</p>
+92:            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+93:              <Bell className="w-5 h-5 text-muted-foreground" />
+99:        <div className="mt-3 relative">
+102:            className={`flex items-center gap-2 ${establishments.length > 1 ? "cursor-pointer" : ""}`}
+104:            <h2 className="font-semibold text-base text-foreground">
+108:              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+112:            <p className="text-xs text-muted-foreground">{establishments.length} estabelecimentos</p>
+===== client/src/components/profiles/CriticProfile.tsx =====
+1:import { useState } from "react";
+2:import { useAuth } from "@/_core/hooks/useAuth";
+3:import { trpc } from "@/lib/trpc";
+4:import { Link } from "wouter";
+5:import {
+10:import PhotoGrid from "@/components/PhotoGrid";
+11:import { getConnectYarinUrl } from "@shared/const";
+12:import { FourPointStar } from "@/components/FourPointStar";
+13:import EditarTab from "@/components/profile-tabs/EditarTab";
+14:import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+15:import PlanosTab from "@/components/profile-tabs/PlanosTab";
+16:import SalvosTab from "@/components/profile-tabs/SalvosTab";
+17:import CalendarioTab from "@/components/profile-tabs/CalendarioTab";
+21:export default function CriticProfile() {
+44:  return (
+45:    <div className="pb-20">
+47:      <div className="px-4 pt-4 pb-4">
+48:        <div className="flex items-start gap-4">
+50:          <div className="relative flex-shrink-0">
+51:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center overflow-hidden border-[3px] border-slate-300 shadow-lg shadow-slate-300/20">
+53:                <span className="text-2xl font-bold text-foreground">
+57:                <span className="text-2xl">👤</span>
+61:            <div className="absolute -top-1 -right-1 w-7 h-7 flex items-center justify-center">
+67:          <div className="flex-1 min-w-0">
+68:            <div className="flex items-center justify-around text-center">
+70:                <span className="text-lg font-bold text-foreground">{totalRatings}</span>
+71:                <p className="text-[11px] text-muted-foreground">avaliações</p>
+74:                <span className="text-lg font-bold text-foreground">{followCounts?.followers ?? 0}</span>
+75:                <p className="text-[11px] text-muted-foreground">seguidores</p>
+78:                <span className="text-lg font-bold text-foreground">{followCounts?.following ?? 0}</span>
+79:                <p className="text-[11px] text-muted-foreground">seguindo</p>
+86:            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+87:              <Bell className="w-5 h-5 text-muted-foreground" />
+92:        <div className="mt-3">
+93:          <div className="flex items-center gap-2">
+94:            <h2 className="font-semibold text-base text-foreground">
+97:            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-medium">
+102:            <p className="text-sm text-blue-400 font-medium">@{profile.username}</p>
+104:          <p className="text-xs text-muted-foreground mt-0.5">
+111:        <div className="flex items-center gap-2 mt-3">
+===== client/src/components/profiles/SpecialistProfile.tsx =====
+1:import { useState } from "react";
+2:import { useAuth } from "@/_core/hooks/useAuth";
+3:import { trpc } from "@/lib/trpc";
+4:import { Link } from "wouter";
+5:import {
+9:import PhotoGrid from "@/components/PhotoGrid";
+10:import { getConnectYarinUrl } from "@shared/const";
+11:import { FourPointStar } from "@/components/FourPointStar";
+12:import { PainelTab } from "./CriticProfile";
+13:import EditarTab from "@/components/profile-tabs/EditarTab";
+14:import PreferenciasTab from "@/components/profile-tabs/PreferenciasTab";
+15:import PlanosTab from "@/components/profile-tabs/PlanosTab";
+16:import SalvosTab from "@/components/profile-tabs/SalvosTab";
+17:import CalendarioTab from "@/components/profile-tabs/CalendarioTab";
+21:export default function SpecialistProfile() {
+45:  return (
+46:    <div className="pb-20">
+48:      <div className="px-4 pt-4 pb-4">
+49:        <div className="flex items-start gap-4">
+51:          <div className="relative flex-shrink-0">
+52:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center overflow-hidden border-[3px] border-red-500 shadow-lg shadow-red-500/20">
+54:                <span className="text-2xl font-bold text-foreground">
+58:                <span className="text-2xl">👤</span>
+62:            <div className="absolute -top-1 -right-1 w-7 h-7 flex items-center justify-center">
+68:          <div className="flex-1 min-w-0">
+69:            <div className="flex items-center justify-around text-center">
+71:                <span className="text-lg font-bold text-foreground">{totalRatings}</span>
+72:                <p className="text-[11px] text-muted-foreground">avaliações</p>
+75:                <span className="text-lg font-bold text-foreground">{followCounts?.followers ?? 0}</span>
+76:                <p className="text-[11px] text-muted-foreground">seguidores</p>
+79:                <span className="text-lg font-bold text-foreground">{followCounts?.following ?? 0}</span>
+80:                <p className="text-[11px] text-muted-foreground">seguindo</p>
+87:            <button className="p-2 rounded-full hover:bg-secondary/50 transition-colors relative">
+88:              <Bell className="w-5 h-5 text-muted-foreground" />
+93:        <div className="mt-3">
+94:          <div className="flex items-center gap-2">
+95:            <h2 className="font-semibold text-base text-foreground">
+98:            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium">
+103:            <p className="text-sm text-yellow-500 font-medium">@{profile.username}</p>
+105:          <p className="text-xs text-muted-foreground mt-0.5">
+111:        <div className="flex items-center gap-2 mt-3">
+===== client/src/components/profiles/SupportProfile.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle, Bug, Save } from "lucide-react";
+4:import { cn } from "@/lib/utils";
+5:import { useState, useEffect } from "react";
+6:import { useLocation } from "wouter";
+7:import SupportChat from "@/components/SupportChat";
+8:import { toast } from "sonner";
+10:function SupportChatSection() {
+11:  return <SupportChat />;
+31:export default function SupportProfile() {
+56:  return (
+57:    <div className="pb-20">
+59:      <div className="px-4 pt-4 pb-3">
+60:        <div className="flex items-start gap-4">
+62:          <div className="relative flex-shrink-0">
+63:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center overflow-hidden border-[3px] border-teal-500">
+65:                <span className="text-2xl font-bold text-foreground">
+69:                <Headphones className="w-8 h-8 text-foreground" />
+72:            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center border-2 border-background">
+73:              <Headphones className="w-3 h-3 text-foreground" />
+78:          <div className="flex-1 min-w-0">
+79:            <div className="flex items-center gap-1.5">
+80:              <h2 className="font-semibold text-lg text-foreground truncate">
+83:              <span className="px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-500 text-[10px] font-bold">
+87:            <p className="text-sm text-muted-foreground mt-0.5">Time de Atendimento Avalyarin</p>
+88:            <p className="text-xs text-muted-foreground mt-1">
+89:              Carteira: <strong className="text-foreground">{stats?.totalEstabs ?? 0}</strong> estabelecimentos
+96:      <div className="px-4 py-3">
+97:        <div className="grid grid-cols-3 gap-2">
+98:          <div className="p-3 rounded-lg bg-teal-500/5 border border-teal-500/20 text-center">
+99:            <Store className="w-5 h-5 mx-auto text-teal-500 mb-1" />
+100:            <span className="text-lg font-bold text-foreground">{stats?.totalEstabs ?? 0}</span>
+101:            <p className="text-[10px] text-muted-foreground">vinculados</p>
+103:          <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 text-center">
+104:            <Clock className="w-5 h-5 mx-auto text-amber-500 mb-1" />
+105:            <span className="text-lg font-bold text-foreground">{stats?.openTickets ?? 0}</span>
+106:            <p className="text-[10px] text-muted-foreground">abertos</p>
+108:          <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20 text-center">
+109:            <CheckCircle2 className="w-5 h-5 mx-auto text-green-500 mb-1" />
+110:            <span className="text-lg font-bold text-foreground">{stats?.resolvedToday ?? 0}</span>
+111:            <p className="text-[10px] text-muted-foreground">hoje</p>
+===== client/src/components/profiles/AdminProfile.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Shield, Users, Store, Star, Clock, UserPlus, CheckCircle2, FileText, Settings, Eye } from "lucide-react";
+4:import { cn } from "@/lib/utils";
+5:import { useState } from "react";
+6:import { Link } from "wouter";
+8:export default function AdminProfile() {
+12:  return (
+13:    <div className="pb-20">
+15:      <div className="px-4 pt-4 pb-3">
+16:        <div className="flex items-start gap-4">
+18:          <div className="relative flex-shrink-0">
+19:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center overflow-hidden border-[3px] border-red-500">
+21:                <span className="text-2xl font-bold text-foreground">
+25:                <Shield className="w-8 h-8 text-foreground" />
+28:            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center border-2 border-background">
+29:              <Shield className="w-3 h-3 text-foreground" />
+34:          <div className="flex-1 min-w-0">
+35:            <div className="flex items-center gap-1.5">
+36:              <h2 className="font-semibold text-lg text-foreground truncate">
+39:              <span className="px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-500 text-[10px] font-bold">
+43:            <p className="text-sm text-muted-foreground mt-0.5">Administrador do Sistema</p>
+49:      <div className="px-4 py-3">
+50:        <div className="grid grid-cols-2 gap-2">
+51:          <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+52:            <div className="flex items-center gap-2">
+53:              <Users className="w-4 h-4 text-red-500" />
+54:              <span className="text-xs text-muted-foreground">Usuários</span>
+56:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.users ?? 0}</span>
+58:          <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+59:            <div className="flex items-center gap-2">
+60:              <Store className="w-4 h-4 text-red-500" />
+61:              <span className="text-xs text-muted-foreground">Estabelecimentos</span>
+63:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.establishments ?? 0}</span>
+65:          <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+66:            <div className="flex items-center gap-2">
+67:              <Star className="w-4 h-4 text-red-500" />
+68:              <span className="text-xs text-muted-foreground">Avaliações</span>
+70:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.ratings ?? 0}</span>
+72:          <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+73:            <div className="flex items-center gap-2">
+74:              <Clock className="w-4 h-4 text-amber-500" />
+75:              <span className="text-xs text-muted-foreground">Pendentes</span>
+77:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.pendingClaims ?? 0}</span>
+83:      <div className="px-4 py-3">
+84:        <h3 className="text-sm font-semibold text-foreground mb-3">Ações Rápidas</h3>
+85:        <div className="grid grid-cols-2 gap-2">
+87:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+88:              <UserPlus className="w-4 h-4 text-red-500" />
+89:              <span className="text-sm text-foreground">Gerenciar Usuários</span>
+93:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+94:              <CheckCircle2 className="w-4 h-4 text-red-500" />
+95:              <span className="text-sm text-foreground">Aprovações</span>
+100:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+101:              <Settings className="w-4 h-4 text-red-500" />
+102:              <span className="text-sm text-foreground">Configurações</span>
+106:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+107:              <Eye className="w-4 h-4 text-red-500" />
+108:              <span className="text-sm text-foreground">Moderação</span>
+115:      <div className="px-4 py-3">
+===== client/src/components/profiles/OwnerProfile.tsx =====
+1:import { useAuth } from "@/_core/hooks/useAuth";
+2:import { trpc } from "@/lib/trpc";
+3:import { Crown, Users, Store, Star, Server, Shield, Settings, Database, FileText, Eye, ClipboardList } from "lucide-react";
+4:import { Link } from "wouter";
+6:export default function OwnerProfile() {
+10:  return (
+11:    <div className="pb-20">
+13:      <div className="px-4 pt-4 pb-3">
+14:        <div className="flex items-start gap-4">
+16:          <div className="relative flex-shrink-0">
+17:            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center overflow-hidden border-[3px] border-yellow-500 shadow-lg shadow-yellow-500/30">
+19:                <span className="text-2xl font-bold text-foreground">
+23:                <Crown className="w-8 h-8 text-foreground" />
+26:            <div className="absolute -top-2 -right-1 w-7 h-7 flex items-center justify-center">
+27:              <Crown className="w-6 h-6 text-yellow-500 fill-yellow-500 drop-shadow-md" />
+32:          <div className="flex-1 min-w-0">
+33:            <div className="flex items-center gap-1.5">
+34:              <h2 className="font-semibold text-lg text-foreground truncate">
+37:              <span className="px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-600 text-[10px] font-bold">
+41:            <p className="text-sm text-muted-foreground mt-0.5">Proprietário do Sistema</p>
+47:      <div className="px-4 py-3">
+48:        <h3 className="text-sm font-semibold text-foreground mb-3">Visão Geral</h3>
+49:        <div className="grid grid-cols-2 gap-2">
+50:          <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+51:            <div className="flex items-center gap-2">
+52:              <Users className="w-4 h-4 text-yellow-600" />
+53:              <span className="text-xs text-muted-foreground">Usuários</span>
+55:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.users ?? 0}</span>
+57:          <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+58:            <div className="flex items-center gap-2">
+59:              <Store className="w-4 h-4 text-yellow-600" />
+60:              <span className="text-xs text-muted-foreground">Estabelecimentos</span>
+62:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.establishments ?? 0}</span>
+64:          <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
+65:            <div className="flex items-center gap-2">
+66:              <Star className="w-4 h-4 text-yellow-600" />
+67:              <span className="text-xs text-muted-foreground">Avaliações</span>
+69:            <span className="text-xl font-bold text-foreground mt-1 block">{adminStats?.ratings ?? 0}</span>
+71:          <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+72:            <div className="flex items-center gap-2">
+73:              <Server className="w-4 h-4 text-green-500" />
+74:              <span className="text-xs text-muted-foreground">Sistema</span>
+76:            <span className="text-sm font-bold text-green-500 mt-1 block">Online ✓</span>
+82:      <div className="px-4 py-3">
+83:        <h3 className="text-sm font-semibold text-foreground mb-3">Controles do Owner</h3>
+84:        <div className="grid grid-cols-2 gap-2">
+86:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+87:              <Shield className="w-4 h-4 text-yellow-600" />
+88:              <span className="text-sm text-foreground">Gerenciar Roles</span>
+93:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+94:              <Settings className="w-4 h-4 text-yellow-600" />
+95:              <span className="text-sm text-foreground">Configurações</span>
+99:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+100:              <Eye className="w-4 h-4 text-yellow-600" />
+101:              <span className="text-sm text-foreground">Moderação</span>
+105:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+106:              <Database className="w-4 h-4 text-yellow-600" />
+107:              <span className="text-sm text-foreground">Backup</span>
+111:            <div className="p-3 rounded-lg bg-card border border-border/50 flex items-center gap-2 cursor-pointer hover:bg-secondary/50 transition-colors">
+112:              <FileText className="w-4 h-4 text-yellow-600" />
+113:              <span className="text-sm text-foreground">Logs</span>

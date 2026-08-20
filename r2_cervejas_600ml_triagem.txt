@@ -1,0 +1,59 @@
+Triagem provisória de imagens capturadas do Atacadão para possível uso no R2
+
+Imagens já inspecionadas:
+- /home/ubuntu/upload/search_images/aCctMdR5wxKT.jpg -> banner promocional Heineken com múltiplas cervejas; não serve como imagem padrão individual.
+- /home/ubuntu/upload/search_images/xsd5VXhtCNPS.jpg -> Amstel Lager lata 350ml; não é 600ml.
+- /home/ubuntu/upload/search_images/SQNgL6udvqAl.jpg -> Heineken lata 350ml; não é 600ml.
+- /home/ubuntu/upload/search_images/YoSmOl1DedqT.jpg -> Heineken lata 350ml; não é 600ml.
+- /home/ubuntu/upload/search_images/SOxgk8FST5fC.jpg -> Heineken long neck / garrafa pequena; não é 600ml.
+
+Próximo passo: continuar a inspeção das demais imagens para localizar garrafas 600ml adequadas ao padrão do cardápio.
+
+Atualização da triagem:
+
+As visualizações adicionais confirmaram que:
+
+| Arquivo | Identificação visual | Adequação para 600ml |
+| --- | --- | --- |
+| /home/ubuntu/upload/search_images/YoSmOl1DedqT.jpg | Heineken Original lata 350ml | Não |
+| /home/ubuntu/upload/search_images/pvtnwRggxGQg.jpg | Heineken keg 5L | Não |
+| /home/ubuntu/upload/search_images/03RguVeCi26h.jpg | visualizado sem identificação textual persistida; precisa de nova checagem controlada | Indefinido |
+
+Conclusão parcial: as imagens claramente confirmadas até agora não servem como padrão para cervejas 600ml. É necessário montar uma folha de contato com nomes de arquivo para triagem mais eficiente das demais capturas.
+
+Nova rodada de conferência visual:
+
+| Arquivo | Identificação visual confirmada | Volume visível | Situação |
+| --- | --- | --- | --- |
+| /home/ubuntu/upload/search_images/wIy42Fo49NlH.jpg | Spaten garrafa | 600ml | Aprovada para upload padrão |
+| /home/ubuntu/upload/search_images/atoP1sMezJz7.jpg | Heineken garrafa verde | volume não legível nesta captura | Pendente; provável long neck, não subir como 600ml sem validação adicional |
+| /home/ubuntu/upload/search_images/IdNF1vXQ9nuG.png | Eisenbahn Weizenbier | 355ml | Reprovada para 600ml |
+| /home/ubuntu/upload/search_images/03RguVeCi26h.jpg | Brahma Chopp lata | não é garrafa 600ml | Reprovada para 600ml |
+
+Conclusão parcial atual: a única imagem inequivocamente adequada para o lote inicial de cervejas 600ml é a Spaten em /home/ubuntu/upload/search_images/wIy42Fo49NlH.jpg. As demais candidatas exigem validação adicional antes do envio ao R2.
+
+Fechamento da triagem visual corrente:
+
+A folha de contato confirmou que a captura /home/ubuntu/upload/search_images/wIy42Fo49NlH.jpg mostra claramente a **Spaten garrafa 600ml**, sendo a primeira candidata válida para uso padrão no cardápio.
+
+Também foi confirmado que:
+
+| Arquivo | Produto | Volume | Decisão |
+| --- | --- | --- | --- |
+| /home/ubuntu/upload/search_images/GK13xSob9z7n.jpg | Spaten Munich lata | 350ml | Excluir do lote 600ml |
+| /home/ubuntu/upload/search_images/g5zfQOLUA6GE.jpg | Corona long neck / verso da garrafa | não corresponde a 600ml | Excluir do lote 600ml |
+| /home/ubuntu/upload/search_images/IdNF1vXQ9nuG.png | Eisenbahn Weizenbier | 355ml | Excluir do lote 600ml |
+
+Status do lote inicial: 1 imagem aprovada para upload imediato ao R2.
+
+Status do upload ao R2:
+
+A imagem aprovada **spaten_600ml.jpg** foi organizada em `/home/ubuntu/avalyarin/r2_upload_600ml/` e enviada com sucesso ao bucket `avalyarin-assets` no caminho `defaults/beverages/beers/600ml/spaten_600ml.jpg`.
+
+URL de referência retornada pelo upload:
+
+| Arquivo | Chave no R2 | URL |
+| --- | --- | --- |
+| spaten_600ml.jpg | defaults/beverages/beers/600ml/spaten_600ml.jpg | https://avalyarin-assets.34bf9a273161d88cd7a18b69b4bd3e35.r2.cloudflarestorage.com/defaults/beverages/beers/600ml/spaten_600ml.jpg |
+
+Observação: as demais imagens inspecionadas nesta rodada correspondem a latas 350ml, long neck, barril 5L ou materiais promocionais e por isso não foram enviadas como padrão de cerveja 600ml.
