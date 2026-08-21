@@ -15,6 +15,7 @@ import { getDb } from "./db";
 import { establishments, menuItems, categories, establishmentCategories } from "../drizzle/schema";
 import { like, and, or, eq, inArray, sql, not } from "drizzle-orm";
 import { fuzzySearchEstablishments, generateFuzzyTerms } from "./fuzzy-search";
+import { syncEstablishmentData } from "./sync";
 
 // Complete establishment filter (same as used in searchAll)
 const completeEstablishmentFilter = eq(establishments.status, 'active');
@@ -360,6 +361,14 @@ export async function smartSearch(query: string): Promise<SmartSearchResult> {
 
   // Search establishments
   let rawEstablishments = await searchEstablishmentsByTerms(searchTerms, neighborhoodHints, categoryHints);
+
+  // Trigger sync for found establishments to ensure menu items are available
+  if (rawEstablishments.length > 0) {
+    // We do this asynchronously to not block search results
+    Promise.all(rawEstablishments.map(e => syncEstablishmentData(e.id, e.slug))).catch(err => {
+      console.error("[SmartSearch] Background sync failed:", err);
+    });
+  }
 
   // Also try in-memory fuzzy matching and merge results
   const fuzzyNames = await fuzzySearchEstablishments(trimmed);

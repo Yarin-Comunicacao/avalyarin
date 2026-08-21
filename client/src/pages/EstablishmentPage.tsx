@@ -251,6 +251,12 @@ export default function EstablishmentPage() {
                 alt={item.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.includes('/storage/')) {
+                    target.src = target.src.replace('/storage/', '/manus-storage/');
+                  }
+                }}
               />
             </div>
           )}
@@ -297,6 +303,12 @@ export default function EstablishmentPage() {
               src={establishment.image}
               alt={establishment.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src.includes('/storage/')) {
+                  target.src = target.src.replace('/storage/', '/manus-storage/');
+                }
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
           </div>

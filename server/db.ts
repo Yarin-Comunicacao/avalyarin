@@ -416,6 +416,15 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
       .limit(1);
     
     if (est.length === 0) return undefined;
+
+    // SINCRONIZAÇÃO AUTOMÁTICA
+    // Se não houver itens de menu, tenta sincronizar da fonte de dados
+    try {
+      const { syncEstablishmentData } = await import("./sync");
+      await syncEstablishmentData(est[0].id, est[0].slug);
+    } catch (syncErr) {
+      console.error("[Sync] Erro na sincronização automática:", syncErr);
+    }
     
     // Get all categories via N:N table
     const estCategories = await db.select({
@@ -432,15 +441,25 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
     const primaryCat = estCategories.find(c => c.isPrimary) || estCategories[0];
     const legacyCat = primaryCat ? null : await db.select().from(categories).where(eq(categories.id, est[0].categoryId)).limit(1).then(r => r[0] || null);
     
+    // LOG EXTREMO PARA DIAGNÓSTICO
+    console.log(`[DEBUG_MENU] Buscando itens para establishmentId: ${est[0].id}`);
+    
     const menu = await db.select()
       .from(menuItems)
       .where(eq(menuItems.establishmentId, est[0].id));
+
+    console.log(`[DEBUG_MENU] Itens encontrados no banco: ${menu.length}`);
+    if (menu.length > 0) {
+      console.log(`[DEBUG_MENU] Exemplo do primeiro item: ${JSON.stringify(menu[0])}`);
+    }
 
     // Get menu categories with sort order
     const menuCatEntries = await db.select()
       .from(menuCategories)
       .where(eq(menuCategories.establishmentId, est[0].id))
       .orderBy(menuCategories.sortOrder);
+      
+    console.log(`[DEBUG_MENU] Categorias encontradas: ${menuCatEntries.length}`);
 
     const result = {
       ...est[0],
