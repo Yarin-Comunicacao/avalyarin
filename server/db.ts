@@ -358,9 +358,13 @@ export async function getEstablishmentBySlug(slug: string, bypassFilter = false)
   const db = await getDb();
   if (!db) return undefined;
   
+  const isNumeric = /^\d+$/.test(slug);
   const whereClause = bypassFilter
-    ? eq(establishments.slug, slug)
-    : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+    ? or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined)
+    : and(
+        or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined),
+        completeEstablishmentFilter
+      );
   
   const result = await db.select()
     .from(establishments)
@@ -398,9 +402,13 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
     const db = await getDb();
     if (!db) return undefined;
     
+    const isNumeric = /^\d+$/.test(slug);
     const whereClause = bypassFilter
-      ? eq(establishments.slug, slug)
-      : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+      ? or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined)
+      : and(
+          or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined),
+          completeEstablishmentFilter
+        );
     
     const est = await db.select()
       .from(establishments)
@@ -428,15 +436,11 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
       .from(menuItems)
       .where(eq(menuItems.establishmentId, est[0].id));
 
-    console.log(`[getWithMenu] Found ${menu.length} menu items for estId ${est[0].id} (${slug})`);
-
     // Get menu categories with sort order
     const menuCatEntries = await db.select()
       .from(menuCategories)
       .where(eq(menuCategories.establishmentId, est[0].id))
       .orderBy(menuCategories.sortOrder);
-
-    console.log(`[getWithMenu] Found ${menuCatEntries.length} menu categories for estId ${est[0].id}`);
 
     const result = {
       ...est[0],
