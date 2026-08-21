@@ -77,6 +77,9 @@ export const establishments = mysqlTable("establishments", {
   hours: varchar("hours", { length: 255 }),
   phone: varchar("phone", { length: 64 }),
   instagram: varchar("instagram", { length: 128 }),
+  googleMapsUrl: text("googleMapsUrl"),
+  facebook: varchar("facebook", { length: 255 }),
+  website: varchar("website", { length: 255 }),
   categoryId: int("categoryId").notNull(),
   description: text("description"),
   complement: varchar("complement", { length: 255 }),
@@ -439,6 +442,23 @@ export const menuCategories = mysqlTable("menu_categories", {
 
 export type MenuCategory = typeof menuCategories.$inferSelect;
 export type InsertMenuCategory = typeof menuCategories.$inferInsert;
+
+/** Photos and extraction metadata submitted for an intelligent menu import. */
+export const establishmentMenuImports = mysqlTable("establishment_menu_imports", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  submittedById: int("submittedById").notNull(),
+  sourceUrls: json("sourceUrls").$type<string[]>().notNull(),
+  status: mysqlEnum("status", ["processing", "completed", "failed"]).default("processing").notNull(),
+  extractedCategoryCount: int("extractedCategoryCount").default(0).notNull(),
+  extractedItemCount: int("extractedItemCount").default(0).notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type EstablishmentMenuImport = typeof establishmentMenuImports.$inferSelect;
+export type InsertEstablishmentMenuImport = typeof establishmentMenuImports.$inferInsert;
 
 
 // ============================================================

@@ -7,6 +7,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 import { smartSearch } from "./smart-search";
+import { createSmartEstablishment } from "./smart-menu-intake";
 import { lookupDistrict, getRegionByNeighborhood } from "./geo-lookup";
 import {
   getAllCategories,
@@ -1312,6 +1313,23 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getEstablishmentsByCategory(input.categorySlug, input.limit, input.offset, true);
+      }),
+
+    createSmartEstablishment: adminProcedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        googleMapsUrl: z.string().url("Informe um link válido do Google Maps"),
+        instagram: z.string().min(1).max(128),
+        facebook: z.string().max(255).optional(),
+        website: z.string().url("Informe uma URL válida").max(255).optional().or(z.literal("")),
+        categoryId: z.number().int().min(1),
+        photos: z.array(z.object({
+          url: z.string().url(),
+          key: z.string().max(512).optional(),
+        })).min(1, "Envie pelo menos uma foto").max(50, "O limite é de 50 fotos"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createSmartEstablishment({ ...input, submittedById: ctx.user!.id });
       }),
 
     createEstablishment: adminProcedure

@@ -137,6 +137,12 @@ async function startServer() {
   // Menu image upload endpoint — converts to WebP (thumbnail 400x400 + full 1200x1200)
   app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
     try {
+      try {
+        await sdk.authenticateRequest(req);
+      } catch {
+        return res.status(401).json({ error: "Login necessário para enviar fotos do cardápio" });
+      }
+
       const data = req.body as Buffer;
       if (!data || data.length === 0) {
         return res.status(400).json({ error: "No file data provided" });

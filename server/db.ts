@@ -1972,6 +1972,9 @@ export async function createEstablishment(data: {
   lng?: number;
   phone?: string;
   instagram?: string;
+  googleMapsUrl?: string;
+  facebook?: string;
+  website?: string;
   hours?: string;
   image?: string;
 }) {
@@ -2015,6 +2018,9 @@ export async function createEstablishment(data: {
     lng: data.lng || null,
     phone: data.phone || null,
     instagram: data.instagram || null,
+    googleMapsUrl: data.googleMapsUrl || null,
+    facebook: data.facebook || null,
+    website: data.website || null,
     hours: data.hours || null,
     image: data.image || null,
     hasMenu: false,
@@ -2022,7 +2028,7 @@ export async function createEstablishment(data: {
     source: "admin",
   });
 
-  return { id: result[0].insertId, slug };
+  return { id: nextEstId, slug };
 }
 
 // ─── Code Backup ────────────────────────────────────────────────────────────
