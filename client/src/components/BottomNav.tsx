@@ -40,6 +40,7 @@ const OWNER_ROLE_SUBMENUS: Record<string, { icon: string; label: string; path: s
   Critic: ROLE_BOTTOM_NAV.critic,
   Especialista: ROLE_BOTTOM_NAV.specialist,
   Business: ROLE_BOTTOM_NAV.business,
+  Support: ROLE_BOTTOM_NAV.support,
   Suporte: ROLE_BOTTOM_NAV.support,
   Admin: ROLE_BOTTOM_NAV.admin,
   Owner: [
@@ -57,6 +58,7 @@ const LABEL_TO_ROLE: Record<string, AppRole> = {
   Critic: "critic",
   Especialista: "specialist",
   Business: "business",
+  Support: "support",
   Suporte: "support",
   Admin: "admin",
   Owner: "owner",
