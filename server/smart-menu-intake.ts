@@ -38,11 +38,8 @@ export async function ensureSmartMenuSchema() {
   if (!db) throw new Error("Banco de dados indisponível");
 
   const statements = [
-    sql`ALTER TABLE establishments ADD COLUMN googleMapsUrl TEXT`,
-    sql`ALTER TABLE establishments ADD COLUMN facebook VARCHAR(255)`,
-    sql`ALTER TABLE establishments ADD COLUMN website VARCHAR(255)`,
     sql`CREATE TABLE IF NOT EXISTS establishment_menu_imports (
-      id INT NOT NULL PRIMARY KEY,
+      id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
       establishmentId INT NOT NULL,
       submittedById INT NOT NULL,
       sourceUrls JSON NOT NULL,
@@ -53,19 +50,31 @@ export async function ensureSmartMenuSchema() {
       createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       completedAt TIMESTAMP NULL
     )`,
+    sql`ALTER TABLE establishments ADD COLUMN googleMapsUrl TEXT`,
+    sql`ALTER TABLE establishments ADD COLUMN facebook TEXT`,
+    sql`ALTER TABLE establishments ADD COLUMN website TEXT`,
   ];
 
   for (const statement of statements) {
     try {
       await db.execute(statement);
     } catch (error: any) {
-      // Duplicate-column errors are expected on subsequent requests. Other
-      // errors are logged and surfaced so the Render log contains the cause.
-      const message = String(error?.message || error);
-      if (!/duplicate column|column .* already exists|already exists/i.test(message)) {
+      // Drizzle wraps the database error. The real MySQL error is in 'cause'.
+      const sqlMessage = String(error?.cause?.sqlMessage || error?.cause?.message || error?.sqlMessage || error?.message || "");
+      const combined = sqlMessage.toLowerCase();
+
+      // ER_DUP_FIELDNAME (1060) is the standard MySQL/TiDB error for duplicate columns.
+      // We also check common string patterns as a fallback.
+      const isDuplicate = error?.cause?.errno === 1060 || 
+                          error?.errno === 1060 ||
+                          combined.includes("duplicate column") || 
+                          combined.includes("already exists");
+
+      if (!isDuplicate) {
         logDbError(error, { operation: "ensureSmartMenuSchema", table: "establishments/establishment_menu_imports" });
         throw error;
       }
+      // If it is a duplicate, we ignore the error and continue to the next statement.
     }
   }
 
@@ -167,11 +176,6 @@ async function nextId(db: any, table: any): Promise<number> {
   return Number(result[0]?.maxId || 0) + 1;
 }
 
-async function nextImportId(db: any): Promise<number> {
-  const result = await db.execute(sql`SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM establishment_menu_imports`);
-  const rows: any[] = (result as any)?.[0] || [];
-  return Number(rows[0]?.nextId || Date.now());
-}
 
 export async function createSmartEstablishment(input: {
   name: string;
@@ -201,9 +205,8 @@ export async function createSmartEstablishment(input: {
   });
 
   const establishmentId = Number(establishment.id);
-  const importId = await nextImportId(db);
+  
   await db.insert(establishmentMenuImports).values({
-    id: importId,
     establishmentId,
     submittedById: input.submittedById,
     sourceUrls: input.photos.map(photo => photo.url),
