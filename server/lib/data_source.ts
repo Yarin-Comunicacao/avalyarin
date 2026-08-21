@@ -2683,6 +2683,21 @@ const botecoSaoBentoVilaMadalenaMenu: MenuItem[] = [
 ];
 
 const barDoJuarezMoemaMenu: MenuItem[] = [
+  { id: "bar-do-juarez-moema-picanha-do-juarez-fatiada", name: "Picanha do Juarez Fatiada", description: "Servida no réchaud, acompanha repolho, farofa, alho torrado, vinagrete e pão italiano.", price: 129.90, category: "prato" },
+  { id: "bar-do-juarez-moema-costelinha-de-porco", name: "Costelinha de Porco", description: "Servida no réchaud, acompanha repolho, farofa, alho torrado, vinagrete e pão italiano.", price: 89.90, category: "prato" },
+  { id: "bar-do-juarez-moema-file-mignon-aperitivo", name: "Filé Mignon Aperitivo", description: "Com molho madeira, acompanha pão italiano.", price: 79.90, category: "petisco" },
+  { id: "bar-do-juarez-moema-bolinho-de-bacalhau", name: "Bolinho de Bacalhau", description: "8 unidades.", price: 49.90, category: "petisco" },
+  { id: "bar-do-juarez-moema-pastel-carne", name: "Pastel (Carne)", description: "8 unidades.", price: 39.90, category: "petisco" },
+  { id: "bar-do-juarez-moema-frango-a-passarinho", name: "Frango à Passarinho", description: "Acompanha alho frito.", price: 59.90, category: "petisco" },
+  { id: "bar-do-juarez-moema-feijoada-tradicional", name: "Feijoada Tradicional", description: "Serve 2 pessoas.", price: 119.90, category: "prato" },
+  { id: "bar-do-juarez-moema-chopp-brahma-claro", name: "Chopp Brahma Claro", description: "300ml", price: 9.90, category: "chopp" },
+  { id: "bar-do-juarez-moema-caipirinha-de-cachaca", name: "Caipirinha de Cachaça", description: "Limão, cachaça e açúcar.", price: 25.90, category: "drink" },
+  { id: "bar-do-juarez-moema-gin-tonica", name: "Gin Tônica", description: "Gin, água tônica e limão.", price: 35.90, category: "drink" },
+  { id: "bar-do-juarez-moema-cerveja-original", name: "Cerveja Original", description: "600ml", price: 15.90, category: "cerveja" },
+  { id: "bar-do-juarez-moema-suco-de-laranja", name: "Suco de Laranja", description: "Natural, 300ml", price: 9.90, category: "bebida" },
+  { id: "bar-do-juarez-moema-petit-gateau-de-chocolate", name: "Petit Gateau de Chocolate", description: "Acompanha sorvete de creme.", price: 29.90, category: "sobremesa" },
+  { id: "bar-do-juarez-moema-creme-de-papaia-com-cassis", name: "Creme de Papaia com Cassis", description: "", price: 27.90, category: "sobremesa" },
+  { id: "bar-do-juarez-moema-cafe-expresso", name: "Café Expresso", description: "", price: 6.90, category: "bebida" },
 ];
 
 const barDoJuarezBrooklinMenu: MenuItem[] = [

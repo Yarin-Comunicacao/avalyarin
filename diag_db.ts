@@ -12,7 +12,7 @@ async function check() {
     console.log("Conectado ao TiDB.");
     
     const [estRows]: any = await connection.execute(
-      "SELECT id, slug, name, hasMenu, status FROM establishments WHERE name LIKE '%Mania%'"
+      "SELECT id, slug, name, hasMenu, status FROM establishments WHERE slug = 'bar-do-juarez-moema'"
     );
     
     console.log(`Encontrados ${estRows.length} estabelecimentos.`);

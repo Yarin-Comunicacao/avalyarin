@@ -1,15 +1,14 @@
 import { categories } from "./server/lib/data_source";
 
 function extract() {
-  const ids = [];
+  const slug = "bar-do-juarez-moema";
   for (const cat of categories) {
-    if (cat.establishments) {
-      for (const est of cat.establishments) {
-        ids.push({ id: est.id, name: est.name });
-      }
+    const found = cat.establishments?.find((e: any) => e.id === slug);
+    if (found) {
+      console.log(JSON.stringify(found, null, 2));
+      return;
     }
   }
-  console.log(JSON.stringify(ids, null, 2));
 }
 
 extract();
