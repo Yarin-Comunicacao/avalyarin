@@ -31,11 +31,30 @@ export async function syncEstablishmentData(establishmentId: number, slug: strin
     const sourceCategories = dataModule.categories || [];
     
     let sourceEst = null;
+    // Tenta encontrar por slug exato ou slug parcial (contido no ID legado)
     for (const cat of sourceCategories) {
-      const found = cat.establishments?.find((e: any) => e.id === slug);
+      const found = cat.establishments?.find((e: any) => {
+        // e.id na fonte legada costuma ser o slug curto ou o ID
+        return e.id === slug || slug.includes(e.id) || e.id.includes(slug);
+      });
       if (found) {
         sourceEst = found;
         break;
+      }
+    }
+
+    // Se não encontrou, tenta uma busca mais agressiva por nome (aproximado)
+    if (!sourceEst) {
+      const cleanSlug = slug.replace(/-/g, ' ').toLowerCase();
+      for (const cat of sourceCategories) {
+        const found = cat.establishments?.find((e: any) => {
+          const cleanName = e.name.toLowerCase();
+          return cleanName.includes(cleanSlug) || cleanSlug.includes(cleanName);
+        });
+        if (found) {
+          sourceEst = found;
+          break;
+        }
       }
     }
 
