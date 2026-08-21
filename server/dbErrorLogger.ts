@@ -114,10 +114,41 @@ export function logDbError(error: any, context: DbErrorContext): void {
   const parsed = parseDbError(error, context);
   
   console.error(`\n${"=".repeat(70)}`);
-  console.error(`[${timestamp}] DATABASE ERROR DETECTED`);
+  console.error(`[${timestamp}] [DB_ALERT] 🚨 DATABASE ERROR DETECTED`);
   console.error(`${"=".repeat(70)}`);
   console.error(parsed);
   console.error(`${"=".repeat(70)}\n`);
+
+  // Tentar gravar o alerta na tabela system_logs de forma assíncrona para rastreabilidade
+  try {
+    // Importação dinâmica para evitar dependência circular
+    import('./db').then(async ({ getDb }) => {
+      const db = await getDb();
+      if (db) {
+        const { systemLogs } = await import('../drizzle/schema');
+        const [maxRes] = await db.select({ maxId: import('drizzle-orm').sql<number>`MAX(id)` }).from(systemLogs);
+        const nextId = (maxRes?.maxId || 0) + 1;
+        
+        await db.insert(systemLogs).values({
+          id: nextId,
+          action: `DB_ERROR_${context.operation.toUpperCase()}`,
+          entity: context.table || 'database',
+          description: parsed.slice(0, 500),
+          metadata: {
+            error: error?.message || String(error),
+            code: error?.code || error?.errno,
+            stack: error?.stack,
+            params: context.params ? JSON.stringify(context.params).slice(0, 200) : null
+          },
+          createdAt: new Date()
+        });
+      }
+    }).catch(err => {
+      console.error("[DB_ALERT_FAIL] Falha ao gravar log de erro na tabela system_logs:", err.message);
+    });
+  } catch (e) {
+    // Silenciar erro secundário de log
+  }
 }
 
 /**
