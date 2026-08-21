@@ -40,7 +40,7 @@ const OWNER_ROLE_SUBMENUS: Record<string, { icon: string; label: string; path: s
   Critic: ROLE_BOTTOM_NAV.critic,
   Especialista: ROLE_BOTTOM_NAV.specialist,
   Business: ROLE_BOTTOM_NAV.business,
-  Support: ROLE_BOTTOM_NAV.support,
+  Suporte: ROLE_BOTTOM_NAV.support,
   Admin: ROLE_BOTTOM_NAV.admin,
   Owner: [
     { icon: "Crown", label: "Owner", path: "/owner" },
@@ -57,7 +57,7 @@ const LABEL_TO_ROLE: Record<string, AppRole> = {
   Critic: "critic",
   Especialista: "specialist",
   Business: "business",
-  Support: "support",
+  Suporte: "support",
   Admin: "admin",
   Owner: "owner",
 };
@@ -284,7 +284,7 @@ export default function BottomNav() {
           </DialogContent>
         </Dialog>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe flex flex-col bg-background/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           {/* Active role username indicator */}
           {activeOwnerRole && activeUsername && (
             <div className="bg-card/90 backdrop-blur-sm border-t border-border/20 px-4 py-1.5">
@@ -311,7 +311,7 @@ export default function BottomNav() {
 
           {/* Secondary submenu (above primary) */}
           {activeOwnerRole && subMenuItems.length > 0 && (
-            <div className="bg-card/95 backdrop-blur-sm border-t border-border/30">
+            <div className="bg-card/95 backdrop-blur-sm border-t border-border/30 relative z-20">
               <div className="flex items-center justify-around h-14 max-w-lg mx-auto overflow-x-auto">
                 {subMenuItems.map((item) => {
                   const Icon = iconMap[item.icon] || Home;
@@ -354,7 +354,7 @@ export default function BottomNav() {
           )}
 
           {/* Primary owner role-switcher bar */}
-          <div className="bg-background border-t border-border/50">
+          <div className="bg-background border-t border-border/50 relative z-10">
             <div className="flex items-center justify-around h-[72px] max-w-lg mx-auto overflow-x-auto">
               {ownerNavItems.map((item) => {
                 const Icon = iconMap[item.icon] || Home;
