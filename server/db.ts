@@ -428,19 +428,25 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
       .from(menuItems)
       .where(eq(menuItems.establishmentId, est[0].id));
 
+    console.log(`[getWithMenu] Found ${menu.length} menu items for estId ${est[0].id} (${slug})`);
+
     // Get menu categories with sort order
     const menuCatEntries = await db.select()
       .from(menuCategories)
       .where(eq(menuCategories.establishmentId, est[0].id))
       .orderBy(menuCategories.sortOrder);
 
-    return {
+    console.log(`[getWithMenu] Found ${menuCatEntries.length} menu categories for estId ${est[0].id}`);
+
+    const result = {
       ...est[0],
       category: primaryCat ? { id: primaryCat.id, slug: primaryCat.slug, name: primaryCat.name, icon: primaryCat.icon } : legacyCat,
       categories: estCategories.length > 0 ? estCategories : (legacyCat ? [{ ...legacyCat, isPrimary: true }] : []),
       menu,
       menuCategoryOrder: menuCatEntries.map(mc => mc.name),
     };
+    
+    return result;
   } catch (error: any) {
     logDbError(error, { operation: "getEstablishmentWithMenu", table: "establishments/menu_items/establishment_categories", params: { slug } });
     throw error;
