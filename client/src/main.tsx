@@ -26,8 +26,8 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   // Redirect to internal login page (not Manus OAuth)
   // Only redirect for protected routes, not public ones
   const currentPath = window.location.pathname;
-  const publicPaths = ["/login", "/", "/termos", "/privacidade", "/todas-categorias"];
-  const isPublic = publicPaths.includes(currentPath) || currentPath.startsWith("/categoria/") || currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/");
+  const publicPaths = ["/login", "/", "/busca", "/mapa", "/perto-de-mim", "/destaques", "/termos", "/privacidade", "/todas-categorias"];
+  const isPublic = publicPaths.includes(currentPath) || currentPath.startsWith("/categoria/") || currentPath.startsWith("/e/") || currentPath.startsWith("/estabelecimento/") || currentPath.startsWith("/avaliar/") || currentPath.startsWith("/reservar/");
   if (!isPublic) {
     window.location.replace("/login");
   }

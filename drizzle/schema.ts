@@ -77,6 +77,10 @@ export const establishments = mysqlTable("establishments", {
   hours: varchar("hours", { length: 255 }),
   phone: varchar("phone", { length: 64 }),
   instagram: varchar("instagram", { length: 128 }),
+  // Optional social and map links kept nullable for legacy establishments.
+  googleMapsUrl: text("googleMapsUrl"),
+  facebook: text("facebook"),
+  website: text("website"),
   categoryId: int("categoryId").notNull(),
   description: text("description"),
   complement: varchar("complement", { length: 255 }),

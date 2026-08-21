@@ -429,7 +429,7 @@ export const appRouter = router({
       }),
     
     getWithMenu: publicProcedure
-      .input(z.object({ slug: z.string() }))
+      .input(z.object({ slug: z.union([z.string().min(1), z.number().int().positive()]) }))
       .query(async ({ input }) => {
         return await getEstablishmentWithMenu(input.slug);
       }),

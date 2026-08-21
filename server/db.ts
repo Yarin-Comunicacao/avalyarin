@@ -393,14 +393,19 @@ export async function getEstablishmentBySlug(slug: string, bypassFilter = false)
   };
 }
 
-export async function getEstablishmentWithMenu(slug: string, bypassFilter = false) {
+export async function getEstablishmentWithMenu(identifier: string | number, bypassFilter = false) {
   try {
     const db = await getDb();
     if (!db) return undefined;
     
+    const isNumeric = typeof identifier === 'number' || /^\d+$/.test(String(identifier));
+    const matchCondition = isNumeric
+      ? eq(establishments.id, Number(identifier))
+      : eq(establishments.slug, String(identifier));
+
     const whereClause = bypassFilter
-      ? eq(establishments.slug, slug)
-      : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+      ? matchCondition
+      : and(matchCondition, completeEstablishmentFilter);
     
     const est = await db.select()
       .from(establishments)
@@ -442,7 +447,7 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
       menuCategoryOrder: menuCatEntries.map(mc => mc.name),
     };
   } catch (error: any) {
-    logDbError(error, { operation: "getEstablishmentWithMenu", table: "establishments/menu_items/establishment_categories", params: { slug } });
+    logDbError(error, { operation: "getEstablishmentWithMenu", table: "establishments/menu_items/establishment_categories", params: { identifier } });
     throw error;
   }
 }

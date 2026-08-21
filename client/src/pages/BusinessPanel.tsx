@@ -2308,18 +2308,19 @@ function ReservationConfigSection({ establishmentId }: { establishmentId: number
 
   const [acceptsReservations, setAcceptsReservations] = useState(false);
   const [minAdvance, setMinAdvance] = useState(30);
-  const [initialized, setInitialized] = useState(false);
-
-  // Sync state when config loads
-  if (config && !initialized) {
-    setAcceptsReservations(config.acceptsReservations);
-    setMinAdvance(config.reservationMinAdvanceMinutes ?? 30);
-    setInitialized(true);
-  }
-
-  // Reset when establishmentId changes
+  // Sync state only after the query has returned. This prevents React render-phase
+  // updates and guarantees a new establishment starts in the database-defined state.
   useEffect(() => {
-    setInitialized(false);
+    if (!config) return;
+    setAcceptsReservations(config.acceptsReservations === true);
+    setMinAdvance(config.reservationMinAdvanceMinutes ?? 30);
+  }, [config]);
+
+  // Reset when establishmentId changes; the switch remains off while the next
+  // establishment configuration is loading.
+  useEffect(() => {
+    setAcceptsReservations(false);
+    setMinAdvance(30);
   }, [establishmentId]);
 
   const handleSave = () => {
@@ -2360,11 +2361,11 @@ function ReservationConfigSection({ establishmentId }: { establishmentId: number
             role="switch"
             aria-checked={acceptsReservations}
             onClick={() => setAcceptsReservations(!acceptsReservations)}
-            className={`flex items-center w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 p-1 ${
+            className={`relative flex items-center w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 p-0.5 ${
               acceptsReservations ? "bg-primary justify-end" : "bg-secondary border border-border/50 justify-start"
             }`}
           >
-            <span className="block w-4 h-4 rounded-full bg-white shadow-sm" />
+            <span className="block w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200" />
           </button>
         </div>
 

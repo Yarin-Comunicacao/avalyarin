@@ -351,6 +351,13 @@
       "when": 1787070000000,
       "tag": "0049_universal_bug_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "5",
+      "when": 1787318725389,
+      "tag": "0050_sturdy_tag",
+      "breakpoints": true
     }
   ]
 }

@@ -213,7 +213,7 @@ export function SavedPostsCarousel() {
                 {expandedPostData.description && (
                   <p className="text-sm text-foreground/80 line-clamp-3 mb-3">{expandedPostData.description}</p>
                 )}
-                <Link href={`/estabelecimento/${expandedPostData.establishmentId}`}>
+                <Link href={`/estabelecimento/${expandedPostData.slug || expandedPostData.establishmentId}`}>
                   <button className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all">
                     Ver Estabelecimento
                   </button>

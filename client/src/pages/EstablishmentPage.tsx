@@ -2,7 +2,7 @@
 // Back arrow navigates to the parent category page
 import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
-import { Link, useParams, Redirect } from "wouter";
+import { Link, useParams } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Phone, Instagram, ArrowRight, Loader2, Share2, MessageCircle, Building2, Copy, Navigation, Car, X, Bookmark, Send, CheckCircle, Newspaper, UtensilsCrossed, Ticket, CalendarDays, DollarSign, Pencil, Upload, Image as ImageIcon, ScanLine, Leaf, Sprout, WheatOff, ChevronDown, ListOrdered } from "lucide-react";
 import ShareToGroup from "@/components/ShareToGroup";
@@ -119,7 +119,7 @@ export default function EstablishmentPage() {
   const { user, isAuthenticated } = useAuth();
   const { id } = useParams<{ id: string }>();
 
-  const { data: estData, isLoading } = trpc.establishments.getWithMenu.useQuery(
+  const { data: estData, isLoading, isError } = trpc.establishments.getWithMenu.useQuery(
     { slug: id || "" },
     { enabled: !!id }
   );
@@ -138,8 +138,23 @@ export default function EstablishmentPage() {
     );
   }
 
-  if (!estData) {
-    return <Redirect to="/busca" />;
+  if (isError || (!isLoading && !estData)) {
+    return (
+      <div className="safe-area-screen min-h-screen bg-background">
+        <Navbar />
+        <main className="container pt-28 pb-16">
+          <div className="max-w-lg mx-auto rounded-2xl border border-primary/20 bg-card/80 p-6 text-center shadow-lg">
+            <h1 className="font-display text-2xl tracking-wider text-primary">ESTABELECIMENTO INDISPONÍVEL</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Não foi possível carregar este estabelecimento ou o cardápio neste momento. Tente novamente pela busca.
+            </p>
+            <Link href="/busca" className="inline-flex mt-6 items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
+              Voltar para a busca
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const establishment = estData;
