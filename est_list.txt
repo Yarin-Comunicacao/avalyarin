@@ -1,0 +1,295 @@
+Conectado ao TiDB.
+Encontrados 293 estabelecimentos.
+ID: 30000000, Slug: dona-deola-lapa, Name: Dona Deôla - Lapa, Items: 30
+ID: 30000001, Slug: santa-etienne, Name: Santa Etienne, Items: 30
+ID: 30000002, Slug: boteco-da-dona-tati, Name: Boteco da Dona Tati, Items: 14
+ID: 30000003, Slug: boteco-sao-bento-itaim-bibi, Name: Boteco São Bento Itaim Bibi, Items: 30
+ID: 30000004, Slug: z-deli-sandwich-shop, Name: Z Deli Sandwich Shop, Items: 24
+ID: 30000005, Slug: osteria-generale-jardim-paulista, Name: Osteria Generale - Jardim Paulista, Items: 30
+ID: 30000006, Slug: black-dog-paulista, Name: Black Dog Paulista, Items: 24
+ID: 30000007, Slug: eu-tu-eles, Name: Eu, tu, eles, Items: 14
+ID: 30000008, Slug: prainha-paulista, Name: Prainha Paulista, Items: 30
+ID: 30000009, Slug: botanikafe-jardins, Name: Botanikafé Jardins, Items: 30
+ID: 30000010, Slug: bar-valadares, Name: Bar Valadares, Items: 12
+ID: 30000011, Slug: maravilhas-da-serra-emporio-e-chocolateria, Name: Maravilhas da Serra Empório e Chocolateria, Items: 24
+ID: 30000012, Slug: acai-roots-perdizes, Name: Açaí Roots Perdizes, Items: 14
+ID: 30000013, Slug: acai-do-jotinha, Name: Açaí do Jotinha, Items: 24
+ID: 30000014, Slug: flowerbee-acai, Name: Flowerbee Açaí, Items: 24
+ID: 30000016, Slug: oink-gastro-bar, Name: Oink Gastro Bar, Items: 34
+ID: 30000017, Slug: mania-de-churrasco, Name: Mania de Churrasco, Items: 60
+ID: 30000018, Slug: tasca-do-ze-e-da-maria, Name: Tasca do Zé e da Maria, Items: 36
+ID: 30000019, Slug: violeta-bar-e-restaurante, Name: Violeta Bar e Restaurante, Items: 30
+ID: 30000020, Slug: bar-das-batidas-c-do-padre, Name: Bar das Batidas C do Padre, Items: 30
+ID: 30000021, Slug: kof-king-of-the-fork, Name: KOF - King of The Fork, Items: 42
+ID: 30000022, Slug: bar-do-biu, Name: Bar do Biu, Items: 30
+ID: 30000023, Slug: brutal-house-rock, Name: Brutal House Rock, Items: 24
+ID: 30000024, Slug: rainha-da-vila-madalena-boteco-bistro, Name: Rainha da Vila Madalena - Boteco Bistrô, Items: 30
+ID: 30000025, Slug: meow-maison, Name: Meow Maison, Items: 8
+ID: 30000026, Slug: curtica-bar, Name: Curtiça Bar, Items: 24
+ID: 30000027, Slug: boteco-sao-bento-vila-madalena, Name: Boteco São Bento Vila Madalena, Items: 20
+ID: 30000028, Slug: othe-gastrobar, Name: Othê Gastrobar, Items: 22
+ID: 30000029, Slug: fino-da-bossa, Name: Fino da Bossa, Items: 24
+ID: 30000030, Slug: mil-mil-folhas, Name: Mil Confeitaria, Items: 22
+ID: 30000031, Slug: bar-alto, Name: Bar Alto, Items: 30
+ID: 30000032, Slug: boteco-todos-os-santos, Name: Boteco Todos os Santos, Items: 30
+ID: 30000033, Slug: villa-grano, Name: Villa Grano, Items: 30
+ID: 30000034, Slug: reserva-cultural, Name: Reserva Cultural, Items: 24
+ID: 30000035, Slug: restaurante-america-paulista, Name: Restaurante America Paulista, Items: 30
+ID: 30000036, Slug: basilicata-pao-emporio-e-restaurante, Name: Basilicata - Pão, Empório e Restaurante, Items: 14
+ID: 30000037, Slug: restaurante-lanchonete-opala, Name: Restaurante Lanchonete Opala, Items: 14
+ID: 30000038, Slug: famiglia-mancini-trattoria, Name: Famiglia Mancini Trattoria, Items: 47
+ID: 30000039, Slug: mirante-9-de-julho, Name: Mirante 9 de Julho, Items: 29
+ID: 30000040, Slug: niagara-bar-e-lanches, Name: Niágara Bar e Lanches, Items: 10
+ID: 30000041, Slug: acai-com-cambuci, Name: Açaí com Cambuci, Items: 23
+ID: 30000042, Slug: mitocondria-bar-e-music, Name: Mitocôndria Bar e Music, Items: 28
+ID: 30000043, Slug: bh-lanches, Name: BH Lanches, Items: 30
+ID: 30000044, Slug: baron-rock-bar, Name: Baron Rock Bar, Items: 30
+ID: 30000045, Slug: sujinho-churrascaria, Name: Sujinho Churrascaria, Items: 30
+ID: 30000046, Slug: o-mineiro-prime, Name: O Mineiro Prime, Items: 30
+ID: 30000047, Slug: por-um-punhado-de-dolares, Name: Por um Punhado de Dólares, Items: 18
+ID: 30000048, Slug: restaurante-o-mineiro-sp, Name: Restaurante O Mineiro SP, Items: 30
+ID: 30000049, Slug: hello-kitty-and-friends-2d-by-eat-asia, Name: Hello Kitty and Friends 2d by Eat Asia, Items: 30
+ID: 30000050, Slug: bar-da-dona-onca, Name: Bar da Dona Onça, Items: 30
+ID: 30000051, Slug: orfeu-bar-e-restaurante, Name: Orfeu Bar e Restaurante, Items: 30
+ID: 30000052, Slug: boteco-do-gois, Name: Boteco do Gois, Items: 24
+ID: 30000053, Slug: lord-byron-bar-music, Name: Lord Byron Bar Music, Items: 18
+ID: 30000054, Slug: pastel-da-praca, Name: Pastel da Praça, Items: 28
+ID: 30000055, Slug: bar-dos-arcos, Name: Bar dos Arcos, Items: 24
+ID: 30000056, Slug: rota-do-acaraje, Name: Rota do Acarajé, Items: 16
+ID: 30000057, Slug: churrascaria-ponteio-morumbi, Name: Churrascaria Ponteio Morumbi, Items: 30
+ID: 30000058, Slug: churrascaria-estancia-campo-belo, Name: Churrascaria Estância Campo Belo, Items: 30
+ID: 30000059, Slug: dona-deola-saude, Name: Dona Deôla - Saúde, Items: 30
+ID: 30000060, Slug: acai-express, Name: Açaí express, Items: 23
+ID: 30000061, Slug: fillmore-ipiranga, Name: FILLMORE Ipiranga, Items: 30
+ID: 30000062, Slug: restaurante-feijao-de-corda-ipiranga, Name: Restaurante Feijão de Corda Ipiranga, Items: 30
+ID: 30000063, Slug: big-bread-ipiranga, Name: Big Bread Ipiranga, Items: 30
+ID: 30000064, Slug: acai-mix, Name: Açaí Mix, Items: 24
+ID: 30000065, Slug: bardega, Name: Bardega, Items: 26
+ID: 30000066, Slug: bar-do-nico, Name: Bar do Nico, Items: 22
+ID: 30000067, Slug: ofner-moema, Name: Ofner - Moema, Items: 30
+ID: 30000068, Slug: steel-bar, Name: Steel Bar, Items: 30
+ID: 30000069, Slug: maru-gastrobar, Name: Marú Gastrobar, Items: 24
+ID: 30000070, Slug: lanchonete-da-cidade, Name: Lanchonete da Cidade, Items: 8
+ID: 30000071, Slug: bar-moela, Name: Bar Moela, Items: 14
+ID: 30000072, Slug: veloso-bar, Name: Veloso Bar, Items: 14
+ID: 30000073, Slug: don-corleone-pizzaria-pacaembu-matriz-24hs, Name: Don Corleone Pizzaria Pacaembu Matriz 24hs, Items: 18
+ID: 30000074, Slug: lins-confeitaria-artesanal, Name: LINS, Items: 14
+ID: 30000075, Slug: disco-club, Name: Disco Club, Items: 24
+ID: 30000076, Slug: shoyu-bar-poke-sushi, Name: Shoyu Bar: Poke & Sushi, Items: 24
+ID: 30000077, Slug: pizzaria-camelo, Name: Pizzaria Camelo, Items: 30
+ID: 30000078, Slug: mori-ohta-sushi-delivery-jardins, Name: Mori Ohta Sushi Delivery Jardins, Items: 30
+ID: 30000079, Slug: padaria-nove-de-julho, Name: Padaria Nove de Julho, Items: 20
+ID: 30000080, Slug: padaria-laika, Name: Padaria Laika, Items: 28
+ID: 30000081, Slug: barreto-burger-cafe-lapa, Name: Barreto Burger & Café - Lapa, Items: 24
+ID: 30000082, Slug: yuzuk-sushi-bar, Name: Yuzuk Sushi Bar, Items: 30
+ID: 30000083, Slug: cervejaria-lote, Name: Cervejaria Lote, Items: 20
+ID: 30000084, Slug: ginostra-vegan, Name: Ginostra Vegan, Items: 24
+ID: 30000085, Slug: frigobar-speakeasy, Name: Frigobar Speakeasy, Items: 16
+ID: 30000086, Slug: veridiana-pizzaria-perdizes, Name: Veridiana Pizzaria - Perdizes, Items: 30
+ID: 30000087, Slug: manihi-sushi-perdizes, Name: Manihi Sushi Perdizes, Items: 16
+ID: 30000088, Slug: macedos-restaurante-e-pizzaria, Name: Macedos Restaurante e Pizzaria, Items: 30
+ID: 30000089, Slug: braz-pizzaria-perdizes, Name: Bráz Pizzaria - Perdizes, Items: 30
+ID: 30000090, Slug: padaria-a-lareira, Name: Padaria A Lareira, Items: 30
+ID: 30000091, Slug: cervejaria-dinastia, Name: Cervejaria Dinastia, Items: 24
+ID: 30000092, Slug: bomber-pub, Name: BOMBER Pub, Items: 36
+ID: 30000093, Slug: maro-confeitaria, Name: Marô Confeitaria, Items: 24
+ID: 30000094, Slug: carioca-club, Name: Carioca Club, Items: 24
+ID: 30000095, Slug: hira-ramen-izakaya, Name: Hirá Ramen Izakaya, Items: 30
+ID: 30000096, Slug: st-pauls-pub, Name: St. Paul's Pub, Items: 90
+ID: 30000097, Slug: bankaa-izakaya, Name: Bankaa izakaya, Items: 24
+ID: 30000098, Slug: quincho-cozinha-coquetelaria, Name: Quincho Cozinha & Coquetelaria, Items: 22
+ID: 30000099, Slug: sushi-ya, Name: Sushi Yá, Items: 12
+ID: 30000100, Slug: cervejaria-nacional, Name: Cervejaria Nacional, Items: 30
+ID: 30000101, Slug: partisans-pub, Name: Partisans Pub, Items: 227
+ID: 30000102, Slug: le-jazz-boulangerie, Name: Le Jazz Boulangerie, Items: 36
+ID: 30000103, Slug: carina-gros-confeitaria-artistica, Name: Carina Gros Confeitaria Artística, Items: 24
+ID: 30000104, Slug: beer-island-tap-house, Name: Beer Island Tap House, Items: 20
+ID: 30000105, Slug: coffee-lab, Name: Coffee Lab, Items: 30
+ID: 30000106, Slug: hoff-sushi-gastronomia, Name: HOFF Sushi & Gastronomia, Items: 24
+ID: 30000107, Slug: sushi-house-yasuke, Name: Sushi house yasuke, Items: 24
+ID: 30000108, Slug: iroha-sushi-lapa, Name: Iroha Sushi Lapa, Items: 26
+ID: 30000109, Slug: cafe-creme, Name: Café Creme, Items: 30
+ID: 30000110, Slug: keito-pub-kei, Name: Keito (Pub Kei), Items: 38
+ID: 30000111, Slug: we-coffee-av-paulista, Name: We Coffee Av. Paulista, Items: 30
+ID: 30000112, Slug: speranza-pizzaria, Name: Speranza Pizzaria, Items: 30
+ID: 30000113, Slug: sushi-do-bixiga, Name: Sushi do Bixiga, Items: 24
+ID: 30000114, Slug: padaria-restaurante-e-pizzaria-palma-de-ouro, Name: Padaria Restaurante e Pizzaria Palma de Ouro, Items: 30
+ID: 30000115, Slug: brigadeiro-presente-atelie, Name: Brigadeiro Presente - Ateliê, Items: 24
+ID: 30000116, Slug: padaria-14-de-julho, Name: Padaria 14 de Julho, Items: 30
+ID: 30000117, Slug: the-blue-pub, Name: The Blue Pub, Items: 32
+ID: 30000118, Slug: babilonia-vegan, Name: Babilônia Vegan, Items: 24
+ID: 30000119, Slug: padaria-bandeirante, Name: Padaria Bandeirante, Items: 20
+ID: 30000120, Slug: o-meu-burger, Name: Ô Meu Burger, Items: 24
+ID: 30000121, Slug: be-on-club, Name: Be On Club, Items: 24
+ID: 30000122, Slug: cantina-e-pizzaria-piolin, Name: Cantina e Pizzaria Piolin, Items: 6
+ID: 30000123, Slug: o-pedaco-da-pizza, Name: O Pedaço da Pizza, Items: 30
+ID: 30000124, Slug: outs-pub, Name: OUTS PUB, Items: 24
+ID: 30000125, Slug: urbe-cafe-bar, Name: URBE CAFÉ BAR, Items: 30
+ID: 30000126, Slug: braz-pizzaria, Name: Bráz Pizzaria, Items: 20
+ID: 30000127, Slug: cafe-sol, Name: Café Sol, Items: 20
+ID: 30000128, Slug: restaurante-sushi-isao, Name: Restaurante Sushi Isao, Items: 20
+ID: 30000129, Slug: sushi-liberdade-trailler, Name: Sushi Liberdade - Trailler, Items: 16
+ID: 30000130, Slug: baianada-confeitaria, Name: Baianada Confeitaria, Items: 24
+ID: 30000131, Slug: kinomizu-sushi, Name: Kinomizu Sushi, Items: 24
+ID: 30000132, Slug: toshiro-sushi-santa-cecilia, Name: Toshiro Sushi - Santa Cecília, Items: 26
+ID: 30000133, Slug: bispo-hamburgueria-delivery, Name: Bispo Hamburgueria - Delivery, Items: 20
+ID: 30000134, Slug: hiatari-sushi-vila-mascote, Name: Hiatari Sushi Vila Mascote, Items: 30
+ID: 30000135, Slug: miles-wine-jazz-bar, Name: Miles Wine & Jazz Bar, Items: 22
+ID: 30000136, Slug: pizzaria-paulino-campo-belo, Name: Pizzaria Paulino Campo Belo, Items: 30
+ID: 30000137, Slug: barsotti-confeitaria, Name: Barsotti Confeitaria, Items: 24
+ID: 30000138, Slug: panificadora-grao-independencia, Name: Panificadora Grão Independência, Items: 30
+ID: 30000139, Slug: sushi-ishii, Name: Sushi Ishii, Items: 30
+ID: 30000140, Slug: masaki-sushi, Name: Masaki Sushi, Items: 30
+ID: 30000141, Slug: nawaki-sushi-ipiranga, Name: Nawaki Sushi - Ipiranga, Items: 30
+ID: 30000142, Slug: kaito-sushi, Name: Kaito Sushi, Items: 30
+ID: 30000143, Slug: barba-jack-sports-pub, Name: Barba Jack Sports Pub, Items: 24
+ID: 30000144, Slug: pizzaria-baggio, Name: Pizzaria Baggio, Items: 22
+ID: 30000145, Slug: la-sorella-pizza-bar, Name: La Sorella Pizza Bar, Items: 20
+ID: 30000146, Slug: espaco-vida-saudavel-shake-ibirapuera-metro-moema, Name: Espaço Vida Saudável Shake Ibirapuera - Metrô Moema, Items: 24
+ID: 30000147, Slug: thalou-confeitaria, Name: Thalou Confeitaria, Items: 24
+ID: 30000148, Slug: we-coffee-ibirapuera, Name: We Coffee Ibirapuera, Items: 30
+ID: 30000149, Slug: tonton-jazz-music-bar, Name: Tonton Jazz & Music Bar, Items: 16
+ID: 30000150, Slug: braz-pizzaria-moema, Name: Bráz Pizzaria - Moema, Items: 30
+ID: 30000151, Slug: sushi-nami, Name: Sushi Nami, Items: 30
+ID: 30000152, Slug: iroha-sushi-saude, Name: Iroha Sushi Saúde, Items: 29
+ID: 30000153, Slug: panificadora-ceci, Name: Panificadora Ceci, Items: 30
+ID: 30000154, Slug: fit-stop-comida-saudavel, Name: Fit stop comida saudável, Items: 16
+ID: 30000155, Slug: london-coffee-station, Name: London Coffee Station, Items: 30
+ID: 30000156, Slug: santa-fe-pinheiros, Name: Santa Fé Bar & Restaurante, Items: 42
+ID: 30000157, Slug: dona-vitamina, Name: Dona Vitamina, Items: 36
+ID: 30000158, Slug: up-cozinha-bar, Name: UP Cozinha&Bar, Items: 30
+ID: 30000159, Slug: consulado-da-bahia, Name: Consulado da Bahia, Items: 36
+ID: 30000160, Slug: sao-conrado, Name: São Conrado, Items: 32
+ID: 30000161, Slug: bar-do-juarez-brooklin, Name: Bar do Juarez Brooklin, Items: 30
+ID: 30000162, Slug: de-primeira, Name: De Primeira, Items: 44
+ID: 30000163, Slug: melts-gastrobar, Name: Melts Gastrobar, Items: 20
+ID: 30000164, Slug: ministro-gastrobar, Name: Ministro Gastrobar, Items: 28
+ID: 30000165, Slug: fabrica-drinks-gastrobar, Name: Fábrica Drinks | Gastrobar, Items: 16
+ID: 30000166, Slug: aimbeer-pub, Name: Aimbeer 850 PUB, Items: 32
+ID: 30000167, Slug: pub-cheers, Name: Pub Cheers, Items: 28
+ID: 30000168, Slug: santana-bar, Name: Santana Bar, Items: 28
+ID: 30000169, Slug: iracema-paes-e-doces, Name: Iracema Pães e Doces, Items: 30
+ID: 30000170, Slug: bar-do-baixo, Name: Bar do Baixo, Items: 36
+ID: 30000171, Slug: pipa-confeitaria-afetiva, Name: PIPA Confeitaria Afetiva, Items: 24
+ID: 30000172, Slug: high-line-bar, Name: High Line Bar, Items: 24
+ID: 30000173, Slug: lions-nightclub, Name: Lions Nightclub, Items: 8
+ID: 30000174, Slug: alma-sao-paulo, Name: Alma São Paulo, Items: 24
+ID: 30000175, Slug: le-jazz-brasserie-higienopolis, Name: Le Jazz Brasserie - Higienópolis, Items: 18
+ID: 30000176, Slug: cervejaria-hettwer, Name: Cervejaria Hettwer Ipiranga, Items: 24
+ID: 30000177, Slug: cervejaria-perdizes, Name: Cervejaria Perdizes, Items: 24
+ID: 30000178, Slug: nosso-lastro-cervejaria, Name: Nosso Lastro - Parrilla Cervejaria, Items: 24
+ID: 30000179, Slug: cervejaria-dogma-jardins, Name: Cervejaria Dogma - Tasting Room Jardins, Items: 12
+ID: 30000180, Slug: cervejaria-oak-pinheiros, Name: Cervejaria Oak - Pinheiros, Items: 10
+ID: 30000181, Slug: leggera-pizza-napoletana, Name: Leggera Pizza Napoletana, Items: 30
+ID: 30000182, Slug: bullger, Name: Bullger, Items: 24
+ID: 30000183, Slug: stunt-burger, Name: Stunt Burger, Items: 12
+ID: 30000184, Slug: tan-tan, Name: Tan Tan, Items: 24
+ID: 30000185, Slug: sylvester-bar-autoral, Name: Sylvester Bar, Items: 28
+ID: 30000186, Slug: eap-emporio-alto-dos-pinheiros, Name: EAP Empório Alto dos Pinheiros, Items: 48
+ID: 30000187, Slug: quebec-bar-pinheiros, Name: Québec Bar e Restaurante, Items: 61
+ID: 30000188, Slug: bar-teste-avalyarin, Name: Conta Teste Pinheiros, Items: 51
+ID: 30000189, Slug: samba-burguer, Name: Conta Teste Samba Burguer, Items: 5
+ID: 30000190, Slug: esquina-do-meio, Name: Esquina do Meio, Items: 0
+ID: 30000191, Slug: loja-teste-shopping-ok-mqpiqmfy, Name: Loja Teste Shopping OK, Items: 0
+ID: 30000192, Slug: pizzaria-teste-avalyarin, Name: Pizzaria Teste Avalyarin, Items: 5
+ID: 30000193, Slug: coquetelaria-teste-avalyarin, Name: Coquetelaria Teste Avalyarin, Items: 5
+ID: 30000194, Slug: o-baiao-cozinha-nordestina-pacaembu, Name: O Baião - Cozinha Nordestina (Pacaembu), Items: 49
+ID: 30000195, Slug: o-baiao-cozinha-nordestina-ctn, Name: O Baião - Cozinha Nordestina (CTN), Items: 49
+ID: 30000196, Slug: o-baiao-cozinha-nordestina-vila-madalena, Name: O Baião - Cozinha Nordestina (Vila Madalena), Items: 49
+ID: 30000197, Slug: cana-mania-natural-liberdade, Name: Cana Mania Natural - Liberdade, Items: 17
+ID: 30000198, Slug: cana-mania-natural-pinheiros, Name: Cana Mania Natural - Pinheiros, Items: 17
+ID: 30000199, Slug: familia-mineira, Name: Familia Mineira, Items: 12
+ID: 30000200, Slug: vinho-no-boteco-pinheiros, Name: Vinho no Boteco, Items: 10
+ID: 30000201, Slug: choribar, Name: Choribar, Items: 10
+ID: 30000202, Slug: daje-roma, Name: Daje Roma, Items: 10
+ID: 30000203, Slug: matilda-lanches-pinheiros, Name: Matilda Lanches, Items: 10
+ID: 30000204, Slug: consulado-da-bahia-pinheiros, Name: Consulado da Bahia, Items: 12
+ID: 30000205, Slug: buza-korean-food, Name: Buza Korean Food, Items: 10
+ID: 30000206, Slug: soft-ice-cream-pinheiros, Name: SOFT Ice Cream, Items: 10
+ID: 30000207, Slug: sucrier, Name: Sucrier, Items: 10
+ID: 30000208, Slug: pine-co-pinheiros, Name: Pine Co. - Pinheiros, Items: 9
+ID: 30000209, Slug: pine-co-vila-nova-conceicao, Name: Pine Co. - Vila Nova Conceicao, Items: 9
+ID: 30000210, Slug: dona-vitamina-pinheiros, Name: Dona Vitamina, Items: 10
+ID: 30000211, Slug: colchetes-bar, Name: Colchetes, Items: 10
+ID: 30000212, Slug: brasa-charrua, Name: Brasa Charrua, Items: 10
+ID: 30000213, Slug: lanchonete-real-pinheiros, Name: Lanchonete Real Pinheiros, Items: 10
+ID: 30000214, Slug: chou-restaurante, Name: Chou, Items: 10
+ID: 30000215, Slug: dois-tropicos, Name: Dois Tropicos, Items: 13
+ID: 901090002, Slug: almanara-morumbi, Name: Almanara, Items: 77
+ID: 901090003, Slug: america-morumbi, Name: America, Items: 37
+ID: 901090004, Slug: andiamo-morumbi, Name: Andiamo, Items: 91
+ID: 901090005, Slug: badaro-morumbi, Name: Badaró, Items: 50
+ID: 901090006, Slug: barbacoa-grill-beer-morumbi, Name: Barbacoa Grill Beer, Items: 25
+ID: 901090007, Slug: coco-bambu-morumbi, Name: Coco Bambu, Items: 29
+ID: 901090008, Slug: corrientes-348-morumbi, Name: Corrientes 348, Items: 26
+ID: 901090009, Slug: esplanada-grill-morumbi, Name: Esplanada Grill, Items: 24
+ID: 901090010, Slug: fogo-de-chao-morumbi, Name: Fogo de Chão, Items: 26
+ID: 901090011, Slug: frutaria-sao-paulo-morumbi, Name: Frutaria São Paulo, Items: 19
+ID: 901090012, Slug: fuoco-farina-morumbi, Name: Fuoco & Farina, Items: 24
+ID: 901090013, Slug: le-chef-boucher-morumbi, Name: Le Chef Boucher, Items: 25
+ID: 901090014, Slug: madero-morumbi, Name: Madero, Items: 25
+ID: 901090015, Slug: margaux-morumbi, Name: Margaux, Items: 44
+ID: 901090016, Slug: nagare-sushi-morumbi, Name: Nagarê Sushi, Items: 30
+ID: 901090017, Slug: ninetto-morumbi, Name: Ninetto, Items: 20
+ID: 901090018, Slug: olea-morumbi, Name: Olea, Items: 20
+ID: 901090019, Slug: olive-garden-morumbi, Name: Olive Garden, Items: 36
+ID: 901090020, Slug: outback-morumbi, Name: Outback Steakhouse, Items: 22
+ID: 901090021, Slug: piraja-morumbi, Name: Pirajá, Items: 20
+ID: 901090022, Slug: pobre-juan-morumbi, Name: Pobre Juan, Items: 20
+ID: 901090023, Slug: su-morumbi, Name: SU, Items: 18
+ID: 901090024, Slug: tartuferia-san-paolo-morumbi, Name: Tartuferia San Paolo, Items: 20
+ID: 901090025, Slug: tasca-do-ze-maria-morumbi, Name: Tasca do Zé Maria, Items: 19
+ID: 901090026, Slug: tgi-fridays-morumbi, Name: TGI Fridays, Items: 20
+ID: 901090027, Slug: tuy-bar-cocina-morumbi, Name: Tuy Bar Cocina, Items: 17
+ID: 901090028, Slug: zucco-morumbi, Name: Zucco, Items: 20
+ID: 901090029, Slug: emporio-de-comidas-morumbi, Name: Empório de Comidas, Items: 17
+ID: 901090030, Slug: frans-cafe-morumbi, Name: Frans Cafe, Items: 18
+ID: 901090031, Slug: we-coffee-morumbi, Name: We Coffee, Items: 16
+ID: 901150002, Slug: aj-padaria-pinheiros, Name: AJ Padaria, Items: 108
+ID: 901180002, Slug: almanara-eldorado, Name: Almanara, Items: 79
+ID: 901180003, Slug: america-eldorado, Name: America, Items: 38
+ID: 901180004, Slug: andiamo-ristorante-pizzeria-eldorado, Name: Andiamo Ristorante & Pizzeria, Items: 98
+ID: 901180005, Slug: cabana-burger-eldorado, Name: Cabana Burger, Items: 78
+ID: 901180006, Slug: caipira-grill-eldorado, Name: Caipira Grill, Items: 3
+ID: 901180007, Slug: coco-bambu-conceito-eldorado, Name: Coco Bambu Conceito, Items: 32
+ID: 901180008, Slug: cortes-asador-eldorado, Name: Cortés Asador, Items: 22
+ID: 901180009, Slug: frutaria-sao-paulo-eldorado, Name: Frutaria São Paulo, Items: 43
+ID: 901180010, Slug: haoma-cafe-eldorado, Name: Haoma Café, Items: 12
+ID: 901180011, Slug: hiro-restaurante-eldorado, Name: Hiro Restaurante, Items: 68
+ID: 901180012, Slug: ibiza-restaurante-eldorado, Name: Ibiza Restaurante, Items: 53
+ID: 901180013, Slug: madero-steak-house-eldorado, Name: Madero Steak House, Items: 39
+ID: 901180014, Slug: mania-de-churrasco-buffet-pizza-eldorado, Name: Mania de Churrasco Buffet & Pizza, Items: 35
+ID: 901180015, Slug: ninetto-trattoria-eldorado, Name: Ninetto Trattoria, Items: 25
+ID: 901180016, Slug: outback-steakhouse-eldorado, Name: Outback Steakhouse, Items: 58
+ID: 901180017, Slug: pecorino-bar-trattoria-eldorado, Name: Pecorino Bar & Trattoria, Items: 57
+ID: 901180018, Slug: pipo-bronze-paul-cho-eldorado, Name: Pipo (Bronze + Paul Cho), Items: 12
+ID: 901180019, Slug: piraja-eldorado, Name: Pirajá, Items: 17
+ID: 901180020, Slug: the-steak-factory-eldorado, Name: The Steak Factory, Items: 17
+ID: 901180021, Slug: viena-express-eldorado, Name: Viena Express, Items: 15
+ID: 901180022, Slug: we-coffee-eldorado, Name: We Coffee, Items: 16
+ID: 901180023, Slug: moma-modern-mamma-osteria-eldorado, Name: MoMa - Modern Mamma Osteria, Items: 21
+ID: 902080002, Slug: gula-gula-restaurante, Name: Gula Gula Restaurante, Items: 14
+ID: 902080003, Slug: moma-modern-mamma-osteria, Name: MoMa - Modern Mamma Osteria, Items: 29
+ID: 902080004, Slug: paparoto-cucina, Name: Paparoto Cucina, Items: 9
+ID: 902260010, Slug: kaskata-s-lanches, Name: Kaskata's Lanches, Items: 15
+ID: 902260012, Slug: teatro-viradalata, Name: Teatro Viradalata, Items: 9
+ID: 902260035, Slug: guilhotina-bar, Name: Guilhotina Bar, Items: 8
+ID: 902260038, Slug: delivery-chef-pascal-valero-gastronomia-francesa, Name: Delivery Chef Pascal Valero - Gastronomia francesa, Items: 12
+ID: 902260039, Slug: chicago-bistro-pudim-gourmet, Name: Chicago Bistrô - Pudim Gourmet, Items: 8
+ID: 902260040, Slug: chef-apptite-ana-junqueira-comida-low-carb, Name: Chef Apptite - Ana Junqueira - Comida Low Carb, Items: 10
+ID: 902260042, Slug: quitandinha-bar, Name: Quitandinha Bar, Items: 6
+ID: 902260047, Slug: bar-do-juarez-moema, Name: Bar do Juarez Moema, Items: 0
+ID: 902260051, Slug: sao-conrado-bar-pinheiros, Name: São Conrado Bar - Pinheiros, Items: 15
+ID: 902260070, Slug: go-pub-brooklin, Name: Go Pub & Restaurante - Brooklin, Items: 14
+ID: 902260089, Slug: mug-sp-avenida-paulista, Name: mug.sp - Avenida Paulista, Items: 10
+ID: 902260092, Slug: mug-sp-casarao-pamplona, Name: mug.sp - Casarão Pamplona, Items: 15
+ID: 902260095, Slug: martoca-padaria, Name: Martoca - Padaria Artesanal, Items: 14
+ID: 902260113, Slug: luiza-lafer, Name: Luiza Lafer Confeitaria, Items: 11
+ID: 902260132, Slug: club-lotus-zn, Name: Club Lotus ZN, Items: 4
+ID: 902260136, Slug: le-jazz-brasserie-pinheiros, Name: Le Jazz Brasserie, Items: 17
+ID: 902260146, Slug: trilha-cervejaria, Name: TRILHA Cervejaria - Itaim, Items: 12
+ID: 902260149, Slug: cervejaria-ducabra, Name: Cervejaria e Hamburgueria Ducabra, Items: 10
+ID: 902260152, Slug: soul-hops-berrini, Name: Soul Hops - Berrini, Items: 31
+ID: 902260184, Slug: h-sushi-bar, Name: Hō Sushi Bar, Items: 12
+ID: 902260189, Slug: henna-japanese-food-sushi-gourmet-no-ipiranga-deli, Name: Henna Japanese Food – Sushi Gourmet no Ipiranga - Delivery de Comida Japonesa, Items: 12
+ID: 902260196, Slug: ikkousha-tonkotsu-ramen, Name: Ikkousha Tonkotsu Ramen, Items: 15

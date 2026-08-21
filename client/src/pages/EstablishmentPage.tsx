@@ -193,42 +193,9 @@ export default function EstablishmentPage() {
   // Filter to only categories with items
   const activeCategories = orderedCategoryNames.filter(c => (menuByCategory.get(c)?.length || 0) > 0);
   
-  // Big blocks logic for anchor navigation
-  const BIG_BLOCKS = [
-    { name: "Porções", keywords: ["porções", "entradas", "petiscos", "tábuas", "adicional"] },
-    { name: "Lanches", keywords: ["lanches", "hamburguer", "hambúrguer", "sanduíches"] },
-    { name: "Alcoólicos", keywords: ["cervejas", "chopp", "chope", "drinks", "whiskys", "doses", "caipirinhas", "gin", "vodkas", "cachaças", "licor"] },
-    { name: "Não alcoólicos", keywords: ["bebidas sem álcool", "água", "suco", "refrigerante", "café", "chá", "cerveja sem álcool", "cerveja zero"] }
-  ];
+  // As categorias do cardápio são preservadas exatamente como foram extraídas
+  // do cardápio físico. Não agrupamos mais itens em blocos genéricos.
 
-  const getBigBlockForCategory = (catName: string) => {
-    const lowerCat = catName.toLowerCase();
-    
-    // Priority: Non-alcoholic beers go to Non-alcoholic block
-    if (lowerCat.includes("cerveja") && (lowerCat.includes("sem álcool") || lowerCat.includes("zero"))) {
-      return BIG_BLOCKS.find(b => b.name === "Não alcoólicos");
-    }
-
-    return BIG_BLOCKS.find(block => 
-      block.keywords.some(kw => lowerCat.includes(kw))
-    );
-  };
-
-  // Group categories into big blocks
-  const categoriesByBlock = new Map<string, string[]>();
-  const categoriesWithoutBlock: string[] = [];
-
-  activeCategories.forEach(cat => {
-    const block = getBigBlockForCategory(cat);
-    if (block) {
-      if (!categoriesByBlock.has(block.name)) categoriesByBlock.set(block.name, []);
-      categoriesByBlock.get(block.name)!.push(cat);
-    } else {
-      categoriesWithoutBlock.push(cat);
-    }
-  });
-
-  const activeBigBlocks = BIG_BLOCKS.filter(b => categoriesByBlock.has(b.name));
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -266,6 +233,12 @@ export default function EstablishmentPage() {
                 alt={item.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.includes('/storage/')) {
+                    target.src = target.src.replace('/storage/', '/manus-storage/');
+                  }
+                }}
               />
             </div>
           )}
@@ -312,6 +285,12 @@ export default function EstablishmentPage() {
               src={establishment.image}
               alt={establishment.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (target.src.includes('/storage/')) {
+                  target.src = target.src.replace('/storage/', '/manus-storage/');
+                }
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
           </div>
@@ -482,7 +461,7 @@ export default function EstablishmentPage() {
           <div className="container">
             {/* Section Toggle */}
             <div className="flex gap-2 mb-4">
-              {menu.length > 0 && (
+              {(menu.length > 0 || establishment.hasMenu) && (
                 <button
                   onClick={() => { setActiveSection("cardapio"); setFilterItem(null); }}
                   className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
@@ -533,31 +512,28 @@ export default function EstablishmentPage() {
             )}
 
             {/* Cardápio Section */}
-            {activeSection === "cardapio" && menu.length > 0 && (
+            {activeSection === "cardapio" && (
               <div className="space-y-6">
-                {/* Big Blocks Navigation - Sticky */}
+                {menu.length === 0 && (
+                  <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-8 text-center shadow-lg">
+                    <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-muted-foreground">O cardápio deste estabelecimento ainda não foi carregado no sistema.</p>
+                  </div>
+                )}
+                {menu.length > 0 && (
+                  <>
+                {/* Navegação por seções originais do cardápio - Sticky */}
                 <div data-menu-anchors className="sticky top-[72px] z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-primary/10 overflow-x-auto no-scrollbar">
                   <div className="flex gap-2 min-w-max">
-                    {activeBigBlocks.map(block => (
+                    {activeCategories.map(catName => (
                       <button
-                        key={block.name}
-                        onClick={() => {
-                          const firstCat = categoriesByBlock.get(block.name)?.[0];
-                          if (firstCat) scrollToSection(`cat-${firstCat.replace(/\s+/g, '-')}`);
-                        }}
+                        key={catName}
+                        onClick={() => scrollToSection(`cat-${catName.replace(/\s+/g, '-')}`)}
                         className="px-4 py-2 rounded-full bg-secondary border border-border/50 text-xs font-display tracking-wider text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95"
                       >
-                        {block.name.toUpperCase()}
+                        {catName.toUpperCase()}
                       </button>
                     ))}
-                    {categoriesWithoutBlock.length > 0 && (
-                      <button
-                        onClick={() => scrollToSection(`cat-${categoriesWithoutBlock[0].replace(/\s+/g, '-')}`)}
-                        className="px-4 py-2 rounded-full bg-secondary border border-border/50 text-xs font-display tracking-wider text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95"
-                      >
-                        OUTROS
-                      </button>
-                    )}
                   </div>
                 </div>
 
@@ -565,31 +541,18 @@ export default function EstablishmentPage() {
                   <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-8 text-center">CARDÁPIO</h3>
 
                   <div className="space-y-12">
-                    {/* Render by Big Blocks to maintain logical order */}
-                    {activeBigBlocks.map(block => (
-                      <div key={block.name} className="space-y-8">
-                        {categoriesByBlock.get(block.name)?.map(catName => (
-                          <MenuSection 
-                            key={catName} 
-                            id={`cat-${catName.replace(/\s+/g, '-')}`}
-                            items={menuByCategory.get(catName) || []} 
-                            title={catName} 
-                          />
-                        ))}
-                      </div>
-                    ))}
-                    
-                    {/* Render remaining categories */}
-                    {categoriesWithoutBlock.map(catName => (
-                      <MenuSection 
-                        key={catName} 
+                    {activeCategories.map(catName => (
+                      <MenuSection
+                        key={catName}
                         id={`cat-${catName.replace(/\s+/g, '-')}`}
-                        items={menuByCategory.get(catName) || []} 
-                        title={catName} 
+                        items={menuByCategory.get(catName) || []}
+                        title={catName}
                       />
                     ))}
                   </div>
                 </div>
+                  </>
+                )}
               </div>
             )}
           </div>

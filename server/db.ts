@@ -358,9 +358,13 @@ export async function getEstablishmentBySlug(slug: string, bypassFilter = false)
   const db = await getDb();
   if (!db) return undefined;
   
+  const isNumeric = /^\d+$/.test(slug);
   const whereClause = bypassFilter
-    ? eq(establishments.slug, slug)
-    : and(eq(establishments.slug, slug), completeEstablishmentFilter);
+    ? or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined)
+    : and(
+        or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined),
+        completeEstablishmentFilter
+      );
   
   const result = await db.select()
     .from(establishments)
@@ -403,9 +407,11 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
       ? eq(establishments.id, Number(identifier))
       : eq(establishments.slug, String(identifier));
 
+    // Pending establishments may still be synchronized; hidden establishments remain private.
+    const statusFilter = or(eq(establishments.status, 'active'), eq(establishments.status, 'pending'));
     const whereClause = bypassFilter
       ? matchCondition
-      : and(matchCondition, completeEstablishmentFilter);
+      : and(matchCondition, statusFilter);
     
     const est = await db.select()
       .from(establishments)
@@ -413,6 +419,15 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
       .limit(1);
     
     if (est.length === 0) return undefined;
+
+    // If an existing establishment has no menu yet, attempt a one-time data sync.
+    // The response below always comes from TiDB; the sync only populates missing rows.
+    try {
+      const { syncEstablishmentData } = await import("./sync");
+      await syncEstablishmentData(est[0].id, est[0].slug);
+    } catch (syncErr) {
+      console.error("[Sync] Erro na sincronização automática:", syncErr);
+    }
     
     // Get all categories via N:N table
     const estCategories = await db.select({
@@ -439,13 +454,16 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
       .where(eq(menuCategories.establishmentId, est[0].id))
       .orderBy(menuCategories.sortOrder);
 
-    return {
+    const result = {
+
       ...est[0],
       category: primaryCat ? { id: primaryCat.id, slug: primaryCat.slug, name: primaryCat.name, icon: primaryCat.icon } : legacyCat,
       categories: estCategories.length > 0 ? estCategories : (legacyCat ? [{ ...legacyCat, isPrimary: true }] : []),
       menu,
       menuCategoryOrder: menuCatEntries.map(mc => mc.name),
     };
+
+    return result;
   } catch (error: any) {
     logDbError(error, { operation: "getEstablishmentWithMenu", table: "establishments/menu_items/establishment_categories", params: { identifier } });
     throw error;
@@ -1944,6 +1962,9 @@ export async function createEstablishment(data: {
   lng?: number;
   phone?: string;
   instagram?: string;
+  googleMapsUrl?: string;
+  facebook?: string;
+  website?: string;
   hours?: string;
   image?: string;
 }) {
@@ -1967,7 +1988,12 @@ export async function createEstablishment(data: {
   // Generate code for new establishment
   const estabCode = await generateCode('establishments');
 
+  // Manual ID increment for TiDB schema without AUTO_INCREMENT
+  const [maxResult] = await db.select({ maxId: sql<number>`MAX(id)` }).from(establishments);
+  const nextEstId = (maxResult?.maxId || 0) + 1;
+
   const result = await db.insert(establishments).values({
+    id: nextEstId,
     slug,
     code: estabCode,
     name: data.name,
@@ -1982,6 +2008,9 @@ export async function createEstablishment(data: {
     lng: data.lng || null,
     phone: data.phone || null,
     instagram: data.instagram || null,
+    googleMapsUrl: data.googleMapsUrl || null,
+    facebook: data.facebook || null,
+    website: data.website || null,
     hours: data.hours || null,
     image: data.image || null,
     hasMenu: false,
@@ -1989,7 +2018,7 @@ export async function createEstablishment(data: {
     source: "admin",
   });
 
-  return { id: result[0].insertId, slug };
+  return { id: nextEstId, slug };
 }
 
 // ─── Code Backup ────────────────────────────────────────────────────────────
