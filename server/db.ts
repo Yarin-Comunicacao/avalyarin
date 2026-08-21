@@ -403,11 +403,15 @@ export async function getEstablishmentWithMenu(slug: string, bypassFilter = fals
     if (!db) return undefined;
     
     const isNumeric = /^\d+$/.test(slug);
+    
+    // Permitimos encontrar estabelecimentos 'pending' para que a sincronização possa ocorrer
+    const statusFilter = or(eq(establishments.status, 'active'), eq(establishments.status, 'pending'));
+    
     const whereClause = bypassFilter
       ? or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined)
       : and(
           or(eq(establishments.slug, slug), isNumeric ? eq(establishments.id, parseInt(slug, 10)) : undefined),
-          completeEstablishmentFilter
+          statusFilter
         );
     
     const est = await db.select()
