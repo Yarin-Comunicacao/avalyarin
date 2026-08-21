@@ -467,7 +467,7 @@ export default function EstablishmentPage() {
           <div className="container">
             {/* Section Toggle */}
             <div className="flex gap-2 mb-4">
-              {menu.length > 0 && (
+              {(menu.length > 0 || establishment.hasMenu) && (
                 <button
                   onClick={() => { setActiveSection("cardapio"); setFilterItem(null); }}
                   className={`px-4 py-2 rounded-lg font-display text-sm tracking-wider transition-all ${
@@ -476,7 +476,7 @@ export default function EstablishmentPage() {
                       : "bg-secondary/50 border border-border/50 text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  CARDÁPIO
+                  CARDÁPIO {menu.length > 0 ? "" : `(${menu.length})`}
                 </button>
               )}
               <button
@@ -518,8 +518,17 @@ export default function EstablishmentPage() {
             )}
 
             {/* Cardápio Section */}
-            {activeSection === "cardapio" && menu.length > 0 && (
+            {activeSection === "cardapio" && (
               <div className="space-y-6">
+                {menu.length === 0 && (
+                  <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-8 text-center shadow-lg">
+                    <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+                    <p className="text-muted-foreground">O cardápio deste estabelecimento ainda não foi carregado no sistema.</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-4 uppercase tracking-widest">Debug Info: ID {establishment.id} | Slug {establishment.slug} | HasMenu {establishment.hasMenu ? 'Sim' : 'Não'}</p>
+                  </div>
+                )}
+                {menu.length > 0 && (
+                  <>
                 {/* Big Blocks Navigation - Sticky */}
                 <div data-menu-anchors className="sticky top-[72px] z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-b border-primary/10 overflow-x-auto no-scrollbar">
                   <div className="flex gap-2 min-w-max">
@@ -575,6 +584,8 @@ export default function EstablishmentPage() {
                     ))}
                   </div>
                 </div>
+                  </>
+                )}
               </div>
             )}
           </div>
