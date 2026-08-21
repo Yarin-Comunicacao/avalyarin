@@ -1995,7 +1995,12 @@ export async function createEstablishment(data: {
   // Generate code for new establishment
   const estabCode = await generateCode('establishments');
 
+  // Manual ID increment for TiDB schema without AUTO_INCREMENT
+  const [maxResult] = await db.select({ maxId: sql<number>`MAX(id)` }).from(establishments);
+  const nextEstId = (maxResult?.maxId || 0) + 1;
+
   const result = await db.insert(establishments).values({
+    id: nextEstId,
     slug,
     code: estabCode,
     name: data.name,

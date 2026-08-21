@@ -116,12 +116,16 @@ export async function syncEstablishmentData(establishmentId: number | null, slug
       }
     }
 
-    // 5. Sincronizar Cardápio via camada Admin (com geração de código segura para lote)
+    // 5. Sincronizar Cardápio via camada Admin (com geração de código e ID manuais)
     if (sourceEst.menu && sourceEst.menu.length > 0) {
       console.log(`[Sync] Importando ${sourceEst.menu.length} itens para ${slug} (ID: ${targetId})`);
       
       const { ensureMenuCategory } = await import("./db-admin-estab");
       const { syncEstablishmentVisibility } = await import("./db");
+
+      // Obter o maior ID atual para simular auto-incremento (necessário para este schema do TiDB)
+      const [maxResult] = await db.select({ maxId: sql<number>`MAX(id)` }).from(menuItems);
+      let nextItemId = (maxResult?.maxId || 0) + 1;
 
       for (const item of sourceEst.menu) {
         const finalCategory = item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "Outros";
@@ -129,6 +133,7 @@ export async function syncEstablishmentData(establishmentId: number | null, slug
         const autoTags = (item.name || "").toLowerCase().split(" ").filter((t: string) => t.length > 2);
 
         await db.insert(menuItems).values({
+          id: nextItemId++,
           establishmentId: targetId!,
           code: itemCode,
           name: item.name,

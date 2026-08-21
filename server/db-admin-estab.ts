@@ -230,7 +230,12 @@ export async function adminAddMenuItem(data: {
   // Auto-generate tags from product name
   const autoTags = generateProductTags(data.name);
 
+  // Manual ID increment for TiDB schema without AUTO_INCREMENT
+  const [maxResult] = await db.select({ maxId: sql<number>`MAX(id)` }).from(menuItems);
+  const nextItemId = (maxResult?.maxId || 0) + 1;
+
   const [result] = await db.insert(menuItems).values({
+    id: nextItemId,
     establishmentId: data.establishmentId,
     code: itemCode,
     name: data.name,
