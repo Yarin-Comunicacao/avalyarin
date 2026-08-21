@@ -525,6 +525,14 @@ export default function EstablishmentPage() {
                     <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
                     <p className="text-muted-foreground">O cardápio deste estabelecimento ainda não foi carregado no sistema.</p>
                     <p className="text-[10px] text-muted-foreground/50 mt-4 uppercase tracking-widest">Debug Info: ID {establishment.id} | Slug {establishment.slug} | HasMenu {establishment.hasMenu ? 'Sim' : 'Não'}</p>
+                    <pre className="text-[8px] text-left mt-4 bg-black/20 p-2 overflow-auto max-h-40">
+                      {JSON.stringify({ 
+                        menuLength: menu.length, 
+                        categories: Array.from(menuByCategory.keys()),
+                        activeCats: activeCategories,
+                        hasMenu: establishment.hasMenu
+                      }, null, 2)}
+                    </pre>
                   </div>
                 )}
                 {menu.length > 0 && (
