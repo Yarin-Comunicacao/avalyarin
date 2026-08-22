@@ -19,6 +19,13 @@ function cleanHours(hours: string | null | undefined): string {
   return hours.replace(/[{}"\\]/g, "").replace(/,/g, ", ").trim();
 }
 
+/** TiDB can return DECIMAL values as strings; normalize before formatting. */
+function formatMenuPrice(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue.toFixed(2).replace(".", ",") : null;
+}
+
 type TabId = "cardapio" | "calendario" | "editar" | "preferencias" | "planos";
 
 export default function BusinessProfile() {
@@ -302,9 +309,9 @@ function MenuTab({ menu, menuByCategory }: { menu: any[]; menuByCategory: Record
                     </p>
                   )}
                 </div>
-                {item.price != null && (
+                {formatMenuPrice(item.price) !== null && (
                   <span className="text-sm font-medium text-orange-500 flex-shrink-0">
-                    R$ {item.price.toFixed(2)}
+                    R$ {formatMenuPrice(item.price)}
                   </span>
                 )}
               </div>
