@@ -12,7 +12,8 @@ type UploadedPhoto = { url: string; key?: string };
 
 export default function SmartEstablishmentForm() {
   const [, navigate] = useLocation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const initialCategoryId = Number(params.get("categoryId") || 0);
 
@@ -152,12 +153,23 @@ export default function SmartEstablishmentForm() {
             <span className="text-sm font-numbers text-primary">{photos.length}/{MAX_PHOTOS}</span>
           </div>
 
-          <input ref={fileInputRef} type="file" accept="image/*" multiple capture="environment" onChange={addPhotos} className="hidden" />
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={photos.length >= MAX_PHOTOS || isSubmitting} className="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-8 text-center hover:bg-primary/10 transition-colors disabled:opacity-50">
-            <div className="flex justify-center gap-3 mb-2"><Camera className="w-6 h-6 text-primary" /><ImagePlus className="w-6 h-6 text-primary" /></div>
-            <span className="font-medium">Adicionar fotos ou tirar fotos</span>
-            <span className="block text-xs text-muted-foreground mt-1">Você poderá selecionar várias páginas de uma vez.</span>
-          </button>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={addPhotos} className="hidden" />
+          <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={addPhotos} className="hidden" />
+          <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 text-center">
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => cameraInputRef.current?.click()} disabled={photos.length >= MAX_PHOTOS || isSubmitting} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-lg border border-primary/30 bg-background/60 px-3 py-4 hover:bg-primary/10 transition-colors disabled:opacity-50">
+                <Camera className="w-7 h-7 text-primary" />
+                <span className="font-medium text-sm">Abrir câmera</span>
+                <span className="text-[11px] text-muted-foreground">Fotografar agora</span>
+              </button>
+              <button type="button" onClick={() => galleryInputRef.current?.click()} disabled={photos.length >= MAX_PHOTOS || isSubmitting} className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-lg border border-primary/30 bg-background/60 px-3 py-4 hover:bg-primary/10 transition-colors disabled:opacity-50">
+                <ImagePlus className="w-7 h-7 text-primary" />
+                <span className="font-medium text-sm">Abrir galeria</span>
+                <span className="text-[11px] text-muted-foreground">Selecionar fotos</span>
+              </button>
+            </div>
+            <span className="block text-xs text-muted-foreground mt-3">Na galeria, você poderá selecionar várias páginas de uma vez.</span>
+          </div>
 
           {photos.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">

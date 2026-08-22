@@ -113,8 +113,6 @@ export const ROLE_BOTTOM_NAV: Record<AppRole, { icon: string; label: string; pat
   ],
   support: [
     { icon: "Search", label: "Busca", path: "/busca" },
-    { icon: "Ticket", label: "Tickets", path: "/suporte/tickets" },
-    { icon: "Store", label: "Estabs", path: "/suporte/estabs" },
     { icon: "MessageCircle", label: "Mensagens", path: "/grupos" },
     { icon: "User", label: "Perfil", path: "/perfil" },
   ],

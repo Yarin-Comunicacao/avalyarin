@@ -2426,17 +2426,10 @@ function GroupListPanel({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center mb-4">
         <h1 className={`font-display tracking-wider text-primary text-glow-amber ${compact ? "text-xl" : "text-3xl"}`}>
           MENSAGENS
         </h1>
-        <Button
-          onClick={onShowCreate}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 font-display tracking-wider"
-          size="sm"
-        >
-          <Plus className="w-4 h-4 mr-1" /> {compact ? "" : "CRIAR"}
-        </Button>
       </div>
 
       {/* Tabs */}

@@ -1,17 +1,18 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle, Bug, Save } from "lucide-react";
+import { Headphones, Store, Ticket, CheckCircle2, Clock, AlertTriangle, MessageCircle, Bug, Save, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import SupportChat from "@/components/SupportChat";
+import EditarTab from "@/components/profile-tabs/EditarTab";
 import { toast } from "sonner";
 
 function SupportChatSection() {
   return <SupportChat />;
 }
 
-type TabId = "estabs" | "tickets" | "resolvidos" | "chat" | "bugs";
+type TabId = "estabs" | "tickets" | "resolvidos" | "chat" | "bugs" | "editar";
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "estabs", label: "Meus Estabs", icon: Store },
@@ -19,6 +20,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "resolvidos", label: "Resolvidos", icon: CheckCircle2 },
   { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "bugs", label: "Bugs", icon: Bug },
+  { id: "editar", label: "Editar", icon: Pencil },
 ];
 
 const PRIORITY_COLORS = {
@@ -45,6 +47,8 @@ export default function SupportProfile() {
       setActiveTab("bugs");
     } else if (location.includes("/suporte/estabs")) {
       setActiveTab("estabs");
+    } else if (location.includes("/suporte/editar")) {
+      setActiveTab("editar");
     }
   }, [location]);
 
@@ -122,7 +126,7 @@ export default function SupportProfile() {
             return (
               <button
                 key={tab.id}
-                onClick={() => navigate(`/suporte/${tab.id}`)}
+                onClick={() => tab.id === "editar" ? setActiveTab("editar") : navigate(`/suporte/${tab.id}`)}
                 className={cn(
                   "flex-1 flex flex-col items-center gap-1 py-3 border-b-2 transition-colors",
                   isActive ? "border-teal-500 text-teal-500" : "border-transparent text-muted-foreground"
@@ -143,6 +147,7 @@ export default function SupportProfile() {
         {activeTab === "resolvidos" && <TicketsList tickets={(tickets ?? []).filter((t: any) => t.status === "resolved")} />}
         {activeTab === "chat" && <SupportChatSection />}
         {activeTab === "bugs" && <BugReportsList reports={bugReports ?? []} />}
+        {activeTab === "editar" && <EditarTab />}
       </div>
     </div>
   );
