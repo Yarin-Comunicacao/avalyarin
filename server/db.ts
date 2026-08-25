@@ -23,6 +23,23 @@ import { generateProductTags } from './auto-tags';
  * groups: gr + 6 digits (gr000001-gr999999)
  * menu_items: mi + 6 digits (mi000001-mi999999)
  */
+export function buildNextCode(maxCode: string | null | undefined, prefix: string, digits: number): string {
+  const code = maxCode ?? '';
+  const codePattern = prefix
+    ? new RegExp(`^${prefix}\\d{${digits}}$`)
+    : /^\d+$/;
+
+  if (!codePattern.test(code)) {
+    return prefix ? `${prefix}${'1'.padStart(digits, '0')}` : '1';
+  }
+
+  const numericPart = prefix ? code.slice(prefix.length) : code;
+  const lastNumber = Number.parseInt(numericPart, 10);
+  const nextNumber = Number.isSafeInteger(lastNumber) ? lastNumber + 1 : 1;
+
+  return prefix ? `${prefix}${String(nextNumber).padStart(digits, '0')}` : String(nextNumber);
+}
+
 export async function generateCode(table: 'users' | 'categories' | 'establishments' | 'ratings' | 'groups' | 'menu_items'): Promise<string> {
   const db = await getDb();
   if (!db) throw new Error("Database not available for code generation");
@@ -37,27 +54,15 @@ export async function generateCode(table: 'users' | 'categories' | 'establishmen
   };
 
   const { prefix, digits, tableRef } = config[table];
+  const codePattern = prefix
+    ? `^${prefix}[0-9]{${digits}}$`
+    : '^[0-9]+$';
+  const [row] = await db
+    .select({ maxCode: sql<string | null>`MAX(${tableRef.code})` })
+    .from(tableRef)
+    .where(sql`${tableRef.code} REGEXP ${codePattern}`);
 
-  // Get the max code from the table
-  const [row] = await db.select({ maxCode: sql<string>`MAX(code)` }).from(tableRef);
-  const maxCode = row?.maxCode;
-
-  let nextNum = 1;
-  if (maxCode) {
-    if (prefix) {
-      // Extract numeric part after prefix
-      const numStr = maxCode.replace(prefix, '');
-      nextNum = parseInt(numStr, 10) + 1;
-    } else {
-      // Users: purely numeric
-      nextNum = parseInt(maxCode, 10) + 1;
-    }
-  }
-
-  if (prefix) {
-    return `${prefix}${String(nextNum).padStart(digits, '0')}`;
-  }
-  return String(nextNum);
+  return buildNextCode(row?.maxCode, prefix, digits);
 }
 
 let _db: any = null;
