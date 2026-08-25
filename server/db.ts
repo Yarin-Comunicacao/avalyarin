@@ -2,7 +2,7 @@ import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { logDbError } from "./dbErrorLogger";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories, ratingTags, userFollows } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories, ratingTags, userFollows, codeBackups } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -2101,22 +2101,35 @@ export async function generateCodeBackup() {
   // Persist to database
   const db = await getDb();
   if (db) {
-    await db.execute(sql`INSERT INTO code_backups (backupId, createdAt, url, sizeKB, fileCount) VALUES (${backupId}, NOW(), ${url}, ${sizeKB}, ${sourceFiles.length})`);
+    await db.insert(codeBackups).values({
+      backupId,
+      url,
+      sizeKB,
+      fileCount: sourceFiles.length,
+    });
   }
-
   return backupEntry;
 }
 
 export async function getCodeBackups() {
   const db = await getDb();
   if (!db) return [];
-  const rows = await db.execute(sql`SELECT backupId as id, createdAt, url, sizeKB, fileCount FROM code_backups ORDER BY createdAt DESC LIMIT 10`);
-  return (rows[0] as unknown as any[]).map(r => ({
-    id: r.id,
-    createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
-    url: r.url,
-    sizeKB: r.sizeKB,
-    fileCount: r.fileCount,
+
+  const rows = await db
+    .select({
+      id: codeBackups.backupId,
+      createdAt: codeBackups.createdAt,
+      url: codeBackups.url,
+      sizeKB: codeBackups.sizeKB,
+      fileCount: codeBackups.fileCount,
+    })
+    .from(codeBackups)
+    .orderBy(desc(codeBackups.createdAt))
+    .limit(10);
+
+  return rows.map((row) => ({
+    ...row,
+    createdAt: row.createdAt.toISOString(),
   }));
 }
 

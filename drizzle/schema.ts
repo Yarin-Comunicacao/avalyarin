@@ -1387,3 +1387,19 @@ export const systemLogs = mysqlTable("system_logs", {
 });
 export type SystemLog = typeof systemLogs.$inferSelect;
 export type InsertSystemLog = typeof systemLogs.$inferInsert;
+
+
+// ============================================================
+// Code Backups — histórico dos arquivos de backup gerados no painel do proprietário
+// ============================================================
+export const codeBackups = mysqlTable("code_backups", {
+  id: int("id").autoincrement().primaryKey(),
+  backupId: varchar("backupId", { length: 64 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  url: text("url").notNull(),
+  sizeKB: int("sizeKB").notNull(),
+  fileCount: int("fileCount").notNull(),
+});
+
+export type CodeBackup = typeof codeBackups.$inferSelect;
+export type InsertCodeBackup = typeof codeBackups.$inferInsert;
