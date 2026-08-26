@@ -1322,6 +1322,8 @@ export const appRouter = router({
         instagram: z.string().min(1).max(128),
         facebook: z.string().max(255).optional(),
         website: z.string().url("Informe uma URL válida").max(255).optional().or(z.literal("")),
+        image: z.string().url("Informe uma URL válida para a imagem principal").optional(),
+        logo: z.string().url("Informe uma URL válida para a logo").optional(),
         categoryId: z.number().int().min(1),
         photos: z.array(z.object({
           url: z.string().url(),

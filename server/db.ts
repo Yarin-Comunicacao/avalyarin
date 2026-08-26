@@ -7,7 +7,7 @@ import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
 import * as path from 'path';
-import { generateProductTags } from './auto-tags';
+import { generateMenuItemTags } from './auto-tags';
 
 // ============================================================
 // CODE GENERATION HELPERS
@@ -1430,8 +1430,8 @@ export async function businessAddMenuItem(userId: number, establishmentId: numbe
   
     // Generate code for new menu item
   const itemCode = await generateCode('menu_items');
-  // Auto-generate tags from product name
-  const autoTags = generateProductTags(data.name);
+  // Auto-generate tags from product name and category
+  const autoTags = generateMenuItemTags(data.name, data.category);
   const result = await db.insert(menuItems).values({
     establishmentId,
     code: itemCode,
@@ -1520,9 +1520,9 @@ export async function businessUpdateMenuItem(userId: number, menuItemId: number,
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
 
-  // Regenerate tags if name changed
-  if (data.name !== undefined) {
-    updateData.tags = generateProductTags(data.name);
+  // Regenerate tags when the item name or category changes.
+  if (data.name !== undefined || data.category !== undefined) {
+    updateData.tags = generateMenuItemTags(data.name ?? item.name, data.category ?? item.category);
   }
   
   if (Object.keys(updateData).length > 0) {
@@ -1972,6 +1972,7 @@ export async function createEstablishment(data: {
   website?: string;
   hours?: string;
   image?: string;
+  logo?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -2018,6 +2019,7 @@ export async function createEstablishment(data: {
     website: data.website || null,
     hours: data.hours || null,
     image: data.image || null,
+    logo: data.logo || null,
     hasMenu: false,
     status: shouldHide ? 'pending' : 'active',
     source: "admin",

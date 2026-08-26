@@ -8,7 +8,7 @@ import { eq, and, asc, sql, inArray } from "drizzle-orm";
 import { establishments, menuItems, categories, menuCategories, establishmentCategories } from "../drizzle/schema";
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
-import { generateProductTags } from "./auto-tags";
+import { generateMenuItemTags } from "./auto-tags";
 
 /**
  * Capitalize first letter of a string
@@ -227,8 +227,8 @@ export async function adminAddMenuItem(data: {
   // Generate code for new menu item
   const itemCode = await generateCode('menu_items');
 
-  // Auto-generate tags from product name
-  const autoTags = generateProductTags(data.name);
+  // Auto-generate tags from product name and category
+  const autoTags = generateMenuItemTags(data.name, finalCategory);
 
   // Manual ID increment for TiDB schema without AUTO_INCREMENT
   const [maxResult] = await db.select({ maxId: sql<number>`MAX(id)` }).from(menuItems);
@@ -290,9 +290,15 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;
   if (data.imageThumbKey !== undefined) updateData.imageThumbKey = data.imageThumbKey;
 
-  // Regenerate tags if name changed
-  if (data.name !== undefined) {
-    updateData.tags = generateProductTags(data.name);
+  // Regenerate tags when the item name or category changes.
+  if (data.name !== undefined || data.category !== undefined) {
+    const [existingItem] = await db.select({ name: menuItems.name, category: menuItems.category })
+      .from(menuItems)
+      .where(eq(menuItems.id, id))
+      .limit(1);
+    if (existingItem) {
+      updateData.tags = generateMenuItemTags(data.name ?? existingItem.name, updateData.category ?? existingItem.category);
+    }
   }
 
   if (Object.keys(updateData).length === 0) return { success: true };
