@@ -2,7 +2,7 @@ import { invokeLLM } from "./_core/llm";
 import { eq, sql } from "drizzle-orm";
 import { getDb, createEstablishment, generateCode, syncEstablishmentVisibility } from "./db";
 import { logDbError } from "./dbErrorLogger";
-import { generateProductTags } from "./auto-tags";
+import { generateMenuItemTags } from "./auto-tags";
 import { establishments, establishmentMenuImports, menuCategories, menuItems } from "../drizzle/schema";
 
 const MAX_PHOTOS = 50;
@@ -183,6 +183,8 @@ export async function createSmartEstablishment(input: {
   instagram: string;
   facebook?: string;
   website?: string;
+  image?: string;
+  logo?: string;
   categoryId: number;
   photos: SmartMenuPhoto[];
   submittedById: number;
@@ -199,6 +201,8 @@ export async function createSmartEstablishment(input: {
     googleMapsUrl: input.googleMapsUrl.trim(),
     facebook: input.facebook?.trim() || undefined,
     website: input.website?.trim() || undefined,
+    image: input.image?.trim() || undefined,
+    logo: input.logo?.trim() || undefined,
     neighborhood: "Não informado",
     hours: "Não informado",
     description: "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
@@ -240,7 +244,7 @@ export async function createSmartEstablishment(input: {
           description: item.description || null,
           price: item.price,
           category: section.name.slice(0, 64),
-          tags: generateProductTags(item.name),
+          tags: generateMenuItemTags(item.name, section.name),
         });
       }
     }

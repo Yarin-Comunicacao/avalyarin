@@ -1,19 +1,22 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Camera, CheckCircle2, ImagePlus, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Camera, CheckCircle2, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
 const MAX_PHOTOS = 50;
+const MAX_BRAND_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 type SelectedPhoto = { file: File; preview: string };
-
 type UploadedPhoto = { url: string; key?: string };
+type BrandAssetType = "cover" | "logo";
 
 export default function SmartEstablishmentForm() {
   const [, navigate] = useLocation();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const initialCategoryId = Number(params.get("categoryId") || 0);
 
@@ -23,8 +26,11 @@ export default function SmartEstablishmentForm() {
   const [facebook, setFacebook] = useState("");
   const [website, setWebsite] = useState("");
   const [categoryId, setCategoryId] = useState(initialCategoryId ? String(initialCategoryId) : "");
+  const [coverImage, setCoverImage] = useState<SelectedPhoto | null>(null);
+  const [logo, setLogo] = useState<SelectedPhoto | null>(null);
   const [photos, setPhotos] = useState<SelectedPhoto[]>([]);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const [uploadingBrandAsset, setUploadingBrandAsset] = useState<BrandAssetType | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: categories, isLoading: categoriesLoading } = trpc.admin.categoriesWithCounts.useQuery();
@@ -51,6 +57,35 @@ export default function SmartEstablishmentForm() {
     });
   };
 
+  const selectBrandAsset = (event: React.ChangeEvent<HTMLInputElement>, assetType: BrandAssetType) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Use apenas arquivos de imagem.");
+      return;
+    }
+    if (file.size > MAX_BRAND_FILE_SIZE_BYTES) {
+      toast.error("A imagem principal e a logo podem ter no máximo 5 MB.");
+      return;
+    }
+
+    const nextAsset = { file, preview: URL.createObjectURL(file) };
+    const setAsset = assetType === "cover" ? setCoverImage : setLogo;
+    setAsset(previous => {
+      if (previous) URL.revokeObjectURL(previous.preview);
+      return nextAsset;
+    });
+  };
+
+  const removeBrandAsset = (assetType: BrandAssetType) => {
+    const setAsset = assetType === "cover" ? setCoverImage : setLogo;
+    setAsset(previous => {
+      if (previous) URL.revokeObjectURL(previous.preview);
+      return null;
+    });
+  };
+
   const uploadPhoto = async (photo: SelectedPhoto, index: number): Promise<UploadedPhoto> => {
     setUploadingIndex(index);
     const response = await fetch("/api/upload-menu-image", {
@@ -67,6 +102,26 @@ export default function SmartEstablishmentForm() {
     return response.json();
   };
 
+  const uploadBrandAsset = async (asset: SelectedPhoto, assetType: BrandAssetType): Promise<string> => {
+    setUploadingBrandAsset(assetType);
+    try {
+      const response = await fetch(assetType === "cover" ? "/api/upload-cover" : "/api/upload-logo", {
+        method: "POST",
+        headers: { "Content-Type": asset.file.type || "image/jpeg", "X-File-Name": asset.file.name },
+        body: asset.file,
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || `Falha no upload da ${assetType === "cover" ? "imagem principal" : "logo"}`);
+      }
+      const payload = await response.json();
+      return payload.url;
+    } finally {
+      setUploadingBrandAsset(null);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!name.trim() || !googleMapsUrl.trim() || !instagram.trim() || !categoryId || photos.length === 0) {
@@ -76,6 +131,8 @@ export default function SmartEstablishmentForm() {
 
     setIsSubmitting(true);
     try {
+      const image = coverImage ? await uploadBrandAsset(coverImage, "cover") : undefined;
+      const logoUrl = logo ? await uploadBrandAsset(logo, "logo") : undefined;
       const uploaded: UploadedPhoto[] = [];
       for (let index = 0; index < photos.length; index++) {
         uploaded.push(await uploadPhoto(photos[index], index));
@@ -87,6 +144,8 @@ export default function SmartEstablishmentForm() {
         instagram: instagram.trim(),
         facebook: facebook.trim() || undefined,
         website: website.trim() || undefined,
+        image,
+        logo: logoUrl,
         categoryId: Number(categoryId),
         photos: uploaded,
       });
@@ -97,6 +156,7 @@ export default function SmartEstablishmentForm() {
       toast.error(error?.message || "Não foi possível criar o estabelecimento.");
     } finally {
       setUploadingIndex(null);
+      setUploadingBrandAsset(null);
       setIsSubmitting(false);
     }
   };
@@ -144,6 +204,37 @@ export default function SmartEstablishmentForm() {
           </div>
         </section>
 
+        <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
+          <div>
+            <h2 className="font-display text-lg tracking-wider">IDENTIDADE VISUAL</h2>
+            <p className="text-xs text-muted-foreground mt-1">Opcional. A imagem principal e a logo são armazenadas separadamente e não entram na leitura do cardápio.</p>
+          </div>
+          <input ref={coverInputRef} type="file" accept="image/*" onChange={event => selectBrandAsset(event, "cover")} className="hidden" />
+          <input ref={logoInputRef} type="file" accept="image/*" onChange={event => selectBrandAsset(event, "logo")} className="hidden" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Imagem principal</p>
+              <div className="relative aspect-[3/2] overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5">
+                {coverImage ? <>
+                  <img src={coverImage.preview} alt="Prévia da imagem principal" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => removeBrandAsset("cover")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover imagem principal"><Trash2 className="w-4 h-4" /></button>
+                  {uploadingBrandAsset === "cover" && <div className="absolute inset-0 grid place-items-center bg-black/55"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}
+                </> : <button type="button" onClick={() => coverInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar imagem principal</span><span className="text-xs text-muted-foreground">Formato horizontal recomendado</span></button>}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Logo</p>
+              <div className="relative aspect-square max-w-52 overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5">
+                {logo ? <>
+                  <img src={logo.preview} alt="Prévia da logo" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => removeBrandAsset("logo")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover logo"><Trash2 className="w-4 h-4" /></button>
+                  {uploadingBrandAsset === "logo" && <div className="absolute inset-0 grid place-items-center bg-black/55"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}
+                </> : <button type="button" onClick={() => logoInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar logo</span><span className="text-xs text-muted-foreground">Formato quadrado recomendado</span></button>}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -152,7 +243,6 @@ export default function SmartEstablishmentForm() {
             </div>
             <span className="text-sm font-numbers text-primary">{photos.length}/{MAX_PHOTOS}</span>
           </div>
-
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={addPhotos} className="hidden" />
           <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={addPhotos} className="hidden" />
           <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 text-center">
@@ -170,7 +260,6 @@ export default function SmartEstablishmentForm() {
             </div>
             <span className="block text-xs text-muted-foreground mt-3">Na galeria, você poderá selecionar várias páginas de uma vez.</span>
           </div>
-
           {photos.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {photos.map((photo, index) => (
@@ -190,7 +279,7 @@ export default function SmartEstablishmentForm() {
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
           <button type="button" onClick={() => navigate("/admin/negocio")} className="rounded-lg border border-border px-5 py-2.5">Cancelar</button>
           <button type="submit" disabled={isSubmitting || photos.length === 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-primary-foreground font-medium disabled:opacity-50">
-            {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processando {uploadingIndex != null ? `foto ${uploadingIndex + 1}/${photos.length}` : "cardápio"}...</> : <><CheckCircle2 className="w-4 h-4" /> Criar estabelecimento e cardápio</>}
+            {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processando {uploadingBrandAsset ? "identidade visual" : uploadingIndex != null ? `foto ${uploadingIndex + 1}/${photos.length}` : "cardápio"}...</> : <><CheckCircle2 className="w-4 h-4" /> Criar estabelecimento e cardápio</>}
           </button>
         </div>
       </form>
