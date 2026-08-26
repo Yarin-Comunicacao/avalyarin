@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Camera, CheckCircle2, ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, CheckCircle2, ImagePlus, Loader2, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { extractCoordinatesFromGoogleMapsUrl } from "@/lib/googleMapsUrl";
 
 const MAX_PHOTOS = 50;
 const MAX_BRAND_FILE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -29,6 +30,15 @@ export default function SmartEstablishmentForm() {
   const [instagram, setInstagram] = useState("");
   const [facebook, setFacebook] = useState("");
   const [website, setWebsite] = useState("");
+  const [address, setAddress] = useState("");
+  const [addressNumber, setAddressNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [region, setRegion] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [hours, setHours] = useState("");
+  const [phone, setPhone] = useState("");
   const [categoryId, setCategoryId] = useState(initialCategoryId ? String(initialCategoryId) : "");
   const [coverImage, setCoverImage] = useState<SelectedPhoto | null>(null);
   const [logo, setLogo] = useState<SelectedPhoto | null>(null);
@@ -90,6 +100,23 @@ export default function SmartEstablishmentForm() {
     });
   };
 
+  const enrichFromGoogleMapsUrl = () => {
+    const coordinates = extractCoordinatesFromGoogleMapsUrl(googleMapsUrl);
+    if (!coordinates) {
+      toast.info("O link não possui coordenadas visíveis. Você pode preencher os dados manualmente ou configurar uma fonte de enriquecimento.");
+      return;
+    }
+
+    setLat(current => current || coordinates.lat.toFixed(7));
+    setLng(current => current || coordinates.lng.toFixed(7));
+    toast.success("Coordenadas encontradas no link. Revise os demais dados antes de salvar.");
+  };
+
+  const toOptionalCoordinate = (value: string): number | undefined => {
+    const parsed = Number(value.trim().replace(",", "."));
+    return Number.isFinite(parsed) ? parsed : undefined;
+  };
+
   const uploadPhoto = async (photo: SelectedPhoto, index: number): Promise<UploadedPhoto> => {
     setUploadingIndex(index);
     const response = await fetch("/api/upload-menu-image", {
@@ -148,6 +175,15 @@ export default function SmartEstablishmentForm() {
         instagram: instagram.trim(),
         facebook: facebook.trim() || undefined,
         website: website.trim() || undefined,
+        address: address.trim() || undefined,
+        addressNumber: addressNumber.trim() || undefined,
+        complement: complement.trim() || undefined,
+        neighborhood: neighborhood.trim() || undefined,
+        region: region.trim() || undefined,
+        lat: toOptionalCoordinate(lat),
+        lng: toOptionalCoordinate(lng),
+        hours: hours.trim() || undefined,
+        phone: phone.trim() || undefined,
         image,
         logo: logoUrl,
         categoryId: Number(categoryId),
@@ -187,9 +223,14 @@ export default function SmartEstablishmentForm() {
             <label className="sm:col-span-2 text-sm font-medium">Nome do estabelecimento *
               <input value={name} onChange={e => setName(e.target.value)} placeholder="Ex.: Espetto Carioca Jardins" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
             </label>
-            <label className="text-sm font-medium">Google Maps *
-              <input type="url" value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/..." className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
-            </label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Google Maps *
+                <input type="url" value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/..." className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
+              </label>
+              <button type="button" onClick={enrichFromGoogleMapsUrl} disabled={!googleMapsUrl.trim() || isSubmitting} className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50">
+                <Sparkles className="h-4 w-4" /> Enriquecer dados
+              </button>
+            </div>
             <label className="text-sm font-medium">Instagram *
               <input value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@perfil ou URL" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
             </label>
@@ -204,6 +245,45 @@ export default function SmartEstablishmentForm() {
                 <option value="">Selecione uma categoria</option>
                 {categories?.map((category: { id: number; name: string }) => <option key={category.id} value={category.id}>{category.name}</option>)}
               </select>
+            </label>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <MapPin className="mt-0.5 h-5 w-5 text-primary" />
+            <div>
+              <h2 className="font-display text-lg tracking-wider">LOCALIZAÇÃO E FUNCIONAMENTO</h2>
+              <p className="text-xs text-muted-foreground mt-1">Opcional, mas recomendado. Revise os dados sugeridos antes de salvar o estabelecimento.</p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="sm:col-span-2 text-sm font-medium">Endereço
+              <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex.: Rua dos Pinheiros" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Número
+              <input value={addressNumber} onChange={e => setAddressNumber(e.target.value)} placeholder="Ex.: 123" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Complemento
+              <input value={complement} onChange={e => setComplement(e.target.value)} placeholder="Ex.: Loja 4, Piso térreo" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Bairro
+              <input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Ex.: Pinheiros" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Região/Cidade
+              <input value={region} onChange={e => setRegion(e.target.value)} placeholder="Ex.: São Paulo" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Latitude
+              <input inputMode="decimal" value={lat} onChange={e => setLat(e.target.value)} placeholder="Ex.: -23.5612463" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Longitude
+              <input inputMode="decimal" value={lng} onChange={e => setLng(e.target.value)} placeholder="Ex.: -46.5697117" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Telefone/WhatsApp
+              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Ex.: (11) 99999-9999" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="sm:col-span-2 text-sm font-medium">Horário de funcionamento
+              <textarea value={hours} onChange={e => setHours(e.target.value)} placeholder="Ex.: Ter-Dom, 12h às 23h" rows={3} className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2" />
             </label>
           </div>
         </section>
