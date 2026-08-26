@@ -11,6 +11,10 @@ type SelectedPhoto = { file: File; preview: string };
 type UploadedPhoto = { url: string; key?: string };
 type BrandAssetType = "cover" | "logo";
 
+function safePreviewUrl(preview: string): string {
+  return preview.startsWith("blob:") ? encodeURI(preview) : "";
+}
+
 export default function SmartEstablishmentForm() {
   const [, navigate] = useLocation();
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -216,7 +220,7 @@ export default function SmartEstablishmentForm() {
               <p className="text-sm font-medium">Imagem principal</p>
               <div className="relative aspect-[3/2] overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5">
                 {coverImage ? <>
-                  <img src={coverImage.preview} alt="Prévia da imagem principal" className="w-full h-full object-cover" />
+                  <img src={safePreviewUrl(coverImage.preview)} alt="Prévia da imagem principal" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => removeBrandAsset("cover")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover imagem principal"><Trash2 className="w-4 h-4" /></button>
                   {uploadingBrandAsset === "cover" && <div className="absolute inset-0 grid place-items-center bg-black/55"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}
                 </> : <button type="button" onClick={() => coverInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar imagem principal</span><span className="text-xs text-muted-foreground">Formato horizontal recomendado</span></button>}
@@ -226,7 +230,7 @@ export default function SmartEstablishmentForm() {
               <p className="text-sm font-medium">Logo</p>
               <div className="relative aspect-square max-w-52 overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5">
                 {logo ? <>
-                  <img src={logo.preview} alt="Prévia da logo" className="w-full h-full object-cover" />
+                  <img src={safePreviewUrl(logo.preview)} alt="Prévia da logo" className="w-full h-full object-cover" />
                   <button type="button" onClick={() => removeBrandAsset("logo")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover logo"><Trash2 className="w-4 h-4" /></button>
                   {uploadingBrandAsset === "logo" && <div className="absolute inset-0 grid place-items-center bg-black/55"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}
                 </> : <button type="button" onClick={() => logoInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar logo</span><span className="text-xs text-muted-foreground">Formato quadrado recomendado</span></button>}
