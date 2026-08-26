@@ -1963,6 +1963,7 @@ export async function createEstablishment(data: {
   description?: string;
   neighborhood?: string;
   region?: string;
+  city?: string;
   lat?: number;
   lng?: number;
   phone?: string;
@@ -2010,6 +2011,7 @@ export async function createEstablishment(data: {
     description: data.description || null,
     neighborhood: data.neighborhood || null,
     region: data.region || null,
+    city: data.city || null,
     lat: data.lat || null,
     lng: data.lng || null,
     phone: data.phone || null,

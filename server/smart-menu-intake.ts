@@ -3,6 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { getDb, createEstablishment, generateCode, syncEstablishmentVisibility } from "./db";
 import { logDbError } from "./dbErrorLogger";
 import { generateMenuItemTags } from "./auto-tags";
+import { formatOpeningHours } from "../shared/opening-hours";
 import { establishments, establishmentMenuImports, menuCategories, menuItems } from "../drizzle/schema";
 
 const MAX_PHOTOS = 50;
@@ -188,9 +189,11 @@ export async function createSmartEstablishment(input: {
   complement?: string;
   neighborhood?: string;
   region?: string;
+  city?: string;
   lat?: number;
   lng?: number;
   hours?: string;
+  openingHours?: unknown;
   phone?: string;
   image?: string;
   logo?: string;
@@ -215,9 +218,10 @@ export async function createSmartEstablishment(input: {
     complement: input.complement?.trim() || undefined,
     neighborhood: input.neighborhood?.trim() || "Não informado",
     region: input.region?.trim() || undefined,
+    city: input.city?.trim() || undefined,
     lat: input.lat,
     lng: input.lng,
-    hours: input.hours?.trim() || "Não informado",
+    hours: formatOpeningHours(input.openingHours) || input.hours?.trim() || "Não informado",
     phone: input.phone?.trim() || undefined,
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,

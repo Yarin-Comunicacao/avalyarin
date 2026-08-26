@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { extractCoordinatesFromGoogleMapsUrl } from "./googleMapsUrl";
+import { extractCoordinatesFromGoogleMapsUrl, extractNameFromGoogleMapsUrl } from "./googleMapsUrl";
 
 describe("extractCoordinatesFromGoogleMapsUrl", () => {
+  it("extrai o nome presente no caminho do local", () => {
+    expect(extractNameFromGoogleMapsUrl("https://www.google.com/maps/place/Estrela+Bar/@-23.5444746,-46.656189,12z"))
+      .toBe("Estrela Bar");
+  });
+
   it("extrai as coordenadas de um link compartilhado com marcador de mapa", () => {
     expect(extractCoordinatesFromGoogleMapsUrl("https://www.google.com/maps/place/Estrela+Bar/@-23.5444746,-46.656189,12z"))
       .toEqual({ lat: -23.5444746, lng: -46.656189 });
