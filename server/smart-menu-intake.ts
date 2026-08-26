@@ -183,6 +183,15 @@ export async function createSmartEstablishment(input: {
   instagram: string;
   facebook?: string;
   website?: string;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  neighborhood?: string;
+  region?: string;
+  lat?: number;
+  lng?: number;
+  hours?: string;
+  phone?: string;
   image?: string;
   logo?: string;
   categoryId: number;
@@ -201,10 +210,17 @@ export async function createSmartEstablishment(input: {
     googleMapsUrl: input.googleMapsUrl.trim(),
     facebook: input.facebook?.trim() || undefined,
     website: input.website?.trim() || undefined,
+    address: input.address?.trim() || undefined,
+    addressNumber: input.addressNumber?.trim() || undefined,
+    complement: input.complement?.trim() || undefined,
+    neighborhood: input.neighborhood?.trim() || "Não informado",
+    region: input.region?.trim() || undefined,
+    lat: input.lat,
+    lng: input.lng,
+    hours: input.hours?.trim() || "Não informado",
+    phone: input.phone?.trim() || undefined,
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,
-    neighborhood: "Não informado",
-    hours: "Não informado",
     description: "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
   });
 
