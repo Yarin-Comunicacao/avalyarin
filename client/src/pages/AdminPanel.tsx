@@ -209,7 +209,7 @@ export default function AdminPanel() {
 
         {/* Negócio section */}
         {activeSection === "negocio" && negocioTab === "dashboard" && <DashboardTab />}
-        {activeSection === "negocio" && negocioTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} />}
+        {activeSection === "negocio" && negocioTab === "establishments" && <EstablishmentsTab initialCategoryId={initialCategory} ownerView={isOwner} />}
         {activeSection === "negocio" && negocioTab === "promos" && <PromoCodesAdminTab />}
         {activeSection === "negocio" && negocioTab === "planos" && <PlanosTab />}
 
@@ -667,8 +667,8 @@ function SpecialistApplicationsSubTab() {
   );
 }
 
-function EstablishmentsTab({ initialCategoryId }: { initialCategoryId?: string }) {
-  return <AdminEstablishments initialCategoryId={initialCategoryId ? Number(initialCategoryId) : undefined} />;
+function EstablishmentsTab({ initialCategoryId, ownerView }: { initialCategoryId?: string; ownerView?: boolean }) {
+  return <AdminEstablishments initialCategoryId={initialCategoryId ? Number(initialCategoryId) : undefined} ownerView={ownerView} />;
 }
 
 function EstablishmentsTabLegacy() {
