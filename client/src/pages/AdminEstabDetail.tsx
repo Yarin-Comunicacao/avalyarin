@@ -744,7 +744,7 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
         <div className="flex items-center gap-3 mt-2">
           {item.price && (
             <span className="text-xs font-medium text-primary">
-              R$ {item.price.toFixed(2).replace(".", ",")}
+              R$ {Number(item.price).toFixed(2).replace(".", ",")}
             </span>
           )}
           {item.category && (
