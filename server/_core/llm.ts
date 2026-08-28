@@ -126,8 +126,12 @@ const resolveApiKey = (): string => {
   return key;
 };
 
+export const normalizeModelName = (model: string): string => {
+  return model === "gemini-2.5-flash" ? "gemini-3.6-flash" : model;
+};
+
 const resolveModel = (): string => {
-  return ENV.llmModel || "gemini-2.5-flash";
+  return normalizeModelName(ENV.llmModel || "gemini-3.6-flash");
 };
 
 const normalizeResponseFormat = ({
