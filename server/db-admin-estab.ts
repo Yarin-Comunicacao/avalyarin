@@ -9,6 +9,7 @@ import { establishments, menuItems, categories, menuCategories, establishmentCat
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 import { generateMenuItemTags } from "./auto-tags";
+import { extractMenuWithOcr, hasAcceptableMenuQuality } from "./smart-menu-ocr";
 
 /**
  * Capitalize first letter of a string
@@ -373,6 +374,81 @@ export async function uploadMenuItemImage(
   }
 
   return { url, key };
+}
+
+function normalizeMenuName(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function normalizeMenuPrice(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(String(value).replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/**
+ * Read a new menu image with OCR and update only matched changes. Unmatched OCR items are added; existing items are never deleted automatically.
+ */
+export async function adminUpdateMenuFromOcr(data: {
+  establishmentId: number;
+  imageBuffer: Buffer;
+  mimeType: string;
+  fileName: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Banco de dados indisponível");
+
+  const key = `menu-updates/${data.establishmentId}/${Date.now()}-${data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+  const { url } = await storagePut(key, data.imageBuffer, data.mimeType);
+  const extracted = await extractMenuWithOcr([{ url, key }], 1, 1);
+  if (!hasAcceptableMenuQuality(extracted)) {
+    throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie uma foto nítida, sem reflexos e de frente.");
+  }
+
+  const existing = await db.select().from(menuItems).where(eq(menuItems.establishmentId, data.establishmentId));
+  const usedIds = new Set<number>();
+  const updated: Array<{ id: number; name: string; changes: string[] }> = [];
+  const added: Array<{ name: string; price: number | null }> = [];
+
+  for (const section of extracted.sections) {
+    for (const parsed of section.items) {
+      const targetName = normalizeMenuName(parsed.name);
+      if (!targetName) continue;
+      const candidate = existing.find(item => !usedIds.has(item.id) && normalizeMenuName(item.name) === targetName);
+      if (!candidate) {
+        await adminAddMenuItem({
+          establishmentId: data.establishmentId,
+          name: parsed.name,
+          description: parsed.description || undefined,
+          price: parsed.price ?? undefined,
+          category: section.name,
+        });
+        added.push({ name: parsed.name, price: parsed.price });
+        continue;
+      }
+
+      usedIds.add(candidate.id);
+      const changes: string[] = [];
+      const nextPrice = normalizeMenuPrice(parsed.price);
+      const currentPrice = normalizeMenuPrice(candidate.price);
+      const nextDescription = parsed.description || "";
+      const currentDescription = candidate.description || "";
+      const nextCategory = capitalizeCategory(section.name);
+      if (nextPrice !== null && (currentPrice === null || Math.abs(nextPrice - currentPrice) > 0.001)) changes.push("preço");
+      if (nextDescription && nextDescription !== currentDescription) changes.push("descrição");
+      if (nextCategory && nextCategory !== candidate.category) changes.push("categoria");
+      if (changes.length > 0) {
+        await adminUpdateMenuItem(candidate.id, {
+          ...(changes.includes("preço") ? { price: nextPrice! } : {}),
+          ...(changes.includes("descrição") ? { description: nextDescription } : {}),
+          ...(changes.includes("categoria") ? { category: nextCategory } : {}),
+        });
+        updated.push({ id: candidate.id, name: candidate.name, changes });
+      }
+    }
+  }
+
+  return { success: true, sourceUrl: url, updated, added, unchanged: existing.length - usedIds.size };
 }
 
 /**
