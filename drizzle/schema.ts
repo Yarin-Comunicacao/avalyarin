@@ -68,6 +68,7 @@ export const establishments = mysqlTable("establishments", {
   address: text("address"),
   neighborhood: varchar("neighborhood", { length: 128 }),
   region: varchar("region", { length: 64 }),
+  city: varchar("city", { length: 128 }),
   lat: float("lat"),
   lng: float("lng"),
   rating: float("rating"),

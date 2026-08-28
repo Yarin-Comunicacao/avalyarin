@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { ArrowLeft, Camera, CheckCircle2, ImagePlus, Loader2, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { extractCoordinatesFromGoogleMapsUrl } from "@/lib/googleMapsUrl";
+import { extractCoordinatesFromGoogleMapsUrl, extractNameFromGoogleMapsUrl } from "@/lib/googleMapsUrl";
+import { createEmptyOpeningHours, formatOpeningHours, type DailyOpeningHours, WEEKDAYS } from "@shared/opening-hours";
 
 const MAX_PHOTOS = 50;
 const MAX_BRAND_FILE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -35,9 +36,10 @@ export default function SmartEstablishmentForm() {
   const [complement, setComplement] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [region, setRegion] = useState("");
+  const [city, setCity] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
-  const [hours, setHours] = useState("");
+  const [openingHours, setOpeningHours] = useState<DailyOpeningHours[]>(createEmptyOpeningHours);
   const [phone, setPhone] = useState("");
   const [categoryId, setCategoryId] = useState(initialCategoryId ? String(initialCategoryId) : "");
   const [coverImage, setCoverImage] = useState<SelectedPhoto | null>(null);
@@ -101,15 +103,27 @@ export default function SmartEstablishmentForm() {
   };
 
   const enrichFromGoogleMapsUrl = () => {
+    const mapName = extractNameFromGoogleMapsUrl(googleMapsUrl);
     const coordinates = extractCoordinatesFromGoogleMapsUrl(googleMapsUrl);
-    if (!coordinates) {
-      toast.info("O link não possui coordenadas visíveis. Você pode preencher os dados manualmente ou configurar uma fonte de enriquecimento.");
+    if (!mapName && !coordinates) {
+      toast.info("O link não expõe nome ou coordenadas. Você pode preencher os dados manualmente ou configurar uma fonte de enriquecimento.");
       return;
     }
 
-    setLat(current => current || coordinates.lat.toFixed(7));
-    setLng(current => current || coordinates.lng.toFixed(7));
-    toast.success("Coordenadas encontradas no link. Revise os demais dados antes de salvar.");
+    if (mapName) setName(current => current || mapName);
+    if (coordinates) {
+      setLat(current => current || coordinates.lat.toFixed(7));
+      setLng(current => current || coordinates.lng.toFixed(7));
+    }
+    toast.success("Dados disponíveis no link foram preenchidos. Revise antes de salvar.");
+  };
+
+  const enrichFromInstagramUrl = () => {
+    toast.info("A leitura automática do Instagram será ativada após a configuração da integração Meta.");
+  };
+
+  const updateOpeningHour = (day: number, changes: Partial<DailyOpeningHours>) => {
+    setOpeningHours(current => current.map(row => row.day === day ? { ...row, ...changes } : row));
   };
 
   const toOptionalCoordinate = (value: string): number | undefined => {
@@ -180,9 +194,10 @@ export default function SmartEstablishmentForm() {
         complement: complement.trim() || undefined,
         neighborhood: neighborhood.trim() || undefined,
         region: region.trim() || undefined,
+        city: city.trim() || undefined,
         lat: toOptionalCoordinate(lat),
         lng: toOptionalCoordinate(lng),
-        hours: hours.trim() || undefined,
+        openingHours,
         phone: phone.trim() || undefined,
         image,
         logo: logoUrl,
@@ -214,15 +229,12 @@ export default function SmartEstablishmentForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
+        <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
           <div>
-            <h2 className="font-display text-lg tracking-wider">DADOS DO ESTABELECIMENTO</h2>
-            <p className="text-xs text-muted-foreground mt-1">O nome é necessário para identificar o novo registro no TiDB.</p>
+            <h2 className="font-display text-lg tracking-wider">FONTES PARA ENRIQUECIMENTO</h2>
+            <p className="text-xs text-muted-foreground mt-1">Cole os links primeiro. Cada fonte tem sua própria ação de enriquecimento.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="sm:col-span-2 text-sm font-medium">Nome do estabelecimento *
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="Ex.: Espetto Carioca Jardins" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
-            </label>
             <div className="space-y-2">
               <label className="text-sm font-medium">Google Maps *
                 <input type="url" value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/..." className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
@@ -231,8 +243,25 @@ export default function SmartEstablishmentForm() {
                 <Sparkles className="h-4 w-4" /> Enriquecer dados
               </button>
             </div>
-            <label className="text-sm font-medium">Instagram *
-              <input value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@perfil ou URL" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Instagram *
+                <input value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@perfil ou URL" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
+              </label>
+              <button type="button" onClick={enrichFromInstagramUrl} disabled={!instagram.trim() || isSubmitting} className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50">
+                <Sparkles className="h-4 w-4" /> Enriquecer dados
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
+          <div>
+            <h2 className="font-display text-lg tracking-wider">DADOS DO ESTABELECIMENTO</h2>
+            <p className="text-xs text-muted-foreground mt-1">Confira os dados preenchidos pelas fontes antes de criar o registro no TiDB.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="sm:col-span-2 text-sm font-medium">Nome do estabelecimento *
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="Ex.: Espetto Carioca Jardins" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" required />
             </label>
             <label className="text-sm font-medium">Facebook
               <input value={facebook} onChange={e => setFacebook(e.target.value)} placeholder="URL da página" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
@@ -249,12 +278,12 @@ export default function SmartEstablishmentForm() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
+        <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-5">
           <div className="flex items-start gap-3">
             <MapPin className="mt-0.5 h-5 w-5 text-primary" />
             <div>
               <h2 className="font-display text-lg tracking-wider">LOCALIZAÇÃO E FUNCIONAMENTO</h2>
-              <p className="text-xs text-muted-foreground mt-1">Opcional, mas recomendado. Revise os dados sugeridos antes de salvar o estabelecimento.</p>
+              <p className="text-xs text-muted-foreground mt-1">Preencha ou revise os dados sugeridos antes de salvar o estabelecimento.</p>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -270,8 +299,14 @@ export default function SmartEstablishmentForm() {
             <label className="text-sm font-medium">Bairro
               <input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Ex.: Pinheiros" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
             </label>
-            <label className="text-sm font-medium">Região/Cidade
-              <input value={region} onChange={e => setRegion(e.target.value)} placeholder="Ex.: São Paulo" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            <label className="text-sm font-medium">Região
+              <input value={region} onChange={e => setRegion(e.target.value)} placeholder="Ex.: Zona Oeste" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Cidade
+              <input value={city} onChange={e => setCity(e.target.value)} placeholder="Ex.: São Paulo" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            </label>
+            <label className="text-sm font-medium">Telefone/WhatsApp
+              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Ex.: (11) 99999-9999" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
             </label>
             <label className="text-sm font-medium">Latitude
               <input inputMode="decimal" value={lat} onChange={e => setLat(e.target.value)} placeholder="Ex.: -23.5612463" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
@@ -279,31 +314,41 @@ export default function SmartEstablishmentForm() {
             <label className="text-sm font-medium">Longitude
               <input inputMode="decimal" value={lng} onChange={e => setLng(e.target.value)} placeholder="Ex.: -46.5697117" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
             </label>
-            <label className="text-sm font-medium">Telefone/WhatsApp
-              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Ex.: (11) 99999-9999" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
-            </label>
-            <label className="sm:col-span-2 text-sm font-medium">Horário de funcionamento
-              <textarea value={hours} onChange={e => setHours(e.target.value)} placeholder="Ex.: Ter-Dom, 12h às 23h" rows={3} className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2" />
-            </label>
+          </div>
+          <div className="space-y-3 border-t border-border/60 pt-5">
+            <div>
+              <h3 className="text-sm font-semibold">Horário de funcionamento</h3>
+              <p className="text-xs text-muted-foreground mt-1">Informe a escala diária. O sistema agrupa automaticamente os dias com o mesmo horário para exibir no front.</p>
+            </div>
+            <div className="space-y-2">
+              {openingHours.map(row => (
+                <div key={row.day} className="grid grid-cols-[minmax(108px,1fr)_minmax(90px,1fr)_minmax(90px,1fr)] items-center gap-2 rounded-lg border border-border/60 p-2 sm:grid-cols-[minmax(150px,1fr)_120px_120px]">
+                  <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={row.isOpen} onChange={event => updateOpeningHour(row.day, { isOpen: event.target.checked })} /> {WEEKDAYS[row.day]}</label>
+                  <input type="time" value={row.opensAt} onChange={event => updateOpeningHour(row.day, { opensAt: event.target.value })} disabled={!row.isOpen} aria-label={`Abertura de ${WEEKDAYS[row.day]}`} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" />
+                  <input type="time" value={row.closesAt} onChange={event => updateOpeningHour(row.day, { closesAt: event.target.value })} disabled={!row.isOpen} aria-label={`Fechamento de ${WEEKDAYS[row.day]}`} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" />
+                </div>
+              ))}
+            </div>
+            {formatOpeningHours(openingHours) && <p className="rounded-lg bg-primary/5 px-3 py-2 text-sm text-primary"><strong>Como aparecerá no app:</strong> {formatOpeningHours(openingHours)}</p>}
           </div>
         </section>
 
         <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
           <div>
             <h2 className="font-display text-lg tracking-wider">IDENTIDADE VISUAL</h2>
-            <p className="text-xs text-muted-foreground mt-1">Opcional. A imagem principal e a logo são armazenadas separadamente e não entram na leitura do cardápio.</p>
+            <p className="text-xs text-muted-foreground mt-1">Opcional. A foto de fundo e a logo são enviadas separadamente ao R2 e não entram na leitura do cardápio.</p>
           </div>
           <input ref={coverInputRef} type="file" accept="image/*" onChange={event => selectBrandAsset(event, "cover")} className="hidden" />
           <input ref={logoInputRef} type="file" accept="image/*" onChange={event => selectBrandAsset(event, "logo")} className="hidden" />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-sm font-medium">Imagem principal</p>
+              <p className="text-sm font-medium">Foto de fundo</p>
               <div className="relative aspect-[3/2] overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5">
                 {coverImage ? <>
-                  <img src={safePreviewUrl(coverImage.preview)} alt="Prévia da imagem principal" className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => removeBrandAsset("cover")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover imagem principal"><Trash2 className="w-4 h-4" /></button>
+                  <img src={safePreviewUrl(coverImage.preview)} alt="Prévia da foto de fundo" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => removeBrandAsset("cover")} disabled={isSubmitting} className="absolute right-2 top-2 rounded-md bg-black/65 p-2 text-white hover:bg-red-600 disabled:opacity-50" aria-label="Remover foto de fundo"><Trash2 className="w-4 h-4" /></button>
                   {uploadingBrandAsset === "cover" && <div className="absolute inset-0 grid place-items-center bg-black/55"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}
-                </> : <button type="button" onClick={() => coverInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar imagem principal</span><span className="text-xs text-muted-foreground">Formato horizontal recomendado</span></button>}
+                </> : <button type="button" onClick={() => coverInputRef.current?.click()} disabled={isSubmitting} className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><ImagePlus className="w-7 h-7 text-primary" /><span className="text-sm font-medium">Adicionar foto de fundo</span><span className="text-xs text-muted-foreground">Formato horizontal recomendado</span></button>}
               </div>
             </div>
             <div className="space-y-2">

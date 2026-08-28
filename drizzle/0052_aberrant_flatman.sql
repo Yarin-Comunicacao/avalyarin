@@ -1,0 +1,1 @@
+ALTER TABLE `establishments` ADD `city` varchar(128);
