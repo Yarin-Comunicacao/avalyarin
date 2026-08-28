@@ -9,6 +9,14 @@ import { establishments, establishmentMenuImports, menuCategories, menuItems } f
 const MAX_PHOTOS = 50;
 const BATCH_SIZE = 5;
 
+export function getInsertedImportId(result: { insertId?: unknown }): number {
+  const importId = Number(result.insertId);
+  if (!Number.isSafeInteger(importId) || importId <= 0) {
+    throw new Error("Não foi possível obter o ID da importação do cardápio");
+  }
+  return importId;
+}
+
 export type SmartMenuPhoto = {
   url: string;
   key?: string;
@@ -229,14 +237,14 @@ export async function createSmartEstablishment(input: {
   });
 
   const establishmentId = Number(establishment.id);
-  
-  await db.insert(establishmentMenuImports).values({
+
+  const [importResult] = await db.insert(establishmentMenuImports).values({
     establishmentId,
     submittedById: input.submittedById,
     sourceUrls: input.photos.map(photo => photo.url),
     status: "processing",
   });
-
+  const importId = getInsertedImportId(importResult);
   try {
     const batches: ExtractedMenu[] = [];
     for (let offset = 0; offset < input.photos.length; offset += BATCH_SIZE) {
