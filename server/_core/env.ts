@@ -31,7 +31,7 @@ export const ENV = {
   // LLM (OpenAI-compatible or Gemini)
   llmApiKey: process.env.LLM_API_KEY ?? "",
   llmApiUrl: process.env.LLM_API_URL ?? "https://generativelanguage.googleapis.com/v1beta/openai",
-  llmModel: process.env.LLM_MODEL ?? "gemini-2.5-flash",
+  llmModel: process.env.LLM_MODEL ?? "gemini-3.6-flash",
 
   // Owner info
   ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
