@@ -1,4 +1,4 @@
-import { extractMenuWithOcr } from "./smart-menu-ocr";
+import { extractMenuWithOcr, hasAcceptableMenuQuality } from "./smart-menu-ocr";
 import { eq, sql } from "drizzle-orm";
 import { getDb, createEstablishment, generateCode, syncEstablishmentVisibility } from "./db";
 import { logDbError } from "./dbErrorLogger";
@@ -35,6 +35,7 @@ type ExtractedSection = {
 
 type ExtractedMenu = {
   sections: ExtractedSection[];
+  confidence?: number;
 };
 
 /**
@@ -121,6 +122,7 @@ async function extractBatch(photos: SmartMenuPhoto[], batchNumber: number, total
       name: normalizeSectionName(section.name),
       items: section.items.map(normalizeItem).filter(Boolean) as ExtractedItem[],
     })).filter(section => section.name && section.items.length > 0),
+    confidence: extracted.confidence,
   };
 }
 
@@ -224,7 +226,10 @@ export async function createSmartEstablishment(input: {
     }
 
     const sections = mergeSections(batches);
-    if (sections.length === 0) throw new Error("Não foi possível identificar itens legíveis nas fotos enviadas");
+    const extractedMenu = { sections, confidence: batches.map(batch => batch.confidence).filter((value): value is number => typeof value === "number").reduce((sum, value, _, values) => sum + value / values.length, 0) || undefined };
+    if (!hasAcceptableMenuQuality(extractedMenu)) {
+      throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie fotos nítidas, sem reflexos, mostrando uma página por vez.");
+    }
 
     let categoryId = await nextId(db, menuCategories);
     let itemId = await nextId(db, menuItems);
