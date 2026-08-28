@@ -1,4 +1,4 @@
-import { invokeLLM } from "./_core/llm";
+import { extractMenuWithOcr } from "./smart-menu-ocr";
 import { eq, sql } from "drizzle-orm";
 import { getDb, createEstablishment, generateCode, syncEstablishmentVisibility } from "./db";
 import { logDbError } from "./dbErrorLogger";
@@ -90,14 +90,6 @@ export async function ensureSmartMenuSchema() {
   return db;
 }
 
-function parseJsonResponse(content: unknown): any {
-  const raw = Array.isArray(content)
-    ? content.map((part: any) => typeof part === "string" ? part : part?.text || "").join("\n")
-    : String(content || "");
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  return JSON.parse(cleaned);
-}
-
 function normalizeSectionName(value: unknown): string {
   const name = String(value || "").replace(/\s+/g, " ").trim();
   return name.slice(0, 128);
@@ -123,34 +115,13 @@ function normalizeItem(item: any): ExtractedItem | null {
 }
 
 async function extractBatch(photos: SmartMenuPhoto[], batchNumber: number, totalBatches: number): Promise<ExtractedMenu> {
-  const content: any[] = [{
-    type: "text",
-    text: `Você é um especialista em digitalização de cardápios brasileiros. Esta é a parte ${batchNumber} de ${totalBatches} de um mesmo cardápio. Leia as fotos com atenção e retorne APENAS JSON válido no formato {"sections":[{"name":"nome exato da seção no papel","items":[{"name":"nome exato","description":"descrição exata ou null","price":12.9}]}]}. Preserve a grafia, acentos, maiúsculas, ordem e nomes das seções exatamente como aparecem no cardápio físico. Não traduza, não padronize e não renomeie seções para categorias genéricas. Não invente itens ou preços. Use price como número sem símbolo de moeda; quando não houver preço legível, use null. Se uma seção estiver parcialmente visível, use o nome que estiver legível. Somente use "Outros" quando o item estiver legível, mas nenhuma seção/categoria física puder ser identificada. Agrupe cada item na seção física correspondente.`
-  }];
-
-  for (const photo of photos) {
-    content.push({ type: "image_url", image_url: { url: photo.url, detail: "high" } });
-  }
-
-  const response = await invokeLLM({
-    messages: [
-      { role: "system", content: "Você extrai dados de cardápios com precisão documental. Nunca complete lacunas com suposições." },
-      { role: "user", content },
-    ],
-    maxTokens: 16000,
-    responseFormat: { type: "json_object" },
-  });
-
-  const parsed = parseJsonResponse(response.choices?.[0]?.message?.content);
-  const sections: ExtractedSection[] = [];
-  for (const rawSection of Array.isArray(parsed?.sections) ? parsed.sections : []) {
-    const name = normalizeSectionName(rawSection?.name);
-    const items = Array.isArray(rawSection?.items)
-      ? rawSection.items.map(normalizeItem).filter(Boolean) as ExtractedItem[]
-      : [];
-    if (name && items.length > 0) sections.push({ name, items });
-  }
-  return { sections };
+  const extracted = await extractMenuWithOcr(photos, batchNumber, totalBatches);
+  return {
+    sections: extracted.sections.map(section => ({
+      name: normalizeSectionName(section.name),
+      items: section.items.map(normalizeItem).filter(Boolean) as ExtractedItem[],
+    })).filter(section => section.name && section.items.length > 0),
+  };
 }
 
 function mergeSections(batches: ExtractedMenu[]): ExtractedSection[] {
