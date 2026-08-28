@@ -1147,7 +1147,7 @@ export default function RatingPage() {
                 <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{item.description}</p>
               </div>
-              <span className="font-numbers text-xs text-primary shrink-0">R${item.price.toFixed(0)}</span>
+              <span className="font-numbers text-xs text-primary shrink-0">R${Number(item.price).toFixed(0)}</span>
             </button>
           ))}
         </div>
@@ -1531,7 +1531,7 @@ export default function RatingPage() {
                             <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                             <p className="text-xs text-muted-foreground truncate">Item adicionado manualmente</p>
                           </div>
-                          <span className="font-numbers text-xs text-primary shrink-0">R${item.price.toFixed(0)}</span>
+                          <span className="font-numbers text-xs text-primary shrink-0">R${Number(item.price).toFixed(0)}</span>
                         </button>
                       ))}
                     </div>
@@ -2383,7 +2383,7 @@ export default function RatingPage() {
             {/* Spend Summary Step */}
             {step === "spend" && (() => {
               // Calculate subtotal from selected items
-              const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + item.price * (itemQuantities[item.id] || 1), 0);
+              const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + Number(item.price) * (itemQuantities[item.id] || 1), 0);
               const serviceAmount = spendData.servicePercent === "10" ? itemsSubtotal * 0.10
                 : spendData.servicePercent === "13" ? itemsSubtotal * 0.13 : 0;
               const couvertAmount = (spendData.couvertEnabled && !spendData.couvertSeparate) ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
@@ -2429,7 +2429,7 @@ export default function RatingPage() {
                               >
                                 +
                               </button>
-                              <span className="font-numbers text-xs text-foreground w-20 text-right">R$ {(item.price * qty).toFixed(2).replace(".", ",")}</span>
+                              <span className="font-numbers text-xs text-foreground w-20 text-right">R$ {(Number(item.price) * qty).toFixed(2).replace(".", ",")}</span>
                             </div>
                           </div>
                         );
@@ -2604,7 +2604,7 @@ export default function RatingPage() {
                               <span className="text-muted-foreground truncate max-w-[55%]">
                                 {item.name}{qty > 1 ? ` x${qty}` : ""}
                               </span>
-                              <span className="font-numbers text-foreground">R$ {(item.price * qty).toFixed(2).replace(".", ",")}</span>
+                              <span className="font-numbers text-foreground">R$ {(Number(item.price) * qty).toFixed(2).replace(".", ",")}</span>
                             </div>
                           );
                         })}
@@ -2668,7 +2668,7 @@ export default function RatingPage() {
                             ...prev,
                             divergentEnabled: enabling,
                             divergentItems: enabling && prev.divergentItems.length === 0
-                              ? selectedMenuItems.map(item => ({ id: item.id, name: item.name, price: item.price, edited: false, newPrice: item.price.toFixed(2).replace(".", ",") }))
+                              ? selectedMenuItems.map(item => ({ id: item.id, name: item.name, price: item.price, edited: false, newPrice: Number(item.price).toFixed(2).replace(".", ",") }))
                               : prev.divergentItems,
                           }));
                         }}
@@ -2728,7 +2728,7 @@ export default function RatingPage() {
                                 />
                               ) : (
                                 <span className="w-20 text-xs font-numbers text-muted-foreground text-right">
-                                  R$ {item.price.toFixed(2).replace(".", ",")}
+                                  R$ {Number(item.price).toFixed(2).replace(".", ",")}
                                 </span>
                               )}
                             </div>
@@ -3557,7 +3557,7 @@ export default function RatingPage() {
                       }
 
                       // Calculate spend values
-                      const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + item.price * (itemQuantities[item.id] || 1), 0);
+                      const itemsSubtotal = selectedMenuItems.reduce((sum, item) => sum + Number(item.price) * (itemQuantities[item.id] || 1), 0);
                       const serviceAmount = spendData.servicePercent === "10" ? itemsSubtotal * 0.10
                         : spendData.servicePercent === "13" ? itemsSubtotal * 0.13 : 0;
                       const couvertAmount = spendData.couvertEnabled ? parseFloat(spendData.couvertValue.replace(",", ".")) || 0 : 0;
