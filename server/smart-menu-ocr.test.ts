@@ -25,4 +25,17 @@ describe("menu OCR parser", () => {
     expect(result.sections[0].items[0].description).toContain("Porção individual");
     expect(result.sections[0].items[0].price).toBe(22);
   });
+
+  it("rejeita resultados OCR evidentemente corrompidos", async () => {
+    const { hasAcceptableMenuQuality } = await import("./smart-menu-ocr");
+    expect(hasAcceptableMenuQuality({
+      confidence: 80,
+      sections: [{ name: "Outros", items: [{ name: "WRX) x", description: null, price: 3830 }] }],
+    })).toBe(false);
+
+    expect(hasAcceptableMenuQuality({
+      confidence: 80,
+      sections: [{ name: "Bebidas", items: [{ name: "Cerveja long neck", description: null, price: 12 }] }],
+    })).toBe(true);
+  });
 });

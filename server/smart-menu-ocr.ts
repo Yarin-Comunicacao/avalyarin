@@ -16,6 +16,7 @@ export type OcrExtractedSection = {
 
 export type OcrExtractedMenu = {
   sections: OcrExtractedSection[];
+  confidence?: number;
 };
 
 const COMMON_SECTION_NAMES = new Set([
@@ -47,7 +48,7 @@ function parsePrice(value: string): number | null {
 }
 
 function extractPrice(line: string): { name: string; price: number | null } {
-  const matches = Array.from(line.matchAll(/(?:R\$\s*)?(\d{1,4}(?:[.,]\d{2})?)(?!\d)/gi));
+  const matches = Array.from(line.matchAll(/(?:R\$\s*)?(\d{1,4}(?:[.,]\d{2})?)(?!\d)(?=\s*(?:$|[-–—.:]))/gi));
   if (matches.length === 0) return { name: cleanLine(line), price: null };
 
   const match = matches[matches.length - 1];
@@ -127,6 +128,20 @@ export function parseMenuText(text: string): OcrExtractedMenu {
   return { sections: sections.filter(section => section.items.length > 0) };
 }
 
+export function hasAcceptableMenuQuality(menu: OcrExtractedMenu): boolean {
+  const items = menu.sections.flatMap(section => section.items);
+  if (items.length === 0) return false;
+  if (typeof menu.confidence === "number" && menu.confidence < 45) return false;
+
+  const plausibleItems = items.filter(item => {
+    const letters = item.name.match(/[A-Za-zÀ-ÿ]/g) || [];
+    const symbols = item.name.match(/[^A-Za-zÀ-ÿ0-9\s]/g) || [];
+    return letters.length >= 4 && letters.length / Math.max(item.name.length, 1) >= 0.45 && symbols.length / Math.max(item.name.length, 1) <= 0.2;
+  });
+  const implausiblePrices = items.filter(item => item.price !== null && (item.price < 0 || item.price > 1000));
+  return plausibleItems.length / items.length >= 0.65 && implausiblePrices.length === 0;
+}
+
 async function prepareImage(url: string): Promise<Buffer> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Não foi possível baixar a imagem do cardápio (${response.status})`);
@@ -144,14 +159,23 @@ async function prepareImage(url: string): Promise<Buffer> {
 export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number, totalBatches: number): Promise<OcrExtractedMenu> {
   const worker = await createWorker("por");
   try {
-    await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK });
+    await worker.setParameters({
+      tessedit_pageseg_mode: PSM.AUTO,
+      preserve_interword_spaces: "1",
+    });
     const texts: string[] = [];
+    const confidences: number[] = [];
     for (const photo of photos) {
       const image = await prepareImage(photo.url);
       const result = await worker.recognize(image);
       texts.push(result.data.text);
+      if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
     }
-    return parseMenuText(texts.join("\n"));
+    const menu = parseMenuText(texts.join("\n"));
+    return {
+      ...menu,
+      confidence: confidences.length > 0 ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length : undefined,
+    };
   } finally {
     await worker.terminate();
   }
