@@ -207,6 +207,7 @@ import {
 import {
   getAdminCategoriesWithCounts,
   getAdminEstablishmentsByCategory,
+  searchAdminEstablishments,
   toggleEstablishmentStatus,
   getAdminEstablishmentDetail,
   adminAddMenuItem,
@@ -1425,6 +1426,16 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return await getAdminEstablishmentsByCategory(input.categoryId, input.status, input.limit, input.offset);
+      }),
+
+    searchEstablishments: adminProcedure
+      .input(z.object({
+        query: z.string().trim().min(2).max(100),
+        status: z.enum(['active', 'hidden', 'pending']).default('active'),
+        limit: z.number().min(1).max(500).default(100),
+      }))
+      .query(async ({ input }) => {
+        return await searchAdminEstablishments(input.query, input.status, input.limit);
       }),
 
     toggleVisibility: adminProcedure
