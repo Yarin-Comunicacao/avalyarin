@@ -213,6 +213,7 @@ import {
   adminUpdateMenuItem,
   adminDeleteMenuItem,
   uploadMenuItemImage,
+  adminUpdateMenuFromOcr,
   getMenuCategories,
   getMenuCategoriesWithOrder,
   reorderMenuCategories,
@@ -1478,6 +1479,27 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         return await adminDeleteMenuItem(input.id);
+      }),
+
+    updateMenuFromOcr: adminProcedure
+      .input(z.object({
+        establishmentId: z.number().int().positive(),
+        base64Data: z.string().min(1),
+        mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+        fileName: z.string().max(255).default("cardapio.jpg"),
+      }))
+      .mutation(async ({ input }) => {
+        const imageBuffer = Buffer.from(input.base64Data, "base64");
+        if (imageBuffer.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem inválida." });
+        if (imageBuffer.length > 10 * 1024 * 1024) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem muito grande. O limite é de 10MB." });
+        }
+        return await adminUpdateMenuFromOcr({
+          establishmentId: input.establishmentId,
+          imageBuffer,
+          mimeType: input.mimeType,
+          fileName: input.fileName,
+        });
       }),
 
     menuCategories: adminProcedure

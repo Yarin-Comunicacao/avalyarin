@@ -75,6 +75,8 @@ export default function AdminEstabDetail() {
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
   const [savingInfo, setSavingInfo] = useState(false);
+  const [updatingMenuOcr, setUpdatingMenuOcr] = useState(false);
+  const menuOcrInputRef = useRef<HTMLInputElement>(null);
   const [editInfo, setEditInfo] = useState({
     name: '',
     description: '',
@@ -87,6 +89,44 @@ export default function AdminEstabDetail() {
     hours: '',
     status: 'active' as 'active' | 'hidden' | 'pending',
   });
+
+  const updateMenuFromOcrMutation = trpc.admin.updateMenuFromOcr.useMutation();
+
+  const handleMenuOcrUpdate = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Envie uma imagem JPG, PNG ou WEBP.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 10MB.");
+      return;
+    }
+
+    setUpdatingMenuOcr(true);
+    try {
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+        reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
+        reader.readAsDataURL(file);
+      });
+      const result = await updateMenuFromOcrMutation.mutateAsync({
+        establishmentId: estabId,
+        base64Data,
+        mimeType: file.type as "image/jpeg" | "image/png" | "image/webp",
+        fileName: file.name,
+      });
+      await utils.admin.estabDetail.invalidate({ id: estabId });
+      toast.success(`Cardápio atualizado: ${result.updated.length} item(ns) alterado(s) e ${result.added.length} novo(s).`);
+    } catch (error: any) {
+      toast.error(error?.message || "Não foi possível atualizar o cardápio por OCR.");
+    } finally {
+      setUpdatingMenuOcr(false);
+    }
+  };
 
   const updateEstabMutation = trpc.admin.updateEstablishment.useMutation({
     onSuccess: () => {
@@ -445,6 +485,22 @@ export default function AdminEstabDetail() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <input
+                ref={menuOcrInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleMenuOcrUpdate}
+                className="hidden"
+              />
+              <button
+                onClick={() => menuOcrInputRef.current?.click()}
+                disabled={updatingMenuOcr}
+                title="Ler uma nova foto e atualizar somente itens alterados"
+                className="flex items-center gap-1.5 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+              >
+                <Upload className={`w-3.5 h-3.5 ${updatingMenuOcr ? "animate-pulse" : ""}`} />
+                {updatingMenuOcr ? "Atualizando..." : "Atualizar Cardápio"}
+              </button>
               <button
                 onClick={() => setShowCategoryManager(!showCategoryManager)}
                 className="flex items-center gap-1.5 px-3 py-2 bg-secondary/50 border border-border rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
