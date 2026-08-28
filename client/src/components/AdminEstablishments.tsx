@@ -84,6 +84,10 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
     { categoryId: selectedCategoryId!, status: activeTab, limit: 500 },
     { enabled: !!selectedCategoryId }
   );
+  const { data: globalSearchData, isLoading: globalSearchLoading } = trpc.admin.searchEstablishments.useQuery(
+    { query: searchQuery.trim(), status: activeTab, limit: 500 },
+    { enabled: !selectedCategoryId && searchQuery.trim().length >= 2 }
+  );
 
   const toggleMutation = trpc.admin.toggleVisibility.useMutation();
   const deleteMutation = trpc.admin.deleteEstablishment.useMutation();
@@ -158,7 +162,47 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
           </button>
         </div>
         
-        {catLoading ? (
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar estabelecimento pelo nome..."
+            className="w-full pl-9 pr-3 py-3 bg-background border border-border rounded-lg text-foreground text-sm"
+          />
+        </div>
+
+        {searchQuery.trim().length >= 2 ? (
+          globalSearchLoading ? (
+            <div className="text-muted-foreground py-8 text-center">Buscando estabelecimentos...</div>
+          ) : globalSearchData?.items && globalSearchData.items.length > 0 ? (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground mb-2">{globalSearchData.total} resultado(s) encontrado(s)</p>
+              {globalSearchData.items.map(est => (
+                <button
+                  key={est.id}
+                  onClick={() => navigate(`/admin/estab/${est.id}`)}
+                  className="w-full p-3 rounded-lg border border-border/50 bg-card hover:border-primary/30 transition-all flex items-center gap-3 text-left"
+                >
+                  <Store className="w-5 h-5 text-primary shrink-0" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-medium text-foreground text-sm">{est.name}</span>
+                    <span className="block text-xs text-muted-foreground truncate">
+                      {est.address || est.neighborhood || "Sem endereço"}{est.hasMenu ? " • Cardápio ✓" : " • Sem cardápio"}
+                    </span>
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Store className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>Nenhum estabelecimento encontrado para “{searchQuery.trim()}”.</p>
+            </div>
+          )
+        ) : catLoading ? (
           <div className="text-muted-foreground">Carregando categorias...</div>
         ) : (
           <div className="space-y-2">
@@ -183,20 +227,16 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                     );
                   })()}
                   <div className="text-left">
-                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      {cat.name}
-                    </p>
+                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{cat.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {cat.activeCount} ativo{cat.activeCount !== 1 ? "s" : ""} • {cat.pendingCount} pendente{cat.pendingCount !== 1 ? "s" : ""} • {cat.hiddenCount} oculto{cat.hiddenCount !== 1 ? "s" : ""}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  {/* Badge vermelho de incompletos */}
                   {cat.incompleteCount > 0 && (
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium">
-                      <AlertTriangle className="w-3 h-3" />
-                      {cat.incompleteCount}
+                      <AlertTriangle className="w-3 h-3" />{cat.incompleteCount}
                     </span>
                   )}
                   <span className="text-sm font-numbers text-muted-foreground">{cat.totalCount}</span>
