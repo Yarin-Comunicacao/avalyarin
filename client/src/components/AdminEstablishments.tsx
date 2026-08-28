@@ -72,7 +72,17 @@ function getCategoryIconAndColor(iconName: string, slug: string): { Icon: Lucide
 
 type StatusTab = 'active' | 'pending' | 'hidden';
 
-export default function AdminEstablishments({ initialCategoryId }: { initialCategoryId?: number }) {
+function formatEstablishmentAddress(address?: string | null, addressNumber?: string | null) {
+  if (!address) return "Sem endereço";
+  const normalizedAddress = address.trim();
+  const normalizedNumber = addressNumber?.trim();
+  if (!normalizedNumber || new RegExp(`(?:^|[,\\s])${normalizedNumber.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}(?:$|[,\\s])`).test(normalizedAddress)) {
+    return normalizedAddress;
+  }
+  return `${normalizedAddress}, ${normalizedNumber}`;
+}
+
+export default function AdminEstablishments({ initialCategoryId, ownerView = false }: { initialCategoryId?: number; ownerView?: boolean }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId ?? null);
   const [activeTab, setActiveTab] = useState<StatusTab>("active");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -85,8 +95,12 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
     { enabled: !!selectedCategoryId }
   );
   const { data: globalSearchData, isLoading: globalSearchLoading } = trpc.admin.searchEstablishments.useQuery(
-    { query: searchQuery.trim(), status: activeTab, limit: 500 },
+    { query: searchQuery.trim(), status: activeTab, limit: 500, includePending: ownerView },
     { enabled: !selectedCategoryId && searchQuery.trim().length >= 2 }
+  );
+  const { data: ownerEstablishmentsData, isLoading: ownerEstablishmentsLoading } = trpc.admin.ownerEstablishments.useQuery(
+    { status: activeTab === "hidden" ? "hidden" : "active", limit: 500 },
+    { enabled: ownerView && !selectedCategoryId && searchQuery.trim().length < 2 }
   );
 
   const toggleMutation = trpc.admin.toggleVisibility.useMutation();
@@ -145,6 +159,46 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
   );
 
   const selectedCategory = categoriesData?.find(c => c.id === selectedCategoryId);
+
+  // Owner view: all active/pending records or manually hidden records, independent of category.
+  if (ownerView && !selectedCategoryId) {
+    const ownerItems = searchQuery.trim().length >= 2 ? (globalSearchData?.items || []) : (ownerEstablishmentsData?.items || []);
+    const ownerLoading = searchQuery.trim().length >= 2 ? globalSearchLoading : ownerEstablishmentsLoading;
+    return (
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 className="font-display text-2xl tracking-wider text-foreground">ESTABELECIMENTOS</h2>
+            <p className="text-xs text-muted-foreground mt-1">Todos os cadastros do banco, incluindo incompletos</p>
+          </div>
+          <button type="button" onClick={() => navigate("/admin/estab-novo-cardapio")} title="Adicionar estabelecimento com fotos do cardápio" className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"><Plus className="w-6 h-6" /></button>
+        </div>
+        <div className="flex gap-2 mb-4">
+          {(["active", "hidden"] as const).map(tab => (
+            <button key={tab} onClick={() => { setActiveTab(tab); setSelectedIds([]); setSearchQuery(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab ? "bg-primary/20 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground hover:text-foreground"}`}>
+              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
+            </button>
+          ))}
+        </div>
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input type="search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar estabelecimento pelo nome..." className="w-full pl-9 pr-3 py-3 bg-background border border-border rounded-lg text-foreground text-sm" />
+        </div>
+        {ownerLoading ? <div className="text-muted-foreground py-8 text-center">Carregando estabelecimentos...</div> : ownerItems.length > 0 ? (
+          <div className="space-y-1.5">
+            {searchQuery.trim().length >= 2 && <p className="text-xs text-muted-foreground mb-2">{globalSearchData?.total ?? 0} resultado(s) encontrado(s)</p>}
+            {ownerItems.map(est => (
+              <button key={est.id} onClick={() => navigate(`/admin/estab/${est.id}`)} className={`w-full p-3 rounded-lg border bg-card hover:border-primary/30 transition-all flex items-center gap-3 text-left ${!est.isComplete ? "border-red-500/30" : "border-border/50"}`}>
+                <Store className="w-5 h-5 text-primary shrink-0" />
+                <span className="flex-1 min-w-0"><span className="block font-medium text-foreground text-sm">{est.name}</span><span className="block text-xs text-muted-foreground truncate">{formatEstablishmentAddress(est.address, est.addressNumber)}{est.neighborhood ? ` • ${est.neighborhood}` : ""}{!est.isComplete ? ` • Faltam: ${est.missingFields.join(", ")}` : ""}</span></span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        ) : <div className="text-center py-8 text-muted-foreground"><Store className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>{searchQuery.trim().length >= 2 ? `Nenhum estabelecimento encontrado para “${searchQuery.trim()}”.` : "Nenhum estabelecimento nesta aba."}</p></div>}
+      </div>
+    );
+  }
 
   // ============ CATEGORY LIST VIEW ============
   if (!selectedCategoryId) {
@@ -426,7 +480,7 @@ export default function AdminEstablishments({ initialCategoryId }: { initialCate
                   {est.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {est.neighborhood}{est.hasMenu ? " • Cardápio ✓" : " • Sem cardápio"}
+                  {formatEstablishmentAddress(est.address, est.addressNumber)}{est.neighborhood ? ` • ${est.neighborhood}` : ""}{est.hasMenu ? " • Cardápio ✓" : " • Sem cardápio"}
                 </p>
               </button>
 

@@ -101,6 +101,7 @@ export async function getAdminEstablishmentsByCategory(
       name: establishments.name,
       slug: establishments.slug,
       address: establishments.address,
+      addressNumber: establishments.addressNumber,
       neighborhood: establishments.neighborhood,
       phone: establishments.phone,
       instagram: establishments.instagram,
@@ -131,12 +132,48 @@ export async function getAdminEstablishmentsByCategory(
   return { items: itemsWithCompleteness, total: Number(countResult[0]?.count) || 0 };
 }
 
-export async function searchAdminEstablishments(query: string, statusFilter: 'active' | 'hidden' | 'pending', limit = 100) {
+export async function listOwnerEstablishments(statusFilter: 'active' | 'hidden', limit = 500) {
+  const db = await getDb();
+  if (!db) return { items: [], total: 0 };
+  const whereClause = statusFilter === 'hidden'
+    ? eq(establishments.status, 'hidden')
+    : inArray(establishments.status, ['active', 'pending']);
+  const [items, countResult] = await Promise.all([
+    db.select({
+      id: establishments.id,
+      name: establishments.name,
+      slug: establishments.slug,
+      address: establishments.address,
+      addressNumber: establishments.addressNumber,
+      neighborhood: establishments.neighborhood,
+      phone: establishments.phone,
+      instagram: establishments.instagram,
+      hours: establishments.hours,
+      image: establishments.image,
+      hasMenu: establishments.hasMenu,
+      status: establishments.status,
+    }).from(establishments).where(whereClause).orderBy(asc(establishments.name)).limit(limit),
+    db.select({ count: sql<number>`COUNT(*)` }).from(establishments).where(whereClause),
+  ]);
+  const itemsWithCompleteness = items.map(est => {
+    const missingFields: string[] = [];
+    if (!est.address || est.address.trim() === '') missingFields.push('endereço');
+    if (!est.hours || est.hours.trim() === '') missingFields.push('horário');
+    if (!est.hasMenu) missingFields.push('cardápio');
+    return { ...est, missingFields, isComplete: missingFields.length === 0 };
+  });
+  return { items: itemsWithCompleteness, total: Number(countResult[0]?.count) || 0 };
+}
+
+export async function searchAdminEstablishments(query: string, statusFilter: 'active' | 'hidden' | 'pending', limit = 100, includePending = false) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const normalizedQuery = `%${query.trim().toLowerCase()}%`;
+  const statusCondition = includePending && statusFilter === 'active'
+    ? inArray(establishments.status, ['active', 'pending'])
+    : eq(establishments.status, statusFilter);
   const whereClause = and(
-    eq(establishments.status, statusFilter),
+    statusCondition,
     sql`LOWER(${establishments.name}) LIKE ${normalizedQuery}`
   );
   const [items, countResult] = await Promise.all([
@@ -145,6 +182,7 @@ export async function searchAdminEstablishments(query: string, statusFilter: 'ac
       name: establishments.name,
       slug: establishments.slug,
       address: establishments.address,
+      addressNumber: establishments.addressNumber,
       neighborhood: establishments.neighborhood,
       phone: establishments.phone,
       instagram: establishments.instagram,
