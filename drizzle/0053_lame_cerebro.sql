@@ -1,1 +1,0 @@
-ALTER TABLE `establishments` MODIFY COLUMN `hours` text;
