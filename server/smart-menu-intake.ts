@@ -4,6 +4,7 @@ import { getDb, createEstablishment, generateCode, syncEstablishmentVisibility }
 import { logDbError } from "./dbErrorLogger";
 import { generateMenuItemTags } from "./auto-tags";
 import { formatOpeningHours } from "../shared/opening-hours";
+import { parseMenuSpreadsheet } from "./smart-menu-spreadsheet";
 import { establishments, establishmentMenuImports, menuCategories, menuItems } from "../drizzle/schema";
 
 const MAX_PHOTOS = 50;
@@ -26,6 +27,8 @@ type ExtractedItem = {
   name: string;
   description?: string | null;
   price?: number | null;
+  tags?: string[];
+  imageUrl?: string | null;
 };
 
 type ExtractedSection = {
@@ -179,12 +182,16 @@ export async function createSmartEstablishment(input: {
   image?: string;
   logo?: string;
   categoryId: number;
-  photos: SmartMenuPhoto[];
+  photos?: SmartMenuPhoto[];
+  spreadsheetBase64?: string;
+  spreadsheetFileName?: string;
   submittedById: number;
 }) {
+  const photos = input.photos || [];
   if (!input.name.trim()) throw new Error("Nome do estabelecimento é obrigatório");
-  if (input.photos.length === 0) throw new Error("Envie pelo menos uma foto do cardápio");
-  if (input.photos.length > MAX_PHOTOS) throw new Error(`O limite é de ${MAX_PHOTOS} fotos por cardápio`);
+  if (photos.length === 0 && !input.spreadsheetBase64) throw new Error("Envie fotos ou uma planilha do cardápio");
+  if (photos.length > 0 && input.spreadsheetBase64) throw new Error("Envie somente fotos ou somente uma planilha por cadastro");
+  if (photos.length > MAX_PHOTOS) throw new Error(`O limite é de ${MAX_PHOTOS} fotos por cardápio`);
 
   const db = await ensureSmartMenuSchema();
   const establishment = await createEstablishment({
@@ -206,7 +213,9 @@ export async function createSmartEstablishment(input: {
     phone: input.phone?.trim() || undefined,
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,
-    description: "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
+    description: input.spreadsheetBase64
+      ? "Cadastro criado a partir de planilha do cardápio; dados sujeitos à revisão."
+      : "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
   });
 
   const establishmentId = Number(establishment.id);
@@ -214,20 +223,40 @@ export async function createSmartEstablishment(input: {
   const [importResult] = await db.insert(establishmentMenuImports).values({
     establishmentId,
     submittedById: input.submittedById,
-    sourceUrls: input.photos.map(photo => photo.url),
+    sourceUrls: input.spreadsheetBase64
+      ? [`spreadsheet:${input.spreadsheetFileName || "cardapio.xlsx"}`]
+      : photos.map(photo => photo.url),
     status: "processing",
   });
   const importId = getInsertedImportId(importResult);
   try {
-    const batches: ExtractedMenu[] = [];
-    for (let offset = 0; offset < input.photos.length; offset += BATCH_SIZE) {
-      const batch = input.photos.slice(offset, offset + BATCH_SIZE);
-      batches.push(await extractBatch(batch, Math.floor(offset / BATCH_SIZE) + 1, Math.ceil(input.photos.length / BATCH_SIZE)));
+    let sections: ExtractedSection[];
+    let confidence: number | undefined;
+    if (input.spreadsheetBase64) {
+      const spreadsheet = parseMenuSpreadsheet(Buffer.from(input.spreadsheetBase64, "base64"), input.spreadsheetFileName);
+      const byCategory = new Map<string, ExtractedSection>();
+      for (const item of spreadsheet.items) {
+        const key = item.category.toLocaleLowerCase("pt-BR");
+        let section = byCategory.get(key);
+        if (!section) {
+          section = { name: item.category, items: [] };
+          byCategory.set(key, section);
+        }
+        section.items.push({ name: item.name, description: item.description, price: item.price, tags: item.tags, imageUrl: item.imageUrl });
+      }
+      sections = Array.from(byCategory.values());
+      confidence = 1;
+    } else {
+      const batches: ExtractedMenu[] = [];
+      for (let offset = 0; offset < photos.length; offset += BATCH_SIZE) {
+        const batch = photos.slice(offset, offset + BATCH_SIZE);
+        batches.push(await extractBatch(batch, Math.floor(offset / BATCH_SIZE) + 1, Math.ceil(photos.length / BATCH_SIZE)));
+      }
+      sections = mergeSections(batches);
+      confidence = batches.map(batch => batch.confidence).filter((value): value is number => typeof value === "number").reduce((sum, value, _, values) => sum + value / values.length, 0) || undefined;
     }
-
-    const sections = mergeSections(batches);
-    const extractedMenu = { sections, confidence: batches.map(batch => batch.confidence).filter((value): value is number => typeof value === "number").reduce((sum, value, _, values) => sum + value / values.length, 0) || undefined };
-    if (!hasAcceptableMenuQuality(extractedMenu)) {
+    const extractedMenu = { sections, confidence };
+    if (!input.spreadsheetBase64 && !hasAcceptableMenuQuality(extractedMenu)) {
       throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie fotos nítidas, sem reflexos, mostrando uma página por vez.");
     }
 
@@ -248,7 +277,8 @@ export async function createSmartEstablishment(input: {
           description: item.description || null,
           price: item.price,
           category: section.name.slice(0, 64),
-          tags: generateMenuItemTags(item.name, section.name),
+          imageUrl: item.imageUrl || null,
+          tags: item.tags?.length ? item.tags : generateMenuItemTags(item.name, section.name),
         });
       }
     }
