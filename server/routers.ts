@@ -1276,7 +1276,7 @@ export const appRouter = router({
         neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),
-        hours: z.string().optional(),
+        hours: z.string().max(2000, "Horário deve ter no máximo 2.000 caracteres").optional(),
         active: z.boolean().optional(),
         status: z.enum(['active', 'hidden', 'pending']).optional(),
         image: z.string().optional(),
@@ -1336,7 +1336,7 @@ export const appRouter = router({
         city: z.string().max(128).optional(),
         lat: z.number().min(-90).max(90).optional(),
         lng: z.number().min(-180).max(180).optional(),
-        hours: z.string().max(255).optional(),
+        hours: z.string().max(2000, "Horário deve ter no máximo 2.000 caracteres").optional(),
         openingHours: z.array(z.object({
           day: z.number().int().min(0).max(6),
           isOpen: z.boolean(),
@@ -1416,7 +1416,7 @@ export const appRouter = router({
         lng: z.number().optional(),
         phone: z.string().min(8, "Telefone é obrigatório (mín. 8 caracteres)"),
         instagram: z.string().min(2, "Instagram é obrigatório"),
-        hours: z.string().min(3, "Horário de funcionamento é obrigatório"),
+        hours: z.string().min(3, "Horário de funcionamento é obrigatório").max(2000, "Horário deve ter no máximo 2.000 caracteres"),
         image: z.string().optional(),
         logo: z.string().optional(),
       }))
@@ -2007,7 +2007,7 @@ export const appRouter = router({
         neighborhood: z.string().optional(),
         phone: z.string().optional(),
         instagram: z.string().optional(),
-        hours: z.string().optional(),
+        hours: z.string().max(2000, "Horário deve ter no máximo 2.000 caracteres").optional(),
         image: z.string().optional(),
         logo: z.string().optional(),
       }))

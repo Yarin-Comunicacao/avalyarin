@@ -125,7 +125,7 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
     const neighborhood = text(row[index("neighborhood")], 128);
     const phone = text(row[index("phone")], 64);
     const instagram = text(row[index("instagram")], 128);
-    const hours = text(row[index("hours")], 255);
+    const hours = text(row[index("hours")], 2000);
     if (!name || !category || !address || !neighborhood || !phone || !instagram || !hours) {
       warnings.push(`Linha ${rowNumber} ignorada: preencha nome, categoria, endereço, bairro, telefone, Instagram e horário.`);
       continue;

@@ -75,7 +75,8 @@ export const establishments = mysqlTable("establishments", {
   reviewCount: int("reviewCount"),
   image: text("image"),
   logo: text("logo"),
-  hours: varchar("hours", { length: 255 }),
+  // Weekly schedules can exceed 255 characters when each day is listed explicitly.
+  hours: text("hours"),
   phone: varchar("phone", { length: 64 }),
   instagram: varchar("instagram", { length: 128 }),
   // Optional social and map links kept nullable for legacy establishments.
