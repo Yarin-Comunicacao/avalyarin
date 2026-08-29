@@ -132,12 +132,14 @@ export async function getAdminEstablishmentsByCategory(
   return { items: itemsWithCompleteness, total: Number(countResult[0]?.count) || 0 };
 }
 
-export async function listOwnerEstablishments(statusFilter: 'active' | 'hidden', limit = 500) {
+export async function listOwnerEstablishments(statusFilter: 'active' | 'pending' | 'hidden', limit = 500) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };
   const whereClause = statusFilter === 'hidden'
     ? eq(establishments.status, 'hidden')
-    : inArray(establishments.status, ['active', 'pending']);
+    : statusFilter === 'pending'
+      ? eq(establishments.status, 'pending')
+      : eq(establishments.status, 'active');
   const [items, countResult] = await Promise.all([
     db.select({
       id: establishments.id,

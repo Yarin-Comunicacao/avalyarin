@@ -9,6 +9,8 @@ import { z } from "zod";
 import { smartSearch } from "./smart-search";
 import { createSmartEstablishment } from "./smart-menu-intake";
 import { createMenuSpreadsheetTemplate } from "./smart-menu-spreadsheet";
+import { createEstablishmentSpreadsheetTemplate } from "./establishment-spreadsheet";
+import { createEstablishmentsFromSpreadsheet } from "./bulk-establishment-intake";
 import { lookupDistrict, getRegionByNeighborhood } from "./geo-lookup";
 import {
   getAllCategories,
@@ -1366,6 +1368,28 @@ export const appRouter = router({
         };
       }),
 
+    establishmentSpreadsheetTemplate: adminProcedure
+      .query(() => {
+        const buffer = createEstablishmentSpreadsheetTemplate();
+        return {
+          fileName: "modelo-estabelecimentos-avalyarin.xlsx",
+          mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          base64: buffer.toString("base64"),
+        };
+      }),
+
+    createEstablishmentsBulk: adminProcedure
+      .input(z.object({
+        spreadsheetBase64: z.string().min(1).max(15_000_000),
+        spreadsheetFileName: z.string().max(255).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createEstablishmentsFromSpreadsheet(
+          Buffer.from(input.spreadsheetBase64, "base64"),
+          input.spreadsheetFileName,
+        );
+      }),
+
     createEstablishment: adminProcedure
       .input(z.object({
         name: z.string().min(2).max(255),
@@ -1455,7 +1479,7 @@ export const appRouter = router({
 
     ownerEstablishments: adminProcedure
       .input(z.object({
-        status: z.enum(['active', 'hidden']).default('active'),
+        status: z.enum(['active', 'pending', 'hidden']).default('active'),
         limit: z.number().min(1).max(500).default(500),
       }))
       .query(async ({ input }) => {
