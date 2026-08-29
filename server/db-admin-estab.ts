@@ -218,6 +218,11 @@ export async function toggleEstablishmentStatus(ids: number[], status: 'active' 
     .set({ status })
     .where(inArray(establishments.id, ids));
 
+  // Manual requests are also normalized against the publication criteria.
+  for (const id of ids) {
+    await syncEstablishmentVisibility(id);
+  }
+
   return { success: true, affected: ids.length };
 }
 
