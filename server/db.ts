@@ -266,22 +266,27 @@ export async function getCategoriesWithCounts() {
 const completeEstablishmentFilter = eq(establishments.status, 'active');
 
 /**
- * Checks if an establishment is complete (has address, hours, and menu).
- * Returns true if complete, false if incomplete.
+ * Returns the number of missing publication criteria: address, hours and menu.
  */
-function isEstablishmentComplete(est: { address: string | null; hours: string | null; hasMenu: boolean }): boolean {
-  if (!est.address || est.address.trim() === '') return false;
-  if (!est.hours || est.hours.trim() === '') return false;
-  if (!est.hasMenu) return false;
-  return true;
+export function countMissingEstablishmentCriteria(est: { address: string | null; hours: string | null; hasMenu: boolean }): number {
+  return [
+    !est.address || est.address.trim() === '',
+    !est.hours || est.hours.trim() === '',
+    !est.hasMenu,
+  ].filter(Boolean).length;
 }
 
 /**
- * Automatically syncs the `status` field based on completeness.
- * If an establishment is incomplete and active, it moves to 'pending'.
- * If it becomes complete and is 'pending', it moves to 'active'.
- * 'hidden' status is manually managed and not auto-changed.
- * Called after any mutation that affects completeness fields.
+ * Classifies visibility strictly from the number of missing criteria.
+ * 0 missing = active, 1 missing = pending, 2 or 3 missing = hidden.
+ */
+export function getEstablishmentVisibilityStatus(est: { address: string | null; hours: string | null; hasMenu: boolean }): 'active' | 'pending' | 'hidden' {
+  const missing = countMissingEstablishmentCriteria(est);
+  return missing === 0 ? 'active' : missing === 1 ? 'pending' : 'hidden';
+}
+
+/**
+ * Automatically synchronizes the status after any mutation that may affect publication.
  */
 export async function syncEstablishmentVisibility(establishmentId: number) {
   const db = await getDb();
@@ -296,16 +301,10 @@ export async function syncEstablishmentVisibility(establishmentId: number) {
 
   if (!est) return;
 
-  const complete = isEstablishmentComplete(est);
-
-  if (!complete && est.status === 'active') {
-    // Incomplete and currently active -> move to pending
-    await db.update(establishments).set({ status: 'pending' }).where(eq(establishments.id, establishmentId));
-  } else if (complete && est.status === 'pending') {
-    // Complete and currently pending -> activate
-    await db.update(establishments).set({ status: 'active' }).where(eq(establishments.id, establishmentId));
+  const desiredStatus = getEstablishmentVisibilityStatus(est);
+  if (est.status !== desiredStatus) {
+    await db.update(establishments).set({ status: desiredStatus }).where(eq(establishments.id, establishmentId));
   }
-  // 'hidden' status is manually managed by admin and not auto-changed
 }
 
 export async function getEstablishmentReservationConfig(establishmentId: number) {
@@ -1233,10 +1232,8 @@ export async function adminUpdateEstablishment(id: number, data: {
   
   await db.update(establishments).set(data).where(eq(establishments.id, id));
   
-  // Sync visibility after updating fields that affect completeness
-  if (data.address !== undefined) {
-    await syncEstablishmentVisibility(id);
-  }
+  // Always reclassify after an edit, including manual status changes.
+  await syncEstablishmentVisibility(id);
   
   return { success: true };
 }
@@ -1987,10 +1984,12 @@ export async function createEstablishment(data: {
     .replace(/^-|-$/g, "")
     + "-" + Date.now().toString(36);
 
-  // New establishments without address/hours/menu start as pending
-  const isComplete = !!(data.address && data.address.trim() !== '' && data.hours && data.hours.trim() !== '');
-  // hasMenu is always false for new estabs (no menu items yet), so always pending initially
-  const shouldHide = !isComplete || true; // always pending until menu is added
+  // New establishments are classified using the same three publication criteria.
+  const initialStatus = getEstablishmentVisibilityStatus({
+    address: data.address || null,
+    hours: data.hours || null,
+    hasMenu: false,
+  });
 
   // Generate code for new establishment
   const estabCode = await generateCode('establishments');
@@ -2023,7 +2022,7 @@ export async function createEstablishment(data: {
     image: data.image || null,
     logo: data.logo || null,
     hasMenu: false,
-    status: shouldHide ? 'pending' : 'active',
+    status: initialStatus,
     source: "admin",
   });
 
