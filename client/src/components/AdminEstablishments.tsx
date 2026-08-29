@@ -14,7 +14,7 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Store, Eye, EyeOff, ChevronRight, ArrowLeft,
-  Search, CheckSquare, Square, Trash2, AlertTriangle,
+  Search, CheckSquare, Square, Trash2, AlertTriangle, FileSpreadsheet,
   Leaf, Beer, UtensilsCrossed, Coffee, ChefHat, Wine,
   Sparkles, Cake, CupSoda, Music, Croissant, Globe, Pizza,
   Clock, Plus
@@ -87,6 +87,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
   const [activeTab, setActiveTab] = useState<StatusTab>("active");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAddMenu, setShowAddMenu] = useState(false);
   const [, navigate] = useLocation();
 
   const { data: categoriesData, isLoading: catLoading } = trpc.admin.categoriesWithCounts.useQuery();
@@ -95,11 +96,11 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     { enabled: !!selectedCategoryId }
   );
   const { data: globalSearchData, isLoading: globalSearchLoading } = trpc.admin.searchEstablishments.useQuery(
-    { query: searchQuery.trim(), status: activeTab, limit: 500, includePending: ownerView },
+    { query: searchQuery.trim(), status: activeTab, limit: 500, includePending: false },
     { enabled: !selectedCategoryId && searchQuery.trim().length >= 2 }
   );
   const { data: ownerEstablishmentsData, isLoading: ownerEstablishmentsLoading } = trpc.admin.ownerEstablishments.useQuery(
-    { status: activeTab === "hidden" ? "hidden" : "active", limit: 500 },
+    { status: activeTab, limit: 500 },
     { enabled: ownerView && !selectedCategoryId && searchQuery.trim().length < 2 }
   );
 
@@ -171,12 +172,18 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
             <h2 className="font-display text-2xl tracking-wider text-foreground">ESTABELECIMENTOS</h2>
             <p className="text-xs text-muted-foreground mt-1">Todos os cadastros do banco, incluindo incompletos</p>
           </div>
-          <button type="button" onClick={() => navigate("/admin/estab-novo-cardapio")} title="Adicionar estabelecimento com fotos do cardápio" className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"><Plus className="w-6 h-6" /></button>
+          <div className="fixed bottom-24 right-5 z-30">
+            <button type="button" onClick={() => setShowAddMenu(current => !current)} title="Adicionar estabelecimento" className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"><Plus className="w-6 h-6" /></button>
+            {showAddMenu && <div className="absolute bottom-16 right-0 w-56 overflow-hidden rounded-xl border border-border bg-card p-1 shadow-xl">
+              <button type="button" onClick={() => navigate("/admin/estab-novo-cardapio")} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary/60"><Plus className="h-4 w-4 text-primary" /><span><strong className="block">Local único</strong><span className="text-xs text-muted-foreground">Cadastro individual</span></span></button>
+              <button type="button" onClick={() => navigate("/admin/estabs-em-massa")} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary/60"><FileSpreadsheet className="h-4 w-4 text-primary" /><span><strong className="block">Local em massa</strong><span className="text-xs text-muted-foreground">Importar planilha</span></span></button>
+            </div>}
+          </div>
         </div>
         <div className="flex gap-2 mb-4">
-          {(["active", "hidden"] as const).map(tab => (
+          {(["active", "pending", "hidden"] as const).map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setSelectedIds([]); setSearchQuery(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab ? "bg-primary/20 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground hover:text-foreground"}`}>
-              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
+              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : tab === "pending" ? `Pending (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
             </button>
           ))}
         </div>

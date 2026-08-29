@@ -40,6 +40,7 @@ import SearchResults from "./pages/SearchResults";
 import AdminPanel from "./pages/AdminPanel";
 import AdminEstabDetail from "./pages/AdminEstabDetail";
 import SmartEstablishmentForm from "./pages/SmartEstablishmentForm";
+import BulkEstablishmentImport from "./pages/BulkEstablishmentImport";
 import BusinessPanel from "./pages/BusinessPanel";
 import BusinessLocais from "./pages/BusinessLocais";
 import BusinessInsights from "./pages/BusinessInsights";
@@ -195,6 +196,7 @@ function Router() {
       <Route path="/admin" component={AdminPanel} />
       <Route path="/admin/estab/:id" component={AdminEstabDetail} />
       <Route path="/admin/estab-novo-cardapio">{() => <SmartEstablishmentForm />}</Route>
+      <Route path="/admin/estabs-em-massa" component={BulkEstablishmentImport} />
       <Route path="/admin/usuarios" component={AdminPanel} />
       <Route path="/owner/analytics" component={AdminPanel} />
       <Route path="/admin/config" component={AdminPanel} />
