@@ -8,6 +8,7 @@ import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 import { smartSearch } from "./smart-search";
 import { createSmartEstablishment } from "./smart-menu-intake";
+import { createMenuSpreadsheetTemplate } from "./smart-menu-spreadsheet";
 import { lookupDistrict, getRegionByNeighborhood } from "./geo-lookup";
 import {
   getAllCategories,
@@ -1347,10 +1348,22 @@ export const appRouter = router({
         photos: z.array(z.object({
           url: z.string().url(),
           key: z.string().max(512).optional(),
-        })).min(1, "Envie pelo menos uma foto").max(50, "O limite é de 50 fotos"),
+        })).max(50, "O limite é de 50 fotos").optional(),
+        spreadsheetBase64: z.string().max(15_000_000).optional(),
+        spreadsheetFileName: z.string().max(255).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await createSmartEstablishment({ ...input, submittedById: ctx.user!.id });
+      }),
+
+    menuSpreadsheetTemplate: adminProcedure
+      .query(() => {
+        const buffer = createMenuSpreadsheetTemplate();
+        return {
+          fileName: "modelo-cardapio-avalyarin.xlsx",
+          mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          base64: buffer.toString("base64"),
+        };
       }),
 
     createEstablishment: adminProcedure
