@@ -64,19 +64,24 @@ function normalizeHeader(value: unknown): string {
     .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
+function isEmptyCell(value: unknown): boolean {
+  const normalized = String(value ?? "").trim();
+  return normalized === "" || normalized === "-";
+}
+
 function text(value: unknown, maxLength: number): string | null {
   const result = String(value ?? "").replace(/\s+/g, " ").trim();
-  return result ? result.slice(0, maxLength) : null;
+  return !result || result === "-" ? null : result.slice(0, maxLength);
 }
 
 function numberValue(value: unknown): number | null {
-  if (value === null || value === undefined || value === "") return null;
+  if (isEmptyCell(value)) return null;
   const parsed = Number(String(value).trim().replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
 }
 
 function parseDate(value: unknown): Date | null {
-  if (value === null || value === undefined || value === "") return null;
+  if (isEmptyCell(value)) return null;
   if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
   const raw = String(value).trim();
   if (!raw) return null;
@@ -97,7 +102,7 @@ function validAddressNumber(value: string | null): boolean {
 }
 
 function coordinate(value: unknown, min: number, max: number): number | null {
-  if (value === null || value === undefined || value === "") return null;
+  if (isEmptyCell(value)) return null;
   const parsed = Number(String(value).trim().replace(",", "."));
   return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
@@ -162,7 +167,7 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
   for (const [offset, rawRow] of matrix.slice(1).entries()) {
     const rowNumber = offset + 2;
     const row = rawRow as unknown[];
-    if (!row.some(value => String(value ?? "").trim())) continue;
+    if (!row.some(value => !isEmptyCell(value))) continue;
     const name = text(row[index("name")], 255);
     const category = text(row[index("category")], 255);
     const address = text(row[index("address")], 255);
