@@ -395,15 +395,15 @@ export default function Home() {
                       alt="Todas as categorias"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/15" />
                     <div className="relative h-full flex flex-col justify-end p-6">
-                      <h4 className="font-display text-3xl tracking-wider text-foreground group-hover:text-primary transition-colors">
+                      <h4 className="font-display text-3xl tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] group-hover:text-primary transition-colors">
                         EXPLORAR TUDO
                       </h4>
-                      <p className="text-sm text-muted-foreground mt-2">
+                      <p className="text-sm text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-2">
                         De gastronomia a vida noturna, de cafés a alimentação saudável
                       </p>
-                      <div className="flex items-center gap-1 mt-3 text-sm text-primary font-medium">
+                      <div className="flex items-center gap-1 mt-3 text-sm text-primary font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                         <span>Ver todas as categorias</span>
                         <ArrowRight className="w-4 h-4" />
                       </div>
