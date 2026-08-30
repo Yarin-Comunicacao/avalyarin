@@ -98,7 +98,7 @@ function validAddressNumber(value: string | null): boolean {
   const normalized = value.trim().toLowerCase();
   if (normalized === "s/n" || normalized === "sn") return true;
   const parsed = Number(normalized);
-  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 15000 && String(parsed) === normalized;
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 35000 && String(parsed) === normalized;
 }
 
 function coordinate(value: unknown, min: number, max: number): number | null {
@@ -125,7 +125,7 @@ export function createEstablishmentSpreadsheetTemplate(): Buffer {
     ["Preencha uma linha por estabelecimento. Não altere os nomes das colunas."],
     ["Obrigatórios", "nome, categoria, endereco, numero (ou s/n), bairro, cidade, google_maps_url, instagram e horario"],
     ["categoria", "Use o nome exato de uma categoria já cadastrada no Avalyarin."],
-    ["numero", "Obrigatório. Use um número inteiro de 1 a 15000 ou s/n."],
+    ["numero", "Obrigatório. Use um número inteiro de 1 a 35000 ou s/n."],
     ["cidade", "Obrigatório."],
     ["google_maps_url", "URL completa do Google Maps. Obrigatória."],
     ["telefone", "Opcional."],
