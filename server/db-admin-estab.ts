@@ -167,6 +167,21 @@ export async function listOwnerEstablishments(statusFilter: 'active' | 'pending'
   return { items: itemsWithCompleteness, total: Number(countResult[0]?.count) || 0 };
 }
 
+export async function getOwnerEstablishmentStatusCounts() {
+  const db = await getDb();
+  if (!db) return { active: 0, pending: 0, hidden: 0 };
+  const [result] = await db.select({
+    active: sql<number>`SUM(CASE WHEN ${establishments.status} = 'active' THEN 1 ELSE 0 END)`,
+    pending: sql<number>`SUM(CASE WHEN ${establishments.status} = 'pending' THEN 1 ELSE 0 END)`,
+    hidden: sql<number>`SUM(CASE WHEN ${establishments.status} = 'hidden' THEN 1 ELSE 0 END)`,
+  }).from(establishments);
+  return {
+    active: Number(result?.active) || 0,
+    pending: Number(result?.pending) || 0,
+    hidden: Number(result?.hidden) || 0,
+  };
+}
+
 export async function searchAdminEstablishments(query: string, statusFilter: 'active' | 'hidden' | 'pending', limit = 100, includePending = false) {
   const db = await getDb();
   if (!db) return { items: [], total: 0 };

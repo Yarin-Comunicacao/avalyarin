@@ -103,6 +103,9 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     { status: activeTab, limit: 500 },
     { enabled: ownerView && !selectedCategoryId && searchQuery.trim().length < 2 }
   );
+  const { data: ownerStatusCounts } = trpc.admin.ownerEstablishmentStatusCounts.useQuery(undefined, {
+    enabled: ownerView && !selectedCategoryId,
+  });
 
   const toggleMutation = trpc.admin.toggleVisibility.useMutation();
   const deleteMutation = trpc.admin.deleteEstablishment.useMutation();
@@ -185,7 +188,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
         <div className="flex gap-2 mb-4">
           {(["active", "pending", "hidden"] as const).map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setSelectedIds([]); setSearchQuery(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab ? "bg-primary/20 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground hover:text-foreground"}`}>
-              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : tab === "pending" ? `Pendentes (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
+              {tab === "active" ? `Ativos (${ownerStatusCounts?.active ?? "…"})` : tab === "pending" ? `Pendentes (${ownerStatusCounts?.pending ?? "…"})` : `Ocultos (${ownerStatusCounts?.hidden ?? "…"})`}
             </button>
           ))}
         </div>

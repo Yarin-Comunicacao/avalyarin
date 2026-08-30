@@ -212,6 +212,7 @@ import {
   getAdminEstablishmentsByCategory,
   searchAdminEstablishments,
   listOwnerEstablishments,
+  getOwnerEstablishmentStatusCounts,
   toggleEstablishmentStatus,
   getAdminEstablishmentDetail,
   adminAddMenuItem,
@@ -1476,6 +1477,9 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await searchAdminEstablishments(input.query, input.status, input.limit, input.includePending);
       }),
+
+    ownerEstablishmentStatusCounts: adminProcedure
+      .query(async () => getOwnerEstablishmentStatusCounts()),
 
     ownerEstablishments: adminProcedure
       .input(z.object({
