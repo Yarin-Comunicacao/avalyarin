@@ -15,7 +15,7 @@ const categoryGroups = [
     subtitle: "Foco na comida como protagonista",
     icon: Utensils,
     image: "/storage/category-optimized/group-gastronomia.webp",
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "veg-vegan", "acai", "natural", "vegetariano"],
+    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "natural", "vegetarian"],
   },
   {
     id: "bares-vida-noturna",
@@ -31,7 +31,7 @@ const categoryGroups = [
     subtitle: "Experiências diurnas, café e confeitaria",
     icon: CakeSlice,
     image: "/storage/category-optimized/group-cafe-doces.webp",
-    categorySlugs: ["cafeteria", "padaria", "confeitaria"],
+    categorySlugs: ["cafeteria", "padaria", "confeitaria", "ice-cream-parlor"],
   },
 
 ];

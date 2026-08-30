@@ -51,8 +51,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   restaurante: "#059669",
   vegan: "#16a34a",
   "veg-vegan": "#16a34a",
-  vegetariano: "#4ade80",
+  vegetarian: "#4ade80",
   acai: "#7e22ce",
+  "ice-cream-parlor": "#f97316",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -82,8 +83,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   restaurante: "Restaurante",
   vegan: "Vegan",
   "veg-vegan": "Vegan",
-  vegetariano: "Vegetariano",
+  vegetarian: "Vegetariano",
   acai: "Açaí",
+  "ice-cream-parlor": "Sorveteria",
 };
 
 /**
@@ -168,11 +170,11 @@ function getCategoryLabel(categorySlug: string): string {
 }
 
 function getPinGlyph(categorySlug: string): string {
-  if (["cafeteria", "padaria", "confeitaria", "acai"].includes(categorySlug)) return "☕";
+  if (["cafeteria", "padaria", "confeitaria", "acai", "ice-cream-parlor"].includes(categorySlug)) return "☕";
   if (["coquetelaria", "pub", "gastrobar", "cervejaria"].includes(categorySlug)) return "🍸";
   if (["balada", "bar-musical"].includes(categorySlug)) return "♪";
   if (["cozinha-brasileira", "casa-de-carnes", "hamburgueria", "pizzaria"].includes(categorySlug)) return "🍽";
-  if (["saudavel", "natural", "vegan", "veg-vegan", "vegetariano"].includes(categorySlug)) return "♣";
+  if (["saudavel", "natural", "vegan", "vegetarian"].includes(categorySlug)) return "♣";
   return "•";
 }
 
@@ -273,9 +275,9 @@ export default function MapaPage() {
 
   // Define the 3 main groups
   const CATEGORY_GROUPS = useMemo(() => [
-    { id: "gastronomia", label: "Gastronomia", icon: ChefHat, color: "text-amber-500", slugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "veg-vegan", "natural", "vegetariano", "casa-de-carnes", "casual-dining", "restaurante"] },
-    { id: "bares", label: "Bares & Noite", icon: Beer, color: "text-violet-400", slugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada", "bar-balada", "gastrobar"] },
-    { id: "cafes", label: "Cafés & Doces", icon: Coffee, color: "text-orange-400", slugs: ["cafeteria", "padaria", "confeitaria", "acai", "lanches"] },
+    { id: "gastronomia", label: "Gastronomia", icon: ChefHat, color: "text-amber-500", slugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "vegan", "acai", "natural", "vegetarian", "gastrobar", "lanches", "casa-de-carnes", "casual-dining"] },
+    { id: "bares", label: "Bares & Noite", icon: Beer, color: "text-violet-400", slugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada"] },
+    { id: "cafes", label: "Cafés & Doces", icon: Coffee, color: "text-orange-400", slugs: ["cafeteria", "padaria", "confeitaria", "ice-cream-parlor"] },
   ], []);
 
   const APP_VERSION = "1.0.5"; // Versão para conferir o deploy
