@@ -69,19 +69,24 @@ export const establishments = mysqlTable("establishments", {
   neighborhood: varchar("neighborhood", { length: 128 }),
   region: varchar("region", { length: 64 }),
   city: varchar("city", { length: 128 }),
+  state: varchar("state", { length: 64 }),
+  zipCode: varchar("zipCode", { length: 16 }),
   lat: float("lat"),
   lng: float("lng"),
   rating: float("rating"),
   reviewCount: int("reviewCount"),
   image: text("image"),
   logo: text("logo"),
-  hours: varchar("hours", { length: 255 }),
+  hours: varchar("hours", { length: 370 }),
   phone: varchar("phone", { length: 64 }),
   instagram: varchar("instagram", { length: 128 }),
   // Optional social and map links kept nullable for legacy establishments.
   googleMapsUrl: text("googleMapsUrl"),
   facebook: text("facebook"),
   website: text("website"),
+  menuUrl: text("menu_url"),
+  lastMenuUpdate: timestamp("last_menu_update"),
+  validationScore: float("validation_score"),
   categoryId: int("categoryId").notNull(),
   description: text("description"),
   complement: varchar("complement", { length: 255 }),
@@ -94,6 +99,7 @@ export const establishments = mysqlTable("establishments", {
   acceptsReservations: boolean("acceptsReservations").default(false).notNull(),
   reservationMinAdvanceMinutes: int("reservationMinAdvanceMinutes").default(30), // 30min, 60min, 1440min (1 dia)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Establishment = typeof establishments.$inferSelect;

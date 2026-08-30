@@ -16,10 +16,15 @@ export type EstablishmentSpreadsheetRow = {
   website: string | null;
   description: string | null;
   hours: string;
+  state: string | null;
+  zipCode: string | null;
   lat: number | null;
   lng: number | null;
   image: string | null;
   logo: string | null;
+  menuUrl: string | null;
+  lastMenuUpdate: Date | null;
+  validationScore: number | null;
 };
 
 export type EstablishmentSpreadsheetParseResult = {
@@ -36,6 +41,8 @@ const HEADER_ALIASES: Record<string, keyof EstablishmentSpreadsheetRow> = {
   bairro: "neighborhood", neighborhood: "neighborhood",
   regiao: "region", região: "region", region: "region",
   cidade: "city", city: "city",
+  estado: "state", state: "state",
+  cep: "zipCode", zip_code: "zipCode", zipcode: "zipCode", zipCode: "zipCode",
   telefone: "phone", whatsapp: "phone", phone: "phone",
   instagram: "instagram",
   google_maps: "googleMapsUrl", google_maps_url: "googleMapsUrl", googlemapsurl: "googleMapsUrl",
@@ -47,6 +54,9 @@ const HEADER_ALIASES: Record<string, keyof EstablishmentSpreadsheetRow> = {
   longitude: "lng", lng: "lng",
   foto_fundo_url: "image", foto_principal_url: "image", imagem: "image", image: "image",
   logo_url: "logo", logo: "logo",
+  menu_url: "menuUrl", menuurl: "menuUrl", menuUrl: "menuUrl",
+  last_menu_update: "lastMenuUpdate", lastmenuupdate: "lastMenuUpdate", lastMenuUpdate: "lastMenuUpdate",
+  validation_score: "validationScore", validationscore: "validationScore", validationScore: "validationScore",
 };
 
 function normalizeHeader(value: unknown): string {
@@ -59,6 +69,25 @@ function text(value: unknown, maxLength: number): string | null {
   return result ? result.slice(0, maxLength) : null;
 }
 
+function numberValue(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(String(value).trim().replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseDate(value: unknown): Date | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const brDate = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(.*))?$/);
+  const normalized = brDate
+    ? `${brDate[3]}-${brDate[2].padStart(2, "0")}-${brDate[1].padStart(2, "0")}${brDate[4] ? `T${brDate[4]}` : "T00:00:00"}`
+    : raw;
+  const parsed = new Date(normalized);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 function coordinate(value: unknown, min: number, max: number): number | null {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(String(value).trim().replace(",", "."));
@@ -68,14 +97,14 @@ function coordinate(value: unknown, min: number, max: number): number | null {
 export function createEstablishmentSpreadsheetTemplate(): Buffer {
   const workbook = XLSX.utils.book_new();
   const sheet = XLSX.utils.aoa_to_sheet([[
-    "nome", "categoria", "endereco", "numero", "complemento", "bairro", "regiao", "cidade",
+    "nome", "categoria", "endereco", "numero", "complemento", "bairro", "regiao", "cidade", "estado", "cep",
     "telefone", "instagram", "google_maps_url", "facebook", "site", "descricao", "horario",
-    "latitude", "longitude", "foto_fundo_url", "logo_url",
+    "latitude", "longitude", "foto_fundo_url", "logo_url", "menu_url", "last_menu_update", "validation_score",
   ]]);
   sheet["!cols"] = [
-    { wch: 32 }, { wch: 24 }, { wch: 38 }, { wch: 12 }, { wch: 24 }, { wch: 24 }, { wch: 18 }, { wch: 20 },
+    { wch: 32 }, { wch: 24 }, { wch: 38 }, { wch: 12 }, { wch: 24 }, { wch: 24 }, { wch: 18 }, { wch: 20 }, { wch: 14 }, { wch: 14 },
     { wch: 20 }, { wch: 30 }, { wch: 55 }, { wch: 35 }, { wch: 45 }, { wch: 60 }, { wch: 60 },
-    { wch: 14 }, { wch: 14 }, { wch: 55 }, { wch: 55 },
+    { wch: 14 }, { wch: 14 }, { wch: 55 }, { wch: 55 }, { wch: 55 }, { wch: 22 }, { wch: 18 },
   ];
   XLSX.utils.book_append_sheet(workbook, sheet, "Estabelecimentos");
   const instructions = XLSX.utils.aoa_to_sheet([
@@ -86,6 +115,9 @@ export function createEstablishmentSpreadsheetTemplate(): Buffer {
     ["google_maps_url", "URL completa do Google Maps. Opcional, mas recomendada."],
     ["horario", "Ex.: Segunda a Sexta, das 11:00 às 22:00; Sábado, das 11:00 às 00:00"],
     ["latitude/longitude", "Opcional. Use números decimais, como -23.5612463 e -46.5697117."],
+    ["menu_url", "URL do cardápio; opcional."],
+    ["last_menu_update", "Data da última actualização do cardápio; opcional."],
+    ["validation_score", "Pontuação numérica de validação; opcional."],
     ["foto_fundo_url/logo_url", "Opcional. Use URLs públicas das imagens; o upload de arquivos permanece disponível no cadastro único."],
     ["Visibilidade", "Sem cardápio, o estabelecimento será criado como pending conforme a regra do projeto."],
   ]);
@@ -125,7 +157,7 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
     const neighborhood = text(row[index("neighborhood")], 128);
     const phone = text(row[index("phone")], 64);
     const instagram = text(row[index("instagram")], 128);
-    const hours = text(row[index("hours")], 255);
+    const hours = text(row[index("hours")], 370);
     if (!name || !category || !address || !neighborhood || !phone || !instagram || !hours) {
       warnings.push(`Linha ${rowNumber} ignorada: preencha nome, categoria, endereço, bairro, telefone, Instagram e horário.`);
       continue;
@@ -137,10 +169,14 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
       name, category, address, neighborhood, phone, instagram, hours,
       addressNumber: text(row[index("addressNumber")], 20), complement: text(row[index("complement")], 255),
       region: text(row[index("region")], 64), city: text(row[index("city")], 128),
+      state: text(row[index("state")], 64), zipCode: text(row[index("zipCode")], 16),
       googleMapsUrl: text(row[index("googleMapsUrl")], 2000), facebook: text(row[index("facebook")], 2000),
       website: text(row[index("website")], 2000), description: text(row[index("description")], 500),
       lat: coordinate(row[index("lat")], -90, 90), lng: coordinate(row[index("lng")], -180, 180),
       image: text(row[index("image")], 2000), logo: text(row[index("logo")], 2000),
+      menuUrl: text(row[index("menuUrl")], 2000),
+      lastMenuUpdate: parseDate(row[index("lastMenuUpdate")]),
+      validationScore: numberValue(row[index("validationScore")]),
     });
   }
   if (!rows.length) throw new Error("Nenhum estabelecimento válido foi encontrado na planilha");

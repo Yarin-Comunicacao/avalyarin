@@ -1961,6 +1961,8 @@ export async function createEstablishment(data: {
   neighborhood?: string;
   region?: string;
   city?: string;
+  state?: string;
+  zipCode?: string;
   lat?: number;
   lng?: number;
   phone?: string;
@@ -1968,6 +1970,9 @@ export async function createEstablishment(data: {
   googleMapsUrl?: string;
   facebook?: string;
   website?: string;
+  menuUrl?: string;
+  lastMenuUpdate?: Date;
+  validationScore?: number;
   hours?: string;
   image?: string;
   logo?: string;
@@ -2011,6 +2016,8 @@ export async function createEstablishment(data: {
     neighborhood: data.neighborhood || null,
     region: data.region || null,
     city: data.city || null,
+    state: data.state || null,
+    zipCode: data.zipCode || null,
     lat: data.lat || null,
     lng: data.lng || null,
     phone: data.phone || null,
@@ -2018,6 +2025,9 @@ export async function createEstablishment(data: {
     googleMapsUrl: data.googleMapsUrl || null,
     facebook: data.facebook || null,
     website: data.website || null,
+    menuUrl: data.menuUrl || null,
+    lastMenuUpdate: data.lastMenuUpdate || null,
+    validationScore: data.validationScore ?? null,
     hours: data.hours || null,
     image: data.image || null,
     logo: data.logo || null,

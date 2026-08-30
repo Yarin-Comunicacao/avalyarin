@@ -41,6 +41,8 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
       neighborhood: row.neighborhood,
       region: row.region || undefined,
       city: row.city || undefined,
+      state: row.state || undefined,
+      zipCode: row.zipCode || undefined,
       phone: row.phone,
       instagram: row.instagram,
       googleMapsUrl: row.googleMapsUrl || undefined,
@@ -52,6 +54,9 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
       lng: row.lng ?? undefined,
       image: row.image || undefined,
       logo: row.logo || undefined,
+      menuUrl: row.menuUrl || undefined,
+      lastMenuUpdate: row.lastMenuUpdate || undefined,
+      validationScore: row.validationScore ?? undefined,
     });
     existingNames.add(nameKey);
     created.push({ id: Number(createdEstablishment.id), name: row.name, status: "pending" });
