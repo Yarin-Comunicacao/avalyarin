@@ -95,11 +95,11 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     { categoryId: selectedCategoryId!, status: activeTab, limit: 500 },
     { enabled: !!selectedCategoryId }
   );
-  const { data: globalSearchData, isLoading: globalSearchLoading } = trpc.admin.searchEstablishments.useQuery(
+  const { data: globalSearchData, isLoading: globalSearchLoading, isFetching: globalSearchFetching } = trpc.admin.searchEstablishments.useQuery(
     { query: searchQuery.trim(), status: activeTab, limit: 500, includePending: false },
     { enabled: !selectedCategoryId && searchQuery.trim().length >= 2 }
   );
-  const { data: ownerEstablishmentsData, isLoading: ownerEstablishmentsLoading } = trpc.admin.ownerEstablishments.useQuery(
+  const { data: ownerEstablishmentsData, isLoading: ownerEstablishmentsLoading, isFetching: ownerEstablishmentsFetching } = trpc.admin.ownerEstablishments.useQuery(
     { status: activeTab, limit: 500 },
     { enabled: ownerView && !selectedCategoryId && searchQuery.trim().length < 2 }
   );
@@ -112,6 +112,8 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     try {
       await toggleMutation.mutateAsync({ ids, status: newStatus });
       utils.admin.estabByCategory.invalidate();
+      utils.admin.ownerEstablishments.invalidate();
+      utils.admin.searchEstablishments.invalidate();
       utils.admin.categoriesWithCounts.invalidate();
       setSelectedIds([]);
       const labels: Record<StatusTab, string> = {
@@ -164,7 +166,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
   // Owner view: all active/pending records or manually hidden records, independent of category.
   if (ownerView && !selectedCategoryId) {
     const ownerItems = searchQuery.trim().length >= 2 ? (globalSearchData?.items || []) : (ownerEstablishmentsData?.items || []);
-    const ownerLoading = searchQuery.trim().length >= 2 ? globalSearchLoading : ownerEstablishmentsLoading;
+    const ownerLoading = searchQuery.trim().length >= 2 ? (globalSearchLoading || globalSearchFetching) : (ownerEstablishmentsLoading || ownerEstablishmentsFetching);
     return (
       <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-5">
@@ -183,7 +185,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
         <div className="flex gap-2 mb-4">
           {(["active", "pending", "hidden"] as const).map(tab => (
             <button key={tab} onClick={() => { setActiveTab(tab); setSelectedIds([]); setSearchQuery(""); }} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === tab ? "bg-primary/20 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground hover:text-foreground"}`}>
-              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : tab === "pending" ? `Pending (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
+              {tab === "active" ? `Ativos (${ownerEstablishmentsData?.total ?? "…"})` : tab === "pending" ? `Pendentes (${ownerEstablishmentsData?.total ?? "…"})` : `Ocultos (${ownerEstablishmentsData?.total ?? "…"})`}
             </button>
           ))}
         </div>
