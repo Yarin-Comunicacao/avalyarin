@@ -117,13 +117,13 @@ export default function AllCategoriesPage() {
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/15" />
                             <div className="relative h-full flex flex-col justify-end p-4">
-                              <h4 className="font-display text-lg tracking-wider text-foreground group-hover:text-primary transition-colors">
+                              <h4 className="font-display text-lg tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] group-hover:text-primary transition-colors">
                                 {cat.name}
                               </h4>
-                              <p className="text-xs text-foreground/70 mt-1 line-clamp-2">{cat.description}</p>
-                              <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium">
+                              <p className="text-xs text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-1 line-clamp-2">{cat.description}</p>
+                              <div className="flex items-center gap-1 mt-2 text-xs text-primary font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                                 <span>{count.toLocaleString("pt-BR")} {count === 1 ? "estabelecimento" : "estabelecimentos"}</span>
                                 <ArrowRight className="w-3 h-3" />
                               </div>

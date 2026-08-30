@@ -274,12 +274,12 @@ export default function Home() {
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/15" />
                           <div className="relative h-full flex flex-col justify-end p-4">
-                            <h4 className="font-display text-lg tracking-wider text-foreground group-hover:text-primary transition-colors">
+                            <h4 className="font-display text-lg tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] group-hover:text-primary transition-colors">
                               {cat.name}
                             </h4>
-                            <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium">
+                            <div className="flex items-center gap-1 mt-2 text-xs text-primary font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                               <span>{(cat.establishmentCount || 0).toLocaleString("pt-BR")} {(cat.establishmentCount || 0) === 1 ? "estabelecimento" : "estabelecimentos"}</span>
                               <ArrowRight className="w-3 h-3" />
                             </div>
@@ -337,20 +337,20 @@ export default function Home() {
                             loading="lazy"
                             decoding="async"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/25" />
                           <div className="relative h-full flex flex-col justify-end p-6">
                             <div className="flex items-center gap-3 mb-2">
                               <div className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center backdrop-blur-sm">
                                 <group.icon className="w-5 h-5 text-primary" />
                               </div>
                               <div>
-                                <h4 className="font-display text-2xl tracking-wider text-foreground group-hover:text-primary transition-colors">
+                                <h4 className="font-display text-2xl tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] group-hover:text-primary transition-colors">
                                   {group.title}
                                 </h4>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-2">{group.subtitle}</p>
-                            <div className="flex items-center gap-1 text-xs text-primary font-medium">
+                            <p className="text-sm text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mb-2">{group.subtitle}</p>
+                            <div className="flex items-center gap-1 text-xs text-primary font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
                               <span>{group.totalEstablishments.toLocaleString("pt-BR")} estabelecimentos</span>
                               <ArrowRight className="w-3 h-3" />
                             </div>
