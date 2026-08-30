@@ -88,6 +88,14 @@ function parseDate(value: unknown): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+function validAddressNumber(value: string | null): boolean {
+  if (!value) return false;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "s/n" || normalized === "sn") return true;
+  const parsed = Number(normalized);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 15000 && String(parsed) === normalized;
+}
+
 function coordinate(value: unknown, min: number, max: number): number | null {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(String(value).trim().replace(",", "."));
@@ -110,9 +118,12 @@ export function createEstablishmentSpreadsheetTemplate(): Buffer {
   const instructions = XLSX.utils.aoa_to_sheet([
     ["MODELO DE CADASTRO EM MASSA — AVALYARIN"],
     ["Preencha uma linha por estabelecimento. Não altere os nomes das colunas."],
-    ["Obrigatórios", "nome, categoria, endereco, bairro, telefone, instagram e horario"],
+    ["Obrigatórios", "nome, categoria, endereco, numero (ou s/n), bairro, cidade, google_maps_url, instagram e horario"],
     ["categoria", "Use o nome exato de uma categoria já cadastrada no Avalyarin."],
-    ["google_maps_url", "URL completa do Google Maps. Opcional, mas recomendada."],
+    ["numero", "Obrigatório. Use um número inteiro de 1 a 15000 ou s/n."],
+    ["cidade", "Obrigatório."],
+    ["google_maps_url", "URL completa do Google Maps. Obrigatória."],
+    ["telefone", "Opcional."],
     ["horario", "Ex.: Segunda a Sexta, das 11:00 às 22:00; Sábado, das 11:00 às 00:00"],
     ["latitude/longitude", "Opcional. Use números decimais, como -23.5612463 e -46.5697117."],
     ["menu_url", "URL do cardápio; opcional."],
@@ -138,8 +149,9 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
   if (matrix.length < 2) throw new Error("A planilha precisa ter cabeçalho e pelo menos um estabelecimento");
   const mapped = (matrix[0] || []).map(value => HEADER_ALIASES[normalizeHeader(value)] || null);
   const required: Array<[keyof EstablishmentSpreadsheetRow, string]> = [
-    ["name", "nome"], ["category", "categoria"], ["address", "endereco"], ["neighborhood", "bairro"],
-    ["phone", "telefone"], ["instagram", "instagram"], ["hours", "horario"],
+    ["name", "nome"], ["category", "categoria"], ["address", "endereco"], ["addressNumber", "numero"],
+    ["neighborhood", "bairro"], ["city", "cidade"], ["googleMapsUrl", "google_maps_url"],
+    ["instagram", "instagram"], ["hours", "horario"],
   ];
   for (const [field, label] of required) if (mapped.indexOf(field) < 0) throw new Error(`A planilha precisa conter a coluna obrigatória '${label}'`);
 
@@ -154,12 +166,15 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
     const name = text(row[index("name")], 255);
     const category = text(row[index("category")], 255);
     const address = text(row[index("address")], 255);
+    const addressNumber = text(row[index("addressNumber")], 20);
     const neighborhood = text(row[index("neighborhood")], 128);
+    const city = text(row[index("city")], 128);
     const phone = text(row[index("phone")], 64);
     const instagram = text(row[index("instagram")], 128);
     const hours = text(row[index("hours")], 370);
-    if (!name || !category || !address || !neighborhood || !phone || !instagram || !hours) {
-      warnings.push(`Linha ${rowNumber} ignorada: preencha nome, categoria, endereço, bairro, telefone, Instagram e horário.`);
+    const googleMapsUrl = text(row[index("googleMapsUrl")], 2000);
+    if (!name || !category || !address || !validAddressNumber(addressNumber) || !neighborhood || !city || !googleMapsUrl || !instagram || !hours) {
+      warnings.push(`Linha ${rowNumber} ignorada: preencha nome, categoria, endereço, número (ou s/n), bairro, cidade, Google Maps, Instagram e horário.`);
       continue;
     }
     const nameKey = name.toLocaleLowerCase("pt-BR");
@@ -167,10 +182,10 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
     names.add(nameKey);
     rows.push({
       name, category, address, neighborhood, phone, instagram, hours,
-      addressNumber: text(row[index("addressNumber")], 20), complement: text(row[index("complement")], 255),
-      region: text(row[index("region")], 64), city: text(row[index("city")], 128),
+      addressNumber, complement: text(row[index("complement")], 255),
+      region: text(row[index("region")], 64), city,
       state: text(row[index("state")], 64), zipCode: text(row[index("zipCode")], 16),
-      googleMapsUrl: text(row[index("googleMapsUrl")], 2000), facebook: text(row[index("facebook")], 2000),
+      googleMapsUrl, facebook: text(row[index("facebook")], 2000),
       website: text(row[index("website")], 2000), description: text(row[index("description")], 500),
       lat: coordinate(row[index("lat")], -90, 90), lng: coordinate(row[index("lng")], -180, 180),
       image: text(row[index("image")], 2000), logo: text(row[index("logo")], 2000),
