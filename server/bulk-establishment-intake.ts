@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { categories, establishments } from "../drizzle/schema";
-import { createEstablishment, getDb } from "./db";
+import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
+import { extractGetInMenu, persistDigitalMenu } from "./digital-menu-scraper";
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -16,8 +17,8 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
     db.select({ id: categories.id, name: categories.name }).from(categories),
     db.select({ name: establishments.name }).from(establishments),
   ]);
-  const categoryByName = new Map(categoryRows.map(category => [normalize(category.name), category.id]));
-  const existingNames = new Set(existingRows.map(row => normalize(row.name)));
+  const categoryByName = new Map<string, number>(categoryRows.map((category: { id: number; name: string }) => [normalize(category.name), Number(category.id)]));
+  const existingNames = new Set(existingRows.map((row: { name: string }) => normalize(row.name)));
   const created: Array<{ id: number; name: string; status: string }> = [];
   const warnings = [...parsed.warnings];
 
@@ -58,8 +59,29 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
       lastMenuUpdate: row.lastMenuUpdate || undefined,
       validationScore: row.validationScore ?? undefined,
     });
+
+    const establishmentId = Number(createdEstablishment.id);
+    let importedMenu = false;
+    if (row.menuUrl) {
+      try {
+        const extraction = await extractGetInMenu(row.menuUrl);
+        await persistDigitalMenu(db, establishmentId, extraction);
+        await db.update(establishments).set({
+          hasMenu: true,
+          lastMenuUpdate: row.lastMenuUpdate || new Date(),
+        }).where(eq(establishments.id, establishmentId));
+        await syncEstablishmentVisibility(establishmentId);
+        importedMenu = true;
+        warnings.push(`${row.name}: cardápio digital importado (${extraction.items.length} itens em ${extraction.menus} menus).`);
+      } catch (error: any) {
+        const message = String(error?.message || error).slice(0, 240);
+        warnings.push(`${row.name}: estabelecimento criado, mas o menu_url não pôde ser importado (${message}).`);
+      }
+    }
+
     existingNames.add(nameKey);
-    created.push({ id: Number(createdEstablishment.id), name: row.name, status: "pending" });
+    const [createdRow] = await db.select({ status: establishments.status }).from(establishments).where(eq(establishments.id, establishmentId)).limit(1);
+    created.push({ id: establishmentId, name: row.name, status: createdRow?.status || (importedMenu ? "active" : "pending") });
   }
 
   return { created, skipped: parsed.rows.length - created.length, warnings };

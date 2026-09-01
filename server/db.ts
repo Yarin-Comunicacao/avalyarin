@@ -496,8 +496,8 @@ export async function getNearbyEstablishments(lat: number, lng: number, radiusKm
     neighborhood: establishments.neighborhood,
     lat: establishments.lat,
     lng: establishments.lng,
-    rating: establishments.rating,
-    reviewCount: establishments.reviewCount,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
+    reviewCount: sql<number>`(SELECT COUNT(*) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
     hours: establishments.hours,
     phone: establishments.phone,
@@ -545,7 +545,7 @@ export async function searchEstablishments(query: string, limit = 20) {
     name: establishments.name,
     address: establishments.address,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
@@ -622,7 +622,7 @@ export async function searchAll(query: string) {
     name: establishments.name,
     address: establishments.address,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
@@ -753,7 +753,7 @@ export async function searchByTags(query: string) {
     slug: establishments.slug,
     image: establishments.image,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     tags: establishments.tags,
     categoryId: establishments.categoryId,
   }).from(establishments)
@@ -842,7 +842,7 @@ export async function searchByMultipleTags(tags: string[]) {
     slug: establishments.slug,
     image: establishments.image,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     tags: establishments.tags,
     categoryId: establishments.categoryId,
   }).from(establishments)
@@ -873,7 +873,7 @@ export async function getEstablishmentsByNeighborhood(neighborhood: string, limi
     name: establishments.name,
     address: establishments.address,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
@@ -1796,7 +1796,7 @@ export async function getDiscoveryEstablishments(userId: number, categoryId: num
       neighborhood: establishments.neighborhood,
       lat: establishments.lat,
       lng: establishments.lng,
-      rating: establishments.rating,
+      rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     })
       .from(establishments)
       .where(and(...conditions))
@@ -1813,7 +1813,7 @@ export async function getDiscoveryEstablishments(userId: number, categoryId: num
     neighborhood: establishments.neighborhood,
     lat: establishments.lat,
     lng: establishments.lng,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
   })
     .from(establishments)
     .where(and(...conditions))
@@ -3347,8 +3347,8 @@ export async function getAllEstablishmentsForMap() {
     address: establishments.address,
     addressNumber: establishments.addressNumber,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
-    reviewCount: establishments.reviewCount,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
+    reviewCount: sql<number>`(SELECT COUNT(*) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
     hasMenu: establishments.hasMenu,
     categoryId: establishments.categoryId,

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, float, boolean, json, date, bigint, unique } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, datetime, varchar, float, double, boolean, json, date, bigint, unique } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -61,45 +61,42 @@ export type InsertCategory = typeof categories.$inferInsert;
  * Establishments table - bars, restaurants, cafes, etc.
  */
 export const establishments = mysqlTable("establishments", {
-  id: int("id").autoincrement().primaryKey(),
-  code: varchar("code", { length: 12 }).unique(), // Visual ID: es000001-es999999
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  address: text("address"),
-  neighborhood: varchar("neighborhood", { length: 128 }),
-  region: varchar("region", { length: 64 }),
+  // TiDB production uses BIGINT without AUTO_INCREMENT; IDs are assigned by the application.
+  id: bigint("id", { mode: "number" }).primaryKey(),
+  code: varchar("code", { length: 512 }),
+  slug: varchar("slug", { length: 512 }),
+  name: varchar("name", { length: 512 }),
+  address: varchar("address", { length: 512 }),
+  neighborhood: varchar("neighborhood", { length: 512 }),
   city: varchar("city", { length: 128 }),
   state: varchar("state", { length: 64 }),
-  zipCode: varchar("zipCode", { length: 16 }),
-  lat: float("lat"),
-  lng: float("lng"),
-  rating: float("rating"),
-  reviewCount: int("reviewCount"),
-  image: text("image"),
-  logo: text("logo"),
+  zipCode: varchar("zipCode", { length: 20 }),
+  region: varchar("region", { length: 512 }),
+  lat: double("lat").notNull(),
+  lng: double("lng").notNull(),
+  image: varchar("image", { length: 512 }),
+  logo: varchar("logo", { length: 512 }),
   hours: varchar("hours", { length: 370 }),
-  phone: varchar("phone", { length: 64 }),
-  instagram: varchar("instagram", { length: 128 }),
-  // Optional social and map links kept nullable for legacy establishments.
+  phone: varchar("phone", { length: 512 }),
+  instagram: varchar("instagram", { length: 512 }),
+  categoryId: int("categoryId").notNull(),
+  hasMenu: boolean("hasMenu").default(false).notNull(),
+  source: varchar("source", { length: 512 }),
+  createdAt: datetime("createdAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().onUpdateNow(),
+  status: varchar("status", { length: 512 }),
+  description: varchar("description", { length: 512 }),
+  complement: varchar("complement", { length: 512 }),
+  addressNumber: varchar("addressNumber", { length: 20 }),
+  reservationMinAdvanceMinutes: int("reservationMinAdvanceMinutes").default(30),
+  acceptsReservations: boolean("acceptsReservations").default(false).notNull(),
+  tags: json("tags").$type<string[]>(),
   googleMapsUrl: text("googleMapsUrl"),
   facebook: text("facebook"),
   website: text("website"),
   menuUrl: text("menu_url"),
   lastMenuUpdate: timestamp("last_menu_update"),
   validationScore: float("validation_score"),
-  categoryId: int("categoryId").notNull(),
-  description: text("description"),
-  complement: varchar("complement", { length: 255 }),
-  addressNumber: varchar("addressNumber", { length: 20 }),
-  hasMenu: boolean("hasMenu").default(false).notNull(),
-  status: mysqlEnum("status", ["active", "hidden", "pending"]).default("active").notNull(),
-  source: varchar("source", { length: 32 }).default("spreadsheet"),
-  tags: json("tags").$type<string[]>(),
-  // Reservation configuration
-  acceptsReservations: boolean("acceptsReservations").default(false).notNull(),
-  reservationMinAdvanceMinutes: int("reservationMinAdvanceMinutes").default(30), // 30min, 60min, 1440min (1 dia)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Establishment = typeof establishments.$inferSelect;

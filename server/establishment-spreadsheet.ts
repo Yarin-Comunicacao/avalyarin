@@ -69,8 +69,20 @@ function isEmptyCell(value: unknown): boolean {
   return normalized === "" || normalized === "-";
 }
 
+function repairMojibake(value: string): string {
+  // Some CSV exports arrive with UTF-8 bytes decoded as Windows-1252/Latin-1.
+  // Repair only when common mojibake markers are present; normal Portuguese text is untouched.
+  if (!/[ÃÂâð]/.test(value)) return value;
+  try {
+    const repaired = Buffer.from(value, "latin1").toString("utf8");
+    return repaired.includes("�") ? value : repaired;
+  } catch {
+    return value;
+  }
+}
+
 function text(value: unknown, maxLength: number): string | null {
-  const result = String(value ?? "").replace(/\s+/g, " ").trim();
+  const result = repairMojibake(String(value ?? "")).replace(/\s+/g, " ").trim();
   return !result || result === "-" ? null : result.slice(0, maxLength);
 }
 
@@ -164,10 +176,10 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
   const rows: EstablishmentSpreadsheetRow[] = [];
   const warnings: string[] = [];
   const names = new Set<string>();
-  for (const [offset, rawRow] of matrix.slice(1).entries()) {
+  matrix.slice(1).forEach((rawRow, offset) => {
     const rowNumber = offset + 2;
     const row = rawRow as unknown[];
-    if (!row.some(value => !isEmptyCell(value))) continue;
+    if (!row.some(value => !isEmptyCell(value))) return;
     const name = text(row[index("name")], 255);
     const category = text(row[index("category")], 255);
     const address = text(row[index("address")], 255);
@@ -180,13 +192,13 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
     const googleMapsUrl = text(row[index("googleMapsUrl")], 2000);
     if (!name || !category || !address || !validAddressNumber(addressNumber) || !neighborhood || !city || !googleMapsUrl || !instagram || !hours) {
       warnings.push(`Linha ${rowNumber} ignorada: preencha nome, categoria, endereço, número (ou s/n), bairro, cidade, Google Maps, Instagram e horário.`);
-      continue;
+      return;
     }
     const nameKey = name.toLocaleLowerCase("pt-BR");
-    if (names.has(nameKey)) { warnings.push(`Linha ${rowNumber} ignorada: nome duplicado na planilha.`); continue; }
+    if (names.has(nameKey)) { warnings.push(`Linha ${rowNumber} ignorada: nome duplicado na planilha.`); return; }
     names.add(nameKey);
     rows.push({
-      name, category, address, neighborhood, phone, instagram, hours,
+      name: name!, category: category!, address: address!, neighborhood: neighborhood!, phone: phone || "", instagram: instagram!, hours: hours!,
       addressNumber, complement: text(row[index("complement")], 255),
       region: text(row[index("region")], 64), city,
       state: text(row[index("state")], 64), zipCode: text(row[index("zipCode")], 16),
@@ -198,7 +210,7 @@ export function parseEstablishmentSpreadsheet(buffer: Buffer, fileName = "estabe
       lastMenuUpdate: parseDate(row[index("lastMenuUpdate")]),
       validationScore: numberValue(row[index("validationScore")]),
     });
-  }
+  });
   if (!rows.length) throw new Error("Nenhum estabelecimento válido foi encontrado na planilha");
   return { rows, warnings };
 }

@@ -12,7 +12,7 @@
 
 import { invokeLLM } from "./_core/llm";
 import { getDb } from "./db";
-import { establishments, menuItems, categories, establishmentCategories } from "../drizzle/schema";
+import { establishments, menuItems, categories, establishmentCategories, ratings } from "../drizzle/schema";
 import { like, and, or, eq, inArray, sql, not } from "drizzle-orm";
 import { fuzzySearchEstablishments, generateFuzzyTerms } from "./fuzzy-search";
 import { syncEstablishmentData } from "./sync";
@@ -140,7 +140,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
     slug: establishments.slug,
     name: establishments.name,
     neighborhood: establishments.neighborhood,
-    rating: establishments.rating,
+    rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
   })
     .from(establishments)
@@ -158,7 +158,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
       slug: establishments.slug,
       name: establishments.name,
       neighborhood: establishments.neighborhood,
-      rating: establishments.rating,
+      rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
       image: establishments.image,
     })
       .from(establishments)
@@ -191,7 +191,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
           slug: establishments.slug,
           name: establishments.name,
           neighborhood: establishments.neighborhood,
-          rating: establishments.rating,
+          rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
           image: establishments.image,
         })
           .from(establishments)
