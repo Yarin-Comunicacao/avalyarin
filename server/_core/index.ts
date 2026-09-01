@@ -134,8 +134,8 @@ async function startServer() {
     }
   });
 
-  // Menu image upload endpoint — converts to WebP (thumbnail 400x400 + full 1200x1200)
-  app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "5mb" }), async (req, res) => {
+  // Menu file upload endpoint — keeps PDFs intact and converts images to WebP (thumbnail 400x400 + full 1200x1200)
+  app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "10mb" }), async (req, res) => {
     try {
       try {
         await sdk.authenticateRequest(req);
@@ -147,8 +147,24 @@ async function startServer() {
       if (!data || data.length === 0) {
         return res.status(400).json({ error: "No file data provided" });
       }
+      if (data.length > 10 * 1024 * 1024) {
+        return res.status(413).json({ error: "O arquivo deve ter no máximo 10MB" });
+      }
 
+      const fileName = String(req.header("X-File-Name") || "cardapio");
+      const contentType = String(req.header("Content-Type") || "").toLowerCase();
+      const isPdf = contentType === "application/pdf" || /\.pdf$/i.test(fileName) || data.subarray(0, 4).toString("ascii") === "%PDF";
       const timestamp = Date.now();
+
+      if (isPdf) {
+        if (data.subarray(0, 4).toString("ascii") !== "%PDF") {
+          return res.status(415).json({ error: "O arquivo PDF parece estar inválido" });
+        }
+        const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/\.(pdf)?$/i, "") || "cardapio";
+        const result = await storagePut(`menu-pdfs/menu-${timestamp}-${safeFileName}.pdf`, data, "application/pdf");
+        return res.json({ url: result.url, key: result.key, mimeType: "application/pdf", isPdf: true });
+      }
+
       const baseName = `menu-${timestamp}`;
 
       // Generate full version (1200x1200 max, WebP quality 80%)
@@ -180,6 +196,8 @@ async function startServer() {
         key: fullResult.key,
         thumbUrl: thumbResult.url,
         thumbKey: thumbResult.key,
+        mimeType: "image/webp",
+        isPdf: false,
       });
     } catch (error: any) {
       console.error("[Menu Image Upload] Error:", error);

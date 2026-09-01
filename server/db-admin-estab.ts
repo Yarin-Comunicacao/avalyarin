@@ -494,9 +494,9 @@ export async function adminUpdateMenuFromOcr(data: {
 
   const key = `menu-updates/${data.establishmentId}/${Date.now()}-${data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
   const { url } = await storagePut(key, data.imageBuffer, data.mimeType);
-  const extracted = await extractMenuWithOcr([{ url, key }], 1, 1);
+  const extracted = await extractMenuWithOcr([{ url, key, mimeType: data.mimeType }], 1, 1);
   if (!hasAcceptableMenuQuality(extracted)) {
-    throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie uma foto nítida, sem reflexos e de frente.");
+    throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie uma foto nítida ou um PDF legível.");
   }
 
   const existing = await db.select().from(menuItems).where(eq(menuItems.establishmentId, data.establishmentId));

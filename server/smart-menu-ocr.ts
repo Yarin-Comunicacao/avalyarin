@@ -1,7 +1,15 @@
 import sharp from "sharp";
 import { createWorker, PSM } from "tesseract.js";
+import { execFile } from "node:child_process";
+import { promises as fs } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
 
-export type OcrPhoto = { url: string; key?: string };
+const execFileAsync = promisify(execFile);
+const MAX_PDF_PAGES = 50;
+
+export type OcrPhoto = { url: string; key?: string; mimeType?: string };
 
 export type OcrExtractedItem = {
   name: string;
@@ -138,14 +146,11 @@ export function hasAcceptableMenuQuality(menu: OcrExtractedMenu): boolean {
     const symbols = item.name.match(/[^A-Za-zÀ-ÿ0-9\s]/g) || [];
     return letters.length >= 4 && letters.length / Math.max(item.name.length, 1) >= 0.45 && symbols.length / Math.max(item.name.length, 1) <= 0.2;
   });
-  const implausiblePrices = items.filter(item => item.price !== null && (item.price < 0 || item.price > 1000));
+  const implausiblePrices = items.filter(item => item.price !== null && item.price !== undefined && (item.price < 0 || item.price > 1000));
   return plausibleItems.length / items.length >= 0.65 && implausiblePrices.length === 0;
 }
 
-async function prepareImage(url: string): Promise<Buffer> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Não foi possível baixar a imagem do cardápio (${response.status})`);
-  const input = Buffer.from(await response.arrayBuffer());
+async function prepareImage(input: Buffer): Promise<Buffer> {
   return sharp(input)
     .rotate()
     .resize({ width: 2400, height: 3200, fit: "inside", withoutEnlargement: false })
@@ -156,18 +161,114 @@ async function prepareImage(url: string): Promise<Buffer> {
     .toBuffer();
 }
 
-export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number, totalBatches: number): Promise<OcrExtractedMenu> {
-  const worker = await createWorker("por");
+async function extractPdfText(input: Buffer): Promise<string> {
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const document = await getDocument({
+    data: new Uint8Array(input),
+    useWorkerFetch: false,
+    useSystemFonts: true,
+  }).promise;
   try {
+    const pages: string[] = [];
+    for (let pageNumber = 1; pageNumber <= Math.min(document.numPages, MAX_PDF_PAGES); pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent();
+      let lastY: number | undefined;
+      const lines: string[] = [];
+      for (const item of content.items as Array<{ str?: string; transform?: number[] }>) {
+        const value = typeof item.str === "string" ? item.str.trim() : "";
+        if (!value) continue;
+        const y = item.transform?.[5];
+        if (lines.length > 0 && typeof y === "number" && typeof lastY === "number" && Math.abs(y - lastY) > 2) {
+          lines.push("\n");
+        } else if (lines.length > 0 && lines[lines.length - 1] !== "\n") {
+          lines.push(" ");
+        }
+        lines.push(value);
+        lastY = y;
+      }
+      pages.push(lines.join(""));
+      page.cleanup();
+    }
+    return pages.join("\n");
+  } finally {
+    await document.destroy();
+  }
+}
+
+async function rasterizePdf(input: Buffer): Promise<Buffer[]> {
+  const workDirectory = await fs.mkdtemp(join(tmpdir(), "avalyarin-menu-"));
+  const inputPath = join(workDirectory, "menu.pdf");
+  const outputPrefix = join(workDirectory, "page");
+  try {
+    await fs.writeFile(inputPath, input);
+    await execFileAsync("pdftoppm", ["-png", "-r", "200", "-f", "1", "-l", String(MAX_PDF_PAGES), inputPath, outputPrefix], {
+      maxBuffer: 2 * 1024 * 1024,
+    });
+    const pageNames = (await fs.readdir(workDirectory))
+      .filter(name => /^page(?:-\d+|\d+)\.png$/i.test(name))
+      .sort((left, right) => {
+        const leftNumber = Number(left.match(/(\d+)\.png$/i)?.[1] || 0);
+        const rightNumber = Number(right.match(/(\d+)\.png$/i)?.[1] || 0);
+        return leftNumber - rightNumber;
+      });
+    return Promise.all(pageNames.map(name => fs.readFile(join(workDirectory, name))));
+  } catch (error: any) {
+    if (error?.code === "ENOENT") {
+      throw new Error("Não foi possível ler PDF escaneado: o conversor de páginas não está disponível no servidor.");
+    }
+    throw new Error("Não foi possível converter as páginas do PDF para leitura.");
+  } finally {
+    await fs.rm(workDirectory, { recursive: true, force: true });
+  }
+}
+
+async function downloadMenuFile(photo: OcrPhoto): Promise<{ input: Buffer; mimeType: string }> {
+  const response = await fetch(photo.url);
+  if (!response.ok) throw new Error(`Não foi possível baixar o arquivo do cardápio (${response.status})`);
+  return {
+    input: Buffer.from(await response.arrayBuffer()),
+    mimeType: (photo.mimeType || response.headers.get("content-type") || "").split(";", 1)[0].toLowerCase(),
+  };
+}
+
+export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number, totalBatches: number): Promise<OcrExtractedMenu> {
+  let worker: Awaited<ReturnType<typeof createWorker>> | null = null;
+  const getWorker = async () => {
+    if (worker) return worker;
+    worker = await createWorker("por");
     await worker.setParameters({
       tessedit_pageseg_mode: PSM.AUTO,
       preserve_interword_spaces: "1",
     });
+    return worker;
+  };
+
+  try {
     const texts: string[] = [];
     const confidences: number[] = [];
     for (const photo of photos) {
-      const image = await prepareImage(photo.url);
-      const result = await worker.recognize(image);
+      const { input, mimeType } = await downloadMenuFile(photo);
+      const isPdf = mimeType === "application/pdf" || input.subarray(0, 4).toString("ascii") === "%PDF";
+      if (isPdf) {
+        const pdfText = await extractPdfText(input);
+        const textMenu = parseMenuText(pdfText);
+        if (hasAcceptableMenuQuality(textMenu)) {
+          texts.push(pdfText);
+          continue;
+        }
+        const pages = await rasterizePdf(input);
+        for (const page of pages) {
+          const image = await prepareImage(page);
+          const result = await (await getWorker()).recognize(image);
+          texts.push(result.data.text);
+          if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
+        }
+        continue;
+      }
+
+      const image = await prepareImage(input);
+      const result = await (await getWorker()).recognize(image);
       texts.push(result.data.text);
       if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
     }
@@ -177,6 +278,6 @@ export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number
       confidence: confidences.length > 0 ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length : undefined,
     };
   } finally {
-    await worker.terminate();
+    if (worker) await worker.terminate();
   }
 }

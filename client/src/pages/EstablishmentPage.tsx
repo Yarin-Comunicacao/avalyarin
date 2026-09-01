@@ -14,6 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 
+function normalizeInstagramUrl(value: string): string {
+  const trimmed = value.trim();
+  if (/^https?:\/\/(?:www\.)?instagram\.com\//i.test(trimmed)) return trimmed;
+  const username = trimmed.replace(/^@/, "").replace(/^\/+|\/+$/g, "");
+  return `https://www.instagram.com/${username}`;
+}
+
 function SaveBookmarkButton({ establishmentId }: { establishmentId: number }) {
   const { isAuthenticated } = useAuth();
   const utils = trpc.useUtils();
@@ -365,7 +372,7 @@ export default function EstablishmentPage() {
                     <div className="flex items-center gap-1.5">
                       <Instagram className="w-4 h-4 shrink-0 text-primary/60" />
                       <a
-                        href={`https://www.instagram.com/${establishment.instagram.replace(/^@/, "")}`}
+                        href={normalizeInstagramUrl(establishment.instagram)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:text-primary/80 hover:underline transition-colors"

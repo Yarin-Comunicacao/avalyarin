@@ -1,17 +1,23 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowLeft, Camera, CheckCircle2, Download, FileSpreadsheet, ImagePlus, Loader2, MapPin, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, CheckCircle2, Download, FileSpreadsheet, FileText, ImagePlus, Loader2, MapPin, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { extractCoordinatesFromGoogleMapsUrl, extractNameFromGoogleMapsUrl } from "@/lib/googleMapsUrl";
 import { createEmptyOpeningHours, formatOpeningHours, type DailyOpeningHours, WEEKDAYS } from "@shared/opening-hours";
 
 const MAX_PHOTOS = 50;
+const MAX_MENU_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_BRAND_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_SPREADSHEET_SIZE_BYTES = 10 * 1024 * 1024;
 
 type SelectedPhoto = { file: File; preview: string };
-type UploadedPhoto = { url: string; key?: string };
+type MenuFileMimeType = "image/jpeg" | "image/png" | "image/webp" | "application/pdf";
+type UploadedPhoto = { url: string; key?: string; mimeType?: MenuFileMimeType };
+
+function isPdfFile(file: File): boolean {
+  return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+}
 type BrandAssetType = "cover" | "logo";
 
 function safePreviewUrl(preview: string): string {
@@ -22,6 +28,7 @@ export default function SmartEstablishmentForm() {
   const [, navigate] = useLocation();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
   const spreadsheetInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -62,11 +69,30 @@ export default function SmartEstablishmentForm() {
     const accepted = incoming.slice(0, remaining).filter(file => file.type.startsWith("image/"));
     if (incoming.length > remaining) toast.warning(`Só é possível enviar ${MAX_PHOTOS} fotos por cardápio.`);
     if (accepted.length < incoming.length && incoming.some(file => !file.type.startsWith("image/"))) {
-      toast.error("Use apenas arquivos de imagem.");
+      toast.error("Use apenas arquivos de imagem. Para PDF, use a opção Importar PDF.");
     }
     const next = accepted.map(file => ({ file, preview: URL.createObjectURL(file) }));
     setPhotos(previous => [...previous, ...next]);
     event.target.value = "";
+  };
+
+  const selectPdf = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (photos.length > 0 || spreadsheetFile) {
+      toast.error("Remova as fotos ou a planilha antes de importar um PDF.");
+      return;
+    }
+    if (!isPdfFile(file)) {
+      toast.error("Use um arquivo PDF para importar o cardápio.");
+      return;
+    }
+    if (file.size > MAX_MENU_FILE_SIZE_BYTES) {
+      toast.error("O PDF pode ter no máximo 10 MB.");
+      return;
+    }
+    setPhotos([{ file, preview: "" }]);
   };
 
   const selectSpreadsheet = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,14 +134,14 @@ export default function SmartEstablishmentForm() {
   const readFileAsBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
-    reader.onerror = () => reject(new Error("Não foi possível ler a planilha selecionada."));
+    reader.onerror = () => reject(new Error("Não foi possível ler o arquivo selecionado."));
     reader.readAsDataURL(file);
   });
 
   const removePhoto = (index: number) => {
     setPhotos(previous => {
       const photo = previous[index];
-      if (photo) URL.revokeObjectURL(photo.preview);
+      if (photo?.preview) URL.revokeObjectURL(photo.preview);
       return previous.filter((_, photoIndex) => photoIndex !== index);
     });
   };
@@ -417,13 +443,14 @@ export default function SmartEstablishmentForm() {
         <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-display text-lg tracking-wider">FOTOS OU PLANILHA DO CARDÁPIO *</h2>
-              <p className="text-xs text-muted-foreground mt-1">Escolha uma opção: fotos para OCR ou planilha para importar itens com precisão.</p>
+              <h2 className="font-display text-lg tracking-wider">FOTOS, PDF OU PLANILHA DO CARDÁPIO *</h2>
+              <p className="text-xs text-muted-foreground mt-1">Escolha uma opção: fotos ou PDF para leitura automática, ou planilha para importar itens com precisão.</p>
             </div>
             <span className="text-sm font-numbers text-primary">{photos.length}/{MAX_PHOTOS}</span>
           </div>
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={addPhotos} className="hidden" />
           <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={addPhotos} className="hidden" />
+          <input ref={pdfInputRef} type="file" accept="application/pdf,.pdf" onChange={selectPdf} className="hidden" />
           <input ref={spreadsheetInputRef} type="file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" onChange={selectSpreadsheet} className="hidden" />
           <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 text-center">
             <div className="grid grid-cols-2 gap-3">
@@ -440,7 +467,10 @@ export default function SmartEstablishmentForm() {
             </div>
             <span className="block text-xs text-muted-foreground mt-3">Na galeria, você poderá selecionar várias páginas de uma vez.</span>
             <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" /></div>
-            <button type="button" onClick={() => spreadsheetInputRef.current?.click()} disabled={photos.length > 0 || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileSpreadsheet className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar planilha</span><span className="text-[11px] text-muted-foreground">XLSX, XLS ou CSV</span></button>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button type="button" onClick={() => pdfInputRef.current?.click()} disabled={photos.length > 0 || !!spreadsheetFile || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileText className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar PDF</span><span className="text-[11px] text-muted-foreground">Até 10 MB</span></button>
+              <button type="button" onClick={() => spreadsheetInputRef.current?.click()} disabled={photos.length > 0 || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileSpreadsheet className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar planilha</span><span className="text-[11px] text-muted-foreground">XLSX, XLS ou CSV</span></button>
+            </div>
             <button type="button" onClick={downloadSpreadsheetTemplate} disabled={isSubmitting || templateQuery.isFetching} className="mt-3 inline-flex items-center justify-center gap-2 text-xs text-primary hover:underline disabled:opacity-50"><Download className="w-3.5 h-3.5" /> {templateQuery.isFetching ? "Gerando modelo..." : "Baixar modelo de planilha"}</button>
           </div>
           {spreadsheetFile && <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm"><span className="flex items-center gap-2 truncate"><FileSpreadsheet className="w-4 h-4 text-primary shrink-0" /> <span className="truncate">{spreadsheetFile.name}</span></span><button type="button" onClick={() => setSpreadsheetFile(null)} disabled={isSubmitting} className="p-1 text-muted-foreground hover:text-destructive" aria-label="Remover planilha"><Trash2 className="w-4 h-4" /></button></div>}
@@ -448,9 +478,9 @@ export default function SmartEstablishmentForm() {
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {photos.map((photo, index) => (
                 <div key={`${photo.file.name}-${index}`} className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border bg-muted">
-                  <img src={photo.preview} alt={`Página ${index + 1}`} className="w-full h-full object-cover" />
+                  {isPdfFile(photo.file) ? <div className="flex h-full flex-col items-center justify-center gap-2 px-3 text-center"><FileText className="w-10 h-10 text-primary" /><span className="text-xs font-medium break-all">{photo.file.name}</span><span className="text-[11px] text-muted-foreground">PDF para leitura automática</span></div> : <img src={photo.preview} alt={`Página ${index + 1}`} className="w-full h-full object-cover" />}
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/60 px-2 py-1 text-white text-xs">
-                    <span>Página {index + 1}</span>
+                    <span>{isPdfFile(photo.file) ? "Arquivo PDF" : `Página ${index + 1}`}</span>
                     <button type="button" onClick={() => removePhoto(index)} disabled={isSubmitting} className="p-1 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                   {uploadingIndex === index && <div className="absolute inset-0 grid place-items-center bg-black/50"><Loader2 className="w-6 h-6 animate-spin text-white" /></div>}

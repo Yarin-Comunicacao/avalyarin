@@ -96,12 +96,14 @@ export default function AdminEstabDetail() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      toast.error("Envie uma imagem JPG, PNG ou WEBP.");
+    const acceptedMimeTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    if (!acceptedMimeTypes.includes(file.type) && !isPdf) {
+      toast.error("Envie uma imagem JPG, PNG, WEBP ou um arquivo PDF.");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("A imagem deve ter no máximo 10MB.");
+      toast.error("O arquivo deve ter no máximo 10MB.");
       return;
     }
 
@@ -116,7 +118,7 @@ export default function AdminEstabDetail() {
       const result = await updateMenuFromOcrMutation.mutateAsync({
         establishmentId: estabId,
         base64Data,
-        mimeType: file.type as "image/jpeg" | "image/png" | "image/webp",
+        mimeType: isPdf ? "application/pdf" : file.type as "image/jpeg" | "image/png" | "image/webp",
         fileName: file.name,
       });
       await utils.admin.estabDetail.invalidate({ id: estabId });
@@ -488,14 +490,14 @@ export default function AdminEstabDetail() {
               <input
                 ref={menuOcrInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/jpeg,image/png,image/webp,application/pdf,.pdf"
                 onChange={handleMenuOcrUpdate}
                 className="hidden"
               />
               <button
                 onClick={() => menuOcrInputRef.current?.click()}
                 disabled={updatingMenuOcr}
-                title="Ler uma nova foto e atualizar somente itens alterados"
+                title="Ler uma foto ou PDF e atualizar somente itens alterados"
                 className="flex items-center gap-1.5 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
               >
                 <Upload className={`w-3.5 h-3.5 ${updatingMenuOcr ? "animate-pulse" : ""}`} />

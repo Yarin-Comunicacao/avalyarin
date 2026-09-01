@@ -1351,7 +1351,8 @@ export const appRouter = router({
         photos: z.array(z.object({
           url: z.string().url(),
           key: z.string().max(512).optional(),
-        })).max(50, "O limite é de 50 fotos").optional(),
+          mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]).optional(),
+        })).max(50, "O limite é de 50 arquivos").optional(),
         spreadsheetBase64: z.string().max(15_000_000).optional(),
         spreadsheetFileName: z.string().max(255).optional(),
       }))
@@ -1548,14 +1549,14 @@ export const appRouter = router({
       .input(z.object({
         establishmentId: z.number().int().positive(),
         base64Data: z.string().min(1),
-        mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+        mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]),
         fileName: z.string().max(255).default("cardapio.jpg"),
       }))
       .mutation(async ({ input }) => {
         const imageBuffer = Buffer.from(input.base64Data, "base64");
-        if (imageBuffer.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem inválida." });
+        if (imageBuffer.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Arquivo inválido." });
         if (imageBuffer.length > 10 * 1024 * 1024) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Imagem muito grande. O limite é de 10MB." });
+          throw new TRPCError({ code: "BAD_REQUEST", message: "O arquivo deve ter no máximo 10MB." });
         }
         return await adminUpdateMenuFromOcr({
           establishmentId: input.establishmentId,

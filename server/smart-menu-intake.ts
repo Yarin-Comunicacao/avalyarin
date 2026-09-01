@@ -21,6 +21,7 @@ export function getInsertedImportId(result: { insertId?: unknown }): number {
 export type SmartMenuPhoto = {
   url: string;
   key?: string;
+  mimeType?: string;
 };
 
 type ExtractedItem = {
