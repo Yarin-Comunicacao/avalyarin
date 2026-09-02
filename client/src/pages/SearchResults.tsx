@@ -205,14 +205,20 @@ export default function SearchResults() {
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {neighborhoodResults.map((est: any) => (
+                  {neighborhoodResults.map((est: any) => {
+                    const imageUrl = est.logo || est.image;
+                    return (
                     <Link key={est.id} href={`/estabelecimento/${est.slug}`}>
                       <div className="group rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 transition-all cursor-pointer">
-                        {est.image ? (
+                        {imageUrl ? (
                           <div className="relative h-32 overflow-hidden">
                             <img
-                              src={est.image}
+                              src={imageUrl}
                               alt={est.name}
+                              onError={(event) => {
+                                if (est.image && event.currentTarget.src !== est.image) event.currentTarget.src = est.image;
+                                else event.currentTarget.style.display = "none";
+                              }}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
@@ -243,7 +249,8 @@ export default function SearchResults() {
                         </div>
                       </div>
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             ) : (
@@ -352,14 +359,20 @@ export default function SearchResults() {
                   )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {establishments.map((est: any) => (
+                  {establishments.map((est: any) => {
+                    const imageUrl = est.logo || est.image;
+                    return (
                     <Link key={est.id} href={`/estabelecimento/${est.slug}`}>
                       <div className="group rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 transition-all cursor-pointer">
-                        {est.image ? (
+                        {imageUrl ? (
                           <div className="relative h-32 overflow-hidden">
                             <img
-                              src={est.image}
+                              src={imageUrl}
                               alt={est.name}
+                              onError={(event) => {
+                                if (est.image && event.currentTarget.src !== est.image) event.currentTarget.src = est.image;
+                                else event.currentTarget.style.display = "none";
+                              }}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
@@ -390,7 +403,8 @@ export default function SearchResults() {
                         </div>
                       </div>
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             )}

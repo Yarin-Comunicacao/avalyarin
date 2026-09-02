@@ -142,6 +142,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
     neighborhood: establishments.neighborhood,
     rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
+    logo: establishments.logo,
   })
     .from(establishments)
     .where(and(
@@ -160,6 +161,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
       neighborhood: establishments.neighborhood,
       rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
       image: establishments.image,
+      logo: establishments.logo,
     })
       .from(establishments)
       .where(and(
@@ -193,6 +195,7 @@ async function searchEstablishmentsByTerms(terms: string[], neighborhoodHints: s
           neighborhood: establishments.neighborhood,
           rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
           image: establishments.image,
+          logo: establishments.logo,
         })
           .from(establishments)
           .where(and(

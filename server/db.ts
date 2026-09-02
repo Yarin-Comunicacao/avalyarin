@@ -547,6 +547,7 @@ export async function searchEstablishments(query: string, limit = 20) {
     neighborhood: establishments.neighborhood,
     rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
+    logo: establishments.logo,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
   })
@@ -624,6 +625,7 @@ export async function searchAll(query: string) {
     neighborhood: establishments.neighborhood,
     rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
+    logo: establishments.logo,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
   })
@@ -875,6 +877,7 @@ export async function getEstablishmentsByNeighborhood(neighborhood: string, limi
     neighborhood: establishments.neighborhood,
     rating: sql<number | null>`(SELECT AVG(r.overallScore) FROM ratings r WHERE r.establishmentId = ${establishments.id})`,
     image: establishments.image,
+    logo: establishments.logo,
     categoryId: establishments.categoryId,
     hasMenu: establishments.hasMenu,
   })
