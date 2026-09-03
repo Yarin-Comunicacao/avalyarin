@@ -8,7 +8,7 @@ function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-const MENU_READ_TIMEOUT_MS = 30_000;
+const MENU_READ_TIMEOUT_MS = 75_000;
 
 export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileName = "estabelecimentos.xlsx") {
   const parsed = parseEstablishmentSpreadsheet(buffer, fileName);
