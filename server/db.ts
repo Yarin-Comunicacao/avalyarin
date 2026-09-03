@@ -263,7 +263,12 @@ export async function getCategoriesWithCounts() {
  * Used in all public-facing queries. Admin queries bypass this filter.
  * Only establishments with status = 'active' are visible to end users.
  */
-const completeEstablishmentFilter = eq(establishments.status, 'active');
+// Publicação exige dados básicos e pelo menos um item persistido no cardápio.
+// A verificação por EXISTS também protege registros antigos cujo hasMenu ficou desatualizado.
+const completeEstablishmentFilter = and(
+  eq(establishments.status, 'active'),
+  sql`EXISTS (SELECT 1 FROM menu_items mi WHERE mi.establishmentId = ${establishments.id})`,
+);
 
 /**
  * Returns the number of missing publication criteria: address, hours and menu.
