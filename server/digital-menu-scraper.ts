@@ -7,6 +7,32 @@ const GETIN_HOSTS = new Set(["menu.getin.app", "www.menu.getin.app"]);
 const GETIN_API_BASE = "https://user.getinapis.com";
 const REQUEST_TIMEOUT_MS = 20_000;
 
+/** Normaliza links colados de planilhas, incluindo aspas e espaços acidentais. */
+export function normalizeMenuUrl(value: unknown): string | null {
+  const raw = String(value ?? "").trim().replace(/^['\"]|['\"]$/g, "").trim();
+  if (!raw) return null;
+  const candidate = /^www\./i.test(raw) ? `https://${raw}` : raw;
+  try {
+    const url = new URL(candidate);
+    if (!["http:", "https:"].includes(url.protocol) || !url.hostname) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+export function splitMenuUrls(value: unknown): string[] {
+  return Array.from(new Set(String(value ?? "").split(/[\n;,]+/).map(normalizeMenuUrl).filter((url): url is string => Boolean(url))));
+}
+
+export function getMenuProvider(sourceUrl: string): "getin" | "external" {
+  try {
+    return GETIN_HOSTS.has(new URL(sourceUrl).hostname.toLowerCase()) ? "getin" : "external";
+  } catch {
+    return "external";
+  }
+}
+
 type GetInMenu = { id: string; title?: string };
 type GetInItem = { id?: string; title?: string; description?: string; price?: number | string; images?: Array<{ url?: string } | string>; tags?: string[] };
 type GetInCategory = { id: string; title?: string; items?: GetInItem[] };

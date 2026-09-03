@@ -40,6 +40,7 @@ export default function SmartEstablishmentForm() {
   const [instagram, setInstagram] = useState("");
   const [facebook, setFacebook] = useState("");
   const [website, setWebsite] = useState("");
+  const [menuUrl, setMenuUrl] = useState("");
   const [address, setAddress] = useState("");
   const [addressNumber, setAddressNumber] = useState("");
   const [complement, setComplement] = useState("");
@@ -242,8 +243,8 @@ export default function SmartEstablishmentForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!name.trim() || !googleMapsUrl.trim() || !instagram.trim() || !categoryId || (photos.length === 0 && !spreadsheetFile)) {
-      toast.error("Preencha os campos obrigatórios e adicione fotos ou uma planilha.");
+    if (!name.trim() || !googleMapsUrl.trim() || !instagram.trim() || !categoryId || (photos.length === 0 && !spreadsheetFile && !menuUrl.trim())) {
+      toast.error("Preencha os campos obrigatórios e adicione fotos, uma planilha ou um link de cardápio.");
       return;
     }
 
@@ -275,6 +276,7 @@ export default function SmartEstablishmentForm() {
         phone: phone.trim() || undefined,
         image,
         logo: logoUrl,
+        menuUrl: menuUrl.trim() || undefined,
         categoryId: Number(categoryId),
         photos: uploaded.length > 0 ? uploaded : undefined,
         spreadsheetBase64,
@@ -308,7 +310,7 @@ export default function SmartEstablishmentForm() {
         <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
           <div>
             <h2 className="font-display text-lg tracking-wider">FONTES PARA ENRIQUECIMENTO</h2>
-            <p className="text-xs text-muted-foreground mt-1">Cole os links primeiro. Cada fonte tem sua própria ação de enriquecimento.</p>
+            <p className="text-xs text-muted-foreground mt-1">Cole os links primeiro. O cardápio aceita Drive, Canva, PDF, Pedidon, Acuolina, Get In e outros serviços públicos.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -329,6 +331,11 @@ export default function SmartEstablishmentForm() {
             </div>
           </div>
         </section>
+
+          <label className="block text-sm font-medium">Link público do cardápio
+            <input type="url" value={menuUrl} onChange={e => setMenuUrl(e.target.value)} placeholder="https://... (Drive, Canva, PDF, Pedidon, Acuolina etc.)" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            <span className="mt-1 block text-xs font-normal text-muted-foreground">O link será salvo no estabelecimento para o cliente abrir. Para cadastrar os itens no app, use fotos ou planilha.</span>
+          </label>
 
         <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
           <div>

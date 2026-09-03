@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { categories, establishments } from "../drizzle/schema";
 import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
-import { extractGetInMenu, persistDigitalMenu } from "./digital-menu-scraper";
+import { extractGetInMenu, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls } from "./digital-menu-scraper";
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -55,28 +55,36 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
       lng: row.lng ?? undefined,
       image: row.image || undefined,
       logo: row.logo || undefined,
-      menuUrl: row.menuUrl || undefined,
+      menuUrl: normalizeMenuUrl(row.menuUrl) || undefined,
       lastMenuUpdate: row.lastMenuUpdate || undefined,
       validationScore: row.validationScore ?? undefined,
     });
 
     const establishmentId = Number(createdEstablishment.id);
     let importedMenu = false;
-    if (row.menuUrl) {
-      try {
-        const extraction = await extractGetInMenu(row.menuUrl);
-        await persistDigitalMenu(db, establishmentId, extraction);
-        await db.update(establishments).set({
-          hasMenu: true,
-          lastMenuUpdate: row.lastMenuUpdate || new Date(),
-        }).where(eq(establishments.id, establishmentId));
-        await syncEstablishmentVisibility(establishmentId);
-        importedMenu = true;
-        warnings.push(`${row.name}: cardápio digital importado (${extraction.items.length} itens em ${extraction.menus} menus).`);
-      } catch (error: any) {
-        const message = String(error?.message || error).slice(0, 240);
-        warnings.push(`${row.name}: estabelecimento criado, mas o menu_url não pôde ser importado (${message}).`);
+    const menuUrls = splitMenuUrls(row.menuUrl);
+    if (menuUrls.length > 0) {
+      const primaryUrl = menuUrls[0];
+      await db.update(establishments).set({
+        menuUrl: primaryUrl,
+        hasMenu: true,
+        lastMenuUpdate: row.lastMenuUpdate || new Date(),
+      }).where(eq(establishments.id, establishmentId));
+      importedMenu = true;
+      if (getMenuProvider(primaryUrl) === "getin") {
+        try {
+          const extraction = await extractGetInMenu(primaryUrl);
+          await persistDigitalMenu(db, establishmentId, extraction);
+          warnings.push(`${row.name}: cardápio Get In importado (${extraction.items.length} itens em ${extraction.menus} menus).`);
+        } catch (error: any) {
+          const message = String(error?.message || error).slice(0, 240);
+          warnings.push(`${row.name}: link Get In salvo, mas os itens não puderam ser lidos (${message}).`);
+        }
+      } else {
+        warnings.push(`${row.name}: link externo de cardápio salvo para acesso público (${primaryUrl}).`);
       }
+      if (menuUrls.length > 1) warnings.push(`${row.name}: ${menuUrls.length - 1} link(s) adicional(is) encontrado(s); use uma linha por estabelecimento para manter o primeiro link como principal.`);
+      await syncEstablishmentVisibility(establishmentId);
     }
 
     existingNames.add(nameKey);

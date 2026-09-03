@@ -6,6 +6,7 @@ import { generateMenuItemTags } from "./auto-tags";
 import { formatOpeningHours } from "../shared/opening-hours";
 import { parseMenuSpreadsheet } from "./smart-menu-spreadsheet";
 import { establishments, establishmentMenuImports, menuCategories, menuItems } from "../drizzle/schema";
+import { normalizeMenuUrl } from "./digital-menu-scraper";
 
 const MAX_PHOTOS = 50;
 const BATCH_SIZE = 5;
@@ -182,6 +183,7 @@ export async function createSmartEstablishment(input: {
   phone?: string;
   image?: string;
   logo?: string;
+  menuUrl?: string;
   categoryId: number;
   photos?: SmartMenuPhoto[];
   spreadsheetBase64?: string;
@@ -190,7 +192,8 @@ export async function createSmartEstablishment(input: {
 }) {
   const photos = input.photos || [];
   if (!input.name.trim()) throw new Error("Nome do estabelecimento é obrigatório");
-  if (photos.length === 0 && !input.spreadsheetBase64) throw new Error("Envie fotos ou uma planilha do cardápio");
+  const menuUrl = normalizeMenuUrl(input.menuUrl);
+  if (photos.length === 0 && !input.spreadsheetBase64 && !menuUrl) throw new Error("Envie fotos, uma planilha ou um link do cardápio");
   if (photos.length > 0 && input.spreadsheetBase64) throw new Error("Envie somente fotos ou somente uma planilha por cadastro");
   if (photos.length > MAX_PHOTOS) throw new Error(`O limite é de ${MAX_PHOTOS} fotos por cardápio`);
 
@@ -214,6 +217,7 @@ export async function createSmartEstablishment(input: {
     phone: input.phone?.trim() || undefined,
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,
+    menuUrl: menuUrl || undefined,
     description: input.spreadsheetBase64
       ? "Cadastro criado a partir de planilha do cardápio; dados sujeitos à revisão."
       : "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
@@ -226,14 +230,16 @@ export async function createSmartEstablishment(input: {
     submittedById: input.submittedById,
     sourceUrls: input.spreadsheetBase64
       ? [`spreadsheet:${input.spreadsheetFileName || "cardapio.xlsx"}`]
-      : photos.map(photo => photo.url),
+      : menuUrl ? [menuUrl] : photos.map(photo => photo.url),
     status: "processing",
   });
   const importId = getInsertedImportId(importResult);
   try {
     let sections: ExtractedSection[];
     let confidence: number | undefined;
-    if (input.spreadsheetBase64) {
+    if (menuUrl && photos.length === 0 && !input.spreadsheetBase64) {
+      sections = [];
+    } else if (input.spreadsheetBase64) {
       const spreadsheet = parseMenuSpreadsheet(Buffer.from(input.spreadsheetBase64, "base64"), input.spreadsheetFileName);
       const byCategory = new Map<string, ExtractedSection>();
       for (const item of spreadsheet.items) {
@@ -257,7 +263,7 @@ export async function createSmartEstablishment(input: {
       confidence = batches.map(batch => batch.confidence).filter((value): value is number => typeof value === "number").reduce((sum, value, _, values) => sum + value / values.length, 0) || undefined;
     }
     const extractedMenu = { sections, confidence };
-    if (!input.spreadsheetBase64 && !hasAcceptableMenuQuality(extractedMenu)) {
+    if (!menuUrl && !input.spreadsheetBase64 && !hasAcceptableMenuQuality(extractedMenu)) {
       throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie fotos nítidas, sem reflexos, mostrando uma página por vez.");
     }
 
@@ -288,7 +294,7 @@ export async function createSmartEstablishment(input: {
     if (itemRows.length > 0) await db.insert(menuItems).values(itemRows);
 
     await db.update(establishments)
-      .set({ hasMenu: true })
+      .set({ hasMenu: true, menuUrl: menuUrl || undefined, lastMenuUpdate: menuUrl ? new Date() : undefined })
       .where(eq(establishments.id, establishmentId));
     await syncEstablishmentVisibility(establishmentId);
 

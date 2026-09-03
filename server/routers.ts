@@ -1347,6 +1347,7 @@ export const appRouter = router({
         phone: z.string().max(64).optional(),
         image: z.string().url("Informe uma URL válida para a imagem principal").optional(),
         logo: z.string().url("Informe uma URL válida para a logo").optional(),
+        menuUrl: z.string().url("Informe uma URL válida para o cardápio").optional(),
         categoryId: z.number().int().min(1),
         photos: z.array(z.object({
           url: z.string().url(),
