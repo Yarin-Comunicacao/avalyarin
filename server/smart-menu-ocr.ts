@@ -273,18 +273,26 @@ export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number
         }
         const pages = await rasterizePdf(input);
         for (const page of pages) {
-          const image = await prepareImage(page);
-          const result = await (await getWorker()).recognize(image);
-          texts.push(result.data.text);
-          if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
+          try {
+            const image = await prepareImage(page);
+            const result = await (await getWorker()).recognize(image);
+            texts.push(result.data.text);
+            if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
+          } catch (error: any) {
+            failures.push(String(error?.message || error));
+          }
         }
         continue;
       }
 
-      const image = await prepareImage(input);
-      const result = await (await getWorker()).recognize(image);
-      texts.push(result.data.text);
-      if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
+      try {
+        const image = await prepareImage(input);
+        const result = await (await getWorker()).recognize(image);
+        texts.push(result.data.text);
+        if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
+      } catch (error: any) {
+        failures.push(String(error?.message || error));
+      }
     }
     const menu = parseMenuText(texts.join("\n"));
     if (!texts.length && failures.length) throw new Error(failures[0]);

@@ -93,6 +93,20 @@ async function extractDGuestsMenu(sourceUrl: string, username: string): Promise<
   return makeExtraction(sourceUrl, rows);
 }
 
+async function extractGarcomWebMenu(sourceUrl: string, storeId: string): Promise<DigitalMenuExtraction> {
+  const response = await axios.post<any>("https://garcomweb.com.br/office/AutoAtendimento/GetDadosApp/", {
+    IdLoja: Number(storeId), LocalPedido: "CARDAPIO DIGITAL",
+  }, { timeout: REQUEST_TIMEOUT_MS, headers: { "Content-Type": "application/json" } });
+  const products = Array.isArray(response.data?.Cardapio?.Produtos) ? response.data.Cardapio.Produtos : [];
+  const rows = products.filter((item: any) => !Number(item.desativado) && !Number(item.nao_visualizar)).map((item: any) => ({
+    category: [item.grupo, item.subgrupo].filter(Boolean).join(" / ") || "Outros",
+    name: String(item.descricao || item.nome || ""),
+    description: item.descricao_ecommerce || null,
+    price: String(item.preco_app ?? item.valor_venda ?? item.preco ?? ""),
+  }));
+  return makeExtraction(sourceUrl, rows);
+}
+
 async function extractPiccoMenu(sourceUrl: string): Promise<DigitalMenuExtraction> {
   const pages = await axios.get<any[]>("https://opicco.com.br/wp-json/wp/v2/pages?slug=cardapio&per_page=10", { timeout: REQUEST_TIMEOUT_MS });
   const english = await axios.get<any[]>("https://opicco.com.br/wp-json/wp/v2/pages?slug=picco-menu&per_page=10", { timeout: REQUEST_TIMEOUT_MS });
@@ -120,6 +134,8 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   if (liveMenuId) return extractLiveMenu(normalized, liveMenuId);
   const dGuestsUser = url.hostname.toLowerCase().replace(/^www\./, "") === "dguests.com.br" ? url.pathname.match(/\/cardapio\/([^/]+)/i)?.[1] : null;
   if (dGuestsUser) return extractDGuestsMenu(normalized, dGuestsUser);
+  const garcomStoreId = url.hostname.toLowerCase().replace(/^www\./, "") === "garcomweb.com.br" ? url.pathname.match(/\/loja\/(\d+)/i)?.[1] : null;
+  if (garcomStoreId) return extractGarcomWebMenu(normalized, garcomStoreId);
   if (url.hostname.toLowerCase().replace(/^www\./, "") === "opicco.com.br" && /\/cardapio\/?$/i.test(url.pathname)) return extractPiccoMenu(normalized);
   const response = await axios.get<ArrayBuffer>(normalized, {
     timeout: REQUEST_TIMEOUT_MS,
@@ -136,14 +152,25 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   if (driveFileId) sources = [`https://drive.usercontent.google.com/download?id=${encodeURIComponent(driveFileId)}&export=download`];
   if (!isDirectFile && contentType.includes("html")) {
     const html = bytes.toString("utf8");
-    const candidates = Array.from(html.matchAll(/(?:href|src|data-src|content)=["']([^"']+)["']/gi))
+    const attributeCandidates = Array.from(html.matchAll(/(?:href|src|data-src|content)=["']([^"']+)["']/gi))
       .map(match => { try { return new URL(match[1], normalized).toString(); } catch { return null; } })
       .filter((url): url is string => Boolean(url))
       .filter(url => /\.(?:pdf|png|jpe?g|webp)(?:[?#].*)?$/i.test(url) || /(?:download|export|image|preview)/i.test(url));
-    if (candidates.length > 0) sources = Array.from(new Set(candidates)).slice(0, 50);
+    const embeddedDriveCandidates = Array.from(html.matchAll(/https?:\/\/drive\.google\.com\/file\/d\/[^"'\\\s]+/gi)).map(match => match[0].replace(/\\u0026/g, "&"));
+    const candidates = Array.from(new Set([...embeddedDriveCandidates, ...attributeCandidates]));
+    if (candidates.length > 0) {
+      const driveCandidates = candidates.filter(candidate => /drive\.google\.com\/file\/d\//i.test(candidate));
+      // Linktree costuma misturar o cardápio com avatar, favicon e imagens
+      // decorativas. Se houver PDFs do Drive, não enviar esses assets ao OCR.
+      sources = Array.from(new Set(driveCandidates.length ? driveCandidates : candidates)).slice(0, 50);
+    }
   }
   if (sources.length === 0) throw new Error("A página não expôs um PDF ou imagem pública do cardápio.");
-  const extracted = await extractMenuWithOcr(sources.map(url => ({ url })), 1, 1);
+  const ocrSources = sources.map(source => {
+    const driveId = source.match(/drive\.google\.com\/file\/d\/([^/]+)/i)?.[1];
+    return driveId ? `https://drive.usercontent.google.com/download?id=${encodeURIComponent(driveId)}&export=download` : source;
+  });
+  const extracted = await extractMenuWithOcr(ocrSources.map(url => ({ url })), 1, 1);
   const items = extracted.sections.flatMap(section => section.items.map(item => ({
     category: section.name.slice(0, 64), name: item.name, description: item.description || null,
     price: item.price == null ? null : Number(item.price), imageUrl: null, tags: [],
