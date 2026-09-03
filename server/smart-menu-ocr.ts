@@ -151,7 +151,9 @@ export function hasAcceptableMenuQuality(menu: OcrExtractedMenu): boolean {
 }
 
 async function prepareImage(input: Buffer): Promise<Buffer> {
-  return sharp(input)
+  // PDFs exportados do Drive podem gerar páginas acima do limite padrão do
+  // libvips; o resize abaixo reduz a imagem antes do OCR.
+  return sharp(input, { limitInputPixels: false })
     .rotate()
     .resize({ width: 2400, height: 3200, fit: "inside", withoutEnlargement: false })
     .grayscale()
@@ -224,7 +226,11 @@ async function rasterizePdf(input: Buffer): Promise<Buffer[]> {
 }
 
 async function downloadMenuFile(photo: OcrPhoto): Promise<{ input: Buffer; mimeType: string }> {
-  const response = await fetch(photo.url);
+  let response = await fetch(photo.url);
+  if (!response.ok && /drive\.(?:google\.com|usercontent\.google\.com)/i.test(photo.url)) {
+    const id = photo.url.match(/[?&]id=([^&]+)/)?.[1] || photo.url.match(/\/d\/([^/]+)/)?.[1];
+    if (id) response = await fetch(`https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`);
+  }
   if (!response.ok) throw new Error(`Não foi possível baixar o arquivo do cardápio (${response.status})`);
   return {
     input: Buffer.from(await response.arrayBuffer()),
@@ -247,8 +253,16 @@ export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number
   try {
     const texts: string[] = [];
     const confidences: number[] = [];
+    const failures: string[] = [];
     for (const photo of photos) {
-      const { input, mimeType } = await downloadMenuFile(photo);
+      let downloaded: { input: Buffer; mimeType: string };
+      try {
+        downloaded = await downloadMenuFile(photo);
+      } catch (error: any) {
+        failures.push(String(error?.message || error));
+        continue;
+      }
+      const { input, mimeType } = downloaded;
       const isPdf = mimeType === "application/pdf" || input.subarray(0, 4).toString("ascii") === "%PDF";
       if (isPdf) {
         const pdfText = await extractPdfText(input);
@@ -273,6 +287,7 @@ export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number
       if (Number.isFinite(result.data.confidence)) confidences.push(Number(result.data.confidence));
     }
     const menu = parseMenuText(texts.join("\n"));
+    if (!texts.length && failures.length) throw new Error(failures[0]);
     return {
       ...menu,
       confidence: confidences.length > 0 ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length : undefined,

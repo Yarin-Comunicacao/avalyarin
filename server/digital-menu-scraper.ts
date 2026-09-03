@@ -93,6 +93,20 @@ async function extractDGuestsMenu(sourceUrl: string, username: string): Promise<
   return makeExtraction(sourceUrl, rows);
 }
 
+async function extractPiccoMenu(sourceUrl: string): Promise<DigitalMenuExtraction> {
+  const pages = await axios.get<any[]>("https://opicco.com.br/wp-json/wp/v2/pages?slug=cardapio&per_page=10", { timeout: REQUEST_TIMEOUT_MS });
+  const english = await axios.get<any[]>("https://opicco.com.br/wp-json/wp/v2/pages?slug=picco-menu&per_page=10", { timeout: REQUEST_TIMEOUT_MS });
+  const html = [...pages.data, ...english.data].map(page => page.content?.rendered || "").join("\n");
+  const images = Array.from(html.matchAll(/(?:src|data-src)=["']([^"']+\.(?:png|jpe?g|webp)(?:\?[^"']*)?)["']/gi))
+    .map(match => match[1].replace(/-\d+x\d+(?=\.(?:png|jpe?g|webp))/i, ""));
+  const uniqueImages = Array.from(new Set(images)).slice(0, 30);
+  if (!uniqueImages.length) throw new Error("A API do Picco não retornou imagens do cardápio.");
+  const extracted = await extractMenuWithOcr(uniqueImages.map(url => ({ url })), 1, 1);
+  return makeExtraction(sourceUrl, extracted.sections.flatMap(section => section.items.map(item => ({
+    category: section.name, name: item.name, description: item.description, price: item.price,
+  }))));
+}
+
 /**
  * Lê uma URL pública de cardápio. Serviços como Drive, Canva, Pedidon e
  * Acuolina normalmente entregam uma página HTML; nesse caso localizamos o
@@ -106,6 +120,7 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   if (liveMenuId) return extractLiveMenu(normalized, liveMenuId);
   const dGuestsUser = url.hostname.toLowerCase().replace(/^www\./, "") === "dguests.com.br" ? url.pathname.match(/\/cardapio\/([^/]+)/i)?.[1] : null;
   if (dGuestsUser) return extractDGuestsMenu(normalized, dGuestsUser);
+  if (url.hostname.toLowerCase().replace(/^www\./, "") === "opicco.com.br" && /\/cardapio\/?$/i.test(url.pathname)) return extractPiccoMenu(normalized);
   const response = await axios.get<ArrayBuffer>(normalized, {
     timeout: REQUEST_TIMEOUT_MS,
     responseType: "arraybuffer",
@@ -115,10 +130,10 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   });
   const contentType = String(response.headers["content-type"] || "").split(";", 1)[0].toLowerCase();
   const bytes = Buffer.from(response.data);
-  const isDirectFile = contentType === "application/pdf" || contentType.startsWith("image/") || bytes.subarray(0, 4).toString("ascii") === "%PDF";
-  let sources = [normalized];
   const driveFileId = normalized.match(/drive\.google\.com\/file\/d\/([^/]+)/i)?.[1];
-  if (driveFileId) sources = [`https://drive.google.com/uc?export=download&id=${encodeURIComponent(driveFileId)}`];
+  const isDirectFile = contentType === "application/pdf" || contentType.startsWith("image/") || bytes.subarray(0, 4).toString("ascii") === "%PDF" || Boolean(driveFileId);
+  let sources = [normalized];
+  if (driveFileId) sources = [`https://drive.usercontent.google.com/download?id=${encodeURIComponent(driveFileId)}&export=download`];
   if (!isDirectFile && contentType.includes("html")) {
     const html = bytes.toString("utf8");
     const candidates = Array.from(html.matchAll(/(?:href|src|data-src|content)=["']([^"']+)["']/gi))
