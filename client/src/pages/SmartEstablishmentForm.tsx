@@ -334,7 +334,7 @@ export default function SmartEstablishmentForm() {
 
           <label className="block text-sm font-medium">Link público do cardápio
             <input type="url" value={menuUrl} onChange={e => setMenuUrl(e.target.value)} placeholder="https://... (Drive, Canva, PDF, Pedidon, Acuolina etc.)" className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
-            <span className="mt-1 block text-xs font-normal text-muted-foreground">O link será salvo no estabelecimento para o cliente abrir. Para cadastrar os itens no app, use fotos ou planilha.</span>
+            <span className="mt-1 block text-xs font-normal text-muted-foreground">O sistema usará o link como fonte para ler e cadastrar os itens no cardápio interno. A URL não será exibida para os clientes.</span>
           </label>
 
         <section className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">

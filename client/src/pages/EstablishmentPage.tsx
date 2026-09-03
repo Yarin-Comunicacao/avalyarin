@@ -525,11 +525,6 @@ export default function EstablishmentPage() {
                   <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-8 text-center shadow-lg">
                     <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
                     <p className="text-muted-foreground">O cardápio deste estabelecimento ainda não foi carregado no sistema.</p>
-                    {establishment.menuUrl && (
-                      <a href={establishment.menuUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-                        Abrir cardápio online
-                      </a>
-                    )}
                   </div>
                 )}
                 {menu.length > 0 && (
@@ -551,12 +546,6 @@ export default function EstablishmentPage() {
 
                 <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-primary/20 p-4 sm:p-6 shadow-lg shadow-primary/5">
                   <h3 className="font-display text-2xl tracking-wider text-primary text-glow-amber mb-3 text-center">CARDÁPIO</h3>
-                  {establishment.menuUrl && (
-                    <div className="mb-6 text-center">
-                      <a href={establishment.menuUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline underline-offset-4 hover:text-primary/80">Abrir cardápio online completo</a>
-                    </div>
-                  )}
-
                   <div className="space-y-12">
                     {activeCategories.map(catName => (
                       <MenuSection

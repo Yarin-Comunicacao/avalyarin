@@ -2,6 +2,7 @@ import axios from "axios";
 import { eq, sql } from "drizzle-orm";
 import { menuCategories, menuItems } from "../drizzle/schema";
 import { generateCode } from "./db";
+import { extractMenuWithOcr } from "./smart-menu-ocr";
 
 const GETIN_HOSTS = new Set(["menu.getin.app", "www.menu.getin.app"]);
 const GETIN_API_BASE = "https://user.getinapis.com";
@@ -47,12 +48,51 @@ export type DigitalMenuItem = {
 };
 
 export type DigitalMenuExtraction = {
-  provider: "getin";
+  provider: "getin" | "url";
   sourceUrl: string;
   menus: number;
   categories: number;
   items: DigitalMenuItem[];
 };
+
+/**
+ * Lê uma URL pública de cardápio. Serviços como Drive, Canva, Pedidon e
+ * Acuolina normalmente entregam uma página HTML; nesse caso localizamos o
+ * PDF/imagem público incorporado e enviamos todas as páginas ao OCR.
+ */
+export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenuExtraction> {
+  const normalized = normalizeMenuUrl(sourceUrl);
+  if (!normalized) throw new Error("Link de cardápio inválido.");
+  const response = await axios.get<ArrayBuffer>(normalized, {
+    timeout: REQUEST_TIMEOUT_MS,
+    responseType: "arraybuffer",
+    maxContentLength: 50 * 1024 * 1024,
+    validateStatus: status => status >= 200 && status < 400,
+    headers: { Accept: "text/html,application/pdf,image/*,*/*;q=0.8", "User-Agent": "AvalyarinMenuImporter/1.0" },
+  });
+  const contentType = String(response.headers["content-type"] || "").split(";", 1)[0].toLowerCase();
+  const bytes = Buffer.from(response.data);
+  const isDirectFile = contentType === "application/pdf" || contentType.startsWith("image/") || bytes.subarray(0, 4).toString("ascii") === "%PDF";
+  let sources = [normalized];
+  const driveFileId = normalized.match(/drive\.google\.com\/file\/d\/([^/]+)/i)?.[1];
+  if (driveFileId) sources = [`https://drive.google.com/uc?export=download&id=${encodeURIComponent(driveFileId)}`];
+  if (!isDirectFile && contentType.includes("html")) {
+    const html = bytes.toString("utf8");
+    const candidates = Array.from(html.matchAll(/(?:href|src|data-src|content)=["']([^"']+)["']/gi))
+      .map(match => { try { return new URL(match[1], normalized).toString(); } catch { return null; } })
+      .filter((url): url is string => Boolean(url))
+      .filter(url => /\.(?:pdf|png|jpe?g|webp)(?:[?#].*)?$/i.test(url) || /(?:download|export|image|preview)/i.test(url));
+    if (candidates.length > 0) sources = Array.from(new Set(candidates)).slice(0, 50);
+  }
+  if (sources.length === 0) throw new Error("A página não expôs um PDF ou imagem pública do cardápio.");
+  const extracted = await extractMenuWithOcr(sources.map(url => ({ url })), 1, 1);
+  const items = extracted.sections.flatMap(section => section.items.map(item => ({
+    category: section.name.slice(0, 64), name: item.name, description: item.description || null,
+    price: item.price == null ? null : Number(item.price), imageUrl: null, tags: [],
+  })));
+  if (items.length === 0) throw new Error("Não foi possível identificar itens no cardápio público.");
+  return { provider: "url", sourceUrl: normalized, menus: 1, categories: extracted.sections.length, items };
+}
 
 function cleanText(value: unknown, maxLength: number): string | null {
   const text = String(value ?? "").replace(/\s+/g, " ").trim();

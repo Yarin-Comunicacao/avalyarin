@@ -268,11 +268,11 @@ const completeEstablishmentFilter = eq(establishments.status, 'active');
 /**
  * Returns the number of missing publication criteria: address, hours and menu.
  */
-export function countMissingEstablishmentCriteria(est: { address: string | null; hours: string | null; hasMenu: boolean }): number {
+export function countMissingEstablishmentCriteria(est: { address: string | null; hours: string | null; hasMenu: boolean; menuItemCount?: number }): number {
   return [
     !est.address || est.address.trim() === '',
     !est.hours || est.hours.trim() === '',
-    !est.hasMenu,
+    !est.hasMenu || (est.menuItemCount !== undefined && est.menuItemCount < 1),
   ].filter(Boolean).length;
 }
 
@@ -280,7 +280,7 @@ export function countMissingEstablishmentCriteria(est: { address: string | null;
  * Classifies visibility strictly from the number of missing criteria.
  * 0 missing = active, 1 missing = pending, 2 or 3 missing = hidden.
  */
-export function getEstablishmentVisibilityStatus(est: { address: string | null; hours: string | null; hasMenu: boolean }): 'active' | 'pending' | 'hidden' {
+export function getEstablishmentVisibilityStatus(est: { address: string | null; hours: string | null; hasMenu: boolean; menuItemCount?: number }): 'active' | 'pending' | 'hidden' {
   const missing = countMissingEstablishmentCriteria(est);
   return missing === 0 ? 'active' : missing === 1 ? 'pending' : 'hidden';
 }
@@ -301,7 +301,8 @@ export async function syncEstablishmentVisibility(establishmentId: number) {
 
   if (!est) return;
 
-  const desiredStatus = getEstablishmentVisibilityStatus(est);
+  const [{ count: menuItemCount }] = await db.select({ count: sql<number>`COUNT(*)` }).from(menuItems).where(eq(menuItems.establishmentId, establishmentId));
+  const desiredStatus = getEstablishmentVisibilityStatus({ ...est, menuItemCount: Number(menuItemCount || 0) });
   if (est.status !== desiredStatus) {
     await db.update(establishments).set({ status: desiredStatus }).where(eq(establishments.id, establishmentId));
   }
