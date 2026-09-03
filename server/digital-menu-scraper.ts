@@ -55,6 +55,44 @@ export type DigitalMenuExtraction = {
   items: DigitalMenuItem[];
 };
 
+function localized(value: any): string {
+  if (typeof value === "string") return value;
+  return String(value?.pt || value?.["pt-BR"] || value?.en || value?.es || "");
+}
+
+function makeExtraction(sourceUrl: string, rows: Array<{ category: string; name: string; description?: string | null; price?: unknown; imageUrl?: string | null }>): DigitalMenuExtraction {
+  const items = rows.filter(row => row.name.trim()).map(row => ({
+    category: row.category.trim().slice(0, 64) || "Outros",
+    name: row.name.trim().slice(0, 255),
+    description: cleanText(row.description, 1000),
+    price: parsePrice(row.price), imageUrl: cleanText(row.imageUrl, 2000), tags: [],
+  }));
+  if (!items.length) throw new Error("A plataforma não retornou itens publicados.");
+  return { provider: "url", sourceUrl, menus: 1, categories: new Set(items.map(item => item.category)).size, items };
+}
+
+async function extractLiveMenu(sourceUrl: string, venueId: string): Promise<DigitalMenuExtraction> {
+  const response = await axios.get<any>(`https://customers.tagme.com.br/dine-in/menu/${encodeURIComponent(venueId)}/Dine-in?ignoreDisabled=1`, { timeout: REQUEST_TIMEOUT_MS });
+  const menu = Array.isArray(response.data) ? response.data[0] : response.data;
+  const rows: Array<{ category: string; name: string; description?: string | null; price?: unknown; imageUrl?: string | null }> = [];
+  for (const section of [...(menu?.menuItems || []), ...(menu?.menus || [])]) {
+    const category = localized(section.name) || localized(section.title) || "Outros";
+    for (const item of section.menuItems || []) rows.push({ category, name: localized(item.name), description: localized(item.descript), price: item.promoPriceEnabled ? item.promoPrice : item.price, imageUrl: item.avatarUrl ? `https://static.tagme.com.br/pubimg/thumbs/${item.avatarUrl}` : null });
+  }
+  return makeExtraction(sourceUrl, rows);
+}
+
+async function extractDGuestsMenu(sourceUrl: string, username: string): Promise<DigitalMenuExtraction> {
+  const response = await axios.get<any>(`https://dguests-api.com/prod2/getUsoCardapio/${encodeURIComponent(username)}`, { timeout: REQUEST_TIMEOUT_MS });
+  const categories = response.data?.categoria || [];
+  const rows = categories.flatMap((category: any) => (category.estFinProdutos || []).map((item: any) => ({
+    category: String(category.titulo || "Outros"), name: String(item.titulo || ""), description: item.detalhe || null,
+    price: item.preco_promo && Number(item.preco_promo) > 0 ? item.preco_promo : item.preco,
+    imageUrl: item.foto ? `https://www.dg-media.com.br/cardapio/${item.foto}` : null,
+  })));
+  return makeExtraction(sourceUrl, rows);
+}
+
 /**
  * Lê uma URL pública de cardápio. Serviços como Drive, Canva, Pedidon e
  * Acuolina normalmente entregam uma página HTML; nesse caso localizamos o
@@ -63,6 +101,11 @@ export type DigitalMenuExtraction = {
 export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenuExtraction> {
   const normalized = normalizeMenuUrl(sourceUrl);
   if (!normalized) throw new Error("Link de cardápio inválido.");
+  const url = new URL(normalized);
+  const liveMenuId = url.hostname.toLowerCase() === "livemenu.app" ? url.pathname.match(/\/menu\/([^/]+)/i)?.[1] : null;
+  if (liveMenuId) return extractLiveMenu(normalized, liveMenuId);
+  const dGuestsUser = url.hostname.toLowerCase().replace(/^www\./, "") === "dguests.com.br" ? url.pathname.match(/\/cardapio\/([^/]+)/i)?.[1] : null;
+  if (dGuestsUser) return extractDGuestsMenu(normalized, dGuestsUser);
   const response = await axios.get<ArrayBuffer>(normalized, {
     timeout: REQUEST_TIMEOUT_MS,
     responseType: "arraybuffer",
