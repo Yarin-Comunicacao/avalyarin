@@ -4,6 +4,22 @@ import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
 import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls, type DigitalMenuExtraction } from "./digital-menu-scraper";
 
+type BulkJob = { status: "running" | "completed" | "failed"; result?: Awaited<ReturnType<typeof createEstablishmentsFromSpreadsheet>>; error?: string; updatedAt: number };
+const bulkJobs = new Map<string, BulkJob>();
+
+export function getBulkJob(jobId: string) {
+  return bulkJobs.get(jobId) || null;
+}
+
+export function startEstablishmentsBulkJob(buffer: Buffer, fileName?: string) {
+  const jobId = `bulk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  bulkJobs.set(jobId, { status: "running", updatedAt: Date.now() });
+  void createEstablishmentsFromSpreadsheet(buffer, fileName)
+    .then(result => bulkJobs.set(jobId, { status: "completed", result, updatedAt: Date.now() }))
+    .catch(error => bulkJobs.set(jobId, { status: "failed", error: String(error?.message || error), updatedAt: Date.now() }));
+  return jobId;
+}
+
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
