@@ -2,15 +2,22 @@ import { eq } from "drizzle-orm";
 import { categories, establishments } from "../drizzle/schema";
 import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
-import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls } from "./digital-menu-scraper";
+import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls, type DigitalMenuExtraction } from "./digital-menu-scraper";
 
-const MENU_READ_TIMEOUT_MS = 45_000;
+type BulkJob = { status: "running" | "completed" | "failed"; result?: Awaited<ReturnType<typeof createEstablishmentsFromSpreadsheet>>; error?: string; updatedAt: number };
+const bulkJobs = new Map<string, BulkJob>();
 
-async function readMenuWithTimeout<T>(operation: Promise<T>): Promise<T> {
-  return Promise.race([
-    operation,
-    new Promise<T>((_, reject) => setTimeout(() => reject(new Error("tempo limite de leitura excedido")), MENU_READ_TIMEOUT_MS)),
-  ]);
+export function getBulkJob(jobId: string) {
+  return bulkJobs.get(jobId) || null;
+}
+
+export function startEstablishmentsBulkJob(buffer: Buffer, fileName?: string) {
+  const jobId = `bulk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  bulkJobs.set(jobId, { status: "running", updatedAt: Date.now() });
+  void createEstablishmentsFromSpreadsheet(buffer, fileName)
+    .then(result => bulkJobs.set(jobId, { status: "completed", result, updatedAt: Date.now() }))
+    .catch(error => bulkJobs.set(jobId, { status: "failed", error: String(error?.message || error), updatedAt: Date.now() }));
+  return jobId;
 }
 
 function normalize(value: string): string {
@@ -30,6 +37,25 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
   const existingNames = new Set(existingRows.map((row: { name: string }) => normalize(row.name)));
   const created: Array<{ id: number; name: string; status: string }> = [];
   const warnings = [...parsed.warnings];
+  const menuExtractions = new Map<string, DigitalMenuExtraction>();
+
+  // A importação só começa a criar registros depois que todas as fontes de
+  // cardápio foram lidas. Assim, uma URL inválida não deixa estabelecimento
+  // parcialmente criado e a resposta permanece síncrona e consistente.
+  for (const row of parsed.rows) {
+    const primaryUrl = splitMenuUrls(row.menuUrl)[0];
+    if (!primaryUrl) continue;
+    try {
+      const extraction = getMenuProvider(primaryUrl) === "getin"
+        ? await extractGetInMenu(primaryUrl)
+        : await extractMenuFromUrl(primaryUrl);
+      if (!extraction.items.length) throw new Error("Nenhum item encontrado");
+      menuExtractions.set(normalize(row.name), extraction);
+    } catch (error: any) {
+      throw new Error(`${row.name}: não foi possível ler o cardápio antes do cadastro (${String(error?.message || error).slice(0, 240)}). Nenhum estabelecimento foi criado.`);
+    }
+  }
+
   for (const row of parsed.rows) {
     const categoryId = categoryByName.get(normalize(row.category));
     if (!categoryId) {
@@ -78,22 +104,12 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
         hasMenu: false,
         lastMenuUpdate: row.lastMenuUpdate || new Date(),
       }).where(eq(establishments.id, establishmentId));
-      try {
-        const extraction = await readMenuWithTimeout(
-          getMenuProvider(primaryUrl) === "getin" ? extractGetInMenu(primaryUrl) : extractMenuFromUrl(primaryUrl)
-        );
-        await persistDigitalMenu(db, establishmentId, extraction);
-        await db.update(establishments).set({ hasMenu: extraction.items.length > 0 }).where(eq(establishments.id, establishmentId));
-        importedMenu = extraction.items.length > 0;
-        warnings.push(`${row.name}: cardápio lido e importado (${extraction.items.length} itens).`);
-      } catch (error: any) {
-        // A linha não é perdida: o estabelecimento é criado como pendente para
-        // que o cardápio possa ser corrigido/importado posteriormente.
-        const message = String(error?.message || error).slice(0, 240);
-        await db.update(establishments).set({ hasMenu: false }).where(eq(establishments.id, establishmentId));
-        importedMenu = false;
-        warnings.push(`${row.name}: estabelecimento cadastrado como pendente; cardápio não importado (${message}).`);
-      }
+      const extraction = menuExtractions.get(nameKey);
+      if (!extraction) throw new Error(`${row.name}: extração de cardápio ausente.`);
+      await persistDigitalMenu(db, establishmentId, extraction);
+      await db.update(establishments).set({ hasMenu: true }).where(eq(establishments.id, establishmentId));
+      importedMenu = true;
+      warnings.push(`${row.name}: cardápio lido e importado (${extraction.items.length} itens).`);
       if (menuUrls.length > 1) warnings.push(`${row.name}: ${menuUrls.length - 1} link(s) adicional(is) encontrado(s); use uma linha por estabelecimento para manter o primeiro link como principal.`);
       await syncEstablishmentVisibility(establishmentId);
     }

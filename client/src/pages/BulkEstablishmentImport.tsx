@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, CheckCircle2, Download, FileSpreadsheet, Loader2, Upload } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -20,8 +20,25 @@ export default function BulkEstablishmentImport() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<{ created: Array<{ id: number; name: string; status: string }>; skipped: number; warnings: string[] } | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
   const templateQuery = trpc.admin.establishmentSpreadsheetTemplate.useQuery(undefined, { enabled: false });
   const bulkMutation = trpc.admin.createEstablishmentsBulk.useMutation();
+  const bulkJobQuery = trpc.admin.getEstablishmentsBulkJob.useQuery(
+    { jobId: jobId || "-" },
+    { enabled: Boolean(jobId), refetchInterval: query => query.state.data?.status === "running" ? 3000 : false }
+  );
+
+  useEffect(() => {
+    const job = bulkJobQuery.data;
+    if (!job || job.status === "running") return;
+    if (job.status === "failed") {
+      toast.error(job.error || "Não foi possível concluir a importação.");
+    } else if (job.result) {
+      setResult(job.result);
+      toast.success(`${job.result.created.length} estabelecimento(s) criado(s).`);
+    }
+    setJobId(null);
+  }, [bulkJobQuery.data]);
 
   const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0];
@@ -62,8 +79,8 @@ export default function BulkEstablishmentImport() {
     }
     try {
       const response = await bulkMutation.mutateAsync({ spreadsheetBase64: await readFileAsBase64(file), spreadsheetFileName: file.name });
-      setResult(response);
-      toast.success(`${response.created.length} estabelecimento(s) criado(s).`);
+      setJobId(response.jobId);
+      toast.info("Importação iniciada. Aguarde a leitura dos cardápios e a inclusão dos itens.");
     } catch (error: any) {
       toast.error(error?.message || "Não foi possível importar os estabelecimentos.");
     }
@@ -82,7 +99,7 @@ export default function BulkEstablishmentImport() {
         <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv" onChange={selectFile} className="hidden" />
         <button type="button" onClick={() => inputRef.current?.click()} disabled={bulkMutation.isPending} className="flex min-h-32 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 text-center hover:bg-primary/10 disabled:opacity-50"><Upload className="h-8 w-8 text-primary" /><span className="font-medium">Selecionar planilha preenchida</span><span className="text-xs text-muted-foreground">XLSX, XLS ou CSV — máximo de 10 MB</span></button>
         {file && <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm"><span className="font-medium">Arquivo selecionado:</span> {file.name}</div>}
-        <button type="button" onClick={submit} disabled={!file || bulkMutation.isPending} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground disabled:opacity-50">{bulkMutation.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Lendo cardápios e incluindo itens...</> : <><CheckCircle2 className="h-4 w-4" /> Importar locais em massa</>}</button>
+        <button type="button" onClick={submit} disabled={!file || bulkMutation.isPending || Boolean(jobId)} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground disabled:opacity-50">{bulkMutation.isPending || Boolean(jobId) ? <><Loader2 className="h-4 w-4 animate-spin" /> Lendo cardápios e incluindo itens...</> : <><CheckCircle2 className="h-4 w-4" /> Importar locais em massa</>}</button>
       </section>
       {result && <section className="mt-5 space-y-3 rounded-2xl border border-border/60 bg-card p-5"><h2 className="font-display text-lg tracking-wider">RESULTADO DA IMPORTAÇÃO</h2><p className="text-sm text-muted-foreground">Criados: <strong className="text-foreground">{result.created.length}</strong> · Ignorados: <strong className="text-foreground">{result.skipped}</strong></p>{result.created.length > 0 && <div className="space-y-1 text-sm">{result.created.map(item => <div key={item.id} className="flex items-center gap-2 text-emerald-400"><CheckCircle2 className="h-4 w-4" /> {item.name} <span className="text-xs text-muted-foreground">({item.status})</span></div>)}</div>}{result.warnings.length > 0 && <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs text-yellow-200"><p className="mb-2 font-semibold">Avisos</p>{result.warnings.map((warning, index) => <p key={`${warning}-${index}`}>{warning}</p>)}</div>}<button type="button" onClick={() => navigate("/admin/negocio")} className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary/50">Voltar para estabelecimentos</button></section>}
     </div>

@@ -10,7 +10,7 @@ import { smartSearch } from "./smart-search";
 import { createSmartEstablishment } from "./smart-menu-intake";
 import { createMenuSpreadsheetTemplate } from "./smart-menu-spreadsheet";
 import { createEstablishmentSpreadsheetTemplate } from "./establishment-spreadsheet";
-import { createEstablishmentsFromSpreadsheet } from "./bulk-establishment-intake";
+import { getBulkJob, startEstablishmentsBulkJob } from "./bulk-establishment-intake";
 import { lookupDistrict, getRegionByNeighborhood } from "./geo-lookup";
 import {
   getAllCategories,
@@ -1387,11 +1387,15 @@ export const appRouter = router({
         spreadsheetFileName: z.string().max(255).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        return await createEstablishmentsFromSpreadsheet(
+        const jobId = startEstablishmentsBulkJob(
           Buffer.from(input.spreadsheetBase64, "base64"),
           input.spreadsheetFileName,
         );
+        return { jobId };
       }),
+    getEstablishmentsBulkJob: adminProcedure
+      .input(z.object({ jobId: z.string().min(1).max(100) }))
+      .query(({ input }) => getBulkJob(input.jobId) || { status: "failed", error: "Importação não encontrada." }),
 
     createEstablishment: adminProcedure
       .input(z.object({
