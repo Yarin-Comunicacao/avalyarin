@@ -1555,8 +1555,8 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const imageBuffer = Buffer.from(input.base64Data, "base64");
         if (imageBuffer.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Arquivo inválido." });
-        if (imageBuffer.length > 10 * 1024 * 1024) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "O arquivo deve ter no máximo 10MB." });
+        if (imageBuffer.length > 50 * 1024 * 1024) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "O arquivo deve ter no máximo 50 MB." });
         }
         return await adminUpdateMenuFromOcr({
           establishmentId: input.establishmentId,

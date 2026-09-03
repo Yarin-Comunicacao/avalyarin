@@ -102,8 +102,8 @@ export default function AdminEstabDetail() {
       toast.error("Envie uma imagem JPG, PNG, WEBP ou um arquivo PDF.");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("O arquivo deve ter no máximo 10MB.");
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("O arquivo deve ter no máximo 50 MB.");
       return;
     }
 

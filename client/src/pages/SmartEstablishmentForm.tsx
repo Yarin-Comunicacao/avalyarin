@@ -7,7 +7,7 @@ import { extractCoordinatesFromGoogleMapsUrl, extractNameFromGoogleMapsUrl } fro
 import { createEmptyOpeningHours, formatOpeningHours, type DailyOpeningHours, WEEKDAYS } from "@shared/opening-hours";
 
 const MAX_PHOTOS = 50;
-const MAX_MENU_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_MENU_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 const MAX_BRAND_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_SPREADSHEET_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -89,7 +89,7 @@ export default function SmartEstablishmentForm() {
       return;
     }
     if (file.size > MAX_MENU_FILE_SIZE_BYTES) {
-      toast.error("O PDF pode ter no máximo 10 MB.");
+      toast.error("O PDF pode ter no máximo 50 MB.");
       return;
     }
     setPhotos([{ file, preview: "" }]);
@@ -468,7 +468,7 @@ export default function SmartEstablishmentForm() {
             <span className="block text-xs text-muted-foreground mt-3">Na galeria, você poderá selecionar várias páginas de uma vez.</span>
             <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" /></div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={() => pdfInputRef.current?.click()} disabled={photos.length > 0 || !!spreadsheetFile || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileText className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar PDF</span><span className="text-[11px] text-muted-foreground">Até 10 MB</span></button>
+              <button type="button" onClick={() => pdfInputRef.current?.click()} disabled={photos.length > 0 || !!spreadsheetFile || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileText className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar PDF</span><span className="text-[11px] text-muted-foreground">Até 50 MB</span></button>
               <button type="button" onClick={() => spreadsheetInputRef.current?.click()} disabled={photos.length > 0 || isSubmitting} className="inline-flex min-h-16 w-full flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-primary/50 bg-background/60 px-3 py-3 hover:bg-primary/10 transition-colors disabled:opacity-50"><FileSpreadsheet className="w-6 h-6 text-primary" /><span className="font-medium text-sm">Importar planilha</span><span className="text-[11px] text-muted-foreground">XLSX, XLS ou CSV</span></button>
             </div>
             <button type="button" onClick={downloadSpreadsheetTemplate} disabled={isSubmitting || templateQuery.isFetching} className="mt-3 inline-flex items-center justify-center gap-2 text-xs text-primary hover:underline disabled:opacity-50"><Download className="w-3.5 h-3.5" /> {templateQuery.isFetching ? "Gerando modelo..." : "Baixar modelo de planilha"}</button>

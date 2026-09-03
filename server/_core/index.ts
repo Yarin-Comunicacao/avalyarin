@@ -38,8 +38,9 @@ async function startServer() {
   // Trust proxy (required for Render, Railway, etc. behind reverse proxy)
   app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // 50 MB de arquivo em base64 ocupa aproximadamente 67 MB no corpo JSON.
+  app.use(express.json({ limit: "70mb" }));
+  app.use(express.urlencoded({ limit: "70mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   registerOwnAuthRoutes(app);
@@ -135,7 +136,7 @@ async function startServer() {
   });
 
   // Menu file upload endpoint — keeps PDFs intact and converts images to WebP (thumbnail 400x400 + full 1200x1200)
-  app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "10mb" }), async (req, res) => {
+  app.post("/api/upload-menu-image", express.raw({ type: "*/*", limit: "50mb" }), async (req, res) => {
     try {
       try {
         await sdk.authenticateRequest(req);
@@ -147,8 +148,8 @@ async function startServer() {
       if (!data || data.length === 0) {
         return res.status(400).json({ error: "No file data provided" });
       }
-      if (data.length > 10 * 1024 * 1024) {
-        return res.status(413).json({ error: "O arquivo deve ter no máximo 10MB" });
+      if (data.length > 50 * 1024 * 1024) {
+        return res.status(413).json({ error: "O arquivo deve ter no máximo 50 MB" });
       }
 
       const fileName = String(req.header("X-File-Name") || "cardapio");
