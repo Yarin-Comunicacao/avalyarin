@@ -2,11 +2,11 @@ import axios from "axios";
 import { eq, sql } from "drizzle-orm";
 import { menuCategories, menuItems } from "../drizzle/schema";
 import { generateCode } from "./db";
-import { extractMenuWithOcr } from "./smart-menu-ocr";
+import { extractMenuWithOcr, hasAcceptableMenuQuality, parseMenuText } from "./smart-menu-ocr";
 
 const GETIN_HOSTS = new Set(["menu.getin.app", "www.menu.getin.app"]);
 const GETIN_API_BASE = "https://user.getinapis.com";
-const REQUEST_TIMEOUT_MS = 20_000;
+const REQUEST_TIMEOUT_MS = 75_000;
 
 /** Normaliza links colados de planilhas, incluindo aspas e espaços acidentais. */
 export function normalizeMenuUrl(value: unknown): string | null {
@@ -121,6 +121,13 @@ async function extractPiccoMenu(sourceUrl: string): Promise<DigitalMenuExtractio
   }))));
 }
 
+function htmlToMenuText(html: string): string {
+  return html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<\s*\/?\s*(p|div|section|article|li|h[1-6]|br|tr)[^>]*>/gi, "\n")
+    .replace(/<[^>]+>/g, " ").replace(/&nbsp;|&#160;/gi, " ").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"')
+    .replace(/\n{3,}/g, "\n");
+}
+
 /**
  * Lê uma URL pública de cardápio. Serviços como Drive, Canva, Pedidon e
  * Acuolina normalmente entregam uma página HTML; nesse caso localizamos o
@@ -130,6 +137,16 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   const normalized = normalizeMenuUrl(sourceUrl);
   if (!normalized) throw new Error("Link de cardápio inválido.");
   const url = new URL(normalized);
+  if (url.hostname.toLowerCase().replace(/^www\./, "") === "linktr.ee") {
+    const page = await axios.get<string>(normalized, { timeout: REQUEST_TIMEOUT_MS, headers: { "User-Agent": "Mozilla/5.0" } });
+    const links = Array.from(page.data.matchAll(/https?:\/\/[^"'\\\s<>]+/gi)).map(match => match[0].replace(/\\u0026/g, "&"));
+    const menuLinks = Array.from(new Set(links)).filter(link => /(?:menu|cardap|drive\.google\.com|canva\.com|clicksi|livemenu|dguests|garcomweb)/i.test(link));
+    let lastError = "nenhum link de cardápio encontrado";
+    for (const link of menuLinks.slice(0, 20)) {
+      try { return await extractMenuFromUrl(link); } catch (error: any) { lastError = String(error?.message || error); }
+    }
+    throw new Error(`O Linktree não expôs um cardápio legível (${lastError.slice(0, 180)}).`);
+  }
   const liveMenuId = url.hostname.toLowerCase() === "livemenu.app" ? url.pathname.match(/\/menu\/([^/]+)/i)?.[1] : null;
   if (liveMenuId) return extractLiveMenu(normalized, liveMenuId);
   const dGuestsUser = url.hostname.toLowerCase().replace(/^www\./, "") === "dguests.com.br" ? url.pathname.match(/\/cardapio\/([^/]+)/i)?.[1] : null;
@@ -146,6 +163,12 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   });
   const contentType = String(response.headers["content-type"] || "").split(";", 1)[0].toLowerCase();
   const bytes = Buffer.from(response.data);
+  if (contentType.includes("html")) {
+    const textMenu = parseMenuText(htmlToMenuText(bytes.toString("utf8")));
+    if (hasAcceptableMenuQuality(textMenu)) {
+      return makeExtraction(normalized, textMenu.sections.flatMap(section => section.items.map(item => ({ category: section.name, name: item.name, description: item.description, price: item.price }))));
+    }
+  }
   const driveFileId = normalized.match(/drive\.google\.com\/file\/d\/([^/]+)/i)?.[1];
   const isDirectFile = contentType === "application/pdf" || contentType.startsWith("image/") || bytes.subarray(0, 4).toString("ascii") === "%PDF" || Boolean(driveFileId);
   let sources = [normalized];
