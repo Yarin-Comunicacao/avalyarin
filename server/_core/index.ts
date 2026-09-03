@@ -35,6 +35,11 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Importações em massa podem ler PDFs e várias imagens via OCR antes de
+  // responder; não interromper a requisição enquanto essa operação síncrona
+  // estiver em andamento.
+  server.requestTimeout = 10 * 60 * 1000;
+  server.headersTimeout = 10 * 60 * 1000;
   // Trust proxy (required for Render, Railway, etc. behind reverse proxy)
   app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads

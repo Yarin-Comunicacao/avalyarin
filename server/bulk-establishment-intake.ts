@@ -2,24 +2,10 @@ import { eq } from "drizzle-orm";
 import { categories, establishments } from "../drizzle/schema";
 import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
-import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls } from "./digital-menu-scraper";
+import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls, type DigitalMenuExtraction } from "./digital-menu-scraper";
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
-async function importExternalMenuInBackground(db: any, establishmentId: number, establishmentName: string, sourceUrl: string) {
-  try {
-    const extraction = await extractMenuFromUrl(sourceUrl);
-    await persistDigitalMenu(db, establishmentId, extraction);
-    await db.update(establishments).set({ hasMenu: extraction.items.length > 0 }).where(eq(establishments.id, establishmentId));
-    await syncEstablishmentVisibility(establishmentId);
-    console.log(`[Bulk menu] ${establishmentName}: ${extraction.items.length} itens importados de ${sourceUrl}`);
-  } catch (error: any) {
-    await db.update(establishments).set({ hasMenu: false }).where(eq(establishments.id, establishmentId));
-    await syncEstablishmentVisibility(establishmentId);
-    console.error(`[Bulk menu] ${establishmentName}: falha ao ler ${sourceUrl}:`, error?.message || error);
-  }
 }
 
 export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileName = "estabelecimentos.xlsx") {
@@ -35,6 +21,24 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
   const existingNames = new Set(existingRows.map((row: { name: string }) => normalize(row.name)));
   const created: Array<{ id: number; name: string; status: string }> = [];
   const warnings = [...parsed.warnings];
+  const menuExtractions = new Map<string, DigitalMenuExtraction>();
+
+  // A importação só começa a criar registros depois que todas as fontes de
+  // cardápio foram lidas. Assim, uma URL inválida não deixa estabelecimento
+  // parcialmente criado e a resposta permanece síncrona e consistente.
+  for (const row of parsed.rows) {
+    const primaryUrl = splitMenuUrls(row.menuUrl)[0];
+    if (!primaryUrl) continue;
+    try {
+      const extraction = getMenuProvider(primaryUrl) === "getin"
+        ? await extractGetInMenu(primaryUrl)
+        : await extractMenuFromUrl(primaryUrl);
+      if (!extraction.items.length) throw new Error("Nenhum item encontrado");
+      menuExtractions.set(normalize(row.name), extraction);
+    } catch (error: any) {
+      throw new Error(`${row.name}: não foi possível ler o cardápio antes do cadastro (${String(error?.message || error).slice(0, 240)}). Nenhum estabelecimento foi criado.`);
+    }
+  }
 
   for (const row of parsed.rows) {
     const categoryId = categoryByName.get(normalize(row.category));
@@ -84,26 +88,12 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
         hasMenu: false,
         lastMenuUpdate: row.lastMenuUpdate || new Date(),
       }).where(eq(establishments.id, establishmentId));
+      const extraction = menuExtractions.get(nameKey);
+      if (!extraction) throw new Error(`${row.name}: extração de cardápio ausente.`);
+      await persistDigitalMenu(db, establishmentId, extraction);
+      await db.update(establishments).set({ hasMenu: true }).where(eq(establishments.id, establishmentId));
       importedMenu = true;
-      if (getMenuProvider(primaryUrl) === "getin") {
-        try {
-          const extraction = await extractGetInMenu(primaryUrl);
-          await persistDigitalMenu(db, establishmentId, extraction);
-          await db.update(establishments).set({ hasMenu: extraction.items.length > 0 }).where(eq(establishments.id, establishmentId));
-          importedMenu = extraction.items.length > 0;
-          warnings.push(`${row.name}: cardápio Get In importado (${extraction.items.length} itens em ${extraction.menus} menus).`);
-        } catch (error: any) {
-          const message = String(error?.message || error).slice(0, 240);
-          warnings.push(`${row.name}: link Get In salvo, mas os itens não puderam ser lidos (${message}).`);
-        }
-      } else {
-        // OCR, PDFs e APIs externas podem exceder o tempo limite da requisição.
-        // O estabelecimento é devolvido imediatamente como pendente e a leitura
-        // continua no processo do servidor; só fica ativo após persistir itens.
-        void importExternalMenuInBackground(db, establishmentId, row.name, primaryUrl);
-        importedMenu = false;
-        warnings.push(`${row.name}: link recebido; leitura do cardápio iniciada em segundo plano. O estabelecimento ficará pendente até os itens serem importados.`);
-      }
+      warnings.push(`${row.name}: cardápio lido e importado (${extraction.items.length} itens).`);
       if (menuUrls.length > 1) warnings.push(`${row.name}: ${menuUrls.length - 1} link(s) adicional(is) encontrado(s); use uma linha por estabelecimento para manter o primeiro link como principal.`);
       await syncEstablishmentVisibility(establishmentId);
     }
