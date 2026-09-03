@@ -8,6 +8,21 @@ function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+async function importMenuAfterBulkResponse(db: any, establishmentId: number, name: string, url: string) {
+  try {
+    const extraction = getMenuProvider(url) === "getin" ? await extractGetInMenu(url) : await extractMenuFromUrl(url);
+    if (!extraction.items.length) throw new Error("nenhum item encontrado");
+    await persistDigitalMenu(db, establishmentId, extraction);
+    await db.update(establishments).set({ hasMenu: true }).where(eq(establishments.id, establishmentId));
+    await syncEstablishmentVisibility(establishmentId);
+    console.log(`[Bulk menu] ${name}: ${extraction.items.length} itens importados.`);
+  } catch (error: any) {
+    await db.update(establishments).set({ hasMenu: false }).where(eq(establishments.id, establishmentId));
+    await syncEstablishmentVisibility(establishmentId);
+    console.error(`[Bulk menu] ${name}: ${String(error?.message || error)}`);
+  }
+}
+
 export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileName = "estabelecimentos.xlsx") {
   const parsed = parseEstablishmentSpreadsheet(buffer, fileName);
   const db = await getDb();
@@ -69,22 +84,8 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
         hasMenu: false,
         lastMenuUpdate: row.lastMenuUpdate || new Date(),
       }).where(eq(establishments.id, establishmentId));
-      try {
-        const extractionPromise = getMenuProvider(primaryUrl) === "getin" ? extractGetInMenu(primaryUrl) : extractMenuFromUrl(primaryUrl);
-        const extraction = await Promise.race([
-          extractionPromise,
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("tempo limite de 45 segundos excedido")), 45_000)),
-        ]);
-        if (!extraction.items.length) throw new Error("nenhum item encontrado");
-        await persistDigitalMenu(db, establishmentId, extraction);
-        await db.update(establishments).set({ hasMenu: true }).where(eq(establishments.id, establishmentId));
-        importedMenu = true;
-        warnings.push(`${row.name}: cardápio lido e importado (${extraction.items.length} itens).`);
-      } catch (error: any) {
-        const message = String(error?.message || error).slice(0, 240);
-        await db.update(establishments).set({ hasMenu: false }).where(eq(establishments.id, establishmentId));
-        warnings.push(`${row.name}: estabelecimento cadastrado como pendente; não foi possível adicionar os itens do cardápio (${message}).`);
-      }
+      void importMenuAfterBulkResponse(db, establishmentId, row.name, primaryUrl);
+      warnings.push(`${row.name}: estabelecimento cadastrado como pendente; leitura do cardápio iniciada em segundo plano. O resultado será atualizado após o processamento.`);
       if (menuUrls.length > 1) warnings.push(`${row.name}: ${menuUrls.length - 1} link(s) adicional(is) encontrado(s); use uma linha por estabelecimento para manter o primeiro link como principal.`);
       await syncEstablishmentVisibility(establishmentId);
     }
