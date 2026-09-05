@@ -11,15 +11,13 @@ import {
   Star,
   X,
   Utensils,
-  Beer,
-  Coffee,
-  ChefHat,
   Filter,
 } from "lucide-react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { MapView } from "@/components/Map";
 import { cn } from "@/lib/utils";
+import { CATEGORY_SEGMENTS, getCategorySlugsForSegment } from "@/lib/categorySegments";
 
 // Pinheiros / Vila Madalena center
 const SP_CENTER = { lat: -23.5613, lng: -46.6917 };
@@ -271,14 +269,17 @@ export default function MapaPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const { data: establishments, isLoading } = trpc.establishments.mapEstablishments.useQuery();
+  const { data: categoriesData } = trpc.categories.list.useQuery();
   const dbPlaces = (establishments || []) as MapDbPlace[];
 
-  // Define the 3 main groups
-  const CATEGORY_GROUPS = useMemo(() => [
-    { id: "gastronomia", label: "Gastronomia", icon: ChefHat, color: "text-amber-500", slugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "vegan", "acai", "natural", "vegetarian", "gastrobar", "lanches", "casa-de-carnes", "casual-dining"] },
-    { id: "bares", label: "Bares & Noite", icon: Beer, color: "text-violet-400", slugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada"] },
-    { id: "cafes", label: "Cafés & Doces", icon: Coffee, color: "text-orange-400", slugs: ["cafeteria", "padaria", "confeitaria", "ice-cream-parlor"] },
-  ], []);
+  // Segment groups are driven by categories.segment; only presentation metadata remains here.
+  const CATEGORY_GROUPS = useMemo(() => CATEGORY_SEGMENTS.map((segment) => ({
+    id: segment.id === "bares-vida-noturna" ? "bares" : segment.id === "cafe-doces" ? "cafes" : segment.id,
+    label: segment.id === "bares-vida-noturna" ? "Bares & Noite" : segment.title,
+    icon: segment.icon,
+    color: segment.id === "gastronomia" ? "text-amber-500" : segment.id === "bares-vida-noturna" ? "text-violet-400" : "text-orange-400",
+    slugs: getCategorySlugsForSegment(categoriesData || [], segment.title),
+  })), [categoriesData]);
 
   const APP_VERSION = "1.0.5"; // Versão para conferir o deploy
 

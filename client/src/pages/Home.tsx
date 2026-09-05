@@ -11,37 +11,12 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   ArrowRight, Search, Tag, X,
-  Utensils, PartyPopper, CakeSlice, Star, MapPin
+  Utensils, Star, MapPin
 } from "lucide-react";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
+import { CATEGORY_SEGMENTS, getCategorySlugsForSegment, type CategoryWithSegment } from "@/lib/categorySegments";
 
-// Group definitions with their category slugs and cover images
-const categoryGroups = [
-  {
-    id: "gastronomia",
-    title: "Gastronomia",
-    subtitle: "Foco na comida como protagonista",
-    icon: Utensils,
-    image: "/storage/category-optimized/group-gastronomia.webp",
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "natural", "vegetarian"],
-  },
-  {
-    id: "bares-vida-noturna",
-    title: "Bares & Vida Noturna",
-    subtitle: "Drinks, socialização e entretenimento",
-    icon: PartyPopper,
-    image: "/storage/category-optimized/group-bares-vida-noturna.webp",
-    categorySlugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada"],
-  },
-  {
-    id: "cafe-doces",
-    title: "Cafés & Doces",
-    subtitle: "Experiências diurnas, café e confeitaria",
-    icon: CakeSlice,
-    image: "/storage/category-optimized/group-cafe-doces.webp",
-    categorySlugs: ["cafeteria", "padaria", "confeitaria", "ice-cream-parlor"],
-  },
-];
+const categoryGroups = CATEGORY_SEGMENTS;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -139,7 +114,7 @@ export default function Home() {
     }
   }, []);
 
-  const categories = categoriesData || [];
+  const categories = (categoriesData || []) as CategoryWithSegment[];
 
   // Get user's preferred categories from survey (up to 5)
   const preferredSlugs = useMemo(() => {
@@ -160,11 +135,10 @@ export default function Home() {
   // Group categories by their group definition
   const groupedCategories = useMemo(() => {
     return categoryGroups.map((group) => {
-      const groupCats = group.categorySlugs
-        .map((slug) => categories.find((c) => c.slug === slug))
-        .filter(Boolean) as typeof categories;
+      const categorySlugs = getCategorySlugsForSegment(categories, group.title);
+      const groupCats = categories.filter((category) => categorySlugs.includes(category.slug));
       const totalEstablishments = groupCats.reduce((sum, c) => sum + (c.establishmentCount || 0), 0);
-      return { ...group, categories: groupCats, totalEstablishments };
+      return { ...group, categorySlugs, categories: groupCats, totalEstablishments };
     });
   }, [categories]);
 

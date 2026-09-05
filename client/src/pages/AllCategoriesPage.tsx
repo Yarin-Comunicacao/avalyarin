@@ -6,32 +6,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
+import { CATEGORY_SEGMENTS, getCategorySlugsForSegment, type CategoryWithSegment } from "@/lib/categorySegments";
 
-// Segment definitions matching the Home page
-const categoryGroups = [
-  {
-    id: "gastronomia",
-    title: "Gastronomia",
-    subtitle: "Foco na comida como protagonista",
-    icon: Utensils,
-    categorySlugs: ["cozinha-brasileira", "cozinha-internacional", "autoral-contemporaneo", "hamburgueria", "pizzaria", "gastrobar", "lanches", "casa-de-carnes", "casual-dining", "vegan", "acai", "natural", "vegetarian"],
-  },
-  {
-    id: "bares-vida-noturna",
-    title: "Bares & Vida Noturna",
-    subtitle: "Drinks, socialização e entretenimento",
-    icon: PartyPopper,
-    categorySlugs: ["bar-lanchonete", "boteco-tradicional", "boteco-moderno", "pub", "cervejaria", "coquetelaria", "bar-musical", "balada"],
-  },
-  {
-    id: "cafe-doces",
-    title: "Cafés & Doces",
-    subtitle: "Experiências diurnas, café e confeitaria",
-    icon: CakeSlice,
-    categorySlugs: ["cafeteria", "padaria", "confeitaria", "ice-cream-parlor"],
-  },
-
-];
+const categoryGroups = CATEGORY_SEGMENTS;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -44,17 +21,17 @@ const fadeUp = {
 
 export default function AllCategoriesPage() {
   const { data: categoriesData, isLoading } = trpc.categories.list.useQuery();
+  const categories = (categoriesData || []) as CategoryWithSegment[];
 
   const groupedCategories = useMemo(() => {
-    if (!categoriesData) return [];
+    if (!categories.length) return [];
     return categoryGroups.map((group) => {
-      const groupCats = group.categorySlugs
-        .map((slug) => categoriesData.find((c) => c.slug === slug))
-        .filter(Boolean) as typeof categoriesData;
+      const categorySlugs = getCategorySlugsForSegment(categories, group.title);
+      const groupCats = categories.filter((category) => categorySlugs.includes(category.slug));
       const totalEstablishments = groupCats.reduce((sum, c) => sum + (c.establishmentCount || 0), 0);
-      return { ...group, categories: groupCats, totalEstablishments };
+      return { ...group, categorySlugs, categories: groupCats, totalEstablishments };
     });
-  }, [categoriesData]);
+  }, [categories]);
 
   return (
     <div className="min-h-screen">

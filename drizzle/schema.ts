@@ -51,6 +51,7 @@ export const categories = mysqlTable("categories", {
   description: text("description"),
   icon: varchar("icon", { length: 64 }),
   active: boolean("active").default(true).notNull(),
+  segment: json("segment").$type<string[]>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

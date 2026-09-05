@@ -241,6 +241,7 @@ export async function getCategoriesWithCounts() {
     description: categories.description,
     icon: categories.icon,
     active: categories.active,
+    segment: categories.segment,
     establishmentCount: sql<number>`COUNT(DISTINCT ${establishmentCategories.establishmentId})`,
   })
     .from(categories)
@@ -2044,6 +2045,20 @@ export async function createEstablishment(data: {
     hasMenu: false,
     status: initialStatus,
     source: data.source || "admin",
+  });
+
+  // TiDB production has no AUTO_INCREMENT on this table, so allocate its
+  // primary key explicitly before creating the N:N relation.
+  const [maxAssociationResult] = await db.select({ maxId: sql<number>`COALESCE(MAX(id), 0)` }).from(establishmentCategories);
+  const nextAssociationId = Number(maxAssociationResult?.maxId || 0) + 1;
+
+  // Keep the legacy primary category and the N:N relation in sync for every
+  // creation path (admin, CSV bulk import, smart menu photos/spreadsheet).
+  await db.insert(establishmentCategories).values({
+    id: nextAssociationId,
+    establishmentId: nextEstId,
+    categoryId: data.categoryId,
+    isPrimary: true,
   });
 
   return { id: nextEstId, slug };
