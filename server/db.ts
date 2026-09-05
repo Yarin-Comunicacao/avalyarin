@@ -1985,6 +1985,7 @@ export async function createEstablishment(data: {
   hours?: string;
   image?: string;
   logo?: string;
+  source?: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -2042,7 +2043,7 @@ export async function createEstablishment(data: {
     logo: data.logo || null,
     hasMenu: false,
     status: initialStatus,
-    source: "admin",
+    source: data.source || "admin",
   });
 
   return { id: nextEstId, slug };

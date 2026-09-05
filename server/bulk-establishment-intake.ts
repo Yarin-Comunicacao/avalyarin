@@ -59,6 +59,7 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
       menuUrl: normalizeMenuUrl(row.menuUrl) || undefined,
       lastMenuUpdate: row.lastMenuUpdate || undefined,
       validationScore: row.validationScore ?? undefined,
+      source: "csv",
     });
 
     const establishmentId = Number(createdEstablishment.id);

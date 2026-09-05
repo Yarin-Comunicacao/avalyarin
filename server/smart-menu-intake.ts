@@ -218,6 +218,7 @@ export async function createSmartEstablishment(input: {
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,
     menuUrl: menuUrl || undefined,
+    source: input.spreadsheetBase64 ? "smart-menu-spreadsheet" : "smart-menu-photos",
     description: input.spreadsheetBase64
       ? "Cadastro criado a partir de planilha do cardápio; dados sujeitos à revisão."
       : "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
