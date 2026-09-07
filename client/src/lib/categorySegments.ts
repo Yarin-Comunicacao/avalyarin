@@ -1,4 +1,4 @@
-import { CakeSlice, ChefHat, PartyPopper } from "lucide-react";
+import { CakeSlice, ChefHat, Coffee, PartyPopper } from "lucide-react";
 
 export type SegmentCategory = {
   slug: string;
@@ -21,15 +21,22 @@ export const CATEGORY_SEGMENTS = [
   },
   {
     id: "bares-vida-noturna",
-    title: "Bares & Vida Noturna",
+    title: "Bares e Vida Noturna",
     subtitle: "Drinks, socialização e entretenimento",
     icon: PartyPopper,
     image: "/storage/category-optimized/group-bares-vida-noturna.webp",
   },
   {
-    id: "cafe-doces",
-    title: "Cafés & Doces",
-    subtitle: "Experiências diurnas, café e confeitaria",
+    id: "pingado-brunches",
+    title: "Pingado e Brunches",
+    subtitle: "Cafés, pães e experiências de brunch",
+    icon: Coffee,
+    image: "/storage/category-optimized/group-cafe-doces.webp",
+  },
+  {
+    id: "vai-um-docinho",
+    title: "Vai um docinho?",
+    subtitle: "Confeitarias, açaí e sobremesas",
     icon: CakeSlice,
     image: "/storage/category-optimized/group-cafe-doces.webp",
   },
