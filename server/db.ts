@@ -242,7 +242,7 @@ export async function getCategoriesWithCounts() {
     icon: categories.icon,
     active: categories.active,
     segment: categories.segment,
-    establishmentCount: sql<number>`COUNT(DISTINCT ${establishmentCategories.establishmentId})`,
+    establishmentCount: sql<number>`COUNT(DISTINCT ${establishments.id})`,
   })
     .from(categories)
     .leftJoin(establishmentCategories, eq(establishmentCategories.categoryId, categories.id))
@@ -264,21 +264,25 @@ export async function getCategoriesWithCounts() {
  * Used in all public-facing queries. Admin queries bypass this filter.
  * Only establishments with status = 'active' are visible to end users.
  */
-// Publicação exige dados básicos e pelo menos um item persistido no cardápio.
-// A verificação por EXISTS também protege registros antigos cujo hasMenu ficou desatualizado.
+// Publicação exige status active e pelo menos dois itens persistidos no cardápio.
+// A contagem consulta menu_items directamente para não depender de hasMenu desactualizado.
 const completeEstablishmentFilter = and(
   eq(establishments.status, 'active'),
-  sql`EXISTS (SELECT 1 FROM menu_items mi WHERE mi.establishmentId = ${establishments.id})`,
+  sql`(
+    SELECT COUNT(*)
+    FROM menu_items mi
+    WHERE mi.establishmentId = ${establishments.id}
+  ) >= 2`,
 );
 
 /**
- * Returns the number of missing publication criteria: address, hours and menu.
+ * Returns the number of missing publication criteria: address, hours and at least two menu items.
  */
 export function countMissingEstablishmentCriteria(est: { address: string | null; hours: string | null; hasMenu: boolean; menuItemCount?: number }): number {
   return [
     !est.address || est.address.trim() === '',
     !est.hours || est.hours.trim() === '',
-    !est.hasMenu || (est.menuItemCount !== undefined && est.menuItemCount < 1),
+    !est.hasMenu || (est.menuItemCount !== undefined && est.menuItemCount < 2),
   ].filter(Boolean).length;
 }
 
