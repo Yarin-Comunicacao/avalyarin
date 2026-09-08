@@ -137,6 +137,9 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     try {
       await deleteMutation.mutateAsync({ id });
       utils.admin.estabByCategory.invalidate();
+      utils.admin.ownerEstablishments.invalidate();
+      utils.admin.searchEstablishments.invalidate();
+      utils.admin.ownerEstablishmentStatusCounts.invalidate();
       utils.admin.categoriesWithCounts.invalidate();
       toast.success(`"${name}" excluído`);
     } catch {
@@ -200,11 +203,26 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
           <div className="space-y-1.5">
             {searchQuery.trim().length >= 2 && <p className="text-xs text-muted-foreground mb-2">{globalSearchData?.total ?? 0} resultado(s) encontrado(s)</p>}
             {ownerItems.map(est => (
-              <button key={est.id} onClick={() => navigate(`/admin/estab/${est.id}`)} className={`w-full p-3 rounded-lg border bg-card hover:border-primary/30 transition-all flex items-center gap-3 text-left ${!est.isComplete ? "border-red-500/30" : "border-border/50"}`}>
+              <div key={est.id} className={`w-full p-3 rounded-lg border bg-card hover:border-primary/30 transition-all flex items-center gap-3 ${!est.isComplete ? "border-red-500/30" : "border-border/50"}`}>
                 <Store className="w-5 h-5 text-primary shrink-0" />
-                <span className="flex-1 min-w-0"><span className="block font-medium text-foreground text-sm">{est.name}</span><span className="block text-xs text-muted-foreground truncate">{formatEstablishmentAddress(est.address, est.addressNumber)}{est.neighborhood ? ` • ${est.neighborhood}` : ""}{!est.isComplete ? ` • Faltam: ${est.missingFields.join(", ")}` : ""}</span></span>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-              </button>
+                <button type="button" onClick={() => navigate(`/admin/estab/${est.id}`)} className="flex-1 min-w-0 text-left">
+                  <span className="block font-medium text-foreground text-sm hover:text-primary transition-colors">{est.name}</span>
+                  <span className="block text-xs text-muted-foreground truncate">{formatEstablishmentAddress(est.address, est.addressNumber)}{est.neighborhood ? ` • ${est.neighborhood}` : ""}{!est.isComplete ? ` • Faltam: ${est.missingFields.join(", ")}` : ""}</span>
+                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button type="button" onClick={() => handleChangeStatus([est.id], "hidden")} title="Ocultar estabelecimento" aria-label={`Ocultar ${est.name}`} className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-orange-500 hover:bg-orange-500/10 transition-colors">
+                    <EyeOff className="w-4 h-4" />
+                    <span className="hidden sm:inline">Ocultar</span>
+                  </button>
+                  <button type="button" onClick={() => handleDelete(est.id, est.name)} title="Excluir estabelecimento" aria-label={`Excluir ${est.name}`} className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                    <span className="hidden sm:inline">Excluir</span>
+                  </button>
+                  <button type="button" onClick={() => navigate(`/admin/estab/${est.id}`)} title="Editar estabelecimento" aria-label={`Editar ${est.name}`} className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         ) : <div className="text-center py-8 text-muted-foreground"><Store className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>{searchQuery.trim().length >= 2 ? `Nenhum estabelecimento encontrado para “${searchQuery.trim()}”.` : "Nenhum estabelecimento nesta aba."}</p></div>}
