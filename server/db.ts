@@ -233,8 +233,10 @@ export async function getCategoriesWithCounts() {
   const db = await getDb();
   if (!db) return [];
   
-  // Count via N:N table to include establishments with multiple categories
-  const result = await db.select({
+  // TiDB does not accept the correlated menu-count subquery inside a
+  // LEFT JOIN ... ON condition. Resolve public establishments first, then
+  // count their N:N category associations in memory.
+  const categoryRows = await db.select({
     id: categories.id,
     slug: categories.slug,
     name: categories.name,
@@ -242,17 +244,34 @@ export async function getCategoriesWithCounts() {
     icon: categories.icon,
     active: categories.active,
     segment: categories.segment,
-    establishmentCount: sql<number>`COUNT(DISTINCT ${establishments.id})`,
-  })
-    .from(categories)
-    .leftJoin(establishmentCategories, eq(establishmentCategories.categoryId, categories.id))
-    .leftJoin(establishments, and(
-      eq(establishments.id, establishmentCategories.establishmentId),
-      completeEstablishmentFilter
-    ))
-    .groupBy(categories.id);
-  
-  return result;
+  }).from(categories);
+
+  const eligibleEstablishments = await db.select({ id: establishments.id })
+    .from(establishments)
+    .where(completeEstablishmentFilter);
+
+  const eligibleIds = eligibleEstablishments.map((row) => row.id);
+  const counts = new Map<number, Set<number>>();
+
+  if (eligibleIds.length > 0) {
+    const associations = await db.select({
+      establishmentId: establishmentCategories.establishmentId,
+      categoryId: establishmentCategories.categoryId,
+    })
+      .from(establishmentCategories)
+      .where(inArray(establishmentCategories.establishmentId, eligibleIds));
+
+    for (const association of associations) {
+      const establishmentSet = counts.get(association.categoryId) || new Set<number>();
+      establishmentSet.add(association.establishmentId);
+      counts.set(association.categoryId, establishmentSet);
+    }
+  }
+
+  return categoryRows.map((category) => ({
+    ...category,
+    establishmentCount: counts.get(category.id)?.size || 0,
+  }));
 }
 
 // ============================================================
