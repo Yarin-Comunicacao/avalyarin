@@ -340,6 +340,45 @@ export async function updateEstablishmentReservationConfig(
   }).where(eq(establishments.id, establishmentId));
 }
 
+export async function getEstablishmentsByCategorySlugs(categorySlugs: string[], limit = 100) {
+  const db = await getDb();
+  if (!db || categorySlugs.length === 0) return [];
+
+  const rows = await db.select({
+    establishment: establishments,
+    categoryId: categories.id,
+    categorySlug: categories.slug,
+    categoryName: categories.name,
+  })
+    .from(establishmentCategories)
+    .innerJoin(categories, eq(categories.id, establishmentCategories.categoryId))
+    .innerJoin(establishments, eq(establishments.id, establishmentCategories.establishmentId))
+    .where(and(
+      inArray(categories.slug, categorySlugs),
+      completeEstablishmentFilter,
+    ))
+    .orderBy(desc(establishments.name))
+    .limit(Math.max(limit * 3, limit));
+
+  const unique = new Map<number, any>();
+  for (const row of rows) {
+    const current = unique.get(row.establishment.id);
+    if (current) {
+      if (!current.segmentCategories.some((category: { id: number }) => category.id === row.categoryId)) {
+        current.segmentCategories.push({ id: row.categoryId, slug: row.categorySlug, name: row.categoryName });
+      }
+      continue;
+    }
+    unique.set(row.establishment.id, {
+      ...row.establishment,
+      segmentCategories: [{ id: row.categoryId, slug: row.categorySlug, name: row.categoryName }],
+    });
+    if (unique.size >= limit) break;
+  }
+
+  return Array.from(unique.values());
+}
+
 export async function getEstablishmentsByCategory(categorySlug: string, limit = 50, offset = 0, bypassFilter = false) {
   const db = await getDb();
   if (!db) return [];

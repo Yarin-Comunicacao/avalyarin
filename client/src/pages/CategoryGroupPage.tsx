@@ -31,6 +31,17 @@ export default function CategoryGroupPage() {
     return categories.filter((category) => categoryBelongsToSegment(category, group.title));
   }, [group, categories]);
 
+  const categorySlugs = useMemo(
+    () => groupCategories.map((category) => category.slug),
+    [groupCategories]
+  );
+
+  const { data: segmentEstablishments = [], isLoading: isLoadingEstablishments } =
+    trpc.establishments.bySegment.useQuery(
+      { categorySlugs, limit: 100 },
+      { enabled: categorySlugs.length > 0 }
+    );
+
   const totalEstablishments = useMemo(() => {
     return groupCategories.reduce((sum, c) => sum + (c.establishmentCount || 0), 0);
   }, [groupCategories]);
@@ -123,6 +134,64 @@ export default function CategoryGroupPage() {
                   </motion.div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Establishments in this segment */}
+      <section className="py-10">
+        <div className="container">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 className="font-display text-2xl tracking-wider text-primary">ESTABELECIMENTOS DO SEGMENTO</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Locais das categorias que pertencem a {group.title}.
+              </p>
+            </div>
+            <span className="text-sm text-primary font-semibold">
+              {segmentEstablishments.length} {segmentEstablishments.length === 1 ? "estabelecimento" : "estabelecimentos"}
+            </span>
+          </div>
+
+          {isLoadingEstablishments ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          ) : segmentEstablishments.length === 0 ? (
+            <p className="text-muted-foreground py-8">Nenhum estabelecimento elegível encontrado neste segmento.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {segmentEstablishments.map((establishment) => (
+                <Link key={establishment.id} href={`/estabelecimento/${establishment.slug}`}>
+                  <div className="group rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/40 transition-all cursor-pointer hover:glow-amber">
+                    {establishment.logo || establishment.image ? (
+                      <div className="relative h-44 overflow-hidden">
+                        <img
+                          src={establishment.logo || establishment.image || ""}
+                          alt={establishment.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+                      </div>
+                    ) : (
+                      <div className="h-24 bg-gradient-to-br from-primary/10 to-primary/5" />
+                    )}
+                    <div className="p-5">
+                      <h4 className="font-display text-xl tracking-wider text-foreground group-hover:text-primary transition-colors">
+                        {establishment.name}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {establishment.segmentCategories.map((category) => category.name).join(" · ")}
+                      </p>
+                      {establishment.neighborhood && (
+                        <p className="text-xs text-muted-foreground mt-2">{establishment.neighborhood}{establishment.city ? `, ${establishment.city}` : ""}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </div>

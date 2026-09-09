@@ -17,6 +17,7 @@ import {
   getCategoriesWithCounts,
   getCategoryBySlug,
   getEstablishmentsByCategory,
+  getEstablishmentsByCategorySlugs,
   getEstablishmentBySlug,
   getEstablishmentWithMenu,
   getNearbyEstablishments,
@@ -420,6 +421,15 @@ export const appRouter = router({
   }),
 
   establishments: router({
+    bySegment: publicProcedure
+      .input(z.object({
+        categorySlugs: z.array(z.string().min(1)).max(100),
+        limit: z.number().min(1).max(200).default(100),
+      }))
+      .query(async ({ input }) => {
+        return await getEstablishmentsByCategorySlugs(input.categorySlugs, input.limit);
+      }),
+
     byCategory: publicProcedure
       .input(z.object({
         categorySlug: z.string(),
