@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Utensils, PartyPopper, CakeSlice } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { getCategoryCover } from "@/lib/categoryCoverImages";
-import { CATEGORY_SEGMENTS, getCategorySlugsForSegment, type CategoryWithSegment } from "@/lib/categorySegments";
+import { CATEGORY_SEGMENTS, categoryBelongsToSegment, type CategoryWithSegment } from "@/lib/categorySegments";
 
 const categoryGroups = CATEGORY_SEGMENTS;
 
@@ -28,8 +28,7 @@ export default function CategoryGroupPage() {
 
   const groupCategories = useMemo(() => {
     if (!group || !categories.length) return [];
-    const categorySlugs = getCategorySlugsForSegment(categories, group.title);
-    return categories.filter((category) => categorySlugs.includes(category.slug));
+    return categories.filter((category) => categoryBelongsToSegment(category, group.title));
   }, [group, categories]);
 
   const totalEstablishments = useMemo(() => {
