@@ -1559,12 +1559,23 @@ export const appRouter = router({
     updateMenuFromOcr: adminProcedure
       .input(z.object({
         establishmentId: z.number().int().positive(),
-        base64Data: z.string().min(1),
-        mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]),
-        fileName: z.string().max(255).default("cardapio.jpg"),
+        base64Data: z.string().min(1).optional(),
+        sourceUrl: z.string().url().max(2048).optional(),
+        mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]).default("application/pdf"),
+        fileName: z.string().max(255).default("cardapio.pdf"),
+      }).refine(input => Boolean(input.base64Data || input.sourceUrl), {
+        message: "Envie um arquivo ou uma URL pública de cardápio.",
       }))
       .mutation(async ({ input }) => {
-        const imageBuffer = Buffer.from(input.base64Data, "base64");
+        if (input.sourceUrl) {
+          return await adminUpdateMenuFromOcr({
+            establishmentId: input.establishmentId,
+            sourceUrl: input.sourceUrl,
+            mimeType: input.mimeType,
+            fileName: input.fileName,
+          });
+        }
+        const imageBuffer = Buffer.from(input.base64Data!, "base64");
         if (imageBuffer.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Arquivo inválido." });
         if (imageBuffer.length > 50 * 1024 * 1024) {
           throw new TRPCError({ code: "BAD_REQUEST", message: "O arquivo deve ter no máximo 50 MB." });

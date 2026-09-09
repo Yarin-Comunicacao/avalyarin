@@ -76,6 +76,7 @@ export default function AdminEstabDetail() {
   const [editingInfo, setEditingInfo] = useState(false);
   const [savingInfo, setSavingInfo] = useState(false);
   const [updatingMenuOcr, setUpdatingMenuOcr] = useState(false);
+  const [menuSourceUrl, setMenuSourceUrl] = useState("");
   const menuOcrInputRef = useRef<HTMLInputElement>(null);
   const [editInfo, setEditInfo] = useState({
     name: '',
@@ -125,6 +126,36 @@ export default function AdminEstabDetail() {
       toast.success(`Cardápio atualizado: ${result.updated.length} item(ns) alterado(s) e ${result.added.length} novo(s).`);
     } catch (error: any) {
       toast.error(error?.message || "Não foi possível atualizar o cardápio por OCR.");
+    } finally {
+      setUpdatingMenuOcr(false);
+    }
+  };
+
+  const handleMenuUrlUpdate = async () => {
+    const sourceUrl = menuSourceUrl.trim();
+    if (!sourceUrl) {
+      toast.error("Informe o link público do cardápio.");
+      return;
+    }
+    try {
+      new URL(sourceUrl);
+    } catch {
+      toast.error("Informe uma URL válida.");
+      return;
+    }
+    setUpdatingMenuOcr(true);
+    try {
+      const result = await updateMenuFromOcrMutation.mutateAsync({
+        establishmentId: estabId,
+        sourceUrl,
+        mimeType: "application/pdf",
+        fileName: "cardapio-link.pdf",
+      });
+      setMenuSourceUrl("");
+      await utils.admin.estabDetail.invalidate({ id: estabId });
+      toast.success(`Cardápio atualizado: ${result.updated.length} item(ns) alterado(s) e ${result.added.length} novo(s).`);
+    } catch (error: any) {
+      toast.error(error?.message || "Não foi possível ler o link do cardápio.");
     } finally {
       setUpdatingMenuOcr(false);
     }
@@ -486,7 +517,26 @@ export default function AdminEstabDetail() {
                 {estab.menuItems?.length || 0} itens • {allMenuCategories.length} categorias
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="url"
+                  value={menuSourceUrl}
+                  onChange={(event) => setMenuSourceUrl(event.target.value)}
+                  placeholder="Link do cardápio (Drive, PDF...)"
+                  aria-label="Link do cardápio"
+                  className="w-52 rounded-lg border border-border bg-background px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground"
+                  disabled={updatingMenuOcr}
+                />
+                <button
+                  type="button"
+                  onClick={handleMenuUrlUpdate}
+                  disabled={updatingMenuOcr || !menuSourceUrl.trim()}
+                  className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                >
+                  Ler link
+                </button>
+              </div>
               <input
                 ref={menuOcrInputRef}
                 type="file"

@@ -485,16 +485,23 @@ function normalizeMenuPrice(value: unknown): number | null {
  */
 export async function adminUpdateMenuFromOcr(data: {
   establishmentId: number;
-  imageBuffer: Buffer;
+  imageBuffer?: Buffer;
+  sourceUrl?: string;
   mimeType: string;
   fileName: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Banco de dados indisponível");
 
-  const key = `menu-updates/${data.establishmentId}/${Date.now()}-${data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-  const { url } = await storagePut(key, data.imageBuffer, data.mimeType);
-  const extracted = await extractMenuWithOcr([{ url, key, mimeType: data.mimeType }], 1, 1);
+  let extracted;
+  if (data.sourceUrl) {
+    extracted = await extractMenuWithOcr([{ url: data.sourceUrl, mimeType: data.mimeType }], 1, 1);
+  } else {
+    if (!data.imageBuffer || data.imageBuffer.length === 0) throw new Error("Arquivo de cardápio inválido.");
+    const key = `menu-updates/${data.establishmentId}/${Date.now()}-${data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { url } = await storagePut(key, data.imageBuffer, data.mimeType);
+    extracted = await extractMenuWithOcr([{ url, key, mimeType: data.mimeType }], 1, 1);
+  }
   if (!hasAcceptableMenuQuality(extracted)) {
     throw new Error("O cardápio não pôde ser lido com qualidade suficiente. Envie uma foto nítida ou um PDF legível.");
   }
@@ -542,7 +549,7 @@ export async function adminUpdateMenuFromOcr(data: {
     }
   }
 
-  return { success: true, sourceUrl: url, updated, added, unchanged: existing.length - usedIds.size };
+  return { success: true, sourceUrl: data.sourceUrl || null, updated, added, unchanged: existing.length - usedIds.size };
 }
 
 /**

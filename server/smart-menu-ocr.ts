@@ -84,6 +84,7 @@ export function parseMenuText(text: string): OcrExtractedMenu {
   const sections: OcrExtractedSection[] = [];
   let current: OcrExtractedSection = { name: "Outros", items: [] };
   let pendingLines: string[] = [];
+  let lastPricedItem: OcrExtractedItem | null = null;
   sections.push(current);
 
   const flushPending = () => {
@@ -109,21 +110,29 @@ export function parseMenuText(text: string): OcrExtractedMenu {
       const existing = sections.find(section => section.name.toLocaleLowerCase("pt-BR") === name.toLocaleLowerCase("pt-BR"));
       current = existing || { name, items: [] };
       if (!existing) sections.push(current);
+      lastPricedItem = null;
       continue;
     }
 
+    if (/^(?:janeiro|fevereiro|março|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+\d{4}$/i.test(line)) continue;
+
     const { name, price } = extractPrice(line);
     if (price !== null) {
-      if (name.length >= 2) {
-        const [pendingName, ...descriptionLines] = pendingLines;
-        current.items.push({
-          name: (pendingName || name).slice(0, 255),
-          description: (pendingName ? [...descriptionLines, name] : descriptionLines).join(" ").slice(0, 1000) || null,
+      const [pendingName, ...descriptionLines] = pendingLines;
+      const hasDescriptionForPreviousItem = lastPricedItem && name.length >= 2 && pendingLines.length > 0;
+      if (hasDescriptionForPreviousItem) {
+        lastPricedItem!.description = [lastPricedItem!.description, ...pendingLines].filter(Boolean).join(" ").slice(0, 1000) || null;
+        pendingLines = [];
+      }
+      const itemName = (name.length >= 2 ? name : pendingName || "").slice(0, 255);
+      if (itemName.length >= 2) {
+        const item: OcrExtractedItem = {
+          name: itemName,
+          description: hasDescriptionForPreviousItem ? null : descriptionLines.join(" ").slice(0, 1000) || null,
           price,
-        });
-      } else if (pendingLines.length > 0) {
-        const [pendingName, ...descriptionLines] = pendingLines;
-        current.items.push({ name: pendingName.slice(0, 255), description: descriptionLines.join(" ").slice(0, 1000) || null, price });
+        };
+        current.items.push(item);
+        lastPricedItem = item;
       }
       pendingLines = [];
       continue;
@@ -225,17 +234,48 @@ async function rasterizePdf(input: Buffer): Promise<Buffer[]> {
   }
 }
 
-async function downloadMenuFile(photo: OcrPhoto): Promise<{ input: Buffer; mimeType: string }> {
-  let response = await fetch(photo.url);
-  if (!response.ok && /drive\.(?:google\.com|usercontent\.google\.com)/i.test(photo.url)) {
-    const id = photo.url.match(/[?&]id=([^&]+)/)?.[1] || photo.url.match(/\/d\/([^/]+)/)?.[1];
-    if (id) response = await fetch(`https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`);
+function getGoogleDriveFileId(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const fromQuery = parsed.searchParams.get("id");
+    const fromPath = parsed.pathname.match(/\/file\/d\/([^/]+)/)?.[1] || parsed.pathname.match(/\/d\/([^/]+)/)?.[1];
+    return fromQuery || fromPath || null;
+  } catch {
+    return null;
   }
-  if (!response.ok) throw new Error(`Não foi possível baixar o arquivo do cardápio (${response.status})`);
-  return {
-    input: Buffer.from(await response.arrayBuffer()),
-    mimeType: (photo.mimeType || response.headers.get("content-type") || "").split(";", 1)[0].toLowerCase(),
-  };
+}
+
+async function downloadMenuFile(photo: OcrPhoto): Promise<{ input: Buffer; mimeType: string }> {
+  const isDriveUrl = /(?:^|\.)drive\.google\.com$|(?:^|\.)usercontent\.google\.com$/i.test(new URL(photo.url).hostname);
+  const driveId = isDriveUrl ? getGoogleDriveFileId(photo.url) : null;
+  const candidates = driveId
+    ? [
+        `https://drive.usercontent.google.com/download?id=${encodeURIComponent(driveId)}&export=download&confirm=t`,
+        `https://drive.google.com/uc?export=download&id=${encodeURIComponent(driveId)}&confirm=t`,
+        photo.url,
+      ]
+    : [photo.url];
+
+  let lastStatus = 0;
+  let lastContentType = "";
+  for (const candidate of candidates) {
+    const response = await fetch(candidate, { redirect: "follow" });
+    lastStatus = response.status;
+    lastContentType = response.headers.get("content-type") || "";
+    if (!response.ok) continue;
+    const input = Buffer.from(await response.arrayBuffer());
+    const detectedMimeType = (photo.mimeType || lastContentType).split(";", 1)[0].toLowerCase();
+    const isPdf = input.subarray(0, 4).toString("ascii") === "%PDF";
+    const isImage = /^image\/(jpeg|png|webp)$/i.test(detectedMimeType) || /^\x89PNG|^\xff\xd8\xff|^RIFF[\s\S]{4}WEBP/.test(input.toString("latin1", 0, 16));
+    if (isPdf || isImage) {
+      return { input, mimeType: isPdf ? "application/pdf" : detectedMimeType };
+    }
+  }
+
+  if (lastContentType.toLowerCase().includes("text/html")) {
+    throw new Error("O link do Google Drive retornou uma página HTML. Verifique se o arquivo está compartilhado como 'Qualquer pessoa com o link' e tente novamente.");
+  }
+  throw new Error(`Não foi possível baixar o arquivo do cardápio (${lastStatus || "resposta inválida"})`);
 }
 
 export async function extractMenuWithOcr(photos: OcrPhoto[], batchNumber: number, totalBatches: number): Promise<OcrExtractedMenu> {
