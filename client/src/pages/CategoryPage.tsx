@@ -115,9 +115,9 @@ export default function CategoryPage() {
                   transition={{ delay: Math.min(i * 0.05, 1), duration: 0.5 }}
                 >
                   <Link href={`/estabelecimento/${est.slug}`}>
-                    <div className="group rounded-xl overflow-hidden bg-card border border-border/50 hover:border-primary/40 transition-all cursor-pointer hover:glow-amber">
+                    <div className="group relative rounded-xl bg-card border border-border/50 hover:border-primary/40 transition-all cursor-pointer hover:glow-amber">
                       {est.image ? (
-                        <div className="relative h-52 overflow-hidden">
+                        <div className="relative h-52 overflow-hidden rounded-t-xl">
                           <img
                             src={est.image}
                             alt={est.name}
@@ -135,7 +135,7 @@ export default function CategoryPage() {
                           )}
                         </div>
                       ) : (
-                        <div className="relative h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                        <div className="relative h-32 rounded-t-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
                           {est.rating && (
                             <div className="absolute bottom-3 left-4 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-border/50">
                               <Star className="w-3.5 h-3.5 text-primary fill-primary" />
@@ -147,7 +147,12 @@ export default function CategoryPage() {
                           )}
                         </div>
                       )}
-                      <div className="p-5">
+                      {est.logo && (
+                        <div className={`absolute z-10 left-1/2 ${est.image ? "top-52" : "top-32"} -translate-x-1/2 translate-y-1/2 h-20 w-20 rounded-full border-4 border-card bg-card shadow-lg flex items-center justify-center overflow-hidden`}>
+                          <img src={est.logo} alt={`Logo ${est.name}`} className="h-full w-full rounded-full object-contain" />
+                        </div>
+                      )}
+                      <div className={`rounded-b-xl p-5 ${est.logo ? "pt-14" : ""}`}>
                         <h3 className="font-display text-2xl tracking-wider text-foreground group-hover:text-primary transition-colors">
                           {est.name.toUpperCase()}
                         </h3>
