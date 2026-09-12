@@ -14,7 +14,7 @@ import { Link, useParams, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   ArrowLeft, Store, Plus, Pencil, Trash2, Image as ImageIcon,
-  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle
+  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle, Loader2
 } from "lucide-react";
 import {
   DndContext,
@@ -235,6 +235,17 @@ export default function AdminEstabDetail() {
           <Shield className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h1 className="font-display text-2xl text-foreground mb-2">ACESSO RESTRITO</h1>
           <button onClick={() => window.history.back()} className="text-primary hover:underline">Voltar ao Admin</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="safe-area-screen min-h-screen flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
+          <p className="text-sm">Carregando estabelecimento...</p>
         </div>
       </div>
     );
