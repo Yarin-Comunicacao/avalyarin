@@ -220,7 +220,7 @@ export default function AdminEstabDetail() {
     window.history.back();
   };
 
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="safe-area-screen min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary font-display text-2xl">Carregando...</div>
