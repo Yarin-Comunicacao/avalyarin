@@ -78,6 +78,9 @@ export default function AdminEstabDetail() {
   const [updatingMenuOcr, setUpdatingMenuOcr] = useState(false);
   const [menuSourceUrl, setMenuSourceUrl] = useState("");
   const menuOcrInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingBrandAsset, setUploadingBrandAsset] = useState<"logo" | "cover" | null>(null);
   const [editInfo, setEditInfo] = useState({
     name: '',
     description: '',
@@ -89,9 +92,41 @@ export default function AdminEstabDetail() {
     instagram: '',
     hours: '',
     status: 'active' as 'active' | 'hidden' | 'pending',
+    logo: '',
+    image: '',
   });
 
   const updateMenuFromOcrMutation = trpc.admin.updateMenuFromOcr.useMutation();
+
+  const handleBrandAssetUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: "logo" | "cover") => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Envie apenas uma imagem para este campo.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5 MB.");
+      return;
+    }
+    setUploadingBrandAsset(type);
+    try {
+      const response = await fetch(type === "logo" ? "/api/upload-logo" : "/api/upload-cover", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: await file.arrayBuffer(),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.url) throw new Error(payload.error || "Falha no upload da imagem.");
+      setEditInfo(previous => ({ ...previous, [type === "logo" ? "logo" : "image"]: payload.url }));
+      toast.success(type === "logo" ? "Logo carregado. Clique em Salvar para aplicar." : "Foto de fundo carregada. Clique em Salvar para aplicar.");
+    } catch (error: any) {
+      toast.error(error?.message || "Não foi possível enviar a imagem.");
+    } finally {
+      setUploadingBrandAsset(null);
+    }
+  };
 
   const handleMenuOcrUpdate = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -186,6 +221,8 @@ export default function AdminEstabDetail() {
         instagram: estab.instagram || '',
         hours: estab.hours || '',
         status: estab.status || 'active',
+        logo: estab.logo || '',
+        image: estab.image || '',
       });
       setEditingInfo(true);
     }
@@ -205,6 +242,8 @@ export default function AdminEstabDetail() {
       instagram: editInfo.instagram || undefined,
       hours: editInfo.hours || undefined,
       status: editInfo.status,
+      logo: editInfo.logo || undefined,
+      image: editInfo.image || undefined,
     }, {
       onSettled: () => setSavingInfo(false),
     });
@@ -348,6 +387,32 @@ export default function AdminEstabDetail() {
 
           {editingInfo ? (
             <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input ref={logoInputRef} type="file" accept="image/*" onChange={(event) => handleBrandAssetUpload(event, "logo")} className="hidden" />
+                <input ref={coverInputRef} type="file" accept="image/*" onChange={(event) => handleBrandAssetUpload(event, "cover")} className="hidden" />
+                <div className="rounded-lg border border-border/60 bg-background/50 p-3">
+                  <label className="text-xs text-muted-foreground block mb-2">Logo do estabelecimento</label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-border bg-card flex items-center justify-center">
+                      {editInfo.logo ? <img src={editInfo.logo} alt="Logo atual" className="h-full w-full rounded-full object-contain" /> : <Store className="h-6 w-6 text-muted-foreground/50" />}
+                    </div>
+                    <button type="button" onClick={() => logoInputRef.current?.click()} disabled={uploadingBrandAsset !== null} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary/50 disabled:opacity-50">
+                      <Upload className="h-3.5 w-3.5" /> {uploadingBrandAsset === "logo" ? "Enviando..." : "Adicionar logo"}
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-border/60 bg-background/50 p-3">
+                  <label className="text-xs text-muted-foreground block mb-2">Foto de fundo</label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-card flex items-center justify-center">
+                      {editInfo.image ? <img src={editInfo.image} alt="Foto de fundo atual" className="h-full w-full object-cover" /> : <ImageIcon className="h-6 w-6 text-muted-foreground/50" />}
+                    </div>
+                    <button type="button" onClick={() => coverInputRef.current?.click()} disabled={uploadingBrandAsset !== null} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary/50 disabled:opacity-50">
+                      <Upload className="h-3.5 w-3.5" /> {uploadingBrandAsset === "cover" ? "Enviando..." : "Adicionar foto"}
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Nome</label>
