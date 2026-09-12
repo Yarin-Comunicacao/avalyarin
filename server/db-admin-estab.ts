@@ -5,7 +5,7 @@
  * individual establishment admin page, and menu item CRUD with images.
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
-import { establishments, menuItems, categories, menuCategories, establishmentCategories } from "../drizzle/schema";
+import { establishments, menuItems, categories, menuCategories, establishmentCategories, type MenuItemExtra } from "../drizzle/schema";
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 import { generateMenuItemTags } from "./auto-tags";
@@ -312,6 +312,7 @@ export async function adminAddMenuItem(data: {
   imageKey?: string;
   imageThumbUrl?: string;
   imageThumbKey?: string;
+  extras?: MenuItemExtra[];
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -342,6 +343,7 @@ export async function adminAddMenuItem(data: {
     imageThumbUrl: data.imageThumbUrl || null,
     imageThumbKey: data.imageThumbKey || null,
     tags: autoTags,
+    extras: data.extras || [],
   });
 
   // Ensure category is tracked in menu_categories table
@@ -370,6 +372,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   imageKey?: string;
   imageThumbUrl?: string;
   imageThumbKey?: string;
+  extras?: MenuItemExtra[];
 }) {
   const db = await getDb();
   if (!db) return null;
@@ -384,6 +387,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
   if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;
   if (data.imageThumbKey !== undefined) updateData.imageThumbKey = data.imageThumbKey;
+  if (data.extras !== undefined) updateData.extras = data.extras;
 
   // Regenerate tags when the item name or category changes.
   if (data.name !== undefined || data.category !== undefined) {

@@ -1528,6 +1528,10 @@ export const appRouter = router({
         imageKey: z.string().optional(),
         imageThumbUrl: z.string().optional(),
         imageThumbKey: z.string().optional(),
+        extras: z.array(z.object({
+          name: z.string().trim().min(1).max(255),
+          price: z.number().min(0).max(100000),
+        })).max(50).optional(),
       }))
       .mutation(async ({ input }) => {
         return await adminAddMenuItem(input);
@@ -1544,6 +1548,10 @@ export const appRouter = router({
         imageKey: z.string().optional(),
         imageThumbUrl: z.string().optional(),
         imageThumbKey: z.string().optional(),
+        extras: z.array(z.object({
+          name: z.string().trim().min(1).max(255),
+          price: z.number().min(0).max(100000),
+        })).max(50).optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

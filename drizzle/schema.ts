@@ -104,6 +104,14 @@ export type Establishment = typeof establishments.$inferSelect;
 export type InsertEstablishment = typeof establishments.$inferInsert;
 
 /**
+ * Optional paid or free add-ons for a menu item.
+ */
+export type MenuItemExtra = {
+  name: string;
+  price: number;
+};
+
+/**
  * Menu items table - dishes, drinks, etc. belonging to an establishment
  */
 export const menuItems = mysqlTable("menu_items", {
@@ -119,6 +127,7 @@ export const menuItems = mysqlTable("menu_items", {
   imageThumbUrl: text("imageThumbUrl"),
   imageThumbKey: varchar("imageThumbKey", { length: 512 }),
   tags: json("tags").$type<string[]>(),
+  extras: json("extras").$type<MenuItemExtra[]>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

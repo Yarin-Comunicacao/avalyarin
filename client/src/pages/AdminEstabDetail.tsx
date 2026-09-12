@@ -890,6 +890,11 @@ function MenuItemForm({
   const [customCategory, setCustomCategory] = useState("");
   const [imageUrl, setImageUrl] = useState(editItem?.imageUrl || "");
   const [imageThumbUrl, setImageThumbUrl] = useState(editItem?.imageThumbUrl || "");
+  const initialExtras = Array.isArray(editItem?.extras)
+    ? editItem.extras.map((extra: any) => ({ name: String(extra?.name || ""), price: String(extra?.price ?? "0") }))
+    : [];
+  const [extrasEnabled, setExtrasEnabled] = useState(initialExtras.length > 0);
+  const [extras, setExtras] = useState<Array<{ name: string; price: string }>>(initialExtras);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -919,6 +924,11 @@ function MenuItemForm({
       category: finalCategory,
       imageUrl: imageUrl || undefined,
       imageThumbUrl: imageThumbUrl || undefined,
+      extras: extrasEnabled
+        ? extras
+            .filter(extra => extra.name.trim())
+            .map(extra => ({ name: extra.name.trim(), price: extra.price.trim() ? Math.max(0, parseFloat(extra.price.replace(",", ".")) || 0) : 0 }))
+        : [],
     };
 
     try {
@@ -935,6 +945,26 @@ function MenuItemForm({
     } catch {
       toast.error("Erro ao salvar item");
     }
+  };
+
+  const toggleExtras = (enabled: boolean) => {
+    setExtrasEnabled(enabled);
+    if (enabled && extras.length === 0) {
+      setExtras([{ name: "", price: "0" }]);
+    }
+  };
+
+  const addExtra = () => {
+    setExtrasEnabled(true);
+    setExtras(current => [...current, { name: "", price: "0" }]);
+  };
+
+  const updateExtra = (index: number, field: "name" | "price", value: string) => {
+    setExtras(current => current.map((extra, extraIndex) => extraIndex === index ? { ...extra, [field]: value } : extra));
+  };
+
+  const removeExtra = (index: number) => {
+    setExtras(current => current.filter((_, extraIndex) => extraIndex !== index));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1056,6 +1086,65 @@ function MenuItemForm({
               className="w-full mt-2 px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
               placeholder="Nome da nova categoria"
             />
+          )}
+        </div>
+
+        {/* Add-ons */}
+        <div className="sm:col-span-2 rounded-lg border border-border/60 bg-background/40 p-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={extrasEnabled}
+              onChange={(event) => toggleExtras(event.target.checked)}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            Este item possui adicionais
+          </label>
+          {extrasEnabled && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Adicione opções gratuitas ou informe um valor extra. Use R$ 0,00 para adicionais gratuitos.
+              </p>
+              {extras.map((extra, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={extra.name}
+                    onChange={(event) => updateExtra(index, "name", event.target.value)}
+                    placeholder="Nome do adicional (ex.: Ovo)"
+                    aria-label={`Nome do adicional ${index + 1}`}
+                    className="min-w-0 flex-1 px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                  />
+                  <div className="relative w-32 shrink-0">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={extra.price}
+                      onChange={(event) => updateExtra(index, "price", event.target.value)}
+                      aria-label={`Valor do adicional ${index + 1}`}
+                      className="w-full pl-9 pr-2 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeExtra(index)}
+                    aria-label={`Remover adicional ${index + 1}`}
+                    className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addExtra}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                + adicionar novo item extra
+              </button>
+            </div>
           )}
         </div>
 
