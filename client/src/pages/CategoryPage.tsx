@@ -148,7 +148,7 @@ export default function CategoryPage() {
                         </div>
                       )}
                       {est.logo && (
-                        <div className={`absolute z-10 left-1/2 ${est.image ? "top-52" : "top-32"} -translate-x-1/2 translate-y-1/2 h-20 w-20 rounded-full border-4 border-card bg-card shadow-lg flex items-center justify-center overflow-hidden`}>
+                        <div className="absolute z-10 left-1/2 top-0 -translate-x-1/2 h-[12.5rem] w-[12.5rem] rounded-full border-4 border-card bg-card shadow-lg flex items-center justify-center overflow-hidden">
                           <img src={est.logo} alt={`Logo ${est.name}`} className="h-full w-full rounded-full object-contain" />
                         </div>
                       )}
