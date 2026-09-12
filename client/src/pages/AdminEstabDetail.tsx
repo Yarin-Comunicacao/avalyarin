@@ -14,7 +14,7 @@ import { Link, useParams, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   ArrowLeft, Store, Plus, Pencil, Trash2, Image as ImageIcon,
-  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle, Loader2
+  Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle
 } from "lucide-react";
 import {
   DndContext,
@@ -56,7 +56,7 @@ export default function AdminEstabDetail() {
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
   const fromCategoryId = searchParams.get("fromCategory");
 
-  const { data: estab, isLoading } = trpc.admin.estabDetail.useQuery(
+  const { data: estab, isFetched } = trpc.admin.estabDetail.useQuery(
     { id: estabId },
     { enabled: !!estabId }
   );
@@ -240,15 +240,8 @@ export default function AdminEstabDetail() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="safe-area-screen min-h-screen flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
-          <p className="text-sm">Carregando estabelecimento...</p>
-        </div>
-      </div>
-    );
+  if (!isFetched) {
+    return null;
   }
 
   if (!estab) {
