@@ -224,10 +224,20 @@ export default function EstablishmentPage() {
     }
   };
 
-  const MenuSection = ({ items, title, id }: { items: typeof menu; title: string; id: string }) => (
+  const MenuSection = ({ items, title, id }: { items: typeof menu; title: string; id: string }) => {
+    const subgroups = new Map<string, typeof items>();
+    for (const item of items as any[]) {
+      const subcategory = item.subcategory || "";
+      if (!subgroups.has(subcategory)) subgroups.set(subcategory, []);
+      subgroups.get(subcategory)!.push(item);
+    }
+    return (
     <div id={id} className="space-y-2 scroll-mt-40 mb-8">
       <h4 className="font-display text-xl tracking-wider text-primary mb-4 border-b border-primary/10 pb-2">{title.toUpperCase()}</h4>
-      {items.map((item: any) => (
+      {Array.from(subgroups.entries()).map(([subcategory, subgroupItems]) => (
+        <div key={subcategory || "sem-subcategoria"} className="space-y-2">
+          {subcategory && <h5 className="pt-2 text-sm font-display tracking-wider text-foreground/80">{subcategory.toUpperCase()}</h5>}
+          {subgroupItems.map((item: any) => (
         <div
           key={item.id}
           onClick={() => { setFilterItem(item.name); setActiveSection("avaliacoes"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -266,9 +276,12 @@ export default function EstablishmentPage() {
             R$ {Number(item.price).toFixed(2).replace(".", ",")}
           </span>
         </div>
+          ))}
+        </div>
       ))}
     </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen">

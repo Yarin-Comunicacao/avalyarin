@@ -308,6 +308,7 @@ export async function adminAddMenuItem(data: {
   description?: string;
   price?: number;
   category?: string;
+  subcategory?: string;
   imageUrl?: string;
   imageKey?: string;
   imageThumbUrl?: string;
@@ -338,6 +339,7 @@ export async function adminAddMenuItem(data: {
     description: data.description || null,
     price: data.price || null,
     category: finalCategory,
+    subcategory: data.subcategory ? capitalizeCategory(data.subcategory) : null,
     imageUrl: data.imageUrl || null,
     imageKey: data.imageKey || null,
     imageThumbUrl: data.imageThumbUrl || null,
@@ -368,6 +370,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   description?: string;
   price?: number;
   category?: string;
+  subcategory?: string;
   imageUrl?: string;
   imageKey?: string;
   imageThumbUrl?: string;
@@ -383,6 +386,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.description !== undefined) updateData.description = data.description;
   if (data.price !== undefined) updateData.price = data.price;
   if (data.category !== undefined) updateData.category = capitalizeCategory(data.category);
+  if (data.subcategory !== undefined) updateData.subcategory = data.subcategory ? capitalizeCategory(data.subcategory) : null;
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
   if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;

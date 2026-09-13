@@ -929,6 +929,11 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
               {item.category}
             </span>
           )}
+          {item.subcategory && (
+            <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
+              {item.subcategory}
+            </span>
+          )}
           {hasNoPhoto && (
             <span className="text-xs text-red-400 flex items-center gap-1 font-medium">
               <ImageIcon className="w-3 h-3" /> Sem foto
@@ -956,6 +961,7 @@ function MenuItemForm({
   const [description, setDescription] = useState(editItem?.description || "");
   const [price, setPrice] = useState(editItem?.price?.toString() || "");
   const [category, setCategory] = useState(editItem?.category || "");
+  const [subcategory, setSubcategory] = useState(editItem?.subcategory || "");
   const [customCategory, setCustomCategory] = useState("");
   const [imageUrl, setImageUrl] = useState(editItem?.imageUrl || "");
   const [imageThumbUrl, setImageThumbUrl] = useState(editItem?.imageThumbUrl || "");
@@ -991,6 +997,7 @@ function MenuItemForm({
       description: description.trim() || undefined,
       price: price ? parseFloat(price) : undefined,
       category: finalCategory,
+      subcategory: subcategory.trim() ? capitalize(subcategory.trim()) : undefined,
       imageUrl: imageUrl || undefined,
       imageThumbUrl: imageThumbUrl || undefined,
       extras: extrasEnabled
@@ -1158,6 +1165,19 @@ function MenuItemForm({
           )}
         </div>
 
+        {/* Add-ons */}
+        <div className="sm:col-span-2">
+          <label className="block text-xs text-muted-foreground mb-1">Subcategoria do Cardápio <span className="text-muted-foreground/70">(opcional)</span></label>
+          <input
+            type="text"
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+            placeholder="Ex: Gin, Tequila, Whisky"
+            maxLength={64}
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">Use para separar itens dentro da mesma categoria, como Doses → Gin.</p>
+        </div>
         {/* Add-ons */}
         <div className="sm:col-span-2 rounded-lg border border-border/60 bg-background/40 p-3">
           <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">

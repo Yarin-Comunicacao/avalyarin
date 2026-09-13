@@ -122,6 +122,7 @@ export const menuItems = mysqlTable("menu_items", {
   description: text("description"),
   price: float("price"),
   category: varchar("category", { length: 64 }),
+  subcategory: varchar("subcategory", { length: 64 }),
   imageUrl: text("imageUrl"),
   imageKey: varchar("imageKey", { length: 512 }),
   imageThumbUrl: text("imageThumbUrl"),
