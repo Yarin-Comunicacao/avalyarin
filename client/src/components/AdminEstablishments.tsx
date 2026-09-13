@@ -10,7 +10,7 @@
  */
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   Store, Eye, EyeOff, ChevronRight, ArrowLeft,
@@ -83,10 +83,14 @@ function formatEstablishmentAddress(address?: string | null, addressNumber?: str
 }
 
 export default function AdminEstablishments({ initialCategoryId, ownerView = false }: { initialCategoryId?: number; ownerView?: boolean }) {
+  const searchString = useSearch();
+  const restoreParams = new URLSearchParams(searchString);
+  const restoredStatus = restoreParams.get("status");
+  const restoredSearch = restoreParams.get("search") || "";
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(initialCategoryId ?? null);
-  const [activeTab, setActiveTab] = useState<StatusTab>("active");
+  const [activeTab, setActiveTab] = useState<StatusTab>(restoredStatus === "pending" || restoredStatus === "hidden" ? restoredStatus : "active");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(restoredSearch);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [, navigate] = useLocation();
 
@@ -205,7 +209,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
             {ownerItems.map(est => (
               <div key={est.id} className={`w-full p-3 rounded-lg border bg-card hover:border-primary/30 transition-all flex items-center gap-3 ${!est.isComplete ? "border-red-500/30" : "border-border/50"}`}>
                 <Store className="w-5 h-5 text-primary shrink-0" />
-                <button type="button" onClick={() => navigate(`/admin/estab/${est.id}`)} className="flex-1 min-w-0 text-left">
+                  <button type="button" onClick={() => navigate(`/admin/estab/${est.id}?from=owner-establishments&status=${activeTab}&search=${encodeURIComponent(searchQuery)}`)} className="flex-1 min-w-0 text-left">
                   <span className="block font-medium text-foreground text-sm hover:text-primary transition-colors">{est.name}</span>
                   <span className="block text-xs text-muted-foreground truncate">{formatEstablishmentAddress(est.address, est.addressNumber)}{est.neighborhood ? ` • ${est.neighborhood}` : ""}{!est.isComplete ? ` • Faltam: ${est.missingFields.join(", ")}` : ""}</span>
                 </button>
@@ -218,7 +222,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
                     <Trash2 className="w-4 h-4" />
                     <span className="hidden sm:inline">Excluir</span>
                   </button>
-                  <button type="button" onClick={() => navigate(`/admin/estab/${est.id}`)} title="Editar estabelecimento" aria-label={`Editar ${est.name}`} className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors">
+                  <button type="button" onClick={() => navigate(`/admin/estab/${est.id}?from=owner-establishments&status=${activeTab}&search=${encodeURIComponent(searchQuery)}`)} title="Editar estabelecimento" aria-label={`Editar ${est.name}`} className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>

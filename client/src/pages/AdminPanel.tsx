@@ -55,7 +55,9 @@ export default function AdminPanel() {
 
   // Sub-tab state per section
   const [equipeTab, setEquipeTab] = useState<"user" | "critic" | "specialist" | "business" | "support" | "admin">(isOwnerEquipeRoute ? "user" : "business");
-  const [negocioTab, setNegocioTab] = useState<"dashboard" | "establishments" | "promos" | "planos">("dashboard");
+  const [negocioTab, setNegocioTab] = useState<"dashboard" | "establishments" | "promos" | "planos">(
+    searchParams.get("tab") === "establishments" ? "establishments" : "dashboard"
+  );
   const [permissoesTab, setPermissoesTab] = useState<"claims" | "age-verification" | "insights" | "role-requests">("claims");
   const [configTab, setConfigTab] = useState<"integrations">("integrations");
 

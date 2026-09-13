@@ -55,6 +55,7 @@ export default function AdminEstabDetail() {
   // Parse query params for back navigation
   const searchParams = useMemo(() => new URLSearchParams(searchString), [searchString]);
   const fromCategoryId = searchParams.get("fromCategory");
+  const fromOwnerEstablishments = searchParams.get("from") === "owner-establishments";
 
   const { data: estab, isFetched } = trpc.admin.estabDetail.useQuery(
     { id: estabId },
@@ -256,6 +257,16 @@ export default function AdminEstabDetail() {
   );
 
   const handleBack = () => {
+    if (fromOwnerEstablishments) {
+      const params = new URLSearchParams({
+        tab: "establishments",
+        status: searchParams.get("status") || "active",
+      });
+      const search = searchParams.get("search");
+      if (search) params.set("search", search);
+      navigate(`/owner/analytics?${params.toString()}`);
+      return;
+    }
     window.history.back();
   };
 
