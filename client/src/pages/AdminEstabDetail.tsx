@@ -316,6 +316,9 @@ export default function AdminEstabDetail() {
     .filter(c => !orderedSet.has(c.toLowerCase()))
     .sort();
   const allMenuCategories = [...menuCategories, ...extraCategories];
+  const allMenuSubcategories = Array.from(new Set(
+    (estab.menuItems || []).map((item: any) => item.subcategory).filter(Boolean)
+  )).sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
 
   const filteredMenu = filterCategory === "all"
     ? estab.menuItems || []
@@ -687,6 +690,7 @@ export default function AdminEstabDetail() {
               establishmentId={estabId}
               onClose={() => setShowAddForm(false)}
               existingCategories={allMenuCategories}
+              existingSubcategories={allMenuSubcategories}
             />
           )}
 
@@ -701,6 +705,7 @@ export default function AdminEstabDetail() {
                     editItem={item}
                     onClose={() => setEditingItem(null)}
                     existingCategories={allMenuCategories}
+                    existingSubcategories={allMenuSubcategories}
                   />
                 ) : (
                   <MenuItemCard
@@ -951,17 +956,21 @@ function MenuItemForm({
   editItem,
   onClose,
   existingCategories,
+  existingSubcategories,
 }: {
   establishmentId: number;
   editItem?: any;
   onClose: () => void;
   existingCategories: string[];
+  existingSubcategories: string[];
 }) {
   const [name, setName] = useState(editItem?.name || "");
   const [description, setDescription] = useState(editItem?.description || "");
   const [price, setPrice] = useState(editItem?.price?.toString() || "");
   const [category, setCategory] = useState(editItem?.category || "");
   const [subcategory, setSubcategory] = useState(editItem?.subcategory || "");
+  const [subcategoryEnabled, setSubcategoryEnabled] = useState(Boolean(editItem?.subcategory));
+  const [customSubcategory, setCustomSubcategory] = useState("");
   const [customCategory, setCustomCategory] = useState("");
   const [imageUrl, setImageUrl] = useState(editItem?.imageUrl || "");
   const [imageThumbUrl, setImageThumbUrl] = useState(editItem?.imageThumbUrl || "");
@@ -997,7 +1006,7 @@ function MenuItemForm({
       description: description.trim() || undefined,
       price: price ? parseFloat(price) : undefined,
       category: finalCategory,
-      subcategory: subcategory.trim() ? capitalize(subcategory.trim()) : undefined,
+      subcategory: subcategoryEnabled && subcategory.trim() ? capitalize(subcategory.trim()) : undefined,
       imageUrl: imageUrl || undefined,
       imageThumbUrl: imageThumbUrl || undefined,
       extras: extrasEnabled
@@ -1165,18 +1174,55 @@ function MenuItemForm({
           )}
         </div>
 
-        {/* Add-ons */}
-        <div className="sm:col-span-2">
-          <label className="block text-xs text-muted-foreground mb-1">Subcategoria do Cardápio <span className="text-muted-foreground/70">(opcional)</span></label>
-          <input
-            type="text"
-            value={subcategory}
-            onChange={(e) => setSubcategory(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
-            placeholder="Ex: Gin, Tequila, Whisky"
-            maxLength={64}
-          />
-          <p className="mt-1 text-[11px] text-muted-foreground">Use para separar itens dentro da mesma categoria, como Doses → Gin.</p>
+        {/* Optional subcategory */}
+        <div className="sm:col-span-2 rounded-lg border border-border/60 bg-background/40 p-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={subcategoryEnabled}
+              onChange={(event) => {
+                const enabled = event.target.checked;
+                setSubcategoryEnabled(enabled);
+                if (!enabled) {
+                  setSubcategory("");
+                  setCustomSubcategory("");
+                }
+              }}
+              className="h-4 w-4 rounded border-border accent-primary"
+            />
+            Este item possui uma subcategoria
+          </label>
+          {subcategoryEnabled && (
+            <div className="mt-3">
+              <label className="block text-xs text-muted-foreground mb-1">Subcategoria</label>
+              <div className="relative">
+                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <select
+                  value={subcategory === "" || existingSubcategories.includes(subcategory) ? subcategory : "__custom__"}
+                  onChange={(event) => setSubcategory(event.target.value === "__custom__" ? customSubcategory : event.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm appearance-none"
+                >
+                  <option value="">Selecione uma subcategoria...</option>
+                  {existingSubcategories.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
+                  <option value="__custom__">+ Nova subcategoria</option>
+                </select>
+              </div>
+              {(!existingSubcategories.includes(subcategory) || subcategory === "") && (
+                <input
+                  type="text"
+                  value={subcategory}
+                  onChange={(event) => {
+                    setSubcategory(event.target.value);
+                    setCustomSubcategory(event.target.value);
+                  }}
+                  className="w-full mt-2 px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm"
+                  placeholder="Ex: Gin, Tequila, Whisky"
+                  maxLength={64}
+                />
+              )}
+              <p className="mt-1 text-[11px] text-muted-foreground">Escolha uma tag existente ou crie uma nova. Sem marcar o checkbox, o item fica apenas na categoria principal.</p>
+            </div>
+          )}
         </div>
         {/* Add-ons */}
         <div className="sm:col-span-2 rounded-lg border border-border/60 bg-background/40 p-3">
