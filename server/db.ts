@@ -1301,6 +1301,9 @@ export async function adminUpdateEstablishment(id: number, data: {
   complement?: string;
   description?: string;
   neighborhood?: string;
+  city?: string;
+  zipCode?: string;
+  region?: string;
   phone?: string;
   instagram?: string;
   hours?: string;

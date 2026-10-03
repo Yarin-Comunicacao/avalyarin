@@ -84,6 +84,9 @@ export default function AdminEstabDetail() {
     addressNumber: '',
     complement: '',
     neighborhood: '',
+    city: '',
+    zipCode: '',
+    region: '',
     phone: '',
     instagram: '',
     hours: '',
@@ -213,6 +216,9 @@ export default function AdminEstabDetail() {
         addressNumber: (estab as any).addressNumber || '',
         complement: (estab as any).complement || '',
         neighborhood: estab.neighborhood || '',
+        city: (estab as any).city || '',
+        zipCode: (estab as any).zipCode || '',
+        region: (estab as any).region || '',
         phone: estab.phone || '',
         instagram: estab.instagram || '',
         hours: estab.hours || '',
@@ -234,6 +240,9 @@ export default function AdminEstabDetail() {
       addressNumber: editInfo.addressNumber || undefined,
       complement: editInfo.complement || undefined,
       neighborhood: editInfo.neighborhood || undefined,
+      city: editInfo.city.trim(),
+      zipCode: editInfo.zipCode.trim(),
+      region: editInfo.region.trim(),
       phone: editInfo.phone || undefined,
       instagram: editInfo.instagram || undefined,
       hours: editInfo.hours || undefined,
@@ -484,6 +493,37 @@ export default function AdminEstabDetail() {
                   />
                 </div>
                 <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Cidade</label>
+                  <input
+                    type="text"
+                    value={editInfo.city}
+                    onChange={(e) => setEditInfo({...editInfo, city: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    placeholder="Ex.: São Paulo"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">CEP</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={editInfo.zipCode}
+                    onChange={(e) => setEditInfo({...editInfo, zipCode: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    placeholder="00000-000"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Zona <span className="text-muted-foreground/70">(opcional)</span></label>
+                  <input
+                    type="text"
+                    value={editInfo.region}
+                    onChange={(e) => setEditInfo({...editInfo, region: e.target.value})}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    placeholder="Ex.: Zona Sul"
+                  />
+                </div>
+                <div>
                   <label className="text-xs text-muted-foreground block mb-1">Telefone</label>
                   <input
                     type="text"
@@ -558,6 +598,20 @@ export default function AdminEstabDetail() {
                 <span className="text-xs text-muted-foreground">Bairro</span>
                 <p className="text-foreground">{estab.neighborhood || "—"}</p>
               </div>
+              <div>
+                <span className="text-xs text-muted-foreground">Cidade</span>
+                <p className="text-foreground">{(estab as any).city || "—"}</p>
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground">CEP</span>
+                <p className="text-foreground">{(estab as any).zipCode || "—"}</p>
+              </div>
+              {(estab as any).region && (
+                <div>
+                  <span className="text-xs text-muted-foreground">Zona</span>
+                  <p className="text-foreground">{(estab as any).region}</p>
+                </div>
+              )}
               {estab.description && (
                 <div>
                   <span className="text-xs text-muted-foreground">Descrição</span>
