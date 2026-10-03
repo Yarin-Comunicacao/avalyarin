@@ -315,6 +315,14 @@ export function getEstablishmentVisibilityStatus(est: { address: string | null; 
 }
 
 /**
+ * Manual admin status changes are authoritative; automatic classification is
+ * only allowed when an update does not explicitly include a status.
+ */
+export function shouldSyncEstablishmentVisibility(data: { status?: 'active' | 'hidden' | 'pending' }): boolean {
+  return data.status === undefined;
+}
+
+/**
  * Automatically synchronizes the status after any mutation that may affect publication.
  */
 export async function syncEstablishmentVisibility(establishmentId: number) {
@@ -1304,8 +1312,12 @@ export async function adminUpdateEstablishment(id: number, data: {
   
   await db.update(establishments).set(data).where(eq(establishments.id, id));
   
-  // Always reclassify after an edit, including manual status changes.
-  await syncEstablishmentVisibility(id);
+  // A status supplied by an admin is an explicit manual decision and must
+  // take precedence over the criteria-based classification. Recalculate only
+  // when the edit did not include a status (for example, address or hours).
+  if (shouldSyncEstablishmentVisibility(data)) {
+    await syncEstablishmentVisibility(id);
+  }
   
   return { success: true };
 }

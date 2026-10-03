@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { countMissingEstablishmentCriteria, getEstablishmentVisibilityStatus } from "./db";
+import { countMissingEstablishmentCriteria, getEstablishmentVisibilityStatus, shouldSyncEstablishmentVisibility } from "./db";
 
 describe("establishment visibility status", () => {
   const complete = { address: "Rua A", hours: "08:00-18:00", hasMenu: true };
+
+  it("preserves an explicit manual status instead of recalculating it", () => {
+    expect(shouldSyncEstablishmentVisibility({ status: "pending" })).toBe(false);
+    expect(shouldSyncEstablishmentVisibility({ status: "hidden" })).toBe(false);
+    expect(shouldSyncEstablishmentVisibility({ status: "active" })).toBe(false);
+    expect(shouldSyncEstablishmentVisibility({})).toBe(true);
+  });
 
   it("activates a complete establishment", () => {
     expect(countMissingEstablishmentCriteria(complete)).toBe(0);
