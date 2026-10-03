@@ -337,8 +337,13 @@ export async function adminDuplicateEstablishment(id: number) {
       createdAt: new Date(),
     });
 
+    // TiDB production does not reliably auto-increment these legacy tables.
+    // Allocate association IDs explicitly, as done by the regular creation flow.
+    const [maxAssociation] = await tx.select({ maxId: sql<number>`COALESCE(MAX(${establishmentCategories.id}), 0)` }).from(establishmentCategories);
+    let nextAssociationId = Number(maxAssociation?.maxId || 0) + 1;
     if (sourceCategories.length > 0) {
       await tx.insert(establishmentCategories).values(sourceCategories.map(category => ({
+        id: nextAssociationId++,
         establishmentId: newEstablishmentId,
         categoryId: category.categoryId,
         isPrimary: category.isPrimary,
@@ -346,6 +351,7 @@ export async function adminDuplicateEstablishment(id: number) {
     } else {
       // Preserve the legacy primary category when older records lack N:N links.
       await tx.insert(establishmentCategories).values({
+        id: nextAssociationId,
         establishmentId: newEstablishmentId,
         categoryId: source.categoryId,
         isPrimary: true,
@@ -353,7 +359,10 @@ export async function adminDuplicateEstablishment(id: number) {
     }
 
     if (sourceMenuCategories.length > 0) {
+      const [maxMenuCategory] = await tx.select({ maxId: sql<number>`COALESCE(MAX(${menuCategories.id}), 0)` }).from(menuCategories);
+      let nextMenuCategoryId = Number(maxMenuCategory?.maxId || 0) + 1;
       await tx.insert(menuCategories).values(sourceMenuCategories.map(category => ({
+        id: nextMenuCategoryId++,
         establishmentId: newEstablishmentId,
         name: category.name,
         sortOrder: category.sortOrder,
