@@ -216,6 +216,7 @@ import {
   getOwnerEstablishmentStatusCounts,
   toggleEstablishmentStatus,
   getAdminEstablishmentDetail,
+  adminDuplicateEstablishment,
   adminAddMenuItem,
   adminUpdateMenuItem,
   adminDeleteMenuItem,
@@ -1515,6 +1516,12 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return await getAdminEstablishmentDetail(input.id);
+      }),
+
+    duplicateEstablishment: adminProcedure
+      .input(z.object({ id: z.number().int().positive() }))
+      .mutation(async ({ input }) => {
+        return await adminDuplicateEstablishment(input.id);
       }),
 
     addMenuItem: adminProcedure

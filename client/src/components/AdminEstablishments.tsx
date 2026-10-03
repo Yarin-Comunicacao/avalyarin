@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
-  Store, Eye, EyeOff, ChevronRight, ArrowLeft,
+  Store, Eye, EyeOff, ChevronRight, ArrowLeft, Copy,
   Search, CheckSquare, Square, Trash2, AlertTriangle, FileSpreadsheet,
   Leaf, Beer, UtensilsCrossed, Coffee, ChefHat, Wine,
   Sparkles, Cake, CupSoda, Music, Croissant, Globe, Pizza,
@@ -113,6 +113,7 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
 
   const toggleMutation = trpc.admin.toggleVisibility.useMutation();
   const deleteMutation = trpc.admin.deleteEstablishment.useMutation();
+  const duplicateMutation = trpc.admin.duplicateEstablishment.useMutation();
   const utils = trpc.useUtils();
 
   const handleChangeStatus = async (ids: number[], newStatus: StatusTab) => {
@@ -148,6 +149,22 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
       toast.success(`"${name}" excluído`);
     } catch {
       toast.error("Erro ao excluir");
+    }
+  };
+
+  const handleDuplicate = async (id: number, name: string) => {
+    try {
+      const duplicated = await duplicateMutation.mutateAsync({ id });
+      await Promise.all([
+        utils.admin.ownerEstablishments.invalidate(),
+        utils.admin.searchEstablishments.invalidate(),
+        utils.admin.ownerEstablishmentStatusCounts.invalidate(),
+        utils.admin.categoriesWithCounts.invalidate(),
+      ]);
+      toast.success(`"${name}" duplicado como "${duplicated.name}". A nova unidade está pendente.`);
+      navigate(`/admin/estab/${duplicated.id}?from=owner-establishments&status=pending`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao duplicar estabelecimento");
     }
   };
 
@@ -221,6 +238,10 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
                   <button type="button" onClick={() => handleDelete(est.id, est.name)} title="Excluir estabelecimento" aria-label={`Excluir ${est.name}`} className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors">
                     <Trash2 className="w-4 h-4" />
                     <span className="hidden sm:inline">Excluir</span>
+                  </button>
+                  <button type="button" onClick={() => handleDuplicate(est.id, est.name)} disabled={duplicateMutation.isPending} title="Duplicar estabelecimento" aria-label={`Duplicar ${est.name}`} className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors disabled:opacity-50">
+                    <Copy className="w-4 h-4" />
+                    <span className="hidden sm:inline">Duplicar</span>
                   </button>
                   <button type="button" onClick={() => navigate(`/admin/estab/${est.id}?from=owner-establishments&status=${activeTab}&search=${encodeURIComponent(searchQuery)}`)} title="Editar estabelecimento" aria-label={`Editar ${est.name}`} className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors">
                     <ChevronRight className="w-4 h-4" />

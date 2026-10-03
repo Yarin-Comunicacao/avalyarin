@@ -5,7 +5,7 @@
  * individual establishment admin page, and menu item CRUD with images.
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
-import { establishments, menuItems, categories, menuCategories, establishmentCategories, type MenuItemExtra } from "../drizzle/schema";
+import { establishments, menuItems, categories, menuCategories, establishmentCategories, type MenuItemExtra, type EstablishmentCategory, type MenuCategory, type MenuItemRow } from "../drizzle/schema";
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 import { generateMenuItemTags } from "./auto-tags";
@@ -289,6 +289,110 @@ export async function getAdminEstablishmentDetail(id: number) {
     isComplete: missingFields.length === 0,
     itemsWithoutPhoto,
   };
+}
+
+/**
+ * Duplicate an establishment as a new pending unit.
+ * Ratings, claims/owner links and all other user-generated relationships are
+ * intentionally not copied. Only establishment data, category links, menu
+ * categories and menu items are carried over.
+ */
+export async function adminDuplicateEstablishment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [source] = await db.select().from(establishments).where(eq(establishments.id, id)).limit(1);
+  if (!source) throw new Error("Estabelecimento não encontrado");
+
+  const sourceCategories: EstablishmentCategory[] = await db.select().from(establishmentCategories)
+    .where(eq(establishmentCategories.establishmentId, id));
+  const sourceMenuCategories: MenuCategory[] = await db.select().from(menuCategories)
+    .where(eq(menuCategories.establishmentId, id));
+  const sourceMenuItems: MenuItemRow[] = await db.select().from(menuItems)
+    .where(eq(menuItems.establishmentId, id));
+
+  const baseName = (source.name || "Estabelecimento").trim();
+  const duplicateName = `${baseName} Duplicado`;
+  const baseSlug = duplicateName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "estabelecimento-duplicado";
+  const uniqueSuffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+
+  return await db.transaction(async (tx: any) => {
+    const [maxEstablishment] = await tx.select({ maxId: sql<number>`MAX(${establishments.id})` }).from(establishments);
+    const newEstablishmentId = Number(maxEstablishment?.maxId || 0) + 1;
+    const establishmentCode = await generateCode("establishments");
+
+    const { id: _sourceId, code: _sourceCode, slug: _sourceSlug, name: _sourceName, status: _sourceStatus, createdAt: _sourceCreatedAt, updatedAt: _sourceUpdatedAt, ...copyableEstablishment } = source;
+    await tx.insert(establishments).values({
+      ...copyableEstablishment,
+      id: newEstablishmentId,
+      code: establishmentCode,
+      slug: `${baseSlug}-${uniqueSuffix}`,
+      name: duplicateName,
+      status: "pending",
+      createdAt: new Date(),
+    });
+
+    if (sourceCategories.length > 0) {
+      await tx.insert(establishmentCategories).values(sourceCategories.map(category => ({
+        establishmentId: newEstablishmentId,
+        categoryId: category.categoryId,
+        isPrimary: category.isPrimary,
+      })));
+    } else {
+      // Preserve the legacy primary category when older records lack N:N links.
+      await tx.insert(establishmentCategories).values({
+        establishmentId: newEstablishmentId,
+        categoryId: source.categoryId,
+        isPrimary: true,
+      });
+    }
+
+    if (sourceMenuCategories.length > 0) {
+      await tx.insert(menuCategories).values(sourceMenuCategories.map(category => ({
+        establishmentId: newEstablishmentId,
+        name: category.name,
+        sortOrder: category.sortOrder,
+      })));
+    }
+
+    if (sourceMenuItems.length > 0) {
+      const [maxMenuItem] = await tx.select({ maxId: sql<number>`MAX(${menuItems.id})` }).from(menuItems);
+      const firstMenuItemId = Number(maxMenuItem?.maxId || 0) + 1;
+      await tx.insert(menuItems).values(sourceMenuItems.map((item, index) => ({
+        id: firstMenuItemId + index,
+        code: `mi${String(firstMenuItemId + index).padStart(6, "0")}`,
+        establishmentId: newEstablishmentId,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        category: item.category,
+        subcategory: item.subcategory,
+        imageUrl: item.imageUrl,
+        imageKey: item.imageKey,
+        imageThumbUrl: item.imageThumbUrl,
+        imageThumbKey: item.imageThumbKey,
+        tags: item.tags,
+        extras: item.extras,
+      })));
+    }
+
+    return {
+      success: true,
+      id: newEstablishmentId,
+      name: duplicateName,
+      status: "pending" as const,
+      copied: {
+        establishmentCategories: sourceCategories.length || 1,
+        menuCategories: sourceMenuCategories.length,
+        menuItems: sourceMenuItems.length,
+      },
+    };
+  });
 }
 
 // ============================================================
