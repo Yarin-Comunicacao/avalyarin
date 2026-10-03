@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { categories, establishments } from "../drizzle/schema";
 import { createEstablishment, getDb, syncEstablishmentVisibility } from "./db";
 import { parseEstablishmentSpreadsheet } from "./establishment-spreadsheet";
-import { extractGetInMenu, extractMenuFromUrl, getMenuProvider, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls } from "./digital-menu-scraper";
+import { extractDigitalMenuUrl, normalizeMenuUrl, persistDigitalMenu, splitMenuUrls } from "./digital-menu-scraper";
 
 function normalize(value: string): string {
   return value.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -73,7 +73,7 @@ export async function createEstablishmentsFromSpreadsheet(buffer: Buffer, fileNa
         lastMenuUpdate: row.lastMenuUpdate || new Date(),
       }).where(eq(establishments.id, establishmentId));
       try {
-        const extractionPromise = getMenuProvider(primaryUrl) === "getin" ? extractGetInMenu(primaryUrl) : extractMenuFromUrl(primaryUrl);
+        const extractionPromise = extractDigitalMenuUrl(primaryUrl);
         const extraction = await Promise.race([
           extractionPromise,
           new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`tempo limite de ${MENU_READ_TIMEOUT_MS / 1000} segundos excedido`)), MENU_READ_TIMEOUT_MS)),

@@ -6,7 +6,7 @@ import { generateMenuItemTags } from "./auto-tags";
 import { formatOpeningHours } from "../shared/opening-hours";
 import { parseMenuSpreadsheet } from "./smart-menu-spreadsheet";
 import { establishments, establishmentMenuImports, menuCategories, menuItems } from "../drizzle/schema";
-import { normalizeMenuUrl } from "./digital-menu-scraper";
+import { extractDigitalMenuUrl, normalizeMenuUrl } from "./digital-menu-scraper";
 
 const MAX_PHOTOS = 50;
 const BATCH_SIZE = 5;
@@ -239,7 +239,21 @@ export async function createSmartEstablishment(input: {
     let sections: ExtractedSection[];
     let confidence: number | undefined;
     if (menuUrl && photos.length === 0 && !input.spreadsheetBase64) {
-      sections = [];
+      const extraction = await extractDigitalMenuUrl(menuUrl);
+      sections = extraction.items.reduce<ExtractedSection[]>((result, item) => {
+        const section = result.find(candidate => candidate.name === item.category);
+        const normalizedItem: ExtractedItem = {
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          imageUrl: item.imageUrl,
+          tags: item.tags,
+        };
+        if (section) section.items.push(normalizedItem);
+        else result.push({ name: item.category, items: [normalizedItem] });
+        return result;
+      }, []);
+      confidence = 1;
     } else if (input.spreadsheetBase64) {
       const spreadsheet = parseMenuSpreadsheet(Buffer.from(input.spreadsheetBase64, "base64"), input.spreadsheetFileName);
       const byCategory = new Map<string, ExtractedSection>();

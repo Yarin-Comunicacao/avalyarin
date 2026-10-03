@@ -195,7 +195,11 @@ async function extractDGuestsMenu(sourceUrl: string, username: string): Promise<
   const categories = response.data?.categoria || [];
   const rows = categories.flatMap((category: any) => (category.estFinProdutos || []).map((item: any) => ({
     category: String(category.titulo || "Outros"), name: String(item.titulo || ""), description: item.detalhe || null,
-    price: item.preco_promo && Number(item.preco_promo) > 0 ? item.preco_promo : item.preco,
+    // dGuests retorna preços já em reais; como string, eles não passam pela
+    // conversão de centavos usada pelos valores numéricos do Get In.
+    price: item.preco_promo && Number(item.preco_promo) > 0
+      ? String(item.preco_promo)
+      : item.preco == null ? null : String(item.preco),
     imageUrl: item.foto ? `https://www.dg-media.com.br/cardapio/${item.foto}` : null,
   })));
   return makeExtraction(sourceUrl, rows);
@@ -473,6 +477,15 @@ export async function extractMenuFromUrl(sourceUrl: string): Promise<DigitalMenu
   }
 
   throw new Error("A página não expôs um cardápio legível — nem em texto, nem em PDF/imagem, mesmo após renderizar com navegador headless.");
+}
+
+/** Resolve qualquer URL suportada, incluindo o endpoint dedicado do Get In. */
+export async function extractDigitalMenuUrl(sourceUrl: string): Promise<DigitalMenuExtraction> {
+  const normalized = normalizeMenuUrl(sourceUrl);
+  if (!normalized) throw new Error("Link de cardápio inválido.");
+  return getMenuProvider(normalized) === "getin"
+    ? extractGetInMenu(normalized)
+    : extractMenuFromUrl(normalized);
 }
 
 function cleanText(value: unknown, maxLength: number): string | null {

@@ -10,6 +10,7 @@ import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 import { generateMenuItemTags } from "./auto-tags";
 import { extractMenuWithOcr, hasAcceptableMenuQuality } from "./smart-menu-ocr";
+import { extractDigitalMenuUrl } from "./digital-menu-scraper";
 
 /**
  * Capitalize first letter of a string
@@ -498,7 +499,16 @@ export async function adminUpdateMenuFromOcr(data: {
 
   let extracted;
   if (data.sourceUrl) {
-    extracted = await extractMenuWithOcr([{ url: data.sourceUrl, mimeType: data.mimeType }], 1, 1);
+    const digitalMenu = await extractDigitalMenuUrl(data.sourceUrl);
+    extracted = {
+      sections: digitalMenu.items.reduce<Array<{ name: string; items: Array<{ name: string; description: string | null; price: number | null }> }>>((sections, item) => {
+        const section = sections.find(candidate => candidate.name === item.category);
+        const normalizedItem = { name: item.name, description: item.description, price: item.price };
+        if (section) section.items.push(normalizedItem);
+        else sections.push({ name: item.category, items: [normalizedItem] });
+        return sections;
+      }, []),
+    };
   } else {
     if (!data.imageBuffer || data.imageBuffer.length === 0) throw new Error("Arquivo de cardápio inválido.");
     const key = `menu-updates/${data.establishmentId}/${Date.now()}-${data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
@@ -527,7 +537,7 @@ export async function adminUpdateMenuFromOcr(data: {
           price: parsed.price ?? undefined,
           category: section.name,
         });
-        added.push({ name: parsed.name, price: parsed.price });
+        added.push({ name: parsed.name, price: parsed.price ?? null });
         continue;
       }
 

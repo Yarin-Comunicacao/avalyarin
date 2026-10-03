@@ -1,6 +1,6 @@
 import axios from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { extractGetInMenu } from "./digital-menu-scraper";
+import { extractGetInMenu, extractMenuFromUrl } from "./digital-menu-scraper";
 
 describe("digital menu scraper", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -32,5 +32,19 @@ describe("digital menu scraper", () => {
 
   it("rejeita host que não seja Get In", async () => {
     await expect(extractGetInMenu("https://example.com/menu")).rejects.toThrow(/Get In/);
+  });
+
+  it("lê links públicos dGuests, inclusive com www, sem enviar HTML ao OCR", async () => {
+    vi.spyOn(axios, "get").mockResolvedValue({
+      data: {
+        categoria: [{
+          titulo: "Petiscos",
+          estFinProdutos: [{ titulo: "Bolinho", detalhe: "6 unidades", preco: 68.9, preco_promo: null, foto: "bolinho.png" }],
+        }],
+      },
+    } as any);
+    const result = await extractMenuFromUrl("https://www.dguests.com.br/cardapio/saobentoitaim");
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0]).toEqual(expect.objectContaining({ name: "Bolinho", category: "Petiscos", price: 68.9 }));
   });
 });
