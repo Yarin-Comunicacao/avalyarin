@@ -5,32 +5,6 @@
 import { describe, it, expect } from "vitest";
 import { capitalizeCategory } from "./db-admin-estab";
 
-// Test the menu category suggestions
-const MENU_CATEGORY_SUGGESTIONS = [
-  "Petiscos", "Pratos", "Chopp", "Cervejas", "Drinks", "Sobremesas",
-  "Entradas", "Porções", "Vinhos", "Coquetéis", "Cafés", "Lanches"
-];
-
-describe("Admin Establishments — Menu Categories", () => {
-  it("should have at least 6 default menu categories", () => {
-    expect(MENU_CATEGORY_SUGGESTIONS.length).toBeGreaterThanOrEqual(6);
-  });
-
-  it("should include essential categories", () => {
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Petiscos");
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Pratos");
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Chopp");
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Cervejas");
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Drinks");
-    expect(MENU_CATEGORY_SUGGESTIONS).toContain("Sobremesas");
-  });
-
-  it("should not have duplicates", () => {
-    const unique = new Set(MENU_CATEGORY_SUGGESTIONS);
-    expect(unique.size).toBe(MENU_CATEGORY_SUGGESTIONS.length);
-  });
-});
-
 describe("Admin Establishments — Visibility Logic", () => {
   it("should correctly identify active vs hidden states", () => {
     const estab = { id: 1, name: "Test Bar", hidden: false };

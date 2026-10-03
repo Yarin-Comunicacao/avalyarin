@@ -34,11 +34,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const MENU_CATEGORY_SUGGESTIONS = [
-  "Petiscos", "Pratos", "Chopp", "Cervejas", "Drinks", "Sobremesas",
-  "Entradas", "Porções", "Vinhos", "Coquetéis", "Cafés", "Lanches"
-];
-
 /** Capitalize first letter */
 function capitalize(str: string): string {
   if (!str) return str;
@@ -997,10 +992,7 @@ function MenuItemForm({
   const updateMutation = trpc.admin.updateMenuItem.useMutation();
   const utils = trpc.useUtils();
 
-  const allCategories = Array.from(new Set([
-    ...MENU_CATEGORY_SUGGESTIONS,
-    ...existingCategories,
-  ])).sort();
+  const allCategories = Array.from(new Set(existingCategories)).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
