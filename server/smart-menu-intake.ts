@@ -193,7 +193,6 @@ export async function createSmartEstablishment(input: {
   const photos = input.photos || [];
   if (!input.name.trim()) throw new Error("Nome do estabelecimento é obrigatório");
   const menuUrl = normalizeMenuUrl(input.menuUrl);
-  if (photos.length === 0 && !input.spreadsheetBase64 && !menuUrl) throw new Error("Envie fotos, uma planilha ou um link do cardápio");
   if (photos.length > 0 && input.spreadsheetBase64) throw new Error("Envie somente fotos ou somente uma planilha por cadastro");
   if (photos.length > MAX_PHOTOS) throw new Error(`O limite é de ${MAX_PHOTOS} fotos por cardápio`);
 
@@ -218,13 +217,29 @@ export async function createSmartEstablishment(input: {
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,
     menuUrl: menuUrl || undefined,
-    source: input.spreadsheetBase64 ? "smart-menu-spreadsheet" : "smart-menu-photos",
+    source: input.spreadsheetBase64 ? "smart-menu-spreadsheet" : photos.length > 0 || menuUrl ? "smart-menu-photos" : "admin-single",
     description: input.spreadsheetBase64
       ? "Cadastro criado a partir de planilha do cardápio; dados sujeitos à revisão."
-      : "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão.",
+      : photos.length > 0 || menuUrl
+        ? "Cadastro criado a partir de fotos do cardápio; dados sujeitos à revisão."
+        : "Cadastro criado sem cardápio; complete os itens posteriormente.",
   });
 
   const establishmentId = Number(establishment.id);
+  const hasMenuSource = photos.length > 0 || Boolean(input.spreadsheetBase64) || Boolean(menuUrl);
+  if (!hasMenuSource) {
+    // A single location may be registered before its menu is available.
+    // Keep it explicitly pending until menu items are added later.
+    await db.update(establishments).set({ hasMenu: false, status: "pending" }).where(eq(establishments.id, establishmentId));
+    return {
+      success: true,
+      establishmentId,
+      slug: establishment.slug,
+      categories: 0,
+      items: 0,
+      status: "pending" as const,
+    };
+  }
 
   const [importResult] = await db.insert(establishmentMenuImports).values({
     establishmentId,

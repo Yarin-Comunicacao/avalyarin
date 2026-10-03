@@ -243,8 +243,8 @@ export default function SmartEstablishmentForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!name.trim() || !googleMapsUrl.trim() || !instagram.trim() || !categoryId || (photos.length === 0 && !spreadsheetFile && !menuUrl.trim())) {
-      toast.error("Preencha os campos obrigatórios e adicione fotos, uma planilha ou um link de cardápio.");
+    if (!name.trim() || !googleMapsUrl.trim() || !instagram.trim() || !categoryId) {
+      toast.error("Preencha os campos obrigatórios do estabelecimento.");
       return;
     }
 
@@ -283,7 +283,9 @@ export default function SmartEstablishmentForm() {
         spreadsheetFileName: spreadsheetFile?.name,
       });
 
-      toast.success(`Estabelecimento criado com ${result.categories} seções e ${result.items} itens.`);
+      toast.success(result.items > 0
+        ? `Estabelecimento criado com ${result.categories} seções e ${result.items} itens.`
+        : "Estabelecimento criado como pendente. Você poderá adicionar o cardápio depois.");
       navigate(`/admin/estab/${result.establishmentId}`);
     } catch (error: any) {
       toast.error(error?.message || "Não foi possível criar o estabelecimento.");
@@ -450,8 +452,8 @@ export default function SmartEstablishmentForm() {
         <section className="rounded-2xl border border-primary/30 bg-card p-5 space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="font-display text-lg tracking-wider">FOTOS, PDF OU PLANILHA DO CARDÁPIO *</h2>
-              <p className="text-xs text-muted-foreground mt-1">Escolha uma opção: fotos ou PDF para leitura automática, ou planilha para importar itens com precisão.</p>
+              <h2 className="font-display text-lg tracking-wider">FOTOS, PDF OU PLANILHA DO CARDÁPIO</h2>
+              <p className="text-xs text-muted-foreground mt-1">Opcional no cadastro. Você pode enviar fotos ou PDF para leitura automática, ou uma planilha para importar itens com precisão, agora ou depois.</p>
             </div>
             <span className="text-sm font-numbers text-primary">{photos.length}/{MAX_PHOTOS}</span>
           </div>
@@ -499,8 +501,8 @@ export default function SmartEstablishmentForm() {
 
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
           <button type="button" onClick={() => navigate("/admin/negocio")} className="rounded-lg border border-border px-5 py-2.5">Cancelar</button>
-          <button type="submit" disabled={isSubmitting || (photos.length === 0 && !spreadsheetFile)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-primary-foreground font-medium disabled:opacity-50">
-            {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processando {uploadingBrandAsset ? "identidade visual" : uploadingIndex != null ? `foto ${uploadingIndex + 1}/${photos.length}` : spreadsheetFile ? "planilha" : "cardápio"}...</> : <><CheckCircle2 className="w-4 h-4" /> Criar estabelecimento e cardápio</>}
+          <button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-primary-foreground font-medium disabled:opacity-50">
+            {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processando {uploadingBrandAsset ? "identidade visual" : uploadingIndex != null ? `foto ${uploadingIndex + 1}/${photos.length}` : spreadsheetFile ? "planilha" : "cadastro"}...</> : <><CheckCircle2 className="w-4 h-4" /> Criar estabelecimento</>}
           </button>
         </div>
       </form>
