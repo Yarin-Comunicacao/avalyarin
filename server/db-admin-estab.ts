@@ -381,6 +381,7 @@ export async function adminDuplicateEstablishment(id: number) {
         price: item.price,
         category: item.category,
         subcategory: item.subcategory,
+        hidden: item.hidden,
         imageUrl: item.imageUrl,
         imageKey: item.imageKey,
         imageThumbUrl: item.imageThumbUrl,
@@ -480,6 +481,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   price?: number;
   category?: string;
   subcategory?: string;
+  hidden?: boolean;
   imageUrl?: string;
   imageKey?: string;
   imageThumbUrl?: string;
@@ -496,6 +498,7 @@ export async function adminUpdateMenuItem(id: number, data: {
   if (data.price !== undefined) updateData.price = data.price;
   if (data.category !== undefined) updateData.category = capitalizeCategory(data.category);
   if (data.subcategory !== undefined) updateData.subcategory = data.subcategory ? capitalizeCategory(data.subcategory) : null;
+  if (data.hidden !== undefined) updateData.hidden = data.hidden;
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.imageKey !== undefined) updateData.imageKey = data.imageKey;
   if (data.imageThumbUrl !== undefined) updateData.imageThumbUrl = data.imageThumbUrl;

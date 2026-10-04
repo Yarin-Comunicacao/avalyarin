@@ -123,6 +123,7 @@ export const menuItems = mysqlTable("menu_items", {
   price: float("price"),
   category: varchar("category", { length: 64 }),
   subcategory: varchar("subcategory", { length: 64 }),
+  hidden: boolean("hidden").default(false).notNull(),
   imageUrl: text("imageUrl"),
   imageKey: varchar("imageKey", { length: 512 }),
   imageThumbUrl: text("imageThumbUrl"),

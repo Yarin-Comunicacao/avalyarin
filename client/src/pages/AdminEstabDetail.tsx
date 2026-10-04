@@ -13,7 +13,7 @@ import { useState, useRef, useMemo } from "react";
 import { Link, useParams, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
-  ArrowLeft, Store, Plus, Pencil, Trash2, Image as ImageIcon,
+  ArrowLeft, Store, Plus, Pencil, Trash2, Eye, EyeOff, Image as ImageIcon,
   Save, X, Shield, DollarSign, Tag, FileText, Upload, GripVertical, AlertTriangle
 } from "lucide-react";
 import {
@@ -926,6 +926,7 @@ function SortableCategoryItem({ id, name }: { id: string; name: string }) {
 // ============ Menu Item Card ============
 function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
   const deleteMutation = trpc.admin.deleteMenuItem.useMutation();
+  const visibilityMutation = trpc.admin.updateMenuItem.useMutation();
   const utils = trpc.useUtils();
 
   const handleDelete = async () => {
@@ -939,17 +940,31 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
     }
   };
 
+  const handleToggleHidden = async () => {
+    try {
+      await visibilityMutation.mutateAsync({ id: item.id, hidden: !item.hidden });
+      await utils.admin.estabDetail.invalidate();
+      toast.success(item.hidden ? "Item reexibido no cardápio" : "Item ocultado no cardápio");
+    } catch {
+      toast.error("Não foi possível alterar a visibilidade do item");
+    }
+  };
+
   const hasNoPhoto = !item.imageUrl || item.imageUrl.trim() === '';
 
   return (
     <div className={`p-4 rounded-xl flex gap-4 ${
-      hasNoPhoto
+      item.hidden
+        ? "bg-muted/60 border border-muted-foreground/30"
+        : hasNoPhoto
         ? "bg-red-500/5 border border-red-500/30"
         : "bg-card border border-border/50"
     }`}>
       {/* Image — uses thumbnail for fast loading */}
       <div className={`w-16 h-16 rounded-lg flex items-center justify-center shrink-0 overflow-hidden ${
-        hasNoPhoto
+        item.hidden
+          ? "bg-muted border border-muted-foreground/30"
+          : hasNoPhoto
           ? "bg-red-500/10 border border-red-500/30"
           : "bg-secondary/50 border border-border/30"
       }`}>
@@ -969,12 +984,22 @@ function MenuItemCard({ item, onEdit }: { item: any; onEdit: () => void }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="font-medium text-foreground text-sm truncate">{item.name}</p>
+            <p className={`font-medium text-sm truncate ${item.hidden ? "text-muted-foreground" : "text-foreground"}`}>{item.name}</p>
             {item.description && (
               <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={handleToggleHidden}
+              disabled={visibilityMutation.isPending}
+              title={item.hidden ? "Reexibir item" : "Ocultar item"}
+              aria-label={item.hidden ? "Reexibir item" : "Ocultar item"}
+              className={`inline-flex items-center gap-1 p-1.5 rounded text-xs transition-colors disabled:opacity-50 ${item.hidden ? "text-green-600 hover:text-green-500" : "text-muted-foreground hover:text-amber-600"}`}
+            >
+              {item.hidden ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{item.hidden ? "Reexibir" : "Ocultar"}</span>
+            </button>
             <button onClick={onEdit} className="p-1.5 rounded text-muted-foreground hover:text-primary transition-colors">
               <Pencil className="w-3.5 h-3.5" />
             </button>

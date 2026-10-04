@@ -1556,6 +1556,7 @@ export const appRouter = router({
         price: z.number().optional(),
         category: z.string().optional(),
         subcategory: z.string().max(64).optional(),
+        hidden: z.boolean().optional(),
         imageUrl: z.string().optional(),
         imageKey: z.string().optional(),
         imageThumbUrl: z.string().optional(),

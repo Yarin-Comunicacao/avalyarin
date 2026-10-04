@@ -290,7 +290,7 @@ const completeEstablishmentFilter = and(
   sql`(
     SELECT COUNT(*)
     FROM menu_items mi
-    WHERE mi.establishmentId = ${establishments.id}
+    WHERE mi.establishmentId = ${establishments.id} AND mi.hidden = false
   ) >= 2`,
 );
 
@@ -338,7 +338,7 @@ export async function syncEstablishmentVisibility(establishmentId: number) {
 
   if (!est) return;
 
-  const [{ count: menuItemCount }] = await db.select({ count: sql<number>`COUNT(*)` }).from(menuItems).where(eq(menuItems.establishmentId, establishmentId));
+  const [{ count: menuItemCount }] = await db.select({ count: sql<number>`COUNT(*)` }).from(menuItems).where(and(eq(menuItems.establishmentId, establishmentId), eq(menuItems.hidden, false)));
   const desiredStatus = getEstablishmentVisibilityStatus({ ...est, menuItemCount: Number(menuItemCount || 0) });
   if (est.status !== desiredStatus) {
     await db.update(establishments).set({ status: desiredStatus }).where(eq(establishments.id, establishmentId));
@@ -527,7 +527,7 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
     
     const menu = await db.select()
       .from(menuItems)
-      .where(eq(menuItems.establishmentId, est[0].id));
+      .where(and(eq(menuItems.establishmentId, est[0].id), eq(menuItems.hidden, false)));
 
     // Get menu categories with sort order
     const menuCatEntries = await db.select()
