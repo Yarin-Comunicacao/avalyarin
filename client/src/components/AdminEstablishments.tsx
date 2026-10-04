@@ -195,13 +195,13 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
     const ownerItems = searchQuery.trim().length >= 2 ? (globalSearchData?.items || []) : (ownerEstablishmentsData?.items || []);
     const ownerLoading = searchQuery.trim().length >= 2 ? (globalSearchLoading || globalSearchFetching) : (ownerEstablishmentsLoading || ownerEstablishmentsFetching);
     return (
-      <div className="relative">
+      <div className="relative pb-40">
         <div className="flex items-center justify-between gap-3 mb-5">
           <div>
             <h2 className="font-display text-2xl tracking-wider text-foreground">ESTABELECIMENTOS</h2>
             <p className="text-xs text-muted-foreground mt-1">Todos os cadastros do banco, incluindo incompletos</p>
           </div>
-          <div className="fixed bottom-24 right-5 z-30">
+          <div className="fixed bottom-40 right-5 z-30">
             <button type="button" onClick={() => setShowAddMenu(current => !current)} title="Adicionar estabelecimento" className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"><Plus className="w-6 h-6" /></button>
             {showAddMenu && <div className="absolute bottom-16 right-0 w-56 overflow-hidden rounded-xl border border-border bg-card p-1 shadow-xl">
               <button type="button" onClick={() => navigate("/admin/estab-novo-cardapio")} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary/60"><Plus className="h-4 w-4 text-primary" /><span><strong className="block">Local único</strong><span className="text-xs text-muted-foreground">Cadastro individual</span></span></button>
@@ -258,14 +258,14 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
   // ============ CATEGORY LIST VIEW ============
   if (!selectedCategoryId) {
     return (
-      <div className="relative">
+      <div className="relative pb-40">
         <div className="flex items-center justify-between gap-3 mb-6">
           <h2 className="font-display text-2xl tracking-wider text-foreground">ESTABELECIMENTOS</h2>
           <button
             type="button"
             onClick={() => navigate("/admin/estab-novo-cardapio")}
             title="Adicionar estabelecimento com fotos do cardápio"
-            className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"
+            className="fixed bottom-40 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"
           >
             <Plus className="w-6 h-6" />
           </button>
@@ -361,13 +361,13 @@ export default function AdminEstablishments({ initialCategoryId, ownerView = fal
 
   // ============ ESTABLISHMENT LIST VIEW (within category) ============
   return (
-    <div>
+    <div className="pb-40">
       {/* Header with back button */}
       <button
         type="button"
         onClick={() => navigate(`/admin/estab-novo-cardapio?categoryId=${selectedCategoryId}`)}
         title="Adicionar estabelecimento com fotos do cardápio"
-        className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"
+        className="fixed bottom-40 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:scale-105 transition-transform"
       >
         <Plus className="w-6 h-6" />
       </button>
