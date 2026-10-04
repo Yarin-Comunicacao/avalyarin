@@ -144,16 +144,31 @@ export default function AdminEstabDetail() {
 
     setUpdatingMenuOcr(true);
     try {
-      const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
-        reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-        reader.readAsDataURL(file);
+      const uploadResponse = await fetch("/api/upload-menu-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": isPdf ? "application/pdf" : file.type,
+          "X-File-Name": file.name,
+        },
+        credentials: "include",
+        body: await file.arrayBuffer(),
       });
+      const uploadText = await uploadResponse.text();
+      let uploadPayload: { url?: string; error?: string } = {};
+      if (uploadText.trim()) {
+        try {
+          uploadPayload = JSON.parse(uploadText) as { url?: string; error?: string };
+        } catch {
+          throw new Error(`O servidor retornou uma resposta inválida ao enviar o arquivo (HTTP ${uploadResponse.status}).`);
+        }
+      }
+      if (!uploadResponse.ok || !uploadPayload.url) {
+        throw new Error(uploadPayload.error || `Não foi possível enviar o arquivo (HTTP ${uploadResponse.status}).`);
+      }
       const result = await updateMenuFromOcrMutation.mutateAsync({
         establishmentId: estabId,
-        base64Data,
-        mimeType: isPdf ? "application/pdf" : file.type as "image/jpeg" | "image/png" | "image/webp",
+        sourceUrl: uploadPayload.url,
+        mimeType: isPdf ? "application/pdf" : "image/webp",
         fileName: file.name,
       });
       await utils.admin.estabDetail.invalidate({ id: estabId });
