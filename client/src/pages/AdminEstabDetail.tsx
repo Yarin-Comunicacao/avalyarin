@@ -340,7 +340,7 @@ export default function AdminEstabDetail() {
     : (menuByCategory[filterCategory] || []);
 
   return (
-    <div className="safe-area-screen min-h-screen">
+    <div className="safe-area-screen min-h-screen pb-40">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
