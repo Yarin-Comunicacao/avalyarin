@@ -1052,8 +1052,14 @@ export async function saveRating(userId: number, data: {
   // Generate code for new rating
   const ratingCode = await generateCode('ratings');
 
+  // TiDB production may not have AUTO_INCREMENT enabled on these legacy
+  // tables. Allocate the primary keys explicitly instead of sending `default`.
+  const [maxRating] = await db.select({ maxId: sql<number>`COALESCE(MAX(${ratings.id}), 0)` }).from(ratings);
+  const ratingId = Number(maxRating?.maxId || 0) + 1;
+
   // Insert rating
-  const [result] = await db.insert(ratings).values({
+  await db.insert(ratings).values({
+    id: ratingId,
     userId,
     code: ratingCode,
     establishmentId: data.establishmentId,
@@ -1069,14 +1075,15 @@ export async function saveRating(userId: number, data: {
     criteriaScores: data.criteriaScores ? { ...data.criteriaScores, venueScores: data.venueScores ?? undefined } : (data.venueScores ? { venueScores: data.venueScores } : null),
     bonusScores: data.bonusScores ?? null,
     source: data.source ?? "remoto",
-  }).$returningId();
-  
-  const ratingId = result.id;
+  });
   
   // Insert rating items
   if (data.items.length > 0) {
+    const [maxRatingItem] = await db.select({ maxId: sql<number>`COALESCE(MAX(${ratingItems.id}), 0)` }).from(ratingItems);
+    const firstRatingItemId = Number(maxRatingItem?.maxId || 0) + 1;
     await db.insert(ratingItems).values(
-      data.items.map(item => ({
+      data.items.map((item, index) => ({
+        id: firstRatingItemId + index,
         ratingId,
         menuItemId: item.menuItemId ?? null,
         itemName: item.itemName,
