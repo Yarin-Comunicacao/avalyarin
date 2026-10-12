@@ -12,6 +12,7 @@ import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
 import { sdk } from "./sdk";
 import sharp from "sharp";
+import { ensureRuntimeSchema } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -35,6 +36,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  await ensureRuntimeSchema();
   // Importações em massa podem ler PDFs e várias imagens via OCR antes de
   // responder; não interromper a requisição enquanto essa operação síncrona
   // estiver em andamento.

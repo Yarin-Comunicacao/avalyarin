@@ -98,6 +98,39 @@ export async function getDb() {
   return _db;
 }
 
+/** Keep production databases compatible when the host only runs the build. */
+export async function ensureRuntimeSchema() {
+  const db = await getDb();
+  if (!db) return;
+
+  const statements = [
+    "ALTER TABLE `menu_items` ADD COLUMN `hidden` BOOLEAN NOT NULL DEFAULT FALSE",
+    `CREATE TABLE IF NOT EXISTS \`menu_subcategories\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT,
+      \`establishmentId\` INT NOT NULL,
+      \`categoryName\` VARCHAR(128) NOT NULL,
+      \`name\` VARCHAR(128) NOT NULL,
+      \`sortOrder\` INT NOT NULL DEFAULT 0,
+      \`createdAt\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (\`id\`)
+    )`,
+    "ALTER TABLE `establishments` ADD COLUMN `openingHours` JSON NULL",
+  ];
+
+  for (const statement of statements) {
+    try {
+      await db.execute(statement);
+    } catch (error: any) {
+      const message = String(error?.cause?.sqlMessage || error?.cause?.message || error?.sqlMessage || error?.message || "").toLowerCase();
+      const duplicate = error?.cause?.errno === 1060 || error?.errno === 1060 || message.includes("duplicate column") || message.includes("already exists");
+      if (!duplicate) {
+        logDbError(error, { operation: "ensureRuntimeSchema", table: "menu_items/menu_subcategories/establishments" });
+        throw error;
+      }
+    }
+  }
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
