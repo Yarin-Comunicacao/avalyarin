@@ -2,7 +2,7 @@ import { eq, like, or, sql, and, inArray, notInArray, desc, asc } from "drizzle-
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { logDbError } from "./dbErrorLogger";
-import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories, ratingTags, userFollows, codeBackups } from "../drizzle/schema";
+import { InsertUser, users, categories, establishments, menuItems, ratings, ratingItems, businessClaims, userRankings, ageVerificationRequests, groups, groupMembers, establishmentCategories, businessNotifications, groupEvents, eventRsvps, eventAttendance, ratingPhotos, integrations, photoLikes, photoShares, establishmentBadges, roleRequests, eventLocationOptions, eventLocationVotes, systemLogs, menuCategories, menuSubcategories, ratingTags, userFollows, codeBackups } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { storagePut } from './storage';
 import * as fs from 'fs';
@@ -534,6 +534,10 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
       .from(menuCategories)
       .where(eq(menuCategories.establishmentId, est[0].id))
       .orderBy(menuCategories.sortOrder);
+    const menuSubcatEntries = await db.select()
+      .from(menuSubcategories)
+      .where(eq(menuSubcategories.establishmentId, est[0].id))
+      .orderBy(asc(menuSubcategories.categoryName), asc(menuSubcategories.sortOrder));
 
     const result = {
 
@@ -541,7 +545,8 @@ export async function getEstablishmentWithMenu(identifier: string | number, bypa
       category: primaryCat ? { id: primaryCat.id, slug: primaryCat.slug, name: primaryCat.name, icon: primaryCat.icon } : legacyCat,
       categories: estCategories.length > 0 ? estCategories : (legacyCat ? [{ ...legacyCat, isPrimary: true }] : []),
       menu,
-      menuCategoryOrder: menuCatEntries.map(mc => mc.name),
+      menuCategoryOrder: menuCatEntries.map((mc: { name: string }) => mc.name),
+      menuSubcategoryOrder: menuSubcatEntries.map((sc: { categoryName: string; name: string }) => ({ categoryName: sc.categoryName, name: sc.name })),
     };
 
     return result;

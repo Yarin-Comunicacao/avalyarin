@@ -460,6 +460,17 @@ export const menuCategories = mysqlTable("menu_categories", {
 export type MenuCategory = typeof menuCategories.$inferSelect;
 export type InsertMenuCategory = typeof menuCategories.$inferInsert;
 
+/** Menu subcategories table — tracks subcategory names and their display order per menu category. */
+export const menuSubcategories = mysqlTable("menu_subcategories", {
+  id: int("id").autoincrement().primaryKey(),
+  establishmentId: int("establishmentId").notNull(),
+  categoryName: varchar("categoryName", { length: 128 }).notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MenuSubcategory = typeof menuSubcategories.$inferSelect;
+export type InsertMenuSubcategory = typeof menuSubcategories.$inferInsert;
 /** Photos and extraction metadata submitted for an intelligent menu import. */
 export const establishmentMenuImports = mysqlTable("establishment_menu_imports", {
   id: int("id").autoincrement().primaryKey(),

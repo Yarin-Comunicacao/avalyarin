@@ -170,6 +170,7 @@ export default function EstablishmentPage() {
 
   // Dynamic menu categories from database (respects menu_categories table order)
   const menuCategoryOrder: string[] = (establishment as any).menuCategoryOrder || [];
+  const menuSubcategoryOrder: Array<{ categoryName: string; name: string }> = (establishment as any).menuSubcategoryOrder || [];
 
   // Group menu items by their actual category field
   const menuByCategory = new Map<string, typeof menu>();
@@ -231,13 +232,25 @@ export default function EstablishmentPage() {
       if (!subgroups.has(subcategory)) subgroups.set(subcategory, []);
       subgroups.get(subcategory)!.push(item);
     }
+    const configuredNames = menuSubcategoryOrder
+      .filter(entry => entry.categoryName.toLowerCase() === title.toLowerCase())
+      .map(entry => entry.name);
+    const orderedSubcategoryNames: string[] = [];
+    for (const name of configuredNames) {
+      const match = Array.from(subgroups.keys()).find(key => key && key.toLowerCase() === name.toLowerCase());
+      if (match && !orderedSubcategoryNames.includes(match)) orderedSubcategoryNames.push(match);
+    }
+    for (const name of Array.from(subgroups.keys()).filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"))) {
+      if (!orderedSubcategoryNames.includes(name)) orderedSubcategoryNames.push(name);
+    }
+    if (subgroups.has("")) orderedSubcategoryNames.push("");
     return (
     <div id={id} className="space-y-2 scroll-mt-40 mb-8">
       <h4 className="font-display text-xl tracking-wider text-primary mb-4 border-b border-primary/10 pb-2">{title.toUpperCase()}</h4>
-      {Array.from(subgroups.entries()).map(([subcategory, subgroupItems]) => (
+      {orderedSubcategoryNames.map(subcategory => (
         <div key={subcategory || "sem-subcategoria"} className="space-y-2">
           {subcategory && <h5 className="pt-2 text-sm font-display tracking-wider text-foreground/80">{subcategory.toUpperCase()}</h5>}
-          {subgroupItems.map((item: any) => (
+          {(subgroups.get(subcategory) || []).map((item: any) => (
         <div
           key={item.id}
           onClick={() => { setFilterItem(item.name); setActiveSection("avaliacoes"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}

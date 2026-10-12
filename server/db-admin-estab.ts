@@ -5,7 +5,7 @@
  * individual establishment admin page, and menu item CRUD with images.
  */
 import { eq, and, asc, sql, inArray } from "drizzle-orm";
-import { establishments, menuItems, categories, menuCategories, establishmentCategories, type MenuItemExtra, type EstablishmentCategory, type MenuCategory, type MenuItemRow } from "../drizzle/schema";
+import { establishments, menuItems, categories, menuCategories, menuSubcategories, establishmentCategories, type MenuItemExtra, type EstablishmentCategory, type MenuCategory, type MenuItemRow } from "../drizzle/schema";
 import { getDb, syncEstablishmentVisibility, generateCode } from "./db";
 import { storagePut } from "./storage";
 import { generateMenuItemTags } from "./auto-tags";
@@ -308,6 +308,8 @@ export async function adminDuplicateEstablishment(id: number) {
     .where(eq(establishmentCategories.establishmentId, id));
   const sourceMenuCategories: MenuCategory[] = await db.select().from(menuCategories)
     .where(eq(menuCategories.establishmentId, id));
+  const sourceMenuSubcategories = await db.select().from(menuSubcategories)
+    .where(eq(menuSubcategories.establishmentId, id));
   const sourceMenuItems: MenuItemRow[] = await db.select().from(menuItems)
     .where(eq(menuItems.establishmentId, id));
 
@@ -366,6 +368,18 @@ export async function adminDuplicateEstablishment(id: number) {
         establishmentId: newEstablishmentId,
         name: category.name,
         sortOrder: category.sortOrder,
+      })));
+    }
+
+    if (sourceMenuSubcategories.length > 0) {
+      const [maxMenuSubcategory] = await tx.select({ maxId: sql<number>`COALESCE(MAX(${menuSubcategories.id}), 0)` }).from(menuSubcategories);
+      let nextMenuSubcategoryId = Number(maxMenuSubcategory?.maxId || 0) + 1;
+      await tx.insert(menuSubcategories).values(sourceMenuSubcategories.map((subcategory: typeof sourceMenuSubcategories[number]) => ({
+        id: nextMenuSubcategoryId++,
+        establishmentId: newEstablishmentId,
+        categoryName: subcategory.categoryName,
+        name: subcategory.name,
+        sortOrder: subcategory.sortOrder,
       })));
     }
 
@@ -461,6 +475,7 @@ export async function adminAddMenuItem(data: {
   // Ensure category is tracked in menu_categories table
   if (finalCategory) {
     await ensureMenuCategory(data.establishmentId, finalCategory);
+    if (data.subcategory) await ensureMenuSubcategory(data.establishmentId, finalCategory, data.subcategory);
   }
 
   // Update hasMenu flag and sync visibility
@@ -527,7 +542,12 @@ export async function adminUpdateMenuItem(id: number, data: {
       .from(menuItems).where(eq(menuItems.id, id)).limit(1);
     if (item) {
       await ensureMenuCategory(item.establishmentId, updateData.category);
+      if (updateData.subcategory) await ensureMenuSubcategory(item.establishmentId, updateData.category, updateData.subcategory);
     }
+  } else if (updateData.subcategory) {
+    const [item] = await db.select({ establishmentId: menuItems.establishmentId, category: menuItems.category })
+      .from(menuItems).where(eq(menuItems.id, id)).limit(1);
+    if (item?.category) await ensureMenuSubcategory(item.establishmentId, item.category, updateData.subcategory);
   }
 
   return { success: true };
@@ -819,4 +839,83 @@ export async function ensureMenuCategory(establishmentId: number, categoryName: 
   }
 
   return capitalized;
+}
+
+/** Get subcategories grouped by category with their configured order. */
+export async function getMenuSubcategoriesWithOrder(establishmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const itemRows = await db.selectDistinct({
+    categoryName: menuItems.category,
+    name: menuItems.subcategory,
+  }).from(menuItems).where(and(
+    eq(menuItems.establishmentId, establishmentId),
+    sql`${menuItems.category} IS NOT NULL AND ${menuItems.category} != ''`,
+    sql`${menuItems.subcategory} IS NOT NULL AND ${menuItems.subcategory} != ''`,
+  ));
+  const configured = await db.select().from(menuSubcategories)
+    .where(eq(menuSubcategories.establishmentId, establishmentId))
+    .orderBy(asc(menuSubcategories.categoryName), asc(menuSubcategories.sortOrder));
+  const orderMap = new Map(configured.map((entry: typeof configured[number]) => [`${entry.categoryName.toLowerCase()}\u0000${entry.name.toLowerCase()}`, Number(entry.sortOrder)]));
+
+  return itemRows.filter((row: typeof itemRows[number]) => row.categoryName && row.name).map((row: typeof itemRows[number]) => ({
+    categoryName: row.categoryName as string,
+    name: row.name as string,
+    sortOrder: orderMap.get(`${(row.categoryName as string).toLowerCase()}\u0000${(row.name as string).toLowerCase()}`) ?? 999,
+  })).sort((a: { categoryName: string; name: string; sortOrder: number }, b: { categoryName: string; name: string; sortOrder: number }) => {
+    const categoryCompare = a.categoryName.localeCompare(b.categoryName, "pt-BR");
+    if (categoryCompare !== 0) return categoryCompare;
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return a.name.localeCompare(b.name, "pt-BR");
+  });
+}
+
+/** Replace the subcategory order for one establishment/category. */
+export async function reorderMenuSubcategories(establishmentId: number, categoryName: string, orderedNames: string[]) {
+  const db = await getDb();
+  if (!db) return { success: false };
+  const normalizedCategory = capitalizeCategory(categoryName);
+  await db.delete(menuSubcategories).where(and(
+    eq(menuSubcategories.establishmentId, establishmentId),
+    sql`LOWER(${menuSubcategories.categoryName}) = LOWER(${normalizedCategory})`,
+  ));
+  if (orderedNames.length > 0) {
+    const [maxResult] = await db.select({ maxId: sql<number>`COALESCE(MAX(${menuSubcategories.id}), 0)` }).from(menuSubcategories);
+    let nextId = Number(maxResult?.maxId || 0) + 1;
+    await db.insert(menuSubcategories).values(orderedNames.map((name, index) => ({
+      id: nextId++,
+      establishmentId,
+      categoryName: normalizedCategory,
+      name: capitalizeCategory(name),
+      sortOrder: index,
+    })));
+  }
+  return { success: true };
+}
+
+/** Ensure a newly used subcategory is appended to its category's order. */
+export async function ensureMenuSubcategory(establishmentId: number, categoryName: string, subcategoryName: string) {
+  const db = await getDb();
+  if (!db || !subcategoryName) return;
+  const normalizedCategory = capitalizeCategory(categoryName);
+  const normalizedName = capitalizeCategory(subcategoryName);
+  const existing = await db.select({ id: menuSubcategories.id }).from(menuSubcategories).where(and(
+    eq(menuSubcategories.establishmentId, establishmentId),
+    sql`LOWER(${menuSubcategories.categoryName}) = LOWER(${normalizedCategory})`,
+    sql`LOWER(${menuSubcategories.name}) = LOWER(${normalizedName})`,
+  )).limit(1);
+  if (existing.length > 0) return;
+  const [maxId] = await db.select({ value: sql<number>`COALESCE(MAX(${menuSubcategories.id}), 0)` }).from(menuSubcategories);
+  const [maxOrder] = await db.select({ value: sql<number>`COALESCE(MAX(${menuSubcategories.sortOrder}), -1)` }).from(menuSubcategories).where(and(
+    eq(menuSubcategories.establishmentId, establishmentId),
+    sql`LOWER(${menuSubcategories.categoryName}) = LOWER(${normalizedCategory})`,
+  ));
+  await db.insert(menuSubcategories).values({
+    id: Number(maxId?.value || 0) + 1,
+    establishmentId,
+    categoryName: normalizedCategory,
+    name: normalizedName,
+    sortOrder: Number(maxOrder?.value ?? -1) + 1,
+  });
 }

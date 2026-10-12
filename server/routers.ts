@@ -225,6 +225,8 @@ import {
   getMenuCategories,
   getMenuCategoriesWithOrder,
   reorderMenuCategories,
+  getMenuSubcategoriesWithOrder,
+  reorderMenuSubcategories,
 } from "./db-admin-estab";
 import {
   getRatingsForSpecialistApplication,
@@ -1628,6 +1630,20 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         return await reorderMenuCategories(input.establishmentId, input.orderedNames);
+      }),
+    menuSubcategoriesWithOrder: adminProcedure
+      .input(z.object({ establishmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await getMenuSubcategoriesWithOrder(input.establishmentId);
+      }),
+    reorderMenuSubcategories: adminProcedure
+      .input(z.object({
+        establishmentId: z.number(),
+        categoryName: z.string().min(1),
+        orderedNames: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        return await reorderMenuSubcategories(input.establishmentId, input.categoryName, input.orderedNames);
       }),
 
     // Specialist applications

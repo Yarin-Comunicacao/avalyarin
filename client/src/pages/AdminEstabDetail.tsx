@@ -61,6 +61,10 @@ export default function AdminEstabDetail() {
     { establishmentId: estabId },
     { enabled: !!estabId }
   );
+  const { data: subcategoriesWithOrder } = trpc.admin.menuSubcategoriesWithOrder.useQuery(
+    { establishmentId: estabId },
+    { enabled: !!estabId }
+  );
 
   const reorderMutation = trpc.admin.reorderMenuCategories.useMutation();
   const utils = trpc.useUtils();
@@ -69,6 +73,7 @@ export default function AdminEstabDetail() {
   const [editingItem, setEditingItem] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [showSubcategoryManager, setShowSubcategoryManager] = useState(false);
   const [editingInfo, setEditingInfo] = useState(false);
   const [savingInfo, setSavingInfo] = useState(false);
   const [updatingMenuOcr, setUpdatingMenuOcr] = useState(false);
@@ -349,6 +354,12 @@ export default function AdminEstabDetail() {
   const allMenuSubcategories = Array.from(new Set(
     (estab.menuItems || []).map((item: any) => item.subcategory).filter(Boolean)
   )).sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+  const subcategoriesByCategory = (subcategoriesWithOrder || []).reduce((acc: Record<string, Array<{ categoryName: string; name: string; sortOrder: number }>>, entry: { categoryName: string; name: string; sortOrder: number }) => {
+    const key = entry.categoryName.toLowerCase();
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+    return acc;
+  }, {} as Record<string, Array<{ categoryName: string; name: string; sortOrder: number }>>);
 
   const filteredMenu = filterCategory === "all"
     ? estab.menuItems || []
@@ -705,7 +716,14 @@ export default function AdminEstabDetail() {
                 className="flex items-center gap-1.5 px-3 py-2 bg-secondary/50 border border-border rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 <GripVertical className="w-3.5 h-3.5" />
-                Ordenar
+                Ordenar categorias
+              </button>
+              <button
+                onClick={() => setShowSubcategoryManager(!showSubcategoryManager)}
+                className="flex items-center gap-1.5 px-3 py-2 bg-secondary/50 border border-border rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Tag className="w-3.5 h-3.5" />
+                Ordenar subcategorias
               </button>
               <button
                 onClick={() => setShowAddForm(true)}
@@ -725,6 +743,18 @@ export default function AdminEstabDetail() {
               onClose={() => setShowCategoryManager(false)}
               onReordered={() => {
                 utils.admin.menuCategoriesWithOrder.invalidate();
+                utils.admin.estabDetail.invalidate();
+              }}
+            />
+          )}
+          {showSubcategoryManager && (
+            <SubcategoryReorderManager
+              establishmentId={estabId}
+              categories={allMenuCategories}
+              subcategoriesByCategory={subcategoriesByCategory}
+              onClose={() => setShowSubcategoryManager(false)}
+              onReordered={() => {
+                utils.admin.menuSubcategoriesWithOrder.invalidate();
                 utils.admin.estabDetail.invalidate();
               }}
             />
@@ -897,6 +927,83 @@ function CategoryReorderManager({
           Cancelar
         </button>
       </div>
+    </div>
+  );
+}
+
+// ============ Subcategory Reorder Manager (per category) ============
+function SubcategoryReorderManager({
+  establishmentId,
+  categories,
+  subcategoriesByCategory,
+  onClose,
+  onReordered,
+}: {
+  establishmentId: number;
+  categories: string[];
+  subcategoriesByCategory: Record<string, Array<{ categoryName: string; name: string; sortOrder: number }>>;
+  onClose: () => void;
+  onReordered: () => void;
+}) {
+  const firstCategoryWithSubcategories = categories.find(category => (subcategoriesByCategory[category.toLowerCase()] || []).length > 0);
+  const [selectedCategory, setSelectedCategory] = useState(firstCategoryWithSubcategories || categories[0] || "");
+  const currentEntries = subcategoriesByCategory[selectedCategory.toLowerCase()] || [];
+  const [items, setItems] = useState(currentEntries.map(entry => entry.name));
+  const reorderMutation = trpc.admin.reorderMenuSubcategories.useMutation();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setItems((subcategoriesByCategory[category.toLowerCase()] || []).map(entry => entry.name));
+  };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setItems(arrayMove(items, items.indexOf(active.id as string), items.indexOf(over.id as string)));
+  };
+  const handleSave = async () => {
+    if (!selectedCategory || items.length === 0) return;
+    try {
+      await reorderMutation.mutateAsync({ establishmentId, categoryName: selectedCategory, orderedNames: items });
+      toast.success(`Ordem das subcategorias de ${selectedCategory} salva!`);
+      onReordered();
+      onClose();
+    } catch {
+      toast.error("Erro ao salvar ordem das subcategorias");
+    }
+  };
+  return (
+    <div className="mb-6 p-4 rounded-xl bg-card border border-primary/30">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-display text-sm tracking-wider text-primary">ORDENAR SUBCATEGORIAS</h4>
+        <button onClick={onClose} className="p-1 rounded hover:bg-secondary/50"><X className="w-4 h-4 text-muted-foreground" /></button>
+      </div>
+      {categories.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Adicione itens ao cardápio para criar categorias e subcategorias.</p>
+      ) : (
+        <>
+          <label className="block text-xs text-muted-foreground mb-1">Categoria do cardápio</label>
+          <select value={selectedCategory} onChange={event => handleCategoryChange(event.target.value)} className="w-full sm:w-80 px-3 py-2 mb-3 bg-background border border-border rounded-lg text-foreground text-sm">
+            {categories.map(category => <option key={category} value={category}>{category}</option>)}
+          </select>
+          <p className="text-xs text-muted-foreground mb-3">Arraste para definir a ordem em que as subcategorias aparecerão para os usuários.</p>
+          {items.length > 0 ? (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                <div className="space-y-1.5">{items.map(name => <SortableCategoryItem key={name} id={name} name={name} />)}</div>
+              </SortableContext>
+            </DndContext>
+          ) : <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">Esta categoria ainda não possui subcategorias.</p>}
+          <div className="flex gap-3 mt-4">
+            <button onClick={handleSave} disabled={reorderMutation.isPending || items.length === 0} className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
+              <Save className="w-4 h-4" /> {reorderMutation.isPending ? "Salvando..." : "Salvar Ordem"}
+            </button>
+            <button onClick={onClose} className="px-4 py-2 border border-border text-muted-foreground rounded-lg text-sm">Cancelar</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
