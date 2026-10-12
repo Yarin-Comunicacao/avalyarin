@@ -68,6 +68,7 @@ export async function ensureSmartMenuSchema() {
     sql`ALTER TABLE establishments ADD COLUMN googleMapsUrl TEXT`,
     sql`ALTER TABLE establishments ADD COLUMN facebook TEXT`,
     sql`ALTER TABLE establishments ADD COLUMN website TEXT`,
+    sql`ALTER TABLE establishments ADD COLUMN openingHours JSON`,
   ];
 
   for (const statement of statements) {
@@ -213,6 +214,7 @@ export async function createSmartEstablishment(input: {
     lat: input.lat,
     lng: input.lng,
     hours: formatOpeningHours(input.openingHours) || input.hours?.trim() || "Não informado",
+    openingHours: input.openingHours || undefined,
     phone: input.phone?.trim() || undefined,
     image: input.image?.trim() || undefined,
     logo: input.logo?.trim() || undefined,

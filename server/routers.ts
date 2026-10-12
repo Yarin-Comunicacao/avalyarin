@@ -1294,6 +1294,20 @@ export const appRouter = router({
         phone: z.string().optional(),
         instagram: z.string().optional(),
         hours: z.string().optional(),
+        openingHours: z.object({
+          weekly: z.array(z.object({
+            day: z.number().int().min(0).max(6),
+            isOpen: z.boolean(),
+            opensAt: z.string().max(5),
+            closesAt: z.string().max(5),
+          })).length(7),
+          holiday: z.object({
+            configured: z.boolean(),
+            isOpen: z.boolean(),
+            opensAt: z.string().max(5),
+            closesAt: z.string().max(5),
+          }),
+        }).optional(),
         active: z.boolean().optional(),
         status: z.enum(['active', 'hidden', 'pending']).optional(),
         image: z.string().optional(),
@@ -1354,12 +1368,20 @@ export const appRouter = router({
         lat: z.number().min(-90).max(90).optional(),
         lng: z.number().min(-180).max(180).optional(),
         hours: z.string().max(255).optional(),
-        openingHours: z.array(z.object({
-          day: z.number().int().min(0).max(6),
-          isOpen: z.boolean(),
-          opensAt: z.string().max(5),
-          closesAt: z.string().max(5),
-        })).length(7).optional(),
+        openingHours: z.object({
+          weekly: z.array(z.object({
+            day: z.number().int().min(0).max(6),
+            isOpen: z.boolean(),
+            opensAt: z.string().max(5),
+            closesAt: z.string().max(5),
+          })).length(7),
+          holiday: z.object({
+            configured: z.boolean(),
+            isOpen: z.boolean(),
+            opensAt: z.string().max(5),
+            closesAt: z.string().max(5),
+          }),
+        }).optional(),
         phone: z.string().max(64).optional(),
         image: z.string().url("Informe uma URL válida para a imagem principal").optional(),
         logo: z.string().url("Informe uma URL válida para a logo").optional(),

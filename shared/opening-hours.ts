@@ -15,8 +15,27 @@ export type DailyOpeningHours = {
   closesAt: string;
 };
 
+export type HolidayOpeningHours = {
+  configured: boolean;
+  isOpen: boolean;
+  opensAt: string;
+  closesAt: string;
+};
+
+export type OpeningHoursSchedule = {
+  weekly: DailyOpeningHours[];
+  holiday: HolidayOpeningHours;
+};
+
 export function createEmptyOpeningHours(): DailyOpeningHours[] {
   return WEEKDAYS.map((_, day) => ({ day, isOpen: false, opensAt: "", closesAt: "" }));
+}
+
+export function createEmptyOpeningSchedule(): OpeningHoursSchedule {
+  return {
+    weekly: createEmptyOpeningHours(),
+    holiday: { configured: false, isOpen: false, opensAt: "", closesAt: "" },
+  };
 }
 
 function normalizeTime(value: unknown): string {
@@ -26,13 +45,24 @@ function normalizeTime(value: unknown): string {
   const hours = Number(match[1]);
   const minutes = Number(match[2]);
   if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return "";
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  return `${String(hours).padStart(2, "0")}:${match[2]}`;
+}
+
+function normalizeHoliday(value: unknown): HolidayOpeningHours {
+  const row = (value && typeof value === "object" ? value : {}) as Partial<HolidayOpeningHours>;
+  const opensAt = normalizeTime(row.opensAt);
+  const closesAt = normalizeTime(row.closesAt);
+  return {
+    configured: Boolean(row.configured),
+    isOpen: Boolean(row.isOpen) && Boolean(opensAt) && Boolean(closesAt),
+    opensAt,
+    closesAt,
+  };
 }
 
 export function normalizeOpeningHours(value: unknown): DailyOpeningHours[] {
   const rows = Array.isArray(value) ? value : [];
   const byDay = new Map<number, DailyOpeningHours>();
-
   for (const row of rows) {
     const day = Number((row as Partial<DailyOpeningHours>)?.day);
     if (!Number.isInteger(day) || day < 0 || day >= WEEKDAYS.length) continue;
@@ -41,36 +71,49 @@ export function normalizeOpeningHours(value: unknown): DailyOpeningHours[] {
     const isOpen = Boolean((row as Partial<DailyOpeningHours>)?.isOpen) && Boolean(opensAt) && Boolean(closesAt);
     byDay.set(day, { day, isOpen, opensAt, closesAt });
   }
-
   return WEEKDAYS.map((_, day) => byDay.get(day) || { day, isOpen: false, opensAt: "", closesAt: "" });
+}
+
+export function normalizeOpeningSchedule(value: unknown): OpeningHoursSchedule {
+  if (Array.isArray(value)) {
+    return { weekly: normalizeOpeningHours(value), holiday: { configured: false, isOpen: false, opensAt: "", closesAt: "" } };
+  }
+  const source = (value && typeof value === "object" ? value : {}) as Partial<OpeningHoursSchedule>;
+  return {
+    weekly: normalizeOpeningHours(source.weekly),
+    holiday: normalizeHoliday(source.holiday),
+  };
 }
 
 function sameSchedule(left: DailyOpeningHours, right: DailyOpeningHours): boolean {
   return left.isOpen === right.isOpen && left.opensAt === right.opensAt && left.closesAt === right.closesAt;
 }
 
-/** Generates the human-readable value consumed by existing public pages. */
-export function formatOpeningHours(value: unknown): string {
-  const schedule = normalizeOpeningHours(value);
+function formatWeeklyOpeningHours(schedule: DailyOpeningHours[]): string {
   const groups: Array<{ start: number; end: number; opensAt: string; closesAt: string }> = [];
-
   for (let index = 0; index < schedule.length; index++) {
     const current = schedule[index];
     if (!current.isOpen) continue;
     const previous = groups.at(-1);
     const previousDay = previous?.end;
     const canExtend = previous && previousDay === index - 1 && sameSchedule(schedule[previousDay], current);
-    if (canExtend) {
-      previous.end = index;
-    } else {
-      groups.push({ start: index, end: index, opensAt: current.opensAt, closesAt: current.closesAt });
-    }
+    if (canExtend) previous.end = index;
+    else groups.push({ start: index, end: index, opensAt: current.opensAt, closesAt: current.closesAt });
   }
-
   return groups.map(group => {
-    const days = group.start === group.end
-      ? WEEKDAYS[group.start]
-      : `${WEEKDAYS[group.start]} a ${WEEKDAYS[group.end]}`;
+    const days = group.start === group.end ? WEEKDAYS[group.start] : `${WEEKDAYS[group.start]} a ${WEEKDAYS[group.end]}`;
     return `${days}, das ${group.opensAt} às ${group.closesAt}`;
   }).join("; ");
+}
+
+/** Generates the human-readable value consumed by existing public pages. */
+export function formatOpeningHours(value: unknown): string {
+  const schedule = normalizeOpeningSchedule(value);
+  const weekly = formatWeeklyOpeningHours(schedule.weekly);
+  const holiday = schedule.holiday.configured
+    ? schedule.holiday.isOpen
+      ? `Feriados, das ${schedule.holiday.opensAt} às ${schedule.holiday.closesAt}`
+      : "Feriados: fechado"
+    : "";
+  return [weekly, holiday].filter(Boolean).join("; ");
 }

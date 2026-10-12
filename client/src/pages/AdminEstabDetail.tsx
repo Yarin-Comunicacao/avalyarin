@@ -33,6 +33,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { createEmptyOpeningHours, formatOpeningHours, normalizeOpeningSchedule, type DailyOpeningHours, type HolidayOpeningHours, WEEKDAYS } from "@shared/opening-hours";
+import { parseEstablishmentHours } from "@/lib/parseHours";
 
 /** Capitalize first letter */
 function capitalize(str: string): string {
@@ -95,6 +97,7 @@ export default function AdminEstabDetail() {
     phone: '',
     instagram: '',
     hours: '',
+    openingHours: { weekly: createEmptyOpeningHours(), holiday: { configured: false, isOpen: false, opensAt: '', closesAt: '' } as HolidayOpeningHours },
     status: 'active' as 'active' | 'hidden' | 'pending',
     logo: '',
     image: '',
@@ -229,6 +232,16 @@ export default function AdminEstabDetail() {
   // Initialize edit form when estab data loads or editing starts
   const startEditing = () => {
     if (estab) {
+      const savedSchedule = normalizeOpeningSchedule((estab as any).openingHours);
+      if (!savedSchedule.weekly.some(row => row.isOpen) && estab.hours) {
+        const legacy = parseEstablishmentHours(estab.hours);
+        savedSchedule.weekly = savedSchedule.weekly.map(row => {
+          const parsed = legacy.days[(row.day + 1) % 7];
+          if (!parsed) return row;
+          const toTime = (minutes: number) => `${String(Math.floor((minutes % 1440) / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+          return { ...row, isOpen: true, opensAt: toTime(parsed.open), closesAt: toTime(parsed.close) };
+        });
+      }
       setEditInfo({
         name: estab.name || '',
         description: (estab as any).description || '',
@@ -242,6 +255,7 @@ export default function AdminEstabDetail() {
         phone: estab.phone || '',
         instagram: estab.instagram || '',
         hours: estab.hours || '',
+        openingHours: savedSchedule,
         status: estab.status || 'active',
         logo: estab.logo || '',
         image: estab.image || '',
@@ -265,7 +279,8 @@ export default function AdminEstabDetail() {
       region: editInfo.region.trim(),
       phone: editInfo.phone || undefined,
       instagram: editInfo.instagram || undefined,
-      hours: editInfo.hours || undefined,
+      hours: formatOpeningHours(editInfo.openingHours) || editInfo.hours || undefined,
+      openingHours: editInfo.openingHours,
       status: editInfo.status,
       logo: editInfo.logo || undefined,
       image: editInfo.image || undefined,
@@ -567,14 +582,24 @@ export default function AdminEstabDetail() {
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
                   />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1">Horário</label>
-                  <input
-                    type="text"
-                    value={editInfo.hours}
-                    onChange={(e) => setEditInfo({...editInfo, hours: e.target.value})}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
-                  />
+                <div className="sm:col-span-2">
+                  <label className="text-xs text-muted-foreground block mb-2">Horário de funcionamento</label>
+                  <div className="space-y-2">
+                    {editInfo.openingHours.weekly.map((row: DailyOpeningHours) => (
+                      <div key={row.day} className="grid grid-cols-[minmax(110px,1fr)_100px_100px] items-center gap-2 rounded-lg border border-border/60 p-2">
+                        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={row.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, weekly: current.openingHours.weekly.map(item => item.day === row.day ? { ...item, isOpen: event.target.checked } : item) } }))} /> {WEEKDAYS[row.day]}</label>
+                        <input type="time" value={row.opensAt} disabled={!row.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, weekly: current.openingHours.weekly.map(item => item.day === row.day ? { ...item, opensAt: event.target.value } : item) } }))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" aria-label={`Abertura de ${WEEKDAYS[row.day]}`} />
+                        <input type="time" value={row.closesAt} disabled={!row.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, weekly: current.openingHours.weekly.map(item => item.day === row.day ? { ...item, closesAt: event.target.value } : item) } }))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" aria-label={`Fechamento de ${WEEKDAYS[row.day]}`} />
+                      </div>
+                    ))}
+                    <div className="grid grid-cols-[minmax(110px,1fr)_100px_100px] items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-2">
+                      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={editInfo.openingHours.holiday.configured} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, holiday: { ...current.openingHours.holiday, configured: event.target.checked } } }))} /> Feriado</label>
+                      <input type="time" value={editInfo.openingHours.holiday.opensAt} disabled={!editInfo.openingHours.holiday.configured || !editInfo.openingHours.holiday.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, holiday: { ...current.openingHours.holiday, opensAt: event.target.value } } }))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" aria-label="Abertura em feriados" />
+                      <input type="time" value={editInfo.openingHours.holiday.closesAt} disabled={!editInfo.openingHours.holiday.configured || !editInfo.openingHours.holiday.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, holiday: { ...current.openingHours.holiday, closesAt: event.target.value } } }))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" aria-label="Fechamento em feriados" />
+                    </div>
+                    {editInfo.openingHours.holiday.configured && <label className="flex items-center gap-2 pl-6 text-xs text-muted-foreground"><input type="checkbox" checked={editInfo.openingHours.holiday.isOpen} onChange={event => setEditInfo(current => ({ ...current, openingHours: { ...current.openingHours, holiday: { ...current.openingHours.holiday, isOpen: event.target.checked } } }))} /> Aberto no feriado (desmarcado = fechado)</label>}
+                    {formatOpeningHours(editInfo.openingHours) && <p className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary"><strong>Como aparecerá no app:</strong> {formatOpeningHours(editInfo.openingHours)}</p>}
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Status</label>

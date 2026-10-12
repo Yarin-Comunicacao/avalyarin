@@ -4,7 +4,7 @@ import { ArrowLeft, Camera, CheckCircle2, Download, FileSpreadsheet, FileText, I
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { extractCoordinatesFromGoogleMapsUrl, extractNameFromGoogleMapsUrl } from "@/lib/googleMapsUrl";
-import { createEmptyOpeningHours, formatOpeningHours, type DailyOpeningHours, WEEKDAYS } from "@shared/opening-hours";
+import { createEmptyOpeningHours, formatOpeningHours, type DailyOpeningHours, type HolidayOpeningHours, WEEKDAYS } from "@shared/opening-hours";
 
 const MAX_PHOTOS = 50;
 const MAX_MENU_FILE_SIZE_BYTES = 50 * 1024 * 1024;
@@ -50,6 +50,7 @@ export default function SmartEstablishmentForm() {
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [openingHours, setOpeningHours] = useState<DailyOpeningHours[]>(createEmptyOpeningHours);
+  const [holidayHours, setHolidayHours] = useState<HolidayOpeningHours>({ configured: false, isOpen: false, opensAt: "", closesAt: "" });
   const [phone, setPhone] = useState("");
   const [categoryId, setCategoryId] = useState(initialCategoryId ? String(initialCategoryId) : "");
   const [coverImage, setCoverImage] = useState<SelectedPhoto | null>(null);
@@ -272,7 +273,7 @@ export default function SmartEstablishmentForm() {
         city: city.trim() || undefined,
         lat: toOptionalCoordinate(lat),
         lng: toOptionalCoordinate(lng),
-        openingHours,
+        openingHours: { weekly: openingHours, holiday: holidayHours },
         phone: phone.trim() || undefined,
         image,
         logo: logoUrl,
@@ -403,7 +404,7 @@ export default function SmartEstablishmentForm() {
           <div className="space-y-3 border-t border-border/60 pt-5">
             <div>
               <h3 className="text-sm font-semibold">Horário de funcionamento</h3>
-              <p className="text-xs text-muted-foreground mt-1">Informe a escala diária. O sistema agrupa automaticamente os dias com o mesmo horário para exibir no front.</p>
+              <p className="text-xs text-muted-foreground mt-1">Informe os horários por dia. O sistema agrupa automaticamente os dias com o mesmo horário para exibir no app.</p>
             </div>
             <div className="space-y-2">
               {openingHours.map(row => (
@@ -414,7 +415,13 @@ export default function SmartEstablishmentForm() {
                 </div>
               ))}
             </div>
-            {formatOpeningHours(openingHours) && <p className="rounded-lg bg-primary/5 px-3 py-2 text-sm text-primary"><strong>Como aparecerá no app:</strong> {formatOpeningHours(openingHours)}</p>}
+            <div className="grid grid-cols-[minmax(108px,1fr)_minmax(90px,1fr)_minmax(90px,1fr)] items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-2 sm:grid-cols-[minmax(150px,1fr)_120px_120px]">
+              <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={holidayHours.configured} onChange={event => setHolidayHours(current => ({ ...current, configured: event.target.checked }))} /> Feriado</label>
+              <input type="time" value={holidayHours.opensAt} onChange={event => setHolidayHours(current => ({ ...current, opensAt: event.target.value }))} disabled={!holidayHours.configured || !holidayHours.isOpen} aria-label="Abertura em feriados" className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" />
+              <input type="time" value={holidayHours.closesAt} onChange={event => setHolidayHours(current => ({ ...current, closesAt: event.target.value }))} disabled={!holidayHours.configured || !holidayHours.isOpen} aria-label="Fechamento em feriados" className="rounded-md border border-border bg-background px-2 py-1.5 text-sm disabled:opacity-50" />
+              {holidayHours.configured && <label className="col-span-full flex items-center gap-2 pl-6 text-xs text-muted-foreground sm:col-span-1 sm:col-start-2"><input type="checkbox" checked={holidayHours.isOpen} onChange={event => setHolidayHours(current => ({ ...current, isOpen: event.target.checked }))} /> Aberto no feriado</label>}
+            </div>
+            {formatOpeningHours({ weekly: openingHours, holiday: holidayHours }) && <p className="rounded-lg bg-primary/5 px-3 py-2 text-sm text-primary"><strong>Como aparecerá no app:</strong> {formatOpeningHours({ weekly: openingHours, holiday: holidayHours })}</p>}
           </div>
         </section>
 

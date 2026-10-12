@@ -1319,6 +1319,7 @@ export async function adminUpdateEstablishment(id: number, data: {
   phone?: string;
   instagram?: string;
   hours?: string;
+  openingHours?: unknown;
   active?: boolean;
   status?: 'active' | 'hidden' | 'pending';
 }) {
@@ -2073,6 +2074,7 @@ export async function createEstablishment(data: {
   lastMenuUpdate?: Date;
   validationScore?: number;
   hours?: string;
+  openingHours?: unknown;
   image?: string;
   logo?: string;
   source?: string;
@@ -2129,6 +2131,7 @@ export async function createEstablishment(data: {
     lastMenuUpdate: data.lastMenuUpdate || null,
     validationScore: data.validationScore ?? null,
     hours: data.hours || null,
+    openingHours: data.openingHours || null,
     image: data.image || null,
     logo: data.logo || null,
     hasMenu: false,

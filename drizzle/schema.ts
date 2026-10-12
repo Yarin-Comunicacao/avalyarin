@@ -78,6 +78,7 @@ export const establishments = mysqlTable("establishments", {
   image: varchar("image", { length: 512 }),
   logo: varchar("logo", { length: 512 }),
   hours: varchar("hours", { length: 370 }),
+  openingHours: json("openingHours"),
   phone: varchar("phone", { length: 512 }),
   instagram: varchar("instagram", { length: 512 }),
   categoryId: int("categoryId").notNull(),
