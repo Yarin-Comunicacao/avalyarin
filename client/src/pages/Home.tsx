@@ -543,8 +543,8 @@ export default function Home() {
                         {searchResults.establishments.map((est: any) => (
                           <Link key={est.id} href={`/estabelecimento/${est.slug}`}>
                             <div className="flex items-center gap-3 p-3 rounded-lg bg-card/50 border border-border/30 hover:border-primary/30 transition-all cursor-pointer">
-                              {est.image ? (
-                                <img src={est.image} alt={est.name} className="w-12 h-12 rounded-lg object-cover" />
+                              {(est.logo || est.image) ? (
+                                <img src={est.logo || est.image} alt={`Logo ${est.name}`} className="w-12 h-12 rounded-lg object-cover" />
                               ) : (
                                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                                   <MapPin className="w-5 h-5 text-primary" />

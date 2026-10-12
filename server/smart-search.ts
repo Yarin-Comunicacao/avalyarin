@@ -28,6 +28,7 @@ interface SmartSearchResult {
     neighborhood: string | null;
     rating: number | null;
     image: string | null;
+    logo: string | null;
     categoryName: string;
     matchReason: string;
   }>;
@@ -399,6 +400,7 @@ export async function smartSearch(query: string): Promise<SmartSearchResult> {
     neighborhood: e.neighborhood,
     rating: e.rating,
     image: e.image,
+    logo: e.logo,
     categoryName: catMap[e.id] || "",
     matchReason: useAi ? interpretation : "Busca por nome",
   }));
