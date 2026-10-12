@@ -1281,9 +1281,9 @@ export const appRouter = router({
             const t = val.trim().toLowerCase();
             if (t === 's/n' || t === 'sn') return true;
             const n = parseInt(t, 10);
-            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+            return !isNaN(n) && n >= 1 && n <= 50000 && String(n) === t;
           },
-          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+          { message: 'Número deve ser de 1 a 50000 ou "s/n"' }
         ).optional(),
         complement: z.string().max(200, 'Complemento deve ter no máximo 200 caracteres').optional(),
         description: z.string().max(500, 'Descrição deve ter no máximo 500 caracteres').optional(),
@@ -1445,9 +1445,9 @@ export const appRouter = router({
             const t = val.trim().toLowerCase();
             if (t === 's/n' || t === 'sn') return true;
             const n = parseInt(t, 10);
-            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+            return !isNaN(n) && n >= 1 && n <= 50000 && String(n) === t;
           },
-          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+          { message: 'Número deve ser de 1 a 50000 ou "s/n"' }
         ).optional(),
         complement: z.string().max(200, 'Complemento máx. 200 caracteres').optional(),
         description: z.string().max(500, 'Descrição máx. 500 caracteres').optional(),
@@ -2084,9 +2084,9 @@ export const appRouter = router({
             const t = val.trim().toLowerCase();
             if (t === 's/n' || t === 'sn') return true;
             const n = parseInt(t, 10);
-            return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+            return !isNaN(n) && n >= 1 && n <= 50000 && String(n) === t;
           },
-          { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+          { message: 'Número deve ser de 1 a 50000 ou "s/n"' }
         ).optional(),
         complement: z.string().max(200, 'Complemento máx. 200 caracteres').optional(),
         description: z.string().max(500, 'Descrição máx. 500 caracteres').optional(),
@@ -4629,9 +4629,9 @@ export const appRouter = router({
           const t = val.trim().toLowerCase();
           if (t === 's/n' || t === 'sn') return true;
           const n = parseInt(t, 10);
-          return !isNaN(n) && n >= 1 && n <= 15000 && String(n) === t;
+          return !isNaN(n) && n >= 1 && n <= 50000 && String(n) === t;
         },
-        { message: 'Número deve ser de 1 a 15000 ou "s/n"' }
+        { message: 'Número deve ser de 1 a 50000 ou "s/n"' }
       ).optional(),
       complement: z.string().max(200).optional(),
       description: z.string().max(500).optional(),
