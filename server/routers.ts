@@ -1300,6 +1300,9 @@ export const appRouter = router({
             isOpen: z.boolean(),
             opensAt: z.string().max(5),
             closesAt: z.string().max(5),
+            hasSecondPeriod: z.boolean().optional(),
+            secondOpensAt: z.string().max(5).optional(),
+            secondClosesAt: z.string().max(5).optional(),
           })).length(7),
           holiday: z.object({
             configured: z.boolean(),
@@ -1374,6 +1377,9 @@ export const appRouter = router({
             isOpen: z.boolean(),
             opensAt: z.string().max(5),
             closesAt: z.string().max(5),
+            hasSecondPeriod: z.boolean().optional(),
+            secondOpensAt: z.string().max(5).optional(),
+            secondClosesAt: z.string().max(5).optional(),
           })).length(7),
           holiday: z.object({
             configured: z.boolean(),
