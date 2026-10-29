@@ -1640,10 +1640,14 @@ export default function RatingPage() {
                   </div>
                 )}
 
-                <div className="flex justify-end mt-6">
-                  <Button onClick={startRating} className="font-display tracking-wider glow-amber">
-                    CONTINUAR <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
+                {/* Mantém o avanço acessível enquanto o cardápio é percorrido. */}
+                <div className="h-20" aria-hidden="true" />
+                <div className="fixed bottom-16 left-0 right-0 z-40 border-t border-border/40 bg-background/95 px-4 py-3 pb-safe backdrop-blur-xl">
+                  <div className="container max-w-2xl flex justify-end">
+                    <Button onClick={startRating} className="font-display tracking-wider glow-amber">
+                      CONTINUAR <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             )}
