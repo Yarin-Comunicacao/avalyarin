@@ -3223,7 +3223,7 @@ export default function RatingPage() {
                 {/* Qualification criteria info */}
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mb-6">
                   <p className="text-xs text-primary/80 leading-relaxed">
-                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Comentários e fotos já foram adicionados durante a avaliação. Adicione a foto da notinha para bonificação extra.
+                    <strong>Avaliação qualificada = 2x pontos para badges!</strong> Comentários detalhados ajudam a qualificar a avaliação. As fotos dos itens e a foto da notinha são opcionais.
                   </p>
                 </div>
 
@@ -3386,7 +3386,9 @@ export default function RatingPage() {
                   }).length;
                   const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
                   const hasReceipt = !!receiptPhoto;
-                  const isQualified = commentsOk === selectedMenuItems.length && photosOk > 0;
+                  // Fotos são opcionais: a avaliação pode ser qualificada apenas
+                  // com comentários detalhados para cada item selecionado.
+                  const isQualified = commentsOk === selectedMenuItems.length;
                   return (
                     <div className={`p-4 rounded-xl border mb-6 ${isQualified ? 'bg-green-500/5 border-green-500/30' : 'bg-secondary/30 border-border/30'}`}>
                       <h5 className={`text-sm font-semibold mb-2 ${isQualified ? 'text-green-400' : 'text-muted-foreground'}`}>
@@ -3400,10 +3402,10 @@ export default function RatingPage() {
                           <span className="text-muted-foreground">Comentários: {commentsOk}/{selectedMenuItems.length} itens</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={photosOk > 0 ? 'text-green-400' : 'text-muted-foreground'}>
+                          <span className={photosOk > 0 ? 'text-green-400' : 'text-muted-foreground/50'}>
                             {photosOk > 0 ? '✓' : '○'}
                           </span>
-                          <span className="text-muted-foreground">Fotos com itens marcados: {photosOk}</span>
+                          <span className="text-muted-foreground">Fotos com itens marcados: {photosOk} (opcional)</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={hasReceipt ? 'text-green-400' : 'text-muted-foreground/50'}>
