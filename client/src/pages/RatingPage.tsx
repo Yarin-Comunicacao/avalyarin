@@ -915,7 +915,8 @@ export default function RatingPage() {
   };
 
   // ============================================================
-  // VALIDATION: all fields mandatory, low-score reasons 1-3 required
+  // VALIDATION: rating fields mandatory, low-score reasons 1-3 required.
+  // Photos are optional and may be added as supporting media.
   // ============================================================
 
   const hasValidLowReasons = (score: number, reasons: string[], comment: string): boolean => {
@@ -932,9 +933,6 @@ export default function RatingPage() {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
     if (!rating.comment || rating.comment.trim().length < 20) return false;
-    // Photo is required
-    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
-    if (itemPhotos.length === 0) return false;
     return true;
   };
 
@@ -942,8 +940,6 @@ export default function RatingPage() {
     const missing: { field: string; label: string }[] = [];
     if (rating.serves <= 0) missing.push({ field: "serves", label: "Serve quantas pessoas" });
     if (rating.recommend === null) missing.push({ field: "recommend", label: "Recomendaria" });
-    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
-    if (itemPhotos.length === 0) missing.push({ field: "photo", label: "Foto do item" });
     if (!rating.comment || rating.comment.trim().length < 20) missing.push({ field: "comment", label: "Comentário sobre o item (mín. 20 caracteres)" });
     if (rating.taste <= 0) missing.push({ field: "taste", label: "Nota de Sabor" });
     if (rating.taste > 0 && rating.taste <= 6 && rating.lowReasons.length === 0) missing.push({ field: "lowReasons", label: "Motivos da nota baixa" });
@@ -954,9 +950,6 @@ export default function RatingPage() {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
     if (!rating.comment || rating.comment.trim().length < 20) return false;
-    // Photo is required
-    const itemPhotos = photos.filter(p => p.taggedItemIds.includes(rating.itemId));
-    if (itemPhotos.length === 0) return false;
     return true;
   };
 
