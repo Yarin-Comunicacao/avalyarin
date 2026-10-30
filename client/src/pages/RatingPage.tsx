@@ -1207,7 +1207,7 @@ export default function RatingPage() {
             <Users className="w-4 h-4 text-primary" /> Serve quantas pessoas?
           </label>
           <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((n) => (
+            {[1, 2, 3, 4].map((n) => (
               <button
                 key={n}
                 onClick={() => updateField(idx, "serves", n)}
@@ -1215,11 +1215,57 @@ export default function RatingPage() {
                   rating.serves === n ? "bg-primary text-primary-foreground glow-amber" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                 }`}
               >
-                {n}{n === 5 ? "+" : ""}
+                {n === 4 ? "4+" : n}
               </button>
             ))}
           </div>
           {isFieldMissing("serves") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("serves")}</p>}
+        </div>
+
+        {/* Taste */}
+        <div data-field="taste" className={`mb-6 p-3 rounded-lg ${isFieldMissing("taste") ? "border-2 border-red-500" : ""}`}>
+          <ScoreButtons
+            value={rating.taste}
+            onChange={(v) => updateField(idx, "taste", v)}
+            label="Nota de Sabor"
+          />
+          <AnimatePresence>
+            {rating.taste > 0 && rating.taste <= 6 && (
+              <LowScoreReasons
+                reasons={tasteReasons}
+                selectedReasons={rating.lowReasons}
+                onToggleReason={(r) => toggleLow(idx, r)}
+                comment={rating.lowComment}
+                onCommentChange={(c) => updateField(idx, "lowComment", c)}
+                showError={validationAttempted}
+              />
+            )}
+            {rating.taste >= 7 && rating.taste <= 9 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4"
+              >
+                <label className="text-sm font-medium text-primary flex items-center gap-2 mb-2">
+                  <Star className="w-4 h-4" /> O que faltou para o 10?
+                </label>
+                <textarea
+                  value={rating.whatMissedForTen}
+                  onChange={(e) => updateField(idx, "whatMissedForTen", e.target.value)}
+                  placeholder="Ex: Poderia ser mais gelado, porção maior, atendimento mais rápido..."
+                  maxLength={200}
+                  className="w-full px-4 py-3 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
+                  rows={2}
+                />
+                <p className="text-xs text-muted-foreground/50 mt-1 text-right">
+                  {rating.whatMissedForTen.length}/200
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {isFieldMissing("taste") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("taste")}</p>}
+          {isFieldMissing("lowReasons") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("lowReasons")}</p>}
         </div>
 
         {/* Recommend */}
@@ -1329,51 +1375,6 @@ export default function RatingPage() {
             {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
           </p>
           {isFieldMissing("comment") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("comment")}</p>}
-        </div>
-        {/* Taste */}
-        <div data-field="taste" className={`p-3 rounded-lg ${isFieldMissing("taste") ? "border-2 border-red-500" : ""}`}>
-          <ScoreButtons
-            value={rating.taste}
-            onChange={(v) => updateField(idx, "taste", v)}
-            label="Nota de Sabor"
-          />
-          <AnimatePresence>
-            {rating.taste > 0 && rating.taste <= 6 && (
-              <LowScoreReasons
-                reasons={tasteReasons}
-                selectedReasons={rating.lowReasons}
-                onToggleReason={(r) => toggleLow(idx, r)}
-                comment={rating.lowComment}
-                onCommentChange={(c) => updateField(idx, "lowComment", c)}
-                showError={validationAttempted}
-              />
-            )}
-            {rating.taste >= 7 && rating.taste <= 9 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-4"
-              >
-                <label className="text-sm font-medium text-primary flex items-center gap-2 mb-2">
-                  <Star className="w-4 h-4" /> O que faltou para o 10?
-                </label>
-                <textarea
-                  value={rating.whatMissedForTen}
-                  onChange={(e) => updateField(idx, "whatMissedForTen", e.target.value)}
-                  placeholder="Ex: Poderia ser mais gelado, porção maior, atendimento mais rápido..."
-                  maxLength={200}
-                  className="w-full px-4 py-3 rounded-lg bg-secondary border border-primary/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/60 transition-colors"
-                  rows={2}
-                />
-                <p className="text-xs text-muted-foreground/50 mt-1 text-right">
-                  {rating.whatMissedForTen.length}/200
-                </p>
-              </motion.div>
-            )}
-                    </AnimatePresence>
-          {isFieldMissing("taste") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("taste")}</p>}
-          {isFieldMissing("lowReasons") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("lowReasons")}</p>}
         </div>
       </div>
     );
