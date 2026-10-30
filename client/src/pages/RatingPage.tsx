@@ -586,6 +586,7 @@ export default function RatingPage() {
     filaEspera: number;
     tempoEspera: string; // hh:mm
     entreiDireto: boolean;
+    estacionamento: "sim" | "nao" | "nao_utilizei" | null;
     atendimento: number;
     tempoEsperaPedido: number;
     conforto: number;
@@ -600,6 +601,7 @@ export default function RatingPage() {
     filaEspera: 0,
     tempoEspera: "",
     entreiDireto: false,
+    estacionamento: null,
     atendimento: 0,
     tempoEsperaPedido: 0,
     conforto: 0,
@@ -2840,16 +2842,16 @@ export default function RatingPage() {
                           }} />
                           {venuePhotoPreview.filaEspera ? 'Trocar' : 'Foto'}
                         </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            checked={venueScores.entreiDireto}
+                            onChange={(e) => setVenueScores(prev => ({ ...prev, entreiDireto: e.target.checked, filaEspera: e.target.checked ? 10 : prev.filaEspera }))}
+                            className="w-4 h-4 rounded border-border accent-primary"
+                          />
+                          <span>Entrei direto</span>
+                        </label>
                       </div>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={venueScores.entreiDireto}
-                          onChange={(e) => setVenueScores(prev => ({ ...prev, entreiDireto: e.target.checked, filaEspera: e.target.checked ? 10 : prev.filaEspera }))}
-                          className="w-4 h-4 rounded border-border accent-primary"
-                        />
-                        <span className="text-xs text-muted-foreground">Entrei direto</span>
-                      </label>
                     </div>
                     {venuePhotoPreview.filaEspera && (
                       <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-primary/30 mb-2">
@@ -2892,7 +2894,38 @@ export default function RatingPage() {
                     )}
                   </div>
 
-                  {/* 2. Atendimento */}
+                  {/* 2. Estacionamento / valet */}
+                  <div className="p-4 rounded-xl bg-card border border-border/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <label className="text-sm font-medium text-foreground">Estacionamento / Valet</label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {([
+                        ["sim", "Sim"],
+                        ["nao", "Não"],
+                        ["nao_utilizei", "Não utilizei"],
+                      ] as const).map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setVenueScores(prev => ({ ...prev, estacionamento: value }))}
+                          className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                            venueScores.estacionamento === value
+                              ? value === "sim"
+                                ? "border-green-500 bg-green-500/10 text-green-500"
+                                : value === "nao"
+                                  ? "border-red-500 bg-red-500/10 text-red-500"
+                                  : "border-primary bg-primary/10 text-primary"
+                              : "border-border/30 bg-secondary/30 text-muted-foreground hover:border-primary/30"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Atendimento */}
                   <div className="p-4 rounded-xl bg-card border border-border/50">
                     <label className="text-sm font-medium text-foreground block mb-2">Atendimento</label>
                     <div className="flex gap-1 flex-wrap">

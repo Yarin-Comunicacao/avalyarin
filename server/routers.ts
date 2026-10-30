@@ -585,6 +585,7 @@ export const appRouter = router({
           filaEspera: z.number().min(0).max(10),
           tempoEspera: z.string().optional(),
           entreiDireto: z.boolean(),
+          estacionamento: z.enum(["sim", "nao", "nao_utilizei"]).nullable().optional(),
           atendimento: z.number().min(0).max(10),
           tempoEsperaPedido: z.number().min(0).max(10),
           conforto: z.number().min(0).max(10),
