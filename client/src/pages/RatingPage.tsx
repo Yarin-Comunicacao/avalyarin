@@ -931,10 +931,15 @@ export default function RatingPage() {
     return true;
   };
 
+  const isOptionalItemCommentValid = (comment: string): boolean => {
+    const trimmed = comment.trim();
+    return trimmed.length === 0 || trimmed.length >= 20;
+  };
+
   const isDirectItemComplete = (rating: DirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
-    if (!rating.comment || rating.comment.trim().length < 20) return false;
+    if (!isOptionalItemCommentValid(rating.comment)) return false;
     return true;
   };
 
@@ -942,7 +947,7 @@ export default function RatingPage() {
     const missing: { field: string; label: string }[] = [];
     if (rating.serves <= 0) missing.push({ field: "serves", label: "Serve quantas pessoas" });
     if (rating.recommend === null) missing.push({ field: "recommend", label: "Recomendaria" });
-    if (!rating.comment || rating.comment.trim().length < 20) missing.push({ field: "comment", label: "Comentário sobre o item (mín. 20 caracteres)" });
+    if (!isOptionalItemCommentValid(rating.comment)) missing.push({ field: "comment", label: "Comentário sobre o item (mín. 20 caracteres se preenchido)" });
     if (rating.taste <= 0) missing.push({ field: "taste", label: "Nota de Sabor" });
     if (rating.taste > 0 && rating.taste <= 6 && rating.lowReasons.length === 0) missing.push({ field: "lowReasons", label: "Motivos da nota baixa" });
     return missing;
@@ -951,7 +956,7 @@ export default function RatingPage() {
   const isBevDirectItemComplete = (rating: BevDirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
     if (!hasValidLowReasons(rating.taste, rating.lowReasons, rating.lowComment)) return false;
-    if (!rating.comment || rating.comment.trim().length < 20) return false;
+    if (!isOptionalItemCommentValid(rating.comment)) return false;
     return true;
   };
 
@@ -967,7 +972,7 @@ export default function RatingPage() {
       if (score <= 0) return false;
       if (!hasValidLowReasons(score, rating.lowReasons[subId] || [], rating.lowComments[subId] || "")) return false;
     }
-    if (!rating.comment || rating.comment.trim().length < 20) return false;
+    if (!isOptionalItemCommentValid(rating.comment)) return false;
     return true;
   };
 
@@ -1361,7 +1366,7 @@ export default function RatingPage() {
         {/* Inline comment per item - right below photo */}
         <div data-field="comment" className={`mb-6 p-3 rounded-lg ${isFieldMissing("comment") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional; mínimo de 20 caracteres se preenchido)</span>
           </label>
           <textarea
             value={rating.comment}
@@ -2093,7 +2098,7 @@ export default function RatingPage() {
                       {/* Inline comment per item - right below photo */}
                       <div className="mb-6">
                         <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item
+                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional; mínimo de 20 caracteres se preenchido)</span>
                         </label>
                         <textarea
                           value={itemRating.comment}
