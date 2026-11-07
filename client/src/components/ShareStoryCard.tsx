@@ -494,9 +494,6 @@ export default function ShareStoryCard({
               <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>
                 Avalie seus bares e restaurantes favoritos
               </p>
-              <p style={{ fontSize: 14, color: "#d9a94e", fontWeight: 600, letterSpacing: 1 }}>
-                avaliabar.manus.space
-              </p>
             </div>
           </div>
         </div>
