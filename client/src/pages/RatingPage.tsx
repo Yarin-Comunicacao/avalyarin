@@ -1131,7 +1131,11 @@ export default function RatingPage() {
           {items.map((item) => (
             <button
               key={item.id}
-              onClick={() => toggleItem(item.id)}
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                toggleItem(item.id);
+              }}
               className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                 selectedItems.includes(item.id)
                   ? "border-primary/60 bg-primary/10"
@@ -1516,7 +1520,11 @@ export default function RatingPage() {
                       {customItems.map((item) => (
                         <button
                           key={item.id}
-                          onClick={() => toggleItem(item.id)}
+                          type="button"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            toggleItem(item.id);
+                          }}
                           className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                             selectedItems.includes(item.id)
                               ? "border-primary/60 bg-primary/10"
