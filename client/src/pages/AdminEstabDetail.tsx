@@ -67,6 +67,7 @@ export default function AdminEstabDetail() {
     { establishmentId: estabId },
     { enabled: !!estabId }
   );
+  const { data: establishmentCategoryOptions } = trpc.admin.categoriesWithCounts.useQuery();
 
   const reorderMutation = trpc.admin.reorderMenuCategories.useMutation();
   const utils = trpc.useUtils();
@@ -86,6 +87,7 @@ export default function AdminEstabDetail() {
   const [uploadingBrandAsset, setUploadingBrandAsset] = useState<"logo" | "cover" | null>(null);
   const [editInfo, setEditInfo] = useState({
     name: '',
+    categoryId: 0,
     description: '',
     address: '',
     addressNumber: '',
@@ -244,6 +246,7 @@ export default function AdminEstabDetail() {
       }
       setEditInfo({
         name: estab.name || '',
+        categoryId: Number((estab as any).categoryId || (estab as any).categories?.find((category: any) => category.isPrimary)?.id || 0),
         description: (estab as any).description || '',
         address: estab.address || '',
         addressNumber: (estab as any).addressNumber || '',
@@ -269,6 +272,7 @@ export default function AdminEstabDetail() {
     updateEstabMutation.mutate({
       id: estabId,
       name: editInfo.name || undefined,
+      categoryId: editInfo.categoryId > 0 ? editInfo.categoryId : undefined,
       description: editInfo.description || undefined,
       address: editInfo.address || undefined,
       addressNumber: editInfo.addressNumber || undefined,
@@ -491,6 +495,22 @@ export default function AdminEstabDetail() {
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
                     placeholder="Ex: Hamburgueria artesanal"
                   />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Categoria</label>
+                  <div className="relative">
+                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <select
+                      value={editInfo.categoryId || ""}
+                      onChange={(event) => setEditInfo({ ...editInfo, categoryId: Number(event.target.value) || 0 })}
+                      className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground appearance-none"
+                    >
+                      <option value="">Selecione uma categoria</option>
+                      {(establishmentCategoryOptions || []).map((category: any) => (
+                        <option key={category.id} value={category.id}>{category.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Endereço (logradouro)</label>

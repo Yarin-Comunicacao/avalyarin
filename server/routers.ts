@@ -1272,6 +1272,7 @@ export const appRouter = router({
       .input(z.object({
         id: z.number(),
         name: z.string().optional(),
+        categoryId: z.number().int().positive().optional(),
         address: z.string().refine(
           (val) => !val || ADDRESS_REGEX.test(val.trim()),
           { message: 'Endereço deve começar com logradouro válido (Rua, Avenida, Alameda, etc.)' }

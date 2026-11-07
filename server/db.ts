@@ -1341,6 +1341,7 @@ export async function updateUserRole(userId: number, role: "user" | "specialist"
 
 export async function adminUpdateEstablishment(id: number, data: {
   name?: string;
+  categoryId?: number;
   address?: string;
   addressNumber?: string;
   complement?: string;
@@ -1358,8 +1359,38 @@ export async function adminUpdateEstablishment(id: number, data: {
 }) {
   const db = await getDb();
   if (!db) return null;
-  
-  await db.update(establishments).set(data).where(eq(establishments.id, id));
+
+  const { categoryId, ...establishmentData } = data;
+  await db.update(establishments).set({
+    ...establishmentData,
+    ...(categoryId !== undefined ? { categoryId } : {}),
+  }).where(eq(establishments.id, id));
+
+  // Keep the legacy categoryId and the primary N:N relation synchronized.
+  if (categoryId !== undefined) {
+    const [primaryAssociation] = await db.select({ id: establishmentCategories.id })
+      .from(establishmentCategories)
+      .where(and(
+        eq(establishmentCategories.establishmentId, id),
+        eq(establishmentCategories.isPrimary, true),
+      ))
+      .limit(1);
+
+    if (primaryAssociation) {
+      await db.update(establishmentCategories)
+        .set({ categoryId })
+        .where(eq(establishmentCategories.id, primaryAssociation.id));
+    } else {
+      const [maxAssociation] = await db.select({ maxId: sql<number>`COALESCE(MAX(${establishmentCategories.id}), 0)` })
+        .from(establishmentCategories);
+      await db.insert(establishmentCategories).values({
+        id: Number(maxAssociation?.maxId || 0) + 1,
+        establishmentId: id,
+        categoryId,
+        isPrimary: true,
+      });
+    }
+  }
   
   // A status supplied by an admin is an explicit manual decision and must
   // take precedence over the criteria-based classification. Recalculate only
