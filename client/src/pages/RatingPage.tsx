@@ -931,10 +931,7 @@ export default function RatingPage() {
     return true;
   };
 
-  const isOptionalItemCommentValid = (comment: string): boolean => {
-    const trimmed = comment.trim();
-    return trimmed.length === 0 || trimmed.length >= 20;
-  };
+  const isOptionalItemCommentValid = (_comment: string): boolean => true;
 
   const isDirectItemComplete = (rating: DirectRating): boolean => {
     if (rating.serves <= 0 || rating.recommend === null || rating.taste <= 0) return false;
@@ -947,7 +944,6 @@ export default function RatingPage() {
     const missing: { field: string; label: string }[] = [];
     if (rating.serves <= 0) missing.push({ field: "serves", label: "Serve quantas pessoas" });
     if (rating.recommend === null) missing.push({ field: "recommend", label: "Recomendaria" });
-    if (!isOptionalItemCommentValid(rating.comment)) missing.push({ field: "comment", label: "Comentário sobre o item (mín. 20 caracteres se preenchido)" });
     if (rating.taste <= 0) missing.push({ field: "taste", label: "Nota de Sabor" });
     if (rating.taste > 0 && rating.taste <= 6 && rating.lowReasons.length === 0) missing.push({ field: "lowReasons", label: "Motivos da nota baixa" });
     return missing;
@@ -1370,7 +1366,7 @@ export default function RatingPage() {
         {/* Inline comment per item - right below photo */}
         <div data-field="comment" className={`mb-6 p-3 rounded-lg ${isFieldMissing("comment") ? "border-2 border-red-500" : ""}`}>
           <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional; mínimo de 20 caracteres se preenchido)</span>
+            <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
           </label>
           <textarea
             value={rating.comment}
@@ -1380,8 +1376,8 @@ export default function RatingPage() {
             className={`w-full px-4 py-3 rounded-lg bg-secondary border text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors ${isFieldMissing("comment") ? "border-red-500" : "border-border/30"}`}
             rows={2}
           />
-          <p className={`text-[10px] mt-1 text-right ${rating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
-            {rating.comment.length}/200 {rating.comment.length >= 20 && '\u2713'}
+          <p className="text-[10px] mt-1 text-right text-muted-foreground/50">
+            {rating.comment.length}/200
           </p>
           {isFieldMissing("comment") && <p className="text-xs text-red-500 font-medium mt-2">{getFieldError("comment")}</p>}
         </div>
@@ -2106,7 +2102,7 @@ export default function RatingPage() {
                       {/* Inline comment per item - right below photo */}
                       <div className="mb-6">
                         <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional; mínimo de 20 caracteres se preenchido)</span>
+                          <MessageSquare className="w-4 h-4 text-primary" /> Comentário sobre o item <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
                         </label>
                         <textarea
                           value={itemRating.comment}
@@ -2123,8 +2119,8 @@ export default function RatingPage() {
                           className="w-full px-4 py-3 rounded-lg bg-secondary border border-border/30 text-foreground text-sm placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-primary/40 transition-colors"
                           rows={2}
                         />
-                        <p className={`text-[10px] mt-1 text-right ${itemRating.comment.length >= 20 ? 'text-green-400' : 'text-muted-foreground/50'}`}>
-                          {itemRating.comment.length}/200 {itemRating.comment.length >= 20 && '\u2713'}
+                        <p className="text-[10px] mt-1 text-right text-muted-foreground/50">
+                          {itemRating.comment.length}/200
                         </p>
                       </div>
 
@@ -3294,7 +3290,7 @@ export default function RatingPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm font-semibold text-foreground truncate">{item.name}</span>
-                                {comment.length >= 20 && <span className="text-[10px] text-green-400">✓</span>}
+                                {comment.trim().length > 0 && <span className="text-[10px] text-green-400">✓</span>}
                               </div>
                               {comment ? (
                                 <p className="text-xs text-primary/80 italic">
@@ -3426,12 +3422,12 @@ export default function RatingPage() {
                     const dr = directRatings.find(r => r.itemId === item.id);
                     const ar = analyticItemRatings.find(r => r.itemId === item.id);
                     const comment = dr?.comment || ar?.comment || "";
-                    return comment.length >= 20;
+                    return comment.trim().length > 0;
                   }).length;
                   const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
                   const hasReceipt = !!receiptPhoto;
-                  // Fotos são opcionais: a avaliação pode ser qualificada apenas
-                  // com comentários detalhados para cada item selecionado.
+                  // Comentários e fotos são opcionais para enviar a avaliação.
+                  // Quando preenchidos, ambos podem contribuir para a qualificação e os bônus.
                   const isQualified = commentsOk === selectedMenuItems.length;
                   return (
                     <div className={`p-4 rounded-xl border mb-6 ${isQualified ? 'bg-green-500/5 border-green-500/30' : 'bg-secondary/30 border-border/30'}`}>
@@ -3443,7 +3439,7 @@ export default function RatingPage() {
                           <span className={commentsOk === selectedMenuItems.length ? 'text-green-400' : 'text-muted-foreground'}>
                             {commentsOk === selectedMenuItems.length ? '✓' : '○'}
                           </span>
-                          <span className="text-muted-foreground">Comentários: {commentsOk}/{selectedMenuItems.length} itens</span>
+                          <span className="text-muted-foreground">Comentários preenchidos: {commentsOk}/{selectedMenuItems.length} itens (opcional)</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={photosOk > 0 ? 'text-green-400' : 'text-muted-foreground/50'}>
@@ -3579,7 +3575,7 @@ export default function RatingPage() {
                         const dr = directRatings.find(r => r.itemId === item.id);
                         const ar = analyticItemRatings.find(r => r.itemId === item.id);
                         const comment = dr?.comment || ar?.comment || "";
-                        return comment.length >= 20;
+                        return comment.trim().length > 0;
                       }).length;
                       const photosOk = photos.filter(p => p.taggedItemIds.length > 0).length;
                       const hasReceipt = !!receiptPhoto;
