@@ -187,24 +187,6 @@ export default function Home() {
           ═══════════════════════════════════════════════════════════ */}
       {activeTab === "descobertas" && (
         <>
-          {/* Hero Section */}
-          <section className="relative pt-20 pb-24">
-            <div className="container">
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              >
-                <h2 className="font-display text-5xl sm:text-7xl lg:text-8xl tracking-wider text-primary text-glow-amber leading-none mb-4">
-                  EXPERIMENTE E AVALIE
-                </h2>
-                <p className="text-lg sm:text-xl text-foreground/80 max-w-xl leading-relaxed">
-                  A rede social de avaliações de bares e restaurantes de São Paulo.
-                </p>
-              </motion.div>
-            </div>
-          </section>
-
           {/* Posts Carousel */}
           <PostsCarousel />
 

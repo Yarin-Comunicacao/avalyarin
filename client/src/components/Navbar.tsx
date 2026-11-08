@@ -4,7 +4,9 @@ import { ArrowLeft } from "lucide-react";
 
 export default function Navbar() {
   const [location] = useLocation();
-  const isHome = location === "/";
+  // A seta aparece apenas fora das telas principais. Em /busca, as três abas
+  // são a navegação raiz; ela reaparece ao abrir segmento, categoria ou local.
+  const isHome = location === "/" || location === "/busca";
 
   return (
     <nav className="safe-area-header fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/95">
