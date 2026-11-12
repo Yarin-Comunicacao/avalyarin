@@ -21,6 +21,90 @@ import {
 import PhotoGrid from "@/components/PhotoGrid";
 import InsigniasTab from "@/components/InsigniasTab";
 
+const criterionNames: Record<string, string> = {
+  c1: "Sabor e Execução",
+  c2: "Apresentação",
+  c3: "Atendimento",
+  c4: "Ambiente e Infra",
+  c5: "Custo-Benefício",
+  c6: "Consistência",
+  c7: "Originalidade",
+  c8: "Carta de Bebidas",
+  c9: "Variedade",
+  c10: "Harmonização",
+};
+
+const venueCriterionNames: Record<string, string> = {
+  filaEspera: "Fila de espera",
+  atendimento: "Atendimento",
+  tempoEsperaPedido: "Tempo de espera do pedido",
+  conforto: "Conforto do ambiente",
+  limpeza: "Limpeza",
+  banheiros: "Banheiros",
+  acessibilidade: "Acessibilidade",
+  iluminacao: "Iluminação",
+  somAmbiente: "Som e ambiente",
+};
+
+type HistoryCriterion = { key: string; name: string; value: string };
+
+function parseCriteriaScores(raw: unknown): Record<string, any> | null {
+  if (!raw) return null;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return typeof raw === "object" ? raw as Record<string, any> : null;
+}
+
+function getHistoryCriteria(raw: unknown): HistoryCriterion[] {
+  const parsed = parseCriteriaScores(raw);
+  if (!parsed) return [];
+
+  const entries: HistoryCriterion[] = [];
+  const globalRatings = Array.isArray(parsed.globalRatings) ? parsed.globalRatings : [];
+  for (const rating of globalRatings) {
+    const scores = Object.values(rating?.subScores || {})
+      .map(Number)
+      .filter((score) => Number.isFinite(score) && score > 0);
+    if (scores.length === 0) continue;
+    const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const key = String(rating.criterionId || "");
+    entries.push({ key, name: criterionNames[key] || key, value: average.toFixed(1) });
+  }
+
+  // Compatibility with older records that stored c1...c10 directly.
+  if (entries.length === 0) {
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!criterionNames[key] || typeof value === "object") continue;
+      const score = Number(value);
+      if (Number.isFinite(score)) entries.push({ key, name: criterionNames[key], value: score.toFixed(1) });
+    }
+  }
+
+  // Direct evaluations store the establishment-level ratings in venueScores.
+  if (entries.length === 0 && parsed.venueScores && typeof parsed.venueScores === "object") {
+    for (const [key, value] of Object.entries(parsed.venueScores)) {
+      if (key === "estacionamento" || key === "entreiDireto" || key === "tempoEspera" || key === "observacao") continue;
+      const score = Number(value);
+      if (venueCriterionNames[key] && Number.isFinite(score) && score > 0) {
+        entries.push({ key, name: venueCriterionNames[key], value: score.toFixed(1) });
+      }
+    }
+    const parking = parsed.venueScores.estacionamento;
+    if (parking) {
+      const parkingLabels: Record<string, string> = { sim: "Sim", nao: "Não", nao_utilizei: "Não utilizei" };
+      entries.push({ key: "estacionamento", name: "Estacionamento / Valet", value: parkingLabels[String(parking)] || String(parking) });
+    }
+  }
+
+  return entries;
+}
+
 type Tab = "avaliacoes" | "ranking" | "locais" | "galeria" | "stats" | "insignias";
 
 type EvaluationTab = { id: Tab; label: string; icon: React.ReactNode };
@@ -575,28 +659,24 @@ export default function MinhasAvaliacoes() {
                                         </div>
                                       )}
 
-                                      {/* Criteria Scores */}
-                                      {expandedRatingDetail.criteriaScores && (
-                                        <div>
-                                          <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-2">Critérios Gerais</p>
-                                          <div className="grid grid-cols-2 gap-2">
-                                            {Object.entries(expandedRatingDetail.criteriaScores as Record<string, number>).map(([key, score]) => {
-                                              const criterionNames: Record<string, string> = {
-                                                c1: "Sabor e Execução", c2: "Apresentação", c3: "Atendimento",
-                                                c4: "Ambiente e Infra", c5: "Custo-Benefício", c6: "Consistência",
-                                                c7: "Originalidade", c8: "Carta de Bebidas", c9: "Variedade", c10: "Harmonização",
-                                              };
-                                              const name = criterionNames[key] || key;
-                                              return (
-                                                <div key={key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background/50 border border-border/20">
-                                                  <span className="text-xs text-muted-foreground truncate flex-1">{name}</span>
-                                                  <span className="font-numbers text-sm font-bold text-primary ml-2">{typeof score === "number" ? score.toFixed(1) : "—"}</span>
+                                      {/* Criteria Scores — supports analytic and direct legacy JSON formats */}
+                                      {(() => {
+                                        const criteria = getHistoryCriteria(expandedRatingDetail.criteriaScores);
+                                        if (criteria.length === 0) return null;
+                                        return (
+                                          <div>
+                                            <p className="text-xs text-muted-foreground/60 font-medium uppercase tracking-wider mb-2">Critérios Gerais</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                              {criteria.map((criterion) => (
+                                                <div key={criterion.key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-background/50 border border-border/20">
+                                                  <span className="text-xs text-muted-foreground truncate flex-1">{criterion.name}</span>
+                                                  <span className="font-numbers text-sm font-bold text-primary ml-2">{criterion.value}</span>
                                                 </div>
-                                              );
-                                            })}
+                                              ))}
+                                            </div>
                                           </div>
-                                        </div>
-                                      )}
+                                        );
+                                      })()}
 
                                       {/* Cost */}
                                       {expandedRatingDetail.totalCost && (

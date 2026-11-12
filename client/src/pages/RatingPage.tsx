@@ -1832,12 +1832,9 @@ export default function RatingPage() {
                         toast.error("O horário selecionado está fora do funcionamento do estabelecimento.");
                         return;
                       }
-                      // User só tem avaliação Direta — pular seleção de modo
-                      if (effectiveRole !== "critic" && effectiveRole !== "specialist") {
-                        handleModeSelect("direto");
-                      } else {
-                        setStep("mode");
-                      }
+                      // Manter os dois modos disponíveis para que o usuário escolha
+                      // entre a avaliação rápida e a avaliação analítica.
+                      setStep("mode");
                     }}
                     className="font-display tracking-wider glow-amber"
                   >
@@ -1858,18 +1855,16 @@ export default function RatingPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {(effectiveRole === "critic" || effectiveRole === "specialist") && (
-                    <button
-                      onClick={() => handleModeSelect("analitico")}
-                      className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
-                    >
-                      <BarChart3 className="w-8 h-8 text-accent mb-3" />
-                      <h4 className="font-display text-xl tracking-wider text-foreground">ANALÍTICA</h4>
-                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                        Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
-                      </p>
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleModeSelect("analitico")}
+                    className="p-6 rounded-xl border text-left transition-all hover:border-accent/60 border-border/30 bg-card"
+                  >
+                    <BarChart3 className="w-8 h-8 text-accent mb-3" />
+                    <h4 className="font-display text-xl tracking-wider text-foreground">ANALÍTICA</h4>
+                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                      Avaliação detalhada com subcritérios individuais. Para quem quer uma análise profunda.
+                    </p>
+                  </button>
                   <button
                     onClick={() => handleModeSelect("direto")}
                     className="p-6 rounded-xl border text-left transition-all hover:border-primary/60 border-border/30 bg-card"
