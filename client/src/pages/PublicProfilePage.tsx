@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function PublicProfilePage() {
-  const [username] = useParams<{ username: string }>();
+  const { username } = useParams<{ username: string }>();
 
   const { user } = useAuth();
   const utils = trpc.useUtils();
