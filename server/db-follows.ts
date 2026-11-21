@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { userFollows, directMessages, users } from "../drizzle/schema";
-import { eq, and, or, desc, sql } from "drizzle-orm";
+import { eq, and, or, desc, sql, isNotNull } from "drizzle-orm";
 
 // ============ FOLLOW SYSTEM ============
 
@@ -18,7 +18,7 @@ async function upsertFollow(db: any, followerId: number, followingId: number, st
 
   if (existing) {
     await db.update(userFollows)
-      .set({ status })
+      .set({ status, decision: null })
       .where(eq(userFollows.id, existing.id));
     return;
   }
@@ -61,8 +61,8 @@ export async function followUser(followerId: number, followingId: number): Promi
 export async function acceptFollowRequest(followId: number, userId: number) {
   const db = (await getDb())!;
   await db.update(userFollows)
-    .set({ status: "accepted" })
-    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId)));
+    .set({ status: "accepted", decision: "accepted" })
+    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending")));
 }
 
 /**
@@ -70,33 +70,43 @@ export async function acceptFollowRequest(followId: number, userId: number) {
  */
 export async function acceptAndFollowBack(followId: number, userId: number) {
   const db = (await getDb())!;
-  // Accept the incoming request
-  await db.update(userFollows)
-    .set({ status: "accepted" })
-    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId)));
-
-  // Follow back: get the follower's ID and create reverse follow
   const [request] = await db.select({ followerId: userFollows.followerId })
     .from(userFollows)
-    .where(eq(userFollows.id, followId))
+    .where(and(
+      eq(userFollows.id, followId),
+      eq(userFollows.followingId, userId),
+      eq(userFollows.status, "pending")
+    ))
     .limit(1);
-  if (request && request.followerId !== userId) {
+  if (!request) throw new Error("Solicitação não encontrada ou já decidida");
+
+  // Accept the incoming request
+  await db.update(userFollows)
+    .set({ status: "accepted", decision: "accepted_follow_back" })
+    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending")));
+
+  // Follow back: get the follower's ID and create reverse follow
+  if (request.followerId !== userId) {
     await upsertFollow(db, userId, request.followerId, "accepted");
   }
 }
 
 /**
- * Reject (delete) a pending follow request
+ * Reject a pending follow request while keeping its history visible.
  */
 export async function rejectFollowRequest(followId: number, userId: number) {
   const db = (await getDb())!;
-  await db.delete(userFollows).where(
+  await db.update(userFollows).set({
+    status: "accepted",
+    decision: "rejected",
+  }).where(
     and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending"))
   );
 }
 
 /**
- * Get pending follow requests for a user
+ * Get pending and previously decided follow requests for a user.
+ * Direct follows that were never requests have a null decision and are excluded.
  */
 export async function getPendingFollowRequests(userId: number) {
   const db = (await getDb())!;
@@ -107,11 +117,16 @@ export async function getPendingFollowRequests(userId: number) {
       followerName: users.name,
       followerUsername: users.username,
       followerPhoto: users.profilePhotoUrl,
+      status: userFollows.status,
+      decision: userFollows.decision,
       createdAt: userFollows.createdAt,
     })
     .from(userFollows)
     .innerJoin(users, eq(users.id, userFollows.followerId))
-    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "pending")))
+    .where(and(
+      eq(userFollows.followingId, userId),
+      or(eq(userFollows.status, "pending"), isNotNull(userFollows.decision))
+    ))
     .orderBy(desc(userFollows.createdAt));
   return rows;
 }

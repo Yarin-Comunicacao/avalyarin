@@ -983,6 +983,8 @@ export const userFollows = mysqlTable("user_follows", {
   followerId: int("followerId").notNull(),
   followingId: int("followingId").notNull(),
   status: mysqlEnum("status", ["pending", "accepted"]).default("accepted").notNull(),
+  // Mantém o histórico de solicitações sem transformar follows antigos em solicitações.
+  decision: mysqlEnum("decision", ["accepted", "accepted_follow_back", "rejected"]),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type UserFollow = typeof userFollows.$inferSelect;

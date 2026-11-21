@@ -5558,19 +5558,19 @@ export const appRouter = router({
       .input(z.object({ followId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         await acceptFollowRequest(input.followId, ctx.user!.id);
-        return { success: true };
+        return { success: true, decision: "accepted" as const };
       }),
     acceptAndFollowBack: protectedProcedure
       .input(z.object({ followId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         await acceptAndFollowBack(input.followId, ctx.user!.id);
-        return { success: true };
+        return { success: true, decision: "accepted_follow_back" as const };
       }),
     rejectRequest: protectedProcedure
       .input(z.object({ followId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         await rejectFollowRequest(input.followId, ctx.user!.id);
-        return { success: true };
+        return { success: true, decision: "rejected" as const };
       }),
     // DMs
     dmConversations: protectedProcedure

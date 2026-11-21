@@ -395,7 +395,7 @@ export default function NotificacoesPage() {
     <div className="min-h-screen bg-background">
       <Navbar  />
 
-      <div className="container pt-28 pb-24">
+      <div className="container w-full min-w-0 pt-28 pb-24">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-secondary/50 border border-border/30 hover:bg-secondary/80 transition-colors">
@@ -408,12 +408,12 @@ export default function NotificacoesPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex w-full min-w-0 flex-nowrap gap-2 mb-8 overflow-x-auto overscroll-x-contain pb-2 scrollbar-hide">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex shrink-0 items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? "bg-primary/20 border border-primary/40 text-primary"
                   : "bg-secondary/30 border border-border/30 text-muted-foreground hover:bg-secondary/50"
@@ -461,7 +461,8 @@ export default function NotificacoesPage() {
                 </div>
               ) : pendingRequests && pendingRequests.length > 0 ? (
                 pendingRequests.map((req: any) => (
-                  <div key={req.id} className="rounded-xl bg-card border border-border/50 p-4">
+                  <div key={req.id} className={`rounded-xl border p-4 ${req.decision ? "bg-secondary/20 border-border/30" : "bg-card border-border/50"}`}>
+                    {req.decision && <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-primary" /> Decisão registrada: <strong className="text-foreground">{req.decision === "rejected" ? "Negar" : req.decision === "accepted_follow_back" ? "Aceitar e Seguir de Volta" : "Aceitar"}</strong></div>}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
                         {req.followerPhoto ? (
@@ -474,10 +475,11 @@ export default function NotificacoesPage() {
                         <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
                         <p className="text-xs text-muted-foreground">@{req.followerUsername}</p>
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
                         <button
                           onClick={() => acceptAndFollowBackMutation.mutate({ followId: req.id })}
-                          className="px-2 py-1.5 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 transition-colors flex items-center gap-1"
+                          disabled={!!req.decision || acceptAndFollowBackMutation.isPending || acceptRequestMutation.isPending || rejectRequestMutation.isPending}
+                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "accepted_follow_back" ? "bg-green-500/30 border-green-500/70 text-green-300" : "bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30"}`}
                           title="Aceitar e seguir de volta"
                         >
                           <UserCheck className="w-3.5 h-3.5" />
@@ -485,7 +487,8 @@ export default function NotificacoesPage() {
                         </button>
                         <button
                           onClick={() => acceptRequestMutation.mutate({ followId: req.id })}
-                          className="px-2 py-1.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                          disabled={!!req.decision || acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending || rejectRequestMutation.isPending}
+                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "accepted" ? "bg-blue-500/30 border-blue-500/70 text-blue-300" : "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30"}`}
                           title="Aceitar sem seguir de volta"
                         >
                           <Check className="w-3.5 h-3.5" />
@@ -493,7 +496,8 @@ export default function NotificacoesPage() {
                         </button>
                         <button
                           onClick={() => rejectRequestMutation.mutate({ followId: req.id })}
-                          className="px-2 py-1.5 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors flex items-center gap-1"
+                          disabled={!!req.decision || rejectRequestMutation.isPending || acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending}
+                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "rejected" ? "bg-red-500/30 border-red-500/70 text-red-300" : "bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30"}`}
                           title="Negar"
                         >
                           <X className="w-3.5 h-3.5" />
