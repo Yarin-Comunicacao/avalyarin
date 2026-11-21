@@ -296,11 +296,6 @@ const GLOBAL_LOW_SCORE_REASONS: Record<string, string[]> = {
   c10_2: ["Sem sugestão de harmonização", "Garçom não sabe sugerir", "Sem indicação no cardápio", "Falta orientação", "Nenhuma recomendação", "Outra"],
 };
 
-function isRatableItem(item: MenuItem): boolean {
-  const cat = normalizeCategory(item.category || "");
-  return ["entrada", "petisco", "salgado", "prato", "hamburguer", "pizza", "lanche", "sanduiche", "sushi", "temaki", "ramen", "salada", "sopa", "focaccia", "sobremesa", "doce", "torta", "drink", "vinho", "pão", "padaria", "cerveja", "chopp", "destilado", "bebida", "café"].includes(cat);
-}
-
 // ============================================================
 // REUSABLE COMPONENTS
 // ============================================================
@@ -688,7 +683,10 @@ export default function RatingPage() {
 
   const menuItems = [...(establishment?.menu || []), ...customItems];
   const selectedMenuItems = menuItems.filter((m) => selectedItems.includes(m.id));
-  const ratableSelectedItems = selectedMenuItems.filter(isRatableItem);
+  // No modo analítico, todo item selecionado deve ser avaliado, mesmo quando
+  // sua categoria/subcategoria não estiver mapeada. A categoria só define
+  // quais subcritérios de apresentação são mais adequados quando reconhecida.
+  const ratableSelectedItems = selectedMenuItems;
 
   // Check if user selected ONLY beverages (no food items at all)
   const onlyBeverages = selectedMenuItems.length > 0 && selectedMenuItems.every((m) => isBeverageItem(m));
@@ -733,8 +731,9 @@ export default function RatingPage() {
     setBevDirectRatings(
       bevItems.map((m) => ({ itemId: m.id, serves: 0, recommend: null, taste: 0, lowReasons: [], lowComment: "", whatMissedForTen: "", comment: "" }))
     );
-    // Analytic item ratings for ratable items (food + drinks, not beer/chopp)
-    const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id) && isRatableItem(m));
+    // Analytic item ratings for every selected item, regardless of category.
+    // This includes uncategorized items, beer, chopp and custom menu items.
+    const ratableItems = menuItems.filter((m) => selectedItems.includes(m.id));
     const c1 = PUB_CRITERIA.find((c) => c.id === "c1")!;
     const c2 = PUB_CRITERIA.find((c) => c.id === "c2")!;
     setAnalyticItemRatings(
