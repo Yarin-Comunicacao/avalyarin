@@ -3141,13 +3141,123 @@ export async function getRatingParticipantSuggestions(ratingId: number, userId: 
   return participants.filter((participant: any) => participant.id !== userId && !connected.has(Number(participant.id)));
 }
 
-/** Get user's gallery — all photos from their ratings with context + item comments */
+/**
+ * Extract venue/environment photos stored in ratings.criteriaScores.venuePhotos.
+ * Older records may contain either a map of criterion -> URL or an array of
+ * objects, so both formats are accepted without changing the TiDB schema.
+ */
+function extractVenuePhotos(criteriaScores: unknown): Array<{ criterion: string; url: string }> {
+  let scores: any = criteriaScores;
+  if (typeof scores === "string") {
+    try { scores = JSON.parse(scores); } catch { return []; }
+  }
+  const source = scores?.venuePhotos;
+  if (!source) return [];
+
+  const entries: Array<[string, any]> = Array.isArray(source)
+    ? source.map((value: any, index: number) => [String(value?.criterion || value?.key || index), value])
+    : Object.entries(source);
+
+  return entries.flatMap(([criterion, value]) => {
+    const url = typeof value === "string" ? value : value?.url || value?.imageUrl || value?.photoUrl;
+    return typeof url === "string" && url.trim() ? [{ criterion, url: url.trim() }] : [];
+  });
+}
+
+function buildVenuePhotoEntries(rating: any, viewerUserId: number, includeUserContext = false) {
+  const venuePhotos = extractVenuePhotos(rating.criteriaScores);
+  return venuePhotos.map((photo, index) => ({
+    // Negative IDs are local gallery IDs; they cannot collide with rating_photos
+    // and prevent accidental writes to the rating_photos table.
+    id: -((Number(rating.ratingId) * 1000) + index + 1),
+    url: photo.url,
+    taggedItemIds: null,
+    mediaType: "image",
+    durationSeconds: null,
+    position: Number(rating.latestPhotoPosition || 0) + index + 1,
+    createdAt: rating.createdAt,
+    ratingId: Number(rating.ratingId),
+    authorUserId: Number(rating.ratingUserId),
+    isShared: Number(rating.ratingUserId) !== viewerUserId,
+    establishmentName: rating.establishmentName,
+    establishmentSlug: rating.establishmentSlug,
+    establishmentLogo: rating.establishmentLogo,
+    overallScore: rating.overallScore,
+    visitDate: rating.visitDate,
+    ...(includeUserContext ? { userName: rating.userName, username: rating.username } : {}),
+    isVenuePhoto: true,
+    venuePhotoCriterion: photo.criterion,
+  }));
+}
+
+function deduplicateGalleryPhotos(photos: any[]) {
+  const seen = new Set<string>();
+  return photos.filter((photo) => {
+    const key = `${photo.ratingId}:${photo.url}`;
+    if (!photo.url || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+async function getGalleryRatings(db: any, userId: number, acceptedSharedIds: number[], includeUserContext = false) {
+  const fields: any = {
+    ratingId: ratings.id,
+    ratingUserId: ratings.userId,
+    criteriaScores: ratings.criteriaScores,
+    overallScore: ratings.overallScore,
+    visitDate: ratings.visitDate,
+    createdAt: ratings.createdAt,
+    establishmentName: establishments.name,
+    establishmentSlug: establishments.slug,
+    establishmentLogo: establishments.logo,
+  };
+  if (includeUserContext) {
+    fields.userName = users.name;
+    fields.username = users.username;
+  }
+
+  let query = db.select(fields).from(ratings)
+    .innerJoin(establishments, eq(ratings.establishmentId, establishments.id));
+  if (includeUserContext) query = query.innerJoin(users, eq(ratings.userId, users.id));
+
+  return query.where(
+    acceptedSharedIds.length > 0
+      ? or(eq(ratings.userId, userId), inArray(ratings.id, acceptedSharedIds))
+      : eq(ratings.userId, userId)
+  );
+}
+
+async function attachGalleryItemComments(db: any, photos: any[]) {
+  const ratingIds = Array.from(new Set(photos.map((p: any) => Number(p.ratingId))));
+  const itemComments: Record<number, { itemName: string; comment: string | null; score: number | null }[]> = {};
+  if (ratingIds.length > 0) {
+    const items = await db.select({
+      ratingId: ratingItems.ratingId,
+      itemName: ratingItems.itemName,
+      comment: ratingItems.comment,
+      score: ratingItems.score,
+    }).from(ratingItems).where(inArray(ratingItems.ratingId, ratingIds));
+    for (const item of items) {
+      if (!itemComments[item.ratingId]) itemComments[item.ratingId] = [];
+      itemComments[item.ratingId].push({ itemName: item.itemName, comment: item.comment, score: item.score });
+    }
+  }
+  return photos.map((photo: any) => ({
+    ...photo,
+    itemComments: itemComments[photo.ratingId] || [],
+  }));
+}
+
+/** Get user's gallery — all item photos and venue/criterion photos from ratings. */
 export async function getUserGallery(userId: number, limit = 50, offset = 0) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const acceptedShared = await db.select({ ratingId: ratingTags.ratingId }).from(ratingTags)
     .where(and(eq(ratingTags.taggedUserId, userId), eq(ratingTags.status, "accepted")));
-  const acceptedSharedIds: number[] = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
+  const acceptedSharedIds = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
+
+  const ratingRows = await getGalleryRatings(db, userId, acceptedSharedIds);
   const photos = await db.select({
     id: ratingPhotos.id,
     url: ratingPhotos.url,
@@ -3164,46 +3274,26 @@ export async function getUserGallery(userId: number, limit = 50, offset = 0) {
     establishmentLogo: establishments.logo,
     overallScore: ratings.overallScore,
     visitDate: ratings.visitDate,
-  })
-    .from(ratingPhotos)
+  }).from(ratingPhotos)
     .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
-    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId))
-    .orderBy(asc(ratingPhotos.position), desc(ratingPhotos.createdAt))
-    .limit(limit)
-    .offset(offset);
+    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId));
 
-  // Fetch item comments + scores for each photo's tagged items
-  const ratingIds = Array.from(new Set(photos.map((p: any) => Number(p.ratingId))));
-  let itemComments: Record<number, { itemName: string; comment: string | null; score: number | null }[]> = {};
-  if (ratingIds.length > 0) {
-    const items = await db.select({
-      ratingId: ratingItems.ratingId,
-      itemName: ratingItems.itemName,
-      comment: ratingItems.comment,
-      score: ratingItems.score,
-    })
-      .from(ratingItems)
-      .where(inArray(ratingItems.ratingId, ratingIds));
-    for (const item of items) {
-      if (!itemComments[item.ratingId]) itemComments[item.ratingId] = [];
-      itemComments[item.ratingId].push({ itemName: item.itemName, comment: item.comment, score: item.score });
-    }
-  }
-
-  return photos.map((p: any) => ({
-    ...p,
-    itemComments: itemComments[p.ratingId] || [],
-  }));
+  const venuePhotos = ratingRows.flatMap((rating: any) => buildVenuePhotoEntries(rating, userId));
+  const combined = deduplicateGalleryPhotos([...photos, ...venuePhotos])
+    .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+  return attachGalleryItemComments(db, combined.slice(offset, offset + limit));
 }
 
-/** Get any user's public gallery for profile viewing */
+/** Get any user's public gallery for profile viewing, including venue photos. */
 export async function getPublicUserGallery(userId: number, limit = 50, offset = 0) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const acceptedShared = await db.select({ ratingId: ratingTags.ratingId }).from(ratingTags)
     .where(and(eq(ratingTags.taggedUserId, userId), eq(ratingTags.status, "accepted")));
-  const acceptedSharedIds: number[] = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
+  const acceptedSharedIds = acceptedShared.map((row: { ratingId: number }) => Number(row.ratingId));
+
+  const ratingRows = await getGalleryRatings(db, userId, acceptedSharedIds, true);
   const photos = await db.select({
     id: ratingPhotos.id,
     url: ratingPhotos.url,
@@ -3222,40 +3312,17 @@ export async function getPublicUserGallery(userId: number, limit = 50, offset = 
     visitDate: ratings.visitDate,
     userName: users.name,
     username: users.username,
-  })
-    .from(ratingPhotos)
+  }).from(ratingPhotos)
     .innerJoin(ratings, eq(ratingPhotos.ratingId, ratings.id))
     .innerJoin(establishments, eq(ratings.establishmentId, establishments.id))
     .innerJoin(users, eq(ratingPhotos.userId, users.id))
-    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId))
-    .orderBy(asc(ratingPhotos.position), desc(ratingPhotos.createdAt))
-    .limit(limit)
-    .offset(offset);
+    .where(acceptedSharedIds.length > 0 ? or(eq(ratingPhotos.userId, userId), inArray(ratingPhotos.ratingId, acceptedSharedIds)) : eq(ratingPhotos.userId, userId));
 
-  // Fetch item comments + scores for each photo's tagged items
-  const ratingIds = Array.from(new Set(photos.map((p: any) => Number(p.ratingId))));
-  let itemComments: Record<number, { itemName: string; comment: string | null; score: number | null }[]> = {};
-  if (ratingIds.length > 0) {
-    const items = await db.select({
-      ratingId: ratingItems.ratingId,
-      itemName: ratingItems.itemName,
-      comment: ratingItems.comment,
-      score: ratingItems.score,
-    })
-      .from(ratingItems)
-      .where(inArray(ratingItems.ratingId, ratingIds));
-    for (const item of items) {
-      if (!itemComments[item.ratingId]) itemComments[item.ratingId] = [];
-      itemComments[item.ratingId].push({ itemName: item.itemName, comment: item.comment, score: item.score });
-    }
-  }
-
-  return photos.map((p: any) => ({
-    ...p,
-    itemComments: itemComments[p.ratingId] || [],
-  }));
+  const venuePhotos = ratingRows.flatMap((rating: any) => buildVenuePhotoEntries(rating, userId, true));
+  const combined = deduplicateGalleryPhotos([...photos, ...venuePhotos])
+    .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+  return attachGalleryItemComments(db, combined.slice(offset, offset + limit));
 }
-
 // ============================================================
 // INTEGRATIONS HELPERS
 // ============================================================
