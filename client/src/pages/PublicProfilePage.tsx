@@ -46,15 +46,37 @@ export default function PublicProfilePage() {
   );
 
   const followMutation = trpc.social.follow.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.social.isFollowing.invalidate({ userId: profile?.id || 0 });
       utils.social.counts.invalidate({ userId: profile?.id || 0 });
+      if (data.status === "pending") {
+        toast("Solicitação de seguir enviada", {
+          description: "Por segurança, o usuário precisa aceitar sua solicitação. Dados de localização e lugares frequentados são informações pessoais protegidas.",
+          icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
+          duration: 5000,
+        });
+      } else {
+        toast.success("Agora você está seguindo este usuário.");
+      }
+    },
+    onError: (error) => {
+      toast.error("Não foi possível enviar a solicitação de seguir.", {
+        description: error.message,
+        duration: 6000,
+      });
     },
   });
   const unfollowMutation = trpc.social.unfollow.useMutation({
     onSuccess: () => {
       utils.social.isFollowing.invalidate({ userId: profile?.id || 0 });
       utils.social.counts.invalidate({ userId: profile?.id || 0 });
+      toast.success("Solicitação ou seguimento cancelado.");
+    },
+    onError: (error) => {
+      toast.error("Não foi possível cancelar o seguimento.", {
+        description: error.message,
+        duration: 6000,
+      });
     },
   });
 
@@ -191,6 +213,7 @@ export default function PublicProfilePage() {
                   {followStatus?.following ? (
                     <button
                       onClick={() => unfollowMutation.mutate({ userId: profile.id })}
+                      disabled={unfollowMutation.isPending}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
@@ -198,7 +221,8 @@ export default function PublicProfilePage() {
                     </button>
                   ) : followStatus?.pending ? (
                     <button
-                      onClick={() => { unfollowMutation.mutate({ userId: profile.id }); toast("Solicitação cancelada"); }}
+                      onClick={() => unfollowMutation.mutate({ userId: profile.id })}
+                      disabled={unfollowMutation.isPending}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary border border-border/50 text-muted-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
                     >
                       <Clock className="w-3.5 h-3.5" />
@@ -207,17 +231,10 @@ export default function PublicProfilePage() {
                   ) : (
                     <button
                       onClick={() => {
-                        const isPublicProfile = profile.role === "critic" || profile.role === "specialist";
-                        if (!isPublicProfile) {
-                          toast("Solicitação de seguir enviada", {
-                            description: "Por segurança, o usuário precisa aceitar sua solicitação. Dados de localização e lugares frequentados são informações pessoais protegidas.",
-                            icon: <ShieldAlert className="w-4 h-4 text-amber-400" />,
-                            duration: 5000,
-                          });
-                        }
                         followMutation.mutate({ userId: profile.id });
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                      disabled={followMutation.isPending}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <UserPlus className="w-3.5 h-3.5" />
                       Seguir
