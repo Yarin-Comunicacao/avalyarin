@@ -5,6 +5,38 @@ import { eq, and, or, desc, sql } from "drizzle-orm";
 // ============ FOLLOW SYSTEM ============
 
 /**
+ * A tabela legada user_follows em produção não possui AUTO_INCREMENT no id
+ * nem uma chave única para followerId/followingId. Faça o upsert explicitamente
+ * para manter o código compatível com essa estrutura do TiDB.
+ */
+async function upsertFollow(db: any, followerId: number, followingId: number, status: "accepted" | "pending") {
+  const [existing] = await db
+    .select({ id: userFollows.id })
+    .from(userFollows)
+    .where(and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId)))
+    .limit(1);
+
+  if (existing) {
+    await db.update(userFollows)
+      .set({ status })
+      .where(eq(userFollows.id, existing.id));
+    return;
+  }
+
+  const [nextIdRow] = await db
+    .select({ nextId: sql<number>`COALESCE(MAX(${userFollows.id}), 0) + 1` })
+    .from(userFollows);
+  const nextId = Number(nextIdRow?.nextId ?? 1);
+
+  await db.insert(userFollows).values({
+    id: nextId,
+    followerId,
+    followingId,
+    status,
+  });
+}
+
+/**
  * Follow a user. If target is 'user' role → pending. If 'critic'/'specialist' → accepted instantly.
  */
 export async function followUser(followerId: number, followingId: number): Promise<"accepted" | "pending"> {
@@ -18,8 +50,7 @@ export async function followUser(followerId: number, followingId: number): Promi
   // Critics and specialists: instant follow. Regular users: pending approval.
   const status = (targetUser.role === "critic" || targetUser.role === "specialist") ? "accepted" : "pending";
 
-  await db.insert(userFollows).values({ followerId, followingId, status })
-    .onDuplicateKeyUpdate({ set: { followerId: sql`followerId` } });
+  await upsertFollow(db, followerId, followingId, status);
 
   return status;
 }
@@ -50,9 +81,7 @@ export async function acceptAndFollowBack(followId: number, userId: number) {
     .where(eq(userFollows.id, followId))
     .limit(1);
   if (request && request.followerId !== userId) {
-    await db.insert(userFollows)
-      .values({ followerId: userId, followingId: request.followerId, status: "accepted" })
-      .onDuplicateKeyUpdate({ set: { status: sql`'accepted'` } });
+    await upsertFollow(db, userId, request.followerId, "accepted");
   }
 }
 
