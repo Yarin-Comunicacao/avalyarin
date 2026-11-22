@@ -374,7 +374,7 @@ import {
   followUser, unfollowUser, isFollowing, isMutualFollow,
   getFollowers, getFollowing, getFollowCounts, getMutualFollows,
   sendDirectMessage, getDirectMessages, markDMsAsRead, getDMConversations,
-  acceptFollowRequest, acceptAndFollowBack, rejectFollowRequest, getPendingFollowRequests, getPendingFollowCount, getFollowStatus,
+  acceptFollowRequest, acceptAndFollowBack, rejectFollowRequest, getPendingFollowRequests, getPendingFollowCount, getFollowStatus, getFollowDetails, blockUser, unblockUser, isBlocked,
   searchMutualFollows,
 } from "./db-follows";
 import {
@@ -5517,6 +5517,15 @@ export const appRouter = router({
         }
         return { success: true };
       }),
+    block: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => blockUser(ctx.user!.id, input.userId)),
+    unblock: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => unblockUser(ctx.user!.id, input.userId)),
+    isBlocked: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ ctx, input }) => isBlocked(ctx.user!.id, input.userId)),
     isFollowing: protectedProcedure
       .input(z.object({ userId: z.number() }))
       .query(async ({ ctx, input }) => {
@@ -5526,6 +5535,9 @@ export const appRouter = router({
         const mutual = following ? await isMutualFollow(ctx.user!.id, input.userId) : false;
         return { following, pending, mutual, status };
       }),
+    followDetails: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ ctx, input }) => getFollowDetails(ctx.user!.id, input.userId)),
     followers: protectedProcedure
       .input(z.object({ userId: z.number().optional() }))
       .query(async ({ ctx, input }) => {

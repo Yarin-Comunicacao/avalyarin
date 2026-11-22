@@ -23,6 +23,7 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("galeria");
   const [followListType, setFollowListType] = useState<"followers" | "following" | null>(null);
   const [showTopRatings, setShowTopRatings] = useState(false);
+  const [relationshipTarget, setRelationshipTarget] = useState<any>(null);
 
   // Followers/following lists
   const { data: followersList } = trpc.social.followers.useQuery(
@@ -34,6 +35,9 @@ export default function UserProfile() {
     { enabled: followListType === "following" && !!user }
   );
 
+  const utils = trpc.useUtils();
+  const unfollowMutation = trpc.social.unfollow.useMutation({ onSuccess: () => { setRelationshipTarget(null); utils.social.following.invalidate({ userId: user?.id }); } });
+  const blockMutation = trpc.social.block.useMutation({ onSuccess: () => { setRelationshipTarget(null); utils.social.following.invalidate({ userId: user?.id }); } });
   // Pending follow count for notification badge
   const { data: pendingCount } = trpc.social.pendingCount.useQuery(undefined, { enabled: !!user });
   const { data: groupInvites } = trpc.groups.pendingInvites.useQuery(undefined, { enabled: !!user });
@@ -103,7 +107,7 @@ export default function UserProfile() {
                 <Link
                   key={person.id}
                   href={`/perfil/${person.username}`}
-                  onClick={() => setFollowListType(null)}
+                  onClick={() => followListType === "following" ? setRelationshipTarget(person) : setFollowListType(null)}
                   className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border/30 hover:border-primary/30 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
@@ -131,6 +135,16 @@ export default function UserProfile() {
         </div>
       )}
 
+      {relationshipTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setRelationshipTarget(null)}>
+          <div className="w-full max-w-sm rounded-xl border border-border/50 bg-card p-5" onClick={(event) => event.stopPropagation()}>
+            <h2 className="text-base font-semibold text-foreground">Seguindo @{relationshipTarget.username}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Você segue este usuário desde {relationshipTarget.followedAt ? new Date(relationshipTarget.followedAt).toLocaleDateString("pt-BR") : "a data registrada"}.</p>
+            <div className="mt-5 grid grid-cols-2 gap-2"><button onClick={() => unfollowMutation.mutate({ userId: relationshipTarget.id })} className="rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-300">Deixar de Seguir</button><button onClick={() => blockMutation.mutate({ userId: relationshipTarget.id })} className="rounded-lg bg-red-700/20 px-3 py-2 text-sm text-red-200">Bloquear</button></div>
+            <button onClick={() => setRelationshipTarget(null)} className="mt-3 w-full rounded-lg border border-border/50 px-3 py-2 text-sm text-muted-foreground">Cancelar</button>
+          </div>
+        </div>
+      )}
       {/* Profile Header */}
       <div className="px-4 pt-4 pb-4">
         <div className="flex items-start gap-4">

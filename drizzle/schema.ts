@@ -990,6 +990,16 @@ export const userFollows = mysqlTable("user_follows", {
 export type UserFollow = typeof userFollows.$inferSelect;
 export type InsertUserFollow = typeof userFollows.$inferInsert;
 
+/** Bloqueios entre usuários. O bloqueador é blockerId. */
+export const userBlocks = mysqlTable("user_blocks", {
+  id: int("id").autoincrement().primaryKey(),
+  blockerId: int("blockerId").notNull(),
+  blockedId: int("blockedId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type UserBlock = typeof userBlocks.$inferSelect;
+export type InsertUserBlock = typeof userBlocks.$inferInsert;
+
 /**
  * Direct messages — chat 1:1 entre users que se seguem mutuamente.
  */

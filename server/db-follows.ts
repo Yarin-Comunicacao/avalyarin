@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { userFollows, directMessages, users } from "../drizzle/schema";
+import { userFollows, userBlocks, directMessages, users } from "../drizzle/schema";
 import { eq, and, or, desc, sql, isNotNull } from "drizzle-orm";
 
 // ============ FOLLOW SYSTEM ============
@@ -42,6 +42,7 @@ async function upsertFollow(db: any, followerId: number, followingId: number, st
 export async function followUser(followerId: number, followingId: number): Promise<"accepted" | "pending"> {
   const db = (await getDb())!;
   if (followerId === followingId) throw new Error("Não é possível seguir a si mesmo");
+  if (await isBlocked(followerId, followingId)) throw new Error("Não é possível seguir este usuário.");
 
   // Check target user's role
   const [targetUser] = await db.select({ role: users.role }).from(users).where(eq(users.id, followingId)).limit(1);
@@ -87,7 +88,7 @@ export async function acceptAndFollowBack(followId: number, userId: number) {
 
   // Follow back: get the follower's ID and create reverse follow
   if (request.followerId !== userId) {
-    await upsertFollow(db, userId, request.followerId, "accepted");
+    await upsertFollow(db, userId, request.followerId, "pending");
   }
 }
 
@@ -146,6 +147,12 @@ export async function getPendingFollowCount(userId: number): Promise<number> {
 /**
  * Get follow status: 'none' | 'pending' | 'accepted'
  */
+export async function getFollowDetails(followerId: number, followingId: number) {
+  const db = (await getDb())!;
+  const [row] = await db.select({ status: userFollows.status, createdAt: userFollows.createdAt })
+    .from(userFollows).where(and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId))).limit(1);
+  return row ?? { status: "none" as const, createdAt: null };
+}
 export async function getFollowStatus(followerId: number, followingId: number): Promise<"none" | "pending" | "accepted"> {
   const db = (await getDb())!;
   const [row] = await db.select({ status: userFollows.status }).from(userFollows).where(
@@ -240,6 +247,32 @@ export async function getMutualFollows(userId: number) {
   return (rows as any)[0] as any[];
 }
 
+// ============ BLOCKS ============
+export async function blockUser(blockerId: number, blockedId: number) {
+  const db = (await getDb())!;
+  if (blockerId === blockedId) throw new Error("Não é possível bloquear a si mesmo");
+  const [existing] = await db.select({ id: userBlocks.id }).from(userBlocks)
+    .where(and(eq(userBlocks.blockerId, blockerId), eq(userBlocks.blockedId, blockedId))).limit(1);
+  if (!existing) await db.insert(userBlocks).values({ blockerId, blockedId });
+  await db.delete(userFollows).where(or(
+    and(eq(userFollows.followerId, blockerId), eq(userFollows.followingId, blockedId)),
+    and(eq(userFollows.followerId, blockedId), eq(userFollows.followingId, blockerId)),
+  ));
+  return { success: true };
+}
+export async function unblockUser(blockerId: number, blockedId: number) {
+  const db = (await getDb())!;
+  await db.delete(userBlocks).where(and(eq(userBlocks.blockerId, blockerId), eq(userBlocks.blockedId, blockedId)));
+  return { success: true };
+}
+export async function isBlocked(userId: number, otherUserId: number) {
+  const db = (await getDb())!;
+  const [row] = await db.select({ id: userBlocks.id }).from(userBlocks).where(or(
+    and(eq(userBlocks.blockerId, userId), eq(userBlocks.blockedId, otherUserId)),
+    and(eq(userBlocks.blockerId, otherUserId), eq(userBlocks.blockedId, userId)),
+  )).limit(1);
+  return !!row;
+}
 // ============ DIRECT MESSAGES ============
 
 type DirectMessageMediaInput = {

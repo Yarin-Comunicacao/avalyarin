@@ -17,6 +17,7 @@ export default function PublicProfilePage() {
   const { user } = useAuth();
   const utils = trpc.useUtils();
   const [showTopRatings, setShowTopRatings] = useState(false);
+  const [relationshipDialog, setRelationshipDialog] = useState<"details" | "unfollow" | "block" | null>(null);
 
   const { data: profile, isLoading } = trpc.profile.publicByUsername.useQuery(
     { username: username || "" },
@@ -40,6 +41,10 @@ export default function PublicProfilePage() {
     { enabled: !!profile?.id && !!user && !isOwnProfile }
   );
 
+  const { data: followDetails } = trpc.social.followDetails.useQuery(
+    { userId: profile?.id || 0 },
+    { enabled: !!profile?.id && !!user && !isOwnProfile }
+  );
   const { data: followCounts } = trpc.social.counts.useQuery(
     { userId: profile?.id || 0 },
     { enabled: !!profile?.id }
@@ -78,6 +83,16 @@ export default function PublicProfilePage() {
         duration: 6000,
       });
     },
+  });
+
+  const blockMutation = trpc.social.block.useMutation({
+    onSuccess: () => {
+      setRelationshipDialog(null);
+      utils.social.isFollowing.invalidate({ userId: profile?.id || 0 });
+      utils.social.counts.invalidate({ userId: profile?.id || 0 });
+      toast.success("Usuário bloqueado.");
+    },
+    onError: (error) => toast.error("Não foi possível bloquear este usuário.", { description: error.message }),
   });
 
   if (isLoading) {
@@ -212,8 +227,8 @@ export default function PublicProfilePage() {
                 <div className="flex items-center gap-2 mt-3">
                   {followStatus?.following ? (
                     <button
-                      onClick={() => unfollowMutation.mutate({ userId: profile.id })}
-                      disabled={unfollowMutation.isPending}
+                      onClick={() => setRelationshipDialog("details")}
+                      disabled={unfollowMutation.isPending || blockMutation.isPending}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
@@ -253,6 +268,38 @@ export default function PublicProfilePage() {
             </div>
           </div>
         </div>
+
+        {relationshipDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setRelationshipDialog(null)}>
+            <div className="w-full max-w-sm rounded-xl border border-border/50 bg-card p-5 shadow-xl" onClick={(event) => event.stopPropagation()}>
+              {relationshipDialog === "details" && (
+                <>
+                  <h2 className="text-base font-semibold text-foreground">Seguindo @{profile.username}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Você segue este usuário desde {followDetails?.createdAt ? format(new Date(followDetails.createdAt), "dd/MM/yyyy", { locale: ptBR }) : "a data registrada"}.</p>
+                  <div className="mt-5 grid grid-cols-2 gap-2">
+                    <button onClick={() => setRelationshipDialog("unfollow")} className="rounded-lg bg-red-500/15 px-3 py-2 text-sm font-medium text-red-300 hover:bg-red-500/25">Deixar de Seguir</button>
+                    <button onClick={() => setRelationshipDialog("block")} className="rounded-lg bg-red-700/20 px-3 py-2 text-sm font-medium text-red-200 hover:bg-red-700/30">Bloquear</button>
+                  </div>
+                  <button onClick={() => setRelationshipDialog(null)} className="mt-3 w-full rounded-lg border border-border/50 px-3 py-2 text-sm text-muted-foreground">Cancelar</button>
+                </>
+              )}
+              {relationshipDialog === "unfollow" && (
+                <>
+                  <h2 className="text-base font-semibold text-foreground">Deixar de seguir @{profile.username}?</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Ao deixar de seguir @{profile.username}, você só verá o conteúdo dele se pedir para seguir novamente</p>
+                  <div className="mt-5 grid grid-cols-2 gap-2"><button onClick={() => { unfollowMutation.mutate({ userId: profile.id }); setRelationshipDialog(null); }} className="rounded-lg bg-red-500 px-3 py-2 text-sm font-medium text-white">Deixar de seguir</button><button onClick={() => setRelationshipDialog("details")} className="rounded-lg border border-border/50 px-3 py-2 text-sm text-muted-foreground">Cancelar</button></div>
+                </>
+              )}
+              {relationshipDialog === "block" && (
+                <>
+                  <h2 className="text-base font-semibold text-foreground">Bloquear @{profile.username}?</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">Ao bloquear @{profile.username}, vocês deixarão de seguir um ao outro e ele não poderá enviar novas solicitações para você.</p>
+                  <div className="mt-5 grid grid-cols-2 gap-2"><button onClick={() => blockMutation.mutate({ userId: profile.id })} disabled={blockMutation.isPending} className="rounded-lg bg-red-700 px-3 py-2 text-sm font-medium text-white disabled:opacity-60">Bloquear</button><button onClick={() => setRelationshipDialog("details")} className="rounded-lg border border-border/50 px-3 py-2 text-sm text-muted-foreground">Cancelar</button></div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {showTopRatings && <PublicTopRatingsSection ratings={ratings} />}
 

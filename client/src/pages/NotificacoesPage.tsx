@@ -483,7 +483,7 @@ export default function NotificacoesPage() {
                           title="Aceitar e seguir de volta"
                         >
                           <UserCheck className="w-3.5 h-3.5" />
-                          <span className="text-[10px] font-medium hidden sm:inline">Seguir</span>
+                          <span className="text-[10px] font-medium hidden sm:inline">Aceitar e Seguir</span>
                         </button>
                         <button
                           onClick={() => acceptRequestMutation.mutate({ followId: req.id })}
