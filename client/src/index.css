@@ -212,6 +212,13 @@
     }
   }
 
+  /* The public profile sits below the fixed navbar and native status bar. */
+  .public-profile-page-top { padding-top: calc(4rem + 1.25rem); }
+  .native-app .public-profile-page-top { padding-top: calc(4rem + env(safe-area-inset-top, 0px) + 1.25rem); }
+  @media (max-width: 639px) {
+    .public-profile-page-top, .native-app .public-profile-page-top { padding-top: max(calc(4rem + env(safe-area-inset-top, 0px) + 1.25rem), 96px); }
+  }
+
   /* Theme-aware glow effects */
   .glow-primary {
     box-shadow: 0 0 20px var(--theme-glow), 0 0 60px var(--theme-glow-soft);

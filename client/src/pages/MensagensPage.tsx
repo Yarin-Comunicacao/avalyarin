@@ -50,14 +50,21 @@ function FollowRequestsPanel() {
       ) : requests.map((request: any) => {
         const decision = request.decision as string | null;
         const decided = !!decision;
-        const selected = decision === "rejected" ? "Negado" : decision === "accepted_follow_back" ? "Aceitar e Seguir de Volta" : decision === "accepted" ? "Aceito" : null;
+        const selected = decision === "rejected" ? "Negado" : decision === "accepted_follow_back" ? "Seguindo" : decision === "accepted" ? "Aceito" : null;
         return <div key={request.id} className={`rounded-xl border p-3 ${decided ? "bg-secondary/20 border-border/30" : "bg-card border-primary/20"}`}>
           <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0"><span className="text-xs font-bold text-primary">{(request.followerName || "?")[0].toUpperCase()}</span></div><div className="min-w-0 flex-1"><p className="text-sm font-medium text-foreground truncate">{request.followerName || "Usuário"}</p><p className="text-xs text-muted-foreground">@{request.followerUsername || "usuário"}</p></div></div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
-            <button disabled={busy || decided} onClick={() => reject.mutate({ followId: request.id })} className={`px-2 py-2 rounded-lg border text-xs font-medium transition-colors ${decision === "rejected" ? "bg-red-500/25 border-red-500/60 text-red-300" : "border-red-500/30 text-red-400 hover:bg-red-500/10"} disabled:opacity-60`}><X className="w-3.5 h-3.5 inline mr-1" />Negar</button>
-            <button disabled={busy || decided} onClick={() => accept.mutate({ followId: request.id })} className={`px-2 py-2 rounded-lg border text-xs font-medium transition-colors ${decision === "accepted" ? "bg-blue-500/25 border-blue-500/60 text-blue-300" : "border-blue-500/30 text-blue-400 hover:bg-blue-500/10"} disabled:opacity-60`}><Check className="w-3.5 h-3.5 inline mr-1" />Aceitar</button>
-            <button disabled={busy || decided} onClick={() => acceptBack.mutate({ followId: request.id })} className={`px-2 py-2 rounded-lg border text-xs font-medium transition-colors ${decision === "accepted_follow_back" ? "bg-green-500/25 border-green-500/60 text-green-300" : "border-green-500/30 text-green-400 hover:bg-green-500/10"} disabled:opacity-60`}><UserCheck className="w-3.5 h-3.5 inline mr-1" />Aceitar e Seguir de Volta</button>
-          </div>
+          {decided ? (
+            <div className={`mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium ${decision === "accepted_follow_back" ? "bg-green-500/25 border-green-500/60 text-green-300" : decision === "accepted" ? "bg-blue-500/25 border-blue-500/60 text-blue-300" : "bg-red-500/25 border-red-500/60 text-red-300"}`}>
+              {decision === "accepted_follow_back" ? <UserCheck className="w-3.5 h-3.5" /> : decision === "accepted" ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+              {decision === "accepted_follow_back" ? "Seguindo" : decision === "accepted" ? "Aceito" : "Negado"}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
+              <button disabled={busy} onClick={() => reject.mutate({ followId: request.id })} className="w-full px-2 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 disabled:opacity-60 text-xs font-medium"><X className="w-3.5 h-3.5 inline mr-1" />Negar</button>
+              <button disabled={busy} onClick={() => accept.mutate({ followId: request.id })} className="w-full px-2 py-2 rounded-lg border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 disabled:opacity-60 text-xs font-medium"><Check className="w-3.5 h-3.5 inline mr-1" />Aceitar</button>
+              <button disabled={busy} onClick={() => acceptBack.mutate({ followId: request.id })} className="w-full px-2 py-2 rounded-lg border border-green-500/30 text-green-400 hover:bg-green-500/10 disabled:opacity-60 text-xs font-medium"><UserCheck className="w-3.5 h-3.5 inline mr-1" />Aceitar e Seguir</button>
+            </div>
+          )}
           {selected && <p className="text-[11px] text-muted-foreground mt-2">Decisão registrada: <span className="font-semibold text-foreground">{selected}</span></p>}
         </div>;
       })}

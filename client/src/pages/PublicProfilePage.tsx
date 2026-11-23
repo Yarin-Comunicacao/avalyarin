@@ -145,7 +145,7 @@ export default function PublicProfilePage() {
     <div className="min-h-screen bg-background">
       <Navbar  />
 
-      <div className="container safe-area-page-top pb-12">
+      <div className="container safe-area-page-top public-profile-page-top pb-12">
         {/* Back button */}
         <button
           onClick={() => window.history.back()}

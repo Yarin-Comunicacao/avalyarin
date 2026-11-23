@@ -462,48 +462,33 @@ export default function NotificacoesPage() {
               ) : pendingRequests && pendingRequests.length > 0 ? (
                 pendingRequests.map((req: any) => (
                   <div key={req.id} className={`rounded-xl border p-4 ${req.decision ? "bg-secondary/20 border-border/30" : "bg-card border-border/50"}`}>
-                    {req.decision && <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-primary" /> Decisão registrada: <strong className="text-foreground">{req.decision === "rejected" ? "Negar" : req.decision === "accepted_follow_back" ? "Aceitar e Seguir de Volta" : "Aceitar"}</strong></div>}
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
-                        {req.followerPhoto ? (
-                          <img src={req.followerPhoto} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-sm font-bold text-primary">{(req.followerName || "?")[0].toUpperCase()}</span>
-                        )}
+                    {req.decision && <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-primary" /> Decisão registrada: <strong className="text-foreground">{req.decision === "rejected" ? "Negado" : req.decision === "accepted_follow_back" ? "Seguindo" : "Aceito"}</strong></div>}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0">
+                          {req.followerPhoto ? (
+                            <img src={req.followerPhoto} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-sm font-bold text-primary">{(req.followerName || "?")[0].toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
+                          <p className="text-xs text-muted-foreground truncate">@{req.followerUsername}</p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
-                        <p className="text-xs text-muted-foreground">@{req.followerUsername}</p>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
-                        <button
-                          onClick={() => acceptAndFollowBackMutation.mutate({ followId: req.id })}
-                          disabled={!!req.decision || acceptAndFollowBackMutation.isPending || acceptRequestMutation.isPending || rejectRequestMutation.isPending}
-                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "accepted_follow_back" ? "bg-green-500/30 border-green-500/70 text-green-300" : "bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30"}`}
-                          title="Aceitar e seguir de volta"
-                        >
-                          <UserCheck className="w-3.5 h-3.5" />
-                          <span className="text-[10px] font-medium hidden sm:inline">Aceitar e Seguir</span>
-                        </button>
-                        <button
-                          onClick={() => acceptRequestMutation.mutate({ followId: req.id })}
-                          disabled={!!req.decision || acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending || rejectRequestMutation.isPending}
-                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "accepted" ? "bg-blue-500/30 border-blue-500/70 text-blue-300" : "bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30"}`}
-                          title="Aceitar sem seguir de volta"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span className="text-[10px] font-medium hidden sm:inline">Aceitar</span>
-                        </button>
-                        <button
-                          onClick={() => rejectRequestMutation.mutate({ followId: req.id })}
-                          disabled={!!req.decision || rejectRequestMutation.isPending || acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending}
-                          className={`px-2 py-1.5 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-60 ${req.decision === "rejected" ? "bg-red-500/30 border-red-500/70 text-red-300" : "bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30"}`}
-                          title="Negar"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          <span className="text-[10px] font-medium hidden sm:inline">Negar</span>
-                        </button>
-                      </div>
+                      {req.decision ? (
+                        <div className={`sm:ml-auto inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium ${req.decision === "accepted_follow_back" ? "bg-green-500/25 border-green-500/60 text-green-300" : req.decision === "accepted" ? "bg-blue-500/25 border-blue-500/60 text-blue-300" : "bg-red-500/25 border-red-500/60 text-red-300"}`}>
+                          {req.decision === "accepted_follow_back" ? <UserCheck className="w-3.5 h-3.5" /> : req.decision === "accepted" ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                          {req.decision === "accepted_follow_back" ? "Seguindo" : req.decision === "accepted" ? "Aceito" : "Negado"}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full sm:w-auto sm:ml-auto">
+                          <button onClick={() => acceptAndFollowBackMutation.mutate({ followId: req.id })} disabled={acceptAndFollowBackMutation.isPending || acceptRequestMutation.isPending || rejectRequestMutation.isPending} className="w-full px-3 py-2 rounded-lg border bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30 disabled:opacity-60 flex items-center justify-center gap-1.5 text-xs font-medium"><UserCheck className="w-3.5 h-3.5" />Aceitar e Seguir</button>
+                          <button onClick={() => acceptRequestMutation.mutate({ followId: req.id })} disabled={acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending || rejectRequestMutation.isPending} className="w-full px-3 py-2 rounded-lg border bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30 disabled:opacity-60 flex items-center justify-center gap-1.5 text-xs font-medium"><Check className="w-3.5 h-3.5" />Aceitar</button>
+                          <button onClick={() => rejectRequestMutation.mutate({ followId: req.id })} disabled={rejectRequestMutation.isPending || acceptRequestMutation.isPending || acceptAndFollowBackMutation.isPending} className="w-full px-3 py-2 rounded-lg border bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30 disabled:opacity-60 flex items-center justify-center gap-1.5 text-xs font-medium"><X className="w-3.5 h-3.5" />Negar</button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))

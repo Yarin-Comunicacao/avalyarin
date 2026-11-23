@@ -88,7 +88,7 @@ export async function acceptAndFollowBack(followId: number, userId: number) {
 
   // Follow back: get the follower's ID and create reverse follow
   if (request.followerId !== userId) {
-    await upsertFollow(db, userId, request.followerId, "pending");
+    await upsertFollow(db, userId, request.followerId, "accepted");
   }
 }
 
