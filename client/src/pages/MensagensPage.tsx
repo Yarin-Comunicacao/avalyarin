@@ -36,7 +36,14 @@ function DateSeparator({ label }: { label: string }) {
 function FollowRequestsPanel() {
   const { data: requests, isLoading } = trpc.social.pendingRequests.useQuery();
   const utils = trpc.useUtils();
-  const refresh = () => { utils.social.pendingRequests.invalidate(); utils.social.pendingCount.invalidate(); };
+  const refresh = () => {
+    utils.social.pendingRequests.invalidate();
+    utils.social.pendingCount.invalidate();
+    utils.social.counts.invalidate();
+    utils.social.followers.invalidate();
+    utils.social.following.invalidate();
+    utils.social.isFollowing.invalidate();
+  };
   const accept = trpc.social.acceptRequest.useMutation({ onSuccess: refresh, onError: (e) => toast.error(e.message) });
   const acceptBack = trpc.social.acceptAndFollowBack.useMutation({ onSuccess: refresh, onError: (e) => toast.error(e.message) });
   const reject = trpc.social.rejectRequest.useMutation({ onSuccess: refresh, onError: (e) => toast.error(e.message) });

@@ -293,27 +293,32 @@ export default function NotificacoesPage() {
   // ALL hooks must be called before any early return
   const { data: pendingRequests, isLoading: pendingLoading } = trpc.social.pendingRequests.useQuery();
   const { data: pendingCount } = trpc.social.pendingCount.useQuery();
+  const refreshSocialQueries = () => {
+    utils.social.pendingRequests.invalidate();
+    utils.social.pendingCount.invalidate();
+    utils.social.counts.invalidate();
+    utils.social.followers.invalidate();
+    utils.social.following.invalidate();
+    utils.social.isFollowing.invalidate();
+  };
   const acceptRequestMutation = trpc.social.acceptRequest.useMutation({
     onSuccess: () => {
       toast.success("Solicitação aceita!");
-      utils.social.pendingRequests.invalidate();
-      utils.social.pendingCount.invalidate();
+      refreshSocialQueries();
     },
     onError: () => toast.error("Erro ao aceitar solicitação"),
   });
   const acceptAndFollowBackMutation = trpc.social.acceptAndFollowBack.useMutation({
     onSuccess: () => {
       toast.success("Aceito! Agora vocês se seguem mutuamente.");
-      utils.social.pendingRequests.invalidate();
-      utils.social.pendingCount.invalidate();
+      refreshSocialQueries();
     },
     onError: () => toast.error("Erro ao aceitar solicitação"),
   });
   const rejectRequestMutation = trpc.social.rejectRequest.useMutation({
     onSuccess: () => {
       toast("Solicitação recusada");
-      utils.social.pendingRequests.invalidate();
-      utils.social.pendingCount.invalidate();
+      refreshSocialQueries();
     },
     onError: () => toast.error("Erro ao recusar solicitação"),
   });

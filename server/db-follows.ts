@@ -257,11 +257,19 @@ export async function getFollowCounts(userId: number) {
   const [followersCount] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(userFollows)
-    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "accepted")));
+    .where(and(
+      eq(userFollows.followingId, userId),
+      eq(userFollows.status, "accepted"),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    ));
   const [followingCount] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(userFollows)
-    .where(and(eq(userFollows.followerId, userId), eq(userFollows.status, "accepted")));
+    .where(and(
+      eq(userFollows.followerId, userId),
+      eq(userFollows.status, "accepted"),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    ));
   return {
     followers: followersCount?.count || 0,
     following: followingCount?.count || 0,
@@ -276,7 +284,11 @@ export async function getMutualFollows(userId: number) {
     FROM user_follows f1
     INNER JOIN user_follows f2 ON f1.followingId = f2.followerId AND f1.followerId = f2.followingId
     INNER JOIN users u ON u.id = f1.followingId
-    WHERE f1.followerId = ${userId} AND f1.status = 'accepted' AND f2.status = 'accepted'
+    WHERE f1.followerId = ${userId}
+      AND f1.status = 'accepted'
+      AND f2.status = 'accepted'
+      AND (f1.decision IS NULL OR f1.decision <> 'rejected')
+      AND (f2.decision IS NULL OR f2.decision <> 'rejected')
     ORDER BY u.name ASC
   `);
   return (rows as any)[0] as any[];
@@ -423,6 +435,8 @@ export async function searchMutualFollows(userId: number, query: string) {
     WHERE f1.followerId = ${userId}
       AND f1.status = 'accepted'
       AND f2.status = 'accepted'
+      AND (f1.decision IS NULL OR f1.decision <> 'rejected')
+      AND (f2.decision IS NULL OR f2.decision <> 'rejected')
       AND (${!hasQuery} OR u.name LIKE ${searchTerm} OR u.username LIKE ${searchTerm})
     ORDER BY u.name ASC
     LIMIT 20

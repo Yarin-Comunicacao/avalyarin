@@ -1,4 +1,4 @@
-import { eq, and, or, desc, sql, like, isNull } from "drizzle-orm";
+import { eq, and, or, desc, sql, like, isNull, ne } from "drizzle-orm";
 import { getDb, generateCode } from "./db";
 import {
   groups, groupMembers, groupInvites, groupSharedRatings, userPlans,
@@ -314,13 +314,23 @@ export async function inviteToGroup(groupId: number, inviterId: number, inviteeI
     const [inviterFollowsInvitee] = await db
       .select({ id: userFollows.id })
       .from(userFollows)
-      .where(and(eq(userFollows.followerId, inviterId), eq(userFollows.followingId, inviteeId), eq(userFollows.status, "accepted")))
+      .where(and(
+        eq(userFollows.followerId, inviterId),
+        eq(userFollows.followingId, inviteeId),
+        eq(userFollows.status, "accepted"),
+        or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+      ))
       .limit(1);
     // Check invitee follows inviter
     const [inviteeFollowsInviter] = await db
       .select({ id: userFollows.id })
       .from(userFollows)
-      .where(and(eq(userFollows.followerId, inviteeId), eq(userFollows.followingId, inviterId), eq(userFollows.status, "accepted")))
+      .where(and(
+        eq(userFollows.followerId, inviteeId),
+        eq(userFollows.followingId, inviterId),
+        eq(userFollows.status, "accepted"),
+        or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+      ))
       .limit(1);
     if (!inviterFollowsInvitee || !inviteeFollowsInviter) {
       throw new Error("INVITE_RESTRICTED: Você só pode convidar amigos mútuos (seguir e ser seguido)");
