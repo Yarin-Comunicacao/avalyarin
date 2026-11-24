@@ -59,7 +59,23 @@ function FollowRequestsPanel() {
         const decided = !!decision;
         const selected = decision === "rejected" ? "Negado" : decision === "accepted_follow_back" ? "Seguindo" : decision === "accepted" ? "Aceito" : null;
         return <div key={request.id} className={`rounded-xl border p-3 ${decided ? "bg-secondary/20 border-border/30" : "bg-card border-primary/20"}`}>
-          <div className="flex items-center gap-3"><div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0"><span className="text-xs font-bold text-primary">{(request.followerName || "?")[0].toUpperCase()}</span></div><div className="min-w-0 flex-1"><p className="text-sm font-medium text-foreground truncate">{request.followerName || "Usuário"}</p><p className="text-xs text-muted-foreground">@{request.followerUsername || "usuário"}</p></div></div>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/perfil/${request.followerUsername || request.followerId}`}
+              className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-primary/40 transition-all"
+              aria-label={`Abrir perfil de ${request.followerName || request.followerUsername || "usuário"}`}
+            >
+              {request.followerPhoto ? (
+                <img src={request.followerPhoto} alt={request.followerName || "Solicitante"} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span className="text-xs font-bold text-primary">{(request.followerName || "?")[0].toUpperCase()}</span>
+              )}
+            </Link>
+            <Link href={`/perfil/${request.followerUsername || request.followerId}`} className="min-w-0 flex-1 hover:opacity-80 transition-opacity">
+              <p className="text-sm font-medium text-foreground truncate">{request.followerName || "Usuário"}</p>
+              <p className="text-xs text-muted-foreground">@{request.followerUsername || "usuário"}</p>
+            </Link>
+          </div>
           {decided ? (
             <div className={`mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium ${decision === "accepted_follow_back" ? "bg-green-500/25 border-green-500/60 text-green-300" : decision === "accepted" ? "bg-blue-500/25 border-blue-500/60 text-blue-300" : "bg-red-500/25 border-red-500/60 text-red-300"}`}>
               {decision === "accepted_follow_back" ? <UserCheck className="w-3.5 h-3.5" /> : decision === "accepted" ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}

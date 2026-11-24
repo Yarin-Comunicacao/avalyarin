@@ -385,6 +385,7 @@ export async function getPendingInvites(userId: number) {
       groupType: groups.type,
       inviterName: users.name,
       inviterUsername: users.username,
+      inviterPhoto: users.profilePhotoUrl,
     })
     .from(groupInvites)
     .innerJoin(groups, eq(groupInvites.groupId, groups.id))

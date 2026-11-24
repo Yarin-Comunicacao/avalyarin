@@ -155,8 +155,20 @@ function GroupNotificationsTab() {
                 key={invite.id}
                 className="p-4 rounded-xl bg-primary/5 border border-primary/20"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <Link
+                      href={`/perfil/${invite.inviterUsername || invite.inviterId}`}
+                      className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0 hover:ring-2 hover:ring-primary/40 transition-all"
+                      aria-label={`Abrir perfil de ${invite.inviterName || invite.inviterUsername || "usuário"}`}
+                    >
+                      {invite.inviterPhoto ? (
+                        <img src={invite.inviterPhoto} alt={invite.inviterName || "Convite"} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm font-bold text-primary">{(invite.inviterName || invite.inviterUsername || "?")[0].toUpperCase()}</span>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       {invite.groupType === "specialist" ? (
                         <Crown className="w-4 h-4 text-primary" />
@@ -166,8 +178,9 @@ function GroupNotificationsTab() {
                       <p className="text-sm font-medium text-foreground">{invite.groupName}</p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Convidado por @{invite.inviterUsername}
+                      Convidado por <Link href={`/perfil/${invite.inviterUsername || invite.inviterId}`} className="hover:text-primary transition-colors">@{invite.inviterUsername}</Link>
                     </p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -470,17 +483,21 @@ export default function NotificacoesPage() {
                     {req.decision && <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><CheckCircle2 className="w-4 h-4 text-primary" /> Decisão registrada: <strong className="text-foreground">{req.decision === "rejected" ? "Negado" : req.decision === "accepted_follow_back" ? "Seguindo" : "Aceito"}</strong></div>}
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0">
+                        <Link
+                          href={`/perfil/${req.followerUsername || req.followerId}`}
+                          className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0 hover:ring-2 hover:ring-primary/40 transition-all"
+                          aria-label={`Abrir perfil de ${req.followerName || req.followerUsername || "usuário"}`}
+                        >
                           {req.followerPhoto ? (
-                            <img src={req.followerPhoto} alt="" className="w-full h-full object-cover" />
+                            <img src={req.followerPhoto} alt={req.followerName || "Solicitante"} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-sm font-bold text-primary">{(req.followerName || "?")[0].toUpperCase()}</span>
                           )}
-                        </div>
-                        <div className="min-w-0">
+                        </Link>
+                        <Link href={`/perfil/${req.followerUsername || req.followerId}`} className="min-w-0 hover:opacity-80 transition-opacity">
                           <p className="text-sm font-medium text-foreground truncate">{req.followerName}</p>
                           <p className="text-xs text-muted-foreground truncate">@{req.followerUsername}</p>
-                        </div>
+                        </Link>
                       </div>
                       {req.decision ? (
                         <div className={`sm:ml-auto inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium ${req.decision === "accepted_follow_back" ? "bg-green-500/25 border-green-500/60 text-green-300" : req.decision === "accepted" ? "bg-blue-500/25 border-blue-500/60 text-blue-300" : "bg-red-500/25 border-red-500/60 text-red-300"}`}>
