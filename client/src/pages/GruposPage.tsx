@@ -12,7 +12,7 @@ import {
   ListOrdered, UserCircle, PlusCircle, MapPin, BarChart3, Image as ImageIcon
 } from "lucide-react";
 import { useOwnerView } from "@/contexts/OwnerViewContext";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import GroupChat from "@/components/GroupChat";
 import CreatePollModal, { PollTypeDropdown } from "@/components/CreatePollModal";
 import FourPointStar from "@/components/FourPointStar";
@@ -2195,16 +2195,17 @@ function PeopleSearchSection() {
 
 export default function GruposPage({ embedded }: { embedded?: boolean } = {}) {
   const [location, navigate] = useLocation();
-  const getTabFromUrl = useCallback((path: string) => {
-    const tab = new URLSearchParams(path.split("?")[1] || "").get("tab");
+  const search = useSearch();
+  const getTabFromUrl = useCallback((path: string, currentSearch = "") => {
+    const query = currentSearch || path.split("?")[1] || "";
+    const tab = new URLSearchParams(query).get("tab");
     return tab === "meus" || tab === "sigo" || tab === "pessoas" ? tab : "particular";
   }, []);
-  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">(() => getTabFromUrl(location));
-
+  const [activeTab, setActiveTab] = useState<"particular" | "meus" | "sigo" | "pessoas">(() => getTabFromUrl(location, search));
   useEffect(() => {
-    const tabFromUrl = getTabFromUrl(location);
+    const tabFromUrl = getTabFromUrl(location, search);
     setActiveTab((currentTab) => currentTab === tabFromUrl ? currentTab : tabFromUrl);
-  }, [location, getTabFromUrl]);
+  }, [location, search, getTabFromUrl]);
 
   const changeTab = useCallback((tab: "particular" | "meus" | "sigo" | "pessoas") => {
     setActiveTab(tab);

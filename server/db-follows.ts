@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { userFollows, userBlocks, directMessages, users } from "../drizzle/schema";
-import { eq, and, or, desc, sql, isNotNull } from "drizzle-orm";
+import { eq, and, or, desc, sql, isNotNull, isNull, ne } from "drizzle-orm";
 
 // ============ FOLLOW SYSTEM ============
 
@@ -94,15 +94,29 @@ export async function acceptAndFollowBack(followId: number, userId: number) {
 
 /**
  * Reject a pending follow request while keeping its history visible.
+ * Legacy accepted rows without a decision are removed when rejected so they
+ * cannot remain as active followers after the user denied the request.
  */
 export async function rejectFollowRequest(followId: number, userId: number) {
   const db = (await getDb())!;
-  await db.update(userFollows).set({
-    status: "accepted",
-    decision: "rejected",
-  }).where(
-    and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending"))
-  );
+  const [request] = await db
+    .select({ status: userFollows.status, decision: userFollows.decision })
+    .from(userFollows)
+    .where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId)))
+    .limit(1);
+
+  if (!request) return;
+
+  if (request.status === "pending") {
+    await db.update(userFollows).set({
+      status: "accepted",
+      decision: "rejected",
+    }).where(and(eq(userFollows.id, followId), eq(userFollows.followingId, userId), eq(userFollows.status, "pending")));
+  } else if (request.status === "accepted" && request.decision == null) {
+    await db.delete(userFollows).where(
+      and(eq(userFollows.id, followId), eq(userFollows.followingId, userId))
+    );
+  }
 }
 
 /**
@@ -150,13 +164,21 @@ export async function getPendingFollowCount(userId: number): Promise<number> {
 export async function getFollowDetails(followerId: number, followingId: number) {
   const db = (await getDb())!;
   const [row] = await db.select({ status: userFollows.status, createdAt: userFollows.createdAt })
-    .from(userFollows).where(and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId))).limit(1);
+    .from(userFollows).where(and(
+      eq(userFollows.followerId, followerId),
+      eq(userFollows.followingId, followingId),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    )).limit(1);
   return row ?? { status: "none" as const, createdAt: null };
 }
 export async function getFollowStatus(followerId: number, followingId: number): Promise<"none" | "pending" | "accepted"> {
   const db = (await getDb())!;
   const [row] = await db.select({ status: userFollows.status }).from(userFollows).where(
-    and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId))
+    and(
+      eq(userFollows.followerId, followerId),
+      eq(userFollows.followingId, followingId),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    )
   ).limit(1);
   if (!row) return "none";
   return row.status;
@@ -172,7 +194,12 @@ export async function unfollowUser(followerId: number, followingId: number) {
 export async function isFollowing(followerId: number, followingId: number): Promise<boolean> {
   const db = (await getDb())!;
   const [row] = await db.select({ id: userFollows.id }).from(userFollows).where(
-    and(eq(userFollows.followerId, followerId), eq(userFollows.followingId, followingId), eq(userFollows.status, "accepted"))
+    and(
+      eq(userFollows.followerId, followerId),
+      eq(userFollows.followingId, followingId),
+      eq(userFollows.status, "accepted"),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    )
   ).limit(1);
   return !!row;
 }
@@ -195,7 +222,11 @@ export async function getFollowers(userId: number) {
     })
     .from(userFollows)
     .innerJoin(users, eq(users.id, userFollows.followerId))
-    .where(and(eq(userFollows.followingId, userId), eq(userFollows.status, "accepted")))
+    .where(and(
+      eq(userFollows.followingId, userId),
+      eq(userFollows.status, "accepted"),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    ))
     .orderBy(desc(userFollows.createdAt));
   return rows;
 }
@@ -212,7 +243,11 @@ export async function getFollowing(userId: number) {
     })
     .from(userFollows)
     .innerJoin(users, eq(users.id, userFollows.followingId))
-    .where(and(eq(userFollows.followerId, userId), eq(userFollows.status, "accepted")))
+    .where(and(
+      eq(userFollows.followerId, userId),
+      eq(userFollows.status, "accepted"),
+      or(isNull(userFollows.decision), ne(userFollows.decision, "rejected"))
+    ))
     .orderBy(desc(userFollows.createdAt));
   return rows;
 }
